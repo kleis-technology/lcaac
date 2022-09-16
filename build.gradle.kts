@@ -14,6 +14,8 @@ plugins {
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
     id("org.jetbrains.qodana") version "0.1.13"
+    // Gradle Grammar kit Plugin
+    id("org.jetbrains.grammarkit") version "2021.2.2"
 }
 
 group = properties("pluginGroup")
@@ -22,6 +24,14 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs("src/main/gen")
+        }
+    }
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
@@ -48,6 +58,7 @@ qodana {
     showReport.set(System.getenv("QODANA_SHOW_REPORT")?.toBoolean() ?: false)
 }
 
+
 tasks {
     // Set the JVM compatibility versions
     properties("javaVersion").let {
@@ -62,6 +73,24 @@ tasks {
 
     wrapper {
         gradleVersion = properties("gradleVersion")
+    }
+
+    generateParser {
+        source.set("src/main/kotlin/com/github/albanseurat/lcaplugin/language/Lca.bnf")
+        targetRoot.set("src/main/gen")
+        pathToParser.set("com/github/albanseurat/lcaplugin/language/parser/LcaParser.java")
+        pathToPsiRoot.set("com/github/albanseurat/lcaplugin/psi")
+    }
+
+    generateLexer {
+        source.set("src/main/kotlin/com/github/albanseurat/lcaplugin/language/Lca.flex")
+        targetDir.set("src/main/gen/com/github/albanseurat/lcaplugin/language")
+        targetClass.set("LcaLexer")
+    }
+
+    compileKotlin {
+        dependsOn("generateLexer")
+        dependsOn("generateParser")
     }
 
     patchPluginXml {
@@ -112,5 +141,9 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
+    }
+
+    clean {
+        delete("${rootDir}/src/main/gen")
     }
 }

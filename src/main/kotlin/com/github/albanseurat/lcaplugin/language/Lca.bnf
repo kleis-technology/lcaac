@@ -1,0 +1,30 @@
+{
+  parserClass="com.github.albanseurat.lcaplugin.language.parser.LcaParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Lca"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.albanseurat.lcaplugin.psi"
+  psiImplPackage="com.github.albanseurat.lcaplugin.psi.impl"
+
+  elementTypeHolderClass="com.github.albanseurat.lcaplugin.psi.LcaTypes"
+  elementTypeClass="com.github.albanseurat.lcaplugin.psi.LcaElementType"
+  tokenTypeClass="com.github.albanseurat.lcaplugin.psi.LcaTokenType"
+
+  mixin("dataset_definition")="com.github.albanseurat.lcaplugin.language.psi.mixin.DatasetDefinitionMixin"
+  implements("dataset_definition")="com.intellij.psi.PsiNamedElement"
+
+  tokens=[
+      DATASET= 'dataset'
+      TECHNOSPHERE = 'technosphere'
+      IDENTIFIER = "regexp:\w+"
+      LBRACE = '{'
+      RBRACE = '}'
+      SPACE = "regexp:\s+"
+  ]
+}
+
+lcaFile ::= dataset_definition*
+
+dataset_definition ::= DATASET IDENTIFIER LBRACE RBRACE

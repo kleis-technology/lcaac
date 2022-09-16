@@ -9,6 +9,38 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.albanseurat.lcaplugin.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.albanseurat.lcaplugin.services.MyProjectService"/>
+        <fileType
+                name="LCA Definition File"
+                implementationClass="com.github.albanseurat.lcaplugin.LcaFileType"
+                fieldName="INSTANCE"
+                language="LCA"
+                extensions="lca"/>
+        <lang.parserDefinition
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.LcaParserDefinition"/>
+        <annotator
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaAnnotator"/>
+        <codeInsight.lineMarkerProvider
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>
+        <lang.foldingBuilder
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
+
+        <lang.syntaxHighlighterFactory
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+        <lang.psiStructureViewFactory
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureViewFactory"/>
+        <navbar implementation="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureAwareNavbar"/>
+
+        <lang.formatter
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
+
+
     </extensions>
 
     <applicationListeners>
