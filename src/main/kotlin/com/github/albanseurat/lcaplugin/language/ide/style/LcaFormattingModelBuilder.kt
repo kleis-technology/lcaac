@@ -3,6 +3,7 @@ package com.github.albanseurat.lcaplugin.language.ide.style
 import com.github.albanseurat.lcaplugin.LcaLanguage
 import com.github.albanseurat.lcaplugin.LcaLanguage.Companion.INSTANCE
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
+import com.github.albanseurat.lcaplugin.psi.LcaTypes.*
 import com.intellij.formatting.*
 import com.intellij.psi.codeStyle.CodeStyleSettings
 
@@ -13,10 +14,12 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
 
         private fun createSpaceBuilder(settings: CodeStyleSettings): SpacingBuilder {
             return SpacingBuilder(settings, INSTANCE)
-                .before(LcaTypes.DATASET_DEFINITION)
-                .blankLines(0)
-                .after(LcaTypes.DATASET_DEFINITION)
-                .blankLines(1)
+                .before(DATASET_DEFINITION)
+                .spacing(0, 0, 0, false, 1)
+                .betweenInside(IDENTIFIER, LBRACE, DATASET_DEFINITION)
+                .spacing(1, 1, 0, false, 0)
+                .betweenInside(LBRACE, RBRACE, DATASET_DEFINITION)
+                .spacing(0 , 0, 2, false, 0);
         }
     }
 

@@ -1,16 +1,11 @@
 package com.github.albanseurat.lcaplugin.language.ide.style
 
-import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.intellij.formatting.*
-import com.intellij.formatting.WrapType.NONE
 import com.intellij.lang.ASTNode
 import com.intellij.psi.formatter.common.AbstractBlock
-import com.intellij.psi.tree.TokenSet.create
+import com.intellij.psi.tree.TokenSet.*
 
-class LcaFileBlock(
-    node: ASTNode, wrap: Wrap, alignment: Alignment,
-    private val spaceBuilder: SpacingBuilder,
-) :
+class LcaAstBlock(node: ASTNode, wrap: Wrap, alignment: Alignment, private val spaceBuilder: SpacingBuilder) :
     AbstractBlock(node, wrap, alignment) {
 
     override fun getSpacing(child1: Block?, child2: Block): Spacing? {
@@ -18,15 +13,16 @@ class LcaFileBlock(
     }
 
     override fun isLeaf(): Boolean {
-        return false
+        return myNode.getChildren(ANY).isNotEmpty()
     }
 
     override fun buildChildren(): List<Block> {
-        val alignment = Alignment.createAlignment();
-        return myNode.getChildren(create(LcaTypes.DATASET_DEFINITION)).map {
+        val alignment = Alignment.createAlignment()
+        println(myNode.getChildren(ANY).contentToString())
+        return myNode.getChildren(andNot(ANY, WHITE_SPACE)).map {
             LcaAstBlock(
                 it,
-                Wrap.createWrap(NONE, false),
+                Wrap.createWrap(WrapType.NONE, false),
                 alignment,
                 spaceBuilder
             )
