@@ -40,6 +40,9 @@
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
 
+        <lang.braceMatcher language="LCA"
+                           implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
+
 
     </extensions>
 

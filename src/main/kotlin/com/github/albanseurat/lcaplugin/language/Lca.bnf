@@ -27,4 +27,6 @@
 
 lcaFile ::= dataset_definition*
 
-dataset_definition ::= DATASET IDENTIFIER LBRACE RBRACE
+dataset_definition ::= DATASET IDENTIFIER LBRACE dataset_body RBRACE
+
+dataset_body ::= '...'
