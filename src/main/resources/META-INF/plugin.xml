@@ -7,6 +7,11 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <moduleType
+                id="LCA_MODULE_TYPE"
+                implementationClass="com.github.albanseurat.lcaplugin.project.LcaModuleType"/>
+
         <applicationService serviceImplementation="com.github.albanseurat.lcaplugin.services.MyApplicationService"/>
         <projectService serviceImplementation="com.github.albanseurat.lcaplugin.services.MyProjectService"/>
         <fileType
@@ -45,6 +50,13 @@
 
 
     </extensions>
+
+    <actions>
+        <action id="Lca.NewFile" class="com.github.albanseurat.lcaplugin.actions.NewLcaFileAction"
+                text="LCA Datasets" description="Create a LCA file containing datasets">
+            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
+        </action>
+    </actions>
 
     <applicationListeners>
         <listener class="com.github.albanseurat.lcaplugin.listeners.MyProjectManagerListener"

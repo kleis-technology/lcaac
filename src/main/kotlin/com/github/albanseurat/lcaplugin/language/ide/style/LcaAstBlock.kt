@@ -18,7 +18,6 @@ class LcaAstBlock(node: ASTNode, wrap: Wrap, alignment: Alignment, private val s
 
     override fun buildChildren(): List<Block> {
         val alignment = Alignment.createAlignment()
-        println(myNode.getChildren(ANY).contentToString())
         return myNode.getChildren(andNot(ANY, WHITE_SPACE)).map {
             LcaAstBlock(
                 it,

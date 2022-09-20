@@ -23,7 +23,8 @@ Identifier = \w+
 
 %%
 
-<YYINITIAL> "dataset"         { return LcaTypes.DATASET; }
+<YYINITIAL> "dataset"         { return LcaTypes.DATASET_KEYWORD; }
+"technosphere"                { return LcaTypes.TECHNOSPHERE_KEYWORD; }
 {Identifier}                  { return LcaTypes.IDENTIFIER; }
 
 "{"                           { return LcaTypes.LBRACE; }

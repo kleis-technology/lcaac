@@ -16,8 +16,9 @@
   implements("dataset_definition")="com.intellij.psi.PsiNamedElement"
 
   tokens=[
-      DATASET= 'dataset'
-      TECHNOSPHERE = 'technosphere'
+      DATASET_KEYWORD= 'dataset'
+      TECHNOSPHERE_KEYWORD = 'technosphere'
+      BIOSPHERE_KEYWORD = 'biosphere'
       IDENTIFIER = "regexp:\w+"
       LBRACE = '{'
       RBRACE = '}'
@@ -27,6 +28,10 @@
 
 lcaFile ::= dataset_definition*
 
-dataset_definition ::= DATASET IDENTIFIER LBRACE dataset_body RBRACE
+dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
 
-dataset_body ::= '...'
+dataset_body ::= technosphere? biosphere?
+
+technosphere ::= TECHNOSPHERE_KEYWORD LBRACE RBRACE
+
+biosphere ::= BIOSPHERE_KEYWORD LBRACE RBRACE

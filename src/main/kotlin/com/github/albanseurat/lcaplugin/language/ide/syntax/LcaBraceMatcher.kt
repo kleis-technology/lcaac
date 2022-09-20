@@ -1,7 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.ide.syntax
 
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
-import com.intellij.json.JsonElementTypes
 import com.intellij.lang.BracePair
 import com.intellij.lang.PairedBraceMatcher
 import com.intellij.psi.PsiFile

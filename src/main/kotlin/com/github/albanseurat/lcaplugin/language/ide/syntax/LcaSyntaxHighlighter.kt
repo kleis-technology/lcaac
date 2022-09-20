@@ -28,7 +28,7 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
     }
 
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> {
-        if (tokenType == LcaTypes.DATASET) {
+        if (tokenType == LcaTypes.DATASET_KEYWORD) {
             return DATASET_KEYS
         } else if (tokenType == LcaTypes.IDENTIFIER) {
             return IDENTIFIER_KEYS
