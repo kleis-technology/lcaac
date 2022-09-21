@@ -17,11 +17,15 @@
 
   tokens=[
       DATASET_KEYWORD= 'dataset'
-      TECHNOSPHERE_KEYWORD = 'technosphere'
-      BIOSPHERE_KEYWORD = 'biosphere'
+      INPUTS_KEYWORD = 'inputs'
+      PRODUCTS_KEYWORD = 'products'
+      RESOURCES_KEYWORD = 'resources'
+      EMISSIONS_KEYWORD = 'emissions'
       IDENTIFIER = "regexp:\w+"
+      NUMBER = "regexp:\d+"
       LBRACE = '{'
       RBRACE = '}'
+      LIST_ITEM = '-'
       SPACE = "regexp:\s+"
   ]
 }
@@ -30,8 +34,16 @@ lcaFile ::= dataset_definition*
 
 dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
 
-dataset_body ::= technosphere? biosphere?
+dataset_body ::= products? inputs? resources? emissions?
 
-technosphere ::= TECHNOSPHERE_KEYWORD LBRACE RBRACE
+inputs ::= INPUTS_KEYWORD LBRACE exchanges RBRACE
 
-biosphere ::= BIOSPHERE_KEYWORD LBRACE RBRACE
+products ::= PRODUCTS_KEYWORD LBRACE exchanges RBRACE
+
+resources ::= RESOURCES_KEYWORD LBRACE exchanges RBRACE
+
+emissions ::= EMISSIONS_KEYWORD LBRACE exchanges RBRACE
+
+exchanges ::= exchange*
+
+exchange ::= LIST_ITEM IDENTIFIER NUMBER IDENTIFIER
