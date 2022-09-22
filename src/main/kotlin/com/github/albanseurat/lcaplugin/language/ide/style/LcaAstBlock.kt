@@ -7,7 +7,7 @@ import com.intellij.psi.formatter.common.AbstractBlock
 import com.intellij.psi.tree.TokenSet.*
 
 class LcaAstBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
-    AbstractBlock(node, null, null) {
+    AbstractBlock(node, null, Alignment.createAlignment()) {
 
     override fun getSpacing(child1: Block?, child2: Block): Spacing? {
         return spaceBuilder.getSpacing(this, child1, child2)
