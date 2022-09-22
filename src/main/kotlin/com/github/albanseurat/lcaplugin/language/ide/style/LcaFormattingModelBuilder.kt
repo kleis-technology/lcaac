@@ -28,10 +28,8 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
         return FormattingModelProvider
             .createFormattingModelForPsiFile(
                 formattingContext.containingFile,
-                LcaFileBlock(
+                LcaAstBlock(
                     formattingContext.node,
-                    Wrap.createWrap(WrapType.NONE, false),
-                    Alignment.createAlignment(),
                     createSpaceBuilder(formattingContext.codeStyleSettings)
                 ),
                 formattingContext.codeStyleSettings

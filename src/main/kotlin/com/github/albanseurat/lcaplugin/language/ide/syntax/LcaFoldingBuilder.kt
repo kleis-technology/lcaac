@@ -33,7 +33,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 descriptors.add(
                     FoldingDescriptor(
                         definition,
-                        TextRange(braces[0].textOffset, braces[1].textOffset + 1)
+                        TextRange(braces[0].textOffset, braces[braces.size - 1].textOffset + 1)
                     )
                 )
             }

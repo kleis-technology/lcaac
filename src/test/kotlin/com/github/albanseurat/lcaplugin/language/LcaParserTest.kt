@@ -67,6 +67,31 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
 
+    @Test
+    fun testEmptyDataset()
+    {
+        parseFile("empty dataset", """
+            dataset empty {
+            }
+        """.trimIndent())
+
+        assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.IDENTIFIER)('empty')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.{)('{')
+                PsiWhiteSpace('\n')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  <empty list>
+                PsiElement(LcaTokenType.})('}')
+
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
     override fun getTestDataPath(): String {
         return ""
     }

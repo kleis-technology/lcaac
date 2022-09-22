@@ -2,6 +2,7 @@ package com.github.albanseurat.lcaplugin.language.ide.syntax
 
 import com.github.albanseurat.lcaplugin.language.LcaLexerAdapter
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
+import com.github.albanseurat.lcaplugin.psi.LcaTypes.*
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors.KEYWORD
@@ -13,7 +14,7 @@ import com.intellij.psi.tree.IElementType
 class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
 
     companion object {
-        val DATASET_KEYS = arrayOf(createTextAttributesKey("LCA_DATASET", KEYWORD))
+        val KEYWORD_KEYS = arrayOf(createTextAttributesKey("LCA_KEYWORD", KEYWORD))
         val IDENTIFIER_KEYS = arrayOf(
             createTextAttributesKey(
                 "IDENTIFIER",
@@ -28,11 +29,10 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
     }
 
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> {
-        if (tokenType == LcaTypes.DATASET_KEYWORD) {
-            return DATASET_KEYS
-        } else if (tokenType == LcaTypes.IDENTIFIER) {
-            return IDENTIFIER_KEYS
+        return when (tokenType) {
+            DATASET_KEYWORD, PRODUCTS_KEYWORD, EMISSIONS_KEYWORD, RESOURCES_KEYWORD, INPUTS_KEYWORD -> KEYWORD_KEYS
+            IDENTIFIER -> IDENTIFIER_KEYS
+            else -> EMPTY_KEYS
         }
-        return EMPTY_KEYS
     }
 }

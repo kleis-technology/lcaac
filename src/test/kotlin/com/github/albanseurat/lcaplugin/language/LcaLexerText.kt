@@ -4,7 +4,7 @@ import com.intellij.lexer.Lexer
 import com.intellij.testFramework.LexerTestCase
 import org.junit.Test
 
-class LcaLexerText : LexerTestCase() {
+internal class LcaLexerText : LexerTestCase() {
     override fun createLexer(): Lexer {
         return LcaLexerAdapter();
     }
@@ -68,5 +68,22 @@ class LcaLexerText : LexerTestCase() {
                 WHITE_SPACE ('\n                ')
             """.trimIndent()
         )
+    }
+
+    @Test
+    fun testEmptyDataset()
+    {
+        doTest("""
+            dataset empty { 
+            }
+        """.trimIndent(), """
+            LcaTokenType.dataset ('dataset')
+            WHITE_SPACE (' ')
+            LcaTokenType.IDENTIFIER ('empty')
+            WHITE_SPACE (' ')
+            LcaTokenType.{ ('{')
+            WHITE_SPACE (' \n')
+            LcaTokenType.} ('}')
+        """.trimIndent())
     }
 }
