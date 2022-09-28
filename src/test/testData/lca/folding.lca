@@ -1,0 +1,22 @@
+dataset Test <fold text='0 kg co2'>{
+    products <fold text='...'>{
+
+    }</fold>
+
+    inputs <fold text='...'>{
+        - item 10 kg
+    }</fold>
+}</fold>
+
+dataset Second <fold text='0 kg co2'>{
+
+}</fold>
+
+dataset third <fold text='0 kg co2'>{
+   resources <fold text='...'>{
+       - exchange 10 kg
+   }</fold>
+   emissions <fold text='...'>{
+       - co2 1 kg
+   }</fold>
+}</fold>

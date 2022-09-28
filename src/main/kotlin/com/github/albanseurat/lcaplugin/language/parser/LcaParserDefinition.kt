@@ -1,7 +1,6 @@
-package com.github.albanseurat.lcaplugin.language
+package com.github.albanseurat.lcaplugin.language.parser
 
 import com.github.albanseurat.lcaplugin.LcaLanguage
-import com.github.albanseurat.lcaplugin.language.parser.LcaParser
 import com.github.albanseurat.lcaplugin.language.psi.LcaFile
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.intellij.lang.ASTNode

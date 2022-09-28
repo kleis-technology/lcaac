@@ -7,6 +7,7 @@ import com.intellij.psi.TokenType;
 
 %%
 
+%public
 %class LcaLexer
 %implements FlexLexer
 %unicode
@@ -18,6 +19,7 @@ import com.intellij.psi.TokenType;
 
 WhiteSpace     = \s
 Identifier     = \w+
+Unit           = \w+
 
 Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
@@ -50,7 +52,7 @@ Number_Int = [0-9][0-9]*
         {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { yybegin(EXCHANGE_UNIT); return LcaTypes.NUMBER; }
     }
     <EXCHANGE_UNIT> {
-        {Identifier}                                     { yybegin(YYINITIAL); return LcaTypes.IDENTIFIER; }
+        {Unit}                                     { yybegin(YYINITIAL); return LcaTypes.UNIT; }
     }
 }
 

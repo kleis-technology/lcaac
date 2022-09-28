@@ -1,7 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.ide.syntax
 
-import com.github.albanseurat.lcaplugin.language.LcaLexerAdapter
-import com.github.albanseurat.lcaplugin.psi.LcaTypes
+import com.github.albanseurat.lcaplugin.language.parser.LcaLexerAdapter
 import com.github.albanseurat.lcaplugin.psi.LcaTypes.*
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors

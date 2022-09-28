@@ -1,5 +1,6 @@
 package com.github.albanseurat.lcaplugin.language
 
+import com.github.albanseurat.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import org.junit.Test
 
@@ -88,6 +89,67 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                   <empty list>
                 PsiElement(LcaTokenType.})('}')
 
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
+    @Test
+    fun testMultipleDatasets()
+    {
+        parseFile("multiple dataset", """
+            dataset first {
+                resources {
+                    - co2 1 kg
+                }
+            }
+            
+            dataset second {
+                products {
+                    - exchange 1 kg
+                }
+            }
+        """.trimIndent())
+
+        assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.IDENTIFIER)('first')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.{)('{')
+                PsiWhiteSpace('\n\n')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  <empty list>
+                PsiElement(LcaTokenType.})('}')
+              PsiWhiteSpace('\n\n')
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.IDENTIFIER)('second')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.{)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaProductsImpl(PRODUCTS)
+                    PsiElement(LcaTokenType.products)('products')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.{)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaExchangesImpl(EXCHANGES)
+                      LcaExchangeImpl(EXCHANGE)
+                        PsiElement(LcaTokenType.-)('-')
+                        PsiWhiteSpace(' ')
+                        PsiElement(LcaTokenType.IDENTIFIER)('exchange')
+                        PsiWhiteSpace(' ')
+                        PsiElement(LcaTokenType.NUMBER)('1')
+                        PsiWhiteSpace(' ')
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.})('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.})('}')
+            
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }

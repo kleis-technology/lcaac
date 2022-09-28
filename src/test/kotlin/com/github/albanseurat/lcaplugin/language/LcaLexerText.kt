@@ -1,5 +1,6 @@
 package com.github.albanseurat.lcaplugin.language
 
+import com.github.albanseurat.lcaplugin.language.parser.LcaLexerAdapter
 import com.intellij.lexer.Lexer
 import com.intellij.testFramework.LexerTestCase
 import org.junit.Test

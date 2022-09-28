@@ -23,7 +23,7 @@ class LcaAstBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
             return Indent.getNoneIndent()
         }
         return when(node.elementType) {
-            DATASET_BODY, EXCHANGES -> Indent.getNormalIndent(true)
+            DATASET_BODY, PRODUCT_EXCHANGE, INPUT_EXCHANGE, BIO_EXCHANGE -> Indent.getNormalIndent(true)
             else -> Indent.getNoneIndent()
         }
     }

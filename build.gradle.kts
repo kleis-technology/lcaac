@@ -34,6 +34,11 @@ sourceSets {
     }
 }
 
+dependencies {
+    implementation("javax.measure:unit-api:2.1.3")
+    implementation("tech.units:indriya:2.1.3")
+}
+
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
     pluginName.set(properties("pluginName"))
@@ -85,7 +90,7 @@ tasks {
     generateLexer {
         source.set("src/main/kotlin/com/github/albanseurat/lcaplugin/language/Lca.flex")
         targetDir.set("src/main/gen/com/github/albanseurat/lcaplugin/language")
-        targetClass.set("LcaLexer")
+        targetClass.set("parser.LcaLexer")
     }
 
     compileKotlin {

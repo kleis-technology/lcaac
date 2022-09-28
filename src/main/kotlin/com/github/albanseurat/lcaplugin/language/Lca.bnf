@@ -13,7 +13,18 @@
   tokenTypeClass="com.github.albanseurat.lcaplugin.psi.LcaTokenType"
 
   mixin("dataset_definition")="com.github.albanseurat.lcaplugin.language.psi.mixin.DatasetDefinitionMixin"
-  implements("dataset_definition")="com.intellij.psi.PsiNamedElement"
+  implements("dataset_definition")="com.intellij.psi.PsiNameIdentifierOwner"
+
+  mixin("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
+  implements("input_exchange")="com.intellij.psi.PsiNameIdentifierOwner"
+
+  mixin("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.ProductExchangeMixin"
+  implements("product_exchange")="com.intellij.psi.PsiNameIdentifierOwner"
+
+  mixin("quantity")="com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
+  implements("quantity")="com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement"
+
+  parserUtilClass="com.github.albanseurat.lcaplugin.language.parser.QuantityParser"
 
   tokens=[
       DATASET_KEYWORD= 'dataset'
@@ -22,6 +33,7 @@
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
       IDENTIFIER = "regexp:\w+"
+      UNIT = "regexp:\w+"
       NUMBER = "regexp:\d+"
       LBRACE = '{'
       RBRACE = '}'
@@ -36,14 +48,21 @@ dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
 
 dataset_body ::= products? inputs? resources? emissions?
 
-inputs ::= INPUTS_KEYWORD LBRACE exchanges RBRACE
+inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE
 
-products ::= PRODUCTS_KEYWORD LBRACE exchanges RBRACE
+products ::= PRODUCTS_KEYWORD LBRACE product_exchange* RBRACE
 
-resources ::= RESOURCES_KEYWORD LBRACE exchanges RBRACE
+resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
 
-emissions ::= EMISSIONS_KEYWORD LBRACE exchanges RBRACE
+emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 
-exchanges ::= exchange*
+input_exchange ::= exchange
 
-exchange ::= LIST_ITEM IDENTIFIER NUMBER IDENTIFIER
+product_exchange ::= exchange
+
+bio_exchange ::= exchange
+
+private exchange ::= LIST_ITEM IDENTIFIER NUMBER <<parseQuantity>>
+
+quantity ::= UNIT
+
