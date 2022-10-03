@@ -12,7 +12,7 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.util.ThrowableRunnable
 
 
-class CreateDatasetAction(private val dataset: String) : BaseIntentionAction() {
+class CreateDatasetAction(private val dataset: String, private val unitText: String?) : BaseIntentionAction() {
 
     override fun getText(): String {
         return "Create datataset '$dataset'"
@@ -33,7 +33,7 @@ class CreateDatasetAction(private val dataset: String) : BaseIntentionAction() {
                 .createFileFromText(
                     "_Dummy_.${LcaFileType.INSTANCE.defaultExtension}",
                     LcaFileType.INSTANCE,
-                    "\n\ndataset $dataset {\n products {\n - $dataset 1 TODO\n}\n}\n"
+                    "\n\ndataset $dataset {\n products {\n - $dataset 1 $unitText\n}\n}\n"
                 )
             file.node.addChildren(newDataset.firstChild.node, newDataset.lastChild.node, null);
             ReformatCodeProcessor(file, true).run()

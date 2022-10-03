@@ -87,4 +87,5 @@ internal class LcaLexerText : LexerTestCase() {
             LcaTokenType.} ('}')
         """.trimIndent())
     }
+
 }

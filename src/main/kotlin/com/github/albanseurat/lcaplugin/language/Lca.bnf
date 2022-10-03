@@ -16,10 +16,10 @@
   implements("dataset_definition")="com.intellij.psi.PsiNameIdentifierOwner"
 
   mixin("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
-  implements("input_exchange")="com.intellij.psi.PsiNameIdentifierOwner"
+  implements("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
 
   mixin("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.ProductExchangeMixin"
-  implements("product_exchange")="com.intellij.psi.PsiNameIdentifierOwner"
+  implements("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
 
   mixin("quantity")="com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
   implements("quantity")="com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement"
@@ -44,9 +44,9 @@
 
 lcaFile ::= dataset_definition*
 
-dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
+dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE {recoverWhile="next_dataset"}
 
-dataset_body ::= products? inputs? resources? emissions?
+dataset_body ::= (products | inputs | resources | emissions)*
 
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE
 
@@ -62,7 +62,11 @@ product_exchange ::= exchange
 
 bio_exchange ::= exchange
 
-private exchange ::= LIST_ITEM IDENTIFIER NUMBER <<parseQuantity>>
+private exchange ::= LIST_ITEM IDENTIFIER NUMBER <<parseQuantity>> {recoverWhile="next_exchange"}
+
+private next_exchange ::= !(LIST_ITEM | RBRACE)
+
+private next_dataset ::= !DATASET_KEYWORD
 
 quantity ::= UNIT
 

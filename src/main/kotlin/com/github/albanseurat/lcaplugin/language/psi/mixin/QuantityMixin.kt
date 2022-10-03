@@ -12,13 +12,17 @@ abstract class QuantityMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUni
         val parser: SimpleUnitFormat = SimpleUnitFormat.getInstance()
     }
 
-    private var unit: Unit<*> = parser.parse("kg")
+    private var unit: Unit<*>;
+
+    init {
+        unit = parser.parse(node.text)
+    }
 
     override fun getName(): String {
         return node.text
     }
 
     override fun getQuantityUnit(): Unit<*> {
-        return this.unit
+        return unit;
     }
 }

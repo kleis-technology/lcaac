@@ -154,6 +154,21 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
 
+    @Test
+    fun testFaultyQuantity() {
+        parseFile("empty dataset", """
+            dataset faulty {
+                inputs {
+                    - wheat 1 kwh
+                }
+            }
+        """.trimIndent())
+
+        assertEquals("""
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
     override fun getTestDataPath(): String {
         return ""
     }

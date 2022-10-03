@@ -11,7 +11,7 @@ class ProductReference(element: PsiElement, textRange: TextRange) : PsiReference
     private val datasetIdentifier: String
 
     init {
-        datasetIdentifier = element.text.substring(textRange.startOffset, textRange.endOffset);
+        datasetIdentifier = element.text.substring(textRange.startOffset, textRange.endOffset)
     }
 
     override fun resolve(): PsiElement? {
@@ -20,7 +20,8 @@ class ProductReference(element: PsiElement, textRange: TextRange) : PsiReference
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        return this.findProducts(element.project, datasetIdentifier).map { PsiElementResolveResult(it) }.toTypedArray()
+        return this.findProducts(element.project, datasetIdentifier)
+            .map { PsiElementResolveResult(it) }.toTypedArray()
     }
 
 }
