@@ -17,7 +17,7 @@ import com.intellij.psi.TokenType;
 %eof}
 
 
-WhiteSpace     = \s
+WhiteSpace     = \s+
 Identifier     = \w+
 Unit           = \w+
 
@@ -31,17 +31,17 @@ Number_Int = [0-9][0-9]*
 
 %%
 
-<YYINITIAL> "dataset"                { yybegin(DATASET_NAME); return LcaTypes.DATASET_KEYWORD; }
-<DATASET_NAME> {Identifier}          { yybegin(YYINITIAL); return LcaTypes.IDENTIFIER; }
+<YYINITIAL> "dataset"                { return LcaTypes.DATASET_KEYWORD; }
 
-"inputs"                             { return LcaTypes.INPUTS_KEYWORD; }
-"products"                           { return LcaTypes.PRODUCTS_KEYWORD; }
-"resources"                          { return LcaTypes.RESOURCES_KEYWORD; }
-"emissions"                          { return LcaTypes.EMISSIONS_KEYWORD; }
+<YYINITIAL> "inputs"                 { return LcaTypes.INPUTS_KEYWORD; }
+<YYINITIAL> "products"               { return LcaTypes.PRODUCTS_KEYWORD; }
+<YYINITIAL> "resources"              { return LcaTypes.RESOURCES_KEYWORD; }
+<YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
 
+<YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
 
-"{"                                  { return LcaTypes.LBRACE; }
-"}"                                  { return LcaTypes.RBRACE; }
+<YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
+<YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 "-"                                  { yybegin(EXCHANGE); return LcaTypes.LIST_ITEM; }
 
 
@@ -58,5 +58,5 @@ Number_Int = [0-9][0-9]*
 
 
 
-{WhiteSpace}+                 { return TokenType.WHITE_SPACE; }
+{WhiteSpace}                  { return TokenType.WHITE_SPACE; }
 [^]                           { return TokenType.BAD_CHARACTER; }

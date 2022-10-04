@@ -44,7 +44,7 @@
 
 lcaFile ::= dataset_definition*
 
-dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE {recoverWhile="next_dataset"}
+dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
 
 dataset_body ::= (products | inputs | resources | emissions)*
 
