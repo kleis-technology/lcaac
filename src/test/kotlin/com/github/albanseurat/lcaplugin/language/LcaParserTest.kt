@@ -161,6 +161,22 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 inputs {
                     - wheat 1 kwh
                 }
+                
+            }
+        """.trimIndent())
+
+        assertEquals("""
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
+    @Test
+    fun testMetaProperties() {
+        parseFile("meta properties", """
+            dataset props {
+                meta {
+                    test = "property value"
+                }
             }
         """.trimIndent())
 

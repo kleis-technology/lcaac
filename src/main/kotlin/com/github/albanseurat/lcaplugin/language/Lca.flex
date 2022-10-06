@@ -20,14 +20,13 @@ import com.intellij.psi.TokenType;
 WhiteSpace     = \s+
 Identifier     = \w+
 Unit           = \w+
+StringContent  = [\w\s]*
 
 Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
 
 
-%state EXCHANGE, EXCHANGE_AMOUNT, EXCHANGE_UNIT
-
-%state DATASET_NAME
+%state EXCHANGE, EXCHANGE_AMOUNT, EXCHANGE_UNIT, LITERAL_STRING
 
 %%
 
@@ -37,12 +36,17 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "products"               { return LcaTypes.PRODUCTS_KEYWORD; }
 <YYINITIAL> "resources"              { return LcaTypes.RESOURCES_KEYWORD; }
 <YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
+<YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
 
-<YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
-
+<YYINITIAL> "="                      { return LcaTypes.EQUALS; }
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 "-"                                  { yybegin(EXCHANGE); return LcaTypes.LIST_ITEM; }
+<YYINITIAL> \"                       { yybegin(LITERAL_STRING); return LcaTypes.LSTRING; }
+<LITERAL_STRING> {StringContent}     { return LcaTypes.STRING; }
+<LITERAL_STRING> \"                  { yybegin(YYINITIAL); return LcaTypes.RSTRING; }
+
+<YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
 
 
 <EXCHANGE>
@@ -55,6 +59,8 @@ Number_Int = [0-9][0-9]*
         {Unit}                                     { yybegin(YYINITIAL); return LcaTypes.UNIT; }
     }
 }
+
+
 
 
 

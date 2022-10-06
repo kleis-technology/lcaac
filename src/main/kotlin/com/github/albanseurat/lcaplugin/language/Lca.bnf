@@ -32,12 +32,16 @@
       PRODUCTS_KEYWORD = 'products'
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
+      META_KEYWORD = 'meta'
       IDENTIFIER = "regexp:\w+"
       UNIT = "regexp:\w+"
       NUMBER = "regexp:\d+"
-      LBRACE = '{'
-      RBRACE = '}'
-      LIST_ITEM = '-'
+      LBRACE = 'left-bracket'
+      EQUALS = 'equals'
+      RBRACE = 'right-bracker'
+      LIST_ITEM = 'list'
+      LSTRING = 'lstring'
+      RSTRING = 'rstring'
       SPACE = "regexp:\s+"
   ]
 }
@@ -46,7 +50,7 @@ lcaFile ::= dataset_definition*
 
 dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
 
-dataset_body ::= (products | inputs | resources | emissions)*
+dataset_body ::= (products | inputs | resources | emissions)* metadata?
 
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE
 
@@ -56,17 +60,23 @@ resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
 
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 
+metadata ::= META_KEYWORD LBRACE property* RBRACE
+
 input_exchange ::= exchange
 
 product_exchange ::= exchange
 
 bio_exchange ::= exchange
 
+property ::= IDENTIFIER EQUALS string
+
 private exchange ::= LIST_ITEM IDENTIFIER NUMBER <<parseQuantity>> {recoverWhile="next_exchange"}
 
 private next_exchange ::= !(LIST_ITEM | RBRACE)
 
 private next_dataset ::= !DATASET_KEYWORD
+
+private string ::= LSTRING STRING* RSTRING {pin=1}
 
 quantity ::= UNIT
 

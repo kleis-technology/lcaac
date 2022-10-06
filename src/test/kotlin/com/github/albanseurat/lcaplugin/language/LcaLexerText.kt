@@ -88,4 +88,17 @@ internal class LcaLexerText : LexerTestCase() {
         """.trimIndent())
     }
 
+
+    @Test
+    fun testMetaProperties() {
+        doTest("""
+            dataset props {
+                meta {
+                    test = "property value"
+                }
+            }
+        """.trimIndent(), """
+        """.trimIndent())
+
+    }
 }
