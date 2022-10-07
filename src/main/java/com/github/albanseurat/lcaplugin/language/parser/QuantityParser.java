@@ -5,6 +5,7 @@ import javax.measure.format.UnitFormat;
 
 import java.util.Objects;
 
+import com.github.albanseurat.lcaplugin.psi.LcaTokenType;
 import com.github.albanseurat.lcaplugin.psi.LcaTypes;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.parser.GeneratedParserUtilBase;
@@ -20,26 +21,19 @@ public class QuantityParser extends GeneratedParserUtilBase
 
     public static boolean parseQuantity(PsiBuilder builder, int level)
     {
-        var tokenType = builder.getTokenType();
-        PsiBuilder.Marker marker = builder.mark();
-        String tokenText = builder.getTokenText();
-        builder.advanceLexer();
-        if (UNIT.equals(tokenType))
+        final PsiBuilder.Marker marker = builder.mark();
+        String text = builder.getTokenText();
+        try
         {
-            try
-            {
-                parser.parse(tokenText);
-                marker.done(QUANTITY);
-
-            } catch (MeasurementParseException e)
-            {
-                marker.error(format("%s is not a valid unit", tokenText));
-            }
+            parser.parse(text);
+            builder.advanceLexer();
+            marker.done(QUANTITY);
             return true;
-        } else
+        } catch (MeasurementParseException e)
         {
-            marker.rollbackTo();
-            return false;
+            builder.advanceLexer();
+            marker.error(format("%s is not a valid unit", text));
+            return true;
         }
     }
 }

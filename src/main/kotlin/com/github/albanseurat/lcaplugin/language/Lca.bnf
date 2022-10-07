@@ -48,7 +48,7 @@
 
 lcaFile ::= dataset_definition*
 
-dataset_definition ::= DATASET_KEYWORD IDENTIFIER LBRACE dataset_body RBRACE
+dataset_definition ::= DATASET_KEYWORD (IDENTIFIER | string_literal) LBRACE dataset_body RBRACE
 
 dataset_body ::= (products | inputs | resources | emissions)* metadata?
 
@@ -62,21 +62,21 @@ emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 
 metadata ::= META_KEYWORD LBRACE property* RBRACE
 
-input_exchange ::= exchange
+meta input_exchange ::= exchange
 
-product_exchange ::= exchange
+meta product_exchange ::= exchange
 
-bio_exchange ::= exchange
+meta bio_exchange ::= exchange
 
-property ::= IDENTIFIER EQUALS string
+property ::= IDENTIFIER EQUALS string_literal
 
-private exchange ::= LIST_ITEM IDENTIFIER NUMBER <<parseQuantity>> {recoverWhile="next_exchange"}
+private exchange ::= LIST_ITEM (IDENTIFIER | string_literal) NUMBER <<parseQuantity>> {recoverWhile=next_exchange}
 
 private next_exchange ::= !(LIST_ITEM | RBRACE)
 
 private next_dataset ::= !DATASET_KEYWORD
 
-private string ::= LSTRING STRING* RSTRING {pin=1}
+private string_literal ::= LSTRING STRING* RSTRING
 
 quantity ::= UNIT
 

@@ -1,5 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.ide.insight
 
+import com.github.albanseurat.lcaplugin.actions.CreateDatasetAction
 import com.github.albanseurat.lcaplugin.psi.LcaInputExchange
 import com.github.albanseurat.lcaplugin.psi.LcaProductExchange
 import com.intellij.codeInspection.ProblemHighlightType

@@ -25,6 +25,7 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
         )
         val EMPTY_KEYS = emptyArray<TextAttributesKey>()
         val BAD_CHARACTER_KEYS = arrayOf(createTextAttributesKey("SIMPLE_BAD_CHARACTER", BAD_CHARACTER))
+        val STRING_LITERAL_KEYS = arrayOf(createTextAttributesKey("STRING_LITERAL", DefaultLanguageHighlighterColors.STRING ))
 
     }
 
@@ -36,6 +37,7 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
         return when (tokenType) {
             DATASET_KEYWORD, PRODUCTS_KEYWORD, META_KEYWORD, EMISSIONS_KEYWORD, RESOURCES_KEYWORD, INPUTS_KEYWORD -> KEYWORD_KEYS
             IDENTIFIER -> IDENTIFIER_KEYS
+            STRING, LSTRING, RSTRING -> STRING_LITERAL_KEYS
             TokenType.BAD_CHARACTER -> BAD_CHARACTER_KEYS
             else -> EMPTY_KEYS
         }

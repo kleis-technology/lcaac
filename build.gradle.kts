@@ -37,6 +37,7 @@ sourceSets {
 dependencies {
     implementation("javax.measure:unit-api:2.1.3")
     implementation("tech.units:indriya:2.1.3")
+    implementation("org.openlca:olca-simapro-csv:3.0.2")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin

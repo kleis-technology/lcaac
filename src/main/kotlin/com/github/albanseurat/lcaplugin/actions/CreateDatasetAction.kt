@@ -1,4 +1,4 @@
-package com.github.albanseurat.lcaplugin.language.ide.insight
+package com.github.albanseurat.lcaplugin.actions
 
 import com.github.albanseurat.lcaplugin.LcaFileType
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
