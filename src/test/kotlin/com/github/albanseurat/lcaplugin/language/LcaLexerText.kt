@@ -94,11 +94,45 @@ internal class LcaLexerText : LexerTestCase() {
         doTest("""
             dataset props {
                 meta {
-                    test = "property value"
+                    - test = "property value"
                 }
             }
         """.trimIndent(), """
+            LcaTokenType.dataset ('dataset')
+            WHITE_SPACE (' ')
+            LcaTokenType.IDENTIFIER ('props')
+            WHITE_SPACE (' ')
+            LcaTokenType.left-bracket ('{')
+            WHITE_SPACE ('\n    ')
+            LcaTokenType.meta ('meta')
+            WHITE_SPACE (' ')
+            LcaTokenType.left-bracket ('{')
+            WHITE_SPACE ('\n        ')
+            LcaTokenType.list ('-')
+            WHITE_SPACE (' ')
+            LcaTokenType.IDENTIFIER ('test')
+            WHITE_SPACE (' ')
+            BAD_CHARACTER ('=')
+            WHITE_SPACE (' ')
+            LcaTokenType.string ('"property value"')
+            WHITE_SPACE ('\n    ')
+            LcaTokenType.right-bracker ('}')
+            WHITE_SPACE ('\n')
+            LcaTokenType.right-bracker ('}')
         """.trimIndent())
 
+    }
+
+    @Test
+    fun testEscapedCharacter() {
+        doTest("""
+            dataset props {
+                meta {
+                    - test: "property \"value\""
+                }
+            }
+        """.trimIndent(), """
+            
+        """.trimIndent());
     }
 }

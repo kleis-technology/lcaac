@@ -49,10 +49,18 @@ Number_Int = [0-9][0-9]*
 
 
 
-<YYINITIAL> \"                       { yybegin(LITERAL_STRING); return LcaTypes.LSTRING; }
-<LITERAL_STRING> {StringContent}     { return LcaTypes.STRING; }
-<LITERAL_STRING> \"                  { yybegin(YYINITIAL); return LcaTypes.RSTRING; }
-<LITERAL_STRING> (\\[^])             { return LcaTypes.STRING; }
+<YYINITIAL> \"                       { yybegin(LITERAL_STRING); }
+
+
+<LITERAL_STRING> {
+  \"                             { yybegin(YYINITIAL); return LcaTypes.STRING; }
+  \\t                            {  }
+  \\n                            {  }
+  \\r                            {  }
+  \\\"                           {  }
+  \\                             {  }
+  [^\"\\]+                       {  }
+}
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }
 [^]                           { return TokenType.BAD_CHARACTER; }

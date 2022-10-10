@@ -117,49 +117,65 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.IDENTIFIER)('first')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.{)('{')
-                PsiWhiteSpace('\n\n')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
                 LcaDatasetBodyImpl(DATASET_BODY)
-                  <empty list>
-                PsiElement(LcaTokenType.})('}')
+                  LcaResourcesImpl(RESOURCES)
+                    PsiElement(LcaTokenType.resources)('resources')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaBioExchangeImpl(BIO_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.IDENTIFIER)('co2')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaQuantityImpl(QUANTITY)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
               PsiWhiteSpace('\n\n')
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.IDENTIFIER)('second')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.{)('{')
+                PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
                 LcaDatasetBodyImpl(DATASET_BODY)
                   LcaProductsImpl(PRODUCTS)
                     PsiElement(LcaTokenType.products)('products')
                     PsiWhiteSpace(' ')
-                    PsiElement(LcaTokenType.{)('{')
+                    PsiElement(LcaTokenType.left-bracket)('{')
                     PsiWhiteSpace('\n        ')
-                    LcaExchangesImpl(EXCHANGES)
-                      LcaExchangeImpl(EXCHANGE)
-                        PsiElement(LcaTokenType.-)('-')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('exchange')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.NUMBER)('1')
-                        PsiWhiteSpace(' ')
+                    LcaProductExchangeImpl(PRODUCT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.IDENTIFIER)('exchange')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaQuantityImpl(QUANTITY)
                         PsiElement(LcaTokenType.IDENTIFIER)('kg')
                     PsiWhiteSpace('\n    ')
-                    PsiElement(LcaTokenType.})('}')
+                    PsiElement(LcaTokenType.right-bracker)('}')
                 PsiWhiteSpace('\n')
-                PsiElement(LcaTokenType.})('}')
-            
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
 
     @Test
-    fun testFaultyQuantity() {
+    fun testQuantity() {
         parseFile("empty dataset", """
             dataset faulty {
                 inputs {
-                    - wheat 1 kwh
+                    - wheat 1 kg
                 }
                 
             }
@@ -192,7 +208,50 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         parseFile("meta properties", """
             dataset props {
                 meta {
-                    test = "property value"
+                    - test: "property value"
+                }
+            }
+        """.trimIndent())
+
+        assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.IDENTIFIER)('props')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaMetadataImpl(METADATA)
+                    PsiElement(LcaTokenType.meta)('meta')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaPropertyImpl(PROPERTY)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.IDENTIFIER)('test')
+                      PsiElement(LcaTokenType.separator)(':')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.lstring)('"')
+                      PsiElement(LcaTokenType.STRING)('property value')
+                      PsiElement(LcaTokenType.rstring)('"')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
+    @Test
+    fun testEscapedCharacter() {
+        parseFile("meta properties", """
+            dataset props {
+                meta {
+                    - test: "property \"value\""
                 }
             }
         """.trimIndent())

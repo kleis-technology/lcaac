@@ -3,6 +3,7 @@ package com.github.albanseurat.lcaplugin.language.parser
 import com.github.albanseurat.lcaplugin.LcaLanguage
 import com.github.albanseurat.lcaplugin.language.psi.LcaFile
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
+import com.github.albanseurat.lcaplugin.psi.LcaTypes.STRING
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
 import com.intellij.lang.PsiParser
@@ -36,7 +37,7 @@ class LcaParserDefinition : ParserDefinition {
     }
 
     override fun getStringLiteralElements(): TokenSet {
-        return TokenSet.EMPTY
+        return TokenSet.create(STRING)
     }
 
     override fun createElement(node: ASTNode?): PsiElement {

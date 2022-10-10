@@ -9,7 +9,13 @@ import org.junit.Test
 import org.openlca.simapro.csv.CsvHeader
 import org.openlca.simapro.csv.SimaProCsv
 
+fun String.sanitize() : String {
+    return this.replace("\"", "\\\"").trim('\r','\n')
+}
+
 class LcaParserSimaproTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+
+
 
     @Test
     fun testShouldLoadAndParse() {
@@ -28,11 +34,21 @@ class LcaParserSimaproTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 dataset "${it.name()}" {
                     
                     meta {
-                        category: "${it.category()}"
-                        allocationRules: "${it.allocationRules()}"
-                        collectionMethod: "${it.collectionMethod()}"
-                        comment: "${it.comment().replace("\"", "\\\"")}"
-                        
+                        - category: "${it.category().name.sanitize()}"
+                        - allocationRules: "${it.allocationRules().sanitize()}"
+                        - collectionMethod: "${it.collectionMethod().sanitize()}"
+                        - comment: "${it.comment().sanitize()}"
+                        - dataTreatment: "${it.dataTreatment().sanitize()}"
+                        - date: "${it.date()}"
+                        - generator: "${it.generator().sanitize()}"
+                        - identifier: "${it.identifier().sanitize()}"
+                        - infrastructure: "${it.infrastructure()}"
+                        - platformId: "${it.platformId()?.sanitize()}"
+                        - processType: ${it.processType()}
+                        - record: "${it.record().sanitize()}"
+                        - status: "${it.status()}"
+                        - systemDescription: "${it.systemDescription()}"
+                        - verification: "${it.verification().sanitize()}"
                     }
                 }
             """.trimIndent()

@@ -43,7 +43,6 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 )
             }
         }
-
         return descriptors.toTypedArray();
 
     }

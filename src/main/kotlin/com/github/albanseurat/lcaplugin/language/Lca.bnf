@@ -24,7 +24,7 @@
   mixin("quantity")="com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
   implements("quantity")="com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement"
 
-  parserUtilClass="com.github.albanseurat.lcaplugin.language.parser.QuantityParser"
+  parserUtilClass="com.github.albanseurat.lcaplugin.language.parser.ExtensionParser"
 
   tokens=[
       DATASET_KEYWORD= 'dataset'
@@ -40,8 +40,7 @@
       SEPARATOR = 'separator'
       RBRACE = 'right-bracker'
       LIST_ITEM = 'list'
-      LSTRING = 'lstring'
-      RSTRING = 'rstring'
+      STRING = 'string'
       SPACE = "regexp:\s+"
   ]
 }
@@ -68,7 +67,7 @@ meta product_exchange ::= exchange
 
 meta bio_exchange ::= exchange
 
-property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal
+property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_exchange}
 
 private exchange ::= LIST_ITEM (IDENTIFIER | string_literal) NUMBER <<parseQuantity>> {recoverWhile=next_exchange}
 
@@ -76,7 +75,7 @@ private next_exchange ::= !(LIST_ITEM | RBRACE)
 
 private next_dataset ::= !DATASET_KEYWORD
 
-private string_literal ::= LSTRING STRING* RSTRING
+private string_literal ::= STRING
 
 quantity ::= UNIT
 
