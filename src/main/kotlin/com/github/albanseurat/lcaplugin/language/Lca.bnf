@@ -37,7 +37,7 @@
       UNIT = "regexp:\w+"
       NUMBER = "regexp:\d+"
       LBRACE = 'left-bracket'
-      EQUALS = 'equals'
+      SEPARATOR = 'separator'
       RBRACE = 'right-bracker'
       LIST_ITEM = 'list'
       LSTRING = 'lstring'
@@ -68,7 +68,7 @@ meta product_exchange ::= exchange
 
 meta bio_exchange ::= exchange
 
-property ::= IDENTIFIER EQUALS string_literal
+property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal
 
 private exchange ::= LIST_ITEM (IDENTIFIER | string_literal) NUMBER <<parseQuantity>> {recoverWhile=next_exchange}
 

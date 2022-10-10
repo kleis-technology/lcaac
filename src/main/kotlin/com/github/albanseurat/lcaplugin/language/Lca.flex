@@ -19,7 +19,7 @@ import com.intellij.psi.TokenType;
 
 WhiteSpace     = \s+
 Identifier     = \w+
-StringContent  = [\w\s]*
+StringContent  = [^\\\"]*
 
 Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
@@ -37,7 +37,7 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
 <YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
 
-<YYINITIAL> "="                      { return LcaTypes.EQUALS; }
+<YYINITIAL> ":"                      { return LcaTypes.SEPARATOR; }
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
@@ -52,6 +52,7 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> \"                       { yybegin(LITERAL_STRING); return LcaTypes.LSTRING; }
 <LITERAL_STRING> {StringContent}     { return LcaTypes.STRING; }
 <LITERAL_STRING> \"                  { yybegin(YYINITIAL); return LcaTypes.RSTRING; }
+<LITERAL_STRING> (\\[^])             { return LcaTypes.STRING; }
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }
 [^]                           { return TokenType.BAD_CHARACTER; }
