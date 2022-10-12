@@ -54,6 +54,9 @@
         <lang.braceMatcher language="LCA"
                            implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
 
+        <additionalLibraryRootsProvider implementation="com.github.albanseurat.lcaplugin.project.LcaRootLibraryProvider"/>
+        <virtualFileSystem key="scsv" implementationClass="com.github.albanseurat.lcaplugin.vfs.SimaproCsvFileSystem"/>
+
     </extensions>
 
     <actions>

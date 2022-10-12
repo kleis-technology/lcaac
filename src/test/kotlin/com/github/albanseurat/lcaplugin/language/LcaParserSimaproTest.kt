@@ -16,7 +16,7 @@ fun String.sanitize() : String {
 class LcaParserSimaproTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
 
-
+    
     @Test
     fun testShouldLoadAndParse() {
 
