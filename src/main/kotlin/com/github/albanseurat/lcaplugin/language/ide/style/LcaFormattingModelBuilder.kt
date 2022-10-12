@@ -19,12 +19,11 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .betweenInside(IDENTIFIER, LBRACE, DATASET_DEFINITION)
                 .spacing(1, 1, 0, false, 0)
                 .betweenInside(LBRACE, RBRACE, DATASET_DEFINITION)
-                .spacing(0 , 0, 2, false, 0);
+                .spacing(0 , 0, 2, false, 0)
         }
     }
 
     override fun createModel(formattingContext: FormattingContext): FormattingModel {
-
         return FormattingModelProvider
             .createFormattingModelForPsiFile(
                 formattingContext.containingFile,
