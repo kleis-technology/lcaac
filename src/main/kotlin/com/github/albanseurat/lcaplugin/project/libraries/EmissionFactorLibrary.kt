@@ -7,18 +7,18 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.Icon
 
 class EmissionFactorLibrary(
-    val root: VirtualFile,
+    val substances: Set<VirtualFile>,
     private val name: String
 ) : SyntheticLibrary(), ItemPresentation {
 
     override fun equals(other: Any?): Boolean =
-        other is EmissionFactorLibrary && other.root == root
+        other is EmissionFactorLibrary && other.substances == substances
 
-    override fun hashCode(): Int = root.hashCode()
+    override fun hashCode(): Int = substances.hashCode()
 
     override fun getSourceRoots(): Collection<VirtualFile> = emptyList()
 
-    override fun getBinaryRoots(): Collection<VirtualFile> = listOf(root)
+    override fun getBinaryRoots(): Collection<VirtualFile> = substances
 
     override fun getLocationString(): String? =
         null
