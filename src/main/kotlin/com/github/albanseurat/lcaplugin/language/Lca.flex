@@ -36,11 +36,13 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "resources"              { return LcaTypes.RESOURCES_KEYWORD; }
 <YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
 <YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
+<YYINITIAL> "substance"              { return LcaTypes.SUBSTANCE_KEYWORD; }
 
 <YYINITIAL> ":"                      { return LcaTypes.SEPARATOR; }
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
+
 
 
 <YYINITIAL> {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }

@@ -32,6 +32,7 @@
       PRODUCTS_KEYWORD = 'products'
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
+      SUBSTANCE_KEYWORD = 'substances'
       META_KEYWORD = 'meta'
       IDENTIFIER = "regexp:\w+"
       UNIT = "regexp:\w+"
@@ -45,11 +46,15 @@
   ]
 }
 
-lcaFile ::= dataset_definition*
+lcaFile ::= (dataset_definition | substance_definition)*
 
 dataset_definition ::= DATASET_KEYWORD (IDENTIFIER | string_literal) LBRACE dataset_body RBRACE
 
+substance_definition ::= SUBSTANCE_KEYWORD (IDENTIFIER | string_literal) LBRACE substance_body RBRACE
+
 dataset_body ::= (products | inputs | resources | emissions)* metadata?
+
+substance_body ::= metadata?
 
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE
 
