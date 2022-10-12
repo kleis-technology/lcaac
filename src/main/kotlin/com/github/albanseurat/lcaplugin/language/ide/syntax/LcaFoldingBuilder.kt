@@ -1,6 +1,12 @@
 package com.github.albanseurat.lcaplugin.language.ide.syntax
 
-import com.github.albanseurat.lcaplugin.psi.*
+import com.github.albanseurat.lcaplugin.psi.LcaDatasetDefinition
+import com.github.albanseurat.lcaplugin.psi.LcaEmissions
+import com.github.albanseurat.lcaplugin.psi.LcaInputs
+import com.github.albanseurat.lcaplugin.psi.LcaMetadata
+import com.github.albanseurat.lcaplugin.psi.LcaProducts
+import com.github.albanseurat.lcaplugin.psi.LcaResources
+import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.github.albanseurat.lcaplugin.psi.LcaTypes.DATASET_DEFINITION
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.FoldingBuilderEx
@@ -14,7 +20,6 @@ import com.intellij.psi.util.elementType
 
 class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
-
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean):
             Array<FoldingDescriptor> {
 
@@ -27,7 +32,8 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 LcaProducts::class.java,
                 LcaInputs::class.java,
                 LcaResources::class.java,
-                LcaEmissions::class.java
+                LcaEmissions::class.java,
+                LcaMetadata::class.java,
             )
 
         for (definition in lcaDatasetDefinitions) {

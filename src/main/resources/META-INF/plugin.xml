@@ -35,6 +35,9 @@
         <lang.foldingBuilder
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
+        <lang.foldingBuilder
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaStringFoldingBuilder"/>
 
         <lang.syntaxHighlighterFactory
                 language="LCA"
