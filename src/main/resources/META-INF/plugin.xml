@@ -71,6 +71,11 @@
                 text="LCA Datasets" description="Create a LCA file containing datasets">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
+        <action id="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction"
+                class="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction" text="Import Scsv File..."
+                description="Import Scsv File...">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
 
     <applicationListeners>
