@@ -97,6 +97,10 @@ tasks {
         targetClass.set("parser.LcaLexer")
     }
 
+    /*generateLcaStdLib {
+
+    }*/
+
     compileKotlin {
         dependsOn("generateLexer")
         dependsOn("generateParser")
