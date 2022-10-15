@@ -8,6 +8,7 @@ import com.intellij.testFramework.LightVirtualFile
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import java.nio.charset.Charset
+import java.util.Collections.singletonList
 
 class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
@@ -20,8 +21,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         val emissionsFactors = this.javaClass.classLoader.getResource("META-INF/EF-LCIAMethod_CF(EF-v3.1).csv");
         val parser = CSVParser.parse(emissionsFactors.openStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
         val substances = parser.map { it[1] }.distinct().map { LightVirtualFile(it) }.toSet()
-        //return singletonList(EmissionFactorLibrary(substances, "EF 3.1"))
-        return emptyList()
+        return singletonList(EmissionFactorLibrary(substances, "EF 3.1"))
     }
 
     override fun getRootsToWatch(project: Project) = emptyList<VirtualFile>()
