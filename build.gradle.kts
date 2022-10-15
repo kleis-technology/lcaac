@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import task.GenerateStdLibTask
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -7,7 +8,7 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.6.10"
+    id("org.jetbrains.kotlin.jvm") version "1.7.20"
     // Gradle IntelliJ Plugin
     id("org.jetbrains.intellij") version "1.9.0"
     // Gradle Changelog Plugin
@@ -38,16 +39,18 @@ dependencies {
     implementation("javax.measure:unit-api:2.1.3")
     implementation("tech.units:indriya:2.1.3")
     implementation("org.openlca:olca-simapro-csv:3.0.2")
-    implementation("org.apache.commons:commons-csv:1.9.0")
+    implementation(files(layout.buildDirectory.dir("stdlib")) {
+        builtBy("generateStdLib")
+    })
 }
+
+
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
     pluginName.set(properties("pluginName"))
     version.set(properties("platformVersion"))
     type.set(properties("platformType"))
-
-
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
     plugins.set(properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty))
@@ -97,13 +100,14 @@ tasks {
         targetClass.set("parser.LcaLexer")
     }
 
-    /*generateLcaStdLib {
+    task<GenerateStdLibTask>("generateStdLib") {
 
-    }*/
+    }
 
     compileKotlin {
         dependsOn("generateLexer")
         dependsOn("generateParser")
+        dependsOn("generateStdLib")
     }
 
     patchPluginXml {

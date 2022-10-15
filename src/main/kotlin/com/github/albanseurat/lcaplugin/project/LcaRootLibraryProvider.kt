@@ -1,27 +1,74 @@
 package com.github.albanseurat.lcaplugin.project
 
 import com.github.albanseurat.lcaplugin.project.libraries.EmissionFactorLibrary
+import com.intellij.ide.plugins.IdeaPluginDescriptor
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider
+import com.intellij.openapi.vfs.JarFileSystem
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.LightVirtualFile
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVParser
-import java.nio.charset.Charset
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.Collections.singletonList
 
 class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
+    val PLUGIN_ID = "com.github.albanseurat.lcaplugin"
+
+    private val RESOURCES_FOLDER = "classes"
+
+    val PLUGIN: IdeaPluginDescriptor?
+        get() {
+            val pluginId = PluginId.getId(PLUGIN_ID)
+            return PluginManagerCore.getPlugins().firstOrNull { it.pluginId == pluginId }
+        }
+
+    private val PLUGIN_HOME_FILE: Path?
+        get() = PLUGIN?.pluginPath
+
+
+    val PLUGIN_HOME_DIRECTORY: VirtualFile?
+        get() {
+            val path = PLUGIN_HOME_FILE ?: return null
+            val libFolder = VfsUtil.findFile(path, false)?.findChild("lib")
+                    ?: return DEBUG_PLUGIN_HOME_DIRECTORY
+            val jar = libFolder.children.firstOrNull {
+                it.name.startsWith("CaosPlugin") && it.extension == "jar"
+            } ?: return DEBUG_PLUGIN_HOME_DIRECTORY
+            return JarFileSystem.getInstance().getJarRootForLocalFile(jar)
+                    ?: DEBUG_PLUGIN_HOME_DIRECTORY
+        }
+
+    private val DEBUG_PLUGIN_HOME_DIRECTORY: VirtualFile?
+        get() {
+            val path = PLUGIN_HOME_FILE ?: return null
+            return VfsUtil.findFile(path, true)?.findChild(RESOURCES_FOLDER)
+        }
+
+    private val PLUGIN_RESOURCES_DIRECTORY: VirtualFile?
+        get() = PLUGIN_HOME_DIRECTORY
+
+    fun getPluginResourceFile(relativePath: String): VirtualFile? {
+        return PLUGIN_RESOURCES_DIRECTORY?.findFileByRelativePath(relativePath)
+    }
+
+
     override fun getAdditionalProjectLibraries(project: Project): Collection<EmissionFactorLibrary> {
 
-        //TODO : have a look how they handle file bundled in a plugins here :
-        // https://github.com/bedalton/Caos-Plugin-IntelliJ/blob/570d2326f86fa5e84deec09e900db5f201dae779/src/main/java/com/badahori/creatures/plugins/intellij/agenteering/utils/CaosFileUtil.kt
-        // https://github.com/bedalton/Caos-Plugin-IntelliJ/blob/master/src/main/java/com/badahori/creatures/plugins/intellij/agenteering/caos/project/library/CaosScriptSyntheticLibrary.kt
-        //TODO : simple way to have files is to zip lca files and load them with JarFileSystem.getInstance().getJarRootForLocalFile
-        val emissionsFactors = this.javaClass.classLoader.getResource("META-INF/EF-LCIAMethod_CF(EF-v3.1).csv");
-        val parser = CSVParser.parse(emissionsFactors.openStream(), Charset.defaultCharset(), CSVFormat.DEFAULT)
-        val substances = parser.map { it[1] }.distinct().map { LightVirtualFile(it) }.toSet()
-        return singletonList(EmissionFactorLibrary(substances, "EF 3.1"))
+        val jarFile = PLUGIN?.pluginPath?.resolve(Paths.get("lib", "substances.jar"))
+        val jarVirtualFile = jarFile?.let { VfsUtil.findFile(it, false) }
+        val jarRoot = jarVirtualFile?.let {
+            JarFileSystem.getInstance().getJarRootForLocalFile(it)
+        }
+
+        return if(jarRoot != null) {
+            singletonList(EmissionFactorLibrary(jarRoot, "EF 3.1"))
+        } else {
+            emptyList()
+        }
     }
 
     override fun getRootsToWatch(project: Project) = emptyList<VirtualFile>()

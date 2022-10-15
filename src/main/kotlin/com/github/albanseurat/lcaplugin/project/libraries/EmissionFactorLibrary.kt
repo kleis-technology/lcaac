@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.Icon
 
 class EmissionFactorLibrary(
-    val substances: Set<VirtualFile>,
+    val substances: VirtualFile,
     private val name: String
 ) : SyntheticLibrary(), ItemPresentation {
 
@@ -18,7 +18,7 @@ class EmissionFactorLibrary(
 
     override fun getSourceRoots(): Collection<VirtualFile> = emptyList()
 
-    override fun getBinaryRoots(): Collection<VirtualFile> = substances
+    override fun getBinaryRoots(): Collection<VirtualFile> = listOf(substances)
 
     override fun getLocationString(): String? =
         null
