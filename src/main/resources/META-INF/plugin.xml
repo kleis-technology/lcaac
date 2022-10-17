@@ -20,9 +20,6 @@
                 fieldName="INSTANCE"
                 language="LCA"
                 extensions="lca"/>
-
-        <psi.referenceContributor language="LCA"
-                                  implementation="com.github.albanseurat.lcaplugin.language.reference.LcaReferenceContributor"/>
         <lang.parserDefinition
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.parser.LcaParserDefinition"/>
@@ -46,18 +43,20 @@
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureViewFactory"/>
         <navbar implementation="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureAwareNavbar"/>
-
         <lang.formatter
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
-
         <lang.braceMatcher language="LCA"
                            implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
 
-        <additionalLibraryRootsProvider implementation="com.github.albanseurat.lcaplugin.project.LcaRootLibraryProvider"/>
+        <additionalLibraryRootsProvider
+                implementation="com.github.albanseurat.lcaplugin.project.LcaRootLibraryProvider"/>
+
+        <stubIndex implementation="com.github.albanseurat.lcaplugin.language.psi.stub.ProductKeyIndex"/>
+        <stubElementTypeHolder class="com.github.albanseurat.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <filetype.prebuiltStubsProvider filetype="LCA"
-                                        implementationClass="org.rust.lang.core.macros.MacroExpansionStubsProvider"/>
+                                        implementationClass="com.github.albanseurat.lcaplugin.project.libraries.SubstanceStubsProvider"/>
 
     </extensions>
 

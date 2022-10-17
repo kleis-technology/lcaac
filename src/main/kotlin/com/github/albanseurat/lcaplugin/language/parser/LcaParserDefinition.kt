@@ -12,12 +12,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
+import com.intellij.psi.stubs.PsiFileStubImpl
 import com.intellij.psi.tree.IFileElementType
+import com.intellij.psi.tree.IStubFileElementType
 import com.intellij.psi.tree.TokenSet
 
 class LcaParserDefinition : ParserDefinition {
     companion object {
-        val FILE = IFileElementType(LcaLanguage.INSTANCE)
+        val FILE = IStubFileElementType<PsiFileStubImpl<LcaFile>>(LcaLanguage.INSTANCE)
     }
 
     override fun createLexer(project: Project?): Lexer {

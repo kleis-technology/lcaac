@@ -18,8 +18,9 @@
   mixin("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
   implements("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
 
-  mixin("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.ProductExchangeMixin"
-  implements("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
+  mixin("product_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.ProductExchangeMixin<com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub>"
+  implements("product_exchange")=["com.github.albanseurat.lcaplugin.language.psi.PsiProductElement"
+    "com.intellij.psi.StubBasedPsiElement<com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub>"]
 
   mixin("quantity")="com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
   implements("quantity")="com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement"
@@ -68,7 +69,12 @@ metadata ::= META_KEYWORD LBRACE property* RBRACE
 
 meta input_exchange ::= exchange
 
-meta product_exchange ::= exchange
+meta product_exchange ::= exchange {
+    implements = [ "com.github.albanseurat.lcaplugin.language.psi.PsiProductElement" ]
+    elementTypeClass="com.github.albanseurat.lcaplugin.language.psi.stub.ProductStubElementType"
+    mixin = "com.github.albanseurat.lcaplugin.language.psi.mixin.ProductExchangeMixin"
+    stubClass = "com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub"
+}
 
 meta bio_exchange ::= exchange
 
