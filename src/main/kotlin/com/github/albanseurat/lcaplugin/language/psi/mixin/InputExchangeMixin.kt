@@ -20,16 +20,14 @@ abstract class InputExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), I
     override fun getNameIdentifier(): PsiElement? = super.getNameIdentifier()
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { ProductReference(this, it.textRangeInParent) }
+        return null;
+
+        // TODO : disable for now, to use afterwards indexes 
+        //return nameIdentifier?.let { ProductReference(this, it.textRangeInParent) }
     }
 
     override fun getUnitElement(): PsiUnitElement? {
         return getNode().findChildByType(LcaTypes.QUANTITY)?.psi as PsiUnitElement?
     }
 
-    override fun getOwnReferences(): Collection<PsiSymbolReference> {
-        return reference?.let { listOf(getInstance().asSymbolReference(it)) } ?: run {
-            emptyList()
-        }
-    }
 }
