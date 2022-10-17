@@ -58,7 +58,7 @@ dataset_body ::= (products | inputs | resources | emissions)* metadata?
 
 substance_body ::= metadata?
 
-inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE
+inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 
 products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
 
@@ -68,7 +68,10 @@ emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 
 metadata ::= META_KEYWORD LBRACE property* RBRACE
 
-meta input_exchange ::= exchange
+meta input_exchange ::= exchange {
+    mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
+    implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
+}
 
 meta product ::= exchange {
     implements = [ "com.github.albanseurat.lcaplugin.language.psi.Product" ]
@@ -77,7 +80,10 @@ meta product ::= exchange {
     stubClass = "com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub"
 }
 
-meta bio_exchange ::= exchange
+meta bio_exchange ::= exchange {
+    mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.BioExchangeMixin"
+    implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
+}
 
 property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_exchange}
 

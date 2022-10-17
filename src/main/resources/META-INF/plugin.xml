@@ -25,7 +25,7 @@
                 implementationClass="com.github.albanseurat.lcaplugin.language.parser.LcaParserDefinition"/>
         <annotator
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaAnnotator"/>
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaProductNotFoundAnnotator"/>
         <codeInsight.lineMarkerProvider
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>
