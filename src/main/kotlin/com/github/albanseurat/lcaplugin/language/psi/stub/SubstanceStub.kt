@@ -1,9 +1,10 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
 import com.github.albanseurat.lcaplugin.language.psi.Product
+import com.github.albanseurat.lcaplugin.language.psi.Substance
 import com.intellij.psi.stubs.StubElement
 
-interface ProductStub : StubElement<Product> {
+interface SubstanceStub : StubElement<Substance> {
 
-    val productName : String?
+    val substanceName : String?
 }

@@ -53,6 +53,7 @@
                 implementation="com.github.albanseurat.lcaplugin.project.LcaRootLibraryProvider"/>
 
         <stubIndex implementation="com.github.albanseurat.lcaplugin.language.psi.stub.ProductKeyIndex"/>
+        <stubIndex implementation="com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
         <stubElementTypeHolder class="com.github.albanseurat.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <filetype.prebuiltStubsProvider filetype="LCA"

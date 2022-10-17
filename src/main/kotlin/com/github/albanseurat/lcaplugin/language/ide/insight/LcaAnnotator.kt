@@ -1,8 +1,8 @@
 package com.github.albanseurat.lcaplugin.language.ide.insight
 
 import com.github.albanseurat.lcaplugin.actions.CreateDatasetAction
+import com.github.albanseurat.lcaplugin.language.psi.Product
 import com.github.albanseurat.lcaplugin.psi.LcaInputExchange
-import com.github.albanseurat.lcaplugin.psi.LcaProductExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -19,7 +19,7 @@ class LcaAnnotator : Annotator {
 
         if (element is LcaInputExchange) {
             val reference = element.reference?.resolve()
-            if (reference == null || reference !is LcaProductExchange) {
+            if (reference == null || reference !is Product) {
                 element.nameIdentifier?.let {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.text}")
                         .range(it)
