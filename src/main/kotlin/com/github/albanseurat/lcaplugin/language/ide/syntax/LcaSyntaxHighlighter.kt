@@ -4,6 +4,7 @@ import com.github.albanseurat.lcaplugin.language.parser.LcaLexerAdapter
 import com.github.albanseurat.lcaplugin.psi.LcaTypes.*
 import com.intellij.lexer.Lexer
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors.INSTANCE_FIELD
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors.KEYWORD
 import com.intellij.openapi.editor.HighlighterColors.BAD_CHARACTER
 import com.intellij.openapi.editor.colors.TextAttributesKey
@@ -25,8 +26,10 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
         )
         val EMPTY_KEYS = emptyArray<TextAttributesKey>()
         val BAD_CHARACTER_KEYS = arrayOf(createTextAttributesKey("SIMPLE_BAD_CHARACTER", BAD_CHARACTER))
-        val STRING_LITERAL_KEYS = arrayOf(createTextAttributesKey("STRING_LITERAL", DefaultLanguageHighlighterColors.STRING ))
-
+        val STRING_LITERAL_KEYS =
+            arrayOf(createTextAttributesKey("STRING_LITERAL", DefaultLanguageHighlighterColors.STRING))
+        val FIELD_KEYS = arrayOf(createTextAttributesKey("FIELD", INSTANCE_FIELD))
+        val NUMBER_KEYS = arrayOf(createTextAttributesKey("UNIT", DefaultLanguageHighlighterColors.NUMBER))
     }
 
     override fun getHighlightingLexer(): Lexer {
@@ -39,7 +42,9 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
             EMISSIONS_KEYWORD, RESOURCES_KEYWORD, INPUTS_KEYWORD -> KEYWORD_KEYS
             IDENTIFIER -> IDENTIFIER_KEYS
             STRING -> STRING_LITERAL_KEYS
+            TYPE_KEYWORD, COMPARTMENT_KEYWORD, SUB_COMPARTMENT_KEYWORD, UNIT_KEYWORD -> FIELD_KEYS
             TokenType.BAD_CHARACTER -> BAD_CHARACTER_KEYS
+            NUMBER -> NUMBER_KEYS
             else -> EMPTY_KEYS
         }
     }

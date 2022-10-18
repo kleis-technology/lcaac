@@ -24,6 +24,10 @@
   parserUtilClass="com.github.albanseurat.lcaplugin.language.parser.ExtensionParser"
 
   tokens=[
+      TYPE_KEYWORD= 'type'
+      COMPORTMENT_KEYWORD = 'compartment'
+      SUB_COMPARTMENT_KEYWORD = 'subCompartment'
+      UNIT_KEYWORD = 'unit'
       DATASET_KEYWORD= 'dataset'
       INPUTS_KEYWORD = 'inputs'
       PRODUCTS_KEYWORD = 'products'
@@ -56,7 +60,7 @@ substance ::= SUBSTANCE_KEYWORD (IDENTIFIER | string_literal) LBRACE substance_b
 
 dataset_body ::= (products | inputs | resources | emissions)* metadata?
 
-substance_body ::= metadata?
+substance_body ::= substance_type compartmentType subCompartmentType? unitType metadata?
 
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 
@@ -84,6 +88,11 @@ meta bio_exchange ::= exchange {
     mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.BioExchangeMixin"
     implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
 }
+
+substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD)
+compartmentType ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
+subCompartmentType ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
+unitType ::= UNIT_KEYWORD SEPARATOR <<parseQuantity>>
 
 property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_exchange}
 
