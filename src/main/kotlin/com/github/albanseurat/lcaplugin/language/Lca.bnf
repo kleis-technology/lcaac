@@ -34,6 +34,7 @@
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
       SUBSTANCE_KEYWORD = 'substances'
+      LAND_USE_KEYWORD = 'land_use'
       META_KEYWORD = 'meta'
       IDENTIFIER = "regexp:\w+"
       UNIT = "regexp:\w+"
@@ -58,7 +59,7 @@ substance ::= SUBSTANCE_KEYWORD (IDENTIFIER | string_literal) LBRACE substance_b
     stubClass = "com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceStub"
 }
 
-dataset_body ::= (products | inputs | resources | emissions)* metadata?
+dataset_body ::= (products | inputs | resources | emissions | land_use)* metadata?
 
 substance_body ::= substance_type compartmentType subCompartmentType? unitType metadata?
 
@@ -69,6 +70,8 @@ products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
 
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
+
+land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
 
 metadata ::= META_KEYWORD LBRACE property* RBRACE
 
@@ -89,7 +92,7 @@ meta bio_exchange ::= exchange {
     implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
 }
 
-substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD)
+substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
 compartmentType ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
 subCompartmentType ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
 unitType ::= UNIT_KEYWORD SEPARATOR <<parseQuantity>>

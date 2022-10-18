@@ -35,6 +35,7 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "products"               { return LcaTypes.PRODUCTS_KEYWORD; }
 <YYINITIAL> "resources"              { return LcaTypes.RESOURCES_KEYWORD; }
 <YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
+<YYINITIAL> "land_use"               { return LcaTypes.LAND_USE_KEYWORD; }
 <YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
 <YYINITIAL> "substance"              { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "type"                   { return LcaTypes.TYPE_KEYWORD; }
