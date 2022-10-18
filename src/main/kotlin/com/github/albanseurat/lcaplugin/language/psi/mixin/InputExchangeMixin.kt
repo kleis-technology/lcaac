@@ -20,10 +20,7 @@ abstract class InputExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), I
     override fun getNameIdentifier(): PsiElement? = super.getNameIdentifier()
 
     override fun getReference(): PsiReference? {
-        return null;
-
-        // TODO : disable for now, to use afterwards indexes
-        //return nameIdentifier?.let { ProductReference(this, it.textRangeInParent) }
+        return nameIdentifier?.let { ProductReference(this, it.textRangeInParent) }
     }
 
     override fun getUnitElement(): PsiUnitElement? {

@@ -23,9 +23,14 @@
         <lang.parserDefinition
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.parser.LcaParserDefinition"/>
+
         <annotator
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaProductNotFoundAnnotator"/>
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
+        <annotator
+                language="LCA"
+                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaSubstanceAnnotator"/>
+
         <codeInsight.lineMarkerProvider
                 language="LCA"
                 implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>

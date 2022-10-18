@@ -12,7 +12,7 @@ import tech.units.indriya.format.SimpleUnitFormat
 import javax.measure.format.UnitFormat
 
 
-class LcaProductNotFoundAnnotator : Annotator {
+class LcaProductAnnotator : Annotator {
 
     var parser: UnitFormat = SimpleUnitFormat.getInstance()
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
