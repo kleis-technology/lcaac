@@ -6,6 +6,7 @@ import com.intellij.internal.statistic.collectors.fus.fileTypes.FileTypeUsageCou
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileChooser.FileChooserDialog
@@ -33,13 +34,15 @@ class ImportScsvFileAction : AnAction() {
         val scsvFile = fileChooserDialog.choose(project)[0]
 
         val task = ImportScsvFileBackgroundTask(project, scsvFile, containerFile)
-        ProgressManager.getInstance().run(task)
+        ReadAction.run<RuntimeException> {
+            ProgressManager.getInstance().run(task)
+        }
     }
 
     private class MyElementCreator(
         val project: Project,
         val directory: PsiDirectory,
-        val errorTitle: String
+        errorTitle: String
     ) : ElementCreator(project, errorTitle) {
         override fun create(newName: String): Array<PsiElement> {
             val file = WriteAction.compute<PsiFile, Exception> { directory.createFile(newName) }

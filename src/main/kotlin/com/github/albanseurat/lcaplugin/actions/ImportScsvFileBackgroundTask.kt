@@ -12,20 +12,22 @@ import org.openlca.simapro.csv.CsvHeader
 import org.openlca.simapro.csv.SimaProCsv
 import java.util.zip.GZIPInputStream
 
-class ImportScsvFileBackgroundTask(project: Project, private val scsvFile: VirtualFile, private val containerFile: PsiElement): Task.Backgroundable(project, "Importing SCSV...")
-{
+class ImportScsvFileBackgroundTask(
+    project: Project,
+    private val scsvFile: VirtualFile,
+    private val containerFile: PsiElement
+) : Task.Backgroundable(project, "Importing SCSV...") {
     override fun run(indicator: ProgressIndicator) {
-        val inputStream = GZIPInputStream(scsvFile.inputStream)
-        val reader = SimaProCsv.readerOf(inputStream, SimaProCsv.defaultCharset())
+        WriteCommandAction.writeCommandAction(project).run<RuntimeException> {
+            val inputStream = GZIPInputStream(scsvFile.inputStream)
+            val reader = SimaProCsv.readerOf(inputStream, SimaProCsv.defaultCharset())
+            val header = CsvHeader.readFrom(reader)
+            val datasets = SimaProCsv.read(header, reader)
 
-        val header = CsvHeader.readFrom(reader)
-        val datasets = SimaProCsv.read(header, reader)
+            indicator.fraction = 0.0
+            val it = datasets.processes()[0]
 
-        indicator.fraction = 0.0
-
-        val it = datasets.processes()[0]
-
-        val content = """
+            val content = """
             dataset "${it.name()}" {
                     meta {
                         - category: "${it.category().name}"
@@ -47,11 +49,9 @@ class ImportScsvFileBackgroundTask(project: Project, private val scsvFile: Virtu
             }
         """.trimIndent()
 
-        val ds = PsiFileFactory.getInstance(project).createFileFromText(LcaLanguage.INSTANCE, content)
-        WriteCommandAction.writeCommandAction(project).run<RuntimeException> {
+            val ds = PsiFileFactory.getInstance(project).createFileFromText(LcaLanguage.INSTANCE, content)
             containerFile.add(ds)
+            indicator.fraction = 1.0
         }
-
-        indicator.fraction = 1.0
     }
 }
