@@ -1,7 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
 import com.github.albanseurat.lcaplugin.LcaLanguage
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.github.albanseurat.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST

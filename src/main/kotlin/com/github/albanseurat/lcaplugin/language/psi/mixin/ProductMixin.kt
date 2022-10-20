@@ -1,7 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.psi.mixin
 
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement
+import com.github.albanseurat.lcaplugin.language.psi.type.Product
+import com.github.albanseurat.lcaplugin.language.psi.type.PsiUnitElement
 import com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.StubBasedPsiElementBase
@@ -23,7 +23,11 @@ abstract class ProductMixin : StubBasedPsiElementBase<ProductStub>,
 
 
     override fun getUnitElement(): PsiUnitElement? {
-        return getNode().findChildByType(LcaTypes.QUANTITY)?.psi as PsiUnitElement?
+        return getNode().findChildByType(LcaTypes.UNIT)?.psi as PsiUnitElement?
+    }
+
+    override fun toString(): String {
+        return "ProductMixin()"
     }
 
 

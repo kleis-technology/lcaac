@@ -16,12 +16,13 @@
   implements("dataset_definition")="com.intellij.psi.PsiNameIdentifierOwner"
 
   mixin("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
-  implements("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
-
-  mixin("quantity")="com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
-  implements("quantity")="com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement"
+  implements("input_exchange")="com.github.albanseurat.lcaplugin.language.psi.type.PsiExchangeElement"
 
   parserUtilClass="com.github.albanseurat.lcaplugin.language.parser.ExtensionParser"
+
+ // mixin= "com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
+  //  implements= "com.github.albanseurat.lcaplugin.language.psi.type.PsiUnitElement"
+
 
   tokens=[
       TYPE_KEYWORD= 'type'
@@ -37,7 +38,6 @@
       LAND_USE_KEYWORD = 'land_use'
       META_KEYWORD = 'meta'
       IDENTIFIER = "regexp:\w+"
-      UNIT = "regexp:\w+"
       NUMBER = "regexp:\d+"
       LBRACE = 'left-bracket'
       SEPARATOR = 'separator'
@@ -50,10 +50,10 @@
 
 lcaFile ::= (dataset_definition | substance)*
 
-dataset_definition ::= DATASET_KEYWORD (IDENTIFIER | string_literal) LBRACE dataset_body RBRACE
+dataset_definition ::= DATASET_KEYWORD string_literal LBRACE dataset_body RBRACE
 
-substance ::= SUBSTANCE_KEYWORD (IDENTIFIER | string_literal) LBRACE substance_body RBRACE {
-    implements = [ "com.github.albanseurat.lcaplugin.language.psi.Substance" ]
+substance ::= SUBSTANCE_KEYWORD string_literal LBRACE substance_body RBRACE {
+    implements = [ "com.github.albanseurat.lcaplugin.language.psi.type.Substance" ]
     elementTypeClass="com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceStubElementType"
     mixin = "com.github.albanseurat.lcaplugin.language.psi.mixin.SubstanceMixin"
     stubClass = "com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceStub"
@@ -64,48 +64,48 @@ dataset_body ::= (products | inputs | resources | emissions | land_use)* metadat
 substance_body ::= substance_type compartmentType subCompartmentType? unitType metadata?
 
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
-
 products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
-
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
-
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
-
 land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
 
 metadata ::= META_KEYWORD LBRACE property* RBRACE
 
-meta input_exchange ::= exchange {
-    mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
-    implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
-}
+substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
+compartmentType ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
+subCompartmentType ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
+unitType ::= UNIT_KEYWORD SEPARATOR quantity
 
-meta product ::= exchange {
-    implements = [ "com.github.albanseurat.lcaplugin.language.psi.Product" ]
+input_exchange ::= techno_exchange {
+    mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.InputExchangeMixin"
+    implements="com.github.albanseurat.lcaplugin.language.psi.type.PsiExchangeElement"
+}
+product ::= techno_exchange {
+    implements = [ "com.github.albanseurat.lcaplugin.language.psi.type.Product" ]
     elementTypeClass="com.github.albanseurat.lcaplugin.language.psi.stub.ProductStubElementType"
     mixin = "com.github.albanseurat.lcaplugin.language.psi.mixin.ProductMixin"
     stubClass = "com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub"
 }
-
-meta bio_exchange ::= exchange {
+meta bio_exchange ::= LIST_ITEM string_literal NUMBER quantity {
+    recoverWhile=next_item
     mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.BioExchangeMixin"
-    implements="com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement"
+    implements="com.github.albanseurat.lcaplugin.language.psi.type.PsiExchangeElement"
 }
+private techno_exchange ::= LIST_ITEM string_literal NUMBER quantity {recoverWhile=next_item}
 
-substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
-compartmentType ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
-subCompartmentType ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
-unitType ::= UNIT_KEYWORD SEPARATOR <<parseQuantity>>
+property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_item}
 
-property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_exchange}
-
-private exchange ::= LIST_ITEM (IDENTIFIER | string_literal) NUMBER <<parseQuantity>> {recoverWhile=next_exchange}
-
-private next_exchange ::= !(LIST_ITEM | RBRACE)
-
+private next_item ::= !(LIST_ITEM | RBRACE)
 private next_dataset ::= !DATASET_KEYWORD
 
-private string_literal ::= STRING
+string_literal ::= STRING {
+    implements="com.intellij.psi.PsiNamedElement"
+    mixin="com.github.albanseurat.lcaplugin.language.psi.mixin.StringLiteralMixin"
+}
 
-quantity ::= UNIT
+external quantity ::= parseQuantity
 
+unit ::= IDENTIFIER {
+     mixin= "com.github.albanseurat.lcaplugin.language.psi.mixin.QuantityMixin"
+     implements= "com.github.albanseurat.lcaplugin.language.psi.type.PsiUnitElement"
+}

@@ -1,6 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.github.albanseurat.lcaplugin.language.psi.stub.LcaSubIndexKeys.SUBSTANCES
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope

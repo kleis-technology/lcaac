@@ -1,16 +1,10 @@
 package com.github.albanseurat.lcaplugin.language
 
-import com.github.albanseurat.lcaplugin.LcaFileType.Companion.INSTANCE
-import com.github.albanseurat.lcaplugin.language.psi.LcaFile
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Product
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.github.albanseurat.lcaplugin.language.psi.stub.ProductKeyIndex
 import com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiManager.getInstance
-import com.intellij.psi.search.FileTypeIndex.getFiles
-import com.intellij.psi.search.GlobalSearchScope.allScope
-import com.intellij.psi.util.PsiTreeUtil.findChildrenOfType
 
 
 interface SearchTrait {

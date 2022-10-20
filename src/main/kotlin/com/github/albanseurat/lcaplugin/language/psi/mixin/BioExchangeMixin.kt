@@ -1,7 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.psi.mixin
 
-import com.github.albanseurat.lcaplugin.language.psi.PsiExchangeElement
-import com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement
+import com.github.albanseurat.lcaplugin.language.psi.type.PsiExchangeElement
+import com.github.albanseurat.lcaplugin.language.psi.type.PsiUnitElement
 import com.github.albanseurat.lcaplugin.language.reference.SubstanceReference
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.ASTWrapperPsiElement
@@ -22,7 +22,7 @@ abstract class BioExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), Ide
     }
 
     override fun getUnitElement(): PsiUnitElement? {
-        return getNode().findChildByType(LcaTypes.QUANTITY)?.psi as PsiUnitElement?
+        return getNode().findChildByType(LcaTypes.UNIT)?.psi as PsiUnitElement?
     }
 
 }

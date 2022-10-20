@@ -1,7 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Product
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension

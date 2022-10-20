@@ -33,7 +33,7 @@ class CreateDatasetAction(private val dataset: String, private val unitText: Str
                 .createFileFromText(
                     "_Dummy_.${LcaFileType.INSTANCE.defaultExtension}",
                     LcaFileType.INSTANCE,
-                    "\n\ndataset $dataset {\n products {\n - $dataset 1 $unitText\n}\n}\n"
+                    "\n\ndataset \"$dataset\" {\n products {\n - \"$dataset\" 1 $unitText\n}\n}\n"
                 )
             file.node.addChildren(newDataset.firstChild.node, newDataset.lastChild.node, null);
             ReformatCodeProcessor(file, true).run()

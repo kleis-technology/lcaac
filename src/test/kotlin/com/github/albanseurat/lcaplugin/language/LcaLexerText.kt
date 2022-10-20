@@ -75,7 +75,7 @@ internal class LcaLexerText : LexerTestCase() {
     fun testEmptyDataset()
     {
         doTest("""
-            dataset empty { 
+            dataset "empty" { 
             }
         """.trimIndent(), """
             LcaTokenType.dataset ('dataset')
@@ -87,6 +87,8 @@ internal class LcaLexerText : LexerTestCase() {
             LcaTokenType.} ('}')
         """.trimIndent())
     }
+
+
 
 
     @Test

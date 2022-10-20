@@ -1,17 +1,12 @@
 package com.github.albanseurat.lcaplugin.language.ide.insight
 
-import com.github.albanseurat.lcaplugin.actions.CreateDatasetAction
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.github.albanseurat.lcaplugin.psi.LcaBioExchange
-import com.github.albanseurat.lcaplugin.psi.LcaInputExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
-import tech.units.indriya.format.SimpleUnitFormat
-import javax.measure.format.UnitFormat
 
 
 class LcaSubstanceAnnotator : Annotator {

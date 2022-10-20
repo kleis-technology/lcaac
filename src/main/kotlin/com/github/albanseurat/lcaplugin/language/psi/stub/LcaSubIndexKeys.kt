@@ -1,7 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.Substance
+import com.github.albanseurat.lcaplugin.language.psi.type.Product
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.intellij.psi.stubs.StubIndexKey
 
 object LcaSubIndexKeys {

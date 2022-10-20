@@ -5,13 +5,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 
 
-class ProductReference(element: PsiElement, textRange: TextRange) : PsiReferenceBase<PsiElement>(element, textRange),
+class ProductReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceBase<PsiElement>(element, textRange),
     SearchTrait, PsiPolyVariantReference {
 
     private val datasetIdentifier: String
 
     init {
-        datasetIdentifier = element.text.substring(textRange.startOffset, textRange.endOffset)
+        datasetIdentifier = element.name!!
     }
 
     override fun resolve(): PsiElement? {

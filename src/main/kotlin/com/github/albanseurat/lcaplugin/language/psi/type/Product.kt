@@ -1,4 +1,4 @@
-package com.github.albanseurat.lcaplugin.language.psi
+package com.github.albanseurat.lcaplugin.language.psi.type
 
 import com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub
 import com.intellij.psi.PsiNameIdentifierOwner

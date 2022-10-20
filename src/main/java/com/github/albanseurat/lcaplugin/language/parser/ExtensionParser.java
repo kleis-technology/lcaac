@@ -8,6 +8,7 @@ import com.intellij.lang.parser.GeneratedParserUtilBase;
 import tech.units.indriya.format.SimpleUnitFormat;
 
 import static com.github.albanseurat.lcaplugin.psi.LcaTypes.*;
+import static com.intellij.psi.TokenType.ERROR_ELEMENT;
 import static java.lang.String.format;
 
 public class ExtensionParser extends GeneratedParserUtilBase
@@ -16,13 +17,13 @@ public class ExtensionParser extends GeneratedParserUtilBase
 
     public static boolean parseQuantity(PsiBuilder builder, int level)
     {
-        final PsiBuilder.Marker marker = builder.mark();
+        PsiBuilder.Marker marker = builder.mark();
         String text = builder.getTokenText();
         try
         {
             parser.parse(text);
             builder.advanceLexer();
-            marker.done(QUANTITY);
+            marker.done(UNIT);
             return true;
         } catch (MeasurementParseException e)
         {
@@ -32,7 +33,4 @@ public class ExtensionParser extends GeneratedParserUtilBase
         }
     }
 
-    public static boolean parseLiteral(PsiBuilder builder, int level) {
-        return consumeToken(builder, STRING);
-    }
 }

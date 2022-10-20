@@ -19,15 +19,13 @@ import com.intellij.psi.TokenType;
 
 WhiteSpace     = \s+
 Identifier     = \w+
-StringContent  = [^\\\"]*
+StringContent  = \" ( [^\\\"] | \\[^] )* ( \" | \\ )?
 
 Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
 
-
-%state LITERAL_STRING
-
 %%
+
 
 <YYINITIAL> "dataset"                { return LcaTypes.DATASET_KEYWORD; }
 
@@ -50,25 +48,10 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 
 
-
 <YYINITIAL> {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
 <YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
+<YYINITIAL> {StringContent}          { return LcaTypes.STRING; }
 
-
-
-
-<YYINITIAL> \"                       { yybegin(LITERAL_STRING); }
-
-
-<LITERAL_STRING> {
-  \"                             { yybegin(YYINITIAL); return LcaTypes.STRING; }
-  \\t                            {  }
-  \\n                            {  }
-  \\r                            {  }
-  \\\"                           {  }
-  \\                             {  }
-  [^\"\\]+                       {  }
-}
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }
 [^]                           { return TokenType.BAD_CHARACTER; }

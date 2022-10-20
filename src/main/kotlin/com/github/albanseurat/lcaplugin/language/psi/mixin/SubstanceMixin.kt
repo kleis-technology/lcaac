@@ -1,9 +1,6 @@
 package com.github.albanseurat.lcaplugin.language.psi.mixin
 
-import com.github.albanseurat.lcaplugin.language.psi.Product
-import com.github.albanseurat.lcaplugin.language.psi.PsiUnitElement
-import com.github.albanseurat.lcaplugin.language.psi.Substance
-import com.github.albanseurat.lcaplugin.language.psi.stub.ProductStub
+import com.github.albanseurat.lcaplugin.language.psi.type.Substance
 import com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceStub
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.StubBasedPsiElementBase
@@ -18,7 +15,7 @@ abstract class SubstanceMixin : StubBasedPsiElementBase<SubstanceStub>,
     constructor(stub: SubstanceStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
     // TODO : replace with a better handline (IDENTIFIER OR STRING LITERAL)
-    override fun getName(): String? = node.findChildByType(LcaTypes.STRING)?.text?.trim { it == '"' }
+    override fun getName(): String? = super<IdentifiableTrait>.getName()
 
     override fun setName(name: String): PsiElement = super.setName(name)
 

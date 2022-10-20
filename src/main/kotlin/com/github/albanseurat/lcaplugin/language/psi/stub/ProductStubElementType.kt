@@ -1,7 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.psi.stub
 
 import com.github.albanseurat.lcaplugin.LcaLanguage
-import com.github.albanseurat.lcaplugin.language.psi.Product
+import com.github.albanseurat.lcaplugin.language.psi.type.Product
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
 import com.github.albanseurat.lcaplugin.psi.impl.LcaProductImpl
 import com.intellij.lang.LighterAST
@@ -42,5 +42,6 @@ class ProductStubElementType(debugName: String) : ILightStubElementType<ProductS
     override fun serialize(stub: ProductStub, dataStream: StubOutputStream) {
         dataStream.writeName(stub.productName);
     }
+
 
 }
