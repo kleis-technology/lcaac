@@ -31,9 +31,6 @@ class LcaRootLibraryProvider() : AdditionalLibraryRootsProvider() {
     }
 
     override fun getAdditionalProjectLibraries(project: Project): Collection<EmissionFactorLibrary> {
-        println("getAdditionalProjectLibraries")
-        println(project)
-
         return if (jarRoot != null) {
             singletonList(EmissionFactorLibrary(jarRoot, "EF 3.1"))
         } else {

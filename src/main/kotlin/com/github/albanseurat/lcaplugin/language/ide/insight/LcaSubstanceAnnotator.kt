@@ -22,6 +22,18 @@ class LcaSubstanceAnnotator : Annotator {
                         .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                         .create()
                 }
+            } else {
+                val elementUnit = element.getUnitElement()
+                val referenceUnit = reference.getUnitElement()
+                if (elementUnit?.getQuantityUnit()?.getDimension()
+                        ?.equals(referenceUnit?.getQuantityUnit()?.getDimension()) != true
+                ) {
+                    holder.newAnnotation(
+                        HighlightSeverity.ERROR,
+                        "Unit ${elementUnit?.name} does not match ${referenceUnit?.name} from ${reference.name}"
+                    ).range(element.textRange)
+                        .create();
+                }
             }
         }
     }

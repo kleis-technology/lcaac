@@ -7,4 +7,5 @@ import com.intellij.psi.StubBasedPsiElement
 
 interface Substance : PsiNameIdentifierOwner, StubBasedPsiElement<SubstanceStub> {
 
+    fun getUnitElement() : PsiUnitElement?
 }
