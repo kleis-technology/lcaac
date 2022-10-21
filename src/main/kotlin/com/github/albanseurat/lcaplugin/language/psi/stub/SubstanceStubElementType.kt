@@ -16,19 +16,19 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     override fun getExternalId(): String = "lca.${super.toString()}"
 
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): SubstanceStub {
-        return SubstanceStubImpl(parentStub as StubElement<Substance>, dataStream.readNameString());
+        return SubstanceStubImpl(parentStub as StubElement<Substance>, dataStream.readNameString()!!, dataStream.readNameString()!!, dataStream.readNameString());
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): SubstanceStub {
         val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.IDENTIFIER) as LighterASTTokenNode
         return SubstanceStubImpl(
             parentStub as StubElement<Substance>,
-            tree.charTable.intern(keyNode.text).toString()
+            tree.charTable.intern(keyNode.text).toString(), "", ""
         );
     }
 
     override fun createStub(psi: Substance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
-        return SubstanceStubImpl(parentStub as StubElement<Substance>, psi.name)
+        return SubstanceStubImpl(parentStub as StubElement<Substance>, psi.name!!, "", "")
     }
 
     override fun createPsi(stub: SubstanceStub): Substance {
@@ -36,11 +36,15 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaSubIndexKeys.SUBSTANCES, stub.substanceName!!);
+        sink.occurrence(LcaSubIndexKeys.SUBSTANCES, stub.substanceName);
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
         dataStream.writeName(stub.substanceName);
+        dataStream.writeName(stub.compartment);
+        if(stub.subCompartment != null) {
+            dataStream.writeName(stub.subCompartment);
+        }
     }
 
 }

@@ -5,11 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 
-abstract class StringLiteralMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiNamedElement {
-
-    override fun setName(name: String): PsiElement {
-        throw NotImplementedError()
-    }
+abstract class StringLiteralMixin(node: ASTNode) : ASTWrapperPsiElement(node) {
 
     override fun getName(): String? {
         return this.firstChild.text.trim('"')

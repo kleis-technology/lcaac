@@ -1,6 +1,7 @@
 package com.github.albanseurat.lcaplugin.language.ide.insight
 
 import com.github.albanseurat.lcaplugin.actions.CreateDatasetAction
+import com.github.albanseurat.lcaplugin.language.psi.mixin.StringLiteralMixin
 import com.github.albanseurat.lcaplugin.language.psi.type.Product
 import com.github.albanseurat.lcaplugin.psi.LcaInputExchange
 import com.intellij.codeInspection.ProblemHighlightType
@@ -21,7 +22,7 @@ class LcaProductAnnotator : Annotator {
         if (element is LcaInputExchange) {
             val reference = element.reference?.resolve()
             if (reference == null || reference !is Product) {
-                (element.nameIdentifier as PsiNamedElement?)?.let {
+                (element.nameIdentifier as StringLiteralMixin?)?.let {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.name}")
                         .range(it)
                         .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)

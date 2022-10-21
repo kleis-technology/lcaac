@@ -270,9 +270,9 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
 
     @Test
-    fun testSubstances() {
-        parseFile("substances", """
-            dataset "substances" {
+    fun testResources() {
+        parseFile("resources", """
+            dataset "resources" {
                 resources {
                     - "carbon" 1 kg
                 }
@@ -283,6 +283,23 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
+
+
+
+    @Test
+    fun testSubstances() {
+        parseFile("substances", """
+            substance "test","soil","low. pop." {
+                type: resources
+                unit: kg
+            }
+        """.trimIndent())
+
+        assertEquals("""
+        """.trimIndent(),
+            toParseTreeText(myFile, skipSpaces(), includeRanges()))
+    }
+
 
 
     override fun getTestDataPath(): String {

@@ -37,8 +37,6 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
 <YYINITIAL> "substance"              { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "type"                   { return LcaTypes.TYPE_KEYWORD; }
-<YYINITIAL> "compartment"            { return LcaTypes.COMPARTMENT_KEYWORD; }
-<YYINITIAL> "subCompartment"         { return LcaTypes.SUB_COMPARTMENT_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
 
 
@@ -46,6 +44,7 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
+<YYINITIAL> ","                      { return LcaTypes.COMA; }
 
 
 <YYINITIAL> {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }

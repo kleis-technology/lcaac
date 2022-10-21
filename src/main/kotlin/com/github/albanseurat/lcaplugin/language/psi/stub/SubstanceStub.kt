@@ -5,5 +5,9 @@ import com.intellij.psi.stubs.StubElement
 
 interface SubstanceStub : StubElement<Substance> {
 
-    val substanceName : String?
+    val substanceName : String
+
+    val compartment: String
+
+    val subCompartment: String?
 }

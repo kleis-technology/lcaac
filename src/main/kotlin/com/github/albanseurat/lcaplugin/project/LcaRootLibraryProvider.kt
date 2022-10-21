@@ -15,19 +15,25 @@ import java.nio.file.Paths
 import java.nio.file.Paths.get
 import java.util.Collections.singletonList
 
-class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
+class LcaRootLibraryProvider() : AdditionalLibraryRootsProvider() {
 
-    override fun getAdditionalProjectLibraries(project: Project): Collection<EmissionFactorLibrary> {
-
+    private val jarRoot: VirtualFile?
+    init {
         val pluginId = PluginId.getId("com.github.albanseurat.lcaplugin")
         val plugin = PluginManagerCore.getPlugins().firstOrNull { it.pluginId == pluginId }
         val jarFile = plugin?.pluginPath?.resolve(get("lib", "substances.jar"))
         val jarVirtualFile = jarFile?.let {
             VfsUtil.findFile(it, false)
         }
-        val jarRoot = jarVirtualFile?.let {
+        jarRoot = jarVirtualFile?.let {
             JarFileSystem.getInstance().getJarRootForLocalFile(it)
         }
+    }
+
+    override fun getAdditionalProjectLibraries(project: Project): Collection<EmissionFactorLibrary> {
+        println("getAdditionalProjectLibraries")
+        println(project)
+
         return if (jarRoot != null) {
             singletonList(EmissionFactorLibrary(jarRoot, "EF 3.1"))
         } else {

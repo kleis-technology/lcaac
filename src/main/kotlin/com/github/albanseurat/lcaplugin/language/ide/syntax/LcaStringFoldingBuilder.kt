@@ -16,7 +16,7 @@ import com.intellij.refactoring.suggested.startOffset
 class LcaStringFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
     companion object {
-        private const val MAX_DISPLAYED_LENGTH = 40
+        private const val MAX_DISPLAYED_LENGTH = 60
     }
 
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<FoldingDescriptor> =
@@ -31,10 +31,10 @@ class LcaStringFoldingBuilder : FoldingBuilderEx(), DumbAware {
             else -> "..."
         }
 
-    override fun isCollapsedByDefault(node: ASTNode): Boolean = true
+    override fun isCollapsedByDefault(node: ASTNode): Boolean = node.textContains('\n')
 
     private fun getPlaceholderText(text: String): String =
-        if (text.length > MAX_DISPLAYED_LENGTH) {
+        if (text.length > MAX_DISPLAYED_LENGTH || text.contains('\n')) {
             text.take(MAX_DISPLAYED_LENGTH).replace("\\n.*".toRegex(), "").plus("...")
         } else text
 }

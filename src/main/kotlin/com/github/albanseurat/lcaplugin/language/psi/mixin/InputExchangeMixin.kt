@@ -22,7 +22,7 @@ abstract class InputExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), I
     }
 
     override fun getUnitElement(): PsiUnitElement? {
-        return getNode().findChildByType(LcaTypes.UNIT)?.psi as PsiUnitElement?
+        return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnitElement?
     }
 
 }

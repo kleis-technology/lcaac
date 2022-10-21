@@ -2,12 +2,10 @@ package com.github.albanseurat.lcaplugin.language.psi.mixin
 
 import com.github.albanseurat.lcaplugin.LcaFileType
 import com.github.albanseurat.lcaplugin.psi.LcaTypes
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFileFactory
-import com.intellij.psi.PsiNamedElement
 
 sealed interface IdentifiableTrait {
 
@@ -16,7 +14,7 @@ sealed interface IdentifiableTrait {
     fun getProject() : Project
 
     fun getName() : String? {
-        return (getNameIdentifier() as PsiNamedElement?)?.name
+        return (getNameIdentifier() as StringLiteralMixin?)?.name
     }
 
     fun setName(name: String): PsiElement {
