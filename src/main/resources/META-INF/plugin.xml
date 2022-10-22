@@ -71,6 +71,14 @@
                 text="LCA Datasets" description="Create a LCA file containing datasets">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
+        <action id="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction"
+                class="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction" text="Import Simapro CSV..."
+                description="Import Simapro CSV...">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+        <group id="LcaPopupMenu" text="LCA" description="LCA actions">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </group>
     </actions>
 
     <applicationListeners>
