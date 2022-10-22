@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.application.WriteAction
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileChooser.FileChooserDialog
@@ -17,13 +18,12 @@ import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
-import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
 import java.io.File
 import java.util.zip.GZIPInputStream
 
-class ImportScsvFileAction : AnAction(), DumbAware {
+class ImportScsvFileAction : AnAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         val view = e.getData(LangDataKeys.IDE_VIEW) ?: return
@@ -39,66 +39,82 @@ class ImportScsvFileAction : AnAction(), DumbAware {
                 indicator.fraction = 0.0
                 indicator.text = "Reading ..."
 
-                WriteCommandAction.writeCommandAction(project).run<RuntimeException> {
-                    val scsvFileMap: HashMap<String, ArrayList<PsiFile>> = HashMap()
+                val scsvFileMap: HashMap<String, ArrayList<PsiFile>> = HashMap()
 
-                    ScsvProcessBlockStream {
-                        val contentResources = if (it.resources().size > 0) {
-                            val prefix = "resources {\n"
-                            val inner = it.resources().map { r ->
-                                "  - \"${r.name()}\" ${r.amount()} ${r.unit()}\n"
-                            }.reduce { a, s -> a + s }
-                            val suffix = "}\n"
-                            prefix + inner + suffix
-                        } else {
-                            ""
+                var processBlockCount = 0
+                ScsvProcessBlockStream {
+                    ProgressManager.checkCanceled()
+                    val contentResources = if (it.resources().size > 0) {
+                        val prefix = "resources {\n"
+                        val inner = it.resources().map { r ->
+                            "  - \"${r.name()}\" ${r.amount()} ${r.unit()}\n"
+                        }.reduce { a, s -> a + s }
+                        val suffix = "}\n"
+                        prefix + inner + suffix
+                    } else {
+                        ""
+                    }
+                    val contentProducts = if (it.products().size > 0) {
+                        val prefix = "products {\n"
+                        val inner = it.products().map { p ->
+                            "  - \"${p.name()}\" ${p.amount()} ${p.unit()}\n"
+                        }.reduce { a, s -> a + s }
+                        val suffix = "}\n"
+                        prefix + inner + suffix
+                    } else {
+                        ""
+                    }
+                    val contentMeta = """
+                        meta {
+                            - category: "${it.category().name}"
+                            - identifier: "${it.identifier()}"
+                            - processType: "${it.processType()}"
                         }
-                        val contentProducts = if (it.products().size > 0) {
-                            val prefix = "products {\n"
-                            val inner = it.products().map { p ->
-                                "  - \"${p.name()}\" ${p.amount()} ${p.unit()}\n"
-                            }.reduce { a, s -> a + s }
-                            val suffix = "}\n"
-                            prefix + inner + suffix
-                        } else {
-                            ""
+                    """.trimIndent().plus("\n")
+                    val content = """dataset "${it.name()}" {
+                                            $contentProducts
+                                            $contentResources
+                                            $contentMeta
+                                            }
+                                            
+                                            
+                                """.trimIndent().plus("\n\n")
+                    val ds = runReadAction {
+                        PsiFileFactory.getInstance(project).createFileFromText(LcaLanguage.INSTANCE, content)
+                    }
+                    val key = it.category().name.lowercase()
+                    if (key !in scsvFileMap.keys) {
+                        scsvFileMap[key] = ArrayList()
+                    }
+                    scsvFileMap[key]?.add(ds)
+
+                    processBlockCount += 1
+                    indicator.text = "Read $processBlockCount process blocks"
+                }.read(GZIPInputStream(scsvFile.inputStream))
+
+
+                indicator.fraction = 0.5
+                indicator.text = "Writing files..."
+
+                val elementCreator = MyElementCreator(project, dir, "error")
+
+                var datasetsCount = 0
+                scsvFileMap.keys.forEach { key ->
+                    val elements = WriteCommandAction.writeCommandAction(project)
+                        .compute<Array<PsiElement>, Throwable> {
+                            elementCreator.tryCreate("$key.lca")
                         }
-                        val contentMeta = """
-                            meta {
-                                - category: "${it.category().name}"
-                                - identifier: "${it.identifier()}"
-                                - processType: "${it.processType()}"
-                            }
-                        """.trimIndent().plus("\n")
-                        val content = """dataset "${it.name()}" {
-                                                $contentProducts
-                                                $contentResources
-                                                $contentMeta
-                                                }
-                                                
-                                                
-                                    """.trimIndent().plus("\n\n")
-                        val ds = PsiFileFactory.getInstance(project).createFileFromText(LcaLanguage.INSTANCE, content)
-                        val key = it.category().name.lowercase()
-                        if (key !in scsvFileMap.keys) {
-                            scsvFileMap[key] = ArrayList()
-                        }
-                        scsvFileMap[key]?.add(ds)
-
-                    }.read(GZIPInputStream(scsvFile.inputStream))
-
-                    indicator.fraction = 0.5
-                    indicator.text = "Writing files..."
-
-                    val elementCreator = MyElementCreator(project, dir, "error")
-
-                    scsvFileMap.keys.forEach { key ->
-                        val elements = elementCreator.tryCreate("$key.lca")
-                        val containerFile = elements[0].containingFile
-                        scsvFileMap[key]?.forEach { ds ->
+                    val containerFile = elements[0].containingFile
+                    scsvFileMap[key]?.forEach { ds ->
+                        ProgressManager.checkCanceled()
+                        WriteCommandAction.writeCommandAction(project).run<Throwable> {
                             containerFile.node.addChildren(ds.firstChild.node, ds.lastChild.node, null)
-                            containerFile.node.addLeaf(TokenType.NEW_LINE_INDENT, "", null)
+                            containerFile.node.addLeaf(TokenType.NEW_LINE_INDENT, "\n\n", null)
                         }
+                        datasetsCount += 1
+                        indicator.text = "Wrote $datasetsCount datasets"
+                    }
+                    WriteCommandAction.writeCommandAction(project).run<Throwable> {
                         ReformatCodeProcessor(containerFile, true).run()
                     }
                 }
