@@ -1,6 +1,7 @@
 package com.github.albanseurat.lcaplugin.actions
 
 import com.github.albanseurat.lcaplugin.LcaLanguage
+import com.github.albanseurat.lcaplugin.services.ScsvProcessBlockFormatter
 import com.github.albanseurat.lcaplugin.services.ScsvProcessBlockStream
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.ide.IdeBundle
@@ -24,6 +25,7 @@ import java.io.File
 import java.util.zip.GZIPInputStream
 
 class ImportScsvFileAction : AnAction() {
+    val formatter = ScsvProcessBlockFormatter()
 
     override fun actionPerformed(e: AnActionEvent) {
         val view = e.getData(LangDataKeys.IDE_VIEW) ?: return
@@ -44,41 +46,7 @@ class ImportScsvFileAction : AnAction() {
                 var processBlockCount = 0
                 ScsvProcessBlockStream {
                     ProgressManager.checkCanceled()
-                    val contentResources = if (it.resources().size > 0) {
-                        val prefix = "resources {\n"
-                        val inner = it.resources().map { r ->
-                            "  - \"${r.name()}\" ${r.amount()} ${r.unit()}\n"
-                        }.reduce { a, s -> a + s }
-                        val suffix = "}\n"
-                        prefix + inner + suffix
-                    } else {
-                        ""
-                    }
-                    val contentProducts = if (it.products().size > 0) {
-                        val prefix = "products {\n"
-                        val inner = it.products().map { p ->
-                            "  - \"${p.name()}\" ${p.amount()} ${p.unit()}\n"
-                        }.reduce { a, s -> a + s }
-                        val suffix = "}\n"
-                        prefix + inner + suffix
-                    } else {
-                        ""
-                    }
-                    val contentMeta = """
-                        meta {
-                            - category: "${it.category().name}"
-                            - identifier: "${it.identifier()}"
-                            - processType: "${it.processType()}"
-                        }
-                    """.trimIndent().plus("\n")
-                    val content = """dataset "${it.name()}" {
-                                            $contentProducts
-                                            $contentResources
-                                            $contentMeta
-                                            }
-                                            
-                                            
-                                """.trimIndent().plus("\n\n")
+                    val content = formatter.format(it)
                     val ds = runReadAction {
                         PsiFileFactory.getInstance(project).createFileFromText(LcaLanguage.INSTANCE, content)
                     }
@@ -107,8 +75,8 @@ class ImportScsvFileAction : AnAction() {
                     val containerFile = elements[0].containingFile
                     scsvFileMap[key]?.forEach { ds ->
                         ProgressManager.checkCanceled()
-                        WriteCommandAction.writeCommandAction(project).run<Throwable> {
-                            containerFile.node.addChildren(ds.firstChild.node, ds.lastChild.node, null)
+                        WriteCommandAction.writeCommandAction(containerFile, ds).run<Throwable> {
+                            containerFile.node.addChild(ds.node.firstChildNode)
                             containerFile.node.addLeaf(TokenType.NEW_LINE_INDENT, "\n\n", null)
                         }
                         datasetsCount += 1
