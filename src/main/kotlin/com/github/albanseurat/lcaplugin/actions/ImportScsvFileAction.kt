@@ -1,16 +1,13 @@
 package com.github.albanseurat.lcaplugin.actions
 
 import com.github.albanseurat.lcaplugin.LcaLanguage
+import com.github.albanseurat.lcaplugin.project.creators.DatasetDirectoryCreator
+import com.github.albanseurat.lcaplugin.project.creators.DatasetFileCreator
 import com.github.albanseurat.lcaplugin.services.ScsvProcessBlockFormatter
 import com.github.albanseurat.lcaplugin.services.ScsvProcessBlockStream
-import com.intellij.codeInsight.actions.ReformatCodeProcessor
-import com.intellij.ide.IdeBundle
-import com.intellij.ide.actions.ElementCreator
-import com.intellij.internal.statistic.collectors.fus.fileTypes.FileTypeUsageCounterCollector
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -19,9 +16,7 @@ import com.intellij.openapi.fileChooser.ex.FileChooserDialogImpl
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
-import com.intellij.openapi.project.Project
 import com.intellij.psi.*
-import java.io.File
 import java.util.zip.GZIPInputStream
 
 class ImportScsvFileAction : AnAction() {
@@ -61,29 +56,31 @@ class ImportScsvFileAction : AnAction() {
                 }.read(GZIPInputStream(scsvFile.inputStream))
 
 
-                indicator.fraction = 0.5
+                indicator.fraction = 0.0
                 indicator.text = "Writing files..."
 
-                val elementCreator = MyElementCreator(project, dir, "error")
+                val subDirectoryCreator = DatasetDirectoryCreator(project, dir, "error")
 
                 var datasetsCount = 0
                 scsvFileMap.keys.forEach { key ->
-                    val elements = WriteCommandAction.writeCommandAction(project)
-                        .compute<Array<PsiElement>, Throwable> {
-                            elementCreator.tryCreate("$key.lca")
-                        }
-                    val containerFile = elements[0].containingFile
+                    val subdir = WriteCommandAction.writeCommandAction(project).compute<Array<PsiElement>, Throwable> {
+                        subDirectoryCreator.tryCreate(key)
+                    }[0] as PsiDirectory
+                    val fileCreator = DatasetFileCreator(project, subdir, "error")
                     scsvFileMap[key]?.forEach { ds ->
                         ProgressManager.checkCanceled()
+                        val elements = WriteCommandAction.writeCommandAction(project)
+                            .compute<Array<PsiElement>, Throwable> {
+                                fileCreator.tryCreate("${datasetsCount}.lca")
+                            }
+                        val containerFile = elements[0].containingFile
                         WriteCommandAction.writeCommandAction(containerFile, ds).run<Throwable> {
                             containerFile.node.addChild(ds.node.firstChildNode)
                             containerFile.node.addLeaf(TokenType.NEW_LINE_INDENT, "\n\n", null)
                         }
                         datasetsCount += 1
-                        indicator.text = "Wrote $datasetsCount datasets"
-                    }
-                    WriteCommandAction.writeCommandAction(project).run<Throwable> {
-                        ReformatCodeProcessor(containerFile, true).run()
+                        indicator.fraction = datasetsCount.toDouble() / processBlockCount.toDouble()
+                        indicator.text = "Wrote $datasetsCount/$processBlockCount datasets"
                     }
                 }
 
@@ -91,26 +88,5 @@ class ImportScsvFileAction : AnAction() {
                 indicator.text = "Done"
             }
         })
-    }
-
-    private class MyElementCreator(
-        val project: Project,
-        val directory: PsiDirectory,
-        errorTitle: String
-    ) : ElementCreator(project, errorTitle) {
-        override fun create(newName: String): Array<PsiElement> {
-            val file = WriteAction.compute<PsiFile, Exception> { directory.createFile(newName) }
-            FileTypeUsageCounterCollector.triggerCreate(project, file.virtualFile)
-            return arrayOf(file)
-        }
-
-        override fun getActionName(newName: String): String {
-            return IdeBundle.message(
-                "progress.creating.file",
-                directory.virtualFile.presentableUrl,
-                File.separator,
-                newName
-            )
-        }
     }
 }
