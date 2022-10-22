@@ -76,6 +76,11 @@
                 description="Import Scsv File...">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
+        <action id="com.github.albanseurat.lcaplugin.actions.TestAction"
+                class="com.github.albanseurat.lcaplugin.actions.TestAction" text="Test action..."
+                description="Test action...">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
 
     <applicationListeners>
