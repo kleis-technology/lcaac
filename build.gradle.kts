@@ -88,15 +88,15 @@ tasks {
     }
 
     generateParser {
-        source.set("src/main/kotlin/com/github/albanseurat/lcaplugin/language/Lca.bnf")
+        source.set("src/main/kotlin/ch/kleis/lcaplugin/language/Lca.bnf")
         targetRoot.set("src/main/gen")
-        pathToParser.set("com/github/albanseurat/lcaplugin/language/parser/LcaParser.java")
-        pathToPsiRoot.set("com/github/albanseurat/lcaplugin/psi")
+        pathToParser.set("ch/kleis/lcaplugin/language/parser/LcaParser.java")
+        pathToPsiRoot.set("ch/kleis/lcaplugin/psi")
     }
 
     generateLexer {
-        source.set("src/main/kotlin/com/github/albanseurat/lcaplugin/language/Lca.flex")
-        targetDir.set("src/main/gen/com/github/albanseurat/lcaplugin/language")
+        source.set("src/main/kotlin/ch/kleis/lcaplugin/language/Lca.flex")
+        targetDir.set("src/main/gen/ch/kleis/lcaplugin/language")
         targetClass.set("parser.LcaLexer")
     }
 

@@ -1,8 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.albanseurat.lcaplugin</id>
-    <name>lca-plugin</name>
-    <vendor>albanseurat</vendor>
+    <id>ch.kleis.lcaplugin</id>
+    <name>lca</name>
+    <vendor>kleis</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
@@ -10,69 +10,69 @@
 
         <moduleType
                 id="LCA_MODULE_TYPE"
-                implementationClass="com.github.albanseurat.lcaplugin.project.LcaModuleType"/>
+                implementationClass="ch.kleis.lcaplugin.project.LcaModuleType"/>
 
-        <applicationService serviceImplementation="com.github.albanseurat.lcaplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.albanseurat.lcaplugin.services.LcaProjectService"/>
+        <applicationService serviceImplementation="ch.kleis.lcaplugin.services.MyApplicationService"/>
+        <projectService serviceImplementation="ch.kleis.lcaplugin.services.LcaProjectService"/>
         <fileType
                 name="LCA Definition File"
-                implementationClass="com.github.albanseurat.lcaplugin.LcaFileType"
+                implementationClass="ch.kleis.lcaplugin.LcaFileType"
                 fieldName="INSTANCE"
                 language="LCA"
                 extensions="lca"/>
         <lang.parserDefinition
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.parser.LcaParserDefinition"/>
+                implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
         <annotator
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
         <annotator
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaSubstanceAnnotator"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaSubstanceAnnotator"/>
 
         <codeInsight.lineMarkerProvider
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>
         <lang.foldingBuilder
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
         <lang.foldingBuilder
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaStringFoldingBuilder"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaStringFoldingBuilder"/>
 
         <lang.syntaxHighlighterFactory
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
         <lang.psiStructureViewFactory
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureViewFactory"/>
-        <navbar implementation="com.github.albanseurat.lcaplugin.language.ide.structure.LcaStructureAwareNavbar"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.structure.LcaStructureViewFactory"/>
+        <navbar implementation="ch.kleis.lcaplugin.language.ide.structure.LcaStructureAwareNavbar"/>
         <lang.formatter
                 language="LCA"
-                implementationClass="com.github.albanseurat.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
         <lang.braceMatcher language="LCA"
-                           implementationClass="com.github.albanseurat.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
+                           implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
 
         <additionalLibraryRootsProvider
-                implementation="com.github.albanseurat.lcaplugin.project.LcaRootLibraryProvider"/>
+                implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
 
-        <stubIndex implementation="com.github.albanseurat.lcaplugin.language.psi.stub.ProductKeyIndex"/>
-        <stubIndex implementation="com.github.albanseurat.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
-        <stubElementTypeHolder class="com.github.albanseurat.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.ProductKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
+        <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <filetype.prebuiltStubsProvider filetype="LCA"
-                                        implementationClass="com.github.albanseurat.lcaplugin.project.libraries.SubstanceStubsProvider"/>
+                                        implementationClass="ch.kleis.lcaplugin.project.libraries.SubstanceStubsProvider"/>
 
     </extensions>
 
     <actions>
-        <action id="Lca.NewFile" class="com.github.albanseurat.lcaplugin.actions.NewLcaFileAction"
+        <action id="Lca.NewFile" class="ch.kleis.lcaplugin.actions.NewLcaFileAction"
                 text="LCA Datasets" description="Create a LCA file containing datasets">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
-        <action id="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction"
-                class="com.github.albanseurat.lcaplugin.actions.ImportScsvFileAction" text="Import Simapro CSV..."
+        <action id="ch.kleis.lcaplugin.actions.ImportScsvFileAction"
+                class="ch.kleis.lcaplugin.actions.ImportScsvFileAction" text="Import Simapro CSV..."
                 description="Import Simapro CSV...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
@@ -82,7 +82,7 @@
     </actions>
 
     <applicationListeners>
-        <listener class="com.github.albanseurat.lcaplugin.listeners.MyProjectManagerListener"
+        <listener class="ch.kleis.lcaplugin.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>
