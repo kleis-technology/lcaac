@@ -1,22 +1,22 @@
-dataset Test <fold text='0 kg co2'>{
+dataset <fold text='"Test"'>"Test"</fold> <fold text='0 kg co2'>{
     products <fold text='...'>{
 
     }</fold>
 
     inputs <fold text='...'>{
-        - item 10 kg
+        - <fold text='"item"'>"item"</fold> 10 kg
     }</fold>
 }</fold>
 
-dataset Second <fold text='0 kg co2'>{
+dataset Second {
 
-}</fold>
+}
 
-dataset third <fold text='0 kg co2'>{
-   resources <fold text='...'>{
-       - exchange 10 kg
-   }</fold>
-   emissions <fold text='...'>{
-       - co2 1 kg
-   }</fold>
-}</fold>
+dataset <fold text='"third"'>"third"</fold> {
+   resources {
+       - <fold text='"exchange"'>"exchange"</fold> 10 kg
+   }
+   emissions {
+       - <fold text='"co2"'>"co2"</fold> 1 kg
+   }
+}

@@ -19,11 +19,11 @@ internal class LcaLexerText : LexerTestCase() {
 
         doTest(
             """
-                dataset elecricity { 
+                dataset "elecricity" { 
                     products {
-                        - nuclear 1.3e10 kBq
-                        - power 10 kg
-                        - plop  1.3 ha
+                        - "nuclear" 1.3e10 kBq
+                        - "power" 10 kg
+                        - "plop"  1.3 ha
                     }
                 }
                 """,
@@ -31,41 +31,41 @@ internal class LcaLexerText : LexerTestCase() {
                 WHITE_SPACE ('\n                ')
                 LcaTokenType.dataset ('dataset')
                 WHITE_SPACE (' ')
-                LcaTokenType.IDENTIFIER ('elecricity')
+                LcaTokenType.string ('"elecricity"')
                 WHITE_SPACE (' ')
-                LcaTokenType.{ ('{')
+                LcaTokenType.left-bracket ('{')
                 WHITE_SPACE (' \n                    ')
                 LcaTokenType.products ('products')
                 WHITE_SPACE (' ')
-                LcaTokenType.{ ('{')
+                LcaTokenType.left-bracket ('{')
                 WHITE_SPACE ('\n                        ')
-                LcaTokenType.- ('-')
+                LcaTokenType.list ('-')
                 WHITE_SPACE (' ')
-                LcaTokenType.IDENTIFIER ('nuclear')
+                LcaTokenType.string ('"nuclear"')
                 WHITE_SPACE (' ')
                 LcaTokenType.NUMBER ('1.3e10')
                 WHITE_SPACE (' ')
                 LcaTokenType.IDENTIFIER ('kBq')
                 WHITE_SPACE ('\n                        ')
-                LcaTokenType.- ('-')
+                LcaTokenType.list ('-')
                 WHITE_SPACE (' ')
-                LcaTokenType.IDENTIFIER ('power')
+                LcaTokenType.string ('"power"')
                 WHITE_SPACE (' ')
                 LcaTokenType.NUMBER ('10')
                 WHITE_SPACE (' ')
                 LcaTokenType.IDENTIFIER ('kg')
                 WHITE_SPACE ('\n                        ')
-                LcaTokenType.- ('-')
+                LcaTokenType.list ('-')
                 WHITE_SPACE (' ')
-                LcaTokenType.IDENTIFIER ('plop')
+                LcaTokenType.string ('"plop"')
                 WHITE_SPACE ('  ')
                 LcaTokenType.NUMBER ('1.3')
                 WHITE_SPACE (' ')
                 LcaTokenType.IDENTIFIER ('ha')
                 WHITE_SPACE ('\n                    ')
-                LcaTokenType.} ('}')
+                LcaTokenType.right-bracker ('}')
                 WHITE_SPACE ('\n                ')
-                LcaTokenType.} ('}')
+                LcaTokenType.right-bracker ('}')
                 WHITE_SPACE ('\n                ')
             """.trimIndent()
         )
@@ -80,11 +80,11 @@ internal class LcaLexerText : LexerTestCase() {
         """.trimIndent(), """
             LcaTokenType.dataset ('dataset')
             WHITE_SPACE (' ')
-            LcaTokenType.IDENTIFIER ('empty')
+            LcaTokenType.string ('"empty"')
             WHITE_SPACE (' ')
-            LcaTokenType.{ ('{')
+            LcaTokenType.left-bracket ('{')
             WHITE_SPACE (' \n')
-            LcaTokenType.} ('}')
+            LcaTokenType.right-bracker ('}')
         """.trimIndent())
     }
 
@@ -128,13 +128,32 @@ internal class LcaLexerText : LexerTestCase() {
     @Test
     fun testEscapedCharacter() {
         doTest("""
-            dataset props {
+            dataset "props" {
                 meta {
                     - test: "property \"value\""
                 }
             }
         """.trimIndent(), """
-            
+            LcaTokenType.dataset ('dataset')
+            WHITE_SPACE (' ')
+            LcaTokenType.string ('"props"')
+            WHITE_SPACE (' ')
+            LcaTokenType.left-bracket ('{')
+            WHITE_SPACE ('\n    ')
+            LcaTokenType.meta ('meta')
+            WHITE_SPACE (' ')
+            LcaTokenType.left-bracket ('{')
+            WHITE_SPACE ('\n        ')
+            LcaTokenType.list ('-')
+            WHITE_SPACE (' ')
+            LcaTokenType.IDENTIFIER ('test')
+            LcaTokenType.separator (':')
+            WHITE_SPACE (' ')
+            LcaTokenType.string ('"property \"value\""')
+            WHITE_SPACE ('\n    ')
+            LcaTokenType.right-bracker ('}')
+            WHITE_SPACE ('\n')
+            LcaTokenType.right-bracker ('}')
         """.trimIndent());
     }
 }

@@ -16,19 +16,19 @@ internal class LcaFormattingModelBuilderTest : FormatterTestCase() {
     @Test
     fun testShouldFormatProperly() {
         doTextTest("""
-            dataset elecricity { 
+            dataset "elecricity" { 
                 products {
-                    - nuclear 1.3e10 kBq
-                    - power 10 kg
-                    - plop  1.3 ha
+                    - "nuclear" 1.3e10 kBq
+                    - "power" 10 kg
+                    - "plop"  1.3 ha
                 }
             }
         """.trimIndent(), """
-            dataset elecricity {
+            dataset "elecricity" {
                 products {
-                    - nuclear 1.3e10 kBq
-                    - power 10 kg
-                    - plop  1.3 ha
+                    - "nuclear" 1.3e10 kBq
+                    - "power" 10 kg
+                    - "plop"  1.3 ha
                 }
             }
         """.trimIndent())
@@ -37,10 +37,10 @@ internal class LcaFormattingModelBuilderTest : FormatterTestCase() {
     @Test
     fun testShouldFormatEmpty() {
         doTextTest("""
-            dataset empty {
+            dataset "empty" {
             }
         """.trimIndent(), """
-            dataset empty {
+            dataset "empty" {
             }
         """.trimIndent())
     }

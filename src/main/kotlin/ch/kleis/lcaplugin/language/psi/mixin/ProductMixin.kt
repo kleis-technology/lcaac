@@ -27,7 +27,7 @@ abstract class ProductMixin : StubBasedPsiElementBase<ProductStub>,
     }
 
     override fun toString(): String {
-        return "ProductMixin()"
+        return "Product(${this.name})"
     }
 
 

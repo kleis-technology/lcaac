@@ -24,4 +24,10 @@ abstract class SubstanceMixin : SubstanceIdTrait, StubBasedPsiElementBase<Substa
     override fun getUnitElement(): PsiUnitElement? {
         return PsiTreeUtil.findChildOfType(this, PsiUnitElement::class.java)
     }
+
+
+    override fun toString(): String {
+        return "Substance(${this.name})"
+    }
+
 }

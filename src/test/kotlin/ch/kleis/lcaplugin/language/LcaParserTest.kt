@@ -24,47 +24,60 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.IDENTIFIER)('elecricity')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"elecricity"')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.{)('{')
+                PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace(' \n        ')
                 LcaDatasetBodyImpl(DATASET_BODY)
                   LcaProductsImpl(PRODUCTS)
                     PsiElement(LcaTokenType.products)('products')
                     PsiWhiteSpace(' ')
-                    PsiElement(LcaTokenType.{)('{')
+                    PsiElement(LcaTokenType.left-bracket)('{')
                     PsiWhiteSpace('\n            ')
-                    LcaExchangesImpl(EXCHANGES)
-                      LcaExchangeImpl(EXCHANGE)
-                        PsiElement(LcaTokenType.-)('-')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('nuclear')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.NUMBER)('1.3e10')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('kBq')
-                      PsiWhiteSpace('\n            ')
-                      LcaExchangeImpl(EXCHANGE)
-                        PsiElement(LcaTokenType.-)('-')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('power')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.NUMBER)('10')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
-                      PsiWhiteSpace('\n            ')
-                      LcaExchangeImpl(EXCHANGE)
-                        PsiElement(LcaTokenType.-)('-')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('plop')
-                        PsiWhiteSpace('  ')
-                        PsiElement(LcaTokenType.NUMBER)('1.3')
-                        PsiWhiteSpace(' ')
-                        PsiElement(LcaTokenType.IDENTIFIER)('ha')
+                    Product(electricity)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"electricity"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1.3')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('MJ')
+                    PsiWhiteSpace('\n            ')
+                    Product(water)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"water"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('l')
                     PsiWhiteSpace('\n        ')
-                    PsiElement(LcaTokenType.})('}')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                  PsiWhiteSpace('\n        ')
+                  LcaInputsImpl(INPUTS)
+                    PsiElement(LcaTokenType.inputs)('inputs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n            ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"uranium"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n        ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
                 PsiWhiteSpace('\n    ')
-                PsiElement(LcaTokenType.})('}')
+                PsiElement(LcaTokenType.right-bracker)('}')
 
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
@@ -83,13 +96,14 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.IDENTIFIER)('empty')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"empty"')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.{)('{')
+                PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n')
                 LcaDatasetBodyImpl(DATASET_BODY)
                   <empty list>
-                PsiElement(LcaTokenType.})('}')
+                PsiElement(LcaTokenType.right-bracker)('}')
 
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
@@ -120,7 +134,8 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.IDENTIFIER)('first')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"first"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
@@ -133,11 +148,13 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                     LcaBioExchangeImpl(BIO_EXCHANGE)
                       PsiElement(LcaTokenType.list)('-')
                       PsiWhiteSpace(' ')
-                      PsiElement(LcaTokenType.IDENTIFIER)('co2')
+                      LcaSubstanceIdImpl(SUBSTANCE_ID)
+                        LcaStringLiteralImpl(STRING_LITERAL)
+                          PsiElement(LcaTokenType.string)('"co2"')
                       PsiWhiteSpace(' ')
                       PsiElement(LcaTokenType.NUMBER)('1')
                       PsiWhiteSpace(' ')
-                      LcaQuantityImpl(QUANTITY)
+                      LcaUnitImpl(UNIT)
                         PsiElement(LcaTokenType.IDENTIFIER)('kg')
                     PsiWhiteSpace('\n    ')
                     PsiElement(LcaTokenType.right-bracker)('}')
@@ -147,7 +164,8 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.IDENTIFIER)('second')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"second"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
@@ -157,14 +175,33 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                     PsiWhiteSpace(' ')
                     PsiElement(LcaTokenType.left-bracket)('{')
                     PsiWhiteSpace('\n        ')
-                    LcaProductExchangeImpl(PRODUCT_EXCHANGE)
+                    Product(exchange)
                       PsiElement(LcaTokenType.list)('-')
                       PsiWhiteSpace(' ')
-                      PsiElement(LcaTokenType.IDENTIFIER)('exchange')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"exchange"')
                       PsiWhiteSpace(' ')
                       PsiElement(LcaTokenType.NUMBER)('1')
                       PsiWhiteSpace(' ')
-                      LcaQuantityImpl(QUANTITY)
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                  PsiWhiteSpace('\n    ')
+                  LcaInputsImpl(INPUTS)
+                    PsiElement(LcaTokenType.inputs)('inputs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"test"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
                         PsiElement(LcaTokenType.IDENTIFIER)('kg')
                     PsiWhiteSpace('\n    ')
                     PsiElement(LcaTokenType.right-bracker)('}')
@@ -178,10 +215,10 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testQuantity() {
         parseFile("quantity", """
-            dataset quantity {
+            dataset "quantity" {
                 inputs {
-                    - wheat 1 kg
-                    - land 2 m2
+                    - "wheat" 1 kg
+                    - "land" 2 m2
                     - "carbon dioxyde" 2 kg
                 }
                
@@ -189,6 +226,58 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
 
         assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"quantity"')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaInputsImpl(INPUTS)
+                    PsiElement(LcaTokenType.inputs)('inputs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"wheat"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n        ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"land"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('2')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('m2')
+                    PsiWhiteSpace('\n        ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"carbon dioxyde"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('2')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n   \n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
@@ -197,14 +286,44 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testFaultyUnitSyntax() {
         parseFile("empty dataset", """
-            dataset faulty {
+            dataset "faulty" {
                 inputs {
-                    - wheat 1 kwh
+                    - "wheat" 1 kwh
                 }
             }
         """.trimIndent())
 
         assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"faulty"')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaInputsImpl(INPUTS)
+                    PsiElement(LcaTokenType.inputs)('inputs')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaInputExchangeImpl(INPUT_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"wheat"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      PsiErrorElement:kwh is not a valid unit
+                        PsiElement(LcaTokenType.IDENTIFIER)('kwh')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
@@ -213,7 +332,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testMetaProperties() {
         parseFile("meta properties", """
-            dataset props {
+            dataset "props" {
                 meta {
                     - test: "property value"
                 }
@@ -225,7 +344,8 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
               LcaDatasetDefinitionImpl(DATASET_DEFINITION)
                 PsiElement(LcaTokenType.dataset)('dataset')
                 PsiWhiteSpace(' ')
-                PsiElement(LcaTokenType.IDENTIFIER)('props')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"props"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
@@ -241,9 +361,8 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                       PsiElement(LcaTokenType.IDENTIFIER)('test')
                       PsiElement(LcaTokenType.separator)(':')
                       PsiWhiteSpace(' ')
-                      PsiElement(LcaTokenType.lstring)('"')
-                      PsiElement(LcaTokenType.STRING)('property value')
-                      PsiElement(LcaTokenType.rstring)('"')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"property value"')
                     PsiWhiteSpace('\n    ')
                     PsiElement(LcaTokenType.right-bracker)('}')
                 PsiWhiteSpace('\n')
@@ -256,7 +375,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testEscapedCharacter() {
         parseFile("meta properties", """
-            dataset props {
+            dataset "props" {
                 meta {
                     - test: "property \"value\""
                 }
@@ -264,6 +383,34 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
 
         assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"props"')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaMetadataImpl(METADATA)
+                    PsiElement(LcaTokenType.meta)('meta')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaPropertyImpl(PROPERTY)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.IDENTIFIER)('test')
+                      PsiElement(LcaTokenType.separator)(':')
+                      PsiWhiteSpace(' ')
+                      LcaStringLiteralImpl(STRING_LITERAL)
+                        PsiElement(LcaTokenType.string)('"property \"value\""')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
@@ -280,6 +427,37 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
 
         assertEquals("""
+            Lca File
+              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
+                PsiElement(LcaTokenType.dataset)('dataset')
+                PsiWhiteSpace(' ')
+                LcaStringLiteralImpl(STRING_LITERAL)
+                  PsiElement(LcaTokenType.string)('"resources"')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaDatasetBodyImpl(DATASET_BODY)
+                  LcaResourcesImpl(RESOURCES)
+                    PsiElement(LcaTokenType.resources)('resources')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.left-bracket)('{')
+                    PsiWhiteSpace('\n        ')
+                    LcaBioExchangeImpl(BIO_EXCHANGE)
+                      PsiElement(LcaTokenType.list)('-')
+                      PsiWhiteSpace(' ')
+                      LcaSubstanceIdImpl(SUBSTANCE_ID)
+                        LcaStringLiteralImpl(STRING_LITERAL)
+                          PsiElement(LcaTokenType.string)('"carbon"')
+                      PsiWhiteSpace(' ')
+                      PsiElement(LcaTokenType.NUMBER)('1')
+                      PsiWhiteSpace(' ')
+                      LcaUnitImpl(UNIT)
+                        PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                    PsiWhiteSpace('\n    ')
+                    PsiElement(LcaTokenType.right-bracker)('}')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
@@ -296,6 +474,38 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
 
         assertEquals("""
+            Lca File
+              Substance(test, soil, low. pop.)
+                PsiElement(LcaTokenType.substances)('substance')
+                PsiWhiteSpace(' ')
+                LcaSubstanceIdImpl(SUBSTANCE_ID)
+                  LcaStringLiteralImpl(STRING_LITERAL)
+                    PsiElement(LcaTokenType.string)('"test"')
+                  PsiElement(LcaTokenType.coma)(',')
+                  LcaStringLiteralImpl(STRING_LITERAL)
+                    PsiElement(LcaTokenType.string)('"soil"')
+                  PsiElement(LcaTokenType.coma)(',')
+                  LcaStringLiteralImpl(STRING_LITERAL)
+                    PsiElement(LcaTokenType.string)('"low. pop."')
+                PsiWhiteSpace(' ')
+                PsiElement(LcaTokenType.left-bracket)('{')
+                PsiWhiteSpace('\n    ')
+                LcaSubstanceBodyImpl(SUBSTANCE_BODY)
+                  LcaSubstanceTypeImpl(SUBSTANCE_TYPE)
+                    PsiElement(LcaTokenType.type)('type')
+                    PsiElement(LcaTokenType.separator)(':')
+                    PsiWhiteSpace(' ')
+                    PsiElement(LcaTokenType.resources)('resources')
+                  PsiWhiteSpace('\n    ')
+                  LcaUnitTypeImpl(UNIT_TYPE)
+                    PsiElement(LcaTokenType.unit)('unit')
+                    PsiElement(LcaTokenType.separator)(':')
+                    PsiWhiteSpace(' ')
+                    LcaUnitImpl(UNIT)
+                      PsiElement(LcaTokenType.IDENTIFIER)('kg')
+                PsiWhiteSpace('\n')
+                PsiElement(LcaTokenType.right-bracker)('}')
+
         """.trimIndent(),
             toParseTreeText(myFile, skipSpaces(), includeRanges()))
     }
