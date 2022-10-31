@@ -12,8 +12,8 @@
   elementTypeClass="ch.kleis.lcaplugin.psi.LcaElementType"
   tokenTypeClass="ch.kleis.lcaplugin.psi.LcaTokenType"
 
-  mixin("dataset_definition")="ch.kleis.lcaplugin.language.psi.mixin.DatasetDefinitionMixin"
-  implements("dataset_definition")="com.intellij.psi.PsiNameIdentifierOwner"
+  mixin("process_definition")="ch.kleis.lcaplugin.language.psi.mixin.ProcessDefinitionMixin"
+  implements("process_definition")="com.intellij.psi.PsiNameIdentifierOwner"
 
   mixin("input_exchange")="ch.kleis.lcaplugin.language.psi.mixin.InputExchangeMixin"
   implements("input_exchange")="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
@@ -23,7 +23,7 @@
   tokens=[
       TYPE_KEYWORD= 'type'
       UNIT_KEYWORD = 'unit'
-      DATASET_KEYWORD= 'dataset'
+      PROCESS_KEYWORD= 'process'
       INPUTS_KEYWORD = 'inputs'
       PRODUCTS_KEYWORD = 'products'
       RESOURCES_KEYWORD = 'resources'
@@ -45,12 +45,12 @@
   ]
 }
 
-lcaFile ::= (dataset_definition | substance)*
+lcaFile ::= (process_definition | substance)*
 
-// dataset
+// process
 
-dataset_definition ::= DATASET_KEYWORD string_literal LBRACE dataset_body RBRACE
-dataset_body ::= (products | inputs | resources | emissions | land_use)* metadata?
+process_definition ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE
+process_body ::= (products | inputs | resources | emissions | land_use)* metadata?
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
@@ -112,5 +112,5 @@ unit ::= IDENTIFIER {
 }
 
 private next_item ::= !(LIST_ITEM | RBRACE)
-private next_dataset ::= !DATASET_KEYWORD
+private next_process ::= !PROCESS_KEYWORD
 

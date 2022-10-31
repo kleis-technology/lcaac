@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.actions.CreateDatasetAction
+import ch.kleis.lcaplugin.actions.CreateProcessAction
 import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
 import ch.kleis.lcaplugin.language.psi.type.Product
 import ch.kleis.lcaplugin.psi.LcaInputExchange
@@ -26,7 +26,7 @@ class LcaProductAnnotator : Annotator {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.name}")
                         .range(it)
                         .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-                        .withFix(CreateDatasetAction(it.name!!, element.getUnitElement()?.text))
+                        .withFix(CreateProcessAction(it.name!!, element.getUnitElement()?.text))
                         .create()
                 }
             } else {

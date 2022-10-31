@@ -68,7 +68,7 @@
 
     <actions>
         <action id="Lca.NewFile" class="ch.kleis.lcaplugin.actions.NewLcaFileAction"
-                text="LCA Datasets" description="Create a LCA file containing datasets">
+                text="LCA Processes" description="Create a LCA file containing processes">
             <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
         </action>
         <action id="ch.kleis.lcaplugin.actions.ImportScsvFileAction"

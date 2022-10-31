@@ -1,4 +1,4 @@
-dataset <fold text='"Test"'>"Test"</fold> <fold text='0 kg co2'>{
+process <fold text='"Test"'>"Test"</fold> <fold text='0 kg co2'>{
     products <fold text='...'>{
 
     }</fold>
@@ -8,11 +8,11 @@ dataset <fold text='"Test"'>"Test"</fold> <fold text='0 kg co2'>{
     }</fold>
 }</fold>
 
-dataset Second {
+process Second {
 
 }
 
-dataset <fold text='"third"'>"third"</fold> {
+process <fold text='"third"'>"third"</fold> {
    resources {
        - <fold text='"exchange"'>"exchange"</fold> 10 kg
    }

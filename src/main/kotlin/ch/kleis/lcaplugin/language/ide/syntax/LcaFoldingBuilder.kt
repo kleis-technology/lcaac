@@ -1,13 +1,13 @@
 package ch.kleis.lcaplugin.language.ide.syntax
 
-import ch.kleis.lcaplugin.psi.LcaDatasetDefinition
+import ch.kleis.lcaplugin.psi.LcaProcessDefinition
 import ch.kleis.lcaplugin.psi.LcaEmissions
 import ch.kleis.lcaplugin.psi.LcaInputs
 import ch.kleis.lcaplugin.psi.LcaMetadata
 import ch.kleis.lcaplugin.psi.LcaProducts
 import ch.kleis.lcaplugin.psi.LcaResources
 import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.LcaTypes.DATASET_DEFINITION
+import ch.kleis.lcaplugin.psi.LcaTypes.PROCESS_DEFINITION
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.FoldingBuilderEx
 import com.intellij.lang.folding.FoldingDescriptor
@@ -25,10 +25,10 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
         val descriptors: MutableList<FoldingDescriptor> = ArrayList()
 
-        val lcaDatasetDefinitions: Collection<PsiElement> =
+        val lcaProcessDefinitions: Collection<PsiElement> =
             PsiTreeUtil.findChildrenOfAnyType(
                 root,
-                ch.kleis.lcaplugin.psi.LcaDatasetDefinition::class.java,
+                ch.kleis.lcaplugin.psi.LcaProcessDefinition::class.java,
                 ch.kleis.lcaplugin.psi.LcaProducts::class.java,
                 ch.kleis.lcaplugin.psi.LcaInputs::class.java,
                 ch.kleis.lcaplugin.psi.LcaResources::class.java,
@@ -36,7 +36,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 ch.kleis.lcaplugin.psi.LcaMetadata::class.java,
             )
 
-        for (definition in lcaDatasetDefinitions) {
+        for (definition in lcaProcessDefinitions) {
             val braces = PsiTreeUtil.collectElements(definition)
             { e -> e.elementType == ch.kleis.lcaplugin.psi.LcaTypes.LBRACE || e.elementType == ch.kleis.lcaplugin.psi.LcaTypes.RBRACE }
 
@@ -55,7 +55,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
     override fun getPlaceholderText(node: ASTNode): String {
         return when (node.elementType) {
-            DATASET_DEFINITION -> "0 kg co2"
+            PROCESS_DEFINITION -> "0 kg co2"
             else -> "..."
         }
     }

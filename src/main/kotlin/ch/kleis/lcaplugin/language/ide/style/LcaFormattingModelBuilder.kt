@@ -14,11 +14,11 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
 
         private fun createSpaceBuilder(settings: CodeStyleSettings): SpacingBuilder {
             return SpacingBuilder(settings, INSTANCE)
-                .before(DATASET_DEFINITION)
+                .before(PROCESS_DEFINITION)
                 .spacing(0, 0, 0, false, 1)
-                .betweenInside(IDENTIFIER, LBRACE, DATASET_DEFINITION)
+                .betweenInside(IDENTIFIER, LBRACE, PROCESS_DEFINITION)
                 .spacing(1, 1, 0, false, 0)
-                .betweenInside(LBRACE, RBRACE, DATASET_DEFINITION)
+                .betweenInside(LBRACE, RBRACE, PROCESS_DEFINITION)
                 .spacing(0 , 0, 2, false, 0)
         }
     }
