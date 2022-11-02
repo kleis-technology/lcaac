@@ -45,12 +45,12 @@ Number_Int = [0-9][0-9]*
 
 <YYINITIAL> ":"                      { return LcaTypes.SEPARATOR; }
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
+<YYINITIAL> "-"? {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 <YYINITIAL> ","                      { return LcaTypes.COMA; }
 
 
-<YYINITIAL> {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
 <YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
 <YYINITIAL> {StringContent}          { return LcaTypes.STRING; }
 

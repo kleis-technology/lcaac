@@ -33,7 +33,8 @@ class ScsvProcessBlockFormatter {
                         irepMeta(processBlock),
                     )
                 ),
-                TextLine("}")
+                TextLine("}"),
+                TextLine(""),
             )
         )
     }
@@ -65,6 +66,7 @@ class ScsvProcessBlockFormatter {
                         .toList()
                 ),
                 TextLine("}"),
+                TextLine(""),
             )
         )
     }
@@ -84,7 +86,8 @@ class ScsvProcessBlockFormatter {
                         .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
-                TextLine("}")
+                TextLine("}"),
+                TextLine(""),
             )
         )
     }
@@ -111,6 +114,7 @@ class ScsvProcessBlockFormatter {
                         .toList()
                 ),
                 TextLine("}"),
+                TextLine(""),
             )
         )
     }
@@ -131,6 +135,7 @@ class ScsvProcessBlockFormatter {
                         .toList()
                 ),
                 TextLine("}"),
+                TextLine(""),
             )
         )
     }
@@ -150,6 +155,7 @@ class ScsvProcessBlockFormatter {
                     regions
                 ),
                 TextLine("}"),
+                TextLine(""),
             )
         )
     }
