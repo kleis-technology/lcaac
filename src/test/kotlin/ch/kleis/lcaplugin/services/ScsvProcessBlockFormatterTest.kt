@@ -33,12 +33,6 @@ internal class ScsvProcessBlockFormatterTest {
                 products {
                     - "reference product" 1.0 kg
                 }
-                inputs {
-                }
-                emissions {
-                }
-                resources {
-                }
                 meta {
                     - identifier: "123456"
                     - category: "material"

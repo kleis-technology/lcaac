@@ -50,7 +50,11 @@ class ScsvProcessBlockFormatter {
             processBlock.products().stream(),
             Optional.ofNullable(processBlock.wasteTreatment()).stream(),
             processBlock.avoidedProducts().stream()
-        ).stream().flatMap { it }
+        ).stream().flatMap { it }.toList()
+
+        if (products.isEmpty()) {
+            return TextBlock(emptyList())
+        }
 
         return TextBlock(
             listOf(
@@ -68,7 +72,10 @@ class ScsvProcessBlockFormatter {
     private fun irepInputs(processBlock: ProcessBlock): TextRegion {
         val intermediaryInputs =
             Stream.of(ProductType.MATERIAL_FUELS, ProductType.ELECTRICITY_HEAT, ProductType.WASTE_TO_TREATMENT)
-                .flatMap { processBlock.exchangesOf(it).stream() }
+                .flatMap { processBlock.exchangesOf(it).stream() }.toList()
+        if (intermediaryInputs.isEmpty()) {
+            return TextBlock(emptyList())
+        }
         return TextBlock(
             listOf(
                 TextLine("inputs {"),
@@ -91,7 +98,10 @@ class ScsvProcessBlockFormatter {
             ElementaryFlowType.NON_MATERIAL_EMISSIONS,
             ElementaryFlowType.SOCIAL_ISSUES,
             ElementaryFlowType.ECONOMIC_ISSUES
-        ).flatMap { processBlock.exchangesOf(it).stream() }
+        ).flatMap { processBlock.exchangesOf(it).stream() }.toList()
+        if (elementaryOutputs.isEmpty()) {
+            return TextBlock(emptyList())
+        }
         return TextBlock(
             listOf(
                 TextLine("emissions {"),
@@ -108,7 +118,10 @@ class ScsvProcessBlockFormatter {
     private fun irepResources(processBlock: ProcessBlock): TextRegion {
         val elementaryOutputs = Stream.of(
             ElementaryFlowType.RESOURCES,
-        ).flatMap { processBlock.exchangesOf(it).stream() }
+        ).flatMap { processBlock.exchangesOf(it).stream() }.toList()
+        if (elementaryOutputs.isEmpty()) {
+            return TextBlock(emptyList())
+        }
         return TextBlock(
             listOf(
                 TextLine("resources {"),
@@ -140,7 +153,7 @@ class ScsvProcessBlockFormatter {
             )
         )
     }
-    
+
     private fun geography(processBlock: ProcessBlock): TextLine? {
         val pattern: Pattern = compile("^Geography: .* modelled for (.*)$", MULTILINE)
         val comment = processBlock.comment() ?: return null
