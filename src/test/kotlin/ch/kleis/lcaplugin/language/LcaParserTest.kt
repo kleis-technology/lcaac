@@ -21,7 +21,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -93,7 +93,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -131,7 +131,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -161,7 +161,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 PsiWhiteSpace('\n')
                 PsiElement(LcaTokenType.right-bracker)('}')
               PsiWhiteSpace('\n\n')
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -227,7 +227,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -295,7 +295,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -341,7 +341,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -384,7 +384,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
@@ -428,7 +428,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+              LcaProcessDefinitionImpl(PROCESS)
                 PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
