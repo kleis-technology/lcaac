@@ -143,7 +143,7 @@ class ScsvProcessBlockFormatter {
     
     private fun geography(processBlock: ProcessBlock): TextLine? {
         val pattern: Pattern = compile("^Geography: .* modelled for (.*)$", MULTILINE)
-        val comment = processBlock.comment()
+        val comment = processBlock.comment() ?: return null
         val matcher = pattern.matcher(comment)
         if (matcher.find()) {
             val geography = matcher.group(1)

@@ -1,4 +1,4 @@
-process <fold text='"Test"'>"Test"</fold> <fold text='0 kg co2'>{
+process <fold text='"Test"'>"Test"</fold> <fold text='...'>{
     products <fold text='...'>{
 
     }</fold>
