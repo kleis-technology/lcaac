@@ -12,9 +12,6 @@
   elementTypeClass="ch.kleis.lcaplugin.psi.LcaElementType"
   tokenTypeClass="ch.kleis.lcaplugin.psi.LcaTokenType"
 
-  mixin("process_definition")="ch.kleis.lcaplugin.language.psi.mixin.ProcessDefinitionMixin"
-  implements("process_definition")="com.intellij.psi.PsiNameIdentifierOwner"
-
   mixin("input_exchange")="ch.kleis.lcaplugin.language.psi.mixin.InputExchangeMixin"
   implements("input_exchange")="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
 
@@ -29,6 +26,8 @@
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
       SUBSTANCE_KEYWORD = 'substances'
+      IMPACT_KEYWORD = 'impact'
+      FACTORS_KEYWORD = 'factors'
       LAND_USE_KEYWORD = 'land_use'
       META_KEYWORD = 'meta'
       IDENTIFIER = "regexp:\w+"
@@ -45,15 +44,19 @@
   ]
 }
 
-lcaFile ::= (process_definition | substance)*
+lcaFile ::= (process | substance | impact)*
 
 // process
 
-process_definition ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE
+process ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE {
+  implements = ["com.intellij.psi.PsiNameIdentifierOwner"]
+  mixin ="ch.kleis.lcaplugin.language.psi.mixin.ProcessDefinitionMixin"
+}
 process_body ::= (products | inputs | resources | emissions | land_use)* metadata?
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
+factors ::= FACTORS_KEYWORD LBRACE factor* RBRACE
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
 
@@ -68,6 +71,11 @@ substance ::= SUBSTANCE_KEYWORD substance_id LBRACE substance_body RBRACE {
 substance_body ::= substance_type unitType metadata?
 substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
 unitType ::= UNIT_KEYWORD SEPARATOR quantity
+
+// method
+
+impact ::= IMPACT_KEYWORD string_literal SEPARATOR IDENTIFIER LBRACE impact_body RBRACE
+impact_body ::= resources factors metadata?
 
 // exchanges
 
@@ -87,6 +95,13 @@ meta bio_exchange ::= LIST_ITEM substance_id NUMBER quantity {
     implements="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
 }
 private techno_exchange ::= LIST_ITEM string_literal NUMBER quantity {recoverWhile=next_item}
+
+// factors
+
+meta factor ::= LIST_ITEM string_literal NUMBER quantity {
+    recoverWhile=next_item
+}
+
 
 // id substance
 

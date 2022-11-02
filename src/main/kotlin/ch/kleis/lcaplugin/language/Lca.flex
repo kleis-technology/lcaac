@@ -35,9 +35,12 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "emissions"              { return LcaTypes.EMISSIONS_KEYWORD; }
 <YYINITIAL> "land_use"               { return LcaTypes.LAND_USE_KEYWORD; }
 <YYINITIAL> "meta"                   { return LcaTypes.META_KEYWORD; }
+<YYINITIAL> "impact"                 { return LcaTypes.IMPACT_KEYWORD; }
+<YYINITIAL> "factors"                { return LcaTypes.FACTORS_KEYWORD; }
 <YYINITIAL> "substance"              { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "type"                   { return LcaTypes.TYPE_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
+
 
 
 <YYINITIAL> ":"                      { return LcaTypes.SEPARATOR; }

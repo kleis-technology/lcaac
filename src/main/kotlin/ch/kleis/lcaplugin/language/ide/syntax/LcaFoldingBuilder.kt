@@ -1,13 +1,12 @@
 package ch.kleis.lcaplugin.language.ide.syntax
 
-import ch.kleis.lcaplugin.psi.LcaProcessDefinition
 import ch.kleis.lcaplugin.psi.LcaEmissions
 import ch.kleis.lcaplugin.psi.LcaInputs
 import ch.kleis.lcaplugin.psi.LcaMetadata
 import ch.kleis.lcaplugin.psi.LcaProducts
 import ch.kleis.lcaplugin.psi.LcaResources
 import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.LcaTypes.PROCESS_DEFINITION
+import ch.kleis.lcaplugin.psi.LcaTypes.PROCESS
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.FoldingBuilderEx
 import com.intellij.lang.folding.FoldingDescriptor
@@ -28,17 +27,19 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
         val lcaProcessDefinitions: Collection<PsiElement> =
             PsiTreeUtil.findChildrenOfAnyType(
                 root,
-                ch.kleis.lcaplugin.psi.LcaProcessDefinition::class.java,
+                ch.kleis.lcaplugin.psi.LcaProcess::class.java,
                 ch.kleis.lcaplugin.psi.LcaProducts::class.java,
                 ch.kleis.lcaplugin.psi.LcaInputs::class.java,
                 ch.kleis.lcaplugin.psi.LcaResources::class.java,
                 ch.kleis.lcaplugin.psi.LcaEmissions::class.java,
                 ch.kleis.lcaplugin.psi.LcaMetadata::class.java,
+                ch.kleis.lcaplugin.psi.LcaImpact::class.java,
+                ch.kleis.lcaplugin.psi.LcaFactors::class.java
             )
 
         for (definition in lcaProcessDefinitions) {
             val braces = PsiTreeUtil.collectElements(definition)
-            { e -> e.elementType == ch.kleis.lcaplugin.psi.LcaTypes.LBRACE || e.elementType == ch.kleis.lcaplugin.psi.LcaTypes.RBRACE }
+            { e -> e.elementType == LcaTypes.LBRACE || e.elementType == LcaTypes.RBRACE }
 
             if (braces.size > 1) {
                 descriptors.add(
@@ -53,12 +54,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
     }
 
-    override fun getPlaceholderText(node: ASTNode): String {
-        return when (node.elementType) {
-            PROCESS_DEFINITION -> "0 kg co2"
-            else -> "..."
-        }
-    }
+    override fun getPlaceholderText(node: ASTNode): String = "..."
 
     override fun isCollapsedByDefault(node: ASTNode): Boolean {
         return false;

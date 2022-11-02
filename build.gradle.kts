@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import task.GenerateEmissionFactorsTask
 import task.GenerateSubstancesTask
 
 fun properties(key: String) = project.findProperty(key).toString()
@@ -104,10 +105,15 @@ tasks {
 
     }
 
+    /*task<GenerateEmissionFactorsTask>("generateEmissionFactors") {
+
+    }*/
+
     compileKotlin {
         dependsOn("generateLexer")
         dependsOn("generateParser")
         dependsOn("generateSubstances")
+        //dependsOn("generateEmissionFactors")
     }
 
     patchPluginXml {
