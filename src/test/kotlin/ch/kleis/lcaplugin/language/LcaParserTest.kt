@@ -7,9 +7,9 @@ import org.junit.Test
 class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
     @Test
-    fun testSimpleDataset() {
-        parseFile("simple dataset", """
-            dataset "elecricity" { 
+    fun testSimpleprocess() {
+        parseFile("simple process", """
+            process "elecricity" { 
                     products {
                         - "electricity" 1.3 MJ
                         - "water" 1 l
@@ -21,15 +21,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         """.trimIndent())
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"elecricity"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace(' \n        ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaProductsImpl(PRODUCTS)
                     PsiElement(LcaTokenType.products)('products')
                     PsiWhiteSpace(' ')
@@ -84,24 +84,24 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     }
 
     @Test
-    fun testEmptyDataset()
+    fun testEmptyprocess()
     {
-        parseFile("empty dataset", """
-            dataset "empty" {
+        parseFile("empty process", """
+            process "empty" {
             }
         """.trimIndent())
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"empty"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   <empty list>
                 PsiElement(LcaTokenType.right-bracker)('}')
 
@@ -110,16 +110,16 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     }
 
     @Test
-    fun testMultipleDatasets()
+    fun testMultipleprocesss()
     {
-        parseFile("multiple dataset", """
-            dataset "first" {
+        parseFile("multiple process", """
+            process "first" {
                 resources {
                     - "co2" 1 kg
                 }
             }
             
-            dataset "second" {
+            process "second" {
                 products {
                     - "exchange" 1 kg
                 }
@@ -131,15 +131,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"first"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaResourcesImpl(RESOURCES)
                     PsiElement(LcaTokenType.resources)('resources')
                     PsiWhiteSpace(' ')
@@ -161,15 +161,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 PsiWhiteSpace('\n')
                 PsiElement(LcaTokenType.right-bracker)('}')
               PsiWhiteSpace('\n\n')
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"second"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaProductsImpl(PRODUCTS)
                     PsiElement(LcaTokenType.products)('products')
                     PsiWhiteSpace(' ')
@@ -215,7 +215,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testQuantity() {
         parseFile("quantity", """
-            dataset "quantity" {
+            process "quantity" {
                 inputs {
                     - "wheat" 1 kg
                     - "land" 2 m2
@@ -227,15 +227,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"quantity"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaInputsImpl(INPUTS)
                     PsiElement(LcaTokenType.inputs)('inputs')
                     PsiWhiteSpace(' ')
@@ -285,8 +285,8 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
     @Test
     fun testFaultyUnitSyntax() {
-        parseFile("empty dataset", """
-            dataset "faulty" {
+        parseFile("empty process", """
+            process "faulty" {
                 inputs {
                     - "wheat" 1 kwh
                 }
@@ -295,15 +295,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"faulty"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaInputsImpl(INPUTS)
                     PsiElement(LcaTokenType.inputs)('inputs')
                     PsiWhiteSpace(' ')
@@ -332,7 +332,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testMetaProperties() {
         parseFile("meta properties", """
-            dataset "props" {
+            process "props" {
                 meta {
                     - test: "property value"
                 }
@@ -341,15 +341,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"props"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaMetadataImpl(METADATA)
                     PsiElement(LcaTokenType.meta)('meta')
                     PsiWhiteSpace(' ')
@@ -375,7 +375,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testEscapedCharacter() {
         parseFile("meta properties", """
-            dataset "props" {
+            process "props" {
                 meta {
                     - test: "property \"value\""
                 }
@@ -384,15 +384,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"props"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaMetadataImpl(METADATA)
                     PsiElement(LcaTokenType.meta)('meta')
                     PsiWhiteSpace(' ')
@@ -419,7 +419,7 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testResources() {
         parseFile("resources", """
-            dataset "resources" {
+            process "resources" {
                 resources {
                     - "carbon" 1 kg
                 }
@@ -428,15 +428,15 @@ class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         assertEquals("""
             Lca File
-              LcaDatasetDefinitionImpl(DATASET_DEFINITION)
-                PsiElement(LcaTokenType.dataset)('dataset')
+              LcaProcessDefinitionImpl(PROCESS_DEFINITION)
+                PsiElement(LcaTokenType.process)('process')
                 PsiWhiteSpace(' ')
                 LcaStringLiteralImpl(STRING_LITERAL)
                   PsiElement(LcaTokenType.string)('"resources"')
                 PsiWhiteSpace(' ')
                 PsiElement(LcaTokenType.left-bracket)('{')
                 PsiWhiteSpace('\n    ')
-                LcaDatasetBodyImpl(DATASET_BODY)
+                LcaProcessBodyImpl(PROCESS_BODY)
                   LcaResourcesImpl(RESOURCES)
                     PsiElement(LcaTokenType.resources)('resources')
                     PsiWhiteSpace(' ')

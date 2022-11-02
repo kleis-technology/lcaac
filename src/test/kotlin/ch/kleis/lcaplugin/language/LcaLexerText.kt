@@ -15,11 +15,11 @@ internal class LcaLexerText : LexerTestCase() {
     }
 
     @Test
-    fun testSimpleDataset() {
+    fun testSimpleprocess() {
 
         doTest(
             """
-                dataset "elecricity" { 
+                process "elecricity" { 
                     products {
                         - "nuclear" 1.3e10 kBq
                         - "power" 10 kg
@@ -29,7 +29,7 @@ internal class LcaLexerText : LexerTestCase() {
                 """,
             """
                 WHITE_SPACE ('\n                ')
-                LcaTokenType.dataset ('dataset')
+                LcaTokenType.process ('process')
                 WHITE_SPACE (' ')
                 LcaTokenType.string ('"elecricity"')
                 WHITE_SPACE (' ')
@@ -72,13 +72,13 @@ internal class LcaLexerText : LexerTestCase() {
     }
 
     @Test
-    fun testEmptyDataset()
+    fun testEmptyprocess()
     {
         doTest("""
-            dataset "empty" { 
+            process "empty" { 
             }
         """.trimIndent(), """
-            LcaTokenType.dataset ('dataset')
+            LcaTokenType.process ('process')
             WHITE_SPACE (' ')
             LcaTokenType.string ('"empty"')
             WHITE_SPACE (' ')
@@ -94,13 +94,13 @@ internal class LcaLexerText : LexerTestCase() {
     @Test
     fun testMetaProperties() {
         doTest("""
-            dataset props {
+            process props {
                 meta {
                     - test = "property value"
                 }
             }
         """.trimIndent(), """
-            LcaTokenType.dataset ('dataset')
+            LcaTokenType.process ('process')
             WHITE_SPACE (' ')
             LcaTokenType.IDENTIFIER ('props')
             WHITE_SPACE (' ')
@@ -128,13 +128,13 @@ internal class LcaLexerText : LexerTestCase() {
     @Test
     fun testEscapedCharacter() {
         doTest("""
-            dataset "props" {
+            process "props" {
                 meta {
                     - test: "property \"value\""
                 }
             }
         """.trimIndent(), """
-            LcaTokenType.dataset ('dataset')
+            LcaTokenType.process ('process')
             WHITE_SPACE (' ')
             LcaTokenType.string ('"props"')
             WHITE_SPACE (' ')

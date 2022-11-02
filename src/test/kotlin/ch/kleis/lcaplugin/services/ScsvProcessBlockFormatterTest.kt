@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.services
 
-import junit.framework.Assert.assertEquals
 import org.junit.Test
 import org.openlca.simapro.csv.Numeric
 import org.openlca.simapro.csv.enums.ProcessCategory
@@ -30,7 +29,7 @@ internal class ScsvProcessBlockFormatterTest {
 
         // then
         val expected = """
-            dataset "process name" {
+            process "process name" {
                 products {
                     - "reference product" 1.0 kg
                 }
@@ -47,6 +46,6 @@ internal class ScsvProcessBlockFormatterTest {
                 }
             }
         """.trimIndent()
-        assertEquals(expected, actual)
+        assert(expected == actual)
     }
 }

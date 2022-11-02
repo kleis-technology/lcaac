@@ -8,10 +8,10 @@ import com.intellij.psi.*
 class SubstanceReference(element: PsiNamedElement, textRange: TextRange) : PsiReferenceBase<PsiNamedElement>(element, textRange),
     SearchTrait, PsiPolyVariantReference {
 
-    private val datasetIdentifier: String
+    private val processIdentifier: String
 
     init {
-        datasetIdentifier = element.name!!
+        processIdentifier = element.name!!
     }
 
     override fun resolve(): PsiElement? {
@@ -20,7 +20,7 @@ class SubstanceReference(element: PsiNamedElement, textRange: TextRange) : PsiRe
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        return this.findSubstances(element.project, datasetIdentifier)
+        return this.findSubstances(element.project, processIdentifier)
             .map { PsiElementResolveResult(it) }.toTypedArray()
     }
 

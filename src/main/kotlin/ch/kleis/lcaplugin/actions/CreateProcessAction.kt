@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.actions
 
-import ch.kleis.lcaplugin.LcaFileType
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.command.WriteCommandAction
@@ -12,10 +11,10 @@ import com.intellij.psi.PsiFileFactory
 import com.intellij.util.ThrowableRunnable
 
 
-class CreateDatasetAction(private val dataset: String, private val unitText: String?) : BaseIntentionAction() {
+class CreateProcessAction(private val process: String, private val unitText: String?) : BaseIntentionAction() {
 
     override fun getText(): String {
-        return "Create datataset '$dataset'"
+        return "Create process '$process'"
     }
 
     override fun getFamilyName(): String {
@@ -29,15 +28,15 @@ class CreateDatasetAction(private val dataset: String, private val unitText: Str
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile) {
         WriteCommandAction.writeCommandAction(project).run(ThrowableRunnable<RuntimeException> {
-            val newDataset = PsiFileFactory.getInstance(project)
+            val newProcess = PsiFileFactory.getInstance(project)
                 .createFileFromText(
                     "_Dummy_.${ch.kleis.lcaplugin.LcaFileType.INSTANCE.defaultExtension}",
                     ch.kleis.lcaplugin.LcaFileType.INSTANCE,
-                    "\n\ndataset \"$dataset\" {\n products {\n - \"$dataset\" 1 $unitText\n}\n}\n"
+                    "\n\nprocess \"$process\" {\n products {\n - \"$process\" 1 $unitText\n}\n}\n"
                 )
-            file.node.addChildren(newDataset.firstChild.node, newDataset.lastChild.node, null);
+            file.node.addChildren(newProcess.firstChild.node, newProcess.lastChild.node, null);
             ReformatCodeProcessor(file, true).run()
-            (newDataset.lastChild.navigationElement as Navigatable).navigate(true)
+            (newProcess.lastChild.navigationElement as Navigatable).navigate(true)
         })
 
     }

@@ -18,7 +18,7 @@ class ScsvProcessBlockFormatter {
     private fun irep(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
-                TextLine("dataset \"${processBlock.name()}\" {"),
+                TextLine("process \"${processBlock.name()}\" {"),
                 TextIndent(
                     listOf(
                         irepProducts(processBlock),

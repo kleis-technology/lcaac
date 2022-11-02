@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.structure
 
-import ch.kleis.lcaplugin.psi.LcaDatasetDefinition
+import ch.kleis.lcaplugin.psi.LcaProcessDefinition
 import com.intellij.ide.structureView.StructureViewModel
 import com.intellij.ide.structureView.StructureViewModelBase
 import com.intellij.ide.structureView.StructureViewTreeElement
@@ -22,10 +22,10 @@ class LcaStructureViewModel(editor: Editor?, psiFile: PsiFile)
     }
 
     override fun isAlwaysLeaf(element: StructureViewTreeElement): Boolean {
-        return element.value is ch.kleis.lcaplugin.psi.LcaDatasetDefinition
+        return element.value is ch.kleis.lcaplugin.psi.LcaProcessDefinition
     }
 
     override fun getSuitableClasses(): Array<Class<*>> {
-        return arrayOf(ch.kleis.lcaplugin.psi.LcaDatasetDefinition::class.java)
+        return arrayOf(ch.kleis.lcaplugin.psi.LcaProcessDefinition::class.java)
     }
 }

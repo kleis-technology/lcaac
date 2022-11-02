@@ -27,7 +27,7 @@ Number_Int = [0-9][0-9]*
 %%
 
 
-<YYINITIAL> "dataset"                { return LcaTypes.DATASET_KEYWORD; }
+<YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
 
 <YYINITIAL> "inputs"                 { return LcaTypes.INPUTS_KEYWORD; }
 <YYINITIAL> "products"               { return LcaTypes.PRODUCTS_KEYWORD; }

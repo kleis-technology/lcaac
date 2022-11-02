@@ -71,7 +71,7 @@ class ImportScsvFileAction : AnAction() {
                     }
 
                     processBlockCount += 1
-                    indicator.text = "Processing ... $processBlockCount datasets"
+                    indicator.text = "Processing ... $processBlockCount processs"
                 }.read(GZIPInputStream(scsvFile.inputStream))
 
                 indicator.fraction = 1.0

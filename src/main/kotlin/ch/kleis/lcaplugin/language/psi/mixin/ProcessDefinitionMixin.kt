@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 
-abstract class DatasetDefinitionMixin(node: ASTNode) : ASTWrapperPsiElement(node), IdentifiableTrait, PsiNameIdentifierOwner {
+abstract class ProcessDefinitionMixin(node: ASTNode) : ASTWrapperPsiElement(node), IdentifiableTrait, PsiNameIdentifierOwner {
 
 
     override fun getName() : String? = super<IdentifiableTrait>.getName()

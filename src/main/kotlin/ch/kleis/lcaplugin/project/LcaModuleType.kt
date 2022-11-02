@@ -25,7 +25,7 @@ class LcaModuleType : ModuleType<LcaModuleBuilder>(ID) {
     }
 
     override fun getDescription(): String {
-        return "This module allow to create dataset using LCA methodology"
+        return "This module allow to create process using LCA methodology"
     }
 
     override fun getNodeIcon(isOpened: Boolean): Icon {
