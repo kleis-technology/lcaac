@@ -13,7 +13,7 @@ internal class ScsvProcessBlockFormatterTest {
     fun format() {
         // given
         val processBlock = ProcessBlock()
-            .name("process name")
+            .name("process \"blabla\" name")
             .identifier("123456")
             .category(ProcessCategory.MATERIAL)
             .processType(ProcessType.UNIT_PROCESS)
@@ -29,7 +29,7 @@ internal class ScsvProcessBlockFormatterTest {
 
         // then
         val expected = """
-            process "process name" {
+            process "process \"blabla\" name" {
                 products {
                     - "reference product" 1.0 kg
                 }

@@ -18,7 +18,7 @@ class ScsvProcessBlockFormatter {
     private fun irep(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
-                TextLine("process \"${processBlock.name()}\" {"),
+                TextLine("process \"${escape(processBlock.name())}\" {"),
                 TextIndent(
                     listOf(
                         irepProducts(processBlock),
@@ -33,13 +33,17 @@ class ScsvProcessBlockFormatter {
         )
     }
 
+    private fun escape(name: String): String {
+        return name.replace("\"", "\\\"")
+    }
+
     private fun irepProducts(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
                 TextLine("products {"),
                 TextIndent(
                     processBlock.products().stream()
-                        .map { TextLine("- \"${it.name()}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
@@ -55,7 +59,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("inputs {"),
                 TextIndent(
                     intermediaryInputs
-                        .map { TextLine("- \"${it.name()}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}")
@@ -78,7 +82,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("emissions {"),
                 TextIndent(
                     elementaryOutputs
-                        .map { TextLine("- \"${it.name()}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
@@ -95,7 +99,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("resources {"),
                 TextIndent(
                     elementaryOutputs
-                        .map { TextLine("- \"${it.name()}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
