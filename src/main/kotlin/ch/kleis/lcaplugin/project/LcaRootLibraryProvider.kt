@@ -21,7 +21,7 @@ class LcaRootLibraryProvider() : AdditionalLibraryRootsProvider() {
     init {
         val pluginId = PluginId.getId("ch.kleis.lcaplugin")
         val plugin = PluginManagerCore.getPlugins().firstOrNull { it.pluginId == pluginId }
-        val jarFile = plugin?.pluginPath?.resolve(get("lib", "substances.jar"))
+        val jarFile = plugin?.pluginPath?.resolve(get("lib", "emissions_factors.jar"))
         val jarVirtualFile = jarFile?.let {
             VfsUtil.findFile(it, false)
         }

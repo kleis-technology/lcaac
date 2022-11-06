@@ -33,7 +33,6 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 ch.kleis.lcaplugin.psi.LcaResources::class.java,
                 ch.kleis.lcaplugin.psi.LcaEmissions::class.java,
                 ch.kleis.lcaplugin.psi.LcaMetadata::class.java,
-                ch.kleis.lcaplugin.psi.LcaImpact::class.java,
                 ch.kleis.lcaplugin.psi.LcaFactors::class.java
             )
 

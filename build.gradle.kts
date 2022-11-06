@@ -1,7 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import task.GenerateEmissionFactorsTask
-import task.GenerateSubstancesTask
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -41,7 +40,7 @@ dependencies {
     implementation("tech.units:indriya:2.1.3")
     implementation("org.openlca:olca-simapro-csv:3.0.2")
     implementation(files(layout.buildDirectory.dir("stdlib")) {
-        builtBy("generateSubstances")
+        builtBy("generateEmissionFactors")
     })
 }
 
@@ -101,19 +100,14 @@ tasks {
         targetClass.set("parser.LcaLexer")
     }
 
-    task<GenerateSubstancesTask>("generateSubstances") {
+    task<GenerateEmissionFactorsTask>("generateEmissionFactors") {
 
     }
-
-    /*task<GenerateEmissionFactorsTask>("generateEmissionFactors") {
-
-    }*/
 
     compileKotlin {
         dependsOn("generateLexer")
         dependsOn("generateParser")
-        dependsOn("generateSubstances")
-        //dependsOn("generateEmissionFactors")
+        dependsOn("generateEmissionFactors")
     }
 
     patchPluginXml {

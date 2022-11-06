@@ -25,7 +25,8 @@
       PRODUCTS_KEYWORD = 'products'
       RESOURCES_KEYWORD = 'resources'
       EMISSIONS_KEYWORD = 'emissions'
-      SUBSTANCE_KEYWORD = 'substances'
+      SUBSTANCE_KEYWORD = 'substance'
+      REFERENCE_KEYWORD = 'reference'
       IMPACT_KEYWORD = 'impact'
       FACTORS_KEYWORD = 'factors'
       LAND_USE_KEYWORD = 'land_use'
@@ -44,7 +45,7 @@
   ]
 }
 
-lcaFile ::= (process | substance | impact)*
+lcaFile ::= (process | substance | factors)*
 
 // process
 
@@ -56,7 +57,7 @@ process_body ::= (products | inputs | resources | emissions | land_use)* metadat
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
-factors ::= FACTORS_KEYWORD LBRACE factor* RBRACE
+factors ::= FACTORS_KEYWORD substance_id? SEPARATOR IDENTIFIER LBRACE factor* RBRACE
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
 land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
 
@@ -68,14 +69,9 @@ substance ::= SUBSTANCE_KEYWORD substance_id LBRACE substance_body RBRACE {
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.SubstanceMixin"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
 }
-substance_body ::= substance_type unitType metadata?
+substance_body ::= substance_type unitType factors? metadata?
 substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
 unitType ::= UNIT_KEYWORD SEPARATOR quantity
-
-// method
-
-impact ::= IMPACT_KEYWORD string_literal SEPARATOR IDENTIFIER LBRACE impact_body RBRACE
-impact_body ::= resources factors metadata?
 
 // exchanges
 
@@ -98,10 +94,9 @@ private techno_exchange ::= LIST_ITEM string_literal NUMBER quantity {recoverWhi
 
 // factors
 
-meta factor ::= LIST_ITEM string_literal NUMBER quantity {
+meta factor ::= LIST_ITEM string_literal IDENTIFIER? NUMBER {
     recoverWhile=next_item
 }
-
 
 // id substance
 

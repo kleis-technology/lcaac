@@ -19,7 +19,7 @@ class LcaProductAnnotator : Annotator {
     var parser: UnitFormat = SimpleUnitFormat.getInstance()
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 
-        if (element is ch.kleis.lcaplugin.psi.LcaInputExchange) {
+        if (element is LcaInputExchange) {
             val reference = element.reference?.resolve()
             if (reference == null || reference !is Product) {
                 (element.nameIdentifier as StringLiteralMixin?)?.let {

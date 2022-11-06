@@ -38,21 +38,20 @@ Number_Int = [0-9][0-9]*
 <YYINITIAL> "impact"                 { return LcaTypes.IMPACT_KEYWORD; }
 <YYINITIAL> "factors"                { return LcaTypes.FACTORS_KEYWORD; }
 <YYINITIAL> "substance"              { return LcaTypes.SUBSTANCE_KEYWORD; }
+<YYINITIAL> "reference"              { return LcaTypes.REFERENCE_KEYWORD; }
 <YYINITIAL> "type"                   { return LcaTypes.TYPE_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
 
 
+<YYINITIAL> [+-]?{Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
+<YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
+<YYINITIAL> {StringContent}          { return LcaTypes.STRING; }
 
 <YYINITIAL> ":"                      { return LcaTypes.SEPARATOR; }
 <YYINITIAL> "{"                      { return LcaTypes.LBRACE; }
-<YYINITIAL> "-"? {Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 <YYINITIAL> ","                      { return LcaTypes.COMA; }
-
-
-<YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
-<YYINITIAL> {StringContent}          { return LcaTypes.STRING; }
 
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }

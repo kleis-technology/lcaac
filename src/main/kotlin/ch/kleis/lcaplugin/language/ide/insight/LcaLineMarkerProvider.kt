@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.LcaIcons
+import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerInfo
 import com.intellij.codeInsight.daemon.RelatedItemLineMarkerProvider
@@ -16,7 +17,7 @@ class LcaLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        if(element.elementType == ch.kleis.lcaplugin.psi.LcaTypes.IDENTIFIER && element.parent is ch.kleis.lcaplugin.psi.LcaProcess) {
+        if(element.elementType == LcaTypes.IDENTIFIER && element.parent is LcaProcess) {
             val builder: NavigationGutterIconBuilder<PsiElement> = NavigationGutterIconBuilder.create(AllIcons.Actions.Execute)
                 .setTargets(element)
                 .setTooltipText("Calculate process impact");

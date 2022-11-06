@@ -10,26 +10,27 @@ import com.intellij.lang.parser.GeneratedParserUtilBase;
 import ch.kleis.lcaplugin.psi.LcaTypes;
 import tech.units.indriya.format.SimpleUnitFormat;
 
+import java.util.Locale;
+import java.util.Set;
+
 import static ch.kleis.lcaplugin.psi.LcaTypes.*;
 import static com.intellij.psi.TokenType.ERROR_ELEMENT;
 import static java.lang.String.format;
+import static java.util.Set.of;
 
-public class ExtensionParser extends GeneratedParserUtilBase
-{
+public class ExtensionParser extends GeneratedParserUtilBase {
     static UnitFormat parser = SimpleUnitFormat.getInstance();
+    static Set<String> isoCountries = of(Locale.getISOCountries());
 
-    public static boolean parseQuantity(PsiBuilder builder, int level)
-    {
+    public static boolean parseQuantity(PsiBuilder builder, int level) {
         PsiBuilder.Marker marker = builder.mark();
         String text = builder.getTokenText();
-        try
-        {
+        try {
             parser.parse(text);
             builder.advanceLexer();
             marker.done(LcaTypes.UNIT);
             return true;
-        } catch (MeasurementParseException e)
-        {
+        } catch (MeasurementParseException e) {
             builder.advanceLexer();
             marker.error(format("%s is not a valid unit", text));
             return true;
