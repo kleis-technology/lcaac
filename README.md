@@ -6,7 +6,7 @@
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
+- [x] Get familiar with the [template documentation][template].
 - [ ] Verify the [pluginGroup](/gradle.properties), [plugin ID](/src/main/resources/META-INF/plugin.xml) and [sources package](/src/main/kotlin).
 - [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html).
 - [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
@@ -38,18 +38,52 @@ To keep everything working, do not remove `<!-- ... -->` sections.
 ---
 
 
-## LCA File type 
+## LCA File type example
 
 
 ```lca
+process "pesticides" {
+    products {
+        - "pesticides" 1 kg
+    }
+    resources {
+        - "test", "test", "test" 1 kg
+        - "carbon dioxide", "soil", "" +1 kg
+        - "carbon dioxide", "soil", "" -1 kg
+    }
+}
 
-substance Co2 {
-  
-  indicator "Climat Change" {
-    - "to air" , "low pop" : 1 
-    ... 
-  
-  }
+process "wheat farm" {
+
+    products {
+        - "wheat" 1 kg
+    }
+    inputs {
+        - "pesticides" 1 g
+    }
+    resources {
+        - "carbon dioxide", "soil", "" 1 kg
+        - "test", "test", "test" 1 kg
+    }
+}
+
+substance "test", "test", "test" {
+    type: resources
+    unit: kg
+
+    factors : ef31 {
+        - "climate change" DE 3
+        - "climate change" 3
+    }
+
+    meta {
+        - dimension: "Mass"
+    }
+}
+
+factors "test", "test", "test" : ef31 {
+    - "climate change" DE 3
+    - "climate change" 3
 }
 
 
