@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.services.formatter.TextRegion
 import com.intellij.util.containers.addAllIfNotNull
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.enums.ProductType
+import org.openlca.simapro.csv.process.ElementaryExchangeRow
 import org.openlca.simapro.csv.process.ProcessBlock
 import java.util.*
 import java.util.regex.Pattern
@@ -101,7 +102,11 @@ class ScsvProcessBlockFormatter {
             ElementaryFlowType.NON_MATERIAL_EMISSIONS,
             ElementaryFlowType.SOCIAL_ISSUES,
             ElementaryFlowType.ECONOMIC_ISSUES
-        ).flatMap { processBlock.exchangesOf(it).stream() }.toList()
+        ).flatMap { type ->
+            processBlock.exchangesOf(type).stream()
+                .map { exchange -> Pair(type, exchange) }
+        }.toList()
+
         if (elementaryOutputs.isEmpty()) {
             return TextBlock(emptyList())
         }
@@ -110,7 +115,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("emissions {"),
                 TextIndent(
                     elementaryOutputs
-                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- ${substanceId(it.first, it.second)} ${it.second.amount()} ${it.second.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
@@ -119,10 +124,21 @@ class ScsvProcessBlockFormatter {
         )
     }
 
+    private fun substanceId(type: ElementaryFlowType, exchange: ElementaryExchangeRow): String {
+        val joiner = StringJoiner(", ")
+        joiner.add("\"${escape(exchange.name())}\"")
+        joiner.add("\"${escape(type.compartment())}\"")
+        joiner.add("\"${escape(exchange.subCompartment())}\"")
+        return joiner.toString()
+    }
+
     private fun irepResources(processBlock: ProcessBlock): TextRegion {
         val elementaryOutputs = Stream.of(
             ElementaryFlowType.RESOURCES,
-        ).flatMap { processBlock.exchangesOf(it).stream() }.toList()
+        ).flatMap { type ->
+            processBlock.exchangesOf(type).stream()
+                .map { exchange -> Pair(type, exchange) }
+        }.toList()
         if (elementaryOutputs.isEmpty()) {
             return TextBlock(emptyList())
         }
@@ -131,7 +147,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("resources {"),
                 TextIndent(
                     elementaryOutputs
-                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- ${substanceId(it.first, it.second)} ${it.second.amount()} ${it.second.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
