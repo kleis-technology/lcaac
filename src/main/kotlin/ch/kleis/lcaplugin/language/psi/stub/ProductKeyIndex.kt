@@ -20,6 +20,5 @@ class ProductKeyIndex : StringStubIndexExtension<Product>() {
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<Product> =
             StubIndex.getElements(LcaSubIndexKeys.PRODUCTS, target, project, scope, Product::class.java)
-
     }
 }
