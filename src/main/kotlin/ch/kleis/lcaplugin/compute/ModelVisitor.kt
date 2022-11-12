@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.compute.model.ElementaryExchange
 import ch.kleis.lcaplugin.compute.model.ElementaryFlow
 import ch.kleis.lcaplugin.compute.model.IntermediaryExchange
 import ch.kleis.lcaplugin.compute.model.Process
+import ch.kleis.lcaplugin.compute.model.System
 import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
@@ -15,7 +16,6 @@ class ModelVisitor : LcaVisitor() {
     private var processName: String = ""
 
     private val products = arrayListOf<IntermediaryExchange<*>>()
-
 
     private val inputs = arrayListOf<IntermediaryExchange<*>>()
     private val emissions = arrayListOf<ElementaryExchange<*>>()
@@ -119,7 +119,7 @@ class ModelVisitor : LcaVisitor() {
         inputs.add(IntermediaryExchange(name, quantity))
     }
 
-    fun get(): List<Process> {
-        return processes
+    fun get(): System {
+        return System(processes)
     }
 }
