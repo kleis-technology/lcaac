@@ -1,10 +1,6 @@
 package ch.kleis.lcaplugin.compute
 
-import ch.kleis.lcaplugin.compute.model.ElementaryExchange
-import ch.kleis.lcaplugin.compute.model.ElementaryFlow
-import ch.kleis.lcaplugin.compute.model.IntermediaryExchange
-import ch.kleis.lcaplugin.compute.model.Process
-import ch.kleis.lcaplugin.compute.model.System
+import ch.kleis.lcaplugin.compute.model.*
 import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
@@ -100,11 +96,11 @@ class ModelVisitor : LcaVisitor() {
     }
 
     override fun visitProduct(product: LcaProduct) {
-        val name = product.name ?: throw IllegalArgumentException()
+        val flow = IntermediaryFlow(product.name ?: throw IllegalArgumentException())
         val unit = product.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()
         val amount = parseDouble(product.number.text)
         val quantity = getQuantity(amount, unit)
-        products.add(IntermediaryExchange(name, quantity))
+        products.add(IntermediaryExchange(flow, quantity))
     }
 
     override fun visitInputs(inputs: LcaInputs) {
@@ -112,11 +108,11 @@ class ModelVisitor : LcaVisitor() {
     }
 
     override fun visitInputExchange(inputExchange: LcaInputExchange) {
-        val name = inputExchange.name ?: throw IllegalArgumentException()
+        val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException())
         val unit = inputExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()
         val amount = parseDouble(inputExchange.number.text)
         val quantity = getQuantity(amount, unit)
-        inputs.add(IntermediaryExchange(name, quantity))
+        inputs.add(IntermediaryExchange(flow, quantity))
     }
 
     fun get(): System {
