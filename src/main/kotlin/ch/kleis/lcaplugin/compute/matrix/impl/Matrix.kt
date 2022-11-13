@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.compute.matrix.impl
 
-sealed interface Matrix {
+interface Matrix {
     fun value(row: Int, col: Int): Double
     fun add(row: Int, col: Int, value: Double)
     fun set(row: Int, col: Int, value: Double)

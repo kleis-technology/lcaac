@@ -42,6 +42,7 @@ dependencies {
     implementation(files(layout.buildDirectory.dir("stdlib")) {
         builtBy("generateEmissionFactors")
     })
+    implementation("org.ojalgo:ojalgo:52.0.1")
 }
 
 

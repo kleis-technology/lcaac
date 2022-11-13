@@ -48,9 +48,9 @@ class ModelVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         // then
         assertEquals(actual.products.size, 2)
-        assertEquals(actual.products[0].flow, "carrot")
+        assertEquals(actual.products[0].flow.name, "carrot")
         assertEquals(actual.products[0].quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(actual.products[1].flow, "water")
+        assertEquals(actual.products[1].flow.name, "water")
         assertEquals(actual.products[1].quantity, getQuantity(2.0, LITRE))
     }
 
@@ -76,9 +76,9 @@ class ModelVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
         // then
         assertEquals(actual.inputs.size, 2)
-        assertEquals(actual.inputs[0].flow, "carrot")
+        assertEquals(actual.inputs[0].flow.name, "carrot")
         assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(actual.inputs[1].flow, "water")
+        assertEquals(actual.inputs[1].flow.name, "water")
         assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
     }
 
