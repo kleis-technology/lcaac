@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.compute.matrix
 
-import ch.kleis.lcaplugin.compute.HasUniqueId
-import java.util.stream.IntStream.range
+import ch.kleis.lcaplugin.compute.traits.HasUniqueId
 
 class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
     private val byEntity = HashMap<V, Int>()
@@ -12,11 +11,11 @@ class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
         val unique = elements.stream()
             .distinct()
             .toList()
-        range(0, unique.size).forEach { i ->
+        for (i : Int in 0 until unique.size) {
             val element = unique[i]
             this.byEntity[element] = i
             this.byUniqueId[element.getUniqueId()] = i
-            this.elements[i] = element
+            this.elements.add(element)
         }
     }
 

@@ -8,8 +8,8 @@ import ch.kleis.lcaplugin.compute.model.Indicator
 import java.util.stream.Collectors.toMap
 
 class BioFactorMatrix(
-    private val elementaryFlows: IndexedCollection<ElementaryFlow>,
-    private val indicators: IndexedCollection<Indicator>,
+    private val elementaryFlows: IndexedCollection<ElementaryFlow<*>>,
+    private val indicators: IndexedCollection<Indicator<*>>,
     private val characterizationFactors: List<CharacterizationFactor>,
 ) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(elementaryFlows.size(), indicators.size())
@@ -17,8 +17,8 @@ class BioFactorMatrix(
     init {
         val cfs = characterizationFactors.stream()
             .collect(toMap(
-                { cf -> Pair(cf.flow, cf.indicator) },
-                { cf -> cf.numerator.divide(cf.denominator) },
+                { cf -> Pair(cf.input.flow, cf.output.flow) },
+                { cf -> cf.output.quantity.divide(cf.input.quantity) },
             ))
        elementaryFlows.getElements()
            .forEach { flow ->

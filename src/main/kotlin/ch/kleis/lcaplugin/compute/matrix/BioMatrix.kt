@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.compute.model.Process
 import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.compute.matrix.impl.Matrix
 
-class BioMatrix(private val processes: IndexedCollection<Process>, private val elementaryFlows: IndexedCollection<ElementaryFlow>) {
+class BioMatrix(private val processes: IndexedCollection<Process>, private val elementaryFlows: IndexedCollection<ElementaryFlow<*>>) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(processes.size(), elementaryFlows.size())
 
     init {

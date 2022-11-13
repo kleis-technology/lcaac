@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.compute.model.IntermediaryFlow
 import ch.kleis.lcaplugin.compute.model.Process
 
-class ObservableMatrix(private val processes: IndexedCollection<Process>, private val observableFlows: IndexedCollection<IntermediaryFlow>) {
+class ObservableMatrix(private val processes: IndexedCollection<Process>, private val observableFlows: IndexedCollection<IntermediaryFlow<*>>) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(processes.size(), observableFlows.size())
 
     init {

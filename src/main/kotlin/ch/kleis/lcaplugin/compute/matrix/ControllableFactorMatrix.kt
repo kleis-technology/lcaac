@@ -8,8 +8,8 @@ import ch.kleis.lcaplugin.compute.model.IntermediaryFlow
 import java.util.stream.Collectors.toMap
 
 class ControllableFactorMatrix(
-    private val controllableFlows: IndexedCollection<IntermediaryFlow>,
-    private val indicators: IndexedCollection<Indicator>,
+    private val controllableFlows: IndexedCollection<IntermediaryFlow<*>>,
+    private val indicators: IndexedCollection<Indicator<*>>,
     private val characterizationFactors: List<CharacterizationFactor>,
 ) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(controllableFlows.size(), indicators.size())
@@ -17,8 +17,8 @@ class ControllableFactorMatrix(
     init {
         val cfs = characterizationFactors.stream()
             .collect(toMap(
-                { cf -> Pair(cf.flow, cf.indicator) },
-                { cf -> cf.numerator.divide(cf.denominator) },
+                { cf -> Pair(cf.input.flow, cf.output.flow) },
+                { cf -> cf.output.quantity.divide(cf.input.quantity) },
             ))
         controllableFlows.getElements()
             .forEach { flow ->

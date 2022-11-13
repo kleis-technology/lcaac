@@ -6,13 +6,13 @@ import ch.kleis.lcaplugin.compute.matrix.impl.Solver
 class System(processes: List<Process>) {
     private val processes: IndexedCollection<Process>
 
-    private val observableFlows: IndexedCollection<IntermediaryFlow>
+    private val observableFlows: IndexedCollection<IntermediaryFlow<*>>
     private val observable: ObservableMatrix
 
-    private val controllableFlows: IndexedCollection<IntermediaryFlow>
+    private val controllableFlows: IndexedCollection<IntermediaryFlow<*>>
     private val controllable: ControllableMatrix
 
-    private val elementaryFlows: IndexedCollection<ElementaryFlow>
+    private val elementaryFlows: IndexedCollection<ElementaryFlow<*>>
     private val bio: BioMatrix
 
     init {
@@ -47,7 +47,7 @@ class System(processes: List<Process>) {
     }
 
     fun observe(
-        indicators: List<Indicator>,
+        indicators: List<Indicator<*>>,
         controllableCfs: List<CharacterizationFactor>,
         elementaryCfs: List<CharacterizationFactor>,
     ): ObservableFactorMatrix {

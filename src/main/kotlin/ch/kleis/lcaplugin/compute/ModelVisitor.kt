@@ -6,6 +6,8 @@ import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import tech.units.indriya.quantity.Quantities.getQuantity
 import java.lang.Double.parseDouble
+import javax.measure.Quantity
+import javax.measure.Unit
 
 class ModelVisitor : LcaVisitor() {
     private val processes = arrayListOf<Process>()
@@ -49,9 +51,10 @@ class ModelVisitor : LcaVisitor() {
         this.emissions.addAll(bioExchanges)
     }
 
-    override fun visitBioExchange(bioExchange: LcaBioExchange) {
+    private fun <D : Quantity<D>> parseBioExchange(bioExchange: LcaBioExchange): ElementaryExchange<D> {
         val amount = parseDouble(bioExchange.number.text)
-        val unit = bioExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()
+        val unit: Unit<D> =
+            (bioExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
         val quantity = getQuantity(amount, unit)
 
         val stringList = bioExchange.substanceId.stringLiteralList
@@ -62,57 +65,63 @@ class ModelVisitor : LcaVisitor() {
 
         val name = (stringList[0] as StringLiteralMixin).name ?: throw IllegalArgumentException()
         if (stringList.size <= 1) {
-            bioExchanges.add(
-                ElementaryExchange(
-                    ElementaryFlow(name, null, null),
-                    quantity
-                )
+            return ElementaryExchange(
+                ElementaryFlow(name, null, null, unit),
+                quantity
             )
-            return
         }
 
         val compartment = (stringList[1] as StringLiteralMixin).name
         if (stringList.size <= 2) {
-            bioExchanges.add(
-                ElementaryExchange(
-                    ElementaryFlow(name, compartment, null),
-                    quantity
-                )
+            return ElementaryExchange(
+                ElementaryFlow(name, compartment, null, unit),
+                quantity
             )
-            return
         }
 
         val subcompartment = (stringList[2] as StringLiteralMixin).name
-        bioExchanges.add(
-            ElementaryExchange(
-                ElementaryFlow(name, compartment, subcompartment),
-                quantity
-            )
+        return ElementaryExchange(
+            ElementaryFlow(name, compartment, subcompartment, unit),
+            quantity
         )
+    }
+
+    override fun visitBioExchange(bioExchange: LcaBioExchange) {
+        val exchange = parseBioExchange(bioExchange) as ElementaryExchange<*>
+        bioExchanges.add(exchange)
     }
 
     override fun visitProducts(products: LcaProducts) {
         products.productList.forEach { visitProduct(it) }
     }
 
-    override fun visitProduct(product: LcaProduct) {
-        val flow = IntermediaryFlow(product.name ?: throw IllegalArgumentException())
-        val unit = product.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()
+    private fun <D : Quantity<D>> parseProduct(product: LcaProduct): IntermediaryExchange<D> {
+        val unit = (product.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val name = product.name ?: throw IllegalArgumentException()
+        val flow = IntermediaryFlow(name, unit)
+
         val amount = parseDouble(product.number.text)
         val quantity = getQuantity(amount, unit)
-        products.add(IntermediaryExchange(flow, quantity))
+        return IntermediaryExchange(flow, quantity)
+    }
+
+    override fun visitProduct(product: LcaProduct) {
+        this.products.add(parseProduct(product) as IntermediaryExchange<*>)
     }
 
     override fun visitInputs(inputs: LcaInputs) {
         inputs.inputExchangeList.forEach { visitInputExchange(it) }
     }
 
-    override fun visitInputExchange(inputExchange: LcaInputExchange) {
-        val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException())
-        val unit = inputExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()
+    private fun <D : Quantity<D>> parseInputExchange(inputExchange: LcaInputExchange): IntermediaryExchange<D> {
+        val unit = (inputExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException(), unit)
         val amount = parseDouble(inputExchange.number.text)
         val quantity = getQuantity(amount, unit)
-        inputs.add(IntermediaryExchange(flow, quantity))
+        return IntermediaryExchange(flow, quantity)
+    }
+    override fun visitInputExchange(inputExchange: LcaInputExchange) {
+        inputs.add(parseInputExchange(inputExchange) as IntermediaryExchange<*>)
     }
 
     fun get(): System {

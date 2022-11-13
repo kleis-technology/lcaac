@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.compute.model
 
-import ch.kleis.lcaplugin.compute.HasUniqueId
+import ch.kleis.lcaplugin.compute.traits.HasUniqueId
 
 data class Process(
     val name: String,
