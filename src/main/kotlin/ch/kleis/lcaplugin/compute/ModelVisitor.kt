@@ -23,7 +23,7 @@ class ModelVisitor : LcaVisitor() {
     private val bioExchanges = arrayListOf<ElementaryExchange<*>>()
 
     private var methodName: String = ""
-    private val methodMap = HashMap<String, ArrayList<CharacterizationFactor>>()
+    private val methodMap = HashMap<String, Method>()
 
 
     override fun visitElement(element: PsiElement) {
@@ -70,7 +70,7 @@ class ModelVisitor : LcaVisitor() {
         val factors = substance.substanceBody.factors ?: return
 
         methodName = factors.identifier.text
-        val method = methodMap.getOrPut(methodName) { ArrayList() }
+        val method = methodMap.getOrPut(methodName) { Method(methodName) }
 
         factors.factorList.forEach { factor ->
             val input = parseIndicator(factor)
@@ -145,7 +145,7 @@ class ModelVisitor : LcaVisitor() {
         return System(processes)
     }
 
-    fun getMethodMap(): Map<String, List<CharacterizationFactor>> {
+    fun getMethodMap(): Map<String, Method> {
         return methodMap
     }
 }

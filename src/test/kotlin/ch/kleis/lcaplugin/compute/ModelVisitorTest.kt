@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.compute
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
-import junit.framework.TestCase
 import org.junit.Test
 import tech.units.indriya.AbstractUnit.ONE
 import tech.units.indriya.quantity.Quantities.getQuantity
