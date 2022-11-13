@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.compute.model.*
 import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
+import tech.units.indriya.AbstractUnit.ONE
 import tech.units.indriya.quantity.Quantities.getQuantity
 import java.lang.Double.parseDouble
 import javax.measure.Quantity
@@ -20,6 +21,10 @@ class ModelVisitor : LcaVisitor() {
     private val resources = arrayListOf<ElementaryExchange<*>>()
 
     private val bioExchanges = arrayListOf<ElementaryExchange<*>>()
+
+    private var methodName: String = ""
+    private val methodMap = HashMap<String, ArrayList<CharacterizationFactor>>()
+
 
     override fun visitElement(element: PsiElement) {
         super.visitElement(element)
@@ -39,6 +44,40 @@ class ModelVisitor : LcaVisitor() {
         processes.add(Process(processName, products, inputs, emissions, resources))
     }
 
+    private fun <D : Quantity<D>> parseSubstance(substance: LcaSubstance): ElementaryExchange<D> {
+        val stringList = substance.substanceId.stringLiteralList
+        val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
+        val compartment = (stringList.getOrNull(1) as StringLiteralMixin?)?.name
+        val subcompartment = (stringList.getOrNull(2) as StringLiteralMixin?)?.name
+        val unit = (substance.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        return ElementaryExchange(
+            ElementaryFlow(name, compartment, subcompartment, unit),
+            getQuantity(1.0, unit),
+        )
+    }
+
+    private fun parseIndicator(factor: LcaFactor): ImpactCategoryExchange {
+        val name = (factor.stringLiteral as StringLiteralMixin).name ?: throw IllegalArgumentException()
+        val amount = parseDouble(factor.number.text)
+        return ImpactCategoryExchange(
+            ImpactCategory(name),
+            getQuantity(amount, ONE),
+        )
+    }
+
+    override fun visitSubstance(substance: LcaSubstance) {
+        val output = parseSubstance(substance)
+        val factors = substance.substanceBody.factors ?: return
+
+        methodName = factors.identifier.text
+        val method = methodMap.getOrPut(methodName) { ArrayList() }
+
+        factors.factorList.forEach { factor ->
+            val input = parseIndicator(factor)
+            method.add(CharacterizationFactor(output, input))
+        }
+    }
+
     override fun visitResources(resources: LcaResources) {
         bioExchanges.clear()
         resources.bioExchangeList.forEach { visitBioExchange(it) }
@@ -56,34 +95,11 @@ class ModelVisitor : LcaVisitor() {
         val unit: Unit<D> =
             (bioExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
         val quantity = getQuantity(amount, unit)
-
         val stringList = bioExchange.substanceId.stringLiteralList
-
-        if (stringList.isEmpty()) {
-            throw IllegalArgumentException()
-        }
-
-        val name = (stringList[0] as StringLiteralMixin).name ?: throw IllegalArgumentException()
-        if (stringList.size <= 1) {
-            return ElementaryExchange(
-                ElementaryFlow(name, null, null, unit),
-                quantity
-            )
-        }
-
-        val compartment = (stringList[1] as StringLiteralMixin).name
-        if (stringList.size <= 2) {
-            return ElementaryExchange(
-                ElementaryFlow(name, compartment, null, unit),
-                quantity
-            )
-        }
-
-        val subcompartment = (stringList[2] as StringLiteralMixin).name
-        return ElementaryExchange(
-            ElementaryFlow(name, compartment, subcompartment, unit),
-            quantity
-        )
+        val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
+        val compartment = (stringList.getOrNull(1) as StringLiteralMixin?)?.name
+        val subcompartment = (stringList.getOrNull(2) as StringLiteralMixin?)?.name
+        return ElementaryExchange(ElementaryFlow(name, compartment, subcompartment, unit), quantity)
     }
 
     override fun visitBioExchange(bioExchange: LcaBioExchange) {
@@ -120,11 +136,16 @@ class ModelVisitor : LcaVisitor() {
         val quantity = getQuantity(amount, unit)
         return IntermediaryExchange(flow, quantity)
     }
+
     override fun visitInputExchange(inputExchange: LcaInputExchange) {
         inputs.add(parseInputExchange(inputExchange) as IntermediaryExchange<*>)
     }
 
-    fun get(): System {
+    fun getSystem(): System {
         return System(processes)
+    }
+
+    fun getMethodMap(): Map<String, List<CharacterizationFactor>> {
+        return methodMap
     }
 }

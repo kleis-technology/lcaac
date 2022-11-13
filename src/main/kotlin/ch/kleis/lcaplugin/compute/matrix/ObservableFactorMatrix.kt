@@ -20,6 +20,6 @@ class ObservableFactorMatrix(
         val input = Exchange(flow, getQuantity(1.0, flow.getUnit().systemUnit))
         val amount = matrix.value(observableFlows.indexOf(flow), indicators.indexOf(indicator))
         val output = Exchange(indicator, getQuantity(amount, indicator.getUnit()))
-        return CharacterizationFactor(input, output)
+        return CharacterizationFactor(output, input)
     }
 }

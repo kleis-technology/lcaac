@@ -41,7 +41,7 @@ data class ElementaryFlow<D : Quantity<D>>(
     private val unit: Unit<D>
 ) : Flow<D> {
     override fun getUniqueId(): String {
-        return listOf(substance, compartment, subcompartment)
+        return listOfNotNull(substance, compartment, subcompartment)
             .joinToString(":")
     }
 
