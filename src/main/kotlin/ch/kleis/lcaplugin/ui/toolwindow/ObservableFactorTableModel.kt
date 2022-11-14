@@ -14,15 +14,27 @@ class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : T
     }
 
     override fun getColumnCount(): Int {
-        return matrix.getIndicators().size()
+        return 2 + matrix.getIndicators().size()
     }
 
     override fun getColumnName(columnIndex: Int): String {
-        return matrix.getIndicators()[columnIndex].getUniqueId()
+        if (columnIndex == 0) {
+            return "flow"
+        }
+
+        if (columnIndex == 1) {
+            return "unit"
+        }
+
+        return matrix.getIndicators()[columnIndex - 2].getUniqueId()
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        return matrix.getIndicators()[columnIndex].javaClass
+        if (columnIndex < 2) {
+            return String::class.java
+        }
+
+        return matrix.getIndicators()[columnIndex - 2]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -31,7 +43,16 @@ class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : T
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         val flow = matrix.getObservableFlows()[rowIndex]
-        val indicator = matrix.getIndicators()[columnIndex]
+
+        if (columnIndex == 0) {
+            return flow.getUniqueId()
+        }
+
+        if (columnIndex == 1) {
+            return flow.getUnit().toString()
+        }
+
+        val indicator = matrix.getIndicators()[columnIndex - 2]
         val cf = matrix.value(flow, indicator)
         return render(cf, indicator, flow)
     }

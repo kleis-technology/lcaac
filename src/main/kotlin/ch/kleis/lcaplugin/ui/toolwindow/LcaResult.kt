@@ -1,7 +1,8 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.compute.matrix.ObservableFactorMatrix
-import com.intellij.ui.table.BaseTableView
+import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.table.JBTable
 import javax.swing.JPanel
 
 /*
@@ -13,8 +14,11 @@ class LcaResult(result: ObservableFactorMatrix) {
 
     init {
         val tableModel = ObservableFactorTableModel(result)
-        val table = BaseTableView(tableModel)
-        content.add(table)
+        val table = JBTable(tableModel)
+        val adjuster = TableColumnAdjuster(table)
+        adjuster.adjust()
+        val scrollPane = JBScrollPane(table)
+        content.add(scrollPane)
     }
 
     fun getContent(): JPanel {
