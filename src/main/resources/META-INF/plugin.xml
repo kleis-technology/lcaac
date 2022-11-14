@@ -64,6 +64,12 @@
         <filetype.prebuiltStubsProvider filetype="LCA"
                                         implementationClass="ch.kleis.lcaplugin.project.libraries.SubstanceStubsProvider"/>
 
+        <toolWindow id="LCA Output"
+                    icon="AllIcons.General.Modified"
+                    anchor="bottom"
+                    factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaResultFactory"
+                    canCloseContents="true"
+        />
     </extensions>
 
     <actions>
@@ -76,9 +82,12 @@
                 description="Import Simapro CSV...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <group id="LcaPopupMenu" text="LCA" description="LCA actions">
+        <action id="ch.kleis.lcaplugin.actions.AssessFileAction"
+                class="ch.kleis.lcaplugin.actions.AssessFileAction"
+                text="Assess LCA File..."
+                description="Assess LCA file...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </group>
+        </action>
     </actions>
 
     <applicationListeners>
