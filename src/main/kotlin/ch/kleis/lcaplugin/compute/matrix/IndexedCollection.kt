@@ -31,7 +31,7 @@ class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
         return byUniqueId[id] ?: throw NoSuchElementException(id)
     }
 
-    fun get(i: Int): V {
+    operator fun get(i: Int): V {
         return elements[i]
     }
 

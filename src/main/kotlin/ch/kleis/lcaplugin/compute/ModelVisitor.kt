@@ -11,16 +11,16 @@ import javax.measure.Quantity
 import javax.measure.Unit
 
 class ModelVisitor : LcaVisitor() {
-    private val processes = arrayListOf<Process>()
     private var processName: String = ""
+    private val processes = arrayListOf<Process>()
 
-    private val products = arrayListOf<IntermediaryExchange<*>>()
+    private var products = arrayListOf<IntermediaryExchange<*>>()
 
-    private val inputs = arrayListOf<IntermediaryExchange<*>>()
-    private val emissions = arrayListOf<ElementaryExchange<*>>()
-    private val resources = arrayListOf<ElementaryExchange<*>>()
+    private var inputs = arrayListOf<IntermediaryExchange<*>>()
+    private var emissions = arrayListOf<ElementaryExchange<*>>()
+    private var resources = arrayListOf<ElementaryExchange<*>>()
 
-    private val bioExchanges = arrayListOf<ElementaryExchange<*>>()
+    private var bioExchanges = arrayListOf<ElementaryExchange<*>>()
 
     private var methodName: String = ""
     private val methodMap = HashMap<String, Method>()
@@ -33,13 +33,13 @@ class ModelVisitor : LcaVisitor() {
 
     override fun visitProcess(process: LcaProcess) {
         processName = process.name ?: ""
-        products.clear()
+        products = arrayListOf()
         process.processBody.productsList.forEach { visitProducts(it) }
-        inputs.clear()
+        inputs = arrayListOf()
         process.processBody.inputsList.forEach { visitInputs(it) }
-        emissions.clear()
+        emissions = arrayListOf()
         process.processBody.emissionsList.forEach { visitEmissions(it) }
-        resources.clear()
+        resources = arrayListOf()
         process.processBody.resourcesList.forEach { visitResources(it) }
         processes.add(Process(processName, products, inputs, emissions, resources))
     }
@@ -79,7 +79,7 @@ class ModelVisitor : LcaVisitor() {
     }
 
     override fun visitResources(resources: LcaResources) {
-        bioExchanges.clear()
+        bioExchanges = arrayListOf()
         resources.bioExchangeList.forEach { visitBioExchange(it) }
         this.resources.addAll(bioExchanges)
     }

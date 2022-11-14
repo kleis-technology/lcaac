@@ -18,7 +18,7 @@ class BioFactorMatrix(
         val cfs = characterizationFactors.stream()
             .collect(toMap(
                 { cf -> Pair(cf.input.flow, cf.output.flow) },
-                { cf -> cf.output.quantity.divide(cf.input.quantity) },
+                { cf -> cf.input.quantity.divide(cf.output.quantity) },
             ))
        elementaryFlows.getElements()
            .forEach { flow ->
@@ -26,7 +26,7 @@ class BioFactorMatrix(
                indicators.getElements()
                    .forEach { indicator ->
                        val col = indicators.indexOf(indicator)
-                       val factor = cfs[Pair(flow, indicator)] ?: throw NoSuchElementException()
+                       val factor = cfs[Pair(indicator, flow)] ?: throw NoSuchElementException()
                        matrix.add(row, col, factor.referenceValue())
                    }
            }

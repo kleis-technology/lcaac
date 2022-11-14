@@ -12,4 +12,15 @@ class Method(
     operator fun get(index: Int): CharacterizationFactor {
         return this.characterizationFactors[index]
     }
+
+    fun getIndicators(): List<Indicator<*>> {
+        return this.characterizationFactors.stream()
+            .map { it.input.flow }
+            .distinct()
+            .toList()
+    }
+
+    fun getCharacterizationFactors(): List<CharacterizationFactor> {
+        return this.characterizationFactors
+    }
 }
