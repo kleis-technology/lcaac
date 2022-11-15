@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.compute.model
 
 import ch.kleis.lcaplugin.compute.matrix.*
+import ch.kleis.lcaplugin.compute.matrix.impl.Matrix
+import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.compute.matrix.impl.Solver
 
 class System(processes: List<Process>) {
@@ -63,5 +65,5 @@ class System(processes: List<Process>) {
     private fun rhs(
         bioFactor: BioFactorMatrix,
         controllableFactor: ControllableFactorMatrix
-    ) = bio.matrix.multiply(bioFactor.matrix).sub(controllable.matrix.multiply(controllableFactor.matrix))
+    ): Matrix = bio.matrix.multiply(bioFactor.matrix).sub(controllable.matrix.multiply(controllableFactor.matrix))
 }

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.compute.matrix.impl.ojalgo
 
 import ch.kleis.lcaplugin.compute.matrix.impl.Matrix
+import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import org.ojalgo.matrix.store.MatrixStore
 import org.ojalgo.matrix.store.Primitive64Store
 
@@ -29,10 +30,21 @@ class OjalgoMatrix(val store: MatrixStore<Double>) : Matrix {
 
     override fun multiply(other: Matrix): Matrix {
         val ojalgoMatrix = other as OjalgoMatrix
-        return OjalgoMatrix(store.multiply(ojalgoMatrix.store))
+        if (this.isNotEmpty() && ojalgoMatrix.isNotEmpty()) {
+            return OjalgoMatrix(store.multiply(ojalgoMatrix.store))
+        }
+        return MatrixFactory.INSTANCE.zero(this.rowDim(), ojalgoMatrix.colDim())
     }
 
     override fun transpose(): Matrix {
         return OjalgoMatrix(store.transpose())
+    }
+
+    override fun rowDim(): Int {
+        return store.rowDim
+    }
+
+    override fun colDim(): Int {
+        return store.colDim
     }
 }

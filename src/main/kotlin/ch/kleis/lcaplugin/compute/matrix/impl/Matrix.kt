@@ -11,4 +11,14 @@ interface Matrix {
     }
     fun multiply(other: Matrix): Matrix
     fun transpose(): Matrix
+
+    fun rowDim(): Int
+    fun colDim(): Int
+    fun isEmpty(): Boolean {
+        return rowDim() == 0 || colDim() == 0
+    }
+
+    fun isNotEmpty(): Boolean {
+        return !isEmpty()
+    }
 }
