@@ -3,6 +3,8 @@ package ch.kleis.lcaplugin.ui.toolwindow
 import ch.kleis.lcaplugin.compute.matrix.ObservableFactorMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
+import com.intellij.util.ui.JBEmptyBorder
+import java.awt.BorderLayout
 import javax.swing.JPanel
 
 /*
@@ -10,15 +12,16 @@ import javax.swing.JPanel
  */
 
 class LcaResult(result: ObservableFactorMatrix) {
-    private val content: JPanel = JPanel()
+    private val content: JPanel
 
     init {
         val tableModel = ObservableFactorTableModel(result)
         val table = JBTable(tableModel)
-        val adjuster = TableColumnAdjuster(table)
-        adjuster.adjust()
-        val scrollPane = JBScrollPane(table)
-        content.add(scrollPane)
+        val defaultScrollPane = JBScrollPane(table)
+        defaultScrollPane.border = JBEmptyBorder(0)
+        content = JPanel(BorderLayout())
+        content.add(defaultScrollPane, BorderLayout.CENTER)
+        content.updateUI()
     }
 
     fun getContent(): JPanel {
