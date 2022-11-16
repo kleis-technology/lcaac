@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.compute.model.CharacterizationFactor
 import ch.kleis.lcaplugin.compute.model.ElementaryFlow
 import ch.kleis.lcaplugin.compute.model.Indicator
+import tech.units.indriya.quantity.Quantities.getQuantity
 import java.util.stream.Collectors.toMap
 
 class BioFactorMatrix(
@@ -26,7 +27,7 @@ class BioFactorMatrix(
                indicators.getElements()
                    .forEach { indicator ->
                        val col = indicators.indexOf(indicator)
-                       val factor = cfs[Pair(indicator, flow)] ?: throw NoSuchElementException()
+                       val factor = cfs[Pair(indicator, flow)] ?: getQuantity(0.0, indicator.getUnit().divide(flow.getUnit()))
                        matrix.add(row, col, factor.referenceValue())
                    }
            }
