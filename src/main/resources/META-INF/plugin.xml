@@ -24,6 +24,9 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
+        <lang.findUsagesProvider language="LCA"
+                                 implementationClass="ch.kleis.lcaplugin.language.findUsages.LcaFindUsagesProvider"/>
+
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
