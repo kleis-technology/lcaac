@@ -27,6 +27,10 @@
         <lang.findUsagesProvider language="LCA"
                                  implementationClass="ch.kleis.lcaplugin.language.findUsages.LcaFindUsagesProvider"/>
 
+        <lang.commenter
+            language="LCA"
+            implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
+
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
