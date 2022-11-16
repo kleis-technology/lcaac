@@ -85,10 +85,10 @@
                 description="Import Simapro CSV...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
-        <action id="ch.kleis.lcaplugin.actions.AssessFileAction"
-                class="ch.kleis.lcaplugin.actions.AssessFileAction"
-                text="Assess LCA File..."
-                description="Assess LCA file...">
+        <action id="ch.kleis.lcaplugin.actions.AssessProjectAction"
+                class="ch.kleis.lcaplugin.actions.AssessProjectAction"
+                text="Assess Project..."
+                description="Assess project...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
     </actions>

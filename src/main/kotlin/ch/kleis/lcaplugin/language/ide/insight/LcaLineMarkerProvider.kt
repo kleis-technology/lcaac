@@ -16,11 +16,11 @@ class LcaLineMarkerProvider : RelatedItemLineMarkerProvider() {
     override fun collectNavigationMarkers(
         element: PsiElement, result: MutableCollection<in RelatedItemLineMarkerInfo<*>>
     ) {
-        if(element.elementType == LcaTypes.STRING_LITERAL && element.parent is LcaProcess) {
-            val builder: NavigationGutterIconBuilder<PsiElement> = NavigationGutterIconBuilder.create(AllIcons.Actions.Execute)
-                .setTargets(element)
-                .setTooltipText("Assess process impact");
-            result.add(builder.createLineMarkerInfo(element))
-        }
+//        if(element.elementType == LcaTypes.STRING_LITERAL && element.parent is LcaProcess) {
+//            val builder: NavigationGutterIconBuilder<PsiElement> = NavigationGutterIconBuilder.create(AllIcons.Actions.Execute)
+//                .setTargets(element)
+//                .setTooltipText("Assess process impact");
+//            result.add(builder.createLineMarkerInfo(element))
+//        }
     }
 }

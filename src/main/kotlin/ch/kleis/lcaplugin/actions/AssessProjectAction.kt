@@ -1,24 +1,30 @@
 package ch.kleis.lcaplugin.actions
 
+import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.compute.ModelVisitor
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiManager
+import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
-class AssessFileAction : AnAction() {
+class AssessProjectAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
-        val file = e.getData(PlatformDataKeys.PSI_FILE) ?: return
+        val virtualFiles = FileTypeIndex.getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
+        val psiManager = PsiManager.getInstance(project)
+        val psiFiles = virtualFiles.mapNotNull { psiManager.findFile(it) }
+        if (psiFiles.isEmpty()) return
 
         val modelVisitor = ModelVisitor()
-        file.accept(modelVisitor)
+        psiFiles.forEach { it.accept(modelVisitor) }
 
         val system = modelVisitor.getSystem()
         val methodMap = modelVisitor.getMethodMap()
-        val firstMethodName = methodMap.keys.first()
+        val firstMethodName = methodMap.keys.firstOrNull() ?: return
         val method = methodMap[firstMethodName] ?: return
 
         val result = system.observe(
@@ -29,7 +35,7 @@ class AssessFileAction : AnAction() {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
 
         val lcaResult = LcaResult(result)
-        val content = ContentFactory.getInstance().createContent(lcaResult.getContent(), file.name, false);
+        val content = ContentFactory.getInstance().createContent(lcaResult.getContent(), project.name, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()
