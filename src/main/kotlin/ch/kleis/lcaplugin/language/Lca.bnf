@@ -45,7 +45,7 @@
   ]
 }
 
-lcaFile ::= (process | substance | factors)*
+lcaFile ::= (process | substance)*
 
 // process
 
