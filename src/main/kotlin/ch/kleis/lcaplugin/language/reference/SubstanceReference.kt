@@ -2,6 +2,10 @@ package ch.kleis.lcaplugin.language.reference
 
 import ch.kleis.lcaplugin.language.SearchTrait
 import ch.kleis.lcaplugin.language.psi.stub.LcaSubIndexKeys.SUBSTANCES
+import ch.kleis.lcaplugin.psi.LcaEmissions
+import ch.kleis.lcaplugin.psi.LcaLandUse
+import ch.kleis.lcaplugin.psi.LcaResources
+import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
@@ -37,5 +41,14 @@ class SubstanceReference(
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> =
         this.findSubstances(element.project, processIdentifier)
+            .filter { isElementCompatible(it as? LcaSubstanceImpl) }
             .map { PsiElementResolveResult(it) }.toTypedArray()
+
+    private fun isElementCompatible(substance: LcaSubstanceImpl?): Boolean =
+        element.parent is LcaResources && substance.contains("resources") ||
+                element.parent is LcaEmissions && substance.contains("emissions") ||
+                element.parent is LcaLandUse && substance.contains("land_use")
+
+    fun LcaSubstanceImpl?.contains(value: String): Boolean =
+        this?.substanceBody?.substanceType?.text?.contains(value) == true
 }
