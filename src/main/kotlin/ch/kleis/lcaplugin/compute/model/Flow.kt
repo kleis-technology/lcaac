@@ -42,7 +42,7 @@ data class ElementaryFlow<D : Quantity<D>>(
 ) : Flow<D> {
     override fun getUniqueId(): String {
         return listOfNotNull(substance, compartment, subcompartment)
-            .joinToString(":")
+            .joinToString(", ")
     }
 
     override fun equals(other: Any?): Boolean {
