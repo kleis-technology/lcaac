@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language;
 
-import ch.kleis.lcaplugin.psi.LcaTokenType;import com.intellij.lexer.FlexLexer;
+import ch.kleis.lcaplugin.psi.LcaTokenType;
+import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
 import ch.kleis.lcaplugin.psi.LcaTypes;
 import com.intellij.psi.TokenType;
@@ -10,10 +11,13 @@ import com.intellij.psi.TokenType;
 %public
 %class LcaLexer
 %implements FlexLexer
+%{
+    int commentDepth = 0;
+%}
 %unicode
 %function advance
 %type IElementType
-%eof{  return;
+%eof{return;
 %eof}
 
 
@@ -24,8 +28,34 @@ StringContent  = \" ( [^\\\"] | \\[^] )* ( \" | \\ )?
 Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
 
+CommentContent = .*
+
+%state COMMENT_BLOCK
 %%
 
+<YYINITIAL> "/*"                     {
+                                         commentDepth = 0;
+                                         yybegin(COMMENT_BLOCK);
+                                         commentDepth++;
+                                         return LcaTypes.COMMENT_BLOCK_START;
+                                     }
+
+<COMMENT_BLOCK> "/*"                 {
+                                         commentDepth++;
+                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                     }
+
+<COMMENT_BLOCK> "*/"                 {
+                                         commentDepth--;
+                                         if (commentDepth == 0) {
+                                             yybegin(YYINITIAL);
+                                             return LcaTypes.COMMENT_BLOCK_END;
+                                         }
+                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                     }
+<COMMENT_BLOCK> {CommentContent}     {
+                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                     }
 
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
 

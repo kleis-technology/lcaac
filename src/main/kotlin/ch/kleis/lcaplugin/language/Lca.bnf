@@ -42,6 +42,10 @@
       LIST_ITEM = 'list'
       STRING = 'string'
       SPACE = "regexp:\s+"
+      COMMENT_BLOCK_START = "/*"
+      COMMENT_BLOCK_END = "*/"
+      COMMENT_BLOCK_CONTENT = "comment-content"
+
   ]
 }
 
