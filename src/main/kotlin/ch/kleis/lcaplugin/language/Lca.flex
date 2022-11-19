@@ -30,8 +30,19 @@ Number_Int = [0-9][0-9]*
 
 CommentContent = .*
 
-%state COMMENT_BLOCK
+%state COMMENT_BLOCK, COMMENT_LINE
 %%
+
+<YYINITIAL> "//"                     {
+                                         yybegin(COMMENT_LINE);
+                                         return LcaTypes.COMMENT_LINE_START;
+                                     }
+
+<COMMENT_LINE> {CommentContent}      {
+                                         yybegin(YYINITIAL);
+                                         return LcaTypes.COMMENT_CONTENT;
+                                     }
+
 
 <YYINITIAL> "/*"                     {
                                          commentDepth = 0;
@@ -42,7 +53,7 @@ CommentContent = .*
 
 <COMMENT_BLOCK> "/*"                 {
                                          commentDepth++;
-                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                         return LcaTypes.COMMENT_CONTENT;
                                      }
 
 <COMMENT_BLOCK> "*/"                 {
@@ -51,10 +62,11 @@ CommentContent = .*
                                              yybegin(YYINITIAL);
                                              return LcaTypes.COMMENT_BLOCK_END;
                                          }
-                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                         return LcaTypes.COMMENT_CONTENT;
                                      }
+
 <COMMENT_BLOCK> {CommentContent}     {
-                                         return LcaTypes.COMMENT_BLOCK_CONTENT;
+                                         return LcaTypes.COMMENT_CONTENT;
                                      }
 
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }

@@ -35,7 +35,12 @@ class LcaParserDefinition : ParserDefinition {
     }
 
     override fun getCommentTokens(): TokenSet {
-        return TokenSet.create(LcaTypes.COMMENT_BLOCK_START, LcaTypes.COMMENT_BLOCK_CONTENT, LcaTypes.COMMENT_BLOCK_END);
+        return TokenSet.create(
+            LcaTypes.COMMENT_BLOCK_START,
+            LcaTypes.COMMENT_CONTENT,
+            LcaTypes.COMMENT_BLOCK_END,
+            LcaTypes.COMMENT_LINE_START
+        );
     }
 
     override fun getStringLiteralElements(): TokenSet {
