@@ -1,7 +1,9 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.compute.ModelVisitor
+import ch.kleis.lcaplugin.compute.ModelMethodVisitor
+import ch.kleis.lcaplugin.compute.ModelSystemVisitor
+import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -19,11 +21,20 @@ class AssessProjectAction : AnAction() {
         val psiFiles = virtualFiles.mapNotNull { psiManager.findFile(it) }
         if (psiFiles.isEmpty()) return
 
-        val modelVisitor = ModelVisitor()
-        psiFiles.forEach { it.accept(modelVisitor) }
+        val modelSystemVisitor = ModelSystemVisitor()
+        psiFiles.forEach { it.accept(modelSystemVisitor) }
+        val system = modelSystemVisitor.getSystem()
 
-        val system = modelVisitor.getSystem()
-        val methodMap = modelVisitor.getMethodMap()
+
+        val modelMethodVisitor = ModelMethodVisitor()
+        system.getElementaryFlows().getElements()
+            .forEach { flow ->
+                SubstanceKeyIndex.findSubstances(project, flow.getUniqueId())
+                    .forEach {
+                        it.accept(modelMethodVisitor)
+                    }
+            }
+        val methodMap = modelMethodVisitor.getMethodMap()
         val firstMethodName = methodMap.keys.firstOrNull() ?: return
         val method = methodMap[firstMethodName] ?: return
 

@@ -20,6 +20,7 @@ class BioFactorMatrix(
             .collect(toMap(
                 { cf -> Pair(cf.input.flow, cf.output.flow) },
                 { cf -> cf.input.quantity.divide(cf.output.quantity) },
+                { existing, _ -> existing } // TODO: Should warn user
             ))
        elementaryFlows.getElements()
            .forEach { flow ->

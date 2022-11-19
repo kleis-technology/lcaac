@@ -16,12 +16,12 @@ class EmissionFactorLibrary(
 
     override fun hashCode(): Int = substances.hashCode()
 
-    override fun getSourceRoots(): Collection<VirtualFile> = emptyList();
+    override fun getSourceRoots(): Collection<VirtualFile> = substances.children.toList();
 
-    override fun getBinaryRoots(): Collection<VirtualFile> = listOf(substances)
+    override fun getBinaryRoots(): Collection<VirtualFile> = emptyList()
 
     override fun getLocationString(): String? =
-        null
+        substances.canonicalPath
 
     override fun getIcon(unused: Boolean): Icon =
         LcaIcons.FILE

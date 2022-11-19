@@ -2,8 +2,6 @@ package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.Substance
-import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
 import com.intellij.lang.LighterASTTokenNode
@@ -36,7 +34,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaSubIndexKeys.SUBSTANCES, stub.substanceName);
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.substanceName);
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
