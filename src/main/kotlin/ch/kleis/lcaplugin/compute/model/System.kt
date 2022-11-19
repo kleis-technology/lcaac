@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.compute.model
 
 import ch.kleis.lcaplugin.compute.matrix.*
 import ch.kleis.lcaplugin.compute.matrix.impl.Matrix
-import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.compute.matrix.impl.Solver
 
 class System(processes: List<Process>) {
@@ -46,6 +45,10 @@ class System(processes: List<Process>) {
 
     fun getProcess(name: String): Process {
         return processes.get(name)
+    }
+
+    fun getElementaryFlows(): IndexedCollection<ElementaryFlow<*>> {
+        return elementaryFlows
     }
 
     fun observe(

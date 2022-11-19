@@ -2,8 +2,6 @@ package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.Product
-import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.impl.LcaProductImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
 import com.intellij.lang.LighterASTTokenNode
@@ -36,7 +34,7 @@ class ProductStubElementType(debugName: String) : ILightStubElementType<ProductS
     }
 
     override fun indexStub(stub: ProductStub, sink: IndexSink) {
-        sink.occurrence(LcaSubIndexKeys.PRODUCTS, stub.productName!!);
+        sink.occurrence(LcaStubIndexKeys.PRODUCTS, stub.productName!!);
     }
 
     override fun serialize(stub: ProductStub, dataStream: StubOutputStream) {

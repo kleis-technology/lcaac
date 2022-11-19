@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.language.psi.type.Substance
-import ch.kleis.lcaplugin.language.psi.stub.LcaSubIndexKeys.SUBSTANCES
+import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension

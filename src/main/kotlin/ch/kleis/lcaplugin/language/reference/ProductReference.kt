@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.reference
 
 import ch.kleis.lcaplugin.language.SearchTrait
-import ch.kleis.lcaplugin.language.psi.stub.LcaSubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
@@ -26,7 +26,7 @@ class ProductReference(
 
     override fun getVariants(): Array<LookupElement> =
         StubIndex.getInstance()
-            .getAllKeys(LcaSubIndexKeys.PRODUCTS, element.project)
+            .getAllKeys(LcaStubIndexKeys.PRODUCTS, element.project)
             .map { LookupElementBuilder.create("\"$it") }
             .toTypedArray()
 

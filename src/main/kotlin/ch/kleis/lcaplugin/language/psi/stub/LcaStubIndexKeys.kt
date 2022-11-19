@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.language.psi.type.Product
 import ch.kleis.lcaplugin.language.psi.type.Substance
 import com.intellij.psi.stubs.StubIndexKey
 
-object LcaSubIndexKeys {
+object LcaStubIndexKeys {
 
     val PRODUCTS : StubIndexKey<String, Product> =
         StubIndexKey.createIndexKey("lca.products")

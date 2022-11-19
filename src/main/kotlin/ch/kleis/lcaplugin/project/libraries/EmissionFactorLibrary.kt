@@ -16,7 +16,7 @@ class EmissionFactorLibrary(
 
     override fun hashCode(): Int = substances.hashCode()
 
-    override fun getSourceRoots(): Collection<VirtualFile> = emptyList();
+    override fun getSourceRoots(): Collection<VirtualFile> = substances.children.toList();
 
     override fun getBinaryRoots(): Collection<VirtualFile> = listOf(substances)
 

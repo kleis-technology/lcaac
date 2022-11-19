@@ -2,6 +2,9 @@ package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.compute.ModelVisitor
+import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
+import ch.kleis.lcaplugin.project.LcaRootLibraryProvider
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -9,6 +12,9 @@ import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.stubs.StubIndex
+import com.intellij.psi.stubs.StubIndexExtension
+import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.ui.content.ContentFactory
 
 class AssessProjectAction : AnAction() {
@@ -21,8 +27,16 @@ class AssessProjectAction : AnAction() {
 
         val modelVisitor = ModelVisitor()
         psiFiles.forEach { it.accept(modelVisitor) }
-
         val system = modelVisitor.getSystem()
+
+        system.getElementaryFlows().getElements()
+            .forEach { flow ->
+                SubstanceKeyIndex.findSubstances(project, flow.substance)
+                    .forEach {
+                        it.accept(modelVisitor)
+                    }
+            }
+
         val methodMap = modelVisitor.getMethodMap()
         val firstMethodName = methodMap.keys.firstOrNull() ?: return
         val method = methodMap[firstMethodName] ?: return

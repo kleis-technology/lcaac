@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.StubIndexKey
 
 class ProductKeyIndex : StringStubIndexExtension<Product>() {
     override fun getKey(): StubIndexKey<String, Product> =
-        LcaSubIndexKeys.PRODUCTS
+        LcaStubIndexKeys.PRODUCTS
 
 
     companion object {
@@ -19,6 +19,6 @@ class ProductKeyIndex : StringStubIndexExtension<Product>() {
             target: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<Product> =
-            StubIndex.getElements(LcaSubIndexKeys.PRODUCTS, target, project, scope, Product::class.java)
+            StubIndex.getElements(LcaStubIndexKeys.PRODUCTS, target, project, scope, Product::class.java)
     }
 }
