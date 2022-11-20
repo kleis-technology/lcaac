@@ -38,10 +38,10 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess("\"hello world\"")
+        val actual = visitor.getSystem().getProcess("hello world")
 
         // then
-        assertEquals(actual.name, "hello")
+        assertEquals(actual.name, "hello world")
     }
 
     @Test
@@ -135,7 +135,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         assertEquals(actual.emissions[2].flow.substance, "water")
         assertEquals(actual.emissions[2].flow.compartment, "air")
-        assertEquals(actual.emissions[2].flow.subcompartment, "\"low pop\"")
+        assertEquals(actual.emissions[2].flow.subcompartment, "low pop")
         assertEquals(actual.emissions[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
@@ -163,7 +163,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
         // then
         assertEquals(actual.resources.size, 3)
         assertEquals(actual.resources[0].flow.substance, "carrot")
-        assertEquals(actual.resources[0].flow.compartment, "\"air\"")
+        assertEquals(actual.resources[0].flow.compartment, "air")
         assertEquals(actual.resources[0].flow.subcompartment, null)
         assertEquals(actual.resources[0].quantity, getQuantity(1.0, KILOGRAM))
 
@@ -174,7 +174,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         assertEquals(actual.resources[2].flow.substance, "water")
         assertEquals(actual.resources[2].flow.compartment, "air")
-        assertEquals(actual.resources[2].flow.subcompartment, "\"low pop\"")
+        assertEquals(actual.resources[2].flow.subcompartment, "low pop")
         assertEquals(actual.resources[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
