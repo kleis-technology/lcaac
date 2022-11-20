@@ -36,7 +36,7 @@
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
         <annotator
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaSubstanceAnnotator"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
 
         <codeInsight.lineMarkerProvider
                 language="LCA"

@@ -8,7 +8,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 
 
-class LcaSubstanceAnnotator : Annotator {
+class LcaBioExchangeAnnotator : Annotator {
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
 
@@ -24,9 +24,7 @@ class LcaSubstanceAnnotator : Annotator {
             } else {
                 val elementUnit = element.getUnitElement()
                 val referenceUnit = reference.getUnitElement()
-                if (elementUnit?.getUnit()?.getDimension()
-                        ?.equals(referenceUnit?.getUnit()?.getDimension()) != true
-                ) {
+                if (!elementUnit.getUnit().dimension.equals(referenceUnit.getUnit().dimension)) {
                     holder.newAnnotation(
                         HighlightSeverity.ERROR,
                         "Unit ${elementUnit?.name} does not match ${referenceUnit?.name} from ${reference.name}"
