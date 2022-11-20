@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.reference
 
 import ch.kleis.lcaplugin.language.SearchTrait
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
+import ch.kleis.lcaplugin.language.psi.type.PsiSubstanceId
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
@@ -9,15 +10,10 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
 class SubstanceReference(
-    element: PsiNamedElement,
+    element: PsiElement,
+    private val substanceId: PsiSubstanceId,
     textRange: TextRange
-) : PsiReferenceBase<PsiNamedElement>(element, textRange), SearchTrait, PsiPolyVariantReference {
-
-    private val identifier: String
-
-    init {
-        identifier = element.name!!
-    }
+) : PsiReferenceBase<PsiElement>(element, textRange), SearchTrait, PsiPolyVariantReference {
 
     override fun getVariants(): Array<LookupElement> =
         StubIndex.getInstance()
@@ -31,6 +27,6 @@ class SubstanceReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> =
-        this.findSubstances(element.project, identifier)
+        this.findSubstances(element.project, substanceId.name ?: "")
             .map { PsiElementResolveResult(it) }.toTypedArray()
 }

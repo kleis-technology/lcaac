@@ -15,7 +15,7 @@ abstract class PsiBioExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), 
 
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { SubstanceReference(it as PsiSubstanceId, it.textRangeInParent) }
+        return nameIdentifier?.let { SubstanceReference(this, it as PsiSubstanceId, it.textRangeInParent) }
     }
 
     override fun getName() : String? {
