@@ -12,12 +12,12 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitSubstance() {
         // given
         val file = parseFile("hello", """
-            substance "hello" {
+            substance hello {
                 type: emissions
                 unit: kg
                 
                 factors : ef31 {
-                    - "climate change" 3.0
+                    - "climate change" 3.0 kg
                 }
             }
         """.trimIndent())
@@ -30,7 +30,7 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
         //then
         assertEquals(method[0].output.flow.getUniqueId(), "hello")
         assertEquals(method[0].output.quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(method[0].input.flow.getUniqueId(), "climate change")
+        assertEquals(method[0].input.flow.getUniqueId(), "\"climate change\"")
         assertEquals(method[0].input.quantity, getQuantity(3.0, ONE))
     }
 
@@ -38,7 +38,7 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitSubstance_multipleSubstances() {
         // given
         val file = parseFile("hello", """
-            substance "hello" {
+            substance hello {
                 type: emissions
                 unit: kg
                 
@@ -47,7 +47,7 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
             
-            substance "bar" {
+            substance bar {
                 type: emissions
                 unit: kg
                 
@@ -65,12 +65,12 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
         //then
         assertEquals(method[0].output.flow.getUniqueId(), "hello")
         assertEquals(method[0].output.quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(method[0].input.flow.getUniqueId(), "climate change")
+        assertEquals(method[0].input.flow.getUniqueId(), "\"climate change\"")
         assertEquals(method[0].input.quantity, getQuantity(3.0, ONE))
 
         assertEquals(method[1].output.flow.getUniqueId(), "bar")
         assertEquals(method[1].output.quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(method[1].input.flow.getUniqueId(), "climate change")
+        assertEquals(method[0].input.flow.getUniqueId(), "\"climate change\"")
         assertEquals(method[1].input.quantity, getQuantity(4.0, ONE))
     }
 
@@ -78,23 +78,23 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitSubstance_multipleIndicators() {
         // given
         val file = parseFile("hello", """
-            substance "hello" {
+            substance hello {
                 type: emissions
                 unit: kg
                 
                 factors : ef31 {
                     - "climate change" 3.0
-                    - "eutrophication" 3.0
+                    - eutrophication 3.0
                 }
             }
             
-            substance "bar" {
+            substance bar {
                 type: emissions
                 unit: kg
                 
                 factors : ef31 {
                     - "climate change" 4.0
-                    - "eutrophication" 7.0
+                    - eutrophication 7.0
                 }
             }
         """.trimIndent())
@@ -107,7 +107,7 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
         //then
         assertEquals(method[0].output.flow.getUniqueId(), "hello")
         assertEquals(method[0].output.quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(method[0].input.flow.getUniqueId(), "climate change")
+        assertEquals(method[0].input.flow.getUniqueId(), "\"climate change\"")
         assertEquals(method[0].input.quantity, getQuantity(3.0, ONE))
 
         assertEquals(method[1].output.flow.getUniqueId(), "hello")
@@ -117,7 +117,7 @@ class ModelMethodVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         assertEquals(method[2].output.flow.getUniqueId(), "bar")
         assertEquals(method[2].output.quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(method[2].input.flow.getUniqueId(), "climate change")
+        assertEquals(method[0].input.flow.getUniqueId(), "\"climate change\"")
         assertEquals(method[2].input.quantity, getQuantity(4.0, ONE))
 
         assertEquals(method[3].output.flow.getUniqueId(), "bar")

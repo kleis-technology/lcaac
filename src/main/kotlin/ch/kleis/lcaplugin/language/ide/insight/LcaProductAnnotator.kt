@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.CreateProcessAction
-import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
-import ch.kleis.lcaplugin.language.psi.type.ProductExchange
+import ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin
+import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
 import ch.kleis.lcaplugin.psi.LcaInputExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
@@ -20,25 +20,24 @@ class LcaProductAnnotator : Annotator {
 
         if (element is LcaInputExchange) {
             val reference = element.reference?.resolve()
-            if (reference == null || reference !is ProductExchange) {
-                (element.nameIdentifier as StringLiteralMixin?)?.let {
+            if (reference == null || reference !is PsiProductExchange) {
+                (element.nameIdentifier as PsiUniqueIdMixin?)?.let {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.name}")
                         .range(it)
                         .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-                        .withFix(CreateProcessAction(it.name!!, element.getUnitElement()?.text))
+                        .withFix(CreateProcessAction(it.name, element.getUnitElement().text))
                         .create()
                 }
             } else {
                 val elementUnit = element.getUnitElement()
                 val referenceUnit = reference.getUnitElement()
-                if (elementUnit?.getUnit()?.getDimension()
-                        ?.equals(referenceUnit?.getUnit()?.getDimension()) != true
+                if (elementUnit.getUnit().dimension
+                        ?.equals(referenceUnit.getUnit().dimension) != true
                 ) {
                     holder.newAnnotation(
                         HighlightSeverity.ERROR,
-                        "Unit ${elementUnit?.name} does not match ${referenceUnit?.name} from ${reference.name}"
-                    ).range(element.textRange)
-                        .create();
+                        "Unit ${elementUnit.name} does not match ${referenceUnit.name} from ${reference.name}"
+                    ).range(element.textRange).create()
                 }
             }
         }

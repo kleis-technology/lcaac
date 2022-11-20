@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.psi.type.Substance
+import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -14,7 +14,7 @@ class LcaSubstanceAnnotator : Annotator {
 
         if (element is ch.kleis.lcaplugin.psi.LcaBioExchange) {
             val reference = element.reference?.resolve()
-            if (reference == null || reference !is Substance) {
+            if (reference == null || reference !is PsiSubstance) {
                 element.nameIdentifier?.let {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.text}")
                         .range(it)

@@ -1,14 +1,14 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
-import ch.kleis.lcaplugin.language.psi.type.ProductExchange
+import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class ProductExchangeKeyIndex : StringStubIndexExtension<ProductExchange>() {
-    override fun getKey(): StubIndexKey<String, ProductExchange> =
+class ProductExchangeKeyIndex : StringStubIndexExtension<PsiProductExchange>() {
+    override fun getKey(): StubIndexKey<String, PsiProductExchange> =
         LcaStubIndexKeys.PRODUCT_EXCHANGES
 
 
@@ -18,7 +18,7 @@ class ProductExchangeKeyIndex : StringStubIndexExtension<ProductExchange>() {
             project: Project,
             target: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-        ): Collection<ProductExchange> =
-            StubIndex.getElements(LcaStubIndexKeys.PRODUCT_EXCHANGES, target, project, scope, ProductExchange::class.java)
+        ): Collection<PsiProductExchange> =
+            StubIndex.getElements(LcaStubIndexKeys.PRODUCT_EXCHANGES, target, project, scope, PsiProductExchange::class.java)
     }
 }

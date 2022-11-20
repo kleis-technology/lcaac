@@ -12,8 +12,8 @@
   elementTypeClass="ch.kleis.lcaplugin.psi.LcaElementType"
   tokenTypeClass="ch.kleis.lcaplugin.psi.LcaTokenType"
 
-  mixin("input_exchange")="ch.kleis.lcaplugin.language.psi.mixin.InputExchangeMixin"
-  implements("input_exchange")="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
+  mixin("input_exchange")="ch.kleis.lcaplugin.language.psi.mixin.PsiInputExchangeMixin"
+  implements("input_exchange")="ch.kleis.lcaplugin.language.psi.type.PsiInputExchange"
 
   parserUtilClass="ch.kleis.lcaplugin.language.parser.ExtensionParser"
 
@@ -51,15 +51,19 @@
 
 lcaFile ::= (process | substance)*
 
-// identifiers
+// identifier
 
-process_id ::= IDENTIFIER | string_literal
+string_literal ::= STRING
+unique_id ::= STRING | IDENTIFIER {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiUniqueId"]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin"
+}
 
 // process
 
-process ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE {
-  implements = ["com.intellij.psi.PsiNameIdentifierOwner"]
-  mixin ="ch.kleis.lcaplugin.language.psi.mixin.ProcessDefinitionMixin"
+process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
+  implements = ["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
+  mixin ="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
 }
 process_body ::= (products | inputs | resources | emissions | land_use)* metadata?
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
@@ -72,9 +76,9 @@ land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
 // substance
 
 substance ::= SUBSTANCE_KEYWORD substance_id LBRACE substance_body RBRACE {
-    implements = [ "ch.kleis.lcaplugin.language.psi.type.Substance" ]
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiSubstance" ]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.SubstanceStubElementType"
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.SubstanceMixin"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
 }
 substance_body ::= substance_type unit_type factors? metadata?
@@ -84,33 +88,33 @@ unit_type ::= UNIT_KEYWORD SEPARATOR unit_symbol
 // exchanges
 
 input_exchange ::= techno_exchange {
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.InputExchangeMixin"
-    implements="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
+    implements="ch.kleis.lcaplugin.language.psi.type.PsiInputExchange"
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiInputExchangeMixin"
 }
 product_exchange ::= techno_exchange {
-    implements = [ "ch.kleis.lcaplugin.language.psi.type.ProductExchange" ]
+    implements = [ "ch.kleis.lcaplugin.language.psi.type.PsiProductExchange" ]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiProductExchangeMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStubElementType"
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.ProductExchangeMixin"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStub"
 }
 meta bio_exchange ::= LIST_ITEM substance_id NUMBER unit_symbol {
     recoverWhile=next_item
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.BioExchangeMixin"
-    implements="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
+    implements="ch.kleis.lcaplugin.language.psi.type.PsiBioExchange"
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiBioExchangeMixin"
 }
-private techno_exchange ::= LIST_ITEM string_literal NUMBER unit_symbol {recoverWhile=next_item}
+private techno_exchange ::= LIST_ITEM unique_id NUMBER unit_symbol {recoverWhile=next_item}
 
 // factors
 
-meta factor ::= LIST_ITEM string_literal IDENTIFIER? NUMBER {
+meta factor ::= LIST_ITEM unique_id IDENTIFIER? NUMBER {
     recoverWhile=next_item
 }
 
 // id substance
 
-substance_id ::= string_literal (COMA string_literal (COMA string_literal)?)? {
-    implements="com.intellij.psi.PsiNamedElement"
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.SubstanceIdMixin"
+substance_id ::= unique_id (COMA unique_id (COMA unique_id)?)? {
+    implements="ch.kleis.lcaplugin.language.psi.type.PsiSubstanceId"
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceIdMixin"
 }
 
 // meta-data
@@ -120,15 +124,11 @@ property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_it
 
 // misc
 
-string_literal ::= STRING {
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin"
-}
 external unit_symbol ::= parseUnit
 unit ::= IDENTIFIER {
-     mixin= "ch.kleis.lcaplugin.language.psi.mixin.UnitMixin"
-     implements= "ch.kleis.lcaplugin.language.psi.type.PsiUnitElement"
+     implements= "ch.kleis.lcaplugin.language.psi.type.PsiUnit"
+     mixin= "ch.kleis.lcaplugin.language.psi.mixin.PsiUnitMixin"
 }
 
 private next_item ::= !(LIST_ITEM | RBRACE)
-//private next_process ::= !PROCESS_KEYWORD
 
