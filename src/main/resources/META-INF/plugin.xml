@@ -64,7 +64,7 @@
         <additionalLibraryRootsProvider
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
 
-        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.ProductKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 

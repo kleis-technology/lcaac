@@ -2,8 +2,7 @@ package ch.kleis.lcaplugin.language.psi.mixin
 
 import ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement
 import ch.kleis.lcaplugin.language.psi.type.PsiUnitElement
-import ch.kleis.lcaplugin.language.reference.ProductReference
-import ch.kleis.lcaplugin.psi.LcaTypes
+import ch.kleis.lcaplugin.language.reference.ProductExchangeReference
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
@@ -18,7 +17,7 @@ abstract class InputExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), I
     override fun getNameIdentifier(): PsiElement? = super.getNameIdentifier()
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { ProductReference(this, it.textRangeInParent) }
+        return nameIdentifier?.let { ProductExchangeReference(this, it.textRangeInParent) }
     }
 
     override fun getUnitElement(): PsiUnitElement? {

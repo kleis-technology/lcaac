@@ -2,14 +2,13 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.CreateProcessAction
 import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
-import ch.kleis.lcaplugin.language.psi.type.Product
+import ch.kleis.lcaplugin.language.psi.type.ProductExchange
 import ch.kleis.lcaplugin.psi.LcaInputExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiNamedElement
 import tech.units.indriya.format.SimpleUnitFormat
 import javax.measure.format.UnitFormat
 
@@ -21,7 +20,7 @@ class LcaProductAnnotator : Annotator {
 
         if (element is LcaInputExchange) {
             val reference = element.reference?.resolve()
-            if (reference == null || reference !is Product) {
+            if (reference == null || reference !is ProductExchange) {
                 (element.nameIdentifier as StringLiteralMixin?)?.let {
                     holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.name}")
                         .range(it)
