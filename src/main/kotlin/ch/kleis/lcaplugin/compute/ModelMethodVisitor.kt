@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.compute
 
 import ch.kleis.lcaplugin.compute.model.*
-import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
+import ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import tech.units.indriya.AbstractUnit.ONE
@@ -24,11 +24,11 @@ class ModelMethodVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseSubstance(substance: LcaSubstance): ElementaryExchange<D> {
-        val stringList = substance.substanceId.stringLiteralList
-        val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
-        val compartment = (stringList.getOrNull(1) as StringLiteralMixin?)?.name
-        val subcompartment = (stringList.getOrNull(2) as StringLiteralMixin?)?.name
-        val unit = (substance.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val uniqueIds = substance.getSubstanceId().uniqueIdList
+        val name = uniqueIds.getOrNull(0)?.name ?: throw IllegalArgumentException()
+        val compartment = uniqueIds.getOrNull(1)?.name
+        val subcompartment = uniqueIds.getOrNull(2)?.name
+        val unit = substance.getUnitElement().getUnit() as Unit<D>
         return ElementaryExchange(
             ElementaryFlow(name, compartment, subcompartment, unit),
             getQuantity(1.0, unit),
@@ -36,7 +36,7 @@ class ModelMethodVisitor : LcaVisitor() {
     }
 
     private fun parseIndicator(factor: LcaFactor): ImpactCategoryExchange {
-        val name = (factor.stringLiteral as StringLiteralMixin).name ?: throw IllegalArgumentException()
+        val name = (factor.uniqueId as PsiUniqueIdMixin).name
         val amount = parseDouble(factor.number.text)
         return ImpactCategoryExchange(
             ImpactCategory(name),

@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.compute
 
 import ch.kleis.lcaplugin.compute.model.*
-import ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin
+import ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import tech.units.indriya.quantity.Quantities.getQuantity
@@ -56,13 +56,12 @@ class ModelSystemVisitor : LcaVisitor() {
 
     private fun <D : Quantity<D>> parseBioExchange(bioExchange: LcaBioExchange): ElementaryExchange<D> {
         val amount = parseDouble(bioExchange.number.text)
-        val unit: Unit<D> =
-            (bioExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
-        val stringList = bioExchange.substanceId.stringLiteralList
-        val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
-        val compartment = (stringList.getOrNull(1) as StringLiteralMixin?)?.name
-        val subcompartment = (stringList.getOrNull(2) as StringLiteralMixin?)?.name
+        val uniqueIdList = bioExchange.getSubstanceId().uniqueIdList
+        val name = (uniqueIdList.getOrNull(0) as PsiUniqueIdMixin?)?.name ?: throw IllegalArgumentException()
+        val compartment = (uniqueIdList.getOrNull(1) as PsiUniqueIdMixin?)?.name
+        val subcompartment = (uniqueIdList.getOrNull(2) as PsiUniqueIdMixin?)?.name
         return ElementaryExchange(ElementaryFlow(name, compartment, subcompartment, unit), quantity)
     }
 
@@ -76,7 +75,7 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseProductExchange(productExchange: LcaProductExchange): IntermediaryExchange<D> {
-        val unit = (productExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit = productExchange.getUnitElement().getUnit() as Unit<D>
         val name = productExchange.name ?: throw IllegalArgumentException()
         val flow = IntermediaryFlow(name, unit)
 
@@ -94,7 +93,7 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseInputExchange(inputExchange: LcaInputExchange): IntermediaryExchange<D> {
-        val unit = (inputExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit = inputExchange.getUnitElement().getUnit() as Unit<D>
         val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException(), unit)
         val amount = parseDouble(inputExchange.number.text)
         val quantity = getQuantity(amount, unit)

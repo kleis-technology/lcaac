@@ -27,7 +27,7 @@ class ProductExchangeReference(
     override fun getVariants(): Array<LookupElement> =
         StubIndex.getInstance()
             .getAllKeys(LcaStubIndexKeys.PRODUCT_EXCHANGES, element.project)
-            .map { LookupElementBuilder.create("\"$it") }
+            .map { LookupElementBuilder.create(it) }
             .toTypedArray()
 
     override fun resolve(): PsiElement? {

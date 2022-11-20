@@ -14,7 +14,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitProcess_shouldParseName() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
             }
         """.trimIndent())
         val visitor = ModelSystemVisitor()
@@ -28,16 +28,33 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     }
 
     @Test
+    fun testVisitProcess_shouldParseNameWithQuote() {
+        // given
+        val file = parseFile("hello", """
+            process "hello world" {
+            }
+        """.trimIndent())
+        val visitor = ModelSystemVisitor()
+
+        // when
+        file.accept(visitor)
+        val actual = visitor.getSystem().getProcess("hello world")
+
+        // then
+        assertEquals(actual.name, "hello world")
+    }
+
+    @Test
     fun testVisitProcess_products() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
                 products {
-                    - "carrot" 1 kg
+                    - carrot 1 kg
                 }
                 
                 products {
-                    - "water" 2 l
+                    - water 2 l
                 }
             }
         """.trimIndent())
@@ -59,13 +76,13 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitProcess_inputs() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
                 inputs {
-                    - "carrot" 1 kg
+                    - carrot 1 kg
                 }
                 
                 inputs {
-                    - "water" 2 l
+                    - water 2 l
                 }
             }
         """.trimIndent())
@@ -87,14 +104,14 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitProcess_emissions() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
                 emissions {
-                    - "carrot", "air" 1 kg
+                    - carrot, air 1 kg
                 }
                 
                 emissions {
-                    - "water" 2 l
-                    - "water", "air", "low pop" 3 ml
+                    - water 2 l
+                    - water, air, "low pop" 3 ml
                 }
             }
         """.trimIndent())
@@ -126,14 +143,14 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitProcess_resources() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
                 resources {
-                    - "carrot", "air" 1 kg
+                    - carrot, "air" 1 kg
                 }
                 
                 resources {
-                    - "water" 2 l
-                    - "water", "air", "low pop" 3 ml
+                    - water 2 l
+                    - water, air, "low pop" 3 ml
                 }
             }
         """.trimIndent())
@@ -165,13 +182,13 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
     fun testVisitProcess_example() {
         // given
         val file = parseFile("hello", """
-            process "hello" {
+            process hello {
                 products {
-                    - "carrot" 1 kg
+                    - carrot 1 kg
                 }
                 
                 inputs {
-                    - "water" 3 ml
+                    - water 3 ml
                 }
                 
                 emissions {

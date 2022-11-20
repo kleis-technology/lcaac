@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.services
 
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.openlca.simapro.csv.Numeric
 import org.openlca.simapro.csv.enums.ProcessCategory
@@ -33,13 +34,16 @@ internal class ScsvProcessBlockFormatterTest {
                 products {
                     - "reference product" 1.0 kg
                 }
+                
                 meta {
                     - identifier: "123456"
                     - category: "material"
                     - processType: "Unit process"
                 }
+                
             }
+            
         """.trimIndent()
-        assert(expected == actual)
+        assertEquals(actual, expected)
     }
 }
