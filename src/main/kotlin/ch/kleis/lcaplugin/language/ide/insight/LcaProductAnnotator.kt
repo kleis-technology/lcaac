@@ -31,8 +31,8 @@ class LcaProductAnnotator : Annotator {
             } else {
                 val elementUnit = element.getUnitElement()
                 val referenceUnit = reference.getUnitElement()
-                if (elementUnit?.getQuantityUnit()?.getDimension()
-                        ?.equals(referenceUnit?.getQuantityUnit()?.getDimension()) != true
+                if (elementUnit?.getUnit()?.getDimension()
+                        ?.equals(referenceUnit?.getUnit()?.getDimension()) != true
                 ) {
                     holder.newAnnotation(
                         HighlightSeverity.ERROR,

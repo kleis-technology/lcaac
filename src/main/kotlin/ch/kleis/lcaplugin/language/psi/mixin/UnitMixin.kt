@@ -8,7 +8,7 @@ import tech.units.indriya.AbstractUnit
 import tech.units.indriya.format.SimpleUnitFormat
 import javax.measure.Unit
 
-abstract class QuantityMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUnitElement {
+abstract class UnitMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUnitElement {
 
     companion object {
         val parser: SimpleUnitFormat = SimpleUnitFormat.getInstance()
@@ -24,7 +24,7 @@ abstract class QuantityMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUni
         return node.text
     }
 
-    override fun getQuantityUnit(): Unit<*> {
+    override fun getUnit(): Unit<*> {
         return unit;
     }
 

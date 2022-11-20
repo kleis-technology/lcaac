@@ -57,7 +57,7 @@ class ModelSystemVisitor : LcaVisitor() {
     private fun <D : Quantity<D>> parseBioExchange(bioExchange: LcaBioExchange): ElementaryExchange<D> {
         val amount = parseDouble(bioExchange.number.text)
         val unit: Unit<D> =
-            (bioExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+            (bioExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
         val quantity = getQuantity(amount, unit)
         val stringList = bioExchange.substanceId.stringLiteralList
         val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
@@ -76,7 +76,7 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseProductExchange(productExchange: LcaProductExchange): IntermediaryExchange<D> {
-        val unit = (productExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit = (productExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
         val name = productExchange.name ?: throw IllegalArgumentException()
         val flow = IntermediaryFlow(name, unit)
 
@@ -94,7 +94,7 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseInputExchange(inputExchange: LcaInputExchange): IntermediaryExchange<D> {
-        val unit = (inputExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit = (inputExchange.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
         val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException(), unit)
         val amount = parseDouble(inputExchange.number.text)
         val quantity = getQuantity(amount, unit)

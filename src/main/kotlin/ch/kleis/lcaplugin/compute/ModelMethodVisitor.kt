@@ -28,7 +28,7 @@ class ModelMethodVisitor : LcaVisitor() {
         val name = (stringList.getOrNull(0) as StringLiteralMixin?)?.name ?: throw IllegalArgumentException()
         val compartment = (stringList.getOrNull(1) as StringLiteralMixin?)?.name
         val subcompartment = (stringList.getOrNull(2) as StringLiteralMixin?)?.name
-        val unit = (substance.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val unit = (substance.getUnitElement()?.getUnit() ?: throw IllegalArgumentException()) as Unit<D>
         return ElementaryExchange(
             ElementaryFlow(name, compartment, subcompartment, unit),
             getQuantity(1.0, unit),

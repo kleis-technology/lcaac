@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.type.Substance
-import ch.kleis.lcaplugin.psi.LcaBioExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -25,8 +24,8 @@ class LcaSubstanceAnnotator : Annotator {
             } else {
                 val elementUnit = element.getUnitElement()
                 val referenceUnit = reference.getUnitElement()
-                if (elementUnit?.getQuantityUnit()?.getDimension()
-                        ?.equals(referenceUnit?.getQuantityUnit()?.getDimension()) != true
+                if (elementUnit?.getUnit()?.getDimension()
+                        ?.equals(referenceUnit?.getUnit()?.getDimension()) != true
                 ) {
                     holder.newAnnotation(
                         HighlightSeverity.ERROR,
