@@ -58,7 +58,7 @@ class ModelSystemVisitor : LcaVisitor() {
         val amount = parseDouble(bioExchange.number.text)
         val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
-        val uniqueIdList = bioExchange.substanceId.uniqueIdList
+        val uniqueIdList = bioExchange.getSubstanceId().uniqueIdList
         val name = (uniqueIdList.getOrNull(0) as PsiUniqueIdMixin?)?.name ?: throw IllegalArgumentException()
         val compartment = (uniqueIdList.getOrNull(1) as PsiUniqueIdMixin?)?.name
         val subcompartment = (uniqueIdList.getOrNull(2) as PsiUniqueIdMixin?)?.name

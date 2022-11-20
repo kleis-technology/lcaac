@@ -15,24 +15,14 @@ abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<Substan
     constructor(node: ASTNode) : super(node)
     constructor(stub: SubstanceStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
-    override fun getName() : String? {
-        return (nameIdentifier as PsiNamedElement?)?.name
-    }
-
-    override fun setName(name: String): PsiElement {
-        throw NotImplementedError()
-    }
-
-    override fun getNameIdentifier(): PsiElement? {
-        return node.findChildByType(LcaTypes.SUBSTANCE_ID)?.psi
-    }
-
     override fun getUnitElement(): PsiUnit {
         val substanceBody = node.findChildByType(LcaTypes.SUBSTANCE_BODY)
         val unitType = substanceBody?.findChildByType(LcaTypes.UNIT_TYPE)
         return unitType?.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
             ?: throw IllegalStateException()
     }
+
+    override fun getName(): String? = super<PsiSubstance>.getName()
 
     override fun toString(): String {
         return "Substance(${this.name})"

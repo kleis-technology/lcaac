@@ -1,5 +1,5 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import com.intellij.psi.PsiNameIdentifierOwner
+import ch.kleis.lcaplugin.language.psi.type.traits.PsiUniqueIdOwner
 
-interface PsiProcess : PsiNameIdentifierOwner
+interface PsiProcess : PsiUniqueIdOwner

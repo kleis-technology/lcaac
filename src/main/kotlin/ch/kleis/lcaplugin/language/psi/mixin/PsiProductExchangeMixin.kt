@@ -16,32 +16,9 @@ abstract class PsiProductExchangeMixin : StubBasedPsiElementBase<ProductExchange
     constructor(node: ASTNode) : super(node)
     constructor(stub: ProductExchangeStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
-    override fun getName() : String? {
-        return (nameIdentifier as PsiUniqueId).name
-    }
-
-    override fun setName(name: String): PsiElement {
-        val identifierNode : ASTNode? = getNode().findChildByType(LcaTypes.UNIQUE_ID)
-        if (identifierNode != null) {
-            val newIdentifier = PsiFileFactory.getInstance(getProject())
-                .createFileFromText("_Dummy_.${ch.kleis.lcaplugin.LcaFileType.INSTANCE.defaultExtension}", ch.kleis.lcaplugin.LcaFileType.INSTANCE, name)
-            getNode().replaceChild(identifierNode, newIdentifier.node)
-        }
-        return this
-    }
-
-    override fun getNameIdentifier(): PsiElement? {
-        return node.findChildByType(LcaTypes.UNIQUE_ID)?.psi
-    }
-
-    override fun getUnitElement(): PsiUnit {
-        return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
-            ?: throw IllegalStateException()
-    }
+    override fun getName(): String? = super<PsiProductExchange>.getName()
 
     override fun toString(): String {
         return "Product(${this.name})"
     }
-
-
 }

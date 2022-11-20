@@ -24,7 +24,7 @@ class ModelMethodVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseSubstance(substance: LcaSubstance): ElementaryExchange<D> {
-        val uniqueIds = substance.substanceId.uniqueIdList
+        val uniqueIds = substance.getSubstanceId().uniqueIdList
         val name = uniqueIds.getOrNull(0)?.name ?: throw IllegalArgumentException()
         val compartment = uniqueIds.getOrNull(1)?.name
         val subcompartment = uniqueIds.getOrNull(2)?.name
