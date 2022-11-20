@@ -77,9 +77,9 @@ substance ::= SUBSTANCE_KEYWORD substance_id LBRACE substance_body RBRACE {
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.SubstanceMixin"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
 }
-substance_body ::= substance_type unitType factors? metadata?
+substance_body ::= substance_type unit_type factors? metadata?
 substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
-unitType ::= UNIT_KEYWORD SEPARATOR quantity
+unit_type ::= UNIT_KEYWORD SEPARATOR unit_symbol
 
 // exchanges
 
@@ -93,12 +93,12 @@ product_exchange ::= techno_exchange {
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.ProductExchangeMixin"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStub"
 }
-meta bio_exchange ::= LIST_ITEM substance_id NUMBER quantity {
+meta bio_exchange ::= LIST_ITEM substance_id NUMBER unit_symbol {
     recoverWhile=next_item
     mixin="ch.kleis.lcaplugin.language.psi.mixin.BioExchangeMixin"
     implements="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
 }
-private techno_exchange ::= LIST_ITEM string_literal NUMBER quantity {recoverWhile=next_item}
+private techno_exchange ::= LIST_ITEM string_literal NUMBER unit_symbol {recoverWhile=next_item}
 
 // factors
 
@@ -123,12 +123,12 @@ property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_it
 string_literal ::= STRING {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.StringLiteralMixin"
 }
-external quantity ::= parseQuantity
+external unit_symbol ::= parseUnit
 unit ::= IDENTIFIER {
-     mixin= "ch.kleis.lcaplugin.language.psi.mixin.QuantityMixin"
+     mixin= "ch.kleis.lcaplugin.language.psi.mixin.UnitMixin"
      implements= "ch.kleis.lcaplugin.language.psi.type.PsiUnitElement"
 }
 
 private next_item ::= !(LIST_ITEM | RBRACE)
-private next_process ::= !PROCESS_KEYWORD
+//private next_process ::= !PROCESS_KEYWORD
 
