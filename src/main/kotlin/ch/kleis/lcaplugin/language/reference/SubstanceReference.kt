@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.language.reference
 
 import ch.kleis.lcaplugin.language.SearchTrait
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
-import ch.kleis.lcaplugin.language.psi.type.PsiSubstanceId
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
@@ -10,9 +9,9 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
 class SubstanceReference(
-    element: PsiSubstanceId,
+    element: PsiNamedElement,
     textRange: TextRange
-) : PsiReferenceBase<PsiSubstanceId>(element, textRange), SearchTrait, PsiPolyVariantReference {
+) : PsiReferenceBase<PsiNamedElement>(element, textRange), SearchTrait, PsiPolyVariantReference {
 
     private val identifier: String
 

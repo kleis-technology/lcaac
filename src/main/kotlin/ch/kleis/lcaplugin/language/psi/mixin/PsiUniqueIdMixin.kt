@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 
 abstract class PsiUniqueIdMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUniqueId {
     override fun getName(): String {
-        return this.firstChild.text //.trim('"')
+        return this.firstChild.text.trim('"')
     }
 
     override fun setName(name: String): PsiElement {
