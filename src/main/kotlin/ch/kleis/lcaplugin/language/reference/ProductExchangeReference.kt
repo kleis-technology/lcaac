@@ -13,7 +13,7 @@ import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.ResolveResult
 import com.intellij.psi.stubs.StubIndex
 
-class ProductReference(
+class ProductExchangeReference(
     element: PsiNamedElement,
     textRange: TextRange
 ) : PsiReferenceBase<PsiElement>(element, textRange), SearchTrait, PsiPolyVariantReference {
@@ -26,7 +26,7 @@ class ProductReference(
 
     override fun getVariants(): Array<LookupElement> =
         StubIndex.getInstance()
-            .getAllKeys(LcaStubIndexKeys.PRODUCTS, element.project)
+            .getAllKeys(LcaStubIndexKeys.PRODUCT_EXCHANGES, element.project)
             .map { LookupElementBuilder.create("\"$it") }
             .toTypedArray()
 
@@ -36,6 +36,6 @@ class ProductReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> =
-        this.findProducts(element.project, processIdentifier)
+        this.findProductExchanges(element.project, processIdentifier)
             .map { PsiElementResolveResult(it) }.toTypedArray()
 }

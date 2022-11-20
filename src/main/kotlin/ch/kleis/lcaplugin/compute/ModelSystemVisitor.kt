@@ -72,21 +72,21 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     override fun visitProducts(products: LcaProducts) {
-        products.productList.forEach { visitProduct(it) }
+        products.productExchangeList.forEach { visitProductExchange(it) }
     }
 
-    private fun <D : Quantity<D>> parseProduct(product: LcaProduct): IntermediaryExchange<D> {
-        val unit = (product.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
-        val name = product.name ?: throw IllegalArgumentException()
+    private fun <D : Quantity<D>> parseProductExchange(productExchange: LcaProductExchange): IntermediaryExchange<D> {
+        val unit = (productExchange.getUnitElement()?.getQuantityUnit() ?: throw IllegalArgumentException()) as Unit<D>
+        val name = productExchange.name ?: throw IllegalArgumentException()
         val flow = IntermediaryFlow(name, unit)
 
-        val amount = parseDouble(product.number.text)
+        val amount = parseDouble(productExchange.number.text)
         val quantity = getQuantity(amount, unit)
         return IntermediaryExchange(flow, quantity)
     }
 
-    override fun visitProduct(product: LcaProduct) {
-        this.products.add(parseProduct(product) as IntermediaryExchange<*>)
+    override fun visitProductExchange(productExchange: LcaProductExchange) {
+        this.products.add(parseProductExchange(productExchange) as IntermediaryExchange<*>)
     }
 
     override fun visitInputs(inputs: LcaInputs) {

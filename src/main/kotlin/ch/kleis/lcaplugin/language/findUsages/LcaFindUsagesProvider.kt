@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.findUsages
 
 import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
-import ch.kleis.lcaplugin.language.psi.type.Product
+import ch.kleis.lcaplugin.language.psi.type.ProductExchange
 import ch.kleis.lcaplugin.language.psi.type.Substance
 import ch.kleis.lcaplugin.psi.LcaTypes.IDENTIFIER
 import ch.kleis.lcaplugin.psi.LcaTypes.STRING_LITERAL
@@ -29,7 +29,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
     override fun getHelpId(psiElement: PsiElement): String? = null
 
     override fun getType(element: PsiElement): String =
-        if (element is Product) "Product" else if (element is Substance) "Substance" else ""
+        if (element is ProductExchange) "Product" else if (element is Substance) "Substance" else ""
 
     override fun getDescriptiveName(element: PsiElement): String =
         (element as? PsiNamedElement)?.name.orEmpty()

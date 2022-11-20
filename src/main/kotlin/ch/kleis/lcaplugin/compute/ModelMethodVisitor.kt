@@ -69,7 +69,7 @@ class ModelMethodVisitor : LcaVisitor() {
     override fun visitProducts(products: LcaProducts) {
     }
 
-    override fun visitProduct(product: LcaProduct) {
+    override fun visitProductExchange(productExchange: LcaProductExchange) {
     }
 
     override fun visitInputs(inputs: LcaInputs) {

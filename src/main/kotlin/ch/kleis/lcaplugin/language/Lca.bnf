@@ -51,6 +51,10 @@
 
 lcaFile ::= (process | substance)*
 
+// identifiers
+
+process_id ::= IDENTIFIER | string_literal
+
 // process
 
 process ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE {
@@ -59,7 +63,7 @@ process ::= PROCESS_KEYWORD string_literal LBRACE process_body RBRACE {
 }
 process_body ::= (products | inputs | resources | emissions | land_use)* metadata?
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
-products ::= PRODUCTS_KEYWORD LBRACE product* RBRACE
+products ::= PRODUCTS_KEYWORD LBRACE product_exchange* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
 factors ::= FACTORS_KEYWORD substance_id? SEPARATOR IDENTIFIER LBRACE factor* RBRACE
 emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
@@ -83,11 +87,11 @@ input_exchange ::= techno_exchange {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.InputExchangeMixin"
     implements="ch.kleis.lcaplugin.language.psi.type.PsiExchangeElement"
 }
-product ::= techno_exchange {
-    implements = [ "ch.kleis.lcaplugin.language.psi.type.Product" ]
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.ProductStubElementType"
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.ProductMixin"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductStub"
+product_exchange ::= techno_exchange {
+    implements = [ "ch.kleis.lcaplugin.language.psi.type.ProductExchange" ]
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStubElementType"
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.ProductExchangeMixin"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStub"
 }
 meta bio_exchange ::= LIST_ITEM substance_id NUMBER quantity {
     recoverWhile=next_item
