@@ -34,11 +34,11 @@ class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<
     }
 
     override fun indexStub(stub: ProductExchangeStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.productName!!);
+        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.uniqueId!!);
     }
 
     override fun serialize(stub: ProductExchangeStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.productName);
+        dataStream.writeName(stub.uniqueId);
     }
 
 

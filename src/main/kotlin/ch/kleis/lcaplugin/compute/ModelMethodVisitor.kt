@@ -26,7 +26,7 @@ class ModelMethodVisitor : LcaVisitor() {
     private fun <D : Quantity<D>> parseSubstance(substance: LcaSubstance): ElementaryExchange<D> {
         val unit = substance.getUnitElement().getUnit() as Unit<D>
         return ElementaryExchange(
-            ElementaryFlow(substance.uniqueId.name ?: throw IllegalStateException(),
+            ElementaryFlow(substance.name ?: throw IllegalStateException(),
                 unit),
             getQuantity(1, unit)
         )
