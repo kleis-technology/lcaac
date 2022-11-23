@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.PsiSubstanceId
+import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST
@@ -17,26 +17,21 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     override fun getExternalId(): String = "lca.${super.toString()}"
 
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): SubstanceStub {
-        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, dataStream.readNameString()!!, dataStream.readNameString()!!, dataStream.readNameString());
+        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, dataStream.readNameString()!!)
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): SubstanceStub {
-        val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.SUBSTANCE_ID) as LighterASTTokenNode
+        val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.UNIQUE_ID) as LighterASTTokenNode
         return SubstanceStubImpl(
             parentStub as StubElement<PsiSubstance>,
-            tree.charTable.intern(keyNode.text).toString(), "", ""
+            tree.charTable.intern(keyNode.text).toString()
         );
     }
 
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
-        val substanceId  = psi.nameIdentifier as PsiSubstanceId
-        val substanceName = substanceId.getSubstance().name!!
-        val compartment = substanceId.getCompartment()?.name
-        val subCompartment = substanceId.getSubcompartment()?.name
+        val substanceId  = psi.nameIdentifier as PsiUniqueId
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>,
-            substanceName,
-            compartment,
-            subCompartment,
+            substanceId.name ?: throw IllegalStateException()
         )
     }
 
@@ -45,15 +40,11 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.getCompositeName());
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.uniqueId);
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.substanceName);
-        dataStream.writeName(stub.compartment);
-        if(stub.subCompartment != null) {
-            dataStream.writeName(stub.subCompartment);
-        }
+        dataStream.writeName(stub.uniqueId);
     }
 
 }

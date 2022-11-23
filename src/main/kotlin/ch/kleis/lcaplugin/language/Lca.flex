@@ -83,6 +83,9 @@ CommentContent = .*
 <YYINITIAL> "reference"              { return LcaTypes.REFERENCE_KEYWORD; }
 <YYINITIAL> "type"                   { return LcaTypes.TYPE_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
+<YYINITIAL> "name"                   { return LcaTypes.NAME_KEYWORD; }
+<YYINITIAL> "compartment"            { return LcaTypes.COMPARTMENT_KEYWORD; }
+<YYINITIAL> "sub_compartment"        { return LcaTypes.SUB_COMPARTMENT_KEYWORD; }
 
 
 <YYINITIAL> [+-]?{Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }

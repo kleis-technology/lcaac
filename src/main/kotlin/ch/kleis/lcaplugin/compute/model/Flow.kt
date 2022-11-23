@@ -35,14 +35,16 @@ data class IntermediaryFlow<D : Quantity<D>>(val name: String, private val unit:
 }
 
 data class ElementaryFlow<D : Quantity<D>>(
-    val substance: String,
-    val compartment: String?,
-    val subcompartment: String?,
+    private val name: String,
     private val unit: Unit<D>
 ) : Flow<D> {
+
     override fun getUniqueId(): String {
-        return listOfNotNull(substance, compartment, subcompartment)
-            .joinToString(", ")
+        return name;
+    }
+
+    override fun getUnit(): Unit<D> {
+        return unit
     }
 
     override fun equals(other: Any?): Boolean {
@@ -51,21 +53,12 @@ data class ElementaryFlow<D : Quantity<D>>(
 
         other as ElementaryFlow<*>
 
-        if (substance != other.substance) return false
-        if (compartment != other.compartment) return false
-        if (subcompartment != other.subcompartment) return false
+        if (name != other.name) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = substance.hashCode()
-        result = 31 * result + (compartment?.hashCode() ?: 0)
-        result = 31 * result + (subcompartment?.hashCode() ?: 0)
-        return result
-    }
-
-    override fun getUnit(): Unit<D> {
-        return unit
+        return name.hashCode()
     }
 }
