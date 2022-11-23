@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.compute
 
 import ch.kleis.lcaplugin.compute.model.*
-import ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import tech.units.indriya.quantity.Quantities.getQuantity
@@ -59,7 +58,7 @@ class ModelSystemVisitor : LcaVisitor() {
         val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
         return ElementaryExchange(
-            ElementaryFlow(bioExchange.uniqueId.name ?: throw IllegalStateException(), unit),
+            ElementaryFlow(bioExchange.name ?: throw IllegalStateException(), unit),
             quantity
         )
     }

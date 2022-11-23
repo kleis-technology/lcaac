@@ -5,7 +5,7 @@ import com.intellij.psi.stubs.IStubElementType
 import com.intellij.psi.stubs.StubBase
 import com.intellij.psi.stubs.StubElement
 
-class ProductExchangeStubImpl(parent: StubElement<PsiProductExchange>, override val productName: String?) :
+class ProductExchangeStubImpl(parent: StubElement<PsiProductExchange>, override val uniqueId: String?) :
     StubBase<PsiProductExchange>(parent, ch.kleis.lcaplugin.psi.LcaTypes.PRODUCT_EXCHANGE as IStubElementType<*, *>), ProductExchangeStub {
 
 }
