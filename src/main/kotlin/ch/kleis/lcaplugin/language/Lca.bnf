@@ -20,6 +20,7 @@
   tokens=[
       TYPE_KEYWORD= 'type'
       NAME_KEYWORD= 'name'
+      PARAMETERS_KEYWORD = 'parameters'
       COMPARTMENT_KEYWORD = 'compartment'
       SUB_COMPARTMENT_KEYWORD = 'sub_compartment'
       UNIT_KEYWORD = 'unit'
@@ -49,6 +50,9 @@
       COMMENT_BLOCK_END = '*/'
       COMMENT_CONTENT = 'comment-content'
       COMMENT_LINE_START = '//'
+      FORMULA_START = "formula-start"
+      FORMULA_CONTENT = "formula-content"
+      FORMULA_END = "formula-end"
   ]
 }
 
@@ -62,13 +66,26 @@ unique_id ::= STRING | IDENTIFIER {
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin"
 }
 
+// formula expr. Bare minimum : use javaluator to parse formula.
+
+f_expr ::= NUMBER | FORMULA_START FORMULA_CONTENT FORMULA_END {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiFormulaExpression"]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiFormulaExpressionMixin"
+}
+
 // process
 
 process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
   implements = ["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
   mixin ="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
 }
-process_body ::= (products | inputs | resources | emissions | land_use)* metadata?
+process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
+parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE
+parameter ::= LIST_ITEM unique_id SEPARATOR NUMBER {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParameterMixin"
+}
+
 inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
 products ::= PRODUCTS_KEYWORD LBRACE product_exchange* RBRACE
 resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
@@ -103,12 +120,12 @@ product_exchange ::= techno_exchange {
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStubElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStub"
 }
-meta bio_exchange ::= LIST_ITEM unique_id NUMBER unit_symbol {
+meta bio_exchange ::= LIST_ITEM unique_id f_expr unit_symbol {
     recoverWhile=next_item
     implements="ch.kleis.lcaplugin.language.psi.type.PsiBioExchange"
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiBioExchangeMixin"
 }
-private techno_exchange ::= LIST_ITEM unique_id NUMBER unit_symbol {recoverWhile=next_item}
+private techno_exchange ::= LIST_ITEM unique_id f_expr unit_symbol {recoverWhile=next_item}
 
 // factors
 

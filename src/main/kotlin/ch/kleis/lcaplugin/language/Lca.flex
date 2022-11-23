@@ -29,8 +29,9 @@ Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
 
 CommentContent = .*
+FormulaContent = [^}]*
 
-%state COMMENT_BLOCK, COMMENT_LINE
+%state COMMENT_BLOCK, COMMENT_LINE, FORMULA
 %%
 
 <YYINITIAL> "//"                     {
@@ -69,8 +70,22 @@ CommentContent = .*
                                          return LcaTypes.COMMENT_CONTENT;
                                      }
 
+<YYINITIAL> "${"                     {
+                                          yybegin(FORMULA);
+                                          return LcaTypes.FORMULA_START;
+                                      }
+<FORMULA> {FormulaContent}            {
+                                          yybegin(FORMULA);
+                                          return LcaTypes.FORMULA_CONTENT;
+                                      }
+<FORMULA> "}"                         {
+                                          yybegin(YYINITIAL);
+                                          return LcaTypes.FORMULA_END;
+                                      }
+
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
 
+<YYINITIAL> "parameters"             { return LcaTypes.PARAMETERS_KEYWORD; }
 <YYINITIAL> "inputs"                 { return LcaTypes.INPUTS_KEYWORD; }
 <YYINITIAL> "products"               { return LcaTypes.PRODUCTS_KEYWORD; }
 <YYINITIAL> "resources"              { return LcaTypes.RESOURCES_KEYWORD; }

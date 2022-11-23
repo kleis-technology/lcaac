@@ -126,10 +126,10 @@ class ScsvProcessBlockFormatter {
 
     private fun substanceId(type: ElementaryFlowType, exchange: ElementaryExchangeRow): String {
         val joiner = StringJoiner(", ")
-        joiner.add("\"${escape(exchange.name())}\"")
-        joiner.add("\"${escape(type.compartment())}\"")
-        joiner.add("\"${escape(exchange.subCompartment())}\"")
-        return joiner.toString()
+        joiner.add(escape(exchange.name()))
+        joiner.add(escape(type.compartment()))
+        joiner.add(escape(exchange.subCompartment()))
+        return "\"${joiner.toString()}\""
     }
 
     private fun irepResources(processBlock: ProcessBlock): TextRegion {

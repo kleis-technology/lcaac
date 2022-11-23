@@ -3,10 +3,8 @@ package ch.kleis.lcaplugin.compute
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import org.junit.Test
-import tech.units.indriya.AbstractUnit.ONE
 import tech.units.indriya.quantity.Quantities.getQuantity
-import tech.units.indriya.unit.Units.KILOGRAM
-import tech.units.indriya.unit.Units.LITRE
+import tech.units.indriya.unit.Units.*
 import javax.measure.MetricPrefix
 
 class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
@@ -110,8 +108,9 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
                 
                 emissions {
-                    - water 2 l
-                    - water, air, "low pop" 3 ml
+                    - carrot 1 kg
+                    - "water" 2 l
+                    - "water, air, low pop" 3 ml
                 }
             }
         """.trimIndent())
@@ -123,19 +122,13 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         // then
         assertEquals(actual.emissions.size, 3)
-        assertEquals(actual.emissions[0].flow.substance, "carrot")
-        assertEquals(actual.emissions[0].flow.compartment, "air")
-        assertEquals(actual.emissions[0].flow.subcompartment, null)
+        assertEquals(actual.emissions[0].flow.getUniqueId(), "carrot")
         assertEquals(actual.emissions[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.emissions[1].flow.substance, "water")
-        assertEquals(actual.emissions[1].flow.compartment, null)
-        assertEquals(actual.emissions[1].flow.subcompartment, null)
+        assertEquals(actual.emissions[1].flow.getUniqueId(), "water")
         assertEquals(actual.emissions[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.emissions[2].flow.substance, "water")
-        assertEquals(actual.emissions[2].flow.compartment, "air")
-        assertEquals(actual.emissions[2].flow.subcompartment, "low pop")
+        assertEquals(actual.emissions[2].flow.getUniqueId(), "water, air, low pop")
         assertEquals(actual.emissions[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
@@ -149,8 +142,9 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
                 
                 resources {
+                    - carrot 1 kg
                     - water 2 l
-                    - water, air, "low pop" 3 ml
+                    - "water, air, low pop" 3 ml
                 }
             }
         """.trimIndent())
@@ -162,19 +156,13 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
 
         // then
         assertEquals(actual.resources.size, 3)
-        assertEquals(actual.resources[0].flow.substance, "carrot")
-        assertEquals(actual.resources[0].flow.compartment, "air")
-        assertEquals(actual.resources[0].flow.subcompartment, null)
+        assertEquals(actual.resources[0].flow.getUniqueId(), "carrot")
         assertEquals(actual.resources[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.resources[1].flow.substance, "water")
-        assertEquals(actual.resources[1].flow.compartment, null)
-        assertEquals(actual.resources[1].flow.subcompartment, null)
+        assertEquals(actual.resources[1].flow.getUniqueId(), "water")
         assertEquals(actual.resources[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.resources[2].flow.substance, "water")
-        assertEquals(actual.resources[2].flow.compartment, "air")
-        assertEquals(actual.resources[2].flow.subcompartment, "low pop")
+        assertEquals(actual.resources[2].flow.getUniqueId(), "water, air, low pop")
         assertEquals(actual.resources[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
@@ -210,6 +198,45 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
         assertEquals(actual.products.size, 1)
         assertEquals(actual.inputs.size, 2)
         assertEquals(actual.emissions.size, 1)
+    }
+
+    @Test
+    fun testVisitProcess_withParams() {
+        // given
+        val file = parseFile("hello", """
+            process hello {
+                parameters {
+                    - R1: 3.0
+                }
+                
+                products {
+                    - carrot ${'$'}{R1} kg
+                }
+                
+                inputs {
+                    - water ${'$'}{R1 + 3.0} ml
+                }
+                
+                emissions {
+                    - "co2" ${'$'}{2 * R1} g
+                }
+                
+                resources {
+                    - "gamma" ${'$'}{R1^2.0} Bq
+                }
+            }
+        """.trimIndent())
+        val visitor = ModelSystemVisitor()
+
+        // when
+        file.accept(visitor)
+        val actual = visitor.getSystem().getProcess("hello")
+
+        // then
+        assertEquals(actual.products[0].quantity, getQuantity(3.0, KILOGRAM))
+        assertEquals(actual.inputs[0].quantity, getQuantity(6.0, MetricPrefix.MILLI(LITRE)))
+        assertEquals(actual.emissions[0].quantity, getQuantity(6.0, GRAM))
+        assertEquals(actual.resources[0].quantity, getQuantity(9.0, BECQUEREL))
     }
 
     override fun getTestDataPath(): String {

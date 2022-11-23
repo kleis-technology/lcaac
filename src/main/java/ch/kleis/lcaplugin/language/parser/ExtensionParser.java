@@ -17,7 +17,6 @@ import static java.util.Set.of;
 
 public class ExtensionParser extends GeneratedParserUtilBase {
     static UnitFormat parser = SimpleUnitFormat.getInstance();
-    static Set<String> isoCountries = of(Locale.getISOCountries());
 
     public static boolean parseUnit(PsiBuilder builder, int level) {
         PsiBuilder.Marker marker = builder.mark();
