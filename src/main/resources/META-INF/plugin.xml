@@ -31,6 +31,11 @@
             language="LCA"
             implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
 
+        <completion.contributor
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.completion.LcaBasicCompletionContributor"
+            />
+
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
