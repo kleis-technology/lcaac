@@ -43,6 +43,7 @@ dependencies {
         builtBy("generateEmissionFactors")
     })
     implementation("org.ojalgo:ojalgo:52.0.1")
+    implementation("com.fathzer:javaluator:3.0.3")
 }
 
 

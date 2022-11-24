@@ -2,9 +2,10 @@ package ch.kleis.lcaplugin.compute
 
 import ch.kleis.lcaplugin.compute.model.*
 import ch.kleis.lcaplugin.psi.*
+import com.fathzer.soft.javaluator.DoubleEvaluator
+import com.fathzer.soft.javaluator.StaticVariableSet
 import com.intellij.psi.PsiElement
 import tech.units.indriya.quantity.Quantities.getQuantity
-import java.lang.Double.parseDouble
 import javax.measure.Quantity
 import javax.measure.Unit
 
@@ -19,6 +20,8 @@ class ModelSystemVisitor : LcaVisitor() {
     private var resources = arrayListOf<ElementaryExchange<*>>()
 
     private var bioExchanges = arrayListOf<ElementaryExchange<*>>()
+    private var parameters = StaticVariableSet<Double>()
+    private val evaluator = DoubleEvaluator(DoubleEvaluator.getDefaultParameters(), true) // support scientific notation
 
     override fun visitElement(element: PsiElement) {
         super.visitElement(element)
@@ -27,6 +30,10 @@ class ModelSystemVisitor : LcaVisitor() {
 
     override fun visitProcess(process: LcaProcess) {
         processName = process.name ?: ""
+
+        parameters = StaticVariableSet()
+        process.processBody.parametersList.forEach { visitParameters(it) }
+
         products = arrayListOf()
         process.processBody.productsList.forEach { visitProducts(it) }
         inputs = arrayListOf()
@@ -36,6 +43,16 @@ class ModelSystemVisitor : LcaVisitor() {
         resources = arrayListOf()
         process.processBody.resourcesList.forEach { visitResources(it) }
         processes.add(Process(processName, products, inputs, emissions, resources))
+    }
+
+    override fun visitParameters(parameters: LcaParameters) {
+        parameters.parameterList.forEach { visitParameter(it) }
+    }
+
+    override fun visitParameter(parameter: LcaParameter) {
+        val name = parameter.name ?: throw IllegalStateException()
+        val value = evaluator.evaluate(parameter.number.text)
+        this.parameters.set(name, value)
     }
 
     override fun visitSubstance(substance: LcaSubstance) {
@@ -54,7 +71,7 @@ class ModelSystemVisitor : LcaVisitor() {
     }
 
     private fun <D : Quantity<D>> parseBioExchange(bioExchange: LcaBioExchange): ElementaryExchange<D> {
-        val amount = parseDouble(bioExchange.number.text)
+        val amount = evaluator.evaluate(bioExchange.fExpr.getContent(), this.parameters)
         val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
         return ElementaryExchange(
@@ -76,8 +93,7 @@ class ModelSystemVisitor : LcaVisitor() {
         val unit = productExchange.getUnitElement().getUnit() as Unit<D>
         val name = productExchange.name ?: throw IllegalArgumentException()
         val flow = IntermediaryFlow(name, unit)
-
-        val amount = parseDouble(productExchange.number.text)
+        val amount = evaluator.evaluate(productExchange.fExpr.getContent(), this.parameters)
         val quantity = getQuantity(amount, unit)
         return IntermediaryExchange(flow, quantity)
     }
@@ -93,7 +109,7 @@ class ModelSystemVisitor : LcaVisitor() {
     private fun <D : Quantity<D>> parseInputExchange(inputExchange: LcaInputExchange): IntermediaryExchange<D> {
         val unit = inputExchange.getUnitElement().getUnit() as Unit<D>
         val flow = IntermediaryFlow(inputExchange.name ?: throw IllegalArgumentException(), unit)
-        val amount = parseDouble(inputExchange.number.text)
+        val amount = evaluator.evaluate(inputExchange.fExpr.getContent(), this.parameters)
         val quantity = getQuantity(amount, unit)
         return IntermediaryExchange(flow, quantity)
     }
