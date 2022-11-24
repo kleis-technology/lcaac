@@ -24,7 +24,7 @@ class ScsvProcessBlockFormatter {
     private fun irep(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
-                TextLine("process \"${escape(processBlock.name())}\" {"),
+                TextLine("process ${stringLiteral(processBlock.name())} {"),
                 TextIndent(
                     listOf(
                         irepProducts(processBlock),
@@ -40,11 +40,12 @@ class ScsvProcessBlockFormatter {
         )
     }
 
-    private fun escape(name: String?): String {
-        if (name == null) {
-            return "undefined"
-        }
-        return name.replace("\"", "\\\"")
+    private fun stringLiteral(name: String?): String {
+        return "\"${escape(name)}\"" ?: ""
+    }
+
+    private fun escape(name: String?): String? {
+        return name?.replace("\"", "\\\"")
     }
 
     private fun irepProducts(processBlock: ProcessBlock): TextRegion {
@@ -63,7 +64,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("products {"),
                 TextIndent(
                     products
-                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- ${stringLiteral(it.name())} ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
@@ -84,7 +85,7 @@ class ScsvProcessBlockFormatter {
                 TextLine("inputs {"),
                 TextIndent(
                     intermediaryInputs
-                        .map { TextLine("- \"${escape(it.name())}\" ${it.amount()} ${it.unit()}") }
+                        .map { TextLine("- ${stringLiteral(it.name())} ${it.amount()} ${it.unit()}") }
                         .toList()
                 ),
                 TextLine("}"),
@@ -125,11 +126,14 @@ class ScsvProcessBlockFormatter {
     }
 
     private fun substanceId(type: ElementaryFlowType, exchange: ElementaryExchangeRow): String {
-        val joiner = StringJoiner(", ")
-        joiner.add(escape(exchange.name()))
-        joiner.add(escape(type.compartment()))
-        joiner.add(escape(exchange.subCompartment()))
-        return "\"${joiner.toString()}\""
+        return stringLiteral(listOfNotNull(
+            escape(exchange.name()),
+            escape(type.compartment()),
+            escape(exchange.subCompartment()),
+        )
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
+            .lowercase())
     }
 
     private fun irepResources(processBlock: ProcessBlock): TextRegion {
