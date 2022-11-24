@@ -104,9 +104,9 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
         TestCase.assertEquals(actual.products[0].quantity, getQuantity(1.0, KILOGRAM))
         TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), "heat")
         TestCase.assertEquals(actual.inputs[0].quantity, getQuantity(2.0, KILOGRAM))
-        TestCase.assertEquals(actual.emissions[0].flow.getUniqueId(), "co2, Air, low pop")
+        TestCase.assertEquals(actual.emissions[0].flow.getUniqueId(), "co2, air, low pop")
         TestCase.assertEquals(actual.emissions[0].quantity, getQuantity(3.0, KILOGRAM))
-        TestCase.assertEquals(actual.resources[0].flow.getUniqueId(), "land use, Raw, in ground")
+        TestCase.assertEquals(actual.resources[0].flow.getUniqueId(), "land use, raw, in ground")
         TestCase.assertEquals(actual.resources[0].quantity, getQuantity(5.0, LITRE))
     }
 
