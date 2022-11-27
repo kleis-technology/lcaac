@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.services
 
-import ch.kleis.lcaplugin.compute.ModelSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
@@ -22,7 +22,7 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
     fun testFormat() {
         // given
         val processBlock = ProcessBlock()
-            .name("process \"blabla\" name")
+            .name("process \"a process\" name")
             .identifier("123456")
             .category(ProcessCategory.MATERIAL)
             .processType(ProcessType.UNIT_PROCESS)
@@ -38,7 +38,7 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
 
         // then
         val expected = """
-            process "process \"blabla\" name" {
+            process "process \"a process\" name" {
                 products {
                     - "reference product" 1.0 kg
                 }
@@ -89,7 +89,7 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
             .unit("l")
         )
         val formatter = ScsvProcessBlockFormatter()
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         val content = formatter.format(processBlock)
@@ -99,15 +99,15 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
 
         // then
         TestCase.assertEquals(actual.name, "hello world")
-        TestCase.assertEquals(actual.products.size, 1)
-        TestCase.assertEquals(actual.products[0].flow.getUniqueId(), "reference product")
-        TestCase.assertEquals(actual.products[0].quantity, getQuantity(1.0, KILOGRAM))
+        TestCase.assertEquals(actual.outputs.size, 1)
+        TestCase.assertEquals(actual.outputs[0].flow.getUniqueId(), "reference product")
+        TestCase.assertEquals(actual.outputs[0].quantity, getQuantity(1.0, KILOGRAM))
         TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), "heat")
         TestCase.assertEquals(actual.inputs[0].quantity, getQuantity(2.0, KILOGRAM))
-        TestCase.assertEquals(actual.emissions[0].flow.getUniqueId(), "co2, air, low pop")
-        TestCase.assertEquals(actual.emissions[0].quantity, getQuantity(3.0, KILOGRAM))
-        TestCase.assertEquals(actual.resources[0].flow.getUniqueId(), "land use, raw, in ground")
-        TestCase.assertEquals(actual.resources[0].quantity, getQuantity(5.0, LITRE))
+        TestCase.assertEquals(actual.inputs[1].flow.getUniqueId(), "co2, air, low pop")
+        TestCase.assertEquals(actual.inputs[1].quantity, getQuantity(3.0, KILOGRAM))
+        TestCase.assertEquals(actual.inputs[2].flow.getUniqueId(), "land use, raw, in ground")
+        TestCase.assertEquals(actual.inputs[2].quantity, getQuantity(5.0, LITRE))
     }
 
     override fun getTestDataPath(): String {

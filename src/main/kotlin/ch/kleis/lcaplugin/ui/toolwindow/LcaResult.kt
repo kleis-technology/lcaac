@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.ObservableFactorMatrix
+import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
@@ -11,11 +11,11 @@ import javax.swing.JPanel
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaResult(result: ObservableFactorMatrix) {
+class LcaResult(result: InventoryMatrix) {
     private val content: JPanel
 
     init {
-        val tableModel = ObservableFactorTableModel(result)
+        val tableModel = InventoryTableModel(result)
         val table = JBTable(tableModel)
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)

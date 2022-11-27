@@ -5,44 +5,11 @@ import ch.kleis.lcaplugin.compute.traits.HasUnit
 import javax.measure.Quantity
 import javax.measure.Unit
 
-interface Flow<D : Quantity<D>> : HasUniqueId, HasUnit<D>
-
-data class IntermediaryFlow<D : Quantity<D>>(val name: String, private val unit: Unit<D>) : Flow<D> {
-
+data class Flow<D : Quantity<D>>(val name: String, private val unit: Unit<D>) : HasUniqueId, HasUnit<D> {
     override fun getUniqueId(): String {
         return name
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as IntermediaryFlow<*>
-
-        if (name != other.name) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        return name.hashCode()
-    }
-
-    override fun getUnit(): Unit<D> {
-        return unit
-    }
-
-}
-
-data class ElementaryFlow<D : Quantity<D>>(
-    private val name: String,
-    private val unit: Unit<D>
-) : Flow<D> {
-
-    override fun getUniqueId(): String {
-        return name;
-    }
-
     override fun getUnit(): Unit<D> {
         return unit
     }
@@ -51,14 +18,17 @@ data class ElementaryFlow<D : Quantity<D>>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ElementaryFlow<*>
+        other as Flow<*>
 
         if (name != other.name) return false
+        if (unit.dimension != other.unit.dimension) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return name.hashCode()
+        var result = name.hashCode()
+        result = 31 * result + unit.dimension.hashCode()
+        return result
     }
 }

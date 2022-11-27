@@ -7,7 +7,7 @@ import tech.units.indriya.quantity.Quantities.getQuantity
 import tech.units.indriya.unit.Units.*
 import javax.measure.MetricPrefix
 
-class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testVisitProcess_shouldParseName() {
         // given
@@ -15,7 +15,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
             process hello {
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
@@ -32,7 +32,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
             process "hello world" {
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
@@ -56,18 +56,18 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
         val actual = visitor.getSystem().getProcess("hello")
 
         // then
-        assertEquals(actual.products.size, 2)
-        assertEquals(actual.products[0].flow.name, "carrot")
-        assertEquals(actual.products[0].quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(actual.products[1].flow.name, "water")
-        assertEquals(actual.products[1].quantity, getQuantity(2.0, LITRE))
+        assertEquals(actual.outputs.size, 2)
+        assertEquals(actual.outputs[0].flow.name, "carrot")
+        assertEquals(actual.outputs[0].quantity, getQuantity(1.0, KILOGRAM))
+        assertEquals(actual.outputs[1].flow.name, "water")
+        assertEquals(actual.outputs[1].quantity, getQuantity(2.0, LITRE))
     }
 
     @Test
@@ -84,7 +84,7 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
@@ -114,22 +114,22 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
         val actual = visitor.getSystem().getProcess("hello")
 
         // then
-        assertEquals(actual.emissions.size, 3)
-        assertEquals(actual.emissions[0].flow.getUniqueId(), "carrot")
-        assertEquals(actual.emissions[0].quantity, getQuantity(1.0, KILOGRAM))
+        assertEquals(actual.inputs.size, 3)
+        assertEquals(actual.inputs[0].flow.getUniqueId(), "carrot")
+        assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.emissions[1].flow.getUniqueId(), "water")
-        assertEquals(actual.emissions[1].quantity, getQuantity(2.0, LITRE))
+        assertEquals(actual.inputs[1].flow.getUniqueId(), "water")
+        assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.emissions[2].flow.getUniqueId(), "water, air, low pop")
-        assertEquals(actual.emissions[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
+        assertEquals(actual.inputs[2].flow.getUniqueId(), "water, air, low pop")
+        assertEquals(actual.inputs[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
     @Test
@@ -148,22 +148,22 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
         val actual = visitor.getSystem().getProcess("hello")
 
         // then
-        assertEquals(actual.resources.size, 3)
-        assertEquals(actual.resources[0].flow.getUniqueId(), "carrot")
-        assertEquals(actual.resources[0].quantity, getQuantity(1.0, KILOGRAM))
+        assertEquals(actual.inputs.size, 3)
+        assertEquals(actual.inputs[0].flow.getUniqueId(), "carrot")
+        assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.resources[1].flow.getUniqueId(), "water")
-        assertEquals(actual.resources[1].quantity, getQuantity(2.0, LITRE))
+        assertEquals(actual.inputs[1].flow.getUniqueId(), "water")
+        assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.resources[2].flow.getUniqueId(), "water, air, low pop")
-        assertEquals(actual.resources[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
+        assertEquals(actual.inputs[2].flow.getUniqueId(), "water, air, low pop")
+        assertEquals(actual.inputs[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
     @Test
@@ -188,16 +188,15 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
         val actual = visitor.getSystem().getProcess("hello")
 
         // then
-        assertEquals(actual.products.size, 1)
-        assertEquals(actual.inputs.size, 2)
-        assertEquals(actual.emissions.size, 1)
+        assertEquals(actual.outputs.size, 1)
+        assertEquals(actual.inputs.size, 3)
     }
 
     @Test
@@ -226,17 +225,17 @@ class ModelSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinition())
                 }
             }
         """.trimIndent())
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         file.accept(visitor)
         val actual = visitor.getSystem().getProcess("hello")
 
         // then
-        assertEquals(actual.products[0].quantity, getQuantity(3.0, KILOGRAM))
+        assertEquals(actual.outputs[0].quantity, getQuantity(3.0, KILOGRAM))
         assertEquals(actual.inputs[0].quantity, getQuantity(6.0, MetricPrefix.MILLI(LITRE)))
-        assertEquals(actual.emissions[0].quantity, getQuantity(6.0, GRAM))
-        assertEquals(actual.resources[0].quantity, getQuantity(9.0, BECQUEREL))
+        assertEquals(actual.inputs[1].quantity, getQuantity(6.0, GRAM))
+        assertEquals(actual.inputs[2].quantity, getQuantity(9.0, BECQUEREL))
     }
 
     override fun getTestDataPath(): String {

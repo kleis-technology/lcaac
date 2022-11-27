@@ -1,8 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.compute.ModelMethodVisitor
-import ch.kleis.lcaplugin.compute.ModelSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
 import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
@@ -21,31 +20,23 @@ class AssessProjectAction : AnAction() {
         val psiFiles = virtualFiles.mapNotNull { psiManager.findFile(it) }
         if (psiFiles.isEmpty()) return
 
-        val modelSystemVisitor = ModelSystemVisitor()
+        val modelSystemVisitor = ModelCoreSystemVisitor()
         psiFiles.forEach { it.accept(modelSystemVisitor) }
-        val system = modelSystemVisitor.getSystem()
 
 
-        val modelMethodVisitor = ModelMethodVisitor()
-        system.getElementaryFlows().getElements()
+        modelSystemVisitor.getSystem().getControllableFlows()
             .forEach { flow ->
                 SubstanceKeyIndex.findSubstances(project, flow.getUniqueId())
                     .forEach {
-                        it.accept(modelMethodVisitor)
+                        it.accept(modelSystemVisitor)
                     }
             }
-        val methodMap = modelMethodVisitor.getMethodMap()
-        val firstMethodName = methodMap.keys.firstOrNull() ?: return
-        val method = methodMap[firstMethodName] ?: return
 
-        val result = system.observe(
-            method.getIndicators(),
-            emptyList(),
-            method.getCharacterizationFactors()
-        )
+        val system = modelSystemVisitor.getSystem()
+        val inventory = system.inventory()
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
 
-        val lcaResult = LcaResult(result)
+        val lcaResult = LcaResult(inventory)
         val content = ContentFactory.getInstance().createContent(lcaResult.getContent(), project.name, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
