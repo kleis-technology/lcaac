@@ -196,8 +196,7 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
 
         // then
         assertEquals(actual.outputs.size, 1)
-        assertEquals(actual.inputs.size, 2)
-        assertEquals(actual.inputs.size, 1)
+        assertEquals(actual.inputs.size, 3)
     }
 
     @Test
@@ -235,8 +234,8 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
         // then
         assertEquals(actual.outputs[0].quantity, getQuantity(3.0, KILOGRAM))
         assertEquals(actual.inputs[0].quantity, getQuantity(6.0, MetricPrefix.MILLI(LITRE)))
-        assertEquals(actual.inputs[0].quantity, getQuantity(6.0, GRAM))
-        assertEquals(actual.inputs[0].quantity, getQuantity(9.0, BECQUEREL))
+        assertEquals(actual.inputs[1].quantity, getQuantity(6.0, GRAM))
+        assertEquals(actual.inputs[2].quantity, getQuantity(9.0, BECQUEREL))
     }
 
     override fun getTestDataPath(): String {
