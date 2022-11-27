@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.services
 
-import ch.kleis.lcaplugin.compute.ModelSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
@@ -89,7 +89,7 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
             .unit("l")
         )
         val formatter = ScsvProcessBlockFormatter()
-        val visitor = ModelSystemVisitor()
+        val visitor = ModelCoreSystemVisitor()
 
         // when
         val content = formatter.format(processBlock)

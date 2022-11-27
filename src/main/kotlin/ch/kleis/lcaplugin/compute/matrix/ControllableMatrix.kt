@@ -2,17 +2,16 @@ package ch.kleis.lcaplugin.compute.matrix
 
 import ch.kleis.lcaplugin.compute.matrix.impl.Matrix
 import ch.kleis.lcaplugin.compute.matrix.impl.MatrixFactory
-import ch.kleis.lcaplugin.compute.model.IntermediaryFlow
-import ch.kleis.lcaplugin.compute.model.Process
+import ch.kleis.lcaplugin.compute.model.Flow
+import ch.kleis.lcaplugin.compute.model.UnitProcess
 
-class ControllableMatrix(private val processes: IndexedCollection<Process>, private val controllableFlows: IndexedCollection<IntermediaryFlow<*>>) {
+class ControllableMatrix(private val processes: IndexedCollection<UnitProcess>, private val controllableFlows: IndexedCollection<Flow<*>>) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(processes.size(), controllableFlows.size())
 
     init {
         processes.getElements().forEach { process ->
-            val allocationFactor = 1.0
             val row = processes.indexOf(process)
-            process.products
+            process.outputs
                 .filter { controllableFlows.contains(it.flow) }
                 .forEach { product ->
                 val col = controllableFlows.indexOf(product.flow)
@@ -23,7 +22,7 @@ class ControllableMatrix(private val processes: IndexedCollection<Process>, priv
                 .filter { controllableFlows.contains(it.flow) }
                 .forEach { input ->
                     val col = controllableFlows.indexOf(input.flow)
-                    matrix.add(row, col, - allocationFactor * input.quantity.referenceValue())
+                    matrix.add(row, col, input.quantity.referenceValue())
                 }
         }
     }

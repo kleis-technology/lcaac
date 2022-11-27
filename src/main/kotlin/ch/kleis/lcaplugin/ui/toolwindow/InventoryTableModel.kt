@@ -1,20 +1,22 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.ObservableFactorMatrix
-import ch.kleis.lcaplugin.compute.model.*
+import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.compute.model.CharacterizationFactor
+import ch.kleis.lcaplugin.compute.model.Exchange
+import ch.kleis.lcaplugin.compute.model.Flow
 import tech.units.indriya.quantity.Quantities.getQuantity
 import javax.measure.Quantity
 import javax.measure.Unit
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
-class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : TableModel {
+class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
     override fun getRowCount(): Int {
-        return matrix.getObservableFlows().size()
+        return matrix.observableFlows.size()
     }
 
     override fun getColumnCount(): Int {
-        return 2 + matrix.getIndicators().size()
+        return 2 + matrix.controllableFlows.size()
     }
 
     override fun getColumnName(columnIndex: Int): String {
@@ -26,7 +28,7 @@ class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : T
             return "unit"
         }
 
-        return matrix.getIndicators()[columnIndex - 2].getUniqueId()
+        return matrix.controllableFlows[columnIndex - 2].getUniqueId()
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -34,7 +36,7 @@ class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : T
             return String::class.java
         }
 
-        return matrix.getIndicators()[columnIndex - 2]::class.java
+        return matrix.controllableFlows[columnIndex - 2]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -42,30 +44,30 @@ class ObservableFactorTableModel(private val matrix: ObservableFactorMatrix) : T
     }
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
-        val flow = matrix.getObservableFlows()[rowIndex]
+        val outputFlow = matrix.observableFlows[rowIndex]
 
         if (columnIndex == 0) {
-            return flow.getUniqueId()
+            return outputFlow.getUniqueId()
         }
 
         if (columnIndex == 1) {
-            return flow.getUnit().toString()
+            return outputFlow.getUnit().toString()
         }
 
-        val indicator = matrix.getIndicators()[columnIndex - 2]
-        val cf = matrix.value(flow, indicator)
-        return render(cf, indicator, flow)
+        val inputFlow = matrix.controllableFlows[columnIndex - 2]
+        val cf = matrix.value(outputFlow, inputFlow)
+        return render(cf, inputFlow, outputFlow)
     }
 
     private fun <Din : Quantity<Din>, Dout : Quantity<Dout>> render(
         cf: CharacterizationFactor,
-        indicator: Indicator<Din>,
-        flow: IntermediaryFlow<Dout>
+        inputFlow: Flow<Din>,
+        outputFlow: Flow<Dout>
     ): Double {
-        val input: Exchange<Din, Flow<Din>> = cf.input as Exchange<Din, Flow<Din>>
-        val output: Exchange<Dout, Indicator<Dout>> = cf.output as Exchange<Dout, Indicator<Dout>>
-        val numerator: Quantity<Din> = convert(input.quantity, indicator.getUnit())
-        val denominator: Quantity<Dout> = convert(output.quantity, flow.getUnit())
+        val input: Exchange<Din> = cf.input as Exchange<Din>
+        val output: Exchange<Dout> = cf.output as Exchange<Dout>
+        val numerator: Quantity<Din> = convert(input.quantity, inputFlow.getUnit())
+        val denominator: Quantity<Dout> = convert(output.quantity, outputFlow.getUnit())
         return numerator.divide(denominator).value.toDouble()
     }
 
