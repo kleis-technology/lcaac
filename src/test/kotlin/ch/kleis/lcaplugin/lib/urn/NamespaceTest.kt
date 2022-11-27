@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.lib.registry
+package ch.kleis.lcaplugin.lib.urn
 
 import junit.framework.TestCase.assertEquals
 import org.junit.Test

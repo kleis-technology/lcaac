@@ -2,8 +2,8 @@ package ch.kleis.lcaplugin.language.psi.mixin
 
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
 import ch.kleis.lcaplugin.language.psi.type.PsiUrn
-import ch.kleis.lcaplugin.lib.registry.Namespace
-import ch.kleis.lcaplugin.lib.registry.URN
+import ch.kleis.lcaplugin.lib.urn.Namespace
+import ch.kleis.lcaplugin.lib.urn.URN
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode

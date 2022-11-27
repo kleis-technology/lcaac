@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.lib.registry
+package ch.kleis.lcaplugin.lib.matrix
 
 import ch.kleis.lcaplugin.lib.traits.HasUniqueId
 

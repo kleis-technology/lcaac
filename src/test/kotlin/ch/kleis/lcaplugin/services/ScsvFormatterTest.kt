@@ -95,18 +95,18 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
         val content = formatter.format(processBlock)
         val psiFile = parseFile("test", content)
         psiFile.accept(visitor)
-        val actual = visitor.getSystem().getProcess("/processes/hello world")
+        val actual = visitor.getSystem().getProcess(".processes.hello world")
 
         // then
-        TestCase.assertEquals(actual.getUniqueId(), "/processes/hello world")
+        TestCase.assertEquals(actual.getUniqueId(), ".processes.hello world")
         TestCase.assertEquals(actual.outputs.size, 1)
-        TestCase.assertEquals(actual.outputs[0].flow.getUniqueId(), "/flows/reference product")
+        TestCase.assertEquals(actual.outputs[0].flow.getUniqueId(), ".flows.reference product")
         TestCase.assertEquals(actual.outputs[0].quantity, getQuantity(1.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), "/flows/heat")
+        TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), ".flows.heat")
         TestCase.assertEquals(actual.inputs[0].quantity, getQuantity(2.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[1].flow.getUniqueId(), "/flows/co2, air, low pop")
+        TestCase.assertEquals(actual.inputs[1].flow.getUniqueId(), ".flows.co2, air, low pop")
         TestCase.assertEquals(actual.inputs[1].quantity, getQuantity(3.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[2].flow.getUniqueId(), "/flows/land use, raw, in ground")
+        TestCase.assertEquals(actual.inputs[2].flow.getUniqueId(), ".flows.land use, raw, in ground")
         TestCase.assertEquals(actual.inputs[2].quantity, getQuantity(5.0, LITRE))
     }
 

@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.lib.registry
+package ch.kleis.lcaplugin.lib.urn
 
 class Namespace(
     val id: String,

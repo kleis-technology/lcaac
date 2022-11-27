@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.lib.matrix.impl.Matrix
 import ch.kleis.lcaplugin.lib.model.CharacterizationFactor
 import ch.kleis.lcaplugin.lib.model.Exchange
 import ch.kleis.lcaplugin.lib.model.Flow
-import ch.kleis.lcaplugin.lib.registry.IndexedCollection
 import tech.units.indriya.quantity.Quantities.getQuantity
 import javax.measure.Quantity
 

@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.lib.model
 
-import ch.kleis.lcaplugin.lib.registry.URN
+import ch.kleis.lcaplugin.lib.urn.URN
 import ch.kleis.lcaplugin.lib.traits.HasUnit
 import ch.kleis.lcaplugin.lib.traits.HasUrn
 import javax.measure.Quantity

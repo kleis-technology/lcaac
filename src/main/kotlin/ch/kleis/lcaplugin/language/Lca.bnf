@@ -54,18 +54,23 @@
       FORMULA_CONTENT = "formula-content"
       FORMULA_END = "formula-end"
       PACKAGE_KEYWORD = "package"
-      IMPORT_KEYWORD = "keyword"
+      IMPORT_KEYWORD = "import"
       DOT = "dot"
   ]
 }
 
-lcaFile ::= package (process | substance | factors)*
+lcaFile ::= package (import | process | substance | factors)*
 
 // package
 
 package ::= PACKAGE_KEYWORD urn {
     implements = ["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
+}
+
+import ::= IMPORT_KEYWORD urn {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
 }
 
 // URN
@@ -96,7 +101,7 @@ process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
   implements = ["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
   mixin ="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
 }
-process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
+private process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
 parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE
 parameter ::= LIST_ITEM unique_id SEPARATOR NUMBER {
     implements = ["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
@@ -118,12 +123,12 @@ substance ::= SUBSTANCE_KEYWORD unique_id LBRACE substance_body RBRACE {
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.SubstanceStubElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
 }
-substance_body ::= substance_name compartment sub_compartment? substance_type unit_type factors? metadata?
-substance_name ::= NAME_KEYWORD SEPARATOR string_literal
-compartment ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
-sub_compartment ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
-substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
-unit_type ::= UNIT_KEYWORD SEPARATOR unit_symbol {
+private substance_body ::= field_name field_compartment field_sub_compartment? field_type field_unit factors? metadata?
+field_name ::= NAME_KEYWORD SEPARATOR string_literal
+field_compartment ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
+field_sub_compartment ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
+field_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
+field_unit ::= UNIT_KEYWORD SEPARATOR unit_symbol {
     implements="ch.kleis.lcaplugin.language.psi.type.PsiUnitType"
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUnitTypeMixin"
 }
@@ -151,6 +156,8 @@ private techno_exchange ::= LIST_ITEM unique_id f_expr unit_symbol {recoverWhile
 
 meta factor ::= LIST_ITEM unique_id IDENTIFIER? NUMBER {
     recoverWhile=next_item
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiFactorExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFactorExchangeMixin"
 }
 
 // meta-data

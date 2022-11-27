@@ -24,6 +24,8 @@ class ScsvProcessBlockFormatter {
     private fun irep(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
+                TextLine("package scsv_import"),
+                TextLine(""),
                 TextLine("process ${stringLiteral(processBlock.name())} {"),
                 TextIndent(
                     listOf(

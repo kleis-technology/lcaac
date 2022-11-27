@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.lib.matrix.impl.Matrix
 import ch.kleis.lcaplugin.lib.matrix.impl.MatrixFactory
 import ch.kleis.lcaplugin.lib.model.Flow
 import ch.kleis.lcaplugin.lib.model.UnitProcess
-import ch.kleis.lcaplugin.lib.registry.IndexedCollection
 
 class ObservableMatrix(private val processes: IndexedCollection<UnitProcess>, private val observableFlows: IndexedCollection<Flow<*>>) {
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(processes.size(), observableFlows.size())

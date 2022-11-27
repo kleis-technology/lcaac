@@ -1,12 +1,12 @@
 package ch.kleis.lcaplugin.lib.system
 
 import ch.kleis.lcaplugin.lib.matrix.ControllableMatrix
+import ch.kleis.lcaplugin.lib.matrix.IndexedCollection
 import ch.kleis.lcaplugin.lib.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.lib.matrix.ObservableMatrix
 import ch.kleis.lcaplugin.lib.matrix.impl.Solver
 import ch.kleis.lcaplugin.lib.model.Flow
 import ch.kleis.lcaplugin.lib.model.UnitProcess
-import ch.kleis.lcaplugin.lib.registry.IndexedCollection
 
 class CoreSystem(
     processes: List<UnitProcess>
