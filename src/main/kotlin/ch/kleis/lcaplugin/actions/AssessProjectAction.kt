@@ -22,10 +22,9 @@ class AssessProjectAction : AnAction() {
 
         val modelSystemVisitor = ModelCoreSystemVisitor()
         psiFiles.forEach { it.accept(modelSystemVisitor) }
-        val system = modelSystemVisitor.getSystem()
 
 
-        system.getControllableFlows()
+        modelSystemVisitor.getSystem().getControllableFlows()
             .forEach { flow ->
                 SubstanceKeyIndex.findSubstances(project, flow.getUniqueId())
                     .forEach {
@@ -33,6 +32,7 @@ class AssessProjectAction : AnAction() {
                     }
             }
 
+        val system = modelSystemVisitor.getSystem()
         val inventory = system.inventory()
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
 

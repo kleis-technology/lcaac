@@ -106,7 +106,10 @@ substance_name ::= NAME_KEYWORD SEPARATOR string_literal
 compartment ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
 sub_compartment ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
 substance_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
-unit_type ::= UNIT_KEYWORD SEPARATOR unit_symbol
+unit_type ::= UNIT_KEYWORD SEPARATOR unit_symbol {
+    implements="ch.kleis.lcaplugin.language.psi.type.PsiUnitType"
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUnitTypeMixin"
+}
 
 // exchanges
 

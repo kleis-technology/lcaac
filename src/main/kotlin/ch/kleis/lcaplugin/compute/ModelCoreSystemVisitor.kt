@@ -8,7 +8,11 @@ import ch.kleis.lcaplugin.psi.*
 import com.fathzer.soft.javaluator.DoubleEvaluator
 import com.fathzer.soft.javaluator.StaticVariableSet
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import tech.units.indriya.AbstractUnit
+import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities.getQuantity
+import java.lang.Double.parseDouble
 import javax.measure.Quantity
 import javax.measure.Unit
 
@@ -59,6 +63,32 @@ class ModelCoreSystemVisitor : LcaVisitor() {
     }
 
     override fun visitSubstance(substance: LcaSubstance) {
+        val name = substance.name ?: throw IllegalArgumentException()
+        val outputExchange = parseOutputExchangeOf(substance) as Exchange<*>
+        inputs = arrayListOf()
+        substance.substanceBody.factors?.factorList?.forEach { visitFactor(it) }
+        processes.add(
+            UnitProcess(
+                name,
+                listOf(outputExchange),
+                inputs,
+            )
+        )
+    }
+
+    override fun visitFactor(factor: LcaFactor) {
+        val unit = AbstractUnit.ONE
+        val indicator = factor.uniqueId.name ?: throw IllegalArgumentException()
+        val amount = parseDouble(factor.number.text)
+        inputs.add(Exchange(Flow(indicator, unit), getQuantity(amount, unit)))
+    }
+
+    private fun <D : Quantity<D>> parseOutputExchangeOf(substance: LcaSubstance): Exchange<D> {
+        val name = substance.name ?: throw IllegalArgumentException()
+        val unit = substance.substanceBody.unitType.getUnitElement().getUnit()
+        val flow = Flow(name, unit) as Flow<D>
+        val quantity = getQuantity(1.0, unit) as ComparableQuantity<D>
+        return Exchange(flow, quantity)
     }
 
     override fun visitResources(resources: LcaResources) {
