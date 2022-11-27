@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
+import ch.kleis.lcaplugin.lib.ModelCoreSystemVisitor
 import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
@@ -24,6 +24,7 @@ class AssessProjectAction : AnAction() {
         psiFiles.forEach { it.accept(modelSystemVisitor) }
 
 
+/*
         modelSystemVisitor.getSystem().getControllableFlows()
             .forEach { flow ->
                 SubstanceKeyIndex.findSubstances(project, flow.getUniqueId())
@@ -31,6 +32,7 @@ class AssessProjectAction : AnAction() {
                         it.accept(modelSystemVisitor)
                     }
             }
+*/
 
         val system = modelSystemVisitor.getSystem()
         val inventory = system.inventory()

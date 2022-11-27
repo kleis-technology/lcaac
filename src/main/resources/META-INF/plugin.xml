@@ -38,7 +38,7 @@
 
         <annotator
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProductAnnotator"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaInputExchangeAnnotator"/>
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>

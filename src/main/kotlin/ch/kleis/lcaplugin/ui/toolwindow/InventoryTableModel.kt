@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.compute.model.CharacterizationFactor
-import ch.kleis.lcaplugin.compute.model.Exchange
-import ch.kleis.lcaplugin.compute.model.Flow
+import ch.kleis.lcaplugin.lib.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.lib.model.CharacterizationFactor
+import ch.kleis.lcaplugin.lib.model.Exchange
+import ch.kleis.lcaplugin.lib.model.Flow
 import tech.units.indriya.quantity.Quantities.getQuantity
 import javax.measure.Quantity
 import javax.measure.Unit
@@ -28,7 +28,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
             return "unit"
         }
 
-        return matrix.controllableFlows[columnIndex - 2].getUniqueId()
+        return matrix.controllableFlows[columnIndex - 2].getUrn().id
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -47,7 +47,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         val outputFlow = matrix.observableFlows[rowIndex]
 
         if (columnIndex == 0) {
-            return outputFlow.getUniqueId()
+            return outputFlow.getUrn().id
         }
 
         if (columnIndex == 1) {

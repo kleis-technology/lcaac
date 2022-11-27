@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.lib.matrix.InventoryMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
