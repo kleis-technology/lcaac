@@ -53,10 +53,27 @@
       FORMULA_START = "formula-start"
       FORMULA_CONTENT = "formula-content"
       FORMULA_END = "formula-end"
+      PACKAGE_KEYWORD = "package"
+      IMPORT_KEYWORD = "keyword"
+      DOT = "dot"
   ]
 }
 
-lcaFile ::= (process | substance | factors)*
+lcaFile ::= package (process | substance | factors)*
+
+// package
+
+package ::= PACKAGE_KEYWORD urn {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
+}
+
+// URN
+
+urn ::= unique_id DOT urn | unique_id {
+    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
+    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
+}
 
 // identifier
 

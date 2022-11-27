@@ -84,6 +84,8 @@ FormulaContent = [^}]*
                                       }
 
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
+<YYINITIAL> "package"                { return LcaTypes.PACKAGE_KEYWORD; }
+<YYINITIAL> "import"                { return LcaTypes.IMPORT_KEYWORD; }
 
 <YYINITIAL> "parameters"             { return LcaTypes.PARAMETERS_KEYWORD; }
 <YYINITIAL> "inputs"                 { return LcaTypes.INPUTS_KEYWORD; }
@@ -112,6 +114,7 @@ FormulaContent = [^}]*
 <YYINITIAL> "-"                      { return LcaTypes.LIST_ITEM; }
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 <YYINITIAL> ","                      { return LcaTypes.COMA; }
+<YYINITIAL> "."                      { return LcaTypes.DOT; }
 
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }

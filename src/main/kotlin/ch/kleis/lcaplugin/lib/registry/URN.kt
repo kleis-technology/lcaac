@@ -5,11 +5,13 @@ class URN(
     private val parent: Namespace
 ) {
     val uid: String = listOf(
-        parent.toString(),
+        parent.uid,
         id
-    ).joinToString("/")
+    ).joinToString(Namespace.SEPARATOR)
 
-    val selfNs = parent.ns(id)
+    fun path(): List<Namespace> {
+        return parent.path()
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
