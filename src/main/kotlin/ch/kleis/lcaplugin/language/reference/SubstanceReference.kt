@@ -11,9 +11,10 @@ import com.intellij.psi.stubs.StubIndex
 
 class SubstanceReference(
     element: PsiElement,
-    private val substanceId: PsiUniqueId,
+    substanceId: PsiUniqueId,
     textRange: TextRange
 ) : PsiReferenceBase<PsiElement>(element, textRange), SearchTrait, PsiPolyVariantReference {
+    private val localName = substanceId.name!!
 
     override fun getVariants(): Array<LookupElement> =
         StubIndex.getInstance()
@@ -27,6 +28,6 @@ class SubstanceReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> =
-        this.findSubstances(element.project, substanceId.name ?: "")
+        this.findSubstances(element.project, localName)
             .map { PsiElementResolveResult(it) }.toTypedArray()
 }
