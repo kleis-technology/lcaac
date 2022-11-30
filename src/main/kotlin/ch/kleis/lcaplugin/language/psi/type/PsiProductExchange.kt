@@ -7,7 +7,5 @@ import ch.kleis.lcaplugin.language.psi.type.traits.PsiUnitOwner
 import com.intellij.psi.StubBasedPsiElement
 
 interface PsiProductExchange :
-    PsiUniqueIdOwner,
-    PsiFormulaExpressionOwner,
-    PsiUnitOwner,
+    PsiTechnoExchange,
     StubBasedPsiElement<ProductExchangeStub>

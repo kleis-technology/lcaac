@@ -1,12 +1,12 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
+import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
-import com.intellij.lang.LighterASTTokenNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LightTreeUtil
 import com.intellij.psi.stubs.*
 
 class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<ProductExchangeStub,
@@ -18,15 +18,15 @@ class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): ProductExchangeStub {
-        val keyNode = LightTreeUtil.firstChildOfType(tree, node, ch.kleis.lcaplugin.psi.LcaTypes.UNIQUE_ID) as LighterASTTokenNode
-        return ProductExchangeStubImpl(
-            parentStub as StubElement<PsiProductExchange>,
-            tree.charTable.intern(keyNode.text).toString()
-        );
+        throw UnsupportedOperationException()
     }
 
     override fun createStub(psi: PsiProductExchange, parentStub: StubElement<out PsiElement>?): ProductExchangeStub {
-        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, psi.name)
+        val file = psi.containingFile as LcaFile
+        val pkg = file.getPackage()
+        val parts = pkg.getUrnElement().getParts()
+        val uid = (parts + psi.name!!).joinToString(Namespace.SEPARATOR)
+        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, uid)
     }
 
     override fun createPsi(stub: ProductExchangeStub): PsiProductExchange {

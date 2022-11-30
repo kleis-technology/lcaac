@@ -1,154 +1,217 @@
 package ch.kleis.lcaplugin.compute
 
-import ch.kleis.lcaplugin.compute.model.CoreSystem
 import ch.kleis.lcaplugin.compute.model.Exchange
 import ch.kleis.lcaplugin.compute.model.Flow
 import ch.kleis.lcaplugin.compute.model.UnitProcess
-import ch.kleis.lcaplugin.psi.*
+import ch.kleis.lcaplugin.compute.system.CoreSystem
+import ch.kleis.lcaplugin.compute.urn.Namespace
+import ch.kleis.lcaplugin.compute.urn.URN
+import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.language.psi.type.*
+import ch.kleis.lcaplugin.psi.LcaVisitor
 import com.fathzer.soft.javaluator.DoubleEvaluator
 import com.fathzer.soft.javaluator.StaticVariableSet
+import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import org.apache.http.annotation.Experimental
 import tech.units.indriya.AbstractUnit
 import tech.units.indriya.ComparableQuantity
 import tech.units.indriya.quantity.Quantities.getQuantity
-import java.lang.Double.parseDouble
 import javax.measure.Quantity
 import javax.measure.Unit
 
-class ModelCoreSystemVisitor : LcaVisitor() {
+@Experimental
+class ModelCoreSystemVisitor(
+    private val resolver: ModelResolver = ModelResolverImpl()
+) : LcaVisitor() {
     private var processName: String = ""
     private val processes = arrayListOf<UnitProcess>()
-
     private var products = arrayListOf<Exchange<*>>()
-
     private var inputs = arrayListOf<Exchange<*>>()
     private var emissions = arrayListOf<Exchange<*>>()
     private var resources = arrayListOf<Exchange<*>>()
 
-    private var bioExchanges = arrayListOf<Exchange<*>>()
     private var parameters = StaticVariableSet<Double>()
     private val evaluator = DoubleEvaluator(DoubleEvaluator.getDefaultParameters(), true) // support scientific notation
 
+    private val externalDependencies = HashMap<URN, PsiElement>()
+    private val processedElements = HashSet<URN>()
+
+    private val processSubNs = "processes"
+    private val flowSubNs = "flows"
+
+    private var previousHashCode: Int = 0
+
     override fun visitElement(element: PsiElement) {
-        super.visitElement(element)
-        element.acceptChildren(this)
+        ProgressIndicatorProvider.checkCanceled()
+        if (element is LcaFile) {
+            visitPsiPackage(element.getPackage())
+            element.getImports().forEach { visitPsiImport(it) }
+            element.getProcesses().forEach { visitPsiProcess(it) }
+            element.getSubstances().forEach { visitPsiSubstance(it) }
+        }
     }
 
-    override fun visitProcess(process: LcaProcess) {
-        processName = process.name ?: ""
+    private fun visitDependencies() {
+        val next = externalDependencies.entries
+            .filter { !processedElements.contains(it.key) }
+            .map { it.value }
+
+        val nextHashcode = next.sumOf { it.hashCode() } // prevents infinite loop
+        if (previousHashCode != nextHashcode) {
+            previousHashCode = nextHashcode
+            next.forEach {
+                it.accept(this)
+            }
+        }
+    }
+
+    private fun getPackageOf(element: PsiElement): PsiPackage {
+        val lcaFile = element.containingFile as LcaFile
+        return lcaFile.getPackage()
+    }
+
+    private fun getPackageNamespaceOf(element: PsiElement): Namespace {
+        return Namespace.ROOT.ns(getPackageOf(element).getUrnElement().getParts())
+    }
+
+    private fun getCurrentPackageNs(element: PsiElement): Namespace {
+        val pkg = getPackageOf(element)
+        return Namespace.ROOT.ns(pkg.getUrnElement().getParts())
+    }
+
+    private fun getCurrentProcessNs(element: PsiElement): Namespace {
+        return getCurrentPackageNs(element).ns(processSubNs)
+    }
+
+    private fun getCurrentFlowNs(element: PsiElement): Namespace {
+        return getCurrentPackageNs(element).ns(flowSubNs)
+    }
+
+    override fun visitPsiPackage(o: PsiPackage) {
+        ProgressIndicatorProvider.checkCanceled()
+    }
+
+    override fun visitPsiImport(o: PsiImport) {
+        ProgressIndicatorProvider.checkCanceled()
+    }
+
+    override fun visitPsiProcess(psiProcess: PsiProcess) {
+        ProgressIndicatorProvider.checkCanceled()
+
+        processName = psiProcess.name ?: throw IllegalStateException()
 
         parameters = StaticVariableSet()
-        process.processBody.parametersList.forEach { visitParameters(it) }
+        psiProcess.getParameters().forEach {
+            val name = it.name ?: throw IllegalStateException()
+            val value = it.getValue()
+            parameters.set(name, value)
+        }
 
         products = arrayListOf()
-        process.processBody.productsList.forEach { visitProducts(it) }
+        psiProcess.getProductExchanges().forEach {
+            val exchange = parseTechnoExchange(getCurrentFlowNs(psiProcess), it)
+            products.add(exchange)
+            processedElements.add(exchange.flow.getUrn())
+        }
+
         inputs = arrayListOf()
-        process.processBody.inputsList.forEach { visitInputs(it) }
+
+        psiProcess.getInputExchanges().forEach {
+            val dependency = resolver.resolveInputExchange(it)
+            val pkgNs = getPackageNamespaceOf(dependency)
+            val exchange = parseTechnoExchange(pkgNs.ns(flowSubNs), it)
+            inputs.add(exchange)
+            externalDependencies[exchange.flow.getUrn()] = dependency.getContainingProcess()
+        }
+
         emissions = arrayListOf()
-        process.processBody.emissionsList.forEach { visitEmissions(it) }
+        psiProcess.getEmissionExchanges().forEach {
+            val dependency = resolver.resolveBioExchange(it)
+            val pkgNs = getPackageNamespaceOf(dependency)
+            val exchange = parseBioExchange(pkgNs.ns(flowSubNs), it)
+            emissions.add(exchange)
+            externalDependencies[exchange.flow.getUrn()] = dependency
+        }
+
         resources = arrayListOf()
-        process.processBody.resourcesList.forEach { visitResources(it) }
-        processes.add(UnitProcess(processName, products, inputs + emissions + resources))
+        psiProcess.getResourceExchanges().forEach {
+            val dependency = resolver.resolveBioExchange(it)
+            val pkgNs = getPackageNamespaceOf(dependency)
+            val exchange = parseBioExchange(pkgNs.ns(flowSubNs), it)
+            emissions.add(exchange)
+            externalDependencies[exchange.flow.getUrn()] = dependency
+        }
+
+        val process = UnitProcess(
+            getCurrentProcessNs(psiProcess).urn(processName),
+            products,
+            inputs + emissions + resources
+        )
+        processes.add(process)
+        processedElements.add(process.getUrn())
+
+        visitDependencies()
     }
 
-    override fun visitParameters(parameters: LcaParameters) {
-        parameters.parameterList.forEach { visitParameter(it) }
-    }
+    override fun visitPsiSubstance(psiSubstance: PsiSubstance) {
+        ProgressIndicatorProvider.checkCanceled()
+        val name = psiSubstance.name ?: throw IllegalStateException()
 
-    override fun visitParameter(parameter: LcaParameter) {
-        val name = parameter.name ?: throw IllegalStateException()
-        val value = evaluator.evaluate(parameter.number.text)
-        this.parameters.set(name, value)
-    }
+        val output = parseOutputExchange(psiSubstance)
+        processedElements.add(output.flow.getUrn())
 
-    override fun visitSubstance(substance: LcaSubstance) {
-        val name = substance.name ?: throw IllegalArgumentException()
-        val outputExchange = parseOutputExchangeOf(substance) as Exchange<*>
         inputs = arrayListOf()
-        substance.substanceBody.factors?.factorList?.forEach { visitFactor(it) }
-        processes.add(
-            UnitProcess(
-                name,
-                listOf(outputExchange),
-                inputs,
-            )
+        psiSubstance.getFactorExchanges().forEach {
+            val exchange = parsePsiFactorExchange(it)
+            inputs.add(exchange)
+            processedElements.add(exchange.flow.getUrn())
+        }
+
+        val process = UnitProcess(
+            getCurrentProcessNs(psiSubstance).urn(name),
+            listOf(output),
+            inputs,
+        )
+        processes.add(process)
+        processedElements.add(process.getUrn())
+    }
+
+    private fun parsePsiFactorExchange(exchange: PsiFactorExchange): Exchange<*> {
+        val unit = AbstractUnit.ONE
+        val name = exchange.name ?: throw IllegalArgumentException()
+        val amount = exchange.getAmount()
+        return Exchange(
+            Flow(getCurrentFlowNs(exchange).urn(name), unit),
+            getQuantity(amount, unit)
         )
     }
 
-    override fun visitFactor(factor: LcaFactor) {
-        val unit = AbstractUnit.ONE
-        val indicator = factor.uniqueId.name ?: throw IllegalArgumentException()
-        val amount = parseDouble(factor.number.text)
-        inputs.add(Exchange(Flow(indicator, unit), getQuantity(amount, unit)))
-    }
-
-    private fun <D : Quantity<D>> parseOutputExchangeOf(substance: LcaSubstance): Exchange<D> {
+    private fun <D : Quantity<D>> parseOutputExchange(substance: PsiSubstance): Exchange<D> {
         val name = substance.name ?: throw IllegalArgumentException()
-        val unit = substance.substanceBody.unitType.getUnitElement().getUnit()
-        val flow = Flow(name, unit) as Flow<D>
+        val unit = substance.getUnitElement().getUnit()
+        val flow = Flow(getCurrentFlowNs(substance).urn(name), unit) as Flow<D>
         val quantity = getQuantity(1.0, unit) as ComparableQuantity<D>
         return Exchange(flow, quantity)
     }
 
-    override fun visitResources(resources: LcaResources) {
-        bioExchanges = arrayListOf()
-        resources.bioExchangeList.forEach { visitBioExchange(it) }
-        this.resources.addAll(bioExchanges)
-    }
-
-    override fun visitEmissions(emissions: LcaEmissions) {
-        bioExchanges.clear()
-        emissions.bioExchangeList.forEach { visitBioExchange(it) }
-        this.emissions.addAll(bioExchanges)
-    }
-
-    private fun <D : Quantity<D>> parseBioExchange(bioExchange: LcaBioExchange): Exchange<D> {
-        val amount = evaluator.evaluate(bioExchange.fExpr.getContent(), this.parameters)
+    private fun <D : Quantity<D>> parseBioExchange(parentNs: Namespace, bioExchange: PsiBioExchange): Exchange<D> {
+        val amount = evaluator.evaluate(bioExchange.getExpression().getContent(), this.parameters)
         val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
         return Exchange(
-            Flow(bioExchange.name ?: throw IllegalStateException(), unit),
+            Flow(parentNs.urn(bioExchange.name ?: throw IllegalStateException()), unit),
             quantity
         )
     }
 
-    override fun visitBioExchange(bioExchange: LcaBioExchange) {
-        val exchange = parseBioExchange(bioExchange) as Exchange<*>
-        bioExchanges.add(exchange)
-    }
-
-    override fun visitProducts(products: LcaProducts) {
-        products.productExchangeList.forEach { visitProductExchange(it) }
-    }
-
-    private fun <D : Quantity<D>> parseProductExchange(productExchange: LcaProductExchange): Exchange<D> {
-        val unit = productExchange.getUnitElement().getUnit() as Unit<D>
-        val name = productExchange.name ?: throw IllegalArgumentException()
-        val flow = Flow(name, unit)
-        val amount = evaluator.evaluate(productExchange.fExpr.getContent(), this.parameters)
+    private fun <D : Quantity<D>> parseTechnoExchange(parentNs: Namespace, exchange: PsiTechnoExchange): Exchange<D> {
+        val unit = exchange.getUnitElement().getUnit() as Unit<D>
+        val name = exchange.name ?: throw IllegalArgumentException()
+        val flow = Flow(parentNs.urn(name), unit)
+        val amount = evaluator.evaluate(exchange.getExpression().getContent(), this.parameters)
         val quantity = getQuantity(amount, unit)
         return Exchange(flow, quantity)
-    }
-
-    override fun visitProductExchange(productExchange: LcaProductExchange) {
-        this.products.add(parseProductExchange(productExchange) as Exchange<*>)
-    }
-
-    override fun visitInputs(inputs: LcaInputs) {
-        inputs.inputExchangeList.forEach { visitInputExchange(it) }
-    }
-
-    private fun <D : Quantity<D>> parseInputExchange(inputExchange: LcaInputExchange): Exchange<D> {
-        val unit = inputExchange.getUnitElement().getUnit() as Unit<D>
-        val flow = Flow(inputExchange.name ?: throw IllegalArgumentException(), unit)
-        val amount = evaluator.evaluate(inputExchange.fExpr.getContent(), this.parameters)
-        val quantity = getQuantity(amount, unit)
-        return Exchange(flow, quantity)
-    }
-
-    override fun visitInputExchange(inputExchange: LcaInputExchange) {
-        inputs.add(parseInputExchange(inputExchange) as Exchange<*>)
     }
 
     fun getSystem(): CoreSystem {

@@ -13,7 +13,7 @@ import tech.units.indriya.format.SimpleUnitFormat
 import javax.measure.format.UnitFormat
 
 
-class LcaProductAnnotator : Annotator {
+class LcaInputExchangeAnnotator : Annotator {
 
     var parser: UnitFormat = SimpleUnitFormat.getInstance()
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
@@ -22,9 +22,9 @@ class LcaProductAnnotator : Annotator {
             val reference = element.reference?.resolve()
             if (reference == null || reference !is PsiProductExchange) {
                 (element.nameIdentifier as PsiUniqueIdMixin?)?.let {
-                    holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.name}")
+                    holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved flow ${it.name}")
                         .range(it)
-                        .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+                        .highlightType(ProblemHighlightType.WARNING)
                         .withFix(CreateProcessAction(it.name, element.getUnitElement().text))
                         .create()
                 }

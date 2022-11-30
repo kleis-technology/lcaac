@@ -6,8 +6,6 @@ import ch.kleis.lcaplugin.language.psi.type.PsiUnit
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.stubs.IStubElementType
 
 abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<SubstanceStub> {
@@ -16,9 +14,8 @@ abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<Substan
     constructor(stub: SubstanceStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
     override fun getUnitElement(): PsiUnit {
-        val substanceBody = node.findChildByType(LcaTypes.SUBSTANCE_BODY)
-        val unitType = substanceBody?.findChildByType(LcaTypes.UNIT_TYPE)
-        return unitType?.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
+        val fieldUnit = node.findChildByType(LcaTypes.FIELD_UNIT)
+        return fieldUnit?.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
             ?: throw IllegalStateException()
     }
 

@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.language.ide.structure
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.psi.LcaProcess
+import ch.kleis.lcaplugin.psi.impl.LcaProcessImpl
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ide.structureView.StructureViewTreeElement
@@ -9,7 +11,6 @@ import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi.NavigatablePsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import kotlin.collections.ArrayList
 
 
 class LcaStructureViewElement(private val element: NavigatablePsiElement)
@@ -43,13 +44,13 @@ class LcaStructureViewElement(private val element: NavigatablePsiElement)
 
     override fun getChildren(): Array<TreeElement> {
         if (element is LcaFile) {
-            val definitions: List<ch.kleis.lcaplugin.psi.LcaProcess> = PsiTreeUtil.getChildrenOfTypeAsList(
+            val definitions: List<LcaProcess> = PsiTreeUtil.getChildrenOfTypeAsList(
                 element,
-                ch.kleis.lcaplugin.psi.LcaProcess::class.java
+                LcaProcess::class.java
             )
             val treeElements: MutableList<TreeElement> = ArrayList(definitions.size)
             for (def in definitions) {
-                treeElements.add(LcaStructureViewElement(def as ch.kleis.lcaplugin.psi.impl.LcaProcessImpl))
+                treeElements.add(LcaStructureViewElement(def as LcaProcessImpl))
             }
             return treeElements.toTypedArray()
         }

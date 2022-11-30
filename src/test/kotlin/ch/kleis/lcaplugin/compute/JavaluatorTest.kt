@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.compute
 import com.fathzer.soft.javaluator.DoubleEvaluator
 import com.fathzer.soft.javaluator.StaticVariableSet
 import junit.framework.TestCase.assertEquals
-import org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorOutputStream
 import org.junit.Test
 import kotlin.math.sin
 

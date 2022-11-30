@@ -1,14 +1,15 @@
 package ch.kleis.lcaplugin.compute.model
 
-import ch.kleis.lcaplugin.compute.traits.HasUniqueId
+import ch.kleis.lcaplugin.compute.urn.URN
+import ch.kleis.lcaplugin.compute.traits.HasUrn
 
 data class UnitProcess(
-    val name: String,
+    private val urn: URN,
     val outputs: List<Exchange<*>>,
     val inputs: List<Exchange<*>>,
-) : HasUniqueId {
-    override fun getUniqueId(): String {
-        return name
+) : HasUrn {
+    override fun getUrn(): URN {
+        return urn
     }
 }
 

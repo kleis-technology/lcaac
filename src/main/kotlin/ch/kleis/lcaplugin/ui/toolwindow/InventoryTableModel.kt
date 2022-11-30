@@ -28,7 +28,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
             return "unit"
         }
 
-        return matrix.controllableFlows[columnIndex - 2].getUniqueId()
+        return matrix.controllableFlows[columnIndex - 2].getUrn().id
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -47,7 +47,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         val outputFlow = matrix.observableFlows[rowIndex]
 
         if (columnIndex == 0) {
-            return outputFlow.getUniqueId()
+            return outputFlow.getUrn().id
         }
 
         if (columnIndex == 1) {

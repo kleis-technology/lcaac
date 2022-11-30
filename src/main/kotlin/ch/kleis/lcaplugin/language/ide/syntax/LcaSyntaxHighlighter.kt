@@ -28,7 +28,8 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
             arrayOf(createTextAttributesKey("STRING_LITERAL", DefaultLanguageHighlighterColors.STRING))
         val FIELD_KEYS = arrayOf(createTextAttributesKey("FIELD", DefaultLanguageHighlighterColors.INSTANCE_FIELD))
         val NUMBER_KEYS = arrayOf(createTextAttributesKey("UNIT", DefaultLanguageHighlighterColors.NUMBER))
-        val BLOCK_COMMENT_KEYS = arrayOf(createTextAttributesKey("BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT))
+        val BLOCK_COMMENT_KEYS =
+            arrayOf(createTextAttributesKey("BLOCK_COMMENT", DefaultLanguageHighlighterColors.BLOCK_COMMENT))
     }
 
     override fun getHighlightingLexer(): Lexer {
@@ -37,8 +38,11 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
 
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> {
         return when (tokenType) {
-            PROCESS_KEYWORD, PARAMETERS_KEYWORD, SUBSTANCE_KEYWORD, PRODUCTS_KEYWORD, META_KEYWORD, LAND_USE_KEYWORD, IMPACT_KEYWORD,
-            FACTORS_KEYWORD, EMISSIONS_KEYWORD, RESOURCES_KEYWORD, INPUTS_KEYWORD -> KEYWORD_KEYS
+            PROCESS_KEYWORD, PARAMETERS_KEYWORD, SUBSTANCE_KEYWORD,
+            PRODUCTS_KEYWORD, META_KEYWORD, LAND_USE_KEYWORD, IMPACT_KEYWORD,
+            FACTORS_KEYWORD, EMISSIONS_KEYWORD, RESOURCES_KEYWORD,
+            INPUTS_KEYWORD, PACKAGE_KEYWORD, IMPORT_KEYWORD -> KEYWORD_KEYS
+
             IDENTIFIER -> IDENTIFIER_KEYS
             STRING -> STRING_LITERAL_KEYS
             TYPE_KEYWORD, UNIT_KEYWORD, REFERENCE_KEYWORD, NAME_KEYWORD, COMPARTMENT_KEYWORD, SUB_COMPARTMENT_KEYWORD -> FIELD_KEYS

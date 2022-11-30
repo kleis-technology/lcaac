@@ -21,7 +21,7 @@ import com.intellij.psi.PsiFileFactory
 import java.util.zip.GZIPInputStream
 
 class ImportScsvFileAction : AnAction() {
-    val formatter = ScsvProcessBlockFormatter()
+    val formatter = ScsvProcessBlockFormatter("scsv_import")
 
     override fun actionPerformed(e: AnActionEvent) {
         val view = e.getData(LangDataKeys.IDE_VIEW) ?: return

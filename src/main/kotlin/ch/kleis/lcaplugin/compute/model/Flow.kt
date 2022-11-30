@@ -1,17 +1,22 @@
 package ch.kleis.lcaplugin.compute.model
 
-import ch.kleis.lcaplugin.compute.traits.HasUniqueId
+import ch.kleis.lcaplugin.compute.urn.URN
 import ch.kleis.lcaplugin.compute.traits.HasUnit
+import ch.kleis.lcaplugin.compute.traits.HasUrn
 import javax.measure.Quantity
 import javax.measure.Unit
 
-data class Flow<D : Quantity<D>>(val name: String, private val unit: Unit<D>) : HasUniqueId, HasUnit<D> {
-    override fun getUniqueId(): String {
-        return name
-    }
+data class Flow<D : Quantity<D>>(
+    private val urn: URN,
+    private val unit: Unit<D>
+) : HasUrn, HasUnit<D> {
 
     override fun getUnit(): Unit<D> {
         return unit
+    }
+
+    override fun getUrn(): URN {
+        return urn
     }
 
     override fun equals(other: Any?): Boolean {
@@ -20,14 +25,14 @@ data class Flow<D : Quantity<D>>(val name: String, private val unit: Unit<D>) : 
 
         other as Flow<*>
 
-        if (name != other.name) return false
+        if (urn != other.urn) return false
         if (unit.dimension != other.unit.dimension) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = name.hashCode()
+        var result = urn.hashCode()
         result = 31 * result + unit.dimension.hashCode()
         return result
     }
