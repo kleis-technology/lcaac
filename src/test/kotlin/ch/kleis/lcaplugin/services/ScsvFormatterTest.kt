@@ -1,7 +1,8 @@
 package ch.kleis.lcaplugin.services
 
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelResolverMockImpl
+import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -31,13 +32,15 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
             .name("reference product")
             .amount(Numeric.of(1.0))
             .unit("kg"))
-        val formatter = ScsvProcessBlockFormatter()
+        val formatter = ScsvProcessBlockFormatter("test")
 
         // when
         val actual = formatter.format(processBlock)
 
         // then
         val expected = """
+            package test
+            
             process "process \"a process\" name" {
                 products {
                     - "reference product" 1.0 kg
@@ -88,25 +91,25 @@ internal class ScsvFormatterTest : ParsingTestCase("", "lca", LcaParserDefinitio
             .amount(Numeric.of(5.0))
             .unit("l")
         )
-        val formatter = ScsvProcessBlockFormatter()
-        val visitor = ModelCoreSystemVisitor()
+        val formatter = ScsvProcessBlockFormatter("hello")
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         val content = formatter.format(processBlock)
         val psiFile = parseFile("test", content)
         psiFile.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello world")
+        val actual = visitor.getSystem().getProcess(".hello.processes.hello world")
 
         // then
-        TestCase.assertEquals(actual.getUniqueId(), ".processes.hello world")
+        TestCase.assertEquals(actual.getUniqueId(), ".hello.processes.hello world")
         TestCase.assertEquals(actual.outputs.size, 1)
-        TestCase.assertEquals(actual.outputs[0].flow.getUniqueId(), ".flows.reference product")
+        TestCase.assertEquals(actual.outputs[0].flow.getUniqueId(), ".hello.flows.reference product")
         TestCase.assertEquals(actual.outputs[0].quantity, getQuantity(1.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), ".flows.heat")
+        TestCase.assertEquals(actual.inputs[0].flow.getUniqueId(), ".hello.flows.heat")
         TestCase.assertEquals(actual.inputs[0].quantity, getQuantity(2.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[1].flow.getUniqueId(), ".flows.co2, air, low pop")
+        TestCase.assertEquals(actual.inputs[1].flow.getUniqueId(), ".hello.flows.co2, air, low pop")
         TestCase.assertEquals(actual.inputs[1].quantity, getQuantity(3.0, KILOGRAM))
-        TestCase.assertEquals(actual.inputs[2].flow.getUniqueId(), ".flows.land use, raw, in ground")
+        TestCase.assertEquals(actual.inputs[2].flow.getUniqueId(), ".hello.flows.land use, raw, in ground")
         TestCase.assertEquals(actual.inputs[2].quantity, getQuantity(5.0, LITRE))
     }
 

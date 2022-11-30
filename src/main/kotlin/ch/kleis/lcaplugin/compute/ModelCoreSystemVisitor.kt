@@ -21,7 +21,9 @@ import javax.measure.Quantity
 import javax.measure.Unit
 
 @Experimental
-class ModelCoreSystemVisitor : LcaVisitor() {
+class ModelCoreSystemVisitor(
+    private val resolver: ModelResolver = ModelResolverImpl()
+) : LcaVisitor() {
     private var processName: String = ""
     private val processes = arrayListOf<UnitProcess>()
     private var products = arrayListOf<Exchange<*>>()
@@ -35,8 +37,8 @@ class ModelCoreSystemVisitor : LcaVisitor() {
     private val externalDependencies = HashMap<URN, PsiElement>()
     private val processedElements = HashSet<URN>()
 
-    private val SUB_NS_PROCESSES = "processes"
-    private val SUB_NS_FLOWS = "flows"
+    private val processSubNs = "processes"
+    private val flowSubNs = "flows"
 
     private var previousHashCode: Int = 0
 
@@ -79,11 +81,11 @@ class ModelCoreSystemVisitor : LcaVisitor() {
     }
 
     private fun getCurrentProcessNs(element: PsiElement): Namespace {
-        return getCurrentPackageNs(element).ns(SUB_NS_PROCESSES)
+        return getCurrentPackageNs(element).ns(processSubNs)
     }
 
     private fun getCurrentFlowNs(element: PsiElement): Namespace {
-        return getCurrentPackageNs(element).ns(SUB_NS_FLOWS)
+        return getCurrentPackageNs(element).ns(flowSubNs)
     }
 
     override fun visitPsiPackage(o: PsiPackage) {
@@ -116,27 +118,27 @@ class ModelCoreSystemVisitor : LcaVisitor() {
         inputs = arrayListOf()
 
         psiProcess.getInputExchanges().forEach {
-            val dependency = (it.reference?.resolve() ?: it) as PsiTechnoExchange
+            val dependency = resolver.resolveInputExchange(it)
             val pkgNs = getPackageNamespaceOf(dependency)
-            val exchange = parseTechnoExchange(pkgNs.ns(SUB_NS_FLOWS), it)
+            val exchange = parseTechnoExchange(pkgNs.ns(flowSubNs), it)
             inputs.add(exchange)
             externalDependencies[exchange.flow.getUrn()] = dependency.getContainingProcess()
         }
 
         emissions = arrayListOf()
         psiProcess.getEmissionExchanges().forEach {
-            val dependency = it.reference?.resolve() ?: it
+            val dependency = resolver.resolveBioExchange(it)
             val pkgNs = getPackageNamespaceOf(dependency)
-            val exchange = parseBioExchange(pkgNs.ns(SUB_NS_FLOWS), it)
+            val exchange = parseBioExchange(pkgNs.ns(flowSubNs), it)
             emissions.add(exchange)
             externalDependencies[exchange.flow.getUrn()] = dependency
         }
 
         resources = arrayListOf()
         psiProcess.getResourceExchanges().forEach {
-            val dependency = it.reference?.resolve() ?: it
+            val dependency = resolver.resolveBioExchange(it)
             val pkgNs = getPackageNamespaceOf(dependency)
-            val exchange = parseBioExchange(pkgNs.ns(SUB_NS_FLOWS), it)
+            val exchange = parseBioExchange(pkgNs.ns(flowSubNs), it)
             emissions.add(exchange)
             externalDependencies[exchange.flow.getUrn()] = dependency
         }

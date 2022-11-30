@@ -15,7 +15,9 @@ import java.util.regex.Pattern.MULTILINE
 import java.util.regex.Pattern.compile
 import java.util.stream.Stream
 
-class ScsvProcessBlockFormatter {
+class ScsvProcessBlockFormatter(
+    private val pkg: String
+) {
     fun format(processBlock: ProcessBlock): String {
         val textRegion = irep(processBlock)
         return textRegion.render()
@@ -24,7 +26,7 @@ class ScsvProcessBlockFormatter {
     private fun irep(processBlock: ProcessBlock): TextRegion {
         return TextBlock(
             listOf(
-                TextLine("package scsv_import"),
+                TextLine("package $pkg"),
                 TextLine(""),
                 TextLine("process ${stringLiteral(processBlock.name())} {"),
                 TextIndent(

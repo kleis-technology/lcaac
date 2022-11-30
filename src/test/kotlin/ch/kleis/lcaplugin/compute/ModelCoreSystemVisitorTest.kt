@@ -11,45 +11,50 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
     @Test
     fun testVisitProcess_shouldParseName() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
-        assertEquals(actual.getUniqueId(), ".processes.hello")
+        assertEquals(actual.getUniqueId(), ".test.processes.hello")
     }
 
     @Test
     fun testVisitProcess_shouldParseNameWithQuote() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process "hello world" {
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello world")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello world")
 
         // then
-        assertEquals(actual.getUniqueId(), ".processes.hello world")
+        assertEquals(actual.getUniqueId(), ".test.processes.hello world")
     }
 
     @Test
     fun testVisitProcess_products() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -61,25 +66,27 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - water 2 l
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.outputs.size, 2)
-        assertEquals(actual.outputs[0].flow.getUniqueId(), ".flows.carrot")
+        assertEquals(actual.outputs[0].flow.getUniqueId(), ".test.flows.carrot")
         assertEquals(actual.outputs[0].quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(actual.outputs[1].flow.getUniqueId(), ".flows.water")
+        assertEquals(actual.outputs[1].flow.getUniqueId(), ".test.flows.water")
         assertEquals(actual.outputs[1].quantity, getQuantity(2.0, LITRE))
     }
 
     @Test
     fun testVisitProcess_inputs() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -91,25 +98,27 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - water 2 l
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.inputs.size, 2)
-        assertEquals(actual.inputs[0].flow.getUniqueId(), ".flows.carrot")
+        assertEquals(actual.inputs[0].flow.getUniqueId(), ".test.flows.carrot")
         assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
-        assertEquals(actual.inputs[1].flow.getUniqueId(), ".flows.water")
+        assertEquals(actual.inputs[1].flow.getUniqueId(), ".test.flows.water")
         assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
     }
 
     @Test
     fun testVisitProcess_emissions() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -123,29 +132,31 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - "water, air, low pop" 3 ml
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.inputs.size, 3)
-        assertEquals(actual.inputs[0].flow.getUniqueId(), ".flows.carrot")
+        assertEquals(actual.inputs[0].flow.getUniqueId(), ".test.flows.carrot")
         assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.inputs[1].flow.getUniqueId(), ".flows.water")
+        assertEquals(actual.inputs[1].flow.getUniqueId(), ".test.flows.water")
         assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.inputs[2].flow.getUniqueId(), ".flows.water, air, low pop")
+        assertEquals(actual.inputs[2].flow.getUniqueId(), ".test.flows.water, air, low pop")
         assertEquals(actual.inputs[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
     @Test
     fun testVisitProcess_resources() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -159,29 +170,31 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - "water, air, low pop" 3 ml
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.inputs.size, 3)
-        assertEquals(actual.inputs[0].flow.getUniqueId(), ".flows.carrot")
+        assertEquals(actual.inputs[0].flow.getUniqueId(), ".test.flows.carrot")
         assertEquals(actual.inputs[0].quantity, getQuantity(1.0, KILOGRAM))
 
-        assertEquals(actual.inputs[1].flow.getUniqueId(), ".flows.water")
+        assertEquals(actual.inputs[1].flow.getUniqueId(), ".test.flows.water")
         assertEquals(actual.inputs[1].quantity, getQuantity(2.0, LITRE))
 
-        assertEquals(actual.inputs[2].flow.getUniqueId(), ".flows.water, air, low pop")
+        assertEquals(actual.inputs[2].flow.getUniqueId(), ".test.flows.water, air, low pop")
         assertEquals(actual.inputs[2].quantity, getQuantity(3.0, MetricPrefix.MILLI(LITRE)))
     }
 
     @Test
     fun testVisitProcess_example() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -201,12 +214,13 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - "gamma" 4 Bq
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.outputs.size, 1)
@@ -216,7 +230,8 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
     @Test
     fun testVisitProcess_withParams() {
         // given
-        val file = parseFile("hello", """
+        val file = parseFile(
+            "hello", """
             package test
             
             process hello {
@@ -240,12 +255,13 @@ class ModelCoreSystemVisitorTest : ParsingTestCase("", "lca", LcaParserDefinitio
                     - "gamma" ${'$'}{R1^2.0} Bq
                 }
             }
-        """.trimIndent())
-        val visitor = ModelCoreSystemVisitor()
+        """.trimIndent()
+        )
+        val visitor = ModelCoreSystemVisitor(ModelResolverMockImpl())
 
         // when
         file.accept(visitor)
-        val actual = visitor.getSystem().getProcess(".processes.hello")
+        val actual = visitor.getSystem().getProcess(".test.processes.hello")
 
         // then
         assertEquals(actual.outputs[0].quantity, getQuantity(3.0, KILOGRAM))
