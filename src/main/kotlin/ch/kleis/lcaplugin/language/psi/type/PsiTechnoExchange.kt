@@ -7,4 +7,8 @@ import ch.kleis.lcaplugin.language.psi.type.traits.PsiUnitOwner
 interface PsiTechnoExchange :
     PsiUniqueIdOwner,
     PsiFormulaExpressionOwner,
-    PsiUnitOwner
+    PsiUnitOwner {
+    fun getContainingProcess(): PsiProcess {
+        return node.psi.parent.parent as PsiProcess
+    }
+}
