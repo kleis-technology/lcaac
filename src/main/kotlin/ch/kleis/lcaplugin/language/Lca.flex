@@ -115,6 +115,7 @@ FormulaContent = [^}]*
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 <YYINITIAL> ","                      { return LcaTypes.COMA; }
 <YYINITIAL> "."                      { return LcaTypes.DOT; }
+<YYINITIAL> "*"                      { return LcaTypes.STAR; }
 
 
 {WhiteSpace}                  { return TokenType.WHITE_SPACE; }

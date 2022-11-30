@@ -1,8 +1,10 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
+import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
+import ch.kleis.lcaplugin.lib.urn.Namespace
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST
@@ -29,10 +31,12 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
+        val file = psi.containingFile as LcaFile
+        val pkg = file.getPackage()
+        val parts = pkg.getUrnElement().getParts()
         val substanceId  = psi.nameIdentifier as PsiUniqueId
-        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>,
-            substanceId.name ?: throw IllegalStateException()
-        )
+        val uid = (parts + substanceId.name!!).joinToString(Namespace.SEPARATOR)
+        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, uid)
     }
 
     override fun createPsi(stub: SubstanceStub): PsiSubstance {

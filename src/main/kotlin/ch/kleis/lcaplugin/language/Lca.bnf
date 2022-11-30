@@ -56,6 +56,7 @@
       PACKAGE_KEYWORD = "package"
       IMPORT_KEYWORD = "import"
       DOT = "dot"
+      STAR = "star"
   ]
 }
 
@@ -68,10 +69,11 @@ package ::= PACKAGE_KEYWORD urn {
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
 }
 
-import ::= IMPORT_KEYWORD urn {
+import ::= IMPORT_KEYWORD urn wildcard? {
     implements = ["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
     mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
 }
+wildcard ::= DOT STAR
 
 // URN
 
