@@ -22,7 +22,7 @@ class LcaInputExchangeAnnotator : Annotator {
             val reference = element.reference?.resolve()
             if (reference == null || reference !is PsiProductExchange) {
                 (element.nameIdentifier as PsiUniqueIdMixin?)?.let {
-                    holder.newAnnotation(HighlightSeverity.WARNING, "Initial flow ${it.name}")
+                    holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved flow ${it.name}")
                         .range(it)
                         .highlightType(ProblemHighlightType.WARNING)
                         .withFix(CreateProcessAction(it.name, element.getUnitElement().text))

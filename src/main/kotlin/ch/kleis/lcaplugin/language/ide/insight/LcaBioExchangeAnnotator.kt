@@ -17,9 +17,9 @@ class LcaBioExchangeAnnotator : Annotator {
             val reference = element.reference?.resolve()
             if (reference == null || reference !is PsiSubstance) {
                 element.nameIdentifier?.let {
-                    holder.newAnnotation(HighlightSeverity.ERROR, "Unresolved reference : ${it.text}")
+                    holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved flow : ${it.text}")
                         .range(it)
-                        .highlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+                        .highlightType(ProblemHighlightType.WARNING)
                         .create()
                 }
             } else {
