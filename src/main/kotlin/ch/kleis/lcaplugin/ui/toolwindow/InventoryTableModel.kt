@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.lib.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.lib.model.CharacterizationFactor
-import ch.kleis.lcaplugin.lib.model.Exchange
-import ch.kleis.lcaplugin.lib.model.Flow
+import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.compute.model.CharacterizationFactor
+import ch.kleis.lcaplugin.compute.model.Exchange
+import ch.kleis.lcaplugin.compute.model.Flow
 import tech.units.indriya.quantity.Quantities.getQuantity
 import javax.measure.Quantity
 import javax.measure.Unit

@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.psi.stub
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
-import ch.kleis.lcaplugin.lib.urn.Namespace
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
 import com.intellij.psi.PsiElement

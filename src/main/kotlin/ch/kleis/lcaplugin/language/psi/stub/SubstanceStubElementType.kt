@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
-import ch.kleis.lcaplugin.lib.urn.Namespace
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST

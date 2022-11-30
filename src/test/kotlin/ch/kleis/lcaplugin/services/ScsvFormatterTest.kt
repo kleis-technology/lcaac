@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.services
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
-import ch.kleis.lcaplugin.lib.ModelCoreSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test

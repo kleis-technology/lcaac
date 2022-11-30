@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.lib.ModelCoreSystemVisitor
+import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
