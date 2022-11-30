@@ -5,6 +5,33 @@ import org.junit.Test
 
 
 internal class NamespaceTest {
+    @Test
+    fun testUrnFromParts() {
+        // given
+        val parts = listOf(
+            "a", "b", "c"
+        )
+
+        // when
+        val actual = Namespace.ROOT.urn(parts)
+
+        // then
+        assertEquals(actual.uid, ".a.b.c")
+    }
+
+    @Test
+    fun testNsFromParts() {
+        // given
+        val parts = listOf(
+            "a", "b", "c"
+        )
+
+        // when
+        val actual = Namespace.ROOT.ns(parts)
+
+        // then
+        assertEquals(actual.uid, ".a.b.c")
+    }
 
     @Test
     fun testAppend() {

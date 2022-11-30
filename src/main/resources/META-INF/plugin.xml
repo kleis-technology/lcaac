@@ -43,9 +43,10 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
 
-        <codeInsight.lineMarkerProvider
+        <runLineMarkerContributor
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaLineMarkerProvider"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessPackageMarkerContributor"/>
+
         <lang.foldingBuilder
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
@@ -92,12 +93,6 @@
         <action id="ch.kleis.lcaplugin.actions.ImportScsvFileAction"
                 class="ch.kleis.lcaplugin.actions.ImportScsvFileAction" text="Import Simapro CSV..."
                 description="Import Simapro CSV...">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
-        <action id="ch.kleis.lcaplugin.actions.AssessProjectAction"
-                class="ch.kleis.lcaplugin.actions.AssessProjectAction"
-                text="Assess Project..."
-                description="Assess project...">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
     </actions>

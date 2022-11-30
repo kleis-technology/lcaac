@@ -20,6 +20,7 @@ import javax.measure.Unit
 
 class ModelCoreSystemVisitor : LcaVisitor() {
     private var processName: String = ""
+    private var currentFile: LcaFile? = null
     private val processes = arrayListOf<UnitProcess>()
     private var products = arrayListOf<Exchange<*>>()
     private var inputs = arrayListOf<Exchange<*>>()
@@ -29,27 +30,45 @@ class ModelCoreSystemVisitor : LcaVisitor() {
     private var parameters = StaticVariableSet<Double>()
     private val evaluator = DoubleEvaluator(DoubleEvaluator.getDefaultParameters(), true) // support scientific notation
 
-    private val processesNs = Namespace.ROOT.ns("processes")
-    private val flowsNs = Namespace.ROOT.ns("flows")
+    private val externalDependencies = hashSetOf<LcaFile>()
+    private val processedFiles = hashSetOf<LcaFile>()
+    
+    private val SUB_NS_PROCESSES = "processes"
+    private val SUB_NS_FLOWS = "flows"
 
     override fun visitElement(element: PsiElement) {
         ProgressIndicatorProvider.checkCanceled()
         if (element is LcaFile) {
+            currentFile = element
             visitPsiPackage(element.getPackage())
             element.getImports().forEach { visitPsiImport(it) }
             element.getProcesses().forEach { visitPsiProcess(it) }
             element.getSubstances().forEach { visitPsiSubstance(it) }
+            processedFiles.add(currentFile!!)
         }
+        val next = externalDependencies.subtract(processedFiles)
+        next.forEach { it.accept(this) }
     }
 
+    private fun getCurrentPackageNs(): Namespace {
+        val pkg = currentFile!!.getPackage()
+        return Namespace.ROOT.ns(pkg.getUrnElement().getParts())
+    }
+    
+    private fun getCurrentProcessNs() : Namespace {
+        return getCurrentPackageNs().ns(SUB_NS_PROCESSES)
+    }
+    
+    private fun getCurrentFlowNs() : Namespace {
+        return getCurrentPackageNs().ns(SUB_NS_FLOWS)
+    }
+    
     override fun visitPsiPackage(o: PsiPackage) {
         ProgressIndicatorProvider.checkCanceled()
-        // implement me
     }
 
     override fun visitPsiImport(o: PsiImport) {
         ProgressIndicatorProvider.checkCanceled()
-        // implement me
     }
 
     override fun visitPsiProcess(psiProcess: PsiProcess) {
@@ -66,33 +85,47 @@ class ModelCoreSystemVisitor : LcaVisitor() {
 
         products = arrayListOf()
         psiProcess.getProductExchanges().forEach {
-            products.add(parseTechnoExchange(it))
+            products.add(parseTechnoExchange(getCurrentFlowNs(), it))
         }
 
         inputs = arrayListOf()
         psiProcess.getInputExchanges().forEach {
-            inputs.add(parseTechnoExchange(it))
+            val pkg = addExternalDependency(it) ?: currentFile!!.getPackage()
+            val pkgNs = Namespace.ROOT.ns(pkg.getUrnElement().getParts())
+            inputs.add(parseTechnoExchange(pkgNs.ns(SUB_NS_FLOWS), it))
         }
 
         emissions = arrayListOf()
         psiProcess.getEmissionExchanges().forEach {
-            emissions.add(parseBioExchange(it))
+            val pkg = addExternalDependency(it) ?: currentFile!!.getPackage()
+            val pkgNs = Namespace.ROOT.ns(pkg.getUrnElement().getParts())
+            emissions.add(parseBioExchange(pkgNs.ns(SUB_NS_FLOWS), it))
         }
 
         resources = arrayListOf()
         psiProcess.getResourceExchanges().forEach {
-            resources.add(parseBioExchange(it))
+            val pkg = addExternalDependency(it) ?: currentFile!!.getPackage()
+            val pkgNs = Namespace.ROOT.ns(pkg.getUrnElement().getParts())
+            resources.add(parseBioExchange(pkgNs.ns(SUB_NS_FLOWS), it))
         }
 
         processes.add(
             UnitProcess(
-                processesNs.urn(processName),
+                getCurrentProcessNs().urn(processName),
                 products,
                 inputs + emissions + resources
             )
         )
     }
 
+    private fun addExternalDependency(element: PsiElement): PsiPackage? {
+        return element.reference?.resolve()?.containingFile?.let {
+            if (it != currentFile) {
+                externalDependencies.add(it as LcaFile)
+            }
+            return (it as LcaFile).getPackage()
+        }
+    }
 
     override fun visitPsiSubstance(psiSubstance: PsiSubstance) {
         ProgressIndicatorProvider.checkCanceled()
@@ -107,7 +140,7 @@ class ModelCoreSystemVisitor : LcaVisitor() {
 
         processes.add(
             UnitProcess(
-                processesNs.urn(name),
+                getCurrentProcessNs().urn(name),
                 listOf(output),
                 inputs,
             )
@@ -119,7 +152,7 @@ class ModelCoreSystemVisitor : LcaVisitor() {
         val name = exchange.name ?: throw IllegalArgumentException()
         val amount = exchange.getAmount()
         return Exchange(
-            Flow(flowsNs.urn(name), unit),
+            Flow(getCurrentFlowNs().urn(name), unit),
             getQuantity(amount, unit)
         )
     }
@@ -127,25 +160,25 @@ class ModelCoreSystemVisitor : LcaVisitor() {
     private fun <D : Quantity<D>> parseOutputExchange(substance: PsiSubstance): Exchange<D> {
         val name = substance.name ?: throw IllegalArgumentException()
         val unit = substance.getUnitElement().getUnit()
-        val flow = Flow(flowsNs.urn(name), unit) as Flow<D>
+        val flow = Flow(getCurrentFlowNs().urn(name), unit) as Flow<D>
         val quantity = getQuantity(1.0, unit) as ComparableQuantity<D>
         return Exchange(flow, quantity)
     }
 
-    private fun <D : Quantity<D>> parseBioExchange(bioExchange: PsiBioExchange): Exchange<D> {
+    private fun <D : Quantity<D>> parseBioExchange(parentNs: Namespace, bioExchange: PsiBioExchange): Exchange<D> {
         val amount = evaluator.evaluate(bioExchange.getExpression().getContent(), this.parameters)
         val unit: Unit<D> = bioExchange.getUnitElement().getUnit() as Unit<D>
         val quantity = getQuantity(amount, unit)
         return Exchange(
-            Flow(flowsNs.urn(bioExchange.name ?: throw IllegalStateException()), unit),
+            Flow(parentNs.urn(bioExchange.name ?: throw IllegalStateException()), unit),
             quantity
         )
     }
 
-    private fun <D : Quantity<D>> parseTechnoExchange(exchange: PsiTechnoExchange): Exchange<D> {
+    private fun <D : Quantity<D>> parseTechnoExchange(parentNs: Namespace, exchange: PsiTechnoExchange): Exchange<D> {
         val unit = exchange.getUnitElement().getUnit() as Unit<D>
         val name = exchange.name ?: throw IllegalArgumentException()
-        val flow = Flow(flowsNs.urn(name), unit)
+        val flow = Flow(parentNs.urn(name), unit)
         val amount = evaluator.evaluate(exchange.getExpression().getContent(), this.parameters)
         val quantity = getQuantity(amount, unit)
         return Exchange(flow, quantity)

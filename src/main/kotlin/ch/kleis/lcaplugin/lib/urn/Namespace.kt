@@ -26,8 +26,25 @@ class Namespace(
         return localNamespaces.getOrPut(id) { Namespace(id, this) }
     }
 
+    fun ns(parts: List<String>): Namespace {
+        var ns = this
+        for (part in parts) {
+            ns = ns.ns(part)
+        }
+        return ns
+    }
+
     fun urn(id: String): URN {
         return localUrns.getOrPut(id) { URN(id, this) }
+    }
+
+    fun urn(parts: List<String>): URN {
+        var ns = this
+        for (part in parts) {
+            ns = ns.ns(part)
+        }
+        val last = parts.last()
+        return ns.parent?.urn(last) ?: this.urn(last)
     }
 
     fun selfUrn(): URN {

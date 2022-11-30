@@ -32,6 +32,7 @@ interface PsiSubstance :
 
     fun getFactorExchanges(): Collection<PsiFactorExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.FACTORS))
+            .map { it.psi }
             .map { it as LcaFactors }
             .flatMap { it.factorList }
             .map { it as PsiFactorExchange }

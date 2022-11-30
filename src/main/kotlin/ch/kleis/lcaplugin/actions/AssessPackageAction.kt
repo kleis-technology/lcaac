@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
+import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.lib.ModelCoreSystemVisitor
-import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -12,29 +12,21 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
-class AssessProjectAction : AnAction() {
+class AssessPackageAction(private val packageName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
-        val virtualFiles = FileTypeIndex.getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
         val psiManager = PsiManager.getInstance(project)
-        val psiFiles = virtualFiles.mapNotNull { psiManager.findFile(it) }
-        if (psiFiles.isEmpty()) return
+        val psiFiles = FileTypeIndex
+            .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
+            .mapNotNull { psiManager.findFile(it) }
+            .map { it as LcaFile }
+            .filter { it.getPackage().name!! == packageName }
+        if (psiFiles.isEmpty()) return // TODO: popup
 
-        val modelSystemVisitor = ModelCoreSystemVisitor()
-        psiFiles.forEach { it.accept(modelSystemVisitor) }
+        val visitor = ModelCoreSystemVisitor()
+        psiFiles.forEach { it.accept(visitor) }
 
-
-/*
-        modelSystemVisitor.getSystem().getControllableFlows()
-            .forEach { flow ->
-                SubstanceKeyIndex.findSubstances(project, flow.getUniqueId())
-                    .forEach {
-                        it.accept(modelSystemVisitor)
-                    }
-            }
-*/
-
-        val system = modelSystemVisitor.getSystem()
+        val system = visitor.getSystem()
         val inventory = system.inventory()
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
 
