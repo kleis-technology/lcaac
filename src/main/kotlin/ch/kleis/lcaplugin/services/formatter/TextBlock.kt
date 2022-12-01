@@ -1,5 +1,7 @@
 package ch.kleis.lcaplugin.services.formatter
 
+import java.util.stream.Collectors
+
 data class TextBlock(val regions: List<TextRegion>): TextRegion {
     override fun getLines(): List<String> {
         return regions.stream()
