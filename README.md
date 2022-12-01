@@ -7,19 +7,21 @@
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
 - [x] Get familiar with the [template documentation][template].
-- [ ] Verify the [pluginGroup](/gradle.properties), [plugin ID](/src/main/resources/META-INF/plugin.xml) and [sources package](/src/main/kotlin).
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the Plugin ID in the above README badges.
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html).
+- [x] Verify the [pluginGroup](/gradle.properties), [plugin ID](/src/main/resources/META-INF/plugin.xml) and [sources package](/src/main/kotlin).
+- [x] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html).
+- [x] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
+- [x] Set the Plugin ID in the above README badges.
+- [x] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html).
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
-
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/com/github/albanseurat/lcaplugin/language/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
+Adds support for a new domain-specific language targeting <i>Life Cycle Analysis</i> experts. The following features are available for free.
+<ul>
+    <li>EF 3.1 flows and characterization factors from the <a href="https://eplca.jrc.ec.europa.eu/LCDN/developerEF.xhtml">European Platform on Life Cycle Assessment</a></li>
+    <li>Description of processes, intermediary and elementary flows, with parameters.</li>
+    <li>Embedded inventory computation engine.</li>
+    <li>Code navigation.</li>
+</ul>
 <!-- Plugin description end -->
 
 ## Installation
@@ -42,50 +44,50 @@ To keep everything working, do not remove `<!-- ... -->` sections.
 
 
 ```lca
-process "pesticides" {
-    products {
-        - "pesticides" 1 kg
-    }
-    resources {
-        - "test", "test", "test" 1 kg
-        - "carbon dioxide", "soil", "" +1 kg
-        - "carbon dioxide", "soil", "" -1 kg
-    }
-}
+package carrot
 
-process "wheat farm" {
+import ef31.*
+
+process carrot_production {
+    parameters {
+        - R1: 2.0
+        - qElec : 3.0
+    }
 
     products {
-        - "wheat" 1 kg
+        - carrot 1 kg
     }
+
     inputs {
-        - "pesticides" 1 g
-    }
-    resources {
-        - "carbon dioxide", "soil", "" 1 kg
-        - "test", "test", "test" 1 kg
-    }
-}
-
-substance "test", "test", "test" {
-    type: resources
-    unit: kg
-
-    factors : ef31 {
-        - "climate change" DE 3
-        - "climate change" 3
+        - electricity ${qElec} kJ
+        - water ${3.0} l
     }
 
-    meta {
-        - dimension: "Mass"
+    emissions {
+        - "HFC-32, air, lower stratosphere and upper troposphere" ${2 * sin(R1)^2 + qElec^2} kg
+        -  "warfarin, air, non-urban high stack" 3 kg
     }
 }
 
-factors "test", "test", "test" : ef31 {
-    - "climate change" DE 3
-    - "climate change" 3
+process electricity_production {
+    products {
+        - electricity 1 kJ
+    }
+
+    emissions {
+        - "(+)-bornan-2-one, air, urban air close to ground" 1.0 kg
+    }
 }
 
+process water_production {
+    products {
+        - water 1 l
+    }
 
+    emissions {
+        - "HFC-23, soil, agricultural" 1 kg
+        - "HFC-32, air, lower stratosphere and upper troposphere" 1 kg
+    }
+}
 ```
 
