@@ -13,6 +13,7 @@ import java.util.*
 import java.util.regex.Pattern
 import java.util.regex.Pattern.MULTILINE
 import java.util.regex.Pattern.compile
+import java.util.stream.Collectors
 import java.util.stream.Stream
 
 class ScsvProcessBlockFormatter(
@@ -57,7 +58,7 @@ class ScsvProcessBlockFormatter(
             processBlock.products().stream(),
             Optional.ofNullable(processBlock.wasteTreatment()).stream(),
             processBlock.avoidedProducts().stream()
-        ).stream().flatMap { it }.toList()
+        ).stream().flatMap { it }.collect(Collectors.toList())
 
         if (products.isEmpty()) {
             return TextBlock(emptyList())
@@ -80,7 +81,7 @@ class ScsvProcessBlockFormatter(
     private fun irepInputs(processBlock: ProcessBlock): TextRegion {
         val intermediaryInputs =
             Stream.of(ProductType.MATERIAL_FUELS, ProductType.ELECTRICITY_HEAT, ProductType.WASTE_TO_TREATMENT)
-                .flatMap { processBlock.exchangesOf(it).stream() }.toList()
+                .flatMap { processBlock.exchangesOf(it).stream() }.collect(Collectors.toList())
         if (intermediaryInputs.isEmpty()) {
             return TextBlock(emptyList())
         }
@@ -110,7 +111,7 @@ class ScsvProcessBlockFormatter(
         ).flatMap { type ->
             processBlock.exchangesOf(type).stream()
                 .map { exchange -> Pair(type, exchange) }
-        }.toList()
+        }.collect(Collectors.toList())
 
         if (elementaryOutputs.isEmpty()) {
             return TextBlock(emptyList())
@@ -146,7 +147,7 @@ class ScsvProcessBlockFormatter(
         ).flatMap { type ->
             processBlock.exchangesOf(type).stream()
                 .map { exchange -> Pair(type, exchange) }
-        }.toList()
+        }.collect(Collectors.toList())
         if (elementaryOutputs.isEmpty()) {
             return TextBlock(emptyList())
         }
