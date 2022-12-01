@@ -46,7 +46,7 @@ class ScsvProcessBlockFormatter(
     }
 
     private fun stringLiteral(name: String?): String {
-        return "\"${escape(name)}\"" ?: ""
+        return "\"${escape(name)}\""
     }
 
     private fun escape(name: String?): String? {
