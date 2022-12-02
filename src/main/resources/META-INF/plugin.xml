@@ -91,9 +91,6 @@
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
-        <filetype.prebuiltStubsProvider filetype="LCA"
-                                        implementationClass="ch.kleis.lcaplugin.project.libraries.SubstanceStubsProvider"/>
-
         <toolWindow id="LCA Output"
                     icon="AllIcons.General.Modified"
                     anchor="bottom"
