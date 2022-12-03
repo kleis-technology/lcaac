@@ -105,7 +105,7 @@ process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
 }
 private process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
 parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE
-parameter ::= LIST_ITEM unique_id SEPARATOR NUMBER {
+parameter ::= LIST_ITEM unique_id SEPARATOR f_expr {
     implements = ["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParameterMixin"
 }

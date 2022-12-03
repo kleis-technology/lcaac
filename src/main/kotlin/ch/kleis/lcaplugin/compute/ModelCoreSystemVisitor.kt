@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.compute.urn.URN
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.*
+import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.LcaVisitor
 import com.fathzer.soft.javaluator.DoubleEvaluator
 import com.fathzer.soft.javaluator.StaticVariableSet
@@ -102,11 +103,20 @@ class ModelCoreSystemVisitor(
         processName = psiProcess.name ?: throw IllegalStateException()
 
         parameters = StaticVariableSet()
-        psiProcess.getParameters().forEach {
+        psiProcess.getParameters()
+            .filter { it.getExpression().getContentType() == LcaTypes.NUMBER }
+            .forEach {
             val name = it.name ?: throw IllegalStateException()
-            val value = it.getValue()
+            val value = evaluator.evaluate(it.getExpression().getContent(), this.parameters)
             parameters.set(name, value)
         }
+        psiProcess.getParameters()
+            .filter { it.getExpression().getContentType() == LcaTypes.FORMULA_CONTENT }
+            .forEach {
+                val name = it.name ?: throw IllegalStateException()
+                val value = evaluator.evaluate(it.getExpression().getContent(), this.parameters)
+                parameters.set(name, value)
+            }
 
         products = arrayListOf()
         psiProcess.getProductExchanges().forEach {
