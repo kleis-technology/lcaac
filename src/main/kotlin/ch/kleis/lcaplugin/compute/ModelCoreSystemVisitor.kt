@@ -10,8 +10,8 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.LcaVisitor
+import com.fathzer.soft.javaluator.AbstractVariableSet
 import com.fathzer.soft.javaluator.DoubleEvaluator
-import com.fathzer.soft.javaluator.StaticVariableSet
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.psi.PsiElement
 import org.apache.http.annotation.Experimental
@@ -32,7 +32,8 @@ class ModelCoreSystemVisitor(
     private var emissions = arrayListOf<Exchange<*>>()
     private var resources = arrayListOf<Exchange<*>>()
 
-    private var parameters = StaticVariableSet<Double>()
+    private val globalParameters = EvaluatorContext()
+    private var parameters : EvaluatorContext? = null
     private val evaluator = DoubleEvaluator(DoubleEvaluator.getDefaultParameters(), true) // support scientific notation
 
     private val externalDependencies = HashMap<URN, PsiElement>()
@@ -47,6 +48,17 @@ class ModelCoreSystemVisitor(
         ProgressIndicatorProvider.checkCanceled()
         if (element is LcaFile) {
             visitPsiPackage(element.getPackage())
+
+            element.getGlobalParameters()
+                .filter { it.getExpression().getContentType() == LcaTypes.NUMBER }
+                .forEach {
+                    globalParameters.put(it.name!!, evaluator.evaluate(it.getExpression().getContent()))
+                }
+            element.getGlobalParameters()
+                .filter { it.getExpression().getContentType() == LcaTypes.FORMULA_CONTENT }
+                .forEach {
+                    globalParameters.put(it.name!!, evaluator.evaluate(it.getExpression().getContent(), globalParameters))
+                }
             element.getImports().forEach { visitPsiImport(it) }
             element.getProcesses().forEach { visitPsiProcess(it) }
             element.getSubstances().forEach { visitPsiSubstance(it) }
@@ -102,20 +114,20 @@ class ModelCoreSystemVisitor(
 
         processName = psiProcess.name ?: throw IllegalStateException()
 
-        parameters = StaticVariableSet()
+        parameters = EvaluatorContext(globalParameters)
         psiProcess.getParameters()
             .filter { it.getExpression().getContentType() == LcaTypes.NUMBER }
             .forEach {
-            val name = it.name ?: throw IllegalStateException()
-            val value = evaluator.evaluate(it.getExpression().getContent(), this.parameters)
-            parameters.set(name, value)
-        }
+                val name = it.name ?: throw IllegalStateException()
+                val value = evaluator.evaluate(it.getExpression().getContent(), parameters)
+                parameters?.put(name, value)
+            }
         psiProcess.getParameters()
             .filter { it.getExpression().getContentType() == LcaTypes.FORMULA_CONTENT }
             .forEach {
                 val name = it.name ?: throw IllegalStateException()
-                val value = evaluator.evaluate(it.getExpression().getContent(), this.parameters)
-                parameters.set(name, value)
+                val value = evaluator.evaluate(it.getExpression().getContent(), parameters)
+                parameters?.put(name, value)
             }
 
         products = arrayListOf()
@@ -226,5 +238,27 @@ class ModelCoreSystemVisitor(
 
     fun getSystem(): CoreSystem {
         return CoreSystem(processes)
+    }
+}
+
+
+class EvaluatorContext(
+    private val parent: EvaluatorContext? = null
+) : AbstractVariableSet<Double> {
+    private val data = HashMap<String, Double>()
+
+    fun put(key: String, value: Double) {
+        data[key] = value
+    }
+
+    override fun get(key: String?): Double {
+        if (key == null) {
+            throw IllegalArgumentException()
+        }
+
+        return key.toDoubleOrNull()
+            ?: data[key]
+            ?: parent?.get(key)
+            ?: throw NoSuchElementException(key)
     }
 }

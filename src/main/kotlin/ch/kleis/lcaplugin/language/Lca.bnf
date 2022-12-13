@@ -60,7 +60,7 @@
   ]
 }
 
-lcaFile ::= package (import | process | substance | factors)*
+lcaFile ::= package (parameters | import | process | substance | factors)*
 
 // package
 
@@ -104,7 +104,10 @@ process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
   mixin ="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
 }
 private process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
-parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE
+parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiParameters"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParametersMixin"
+}
 parameter ::= LIST_ITEM unique_id SEPARATOR f_expr {
     implements = ["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParameterMixin"
