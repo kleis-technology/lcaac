@@ -1,10 +1,7 @@
 package ch.kleis.lcaplugin.language.psi
 
 import ch.kleis.lcaplugin.LcaLanguage
-import ch.kleis.lcaplugin.language.psi.type.PsiImport
-import ch.kleis.lcaplugin.language.psi.type.PsiPackage
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
+import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -34,5 +31,11 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
 
     fun getSubstances(): Collection<PsiSubstance> {
         return node.getChildren(TokenSet.create(LcaTypes.SUBSTANCE)).map { it.psi as PsiSubstance }
+    }
+
+    fun getGlobalParameters(): Collection<PsiParameter> {
+        return node.getChildren(TokenSet.create(LcaTypes.PARAMETERS))
+            .map { it.psi as PsiParameters }
+            .flatMap { it.getParameters() }
     }
 }

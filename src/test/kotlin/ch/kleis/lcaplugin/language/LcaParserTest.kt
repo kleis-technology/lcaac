@@ -8,6 +8,29 @@ import org.junit.Test
 
 class LcaParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun testGlobalParameters() {
+        // given
+        val file = parseFile("hello", """
+            package test
+            
+            parameters {
+                - A : 1.0
+                - B : ${'$'}{2 * A}
+            }
+        """.trimIndent()) as LcaFile
+
+        // when
+        val actual = file.getGlobalParameters().toList()
+
+        // then
+        TestCase.assertEquals(actual.size, 2)
+        TestCase.assertEquals(actual[0].name, "A")
+        TestCase.assertEquals(actual[0].getExpression().getContent(), "1.0")
+        TestCase.assertEquals(actual[1].name, "B")
+        TestCase.assertEquals(actual[1].getExpression().getContent(), "2 * A")
+    }
+
+    @Test
     fun testImportWildcard() {
         // given
         val file = parseFile("hello", """
