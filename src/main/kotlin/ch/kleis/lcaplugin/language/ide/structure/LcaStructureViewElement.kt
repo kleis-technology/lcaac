@@ -39,7 +39,7 @@ class LcaStructureViewElement(private val element: NavigatablePsiElement)
 
     override fun getPresentation(): ItemPresentation {
         return element.presentation ?: PresentationData(element.name,
-            null, AllIcons.Nodes.Class, null);
+            null, AllIcons.Nodes.Class, null)
     }
 
     override fun getChildren(): Array<TreeElement> {

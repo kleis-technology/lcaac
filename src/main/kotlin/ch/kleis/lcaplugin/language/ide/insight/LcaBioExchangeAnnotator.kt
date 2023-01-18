@@ -30,7 +30,7 @@ class LcaBioExchangeAnnotator : Annotator {
                         HighlightSeverity.ERROR,
                         "Unit ${elementUnit?.name} does not match ${referenceUnit?.name} from ${reference.name}"
                     ).range(element.textRange)
-                        .create();
+                        .create()
                 }
             }
         }

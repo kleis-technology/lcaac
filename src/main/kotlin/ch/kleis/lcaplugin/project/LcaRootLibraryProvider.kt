@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import java.nio.file.Paths.get
 import java.util.Collections.singletonList
 
-class LcaRootLibraryProvider() : AdditionalLibraryRootsProvider() {
+class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
     private val jarRoot: VirtualFile?
     init {

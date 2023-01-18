@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
-import ch.kleis.lcaplugin.compute.urn.Namespace
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
 import com.intellij.psi.PsiElement
@@ -14,7 +14,7 @@ class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<
     override fun getExternalId(): String = "lca.${super.toString()}"
 
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): ProductExchangeStub {
-        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, dataStream.readNameString());
+        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, dataStream.readNameString())
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): ProductExchangeStub {
@@ -30,15 +30,15 @@ class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<
     }
 
     override fun createPsi(stub: ProductExchangeStub): PsiProductExchange {
-        return ch.kleis.lcaplugin.psi.impl.LcaProductExchangeImpl(stub, this);
+        return ch.kleis.lcaplugin.psi.impl.LcaProductExchangeImpl(stub, this)
     }
 
     override fun indexStub(stub: ProductExchangeStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.uniqueId!!);
+        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.uniqueId!!)
     }
 
     override fun serialize(stub: ProductExchangeStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uniqueId);
+        dataStream.writeName(stub.uniqueId)
     }
 
 

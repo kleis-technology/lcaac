@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.language.reference
 
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
 import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
-import ch.kleis.lcaplugin.compute.urn.Namespace
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
