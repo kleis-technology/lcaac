@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
+import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
-import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST
@@ -27,7 +27,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
         return SubstanceStubImpl(
             parentStub as StubElement<PsiSubstance>,
             tree.charTable.intern(keyNode.text).toString()
-        );
+        )
     }
 
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
@@ -40,15 +40,15 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun createPsi(stub: SubstanceStub): PsiSubstance {
-        return LcaSubstanceImpl(stub, this);
+        return LcaSubstanceImpl(stub, this)
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.uniqueId);
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.uniqueId)
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uniqueId);
+        dataStream.writeName(stub.uniqueId)
     }
 
 }

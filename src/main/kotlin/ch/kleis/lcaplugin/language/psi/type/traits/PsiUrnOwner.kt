@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.type.traits
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.language.psi.type.PsiUrn
 import ch.kleis.lcaplugin.compute.urn.Namespace
+import ch.kleis.lcaplugin.language.psi.type.PsiUrn
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement

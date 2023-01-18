@@ -1,8 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.style
 
-import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.LcaLanguage.Companion.INSTANCE
-import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.LcaTypes.*
 import com.intellij.formatting.*
 import com.intellij.psi.codeStyle.CodeStyleSettings

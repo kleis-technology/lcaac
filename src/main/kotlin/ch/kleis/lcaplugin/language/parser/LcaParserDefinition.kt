@@ -40,7 +40,7 @@ class LcaParserDefinition : ParserDefinition {
             LcaTypes.COMMENT_CONTENT,
             LcaTypes.COMMENT_BLOCK_END,
             LcaTypes.COMMENT_LINE_START
-        );
+        )
     }
 
     override fun getStringLiteralElements(): TokenSet {

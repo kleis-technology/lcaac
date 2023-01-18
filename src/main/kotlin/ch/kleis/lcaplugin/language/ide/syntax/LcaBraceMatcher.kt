@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.syntax
 
-import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.lang.BracePair
 import com.intellij.lang.PairedBraceMatcher
 import com.intellij.psi.PsiFile
@@ -17,6 +16,6 @@ class LcaBraceMatcher : PairedBraceMatcher {
     }
 
     override fun getCodeConstructStart(file: PsiFile?, openingBraceOffset: Int): Int {
-        return openingBraceOffset;
+        return openingBraceOffset
     }
 }

@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.compute.urn
 
 class Namespace(
-    val id: String,
-    val parent: Namespace?,
+    private val id: String,
+    private val parent: Namespace?,
 ) {
     private val localNamespaces = HashMap<String, Namespace>()
     private val localUrns = HashMap<String, URN>()

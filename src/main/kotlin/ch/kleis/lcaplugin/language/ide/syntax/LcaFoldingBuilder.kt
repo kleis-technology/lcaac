@@ -1,12 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.syntax
 
-import ch.kleis.lcaplugin.psi.LcaEmissions
-import ch.kleis.lcaplugin.psi.LcaInputs
-import ch.kleis.lcaplugin.psi.LcaMetadata
-import ch.kleis.lcaplugin.psi.LcaProducts
-import ch.kleis.lcaplugin.psi.LcaResources
 import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.LcaTypes.PROCESS
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.FoldingBuilderEx
 import com.intellij.lang.folding.FoldingDescriptor
@@ -49,13 +43,13 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                 )
             }
         }
-        return descriptors.toTypedArray();
+        return descriptors.toTypedArray()
 
     }
 
     override fun getPlaceholderText(node: ASTNode): String = "..."
 
     override fun isCollapsedByDefault(node: ASTNode): Boolean {
-        return false;
+        return false
     }
 }

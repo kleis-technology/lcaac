@@ -28,7 +28,7 @@ class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
         return byEntity[element] ?: throw NoSuchElementException(element.toString())
     }
 
-    fun indexOf(id: String): Int {
+    private fun indexOf(id: String): Int {
         return byUniqueId[id] ?: throw NoSuchElementException(id)
     }
 

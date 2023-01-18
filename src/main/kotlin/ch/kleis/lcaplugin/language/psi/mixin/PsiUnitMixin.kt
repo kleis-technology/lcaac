@@ -14,7 +14,7 @@ abstract class PsiUnitMixin(node: ASTNode) : ASTWrapperPsiElement(node),
         val parser: SimpleUnitFormat = SimpleUnitFormat.getInstance()
     }
 
-    private var unit: javax.measure.Unit<*> = AbstractUnit.ONE;
+    private var unit: javax.measure.Unit<*> = AbstractUnit.ONE
 
     init {
         unit = parser.parse(node.text)
@@ -25,7 +25,7 @@ abstract class PsiUnitMixin(node: ASTNode) : ASTWrapperPsiElement(node),
     }
 
     override fun getUnit(): javax.measure.Unit<*> {
-        return unit;
+        return unit
     }
 
     override fun setName(name: String): PsiElement {

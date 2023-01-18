@@ -23,10 +23,16 @@ class LcaStructureAwareNavbar : StructureAwareNavBarModelExtension() {
     }
 
     override fun getIcon(type: Any?): Icon? {
-        return if (type is LcaFile) {
-            AllIcons.Nodes.Module
-        } else if (type is ch.kleis.lcaplugin.psi.LcaProcess) {
-            AllIcons.Nodes.Class
-        } else null
+        return when (type) {
+            is LcaFile -> {
+                AllIcons.Nodes.Module
+            }
+
+            is ch.kleis.lcaplugin.psi.LcaProcess -> {
+                AllIcons.Nodes.Class
+            }
+
+            else -> null
+        }
     }
 }
