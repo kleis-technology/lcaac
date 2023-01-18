@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.0.7-alpha]
+
+- Global parameters
+
 ## [0.0.3-alpha]
 
 ### Added
