@@ -1,7 +1,10 @@
 package ch.kleis.lcaplugin.actions
 
+import ch.kleis.lcaplugin.LcaFileType
+import ch.kleis.lcaplugin.LcaLanguage
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
+import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -27,17 +30,28 @@ class CreateProcessAction(private val process: String, private val unitText: Str
 
 
     override fun invoke(project: Project, editor: Editor, file: PsiFile) {
-        WriteCommandAction.writeCommandAction(project).run(ThrowableRunnable<RuntimeException> {
-            val newProcess = PsiFileFactory.getInstance(project)
+        val content = """
+            
+            process "$process" {
+                products {
+                    - "$process" 1 $unitText
+                }
+            }
+            
+            
+        """.trimIndent()
+        val newProcess = runReadAction {
+            PsiFileFactory.getInstance(project)
                 .createFileFromText(
-                    "_Dummy_.${ch.kleis.lcaplugin.LcaFileType.INSTANCE.defaultExtension}",
-                    ch.kleis.lcaplugin.LcaFileType.INSTANCE,
-                    "\n\nprocess \"$process\" {\n products {\n - \"$process\" 1 $unitText\n}\n}\n"
-                )
-            file.node.addChildren(newProcess.firstChild.node, newProcess.lastChild.node, null);
+                    "_dummy_.${LcaFileType.INSTANCE.defaultExtension}",
+                    LcaFileType.INSTANCE, content)
+        }
+
+        WriteCommandAction.writeCommandAction(project).run(ThrowableRunnable<RuntimeException> {
+            file.node.addChildren(newProcess.node.firstChildNode, newProcess.node.lastChildNode, null)
             ReformatCodeProcessor(file, true).run()
-            (newProcess.lastChild.navigationElement as Navigatable).navigate(true)
         })
 
+        (newProcess.lastChild.navigationElement as Navigatable).navigate(true)
     }
 }
