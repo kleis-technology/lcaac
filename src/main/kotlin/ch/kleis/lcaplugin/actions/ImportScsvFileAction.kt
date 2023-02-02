@@ -30,7 +30,7 @@ class ImportScsvFileAction : AnAction() {
 
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("gz")
         val fileChooserDialog: FileChooserDialog = FileChooserDialogImpl(descriptor, project)
-        val scsvFile = fileChooserDialog.choose(project)[0]
+        val scsvFile = fileChooserDialog.choose(project).firstOrNull() ?: return
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Importing SCSV file...") {
             override fun run(indicator: ProgressIndicator) {
