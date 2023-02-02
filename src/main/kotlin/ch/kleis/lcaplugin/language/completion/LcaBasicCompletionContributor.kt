@@ -25,7 +25,7 @@ class LcaBasicCompletionContributor : CompletionContributor() {
                     result: CompletionResultSet
                 ) {
                     listOf(
-                        "process", "products", "inputs",
+                        "package", "process", "products", "inputs",
                         "emissions", "resources", "meta",
                         "substance", "factors"
                     ).map { LookupElementBuilder.create(it) }
