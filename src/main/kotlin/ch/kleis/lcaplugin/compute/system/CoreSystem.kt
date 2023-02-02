@@ -41,10 +41,6 @@ class CoreSystem(
         return processes.get(name)
     }
 
-    fun getControllableFlows(): List<Flow<*>> {
-        return this.controllableFlows.getElements()
-    }
-
     fun inventory(): InventoryMatrix {
         val data = Solver.INSTANCE.solve(this.observable.matrix, this.controllable.matrix)
         return InventoryMatrix(this.observableFlows, this.controllableFlows, data)
