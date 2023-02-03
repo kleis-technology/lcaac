@@ -1,11 +1,13 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.compute.ModelCoreSystemVisitor
+import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FileTypeIndex
@@ -24,7 +26,12 @@ class AssessPackageAction(private val packageName: String) : AnAction() {
         if (psiFiles.isEmpty()) return // TODO: popup
 
         val visitor = ModelCoreSystemVisitor()
-        psiFiles.forEach { it.accept(visitor) }
+        try {
+            psiFiles.forEach { it.accept(visitor) }
+        } catch (e: NoSuchElementException) {
+            Messages.showMessageDialog("The variable {" + e.message + "} is not defined", "Package Assessment Error", AllIcons.General.BalloonError)
+            return
+        }
 
         val system = visitor.getSystem()
         val inventory = system.inventory()
