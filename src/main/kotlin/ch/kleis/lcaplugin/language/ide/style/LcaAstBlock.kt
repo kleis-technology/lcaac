@@ -24,7 +24,7 @@ class LcaAstBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
         }
         return when (node.elementType) {
             PARAMETERS, INPUTS, PRODUCTS, RESOURCES, EMISSIONS,
-            PARAMETER, PRODUCT_EXCHANGE,
+            PARAMETER, PRODUCT_EXCHANGE, METADATA,
             FIELD_NAME, FIELD_COMPARTMENT, FIELD_SUB_COMPARTMENT, FIELD_TYPE, FIELD_UNIT, FACTORS,
             INPUT_EXCHANGE, BIO_EXCHANGE, PROPERTY,
             FACTOR -> Indent.getNormalIndent(true)
@@ -41,4 +41,5 @@ class LcaAstBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
             )
         }
     }
+
 }
