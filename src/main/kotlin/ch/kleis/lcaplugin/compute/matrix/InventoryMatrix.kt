@@ -7,11 +7,15 @@ import ch.kleis.lcaplugin.compute.model.Flow
 import tech.units.indriya.quantity.Quantities.getQuantity
 import javax.measure.Quantity
 
+sealed interface InventoryResult
+
+class InventoryError(val message: String) : InventoryResult
+
 class InventoryMatrix(
     val observableFlows: IndexedCollection<Flow<*>>,
     val controllableFlows: IndexedCollection<Flow<*>>,
     private val data: Matrix
-) {
+) : InventoryResult {
     fun <Din : Quantity<Din>, Dout : Quantity<Dout>> value(
         outputFlow: Flow<Dout>,
         inputFlow: Flow<Din>,
