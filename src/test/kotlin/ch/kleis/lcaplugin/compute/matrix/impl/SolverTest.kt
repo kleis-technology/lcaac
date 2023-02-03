@@ -1,9 +1,12 @@
 package ch.kleis.lcaplugin.compute.matrix.impl
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class SolverTest {
+    private val precision = 1e-6
+
     @Test
     fun solve_whenNormal() {
         // given
@@ -21,7 +24,7 @@ class SolverTest {
         )
 
         // when
-        val c = Solver.INSTANCE.solve(a, b)
+        val c = Solver.INSTANCE.solve(a, b)!!
 
         // then
         assertMatrixEqual(
@@ -43,15 +46,34 @@ class SolverTest {
         ))
 
         // when
-        val c = Solver.INSTANCE.solve(a, b)
+        val c = Solver.INSTANCE.solve(a, b)!!
 
         // then
         assertEquals(c.rowDim(), a.rowDim())
         assertEquals(c.colDim(), b.colDim())
     }
 
+    @Test
+    fun solve_whenNonInvertible() {
+        // given
+        val a = make(3, 3, arrayOf(
+            1.0, -2.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0,
+        ))
+        val b = make(2, 2, arrayOf(
+            1.0, 4.0,
+            1.0, 2.0,
+        ))
+
+        // when
+        val c = Solver.INSTANCE.solve(a, b)
+
+        // then
+        assertNull(c)
+    }
+
     private fun assertMatrixEqual(actual: Matrix, expected: Array<Double>) {
-        val precision = 1e-6
         assertEquals(expected.size, actual.rowDim() * actual.colDim())
         for (row in 0 until actual.rowDim()) {
             for (col in 0 until actual.colDim()) {
