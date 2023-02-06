@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.LcaLanguage
 import com.intellij.codeInsight.actions.ReformatCodeProcessor
 import com.intellij.codeInsight.intention.impl.BaseIntentionAction
 import com.intellij.openapi.application.runReadAction

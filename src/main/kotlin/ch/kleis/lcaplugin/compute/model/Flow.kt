@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.compute.model
 
-import ch.kleis.lcaplugin.compute.urn.URN
 import ch.kleis.lcaplugin.compute.traits.HasUnit
 import ch.kleis.lcaplugin.compute.traits.HasUrn
+import ch.kleis.lcaplugin.compute.urn.URN
 import javax.measure.Quantity
 import javax.measure.Unit
 

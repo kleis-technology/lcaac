@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.compute.model
 
-import ch.kleis.lcaplugin.compute.urn.URN
 import ch.kleis.lcaplugin.compute.traits.HasUrn
+import ch.kleis.lcaplugin.compute.urn.URN
 
 data class UnitProcess(
     private val urn: URN,

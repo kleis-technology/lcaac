@@ -7,9 +7,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
-import com.intellij.util.ui.UIUtil
 import java.awt.BorderLayout
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.SwingConstants
 
