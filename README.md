@@ -23,6 +23,10 @@ Adds support for a new domain-specific language targeting <i>Life Cycle Analysis
   
 - Manually:
 
+Build the plugin: `gradlew clean buildPlugin`
+
+The installation file is located in `build/distributions`. 
+
   Download the [latest release](https://github.com/kleis-technology/lca-plugin/releases/latest) and install it manually using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
