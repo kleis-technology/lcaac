@@ -17,29 +17,31 @@ class LcaInputExchangeAnnotator : Annotator {
 
     var parser: UnitFormat = SimpleUnitFormat.getInstance()
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
+        if (element !is LcaInputExchange) {
+            return
+        }
 
-        if (element is LcaInputExchange) {
-            val reference = element.reference?.resolve()
-            if (reference == null || reference !is PsiProductExchange) {
-                (element.nameIdentifier as PsiUniqueIdMixin?)?.let {
-                    holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved flow ${it.name}")
-                        .range(it)
-                        .highlightType(ProblemHighlightType.WARNING)
-                        .withFix(CreateProcessAction(it.name, element.getUnitElement().text))
-                        .create()
-                }
-            } else {
-                val elementUnit = element.getUnitElement()
-                val referenceUnit = reference.getUnitElement()
-                if (elementUnit.getUnit().dimension
-                        ?.equals(referenceUnit.getUnit().dimension) != true
-                ) {
-                    holder.newAnnotation(
-                        HighlightSeverity.ERROR,
-                        "Unit ${elementUnit.name} does not match ${referenceUnit.name} from ${reference.name}"
-                    ).range(element.textRange).create()
-                }
+        val reference = element.reference?.resolve()
+        if (reference != null && reference is PsiProductExchange) {
+            val elementUnit = element.getUnitElement()
+            val referenceUnit = reference.getUnitElement()
+            if (elementUnit.getUnit().dimension
+                    ?.equals(referenceUnit.getUnit().dimension) != true
+            ) {
+                holder.newAnnotation(
+                    HighlightSeverity.ERROR,
+                    "Unit ${elementUnit.name} does not match ${referenceUnit.name} from ${reference.name}"
+                ).range(element.textRange).create()
             }
+            return
+        }
+
+        (element.nameIdentifier as PsiUniqueIdMixin?)?.let {
+            holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved flow ${it.name}")
+                .range(it)
+                .highlightType(ProblemHighlightType.WARNING)
+                .withFix(CreateProcessAction(it.name, element.getUnitElement().text))
+                .create()
         }
     }
 }

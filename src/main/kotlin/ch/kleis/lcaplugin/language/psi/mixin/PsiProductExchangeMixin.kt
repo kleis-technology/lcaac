@@ -21,6 +21,6 @@ abstract class PsiProductExchangeMixin : StubBasedPsiElementBase<ProductExchange
     }
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { ProductExchangeReference(this, it.textRangeInParent) }
+        return ProductExchangeReference(this)
     }
 }

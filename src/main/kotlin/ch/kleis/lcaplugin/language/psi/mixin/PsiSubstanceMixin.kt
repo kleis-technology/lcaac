@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.language.psi.stub.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.PsiUnit
 import ch.kleis.lcaplugin.language.reference.ProductExchangeReference
+import ch.kleis.lcaplugin.language.reference.SubstanceReference
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
@@ -28,6 +29,6 @@ abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<Substan
     }
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { ProductExchangeReference(this, it.textRangeInParent) }
+        return SubstanceReference(this)
     }
 }

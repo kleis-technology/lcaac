@@ -9,7 +9,7 @@ import com.intellij.psi.PsiReference
 abstract class PsiInputExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiInputExchange {
 
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { ProductExchangeReference(this, it.textRangeInParent) }
+        return ProductExchangeReference(this)
     }
 
     override fun getName(): String? = super<PsiInputExchange>.getName()
