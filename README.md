@@ -18,7 +18,7 @@ Adds support for a new domain-specific language targeting <i>Life Cycle Analysis
 
 - Using IDE built-in plugin system:
   - <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Manage plugin repositories</kbd> > <kbd> Add `https://plugins.jetbrains.com/plugins/alpha/list` </kbd>
-  - <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "lca-plugin"</kbd> >
+  - <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "life cycle analysis as code"</kbd> >
     <kbd>Install Plugin</kbd>
   
 - Manually:
