@@ -3,9 +3,11 @@ package ch.kleis.lcaplugin.language.psi.mixin
 import ch.kleis.lcaplugin.language.psi.stub.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.PsiUnit
+import ch.kleis.lcaplugin.language.reference.ProductExchangeReference
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiReference
 import com.intellij.psi.stubs.IStubElementType
 
 abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<SubstanceStub> {
@@ -25,4 +27,7 @@ abstract class PsiSubstanceMixin : PsiSubstance, StubBasedPsiElementBase<Substan
         return "Substance(${this.name})"
     }
 
+    override fun getReference(): PsiReference? {
+        return nameIdentifier?.let { ProductExchangeReference(this, it.textRangeInParent) }
+    }
 }

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.find_usages
 
 import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
+import ch.kleis.lcaplugin.language.psi.type.PsiInputExchange
 import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.psi.LcaTypes.*
@@ -21,7 +22,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
     override fun getWordsScanner(): WordsScanner =
         DefaultWordsScanner(
             LcaLexerAdapter(),
-            TokenSet.create(IDENTIFIER, STRING_LITERAL),
+            TokenSet.create(IDENTIFIER),
             TokenSet.create(COMMENT_LINE_START, COMMENT_CONTENT, COMMENT_BLOCK_START, COMMENT_BLOCK_END),
             TokenSet.EMPTY,
         )
@@ -31,8 +32,15 @@ class LcaFindUsagesProvider : FindUsagesProvider {
 
     override fun getHelpId(psiElement: PsiElement): String? = null
 
-    override fun getType(element: PsiElement): String =
-        if (element is PsiProductExchange) "Product" else if (element is PsiSubstance) "Substance" else ""
+    override fun getType(element: PsiElement): String {
+        if (element is PsiProductExchange) {
+            return "Product"
+        }
+        if (element is PsiSubstance) {
+            return "Substance"
+        }
+        return ""
+    }
 
     override fun getDescriptiveName(element: PsiElement): String =
         (element as? PsiNamedElement)?.name.orEmpty()
