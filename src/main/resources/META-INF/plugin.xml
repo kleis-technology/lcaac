@@ -43,6 +43,7 @@
 
         <lang.findUsagesProvider language="LCA"
                                  implementationClass="ch.kleis.lcaplugin.language.find_usages.LcaFindUsagesProvider"/>
+        <usageTypeProvider implementation="ch.kleis.lcaplugin.language.find_usages.LcaUsageTypeProvider"/>
 
         <lang.commenter
             language="LCA"
