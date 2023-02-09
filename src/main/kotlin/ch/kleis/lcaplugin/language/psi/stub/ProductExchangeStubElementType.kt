@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
+import ch.kleis.lcaplugin.psi.impl.LcaProductExchangeImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
 import com.intellij.psi.PsiElement
@@ -25,20 +26,20 @@ class ProductExchangeStubElementType(debugName: String) : ILightStubElementType<
         val file = psi.containingFile as LcaFile
         val pkg = file.getPackage()
         val parts = pkg.getUrnElement().getParts()
-        val uid = (parts + psi.name!!).joinToString(Namespace.SEPARATOR)
-        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, uid)
+        val fqn = (parts + psi.name!!).joinToString(Namespace.SEPARATOR)
+        return ProductExchangeStubImpl(parentStub as StubElement<PsiProductExchange>, fqn)
     }
 
     override fun createPsi(stub: ProductExchangeStub): PsiProductExchange {
-        return ch.kleis.lcaplugin.psi.impl.LcaProductExchangeImpl(stub, this)
+        return LcaProductExchangeImpl(stub, this)
     }
 
     override fun indexStub(stub: ProductExchangeStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.uniqueId!!)
+        sink.occurrence(LcaStubIndexKeys.PRODUCT_EXCHANGES, stub.fullyQualifiedName!!)
     }
 
     override fun serialize(stub: ProductExchangeStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uniqueId)
+        dataStream.writeName(stub.fullyQualifiedName)
     }
 
 

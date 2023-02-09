@@ -4,16 +4,15 @@ import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.ProductExchangeKeyIndex
+import ch.kleis.lcaplugin.language.psi.type.traits.PsiUniqueIdOwner
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
 class ProductExchangeReference(
-    element: PsiNamedElement,
-    textRange: TextRange
-) : PsiReferenceBase<PsiElement>(element, textRange), PsiPolyVariantReference {
+    element: PsiUniqueIdOwner
+) : PsiReferenceBase<PsiUniqueIdOwner>(element, element.getUniqueId()?.textRangeInParent), PsiPolyVariantReference {
 
     private val localName: String = element.name!!
 

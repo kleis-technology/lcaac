@@ -9,7 +9,7 @@ import com.intellij.psi.PsiReference
 
 abstract class PsiBioExchangeMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiBioExchange {
     override fun getReference(): PsiReference? {
-        return nameIdentifier?.let { SubstanceReference(this, it as PsiUniqueId, it.textRangeInParent) }
+        return SubstanceReference(this)
     }
 
     override fun getName(): String? = super<PsiBioExchange>.getName()

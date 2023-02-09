@@ -35,8 +35,8 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
         val pkg = file.getPackage()
         val parts = pkg.getUrnElement().getParts()
         val substanceId  = psi.nameIdentifier as PsiUniqueId
-        val uid = (parts + substanceId.name!!).joinToString(Namespace.SEPARATOR)
-        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, uid)
+        val fqn = (parts + substanceId.name!!).joinToString(Namespace.SEPARATOR)
+        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, fqn)
     }
 
     override fun createPsi(stub: SubstanceStub): PsiSubstance {
@@ -44,11 +44,11 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.uniqueId)
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.fullyQualifiedName)
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uniqueId)
+        dataStream.writeName(stub.fullyQualifiedName)
     }
 
 }

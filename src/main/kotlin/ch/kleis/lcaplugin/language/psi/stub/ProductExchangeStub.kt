@@ -4,5 +4,5 @@ import ch.kleis.lcaplugin.language.psi.type.PsiProductExchange
 import com.intellij.psi.stubs.StubElement
 
 interface ProductExchangeStub : StubElement<PsiProductExchange> {
-    val uniqueId : String?
+    val fullyQualifiedName : String?
 }

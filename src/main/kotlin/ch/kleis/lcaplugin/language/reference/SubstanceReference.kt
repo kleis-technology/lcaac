@@ -4,7 +4,9 @@ import ch.kleis.lcaplugin.compute.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
 import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
+import ch.kleis.lcaplugin.language.psi.type.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.PsiUniqueId
+import ch.kleis.lcaplugin.language.psi.type.traits.PsiUniqueIdOwner
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
@@ -12,11 +14,9 @@ import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
 class SubstanceReference(
-    element: PsiElement,
-    substanceId: PsiUniqueId,
-    textRange: TextRange
-) : PsiReferenceBase<PsiElement>(element, textRange), PsiPolyVariantReference {
-    private val localName = substanceId.name!!
+    element: PsiUniqueIdOwner,
+) : PsiReferenceBase<PsiUniqueIdOwner>(element, element.getUniqueId()?.textRangeInParent), PsiPolyVariantReference {
+    private val localName = element.name!!
 
     override fun getVariants(): Array<LookupElement> {
         return StubIndex.getInstance()
