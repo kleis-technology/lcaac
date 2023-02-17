@@ -41,76 +41,18 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
-        <lang.findUsagesProvider language="LCA"
-                                 implementationClass="ch.kleis.lcaplugin.language.find_usages.LcaFindUsagesProvider"/>
-        <usageTypeProvider implementation="ch.kleis.lcaplugin.language.find_usages.LcaUsageTypeProvider"/>
-
         <lang.commenter
             language="LCA"
             implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
 
-        <completion.contributor
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.completion.LcaBasicCompletionContributor"
-            />
+        <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
-        <annotator
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaInputExchangeAnnotator"/>
-        <annotator
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
-
-        <runLineMarkerContributor
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessPackageMarkerContributor"/>
-
-        <lang.foldingBuilder
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
-        <lang.foldingBuilder
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaStringFoldingBuilder"/>
-
+        <lang.braceMatcher language="LCA"
+                           implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
         <lang.syntaxHighlighterFactory
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
-        <lang.psiStructureViewFactory
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.structure.LcaStructureViewFactory"/>
-        <navbar implementation="ch.kleis.lcaplugin.language.ide.structure.LcaStructureAwareNavbar"/>
-        <lang.formatter
-                language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
-        <lang.braceMatcher language="LCA"
-                           implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
-
-        <additionalLibraryRootsProvider
-                implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
-
-        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeKeyIndex"/>
-        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
-        <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
-
-        <toolWindow id="LCA Output"
-                    icon="AllIcons.General.Modified"
-                    anchor="bottom"
-                    factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaResultFactory"
-                    canCloseContents="true"
-        />
     </extensions>
-
-    <actions>
-        <action id="Lca.NewFile" class="ch.kleis.lcaplugin.actions.NewLcaFileAction"
-                text="LCA Processes" description="Create a LCA file containing processes">
-            <add-to-group group-id="NewGroup" anchor="before" relative-to-action="NewFromTemplate"/>
-        </action>
-        <action id="ch.kleis.lcaplugin.actions.ImportScsvFileAction"
-                class="ch.kleis.lcaplugin.actions.ImportScsvFileAction" text="Import Simapro CSV..."
-                description="Import Simapro CSV...">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
-        </action>
-    </actions>
 
     <applicationListeners>
         <listener class="ch.kleis.lcaplugin.listeners.MyProjectManagerListener"

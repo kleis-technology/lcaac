@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.parser
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.psi.LcaTypes
-import ch.kleis.lcaplugin.psi.LcaTypes.STRING
+import ch.kleis.lcaplugin.psi.LcaTypes.STRING_LITERAL
 import com.intellij.lang.ASTNode
 import com.intellij.lang.ParserDefinition
 import com.intellij.lang.PsiParser
@@ -44,11 +44,11 @@ class LcaParserDefinition : ParserDefinition {
     }
 
     override fun getStringLiteralElements(): TokenSet {
-        return TokenSet.create(STRING)
+        return TokenSet.create(STRING_LITERAL)
     }
 
     override fun createElement(node: ASTNode?): PsiElement {
-        return ch.kleis.lcaplugin.psi.LcaTypes.Factory.createElement(node)
+        return LcaTypes.Factory.createElement(node)
     }
 
     override fun createFile(viewProvider: FileViewProvider): PsiFile {

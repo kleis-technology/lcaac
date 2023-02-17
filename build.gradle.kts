@@ -36,14 +36,11 @@ sourceSets {
 }
 
 dependencies {
-    implementation("javax.measure:unit-api:2.1.3")
-    implementation("tech.units:indriya:2.1.3")
     implementation("org.openlca:olca-simapro-csv:3.0.2")
     implementation(files(layout.buildDirectory.dir("stdlib")) {
         builtBy("generateEmissionFactors")
     })
     implementation("org.ojalgo:ojalgo:52.0.1")
-    implementation("com.fathzer:javaluator:3.0.3")
 }
 
 
