@@ -12,171 +12,118 @@
   elementTypeClass="ch.kleis.lcaplugin.psi.LcaElementType"
   tokenTypeClass="ch.kleis.lcaplugin.psi.LcaTokenType"
 
-  mixin("input_exchange")="ch.kleis.lcaplugin.language.psi.mixin.PsiInputExchangeMixin"
-  implements("input_exchange")="ch.kleis.lcaplugin.language.psi.type.PsiInputExchange"
-
-  parserUtilClass="ch.kleis.lcaplugin.language.parser.ExtensionParser"
-
   tokens=[
-      TYPE_KEYWORD= 'type'
-      NAME_KEYWORD= 'name'
-      PARAMETERS_KEYWORD = 'parameters'
-      COMPARTMENT_KEYWORD = 'compartment'
-      SUB_COMPARTMENT_KEYWORD = 'sub_compartment'
+      PACKAGE_KEYWORD = 'package'
+      SYSTEM_KEYWORD = 'system'
+      PROCESS_KEYWORD = 'process'
+      SYMBOL_KEYWORD = 'symbol'
+      PRODUCT_KEYWORD = 'product'
+      LET_KEYWORD = 'let'
       UNIT_KEYWORD = 'unit'
-      PROCESS_KEYWORD= 'process'
-      INPUTS_KEYWORD = 'inputs'
+      REFERENCE_UNIT_KEYWORD = 'reference-unit'
+      SCALE_KEYWORD = 'scale'
+      NAME_KEYWORD = 'name'
+      DIMENSION_KEYWORD = 'dimension'
+      PARAMETER_KEYWORD = 'parameter'
+      PARAMETERS_KEYWORD = 'parameters'
       PRODUCTS_KEYWORD = 'products'
-      RESOURCES_KEYWORD = 'resources'
+      COPRODUCTS_KEYWORD = 'coproducts'
+      INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
-      SUBSTANCE_KEYWORD = 'substance'
-      REFERENCE_KEYWORD = 'reference'
-      IMPACT_KEYWORD = 'impact'
-      FACTORS_KEYWORD = 'factors'
-      LAND_USE_KEYWORD = 'land_use'
-      META_KEYWORD = 'meta'
-      IDENTIFIER = "regexp:\w+"
-      NUMBER = "regexp:\d+"
+      RESOURCES_KEYWORD = 'resources'
+      IMPORT_KEYWORD = 'import'
+      INCLUDE_KEYWORD = 'include'
+      TEMPLATE_KEYWORD = 'template'
+      IDENTIFIER = 'identifier'
+      NUMBER = 'number'
+      LSQBRACE = 'left-sqbrace'
+      RSQBRACE = 'right-sqbrace'
+      LPAREN = 'left-paren'
+      RPAREN = 'right-paren'
       LBRACE = 'left-bracket'
-      SEPARATOR = 'separator'
-      RBRACE = 'right-bracker'
-      LTYPE = 'left-type'
-      RTYPE = 'right-type'
+      RBRACE = 'right-bracket'
       COMA = 'coma'
-      LIST_ITEM = 'list'
-      STRING = 'string'
+      STRING_LITERAL = 'string-literal'
       SPACE = "regexp:\s+"
-      COMMENT_BLOCK_START = '/*'
-      COMMENT_BLOCK_END = '*/'
+      COMMENT_BLOCK_START = 'comment-block-start'
+      COMMENT_BLOCK_END = 'comment-block-end'
       COMMENT_CONTENT = 'comment-content'
-      COMMENT_LINE_START = '//'
-      FORMULA_START = "formula-start"
-      FORMULA_CONTENT = "formula-content"
-      FORMULA_END = "formula-end"
-      PACKAGE_KEYWORD = "package"
-      IMPORT_KEYWORD = "import"
+      COMMENT_LINE_START = 'comment-line-start'
+      PLUS = "plus"
+      MINUS = "MINUS"
       DOT = "dot"
       STAR = "star"
+      SLASH = "slash"
+      HAT = "hat"
+      EQUAL = "equal"
+      SEMICOLON = "semicolon"
+      DOUBLE_QUOTE = "double-quote"
   ]
 }
 
-lcaFile ::= package (parameters | import | process | substance | factors)*
+lcaFile ::= package  (definition | params | import)*
 
-// package
-
-package ::= PACKAGE_KEYWORD urn {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
-}
-
-import ::= IMPORT_KEYWORD urn wildcard? {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
-}
+package ::= PACKAGE_KEYWORD urn
+import ::= IMPORT_KEYWORD urn wildcard?
 wildcard ::= DOT STAR
+urn ::= uid DOT urn | uid
 
-// URN
+definition ::= product | process | system | unit
 
-urn ::= unique_id DOT urn | unique_id {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
-}
+coreExpr ::= product
+    | process
+    | system
+    | block
+    | quantity
+    | unit
+    | exchange
 
-// identifier
+product ::= PRODUCT_KEYWORD uid? LBRACE (nameField | dimField | referenceUnitField)* RBRACE
+nameField ::= NAME_KEYWORD EQUAL STRING_LITERAL
+dimField ::= DIMENSION_KEYWORD EQUAL uid
+referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL unit
 
-string_literal ::= STRING
-unique_id ::= STRING | IDENTIFIER {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiUniqueId"]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiUniqueIdMixin"
-}
 
-// formula expr. Bare minimum : use javaluator to parse formula.
+process ::= PROCESS_KEYWORD uid? LBRACE (params | px | let)* RBRACE
+private px ::= (exchange | block | include)
 
-f_expr ::= NUMBER | FORMULA_START FORMULA_CONTENT FORMULA_END {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiFormulaExpression"]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiFormulaExpressionMixin"
-}
+system ::= SYSTEM_KEYWORD uid? LBRACE (params | ps | let)* RBRACE
+private ps ::= (product | process | system | include)
 
-// process
+include ::= INCLUDE_KEYWORD urn (LPAREN comma_sep_assignments? RPAREN)?
 
-process ::= PROCESS_KEYWORD unique_id LBRACE process_body RBRACE {
-  implements = ["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
-  mixin ="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
-}
-private process_body ::= (parameters | products | inputs | resources | emissions | land_use)* metadata?
-parameters ::=  PARAMETERS_KEYWORD LBRACE parameter* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiParameters"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParametersMixin"
-}
-parameter ::= LIST_ITEM unique_id SEPARATOR f_expr {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParameterMixin"
-}
+comma_sep_assignments ::= assignment ((COMA assignment)* COMA?)?
+semicolon_sep_assignments ::= (assignment (SEMICOLON? assignment)? SEMICOLON?)*
+assignment ::= uid EQUAL coreExpr
 
-inputs ::= INPUTS_KEYWORD LBRACE input_exchange* RBRACE {}
-products ::= PRODUCTS_KEYWORD LBRACE product_exchange* RBRACE
-resources ::= RESOURCES_KEYWORD LBRACE bio_exchange* RBRACE
-factors ::= FACTORS_KEYWORD unique_id? SEPARATOR IDENTIFIER LBRACE factor* RBRACE
-emissions ::= EMISSIONS_KEYWORD LBRACE bio_exchange* RBRACE
-land_use ::= LAND_USE_KEYWORD LBRACE bio_exchange* RBRACE
+let ::= LET_KEYWORD LBRACE semicolon_sep_assignments RBRACE
 
-// substance
+params ::= PARAMETERS_KEYWORD LBRACE param* RBRACE
+param ::= uid (EQUAL coreExpr)?
 
-substance ::= SUBSTANCE_KEYWORD unique_id LBRACE substance_body RBRACE {
-    implements = ["ch.kleis.lcaplugin.language.psi.type.PsiSubstance" ]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.SubstanceStubElementType"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
-}
-private substance_body ::= field_name field_compartment field_sub_compartment? field_type field_unit factors? metadata?
-field_name ::= NAME_KEYWORD SEPARATOR string_literal
-field_compartment ::= COMPARTMENT_KEYWORD SEPARATOR string_literal
-field_sub_compartment ::= SUB_COMPARTMENT_KEYWORD SEPARATOR string_literal
-field_type ::= TYPE_KEYWORD SEPARATOR (RESOURCES_KEYWORD | EMISSIONS_KEYWORD | LAND_USE_KEYWORD)
-field_unit ::= UNIT_KEYWORD SEPARATOR unit_symbol {
-    implements="ch.kleis.lcaplugin.language.psi.type.PsiUnitType"
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUnitTypeMixin"
-}
+block ::= (
+    INPUTS_KEYWORD
+    | PRODUCTS_KEYWORD
+    | COPRODUCTS_KEYWORD
+    | EMISSIONS_KEYWORD
+    | RESOURCES_KEYWORD) LBRACE exchange* RBRACE
 
-// exchanges
+exchange ::= quantity variable
 
-input_exchange ::= techno_exchange {
-    implements="ch.kleis.lcaplugin.language.psi.type.PsiInputExchange"
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiInputExchangeMixin"
-}
-product_exchange ::= techno_exchange {
-    implements = [ "ch.kleis.lcaplugin.language.psi.type.PsiProductExchange" ]
-    mixin = "ch.kleis.lcaplugin.language.psi.mixin.PsiProductExchangeMixin"
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStubElementType"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.ProductExchangeStub"
-}
-meta bio_exchange ::= LIST_ITEM unique_id f_expr unit_symbol {
-    recoverWhile=next_item
-    implements="ch.kleis.lcaplugin.language.psi.type.PsiBioExchange"
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiBioExchangeMixin"
-}
-private techno_exchange ::= LIST_ITEM unique_id f_expr unit_symbol {recoverWhile=next_item}
+quantity ::= quantityTerm ((PLUS | MINUS) quantity)?
+quantityTerm ::= quantityFactor ((STAR | SLASH)? quantityTerm)?
+quantityFactor ::= quantityPrimitive (HAT NUMBER)?
+quantityPrimitive ::= NUMBER variable | LPAREN quantity RPAREN | variable
 
-// factors
+unit ::= unitFactor ((STAR | SLASH) unit)?
+unitFactor ::= unitPrimitive (HAT NUMBER)?
+unitPrimitive ::=
+    UNIT_KEYWORD uid? LBRACE (symbolField | scaleField | dimField)* RBRACE
+    | LPAREN unit RPAREN
+    | variable
+symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL
+scaleField ::= SCALE_KEYWORD EQUAL NUMBER
 
-meta factor ::= LIST_ITEM unique_id IDENTIFIER? NUMBER {
-    recoverWhile=next_item
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiFactorExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFactorExchangeMixin"
-}
-
-// meta-data
-
-metadata ::= META_KEYWORD LBRACE property* RBRACE
-property ::= LIST_ITEM IDENTIFIER SEPARATOR string_literal {recoverWhile=next_item}
-
-// misc
-
-external unit_symbol ::= parseUnit
-unit ::= IDENTIFIER {
-     implements= "ch.kleis.lcaplugin.language.psi.type.PsiUnit"
-     mixin= "ch.kleis.lcaplugin.language.psi.mixin.PsiUnitMixin"
-}
-
-private next_item ::= !(LIST_ITEM | RBRACE)
+variable ::= urn
+uid ::= IDENTIFIER
 

@@ -47,6 +47,9 @@
 
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
+        <lang.foldingBuilder
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
         <lang.braceMatcher language="LCA"
                            implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
         <lang.syntaxHighlighterFactory
