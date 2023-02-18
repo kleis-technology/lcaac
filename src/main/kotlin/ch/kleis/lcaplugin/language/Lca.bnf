@@ -61,7 +61,7 @@
   ]
 }
 
-lcaFile ::= package  (definition | params | import)*
+lcaFile ::= package  (definition | let | import)*
 
 package ::= PACKAGE_KEYWORD urn
 import ::= IMPORT_KEYWORD urn wildcard?

@@ -41,6 +41,7 @@ dependencies {
         builtBy("generateEmissionFactors")
     })
     implementation("org.ojalgo:ojalgo:52.0.1")
+    testImplementation("io.mockk:mockk:1.13.4")
 }
 
 
