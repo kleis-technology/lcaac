@@ -6,6 +6,52 @@ import org.junit.Test
 
 
 class ReducerTest {
+    @Test
+    fun mul_unit() {
+        // given
+        val a = EUnit("a", 2.0, "A")
+        val b = EUnit("b", 2.0, "B")
+        val expression = EMul(a, b)
+        val reducer = Reducer(emptyMap())
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = a.multiply(b)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun div_unit() {
+        // given
+        val a = EUnit("a", 2.0, "A")
+        val b = EUnit("b", 2.0, "B")
+        val expression = EDiv(a, b)
+        val reducer = Reducer(emptyMap())
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = a.divide(b)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun pow_unit() {
+        // given
+        val a = EUnit("a", 2.0, "A")
+        val expression = EPow(a, 2.0)
+        val reducer = Reducer(emptyMap())
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = a.pow(2.0)
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun reduce_var() {

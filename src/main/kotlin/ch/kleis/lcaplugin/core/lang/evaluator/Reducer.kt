@@ -70,6 +70,7 @@ class Reducer(environment: Map<String, Expression>) {
                         .flatMap { openProcessOrBlock(it) }
                 )
             }
+
             is ESystem -> {
                 return ESystem(
                     expression.elements
@@ -148,56 +149,76 @@ class Reducer(environment: Map<String, Expression>) {
 
             is EDiv -> {
                 val a = reduce(expression.left)
-                if (a !is EQuantity) {
-                    return EDiv(a, expression.right)
-                }
-                val aUnit = a.unit
-                if (aUnit !is EUnit) {
-                    return EDiv(a, expression.right)
-                }
+                return when (a) {
+                    is EQuantity -> {
+                        val aUnit = a.unit
+                        if (aUnit !is EUnit) {
+                            return EDiv(a, expression.right)
+                        }
 
-                val b = reduce(expression.right)
-                if (b !is EQuantity) {
-                    return EDiv(a, b)
-                }
-                val bUnit = b.unit
-                if (bUnit !is EUnit) {
-                    return EDiv(a, b)
-                }
+                        val b = reduce(expression.right)
+                        if (b !is EQuantity) {
+                            return EDiv(a, b)
+                        }
+                        val bUnit = b.unit
+                        if (bUnit !is EUnit) {
+                            return EDiv(a, b)
+                        }
 
-                val resultUnit = aUnit.divide(bUnit)
-                val resultAmount = a.amount / b.amount
-                return EQuantity(
-                    resultAmount,
-                    resultUnit,
-                )
+                        val resultUnit = aUnit.divide(bUnit)
+                        val resultAmount = a.amount / b.amount
+                        return EQuantity(
+                            resultAmount,
+                            resultUnit,
+                        )
+                    }
+
+                    is EUnit -> {
+                        val b = reduce(expression.right)
+                        if (b !is EUnit) {
+                            return EDiv(a, b)
+                        }
+                        return a.divide(b)
+                    }
+                    else -> EDiv(a, expression.right)
+                }
             }
 
             is EMul -> {
                 val a = reduce(expression.left)
-                if (a !is EQuantity) {
-                    return EDiv(a, expression.right)
-                }
-                val aUnit = a.unit
-                if (aUnit !is EUnit) {
-                    return EDiv(a, expression.right)
-                }
+                return when (a) {
+                    is EQuantity -> {
+                        val aUnit = a.unit
+                        if (aUnit !is EUnit) {
+                            return EMul(a, expression.right)
+                        }
 
-                val b = reduce(expression.right)
-                if (b !is EQuantity) {
-                    return EDiv(a, b)
-                }
-                val bUnit = b.unit
-                if (bUnit !is EUnit) {
-                    return EDiv(a, b)
-                }
+                        val b = reduce(expression.right)
+                        if (b !is EQuantity) {
+                            return EMul(a, b)
+                        }
+                        val bUnit = b.unit
+                        if (bUnit !is EUnit) {
+                            return EMul(a, b)
+                        }
 
-                val resultUnit = aUnit.multiply(bUnit)
-                val resultAmount = a.amount * b.amount
-                return EQuantity(
-                    resultAmount,
-                    resultUnit,
-                )
+                        val resultUnit = aUnit.multiply(bUnit)
+                        val resultAmount = a.amount * b.amount
+                        return EQuantity(
+                            resultAmount,
+                            resultUnit,
+                        )
+                    }
+
+                    is EUnit -> {
+                        val b = reduce(expression.right)
+                        if (b !is EUnit) {
+                            return EMul(a, b)
+                        }
+                        return a.multiply(b)
+                    }
+                    else -> EMul(a, expression.right)
+                }
             }
 
             is ENeg -> {
@@ -214,18 +235,21 @@ class Reducer(environment: Map<String, Expression>) {
             is EPow -> {
                 val a = reduce(expression.quantity)
                 val exponent = expression.exponent
-                if (a !is EQuantity) {
-                    return EPow(a, exponent)
-                }
-                val aUnit = a.unit
-                if (aUnit !is EUnit) {
-                    return EPow(a, exponent)
-                }
+                return when(a) {
+                    is EQuantity -> {
+                        val aUnit = a.unit
+                        if (aUnit !is EUnit) {
+                            return EPow(a, exponent)
+                        }
 
-                return EQuantity(
-                    a.amount.pow(exponent),
-                    aUnit.pow(exponent),
-                )
+                        return EQuantity(
+                            a.amount.pow(exponent),
+                            aUnit.pow(exponent),
+                        )
+                    }
+                    is EUnit -> a.pow(exponent)
+                    else -> EPow(a, exponent)
+                }
             }
 
             is EQuantity -> {
@@ -246,40 +270,45 @@ class Reducer(environment: Map<String, Expression>) {
     }
 
     private fun openProcessOrBlock(expression: Expression): List<Expression> {
-        return when(expression) {
+        return when (expression) {
             is EBlock -> {
                 val elements = expression.elements
                 if (expression.polarity == Polarity.POSITIVE) {
                     return elements
                 }
-                return elements.map {negate(it)}
+                return elements.map { negate(it) }
             }
+
             is EProcess -> {
                 return expression.elements
             }
+
             else -> listOf(expression)
         }
     }
 
     private fun openSystem(expression: Expression): List<Expression> {
-        return when(expression) {
+        return when (expression) {
             is ESystem -> {
                 return expression.elements
             }
+
             else -> listOf(expression)
         }
     }
 
     private fun negate(expression: Expression): Expression {
-        return when(expression) {
+        return when (expression) {
             is EExchange -> EExchange(
                 negate(expression.quantity),
                 expression.product,
             )
+
             is EQuantity -> EQuantity(
                 -expression.amount,
                 expression.unit,
             )
+
             else -> expression
         }
     }
