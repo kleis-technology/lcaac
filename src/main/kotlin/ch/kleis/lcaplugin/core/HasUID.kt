@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core
 
-interface HasUniqueId {
-    fun getUniqueId(): String {
+interface HasUID {
+    fun getUID(): String {
         return "${hashCode()}"
     }
 }

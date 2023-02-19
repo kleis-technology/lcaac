@@ -63,10 +63,21 @@
 
 lcaFile ::= package  (definition | let | import)*
 
-package ::= PACKAGE_KEYWORD urn
-import ::= IMPORT_KEYWORD urn wildcard?
+package ::= PACKAGE_KEYWORD urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
+}
+
+import ::= IMPORT_KEYWORD urn wildcard? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
+}
+
 wildcard ::= DOT STAR
-urn ::= uid DOT urn | uid
+urn ::= uid DOT urn | uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
+}
 
 definition ::= product | process | system | unit
 
@@ -124,6 +135,9 @@ unitPrimitive ::=
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL
 scaleField ::= SCALE_KEYWORD EQUAL NUMBER
 
-variable ::= urn
-uid ::= IDENTIFIER
+variable ::= uid
+uid ::= IDENTIFIER {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiUID"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUIDMixin"
+}
 

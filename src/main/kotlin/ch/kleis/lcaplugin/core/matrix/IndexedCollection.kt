@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.HasUniqueId
+import ch.kleis.lcaplugin.core.HasUID
 import java.util.stream.Collectors
 
-class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
+class IndexedCollection<V : HasUID>(elements: Collection<V>) {
     private val byEntity = HashMap<V, Int>()
     private val byUniqueId = HashMap<String, Int>()
     private val elements = ArrayList<V>()
@@ -15,7 +15,7 @@ class IndexedCollection<V : HasUniqueId>(elements: Collection<V>) {
         for (i : Int in 0 until unique.size) {
             val element = unique[i]
             this.byEntity[element] = i
-            this.byUniqueId[element.getUniqueId()] = i
+            this.byUniqueId[element.getUID()] = i
             this.elements.add(element)
         }
     }
