@@ -77,6 +77,7 @@ FormulaContent = [^}]*
 <YYINITIAL> "let"                { return LcaTypes.LET_KEYWORD; }
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
 <YYINITIAL> "product"                { return LcaTypes.PRODUCT_KEYWORD; }
+<YYINITIAL> "substance"                { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "template"                { return LcaTypes.TEMPLATE_KEYWORD; }
 <YYINITIAL> "name"                { return LcaTypes.NAME_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
