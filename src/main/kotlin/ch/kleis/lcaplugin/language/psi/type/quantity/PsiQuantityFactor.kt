@@ -4,8 +4,8 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 
 interface PsiQuantityFactor : PsiElement {
-    fun getPrimitive(): PsiQuantityPrimitive? {
-        return node.findChildByType(LcaTypes.QUANTITY_PRIMITIVE)?.psi as PsiQuantityPrimitive?
+    fun getPrimitive(): PsiQuantityPrimitive {
+        return node.findChildByType(LcaTypes.QUANTITY_PRIMITIVE)?.psi as PsiQuantityPrimitive
     }
 
     fun getExponent(): Double? {

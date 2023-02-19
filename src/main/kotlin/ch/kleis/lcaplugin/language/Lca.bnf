@@ -80,7 +80,7 @@ urn ::= uid DOT urn | uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
 }
 
-private definition ::= product | process | system | unit
+private definition ::= product | process | system | unitLiteral
 
 coreExpr ::= product
     | process
@@ -193,12 +193,17 @@ unitFactor ::= unitPrimitive (HAT NUMBER)? {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitFactorMixin"
 }
 unitPrimitive ::=
-    UNIT_KEYWORD uid? LBRACE (symbolField | scaleField | dimField)* RBRACE
+    unitLiteral
     | LPAREN unit RPAREN
     | variable {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
+unitLiteral ::= UNIT_KEYWORD uid? LBRACE (symbolField | scaleField | dimField)* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
+}
+
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"

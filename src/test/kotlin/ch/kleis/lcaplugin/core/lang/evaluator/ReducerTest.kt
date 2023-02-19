@@ -188,7 +188,7 @@ class ReducerTest {
         val reducer = Reducer(emptyMap())
 
         // when
-        val actual = reducer.reduce(EQAdd(a, b))
+        val actual = reducer.reduce(EAdd(a, b))
 
         // then
         val expected = EQuantity(2.0, kg)
@@ -204,7 +204,7 @@ class ReducerTest {
         val reducer = Reducer(emptyMap())
 
         // when
-        val actual = reducer.reduce(EQSub(a, b))
+        val actual = reducer.reduce(ESub(a, b))
 
         // then
         val expected = EQuantity(1.0, kg)
@@ -220,7 +220,7 @@ class ReducerTest {
         val reducer = Reducer(emptyMap())
 
         // when
-        val actual = reducer.reduce(EQMul(a, b))
+        val actual = reducer.reduce(EMul(a, b))
 
         // then
         val expected = EQuantity(4.0, kg.multiply(kg))
@@ -237,7 +237,7 @@ class ReducerTest {
         val reducer = Reducer(emptyMap())
 
         // when
-        val actual = reducer.reduce(EQDiv(a, b))
+        val actual = reducer.reduce(EDiv(a, b))
 
         // then
         val expected = EQuantity(2.0, person.divide(kg))
@@ -252,7 +252,7 @@ class ReducerTest {
         val reducer = Reducer(emptyMap())
 
         // when
-        val actual = reducer.reduce(EQPow(a, 2.0))
+        val actual = reducer.reduce(EPow(a, 2.0))
 
         // then
         val expected = EQuantity(4.0, m.pow(2.0))

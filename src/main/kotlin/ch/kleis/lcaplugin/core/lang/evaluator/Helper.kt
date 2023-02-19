@@ -43,31 +43,31 @@ class Helper {
                 rename(existing, replacement, expression.referenceUnit)
             )
 
-            is EQAdd -> EQAdd(
+            is EAdd -> EAdd(
                 rename(existing, replacement, expression.left),
                 rename(existing, replacement, expression.right),
             )
 
-            is EQDiv -> EQDiv(
+            is EDiv -> EDiv(
                 rename(existing, replacement, expression.left),
                 rename(existing, replacement, expression.right),
             )
 
-            is EQMul -> EQMul(
+            is EMul -> EMul(
                 rename(existing, replacement, expression.left),
                 rename(existing, replacement, expression.right),
             )
 
-            is EQNeg -> EQNeg(
+            is ENeg -> ENeg(
                 rename(existing, replacement, expression.quantity),
             )
 
-            is EQPow -> EQPow(
+            is EPow -> EPow(
                 rename(existing, replacement, expression.quantity),
                 expression.exponent
             )
 
-            is EQSub -> EQSub(
+            is ESub -> ESub(
                 rename(existing, replacement, expression.left),
                 rename(existing, replacement, expression.right),
             )
@@ -139,35 +139,35 @@ class Helper {
                 expression.referenceUnit,
             )
 
-            is EQAdd -> listOf(
+            is EAdd -> listOf(
                 expression.left,
                 expression.right,
             ).flatMap { freeVariables(boundedVariables, it) }
                 .toSet()
 
-            is EQDiv -> listOf(
+            is EDiv -> listOf(
                 expression.left,
                 expression.right,
             ).flatMap { freeVariables(boundedVariables, it) }
                 .toSet()
 
-            is EQMul -> listOf(
+            is EMul -> listOf(
                 expression.left,
                 expression.right,
             ).flatMap { freeVariables(boundedVariables, it) }
                 .toSet()
 
-            is EQNeg -> listOf(
+            is ENeg -> listOf(
                 expression.quantity,
             ).flatMap { freeVariables(boundedVariables, it) }
                 .toSet()
 
-            is EQPow -> listOf(
+            is EPow -> listOf(
                 expression.quantity,
             ).flatMap { freeVariables(boundedVariables, it) }
                 .toSet()
 
-            is EQSub -> listOf(
+            is ESub -> listOf(
                 expression.left,
                 expression.right,
             ).flatMap { freeVariables(boundedVariables, it) }

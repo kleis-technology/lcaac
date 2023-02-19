@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.psi
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.*
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnit
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -42,13 +42,13 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiSystem }
     }
 
-    fun getUnits(): Collection<PsiUnit> {
-        return node.getChildren(TokenSet.create(LcaTypes.UNIT))
-            .map { it.psi as PsiUnit }
-    }
-
     fun getLocalAssignments(): Collection<PsiAssignment> {
         return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
             .map { it.psi as PsiAssignment }
+    }
+
+    fun getUnitLiterals(): Collection<PsiUnitLiteral> {
+        return node.getChildren(TokenSet.create(LcaTypes.UNIT_LITERAL))
+            .map { it.psi as PsiUnitLiteral }
     }
 }

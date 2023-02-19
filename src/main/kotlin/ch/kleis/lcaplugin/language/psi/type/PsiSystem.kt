@@ -25,6 +25,11 @@ interface PsiSystem : PsiElement {
             .map { it.psi as PsiInclude }
     }
 
+    fun getProcesses(): Collection<PsiProcess> {
+        return node.getChildren(TokenSet.create(LcaTypes.PROCESS))
+            .map { it.psi as PsiProcess }
+    }
+
     fun getSystems(): Collection<PsiSystem> {
         return node.getChildren(TokenSet.create(LcaTypes.SYSTEM))
             .map { it.psi as PsiSystem }

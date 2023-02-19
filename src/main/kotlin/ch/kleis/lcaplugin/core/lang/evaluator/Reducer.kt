@@ -84,23 +84,23 @@ class Reducer(environment: Map<String, Expression>) {
                 reduce(expression.referenceUnit)
             )
 
-            is EQAdd -> {
+            is EAdd -> {
                 val a = reduce(expression.left)
                 if (a !is EQuantity) {
-                    return EQAdd(a, expression.right)
+                    return EAdd(a, expression.right)
                 }
                 val aUnit = a.unit
                 if (aUnit !is EUnit) {
-                    return EQAdd(a, expression.right)
+                    return EAdd(a, expression.right)
                 }
 
                 val b = reduce(expression.right)
                 if (b !is EQuantity) {
-                    return EQAdd(a, b)
+                    return EAdd(a, b)
                 }
                 val bUnit = b.unit
                 if (bUnit !is EUnit) {
-                    return EQAdd(a, b)
+                    return EAdd(a, b)
                 }
 
                 if (aUnit.dimension != bUnit.dimension) {
@@ -115,23 +115,23 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EQSub -> {
+            is ESub -> {
                 val a = reduce(expression.left)
                 if (a !is EQuantity) {
-                    return EQSub(a, expression.right)
+                    return ESub(a, expression.right)
                 }
                 val aUnit = a.unit
                 if (aUnit !is EUnit) {
-                    return EQSub(a, expression.right)
+                    return ESub(a, expression.right)
                 }
 
                 val b = reduce(expression.right)
                 if (b !is EQuantity) {
-                    return EQSub(a, b)
+                    return ESub(a, b)
                 }
                 val bUnit = b.unit
                 if (bUnit !is EUnit) {
-                    return EQSub(a, b)
+                    return ESub(a, b)
                 }
 
                 if (aUnit.dimension != bUnit.dimension) {
@@ -146,23 +146,23 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EQDiv -> {
+            is EDiv -> {
                 val a = reduce(expression.left)
                 if (a !is EQuantity) {
-                    return EQDiv(a, expression.right)
+                    return EDiv(a, expression.right)
                 }
                 val aUnit = a.unit
                 if (aUnit !is EUnit) {
-                    return EQDiv(a, expression.right)
+                    return EDiv(a, expression.right)
                 }
 
                 val b = reduce(expression.right)
                 if (b !is EQuantity) {
-                    return EQDiv(a, b)
+                    return EDiv(a, b)
                 }
                 val bUnit = b.unit
                 if (bUnit !is EUnit) {
-                    return EQDiv(a, b)
+                    return EDiv(a, b)
                 }
 
                 val resultUnit = aUnit.divide(bUnit)
@@ -173,23 +173,23 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EQMul -> {
+            is EMul -> {
                 val a = reduce(expression.left)
                 if (a !is EQuantity) {
-                    return EQDiv(a, expression.right)
+                    return EDiv(a, expression.right)
                 }
                 val aUnit = a.unit
                 if (aUnit !is EUnit) {
-                    return EQDiv(a, expression.right)
+                    return EDiv(a, expression.right)
                 }
 
                 val b = reduce(expression.right)
                 if (b !is EQuantity) {
-                    return EQDiv(a, b)
+                    return EDiv(a, b)
                 }
                 val bUnit = b.unit
                 if (bUnit !is EUnit) {
-                    return EQDiv(a, b)
+                    return EDiv(a, b)
                 }
 
                 val resultUnit = aUnit.multiply(bUnit)
@@ -200,10 +200,10 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EQNeg -> {
+            is ENeg -> {
                 val a = reduce(expression.quantity)
                 if (a !is EQuantity) {
-                    return EQNeg(a)
+                    return ENeg(a)
                 }
                 return EQuantity(
                     -a.amount,
@@ -211,15 +211,15 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EQPow -> {
+            is EPow -> {
                 val a = reduce(expression.quantity)
                 val exponent = expression.exponent
                 if (a !is EQuantity) {
-                    return EQPow(a, exponent)
+                    return EPow(a, exponent)
                 }
                 val aUnit = a.unit
                 if (aUnit !is EUnit) {
-                    return EQPow(a, exponent)
+                    return EPow(a, exponent)
                 }
 
                 return EQuantity(

@@ -38,17 +38,17 @@ data class EUnit(val symbol: String, val scale: Double, val dimension: Dimension
 
 data class EQuantity(val amount: Double, val unit: Expression) : Expression
 
-data class EQNeg(val quantity: Expression) : Expression
+data class ENeg(val quantity: Expression) : Expression
 
-data class EQMul(val left: Expression, val right: Expression) : Expression
+data class EMul(val left: Expression, val right: Expression) : Expression
 
-data class EQDiv(val left: Expression, val right: Expression) : Expression
+data class EDiv(val left: Expression, val right: Expression) : Expression
 
-data class EQAdd(val left: Expression, val right: Expression) : Expression
+data class EAdd(val left: Expression, val right: Expression) : Expression
 
-data class EQSub(val left: Expression, val right: Expression) : Expression
+data class ESub(val left: Expression, val right: Expression) : Expression
 
-data class EQPow(val quantity: Expression, val exponent: Double) : Expression
+data class EPow(val quantity: Expression, val exponent: Double) : Expression
 
 
 /*

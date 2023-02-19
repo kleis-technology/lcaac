@@ -86,26 +86,26 @@ class Beta {
                 expression.dimension,
                 substitute(binder, value, expression.referenceUnit),
             )
-            is EQAdd -> EQAdd(
+            is EAdd -> EAdd(
                 substitute(binder, value, expression.left),
                 substitute(binder, value, expression.right),
             )
-            is EQDiv -> EQDiv(
+            is EDiv -> EDiv(
                 substitute(binder, value, expression.left),
                 substitute(binder, value, expression.right),
             )
-            is EQMul -> EQMul(
+            is EMul -> EMul(
                 substitute(binder, value, expression.left),
                 substitute(binder, value, expression.right),
             )
-            is EQNeg -> EQNeg(
+            is ENeg -> ENeg(
                 substitute(binder, value, expression.quantity)
             )
-            is EQPow -> EQPow(
+            is EPow -> EPow(
                 substitute(binder, value, expression.quantity),
                 expression.exponent,
             )
-            is EQSub -> EQSub(
+            is ESub -> ESub(
                 substitute(binder, value, expression.left),
                 substitute(binder, value, expression.right),
             )
