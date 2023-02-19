@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
@@ -33,7 +34,8 @@ class LcaLangAbstractParser {
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
-        val definitions = globals
+        val definitions = Prelude.units
+            .plus(globals)
             .plus(units)
             .plus(products)
             .plus(processes)
@@ -128,10 +130,12 @@ class LcaLangAbstractParser {
     }
 
     private fun product(psiProduct: PsiProduct): Expression {
+        val dimension = Dimension.of(psiProduct.getDimensionField().getValue())
         return EProduct(
             psiProduct.getUid()?.name!!,
-            Dimension.of(psiProduct.getDimensionField().getValue()),
-            unit(psiProduct.getReferenceUnitField().getValue()),
+            dimension,
+            psiProduct.getReferenceUnitField()?.let { unit(it.getValue()) }
+                ?: EUnit("ref_unit($dimension)", 1.0, dimension),
         )
     }
 
