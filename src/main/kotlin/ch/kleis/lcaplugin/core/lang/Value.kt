@@ -1,9 +1,11 @@
 package ch.kleis.lcaplugin.core.lang
 
+import ch.kleis.lcaplugin.core.HasUniqueId
+
 
 sealed interface Value
 
-data class VProduct(val name: String, val dimension: Dimension, val referenceUnit: VUnit) : Value
+data class VProduct(val name: String, val dimension: Dimension, val referenceUnit: VUnit) : Value, HasUniqueId
 
 data class VUnit(val symbol:String, val scale: Double, val dimension: Dimension) : Value {
 
@@ -34,7 +36,7 @@ data class VQuantity(val amount: Double, val unit: VUnit) : Value {
 
 data class VExchange(val quantity: VQuantity, val product: VProduct) : Value
 
-data class VProcess(val exchanges: List<VExchange>) : Value 
+data class VProcess(val exchanges: List<VExchange>) : Value, HasUniqueId
 
 data class VSystem(val processes: List<VProcess>) : Value
 
