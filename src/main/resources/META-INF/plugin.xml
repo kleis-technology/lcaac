@@ -55,6 +55,12 @@
         <lang.syntaxHighlighterFactory
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+
+        <toolWindow id="LCA Output"
+                    icon="AllIcons.General.Modified"
+                    anchor="bottom"
+                    factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaResultFactory"
+                    canCloseContents="true"/>
     </extensions>
 
     <applicationListeners>
