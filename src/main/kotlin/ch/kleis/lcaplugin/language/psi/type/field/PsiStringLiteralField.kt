@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 
 interface PsiStringLiteralField : PsiElement {
     fun getValue(): String {
-        return node.findChildByType(LcaTypes.STRING_LITERAL)?.psi?.text ?: ""
+        return node.findChildByType(LcaTypes.STRING_LITERAL)?.psi?.text?.trim('"')
+            ?: ""
     }
 }

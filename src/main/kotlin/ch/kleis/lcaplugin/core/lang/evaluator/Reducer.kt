@@ -12,10 +12,8 @@ class Reducer(environment: Map<String, Expression>) {
             is EInstance -> {
                 val arguments = expression.arguments
 
-                val template = reduce(expression.template)
-                if (template !is ETemplate) {
-                    return expression
-                }
+                val reduced = reduce(expression.template)
+                val template = if (reduced is ETemplate) reduced else ETemplate(emptyMap(), reduced)
 
                 val defaultValues = template.params
                     .filterValues { it != null }
@@ -42,7 +40,8 @@ class Reducer(environment: Map<String, Expression>) {
 
             is EVar -> {
                 val name = expression.name
-                return environment[name] ?: expression
+                return environment[name]?.let { reduce(it) }
+                    ?: expression
             }
 
             is ETemplate -> {
@@ -79,11 +78,13 @@ class Reducer(environment: Map<String, Expression>) {
                 )
             }
 
-            is EProduct -> EProduct(
-                expression.name,
-                expression.dimension,
-                reduce(expression.referenceUnit)
-            )
+            is EProduct -> {
+                EProduct(
+                    expression.name,
+                    expression.dimension,
+                    reduce(expression.referenceUnit)
+                )
+            }
 
             is EAdd -> {
                 val a = reduce(expression.left)
@@ -180,6 +181,7 @@ class Reducer(environment: Map<String, Expression>) {
                         }
                         return a.divide(b)
                     }
+
                     else -> EDiv(a, expression.right)
                 }
             }
@@ -217,6 +219,7 @@ class Reducer(environment: Map<String, Expression>) {
                         }
                         return a.multiply(b)
                     }
+
                     else -> EMul(a, expression.right)
                 }
             }
@@ -235,7 +238,7 @@ class Reducer(environment: Map<String, Expression>) {
             is EPow -> {
                 val a = reduce(expression.quantity)
                 val exponent = expression.exponent
-                return when(a) {
+                return when (a) {
                     is EQuantity -> {
                         val aUnit = a.unit
                         if (aUnit !is EUnit) {
@@ -247,6 +250,7 @@ class Reducer(environment: Map<String, Expression>) {
                             aUnit.pow(exponent),
                         )
                     }
+
                     is EUnit -> a.pow(exponent)
                     else -> EPow(a, exponent)
                 }

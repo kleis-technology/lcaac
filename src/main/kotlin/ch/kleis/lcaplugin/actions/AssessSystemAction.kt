@@ -1,8 +1,6 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang.EInstance
-import ch.kleis.lcaplugin.core.lang.ETemplate
 import ch.kleis.lcaplugin.core.lang.VSystem
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
@@ -24,12 +22,11 @@ class AssessSystemAction(private val variableName: String) : AnAction() {
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         val parser = LcaLangAbstractParser()
         val pkg = parser.lcaPackage(file)
-        val template = pkg.get(variableName) as ETemplate? ?: return
-        val instance = EInstance(template, emptyMap())
+        val expression = pkg.get(variableName) ?: return
         val evaluator = Evaluator(pkg.environment)
 
         try {
-            val value = evaluator.eval(instance) as VSystem
+            val value = evaluator.eval(expression) as VSystem
             val assessment = Assessment(value)
             val result = assessment.inventory()
             displayToolWindow(project, result)

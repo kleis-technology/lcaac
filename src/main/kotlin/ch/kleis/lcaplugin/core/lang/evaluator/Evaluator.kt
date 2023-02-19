@@ -4,8 +4,15 @@ import ch.kleis.lcaplugin.core.lang.*
 
 class Evaluator(private val environment: Map<String, Expression>) {
     private val reducer = Reducer(environment)
+    private val helper = Helper()
+
     fun eval(expression: Expression): Value {
         val reduced = reducer.reduce(expression)
+        val freeVars = helper.freeVariables(reduced)
+        if (freeVars.isNotEmpty()) {
+            val message = "undefined variables: $freeVars"
+            throw EvaluatorException(message)
+        }
         return asValue(reduced)
     }
 
@@ -39,7 +46,19 @@ class Evaluator(private val environment: Map<String, Expression>) {
                 )
             }
 
-            else -> throw EvaluatorException("$reduced is not reduced")
+            is EExchange -> {
+                return VExchange(
+                    asValue(reduced.quantity) as VQuantity,
+                    asValue(reduced.product) as VProduct,
+                )
+            }
+
+            is EQuantity -> VQuantity(
+                reduced.amount,
+                asValue(reduced.unit) as VUnit,
+            )
+
+            else -> throw EvaluatorException("cannot evaluate $reduced")
         }
     }
 }

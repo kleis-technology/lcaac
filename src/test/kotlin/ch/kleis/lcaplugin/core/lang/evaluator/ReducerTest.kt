@@ -6,11 +6,71 @@ import org.junit.Test
 
 
 class ReducerTest {
+
+    @Test
+    fun reduce_instance_shouldTemplateByDefault() {
+        // given
+        val environment = mapOf(
+            Pair("f", EVar("x"))
+        )
+        val expression = EInstance(EVar("f"), mapOf(
+            Pair("x", EVar("a"))
+        ))
+        val reducer = Reducer(environment)
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EVar("a")
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_withEnv() {
+        // given
+        val environment = mapOf(
+            Pair(
+                "kg",
+                EUnit(
+                    "kg",
+                    1.0,
+                    Dimension.of("mass"),
+                )
+            ),
+            Pair(
+                "carrot",
+                EProduct(
+                    "carrot",
+                    Dimension.of("mass"),
+                    EVar("kg")
+                )
+            ),
+        )
+        val expression = EVar("carrot")
+        val reducer = Reducer(environment)
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProduct(
+            "carrot",
+            Dimension.of("mass"),
+            EUnit(
+                "kg",
+                1.0,
+                Dimension.of("mass"),
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
     @Test
     fun mul_unit() {
         // given
-        val a = EUnit("a", 2.0, "A")
-        val b = EUnit("b", 2.0, "B")
+        val a = EUnit("a", 2.0, Dimension.of("A"))
+        val b = EUnit("b", 2.0, Dimension.of("B"))
         val expression = EMul(a, b)
         val reducer = Reducer(emptyMap())
 
@@ -25,8 +85,8 @@ class ReducerTest {
     @Test
     fun div_unit() {
         // given
-        val a = EUnit("a", 2.0, "A")
-        val b = EUnit("b", 2.0, "B")
+        val a = EUnit("a", 2.0, Dimension.of("A"))
+        val b = EUnit("b", 2.0, Dimension.of("B"))
         val expression = EDiv(a, b)
         val reducer = Reducer(emptyMap())
 
@@ -41,7 +101,7 @@ class ReducerTest {
     @Test
     fun pow_unit() {
         // given
-        val a = EUnit("a", 2.0, "A")
+        val a = EUnit("a", 2.0, Dimension.of("A"))
         val expression = EPow(a, 2.0)
         val reducer = Reducer(emptyMap())
 
@@ -228,7 +288,7 @@ class ReducerTest {
     @Test
     fun add() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(1.0, kg)
         val b = EQuantity(1.0, kg)
         val reducer = Reducer(emptyMap())
@@ -244,7 +304,7 @@ class ReducerTest {
     @Test
     fun sub() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(2.0, kg)
         val b = EQuantity(1.0, kg)
         val reducer = Reducer(emptyMap())
@@ -260,7 +320,7 @@ class ReducerTest {
     @Test
     fun mul() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(2.0, kg)
         val b = EQuantity(2.0, kg)
         val reducer = Reducer(emptyMap())
@@ -276,8 +336,8 @@ class ReducerTest {
     @Test
     fun div() {
         // given
-        val person = EUnit("person", 1.0, "person")
-        val kg = EUnit("kg", 1.0, "mass")
+        val person = EUnit("person", 1.0, Dimension.of("person"))
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(4.0, person)
         val b = EQuantity(2.0, kg)
         val reducer = Reducer(emptyMap())
@@ -293,7 +353,7 @@ class ReducerTest {
     @Test
     fun pow() {
         // given
-        val m = EUnit("m", 1.0, "length")
+        val m = EUnit("m", 1.0, Dimension.of("length"))
         val a = EQuantity(2.0, m)
         val reducer = Reducer(emptyMap())
 
@@ -308,7 +368,7 @@ class ReducerTest {
     @Test
     fun block() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val carrot = EProduct("carrot", Dimension.of("mass"), kg)
         val expression = EBlock(
             listOf(
@@ -339,7 +399,7 @@ class ReducerTest {
     @Test
     fun process() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val carrot = EProduct("carrot", Dimension.of("mass"), kg)
         val water = EProduct("water", Dimension.of("mass"), kg)
         val expression = EProcess(
@@ -378,7 +438,7 @@ class ReducerTest {
     @Test
     fun system() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val carrot = EProduct("carrot", Dimension.of("mass"), kg)
         val water = EProduct("water", Dimension.of("mass"), kg)
         val expression = ESystem(
@@ -433,7 +493,7 @@ class ReducerTest {
     @Test
     fun process_nested() {
         // given
-        val kg = EUnit("kg", 1.0, "mass")
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val carrot = EProduct("carrot", Dimension.of("mass"), kg)
         val water = EProduct("water", Dimension.of("mass"), kg)
         val expression = EProcess(

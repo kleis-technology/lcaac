@@ -9,7 +9,6 @@ sealed interface Expression
  */
 
 data class EUnit(val symbol: String, val scale: Double, val dimension: Dimension) : Expression {
-    constructor(symbol: String, scale: Double, dimension: String) : this(symbol, scale, Dimension.of(dimension))
 
     fun multiply(other: EUnit): EUnit {
         return EUnit(

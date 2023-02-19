@@ -45,7 +45,7 @@ class LcaLangAbstractParser {
         return EUnit(
             psiUnitLiteral.getSymbolField().getValue(),
             psiUnitLiteral.getScaleField().getValue(),
-            psiUnitLiteral.getDimensionField().getValue(),
+            Dimension.of(psiUnitLiteral.getDimensionField().getValue()),
         )
     }
 
