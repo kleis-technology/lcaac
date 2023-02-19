@@ -122,7 +122,7 @@ block ::= (
 exchange ::= quantity variable
 
 quantity ::= quantityTerm ((PLUS | MINUS) quantity)?
-quantityTerm ::= quantityFactor ((STAR | SLASH)? quantityTerm)?
+quantityTerm ::= quantityFactor ((STAR | SLASH) quantityTerm)?
 quantityFactor ::= quantityPrimitive (HAT NUMBER)?
 quantityPrimitive ::= NUMBER variable | LPAREN quantity RPAREN | variable
 
