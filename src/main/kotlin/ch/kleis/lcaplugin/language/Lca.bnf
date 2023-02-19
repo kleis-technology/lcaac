@@ -93,7 +93,7 @@ coreExpr ::= product
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
 }
 
-product ::= PRODUCT_KEYWORD uid? LBRACE (nameField | dimField | referenceUnitField)* RBRACE {
+product ::= PRODUCT_KEYWORD uid? LBRACE nameField dimField referenceUnitField? RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
@@ -199,7 +199,7 @@ unitPrimitive ::=
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
-unitLiteral ::= UNIT_KEYWORD uid? LBRACE (symbolField | scaleField | dimField)* RBRACE {
+unitLiteral ::= UNIT_KEYWORD uid? LBRACE symbolField scaleField dimField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
 }

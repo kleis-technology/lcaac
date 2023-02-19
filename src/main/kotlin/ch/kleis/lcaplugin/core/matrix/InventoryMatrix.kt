@@ -16,15 +16,15 @@ class InventoryMatrix(
     private val data: Matrix
 ) : InventoryResult {
     fun value(outputProduct: VProduct, inputProduct: VProduct): VCharacterizationFactor {
-        val outputReferenceUnit = outputProduct.referenceUnit
-        val output = VExchange(VQuantity(1.0, outputReferenceUnit), outputProduct)
+        val outputUnit = outputProduct.dimension.referenceUnit()
+        val output = VExchange(VQuantity(1.0, outputUnit), outputProduct)
 
-        val inputReferenceUnit = inputProduct.referenceUnit
+        val inputUnit = inputProduct.dimension.referenceUnit()
         val amount = data.value(
             observableProducts.indexOf(outputProduct),
             controllableProducts.indexOf(inputProduct),
         )
-        val input = VExchange(VQuantity(amount, inputReferenceUnit), inputProduct)
+        val input = VExchange(VQuantity(amount, inputUnit), inputProduct)
 
         return VCharacterizationFactor(output, input)
     }

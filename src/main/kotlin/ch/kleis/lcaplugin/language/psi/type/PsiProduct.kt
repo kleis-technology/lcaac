@@ -18,7 +18,7 @@ interface PsiProduct : PsiElement {
         return node.findChildByType(LcaTypes.DIM_FIELD)?.psi as PsiStringLiteralField
     }
 
-    fun getReferenceUnitField(): PsiUnitField {
+    fun getReferenceUnitField(): PsiUnitField? {
         return node.findChildByType(LcaTypes.REFERENCE_UNIT_FIELD)?.psi as PsiUnitField
     }
 }

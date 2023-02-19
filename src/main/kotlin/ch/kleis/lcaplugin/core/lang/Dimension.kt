@@ -24,6 +24,9 @@ class Dimension(elements: Map<String, Double>) {
         return this.elements.isEmpty()
     }
 
+    fun referenceUnit(): VUnit {
+        return VUnit("ref_unit($this)", 1.0, this)
+    }
 
     fun multiply(other: Dimension): Dimension {
         val es = HashMap<String, Double>(elements)
