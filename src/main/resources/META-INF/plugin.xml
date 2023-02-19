@@ -61,6 +61,10 @@
                     anchor="bottom"
                     factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaResultFactory"
                     canCloseContents="true"/>
+
+        <runLineMarkerContributor
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessSystemMarkerContributor"/>
     </extensions>
 
     <applicationListeners>

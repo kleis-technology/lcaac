@@ -6,6 +6,10 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 
 interface PsiProduct : PsiElement {
+    fun getUid(): PsiUID? {
+        return node.findChildByType(LcaTypes.UID)?.psi as PsiUID?
+    }
+
     fun getNameField(): PsiStringLiteralField {
         return node.findChildByType(LcaTypes.NAME_FIELD)?.psi as PsiStringLiteralField
     }

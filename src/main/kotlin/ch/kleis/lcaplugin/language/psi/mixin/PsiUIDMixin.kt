@@ -15,6 +15,6 @@ abstract class PsiUIDMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUID {
     }
 
     override fun toString(): String {
-        return "UniqueId(${this.name})"
+        return "uid(${this.name})"
     }
 }

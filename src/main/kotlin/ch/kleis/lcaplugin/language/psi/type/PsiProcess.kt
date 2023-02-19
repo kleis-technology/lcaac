@@ -5,6 +5,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 
 interface PsiProcess : PsiElement {
+    fun getUid(): PsiUID? {
+        return node.findChildByType(LcaTypes.UID)?.psi as PsiUID?
+    }
+
     fun getParameters(): Collection<PsiParameter> {
         return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
             .flatMap { it.getChildren(TokenSet.create(LcaTypes.PARAM)).toList() }
