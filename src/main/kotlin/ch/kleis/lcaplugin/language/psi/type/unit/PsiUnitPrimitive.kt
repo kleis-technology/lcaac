@@ -24,7 +24,7 @@ interface PsiUnitPrimitive : PsiElement {
     }
 
     fun asUnitInParen(): PsiUnit? {
-        return node.findChildByType(LcaTypes.QUANTITY)?.psi as PsiUnit?
+        return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
     }
 
 }

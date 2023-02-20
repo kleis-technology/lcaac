@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.EUnit
-import ch.kleis.lcaplugin.core.lang.Package
 
 class Prelude {
     companion object {
