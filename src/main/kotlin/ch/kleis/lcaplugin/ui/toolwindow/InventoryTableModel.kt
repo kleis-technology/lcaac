@@ -1,34 +1,31 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.compute.model.CharacterizationFactor
-import ch.kleis.lcaplugin.compute.model.Exchange
-import ch.kleis.lcaplugin.compute.model.Flow
-import tech.units.indriya.quantity.Quantities.getQuantity
-import javax.measure.Quantity
-import javax.measure.Unit
+import ch.kleis.lcaplugin.core.lang.VCharacterizationFactor
+import ch.kleis.lcaplugin.core.lang.VProduct
+import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
     override fun getRowCount(): Int {
-        return matrix.observableFlows.size()
+        return matrix.observableProducts.size()
     }
 
     override fun getColumnCount(): Int {
-        return 2 + matrix.controllableFlows.size()
+        return 2 + matrix.controllableProducts.size()
     }
 
     override fun getColumnName(columnIndex: Int): String {
         if (columnIndex == 0) {
-            return "flow"
+            return "product"
         }
 
         if (columnIndex == 1) {
             return "unit"
         }
 
-        return matrix.controllableFlows[columnIndex - 2].getUrn().id
+        val product = matrix.controllableProducts[columnIndex - 2]
+        return "${product.name} [${product.referenceUnit.symbol}]"
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -36,7 +33,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
             return String::class.java
         }
 
-        return matrix.controllableFlows[columnIndex - 2]::class.java
+        return matrix.controllableProducts[columnIndex - 2]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -44,37 +41,31 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
     }
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
-        val outputFlow = matrix.observableFlows[rowIndex]
+        val outputProduct = matrix.observableProducts[rowIndex]
 
         if (columnIndex == 0) {
-            return outputFlow.getUrn().id
+            return outputProduct.name
         }
 
         if (columnIndex == 1) {
-            return outputFlow.getUnit().toString()
+            return outputProduct.referenceUnit.symbol
         }
 
-        val inputFlow = matrix.controllableFlows[columnIndex - 2]
-        val cf = matrix.value(outputFlow, inputFlow)
-        return render(cf, inputFlow, outputFlow)
+        val inputProduct = matrix.controllableProducts[columnIndex - 2]
+        val cf = matrix.value(outputProduct, inputProduct)
+        return render(cf, inputProduct, outputProduct)
     }
 
-    private fun <Din : Quantity<Din>, Dout : Quantity<Dout>> render(
-        cf: CharacterizationFactor,
-        inputFlow: Flow<Din>,
-        outputFlow: Flow<Dout>
+    private fun render(
+        cf: VCharacterizationFactor,
+        inputProduct: VProduct,
+        outputProduct: VProduct,
     ): Double {
-        val input: Exchange<Din> = cf.input as Exchange<Din>
-        val output: Exchange<Dout> = cf.output as Exchange<Dout>
-        val numerator: Quantity<Din> = convert(input.quantity, inputFlow.getUnit())
-        val denominator: Quantity<Dout> = convert(output.quantity, outputFlow.getUnit())
-        return numerator.divide(denominator).value.toDouble()
-    }
-
-    // TODO: Find a way to use Quantity.to(...) without conflicting with Pair.to(...)
-    private fun <D : Quantity<D>> convert(quantity: Quantity<D>, unit: Unit<D>): Quantity<D> {
-        val converter = quantity.unit.getConverterTo(unit)
-        return getQuantity(converter.convert(quantity.value), unit)
+        val input = cf.input
+        val output = cf.output
+        val numerator = input.quantity.referenceValue() / inputProduct.referenceUnit.scale
+        val denominator = output.quantity.referenceValue() / outputProduct.referenceUnit.scale
+        return numerator / denominator
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

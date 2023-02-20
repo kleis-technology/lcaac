@@ -1,43 +1,37 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.traits.PsiUniqueIdOwner
-import ch.kleis.lcaplugin.psi.*
+import ch.kleis.lcaplugin.psi.LcaTypes
+import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 
-interface PsiProcess : PsiUniqueIdOwner {
+interface PsiProcess : PsiElement {
+    fun getUid(): PsiUID? {
+        return node.findChildByType(LcaTypes.UID)?.psi as PsiUID?
+    }
+
     fun getParameters(): Collection<PsiParameter> {
-        val blocks = node.getChildren(TokenSet.create(LcaTypes.PARAMETERS))
-        return blocks.map { block -> block.psi as LcaParameters }
-            .flatMap { block -> block.parameterList }
-            .map { it as PsiParameter }
+        return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
+            .flatMap { it.getChildren(TokenSet.create(LcaTypes.PARAM)).toList() }
+            .map { it.psi as PsiParameter }
     }
 
-    fun getProductExchanges(): Collection<PsiProductExchange> {
-        val blocks = node.getChildren(TokenSet.create(LcaTypes.PRODUCTS))
-        return blocks.map { block -> block.psi as LcaProducts }
-            .flatMap { block -> block.productExchangeList }
-            .map { it as PsiProductExchange }
+    fun getLocalAssignments(): Collection<PsiAssignment> {
+        return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
+            .map { it.psi as PsiAssignment }
     }
 
-    fun getInputExchanges(): Collection<PsiInputExchange> {
-        val blocks = node.getChildren(TokenSet.create(LcaTypes.INPUTS))
-        return blocks.map { block -> block.psi as LcaInputs }
-            .flatMap { block -> block.inputExchangeList }
-            .map { it as PsiInputExchange }
+    fun getIncludes(): Collection<PsiInclude> {
+        return node.getChildren(TokenSet.create(LcaTypes.INCLUDE))
+            .map { it.psi as PsiInclude }
     }
 
-    fun getResourceExchanges(): Collection<PsiBioExchange> {
-        val blocks = node.getChildren(TokenSet.create(LcaTypes.RESOURCES))
-        return blocks.map { block -> block.psi as LcaResources }
-            .flatMap { block -> block.bioExchangeList }
-            .map { it as PsiBioExchange }
+    fun getExchanges(): Collection<PsiExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.EXCHANGE))
+            .map { it.psi as PsiExchange }
     }
 
-    fun getEmissionExchanges(): Collection<PsiBioExchange> {
-        val blocks = node.getChildren(TokenSet.create(LcaTypes.EMISSIONS))
-        return blocks.map { block -> block.psi as LcaEmissions }
-            .flatMap { block -> block.bioExchangeList }
-            .map { it as PsiBioExchange }
+    fun getBlocks(): Collection<PsiBlock> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK))
+            .map { it.psi as PsiBlock }
     }
 }
-

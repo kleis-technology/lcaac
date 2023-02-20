@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.compute.matrix.InventoryError
-import ch.kleis.lcaplugin.compute.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.compute.matrix.InventoryResult
+import ch.kleis.lcaplugin.core.matrix.InventoryError
+import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
