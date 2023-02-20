@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.parser
 
+import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -9,28 +10,42 @@ import ch.kleis.lcaplugin.language.psi.type.enums.CoreExpressionType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiManager
+import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.GlobalSearchScope
 
 class LcaLangAbstractParser {
-    fun lcaPackage(file: LcaFile): Package {
-        val pkg = file.getPackage()
+    fun lcaPackage(pkgName: String, project: Project): Package {
+        val psiManager = PsiManager.getInstance(project)
+        val files = FileTypeIndex
+            .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
+            .mapNotNull { psiManager.findFile(it) }
+            .map { it as LcaFile }
+            .filter { it.getPackage().name!! == pkgName }
+        if (files.isEmpty()) throw NoSuchElementException(pkgName)
 
-        val globals = file.getLocalAssignments().associate {
-            Pair(it.getUid().name!!, coreExpression(it.getCoreExpression()))
-        }
+        val globals = files
+            .flatMap { it.getLocalAssignments() }
+            .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
 
-        val products = file.getProducts()
+        val products = files
+            .flatMap { it.getProducts() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, product(it)) }
 
-        val processes = file.getProcesses()
+        val processes = files
+            .flatMap { it.getProcesses() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
-        val systems = file.getSystems()
+        val systems = files
+            .flatMap { it.getSystems() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, system(it)) }
 
-        val units = file.getUnitLiterals()
+        val units = files
+            .flatMap { it.getUnitLiterals() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
@@ -40,8 +55,9 @@ class LcaLangAbstractParser {
             .plus(products)
             .plus(processes)
             .plus(systems)
-        return Package(pkg.name!!, definitions)
+        return Package(definitions)
     }
+
 
     private fun unitLiteral(psiUnitLiteral: PsiUnitLiteral): Expression {
         return EUnit(
@@ -73,7 +89,7 @@ class LcaLangAbstractParser {
     }
 
     private fun include(psiInclude: PsiInclude): Expression {
-        val template = EVar(psiInclude.getUrn().getLastPart())
+        val template = EVar(psiInclude.name!!)
         val arguments = psiInclude.getArgumentAssignments()
             .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
         return EInstance(template, arguments)
@@ -209,7 +225,7 @@ class LcaLangAbstractParser {
     }
 
     private fun uPrimitive(primitive: PsiUnitPrimitive): Expression {
-        return when(primitive.getType()) {
+        return when (primitive.getType()) {
             UnitPrimitiveType.LITERAL -> unitLiteral(primitive.asLiteral()!!)
             UnitPrimitiveType.PAREN -> unit(primitive.asUnitInParen()!!)
             UnitPrimitiveType.VARIABLE -> variable(primitive.asVariable()!!)
@@ -229,7 +245,7 @@ class LcaLangAbstractParser {
     }
 
     private fun variable(psiVariable: PsiVariable): Expression {
-        return EVar(psiVariable.getUrn().getLastPart())
+        return EVar(psiVariable.name!!)
     }
 
     private fun variable(name: String): Expression {

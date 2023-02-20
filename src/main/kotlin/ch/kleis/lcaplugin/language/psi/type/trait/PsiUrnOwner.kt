@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type.trait
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.core.urn.Namespace
 import ch.kleis.lcaplugin.language.psi.type.PsiUrn
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.lang.ASTNode
@@ -20,7 +19,7 @@ interface PsiUrnOwner : PsiNameIdentifierOwner {
     }
 
     override fun getName(): String? {
-        return getUrn().getParts().joinToString(Namespace.SEPARATOR)
+        return getUrn().getParts().joinToString(".")
     }
 
     override fun setName(name: String): PsiElement {

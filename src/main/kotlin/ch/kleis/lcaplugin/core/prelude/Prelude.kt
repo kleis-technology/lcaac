@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.EUnit
+import ch.kleis.lcaplugin.core.lang.Package
 
 class Prelude {
     companion object {
@@ -36,13 +37,13 @@ class Prelude {
             EUnit("s", 1.0, time),
             EUnit("min", 60.0, time),
             EUnit("hour", 3600.0, time),
-            EUnit("day", 24*3600.0, time),
+            EUnit("day", 24 * 3600.0, time),
             EUnit("Wh", 1.0, energy),
             EUnit("kWh", 1.0e3, energy),
             EUnit("MWh", 1.0e6, energy),
-            EUnit("J", 1.0/3600.0, energy),
-            EUnit("kJ", 1.0e3/3600.0, energy),
-            EUnit("MJ", 1.0e6/3600.0, energy),
+            EUnit("J", 1.0 / 3600.0, energy),
+            EUnit("kJ", 1.0e3 / 3600.0, energy),
+            EUnit("MJ", 1.0e6 / 3600.0, energy),
             EUnit("W", 1.0, power),
         ).associateBy { it.symbol }
     }

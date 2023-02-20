@@ -20,10 +20,11 @@ class AssessSystemAction(private val variableName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
+        val pkgName = file.getPackage().name!!
         val parser = LcaLangAbstractParser()
-        val pkg = parser.lcaPackage(file)
+        val pkg = parser.lcaPackage(pkgName, project)
         val expression = pkg.get(variableName) ?: return
-        val evaluator = Evaluator(pkg.environment)
+        val evaluator = Evaluator(pkg.getDefinitions())
 
         try {
             val value = evaluator.eval(expression) as VSystem

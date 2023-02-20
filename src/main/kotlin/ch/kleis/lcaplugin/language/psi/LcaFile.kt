@@ -23,10 +23,6 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         return node.findChildByType(LcaTypes.PACKAGE)?.psi as PsiPackage
     }
 
-    fun getImports(): PsiImport {
-        return node.findChildByType(LcaTypes.IMPORT)?.psi as PsiImport
-    }
-
     fun getProducts(): Collection<PsiProduct> {
         return node.getChildren(TokenSet.create(LcaTypes.PRODUCT))
             .map { it.psi as PsiProduct }
