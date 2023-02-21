@@ -24,7 +24,7 @@ class LinkerTest {
         )
 
         // when
-        val (_, actual) = linker.run()
+        val (_, actual) = linker.link()
 
         // then
         val expected = mapOf(
@@ -52,7 +52,7 @@ class LinkerTest {
         )
 
         // when
-        val (_, actual) = linker.run()
+        val (_, actual) = linker.link()
 
         // then
         val expected = mapOf(
@@ -75,7 +75,7 @@ class LinkerTest {
         )
         val abc = Package(
             "abc",
-            listOf(Import("dep", "x")),
+            listOf(ImportSymbol("dep", "x")),
             mapOf(
                 Pair("y", EVar("x")),
             )
@@ -87,7 +87,7 @@ class LinkerTest {
         )
 
         // when
-        val (_, actual) = linker.run()
+        val (_, actual) = linker.link()
 
         // then
         val expected = mapOf(
@@ -111,7 +111,7 @@ class LinkerTest {
         )
         val abc = Package(
             "abc",
-            listOf(Import("dep", "x")),
+            listOf(ImportSymbol("dep", "x")),
             mapOf(
                 Pair("y", EVar("x")),
             )
@@ -123,7 +123,44 @@ class LinkerTest {
         )
 
         // when
-        val (_, actual) = linker.run()
+        val (_, actual) = linker.link()
+
+        // then
+        val expected = mapOf(
+            Pair("dep.z", EQuantity(1.0, kg)),
+            Pair("dep.x", EVar("dep.z")),
+            Pair("abc.y", EVar("dep.x")),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun run_wildcard() {
+        // given
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
+        val dep = Package(
+            "dep",
+            emptyList(),
+            mapOf(
+                Pair("z", EQuantity(1.0, kg)),
+                Pair("x", EVar("z")),
+            )
+        )
+        val abc = Package(
+            "abc",
+            listOf(ImportWildCard("dep")),
+            mapOf(
+                Pair("y", EVar("x")),
+            )
+        )
+        val entryPoint = EntryPoint(abc, "y")
+        val linker = Linker(
+            entryPoint,
+            setOf(dep),
+        )
+
+        // when
+        val (_, actual) = linker.link()
 
         // then
         val expected = mapOf(

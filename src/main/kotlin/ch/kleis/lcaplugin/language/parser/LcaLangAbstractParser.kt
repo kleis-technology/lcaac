@@ -72,11 +72,12 @@ class LcaLangAbstractParser(private val project: Project) {
         val imports = files
             .flatMap { it.getImports() }
             .map {
-                val parts = it.getUrn().getParts()
-                val prefix = parts.take(parts.size - 1).joinToString(".")
-                val name = parts.last()
-                Import(prefix, name)
+                when (it.getImportType()) {
+                    ImportType.SYMBOL -> ImportSymbol(it.getPackageName(), it.getSymbol()!!)
+                    ImportType.WILDCARD -> ImportWildCard(it.getPackageName())
+                }
             }
+
         return Package(
             pkgName,
             imports,

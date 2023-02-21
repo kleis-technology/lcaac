@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
 
-class Evaluator(private val environment: Map<String, Expression>) {
+class Evaluator(private val environment: Environment) {
     private val reducer = Reducer(environment)
     private val helper = Helper()
 

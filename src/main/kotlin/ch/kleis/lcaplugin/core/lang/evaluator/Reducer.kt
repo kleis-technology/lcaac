@@ -3,8 +3,8 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import ch.kleis.lcaplugin.core.lang.*
 import kotlin.math.pow
 
-class Reducer(environment: Map<String, Expression>) {
-    private val environment = HashMap(environment)
+class Reducer(environment: Environment) {
+    private val environment = MutableEnvironment(environment)
     private val beta = Beta()
 
     fun reduce(expression: Expression): Expression {

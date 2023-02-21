@@ -24,7 +24,7 @@ class AssessSystemAction(private val systemName: String) : AnAction() {
         val parser = LcaLangAbstractParser(project)
         val (pkg, dependencies) = parser.collectRequiredPackages(file.getPackage().name!!)
         val entryPoint = EntryPoint(pkg, systemName)
-        val program = Compiler(entryPoint, dependencies).run()
+        val program = Compiler(entryPoint, dependencies).compile()
 
         try {
             val value = program.run() as VSystem

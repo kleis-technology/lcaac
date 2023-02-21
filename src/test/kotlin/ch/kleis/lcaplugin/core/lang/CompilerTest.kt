@@ -11,13 +11,13 @@ class CompilerTest {
         // given
         val abc = Package(
             "abc",
-            listOf(Import("prelude.units", "kg")),
+            listOf(ImportSymbol("prelude.units", "kg")),
             mapOf(
                 Pair("x", EVar("kg")),
             )
         )
         val entryPoint = EntryPoint(abc, "x")
-        val program = Compiler(entryPoint, Prelude.packages.values.toSet()).run()
+        val program = Compiler(entryPoint, Prelude.packages.values.toSet()).compile()
 
         // when
         val actual = program.run()
