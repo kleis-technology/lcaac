@@ -62,11 +62,16 @@
   ]
 }
 
-lcaFile ::= package  (definition | let)*
+lcaFile ::= package  (definition | let | import)*
 
 package ::= PACKAGE_KEYWORD urn {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
+}
+
+import ::= IMPORT_KEYWORD urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
 }
 
 urn ::= uid DOT urn | uid {

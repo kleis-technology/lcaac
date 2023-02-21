@@ -5,6 +5,14 @@ import ch.kleis.lcaplugin.core.lang.*
 class Beta {
     private val helper = Helper()
 
+    fun substitute(substitutions: List<Pair<String, Expression>>, expression: Expression): Expression {
+        var result = expression
+        substitutions.forEach {
+            result = substitute(it.first, it.second, result)
+        }
+        return result
+    }
+
     fun substitute(binder: String, value: Expression, expression: Expression): Expression {
         return when (expression) {
             is ETemplate -> {

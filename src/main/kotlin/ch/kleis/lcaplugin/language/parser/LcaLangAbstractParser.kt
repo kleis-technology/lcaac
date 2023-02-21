@@ -15,8 +15,22 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 
-class LcaLangAbstractParser {
-    fun lcaPackage(pkgName: String, project: Project): Package {
+class LcaLangAbstractParser(private val project: Project) {
+
+    fun collectRequiredPackages(pkgName: String): Pair<Package, Set<Package>> {
+        return collectRequiredPackages(pkgName, emptySet())
+    }
+
+    private fun collectRequiredPackages(pkgName: String, visited: Set<String>): Pair<Package, Set<Package>> {
+        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
+        val dependencies = pkg.imports
+            .filter { !visited.contains(it.pkgName) }
+            .flatMap { collectRequiredPackages(it.pkgName, visited.plus(pkgName)).second }
+            .toSet()
+        return Pair(pkg, dependencies)
+    }
+
+    private fun mkPackage(pkgName: String): Package {
         val psiManager = PsiManager.getInstance(project)
         val files = FileTypeIndex
             .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
@@ -49,13 +63,25 @@ class LcaLangAbstractParser {
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
-        val definitions = Prelude.units
-            .plus(globals)
+        val definitions = globals
             .plus(units)
             .plus(products)
             .plus(processes)
             .plus(systems)
-        return Package(definitions)
+
+        val imports = files
+            .flatMap { it.getImports() }
+            .map {
+                val parts = it.getUrn().getParts()
+                val prefix = parts.take(parts.size - 1).joinToString(".")
+                val name = parts.last()
+                Import(prefix, name)
+            }
+        return Package(
+            pkgName,
+            imports,
+            definitions
+        )
     }
 
 

@@ -1,8 +1,9 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.lang.Compiler
+import ch.kleis.lcaplugin.core.lang.EntryPoint
 import ch.kleis.lcaplugin.core.lang.VSystem
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
@@ -16,18 +17,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 
-class AssessSystemAction(private val variableName: String) : AnAction() {
+class AssessSystemAction(private val systemName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
-        val pkgName = file.getPackage().name!!
-        val parser = LcaLangAbstractParser()
-        val pkg = parser.lcaPackage(pkgName, project)
-        val expression = pkg.get(variableName) ?: return
-        val evaluator = Evaluator(pkg.getDefinitions())
+        val parser = LcaLangAbstractParser(project)
+        val (pkg, dependencies) = parser.collectRequiredPackages(file.getPackage().name!!)
+        val entryPoint = EntryPoint(pkg, systemName)
+        val program = Compiler(entryPoint, dependencies).run()
 
         try {
-            val value = evaluator.eval(expression) as VSystem
+            val value = program.run() as VSystem
             val assessment = Assessment(value)
             val result = assessment.inventory()
             displayToolWindow(project, result)
