@@ -15,7 +15,6 @@ class Helper {
 
             is EBlock -> EBlock(
                 expression.elements.map { rename(existing, replacement, it) },
-                expression.polarity,
             )
 
             is EExchange -> EExchange(
@@ -208,7 +207,7 @@ class Helper {
 
     fun newName(binder: String, others: Set<String>): String {
         var i = 0
-        var result = "$binder$i"
+        var result = "${binder}0"
         while (others.contains(result)) {
             i += 1
             result = "$binder$i"

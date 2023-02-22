@@ -22,7 +22,7 @@ class Reducer(environment: Environment) {
                 val actualArguments = defaultValues
                     .plus(arguments)
                 var body = template.body
-                actualArguments.forEach { binder, value ->
+                actualArguments.forEach { (binder, value) ->
                     body = reduce(beta.substitute(binder, value, body))
                 }
 
@@ -51,7 +51,6 @@ class Reducer(environment: Environment) {
             is EBlock -> {
                 return EBlock(
                     expression.elements.map { reduce(it) },
-                    expression.polarity,
                 )
             }
 
@@ -148,8 +147,7 @@ class Reducer(environment: Environment) {
             }
 
             is EDiv -> {
-                val a = reduce(expression.left)
-                return when (a) {
+                return when (val a = reduce(expression.left)) {
                     is EQuantity -> {
                         val aUnit = a.unit
                         if (aUnit !is EUnit) {
@@ -186,8 +184,7 @@ class Reducer(environment: Environment) {
             }
 
             is EMul -> {
-                val a = reduce(expression.left)
-                return when (a) {
+                return when (val a = reduce(expression.left)) {
                     is EQuantity -> {
                         val aUnit = a.unit
                         if (aUnit !is EUnit) {
@@ -275,11 +272,7 @@ class Reducer(environment: Environment) {
     private fun openProcessOrBlock(expression: Expression): List<Expression> {
         return when (expression) {
             is EBlock -> {
-                val elements = expression.elements
-                if (expression.polarity == Polarity.POSITIVE) {
-                    return elements
-                }
-                return elements.map { negate(it) }
+                return expression.elements
             }
 
             is EProcess -> {
@@ -297,22 +290,6 @@ class Reducer(environment: Environment) {
             }
 
             else -> listOf(expression)
-        }
-    }
-
-    private fun negate(expression: Expression): Expression {
-        return when (expression) {
-            is EExchange -> EExchange(
-                negate(expression.quantity),
-                expression.product,
-            )
-
-            is EQuantity -> EQuantity(
-                -expression.amount,
-                expression.unit,
-            )
-
-            else -> expression
         }
     }
 }

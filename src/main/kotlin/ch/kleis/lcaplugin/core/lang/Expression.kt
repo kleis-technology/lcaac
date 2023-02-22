@@ -67,13 +67,9 @@ data class ESystem(
     val elements: List<Expression>
 ) : Expression
 
-enum class Polarity {
-    POSITIVE, NEGATIVE
-}
 
 data class EBlock(
     val elements: List<Expression>,
-    val polarity: Polarity = Polarity.POSITIVE
 ) : Expression
 
 data class EExchange(

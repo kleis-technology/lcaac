@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -10,12 +9,10 @@ import ch.kleis.lcaplugin.language.psi.type.enums.CoreExpressionType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
 
-class LcaLangAbstractParser(private val project: Project) {
+class LcaLangAbstractParser(
+    private val findFilesOf: (String) -> List<LcaFile>,
+) {
 
     fun collect(pkgName: String): Pair<Package, List<Package>> {
         val visited = HashSet<String>()
@@ -48,14 +45,7 @@ class LcaLangAbstractParser(private val project: Project) {
     }
 
     private fun mkPackage(pkgName: String): Package {
-        val psiManager = PsiManager.getInstance(project)
-        val files = FileTypeIndex
-            .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
-            .mapNotNull { psiManager.findFile(it) }
-            .map { it as LcaFile }
-            .filter { it.getPackage().name!! == pkgName }
-        if (files.isEmpty()) throw NoSuchElementException("cannot find any LCA file for package $pkgName")
-
+        val files = findFilesOf(pkgName)
         val globals = files
             .flatMap { it.getLocalAssignments() }
             .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
@@ -158,7 +148,7 @@ class LcaLangAbstractParser(private val project: Project) {
         val locals = locals(psiProcess.getLocalAssignments())
         val params = params(psiProcess.getParameters())
         val blocks = psiProcess.getBlocks().map { block(it) }
-        val exchanges = psiProcess.getExchanges().map { exchange(it) }
+        val exchanges = psiProcess.getExchanges().map { exchange(it, Polarity.POSITIVE) }
         val includes = psiProcess.getIncludes().map { include(it) }
 
         var result: Expression = EProcess(
@@ -175,17 +165,26 @@ class LcaLangAbstractParser(private val project: Project) {
         return result
     }
 
-    private fun exchange(psiExchange: PsiExchange): Expression {
-        return EExchange(
-            quantity(psiExchange.getQuantity()),
-            variable(psiExchange.getProduct().name!!),
-        )
+    private fun exchange(
+        psiExchange: PsiExchange,
+        polarity: Polarity,
+    ): Expression {
+        return when (polarity) {
+            Polarity.POSITIVE -> EExchange(
+                quantity(psiExchange.getQuantity()),
+                variable(psiExchange.getProduct().name!!),
+            )
+
+            Polarity.NEGATIVE -> EExchange(
+                ENeg(quantity(psiExchange.getQuantity())),
+                variable(psiExchange.getProduct().name!!),
+            )
+        }
     }
 
     private fun block(psiBlock: PsiBlock): Expression {
         return EBlock(
-            psiBlock.getExchanges().map { exchange(it) },
-            psiBlock.getPolarity(),
+            psiBlock.getExchanges().map { exchange(it, psiBlock.getPolarity()) },
         )
     }
 

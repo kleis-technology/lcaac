@@ -21,8 +21,8 @@ class EvaluatorTest {
                         EExchange(EQuantity(1.0, kg), carrot),
                         EBlock(
                             listOf(
-                                EExchange(EQuantity(3.0, l), water),
-                            ), Polarity.NEGATIVE
+                                EExchange(EQuantity(-3.0, l), water),
+                            ),
                         )
                     )
                 )

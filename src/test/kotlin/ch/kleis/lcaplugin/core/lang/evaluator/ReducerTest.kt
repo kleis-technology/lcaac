@@ -13,9 +13,11 @@ class ReducerTest {
         val environment = Environment.of(
             Pair("f", EVar("x"))
         )
-        val expression = EInstance(EVar("f"), mapOf(
-            Pair("x", EVar("a"))
-        ))
+        val expression = EInstance(
+            EVar("f"), mapOf(
+                Pair("x", EVar("a"))
+            )
+        )
         val reducer = Reducer(environment)
 
         // when
@@ -372,7 +374,6 @@ class ReducerTest {
             listOf(
                 EExchange(EVar("q"), carrot)
             ),
-            Polarity.NEGATIVE,
         )
         val environment = Environment.of(
             Pair(
@@ -389,7 +390,6 @@ class ReducerTest {
             listOf(
                 EExchange(EQuantity(3.0, kg), carrot)
             ),
-            Polarity.NEGATIVE,
         )
         assertEquals(expected, actual)
     }
@@ -516,6 +516,21 @@ class ReducerTest {
                 EExchange(EQuantity(4.0, kg), water),
             )
         )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun negate_quantity() {
+        // given
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
+        val q = EQuantity(10.0, kg)
+        val reducer = Reducer(emptyEnv())
+
+        // when
+        val actual = reducer.reduce(ENeg(q))
+
+        // then
+        val expected = EQuantity(-10.0, kg)
         assertEquals(expected, actual)
     }
 }

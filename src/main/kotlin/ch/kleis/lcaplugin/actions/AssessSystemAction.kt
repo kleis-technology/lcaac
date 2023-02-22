@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.actions
 
+import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Compiler
 import ch.kleis.lcaplugin.core.lang.EntryPoint
@@ -16,13 +17,25 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.psi.PsiManager
+import com.intellij.psi.search.FileTypeIndex
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
 class AssessSystemAction(private val systemName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
-        val parser = LcaLangAbstractParser(project)
+        val psiManager = PsiManager.getInstance(project)
+        val parser = LcaLangAbstractParser { pkgName ->
+            val files = FileTypeIndex
+                .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
+                .mapNotNull { psiManager.findFile(it) }
+                .map { it as LcaFile }
+                .filter { it.getPackage().name!! == pkgName }
+            if (files.isEmpty()) throw NoSuchElementException("cannot find any LCA file for package $pkgName")
+            files
+        }
 
         try {
             val (pkg, dependencies) = parser.collect(file.getPackage().name!!)

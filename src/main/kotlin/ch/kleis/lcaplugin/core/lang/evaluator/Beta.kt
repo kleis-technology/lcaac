@@ -74,7 +74,6 @@ class Beta {
             is EBlock -> {
                 return EBlock(
                     expression.elements.map { substitute(binder, value, it) },
-                    expression.polarity
                 )
             }
 
@@ -142,7 +141,7 @@ class Beta {
             .associateWith { helper.newName(it, valueFreeVars) }
         val renamedParams = HashMap<String, Expression?>(params)
         var renamedBody: Expression = body
-        conflicts.forEach { existing, replacement ->
+        conflicts.forEach { (existing, replacement) ->
             renamedParams[replacement] = renamedParams[existing]
             renamedParams.remove(existing)
             renamedBody = helper.rename(existing, replacement, renamedBody)
