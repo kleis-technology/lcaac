@@ -56,7 +56,6 @@ data class EPow(val quantity: Expression, val exponent: Double) : Expression
 
 data class EProduct(
     val name: String,
-    val dimension: Dimension,
     val referenceUnit: Expression,
 ) : Expression
 
@@ -68,13 +67,9 @@ data class ESystem(
     val elements: List<Expression>
 ) : Expression
 
-enum class Polarity {
-    POSITIVE, NEGATIVE
-}
 
 data class EBlock(
     val elements: List<Expression>,
-    val polarity: Polarity = Polarity.POSITIVE
 ) : Expression
 
 data class EExchange(

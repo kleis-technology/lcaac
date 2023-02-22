@@ -2,6 +2,8 @@ package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.EUnit
+import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.Package
 
 class Prelude {
     companion object {
@@ -15,8 +17,9 @@ class Prelude {
         private val none = Dimension.None
         private val radioactivity = Dimension.of("radioactivity")
 
-        val units = listOf(
+        private val definitions = listOf(
             EUnit("one", 1.0, none),
+            EUnit("person", 1.0, none),
             EUnit("percent", 1.0e-2, none),
             EUnit("kg", 1.0, mass),
             EUnit("g", 1.0e-3, mass),
@@ -45,5 +48,16 @@ class Prelude {
             EUnit("MJ", 1.0e6 / 3600.0, energy),
             EUnit("W", 1.0, power),
         ).associateBy { it.symbol }
+
+        val packages = mapOf(
+            Pair(
+                "prelude.units",
+                Package(
+                    "prelude.units",
+                    emptyList(),
+                    Environment.of(definitions),
+                )
+            )
+        )
     }
 }

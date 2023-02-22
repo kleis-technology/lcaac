@@ -10,12 +10,14 @@ class ReducerTest {
     @Test
     fun reduce_instance_shouldTemplateByDefault() {
         // given
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair("f", EVar("x"))
         )
-        val expression = EInstance(EVar("f"), mapOf(
-            Pair("x", EVar("a"))
-        ))
+        val expression = EInstance(
+            EVar("f"), mapOf(
+                Pair("x", EVar("a"))
+            )
+        )
         val reducer = Reducer(environment)
 
         // when
@@ -29,7 +31,7 @@ class ReducerTest {
     @Test
     fun reduce_withEnv() {
         // given
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair(
                 "kg",
                 EUnit(
@@ -42,7 +44,6 @@ class ReducerTest {
                 "carrot",
                 EProduct(
                     "carrot",
-                    Dimension.of("mass"),
                     EVar("kg")
                 )
             ),
@@ -56,7 +57,6 @@ class ReducerTest {
         // then
         val expected = EProduct(
             "carrot",
-            Dimension.of("mass"),
             EUnit(
                 "kg",
                 1.0,
@@ -72,7 +72,7 @@ class ReducerTest {
         val a = EUnit("a", 2.0, Dimension.of("A"))
         val b = EUnit("b", 2.0, Dimension.of("B"))
         val expression = EMul(a, b)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -88,7 +88,7 @@ class ReducerTest {
         val a = EUnit("a", 2.0, Dimension.of("A"))
         val b = EUnit("b", 2.0, Dimension.of("B"))
         val expression = EDiv(a, b)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -103,7 +103,7 @@ class ReducerTest {
         // given
         val a = EUnit("a", 2.0, Dimension.of("A"))
         val expression = EPow(a, 2.0)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -117,7 +117,7 @@ class ReducerTest {
     fun reduce_var() {
         // given
         val expression = EVar("a")
-        val environment = mapOf(Pair("a", EVar("b")))
+        val environment = Environment.of(Pair("a", EVar("b")))
         val reducer = Reducer(environment)
 
         // when
@@ -136,7 +136,7 @@ class ReducerTest {
                 Pair("a", EVar("x"))
             ), EVar("a")
         )
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -156,7 +156,7 @@ class ReducerTest {
                 Pair("c", EVar("b")),
             ), EVar("c")
         )
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -179,7 +179,7 @@ class ReducerTest {
             Pair("x", EVar("a"))
         )
         val expression = EInstance(template, arguments)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -200,7 +200,7 @@ class ReducerTest {
         )
         val arguments = emptyMap<String, Expression>()
         val expression = EInstance(template, arguments)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -223,7 +223,7 @@ class ReducerTest {
             Pair("x", EVar("b"))
         )
         val expression = EInstance(template, arguments)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -246,7 +246,7 @@ class ReducerTest {
             Pair("x", EVar("b"))
         )
         val expression = EInstance(template, arguments)
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair("b", EVar("c"))
         )
         val reducer = Reducer(environment)
@@ -267,7 +267,7 @@ class ReducerTest {
             ),
             EVar("x")
         )
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair("f", template),
             Pair("b", EVar("c"))
         )
@@ -291,7 +291,7 @@ class ReducerTest {
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(1.0, kg)
         val b = EQuantity(1.0, kg)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(EAdd(a, b))
@@ -307,7 +307,7 @@ class ReducerTest {
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(2.0, kg)
         val b = EQuantity(1.0, kg)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(ESub(a, b))
@@ -323,7 +323,7 @@ class ReducerTest {
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(2.0, kg)
         val b = EQuantity(2.0, kg)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(EMul(a, b))
@@ -340,7 +340,7 @@ class ReducerTest {
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EQuantity(4.0, person)
         val b = EQuantity(2.0, kg)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(EDiv(a, b))
@@ -355,7 +355,7 @@ class ReducerTest {
         // given
         val m = EUnit("m", 1.0, Dimension.of("length"))
         val a = EQuantity(2.0, m)
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(EPow(a, 2.0))
@@ -369,14 +369,13 @@ class ReducerTest {
     fun block() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
-        val carrot = EProduct("carrot", Dimension.of("mass"), kg)
+        val carrot = EProduct("carrot", kg)
         val expression = EBlock(
             listOf(
                 EExchange(EVar("q"), carrot)
             ),
-            Polarity.NEGATIVE,
         )
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair(
                 "q", EQuantity(3.0, kg)
             )
@@ -391,7 +390,6 @@ class ReducerTest {
             listOf(
                 EExchange(EQuantity(3.0, kg), carrot)
             ),
-            Polarity.NEGATIVE,
         )
         assertEquals(expected, actual)
     }
@@ -400,8 +398,8 @@ class ReducerTest {
     fun process() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
-        val carrot = EProduct("carrot", Dimension.of("mass"), kg)
-        val water = EProduct("water", Dimension.of("mass"), kg)
+        val carrot = EProduct("carrot", kg)
+        val water = EProduct("water", kg)
         val expression = EProcess(
             listOf(
                 EExchange(EVar("p"), carrot),
@@ -412,7 +410,7 @@ class ReducerTest {
                 ),
             ),
         )
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair(
                 "p", EQuantity(4.0, kg),
             ),
@@ -439,8 +437,8 @@ class ReducerTest {
     fun system() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
-        val carrot = EProduct("carrot", Dimension.of("mass"), kg)
-        val water = EProduct("water", Dimension.of("mass"), kg)
+        val carrot = EProduct("carrot", kg)
+        val water = EProduct("water", kg)
         val expression = ESystem(
             listOf(
                 EProcess(
@@ -459,7 +457,7 @@ class ReducerTest {
                 ),
             ),
         )
-        val environment = mapOf(
+        val environment = Environment.of(
             Pair(
                 "p", EQuantity(4.0, kg),
             ),
@@ -494,8 +492,8 @@ class ReducerTest {
     fun process_nested() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
-        val carrot = EProduct("carrot", Dimension.of("mass"), kg)
-        val water = EProduct("water", Dimension.of("mass"), kg)
+        val carrot = EProduct("carrot", kg)
+        val water = EProduct("water", kg)
         val expression = EProcess(
             listOf(
                 EExchange(EQuantity(2.0, kg), carrot),
@@ -506,7 +504,7 @@ class ReducerTest {
                 )
             )
         )
-        val reducer = Reducer(emptyMap())
+        val reducer = Reducer(emptyEnv())
 
         // when
         val actual = reducer.reduce(expression)
@@ -518,6 +516,21 @@ class ReducerTest {
                 EExchange(EQuantity(4.0, kg), water),
             )
         )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun negate_quantity() {
+        // given
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
+        val q = EQuantity(10.0, kg)
+        val reducer = Reducer(emptyEnv())
+
+        // when
+        val actual = reducer.reduce(ENeg(q))
+
+        // then
+        val expected = EQuantity(-10.0, kg)
         assertEquals(expected, actual)
     }
 }

@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -10,21 +9,43 @@ import ch.kleis.lcaplugin.language.psi.type.enums.CoreExpressionType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
 
-class LcaLangAbstractParser {
-    fun lcaPackage(pkgName: String, project: Project): Package {
-        val psiManager = PsiManager.getInstance(project)
-        val files = FileTypeIndex
-            .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
-            .mapNotNull { psiManager.findFile(it) }
-            .map { it as LcaFile }
-            .filter { it.getPackage().name!! == pkgName }
-        if (files.isEmpty()) throw NoSuchElementException(pkgName)
+class LcaLangAbstractParser(
+    private val findFilesOf: (String) -> List<LcaFile>,
+) {
 
+    fun collect(pkgName: String): Pair<Package, List<Package>> {
+        val visited = HashSet<String>()
+        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
+        visited.add(pkgName)
+        val dependencies = pkg.imports
+            .flatMap {
+                val deps = collectDependencies(it.pkgName, visited)
+                visited.addAll(deps.map { dep -> dep.name })
+                deps
+            }
+        return Pair(pkg, dependencies)
+    }
+
+    private fun collectDependencies(pkgName: String, visited: HashSet<String>): List<Package> {
+        if (visited.contains(pkgName)) {
+            return emptyList()
+        }
+        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
+        if (pkg.imports.isEmpty()) {
+            return listOf(pkg)
+        }
+        val dependencies = pkg.imports
+            .flatMap {
+                val deps = collectDependencies(it.pkgName, visited)
+                visited.addAll(deps.map { dep -> dep.name })
+                deps
+            }
+        return dependencies.plus(pkg)
+    }
+
+    private fun mkPackage(pkgName: String): Package {
+        val files = findFilesOf(pkgName)
         val globals = files
             .flatMap { it.getLocalAssignments() }
             .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
@@ -49,13 +70,26 @@ class LcaLangAbstractParser {
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
-        val definitions = Prelude.units
-            .plus(globals)
+        val definitions = globals
             .plus(units)
             .plus(products)
             .plus(processes)
             .plus(systems)
-        return Package(definitions)
+
+        val imports = files
+            .flatMap { it.getImports() }
+            .map {
+                when (it.getImportType()) {
+                    ImportType.SYMBOL -> ImportSymbol(it.getPackageName(), it.getSymbol()!!)
+                    ImportType.WILDCARD -> ImportWildCard(it.getPackageName())
+                }
+            }
+
+        return Package(
+            pkgName,
+            imports,
+            Environment.of(definitions)
+        )
     }
 
 
@@ -114,7 +148,7 @@ class LcaLangAbstractParser {
         val locals = locals(psiProcess.getLocalAssignments())
         val params = params(psiProcess.getParameters())
         val blocks = psiProcess.getBlocks().map { block(it) }
-        val exchanges = psiProcess.getExchanges().map { exchange(it) }
+        val exchanges = psiProcess.getExchanges().map { exchange(it, Polarity.POSITIVE) }
         val includes = psiProcess.getIncludes().map { include(it) }
 
         var result: Expression = EProcess(
@@ -131,27 +165,34 @@ class LcaLangAbstractParser {
         return result
     }
 
-    private fun exchange(psiExchange: PsiExchange): Expression {
-        return EExchange(
-            quantity(psiExchange.getQuantity()),
-            variable(psiExchange.getProduct().name!!),
-        )
+    private fun exchange(
+        psiExchange: PsiExchange,
+        polarity: Polarity,
+    ): Expression {
+        return when (polarity) {
+            Polarity.POSITIVE -> EExchange(
+                quantity(psiExchange.getQuantity()),
+                variable(psiExchange.getProduct().name!!),
+            )
+
+            Polarity.NEGATIVE -> EExchange(
+                ENeg(quantity(psiExchange.getQuantity())),
+                variable(psiExchange.getProduct().name!!),
+            )
+        }
     }
 
     private fun block(psiBlock: PsiBlock): Expression {
         return EBlock(
-            psiBlock.getExchanges().map { exchange(it) },
-            psiBlock.getPolarity(),
+            psiBlock.getExchanges().map { exchange(it, psiBlock.getPolarity()) },
         )
     }
 
     private fun product(psiProduct: PsiProduct): Expression {
-        val dimension = Dimension.of(psiProduct.getDimensionField().getValue())
+        val unit = unit(psiProduct.getReferenceUnitField().getValue())
         return EProduct(
             psiProduct.getUid()?.name!!,
-            dimension,
-            psiProduct.getReferenceUnitField()?.let { unit(it.getValue()) }
-                ?: EUnit("ref_unit($dimension)", 1.0, dimension),
+            unit
         )
     }
 

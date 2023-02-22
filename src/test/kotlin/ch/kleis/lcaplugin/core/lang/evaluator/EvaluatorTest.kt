@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
-import com.intellij.testFramework.assertEqualsToFile
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -13,8 +12,8 @@ class EvaluatorTest {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val l = EUnit("l", 1.0, Dimension.of("volume"))
-        val carrot = EProduct("carrot", Dimension.of("mass"), kg)
-        val water = EProduct("water", Dimension.of("volume"), l)
+        val carrot = EProduct("carrot", kg)
+        val water = EProduct("water", l)
         val expression = ESystem(
             listOf(
                 EProcess(
@@ -22,14 +21,14 @@ class EvaluatorTest {
                         EExchange(EQuantity(1.0, kg), carrot),
                         EBlock(
                             listOf(
-                                EExchange(EQuantity(3.0, l), water),
-                            ), Polarity.NEGATIVE
+                                EExchange(EQuantity(-3.0, l), water),
+                            ),
                         )
                     )
                 )
             )
         )
-        val evaluator = Evaluator(emptyMap())
+        val evaluator = Evaluator(emptyEnv())
 
         // when
         val actual = evaluator.eval(expression)
@@ -37,8 +36,8 @@ class EvaluatorTest {
         // then
         val vKg = VUnit("kg", 1.0, Dimension.of("mass"))
         val vL = VUnit("l", 1.0, Dimension.of("volume"))
-        val vCarrot = VProduct("carrot", Dimension.of("mass"), vKg)
-        val vWater = VProduct("water", Dimension.of("volume"), vL)
+        val vCarrot = VProduct("carrot", vKg)
+        val vWater = VProduct("water", vL)
         val expected = VSystem(
             listOf(
                 VProcess(

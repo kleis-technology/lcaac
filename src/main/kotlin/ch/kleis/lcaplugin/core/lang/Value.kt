@@ -5,9 +5,17 @@ import ch.kleis.lcaplugin.core.HasUID
 
 sealed interface Value
 
-data class VProduct(val name: String, val dimension: Dimension, val referenceUnit: VUnit) : Value, HasUID
+data class VProduct(val name: String, val referenceUnit: VUnit) : Value, HasUID {
+    fun dimensionDefaultUnit(): VUnit {
+        return VUnit(
+            "default(${referenceUnit.dimension})",
+            1.0,
+            referenceUnit.dimension
+        )
+    }
+}
 
-data class VUnit(val symbol:String, val scale: Double, val dimension: Dimension) : Value {
+data class VUnit(val symbol: String, val scale: Double, val dimension: Dimension) : Value {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

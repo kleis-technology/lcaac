@@ -5,6 +5,14 @@ import ch.kleis.lcaplugin.core.lang.*
 class Beta {
     private val helper = Helper()
 
+    fun substitute(substitutions: List<Pair<String, Expression>>, expression: Expression): Expression {
+        var result = expression
+        substitutions.forEach {
+            result = substitute(it.first, it.second, result)
+        }
+        return result
+    }
+
     fun substitute(binder: String, value: Expression, expression: Expression): Expression {
         return when (expression) {
             is ETemplate -> {
@@ -66,7 +74,6 @@ class Beta {
             is EBlock -> {
                 return EBlock(
                     expression.elements.map { substitute(binder, value, it) },
-                    expression.polarity
                 )
             }
 
@@ -83,7 +90,6 @@ class Beta {
             )
             is EProduct -> EProduct(
                 expression.name,
-                expression.dimension,
                 substitute(binder, value, expression.referenceUnit),
             )
             is EAdd -> EAdd(
@@ -135,7 +141,7 @@ class Beta {
             .associateWith { helper.newName(it, valueFreeVars) }
         val renamedParams = HashMap<String, Expression?>(params)
         var renamedBody: Expression = body
-        conflicts.forEach { existing, replacement ->
+        conflicts.forEach { (existing, replacement) ->
             renamedParams[replacement] = renamedParams[existing]
             renamedParams.remove(existing)
             renamedBody = helper.rename(existing, replacement, renamedBody)

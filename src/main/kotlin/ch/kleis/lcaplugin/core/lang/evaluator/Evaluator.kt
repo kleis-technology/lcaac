@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
 
-class Evaluator(private val environment: Map<String, Expression>) {
+class Evaluator(private val environment: Environment) {
     private val reducer = Reducer(environment)
     private val helper = Helper()
 
@@ -10,7 +10,7 @@ class Evaluator(private val environment: Map<String, Expression>) {
         val reduced = reducer.reduce(expression)
         val freeVars = helper.freeVariables(reduced)
         if (freeVars.isNotEmpty()) {
-            val message = "undefined variables: $freeVars"
+            val message = "unresolved variables $freeVars"
             throw EvaluatorException(message)
         }
         return asValue(reduced)
@@ -29,7 +29,6 @@ class Evaluator(private val environment: Map<String, Expression>) {
             is EProduct -> {
                 return VProduct(
                     reduced.name,
-                    reduced.dimension,
                     asValue(reduced.referenceUnit) as VUnit,
                 )
             }

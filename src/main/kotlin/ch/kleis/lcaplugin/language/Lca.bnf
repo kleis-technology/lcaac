@@ -62,12 +62,19 @@
   ]
 }
 
-lcaFile ::= package  (definition | let)*
+lcaFile ::= package  (definition | let | import)*
 
 package ::= PACKAGE_KEYWORD urn {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
 }
+
+import ::= IMPORT_KEYWORD urn wildcard? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
+}
+
+wildcard ::= DOT STAR
 
 urn ::= uid DOT urn | uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
@@ -87,7 +94,7 @@ coreExpr ::= product
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
 }
 
-product ::= PRODUCT_KEYWORD uid? LBRACE nameField dimField referenceUnitField? RBRACE {
+product ::= PRODUCT_KEYWORD uid? LBRACE nameField referenceUnitField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
