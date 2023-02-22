@@ -13,6 +13,7 @@ import ch.kleis.lcaplugin.language.psi.type.unit.*
 class LcaLangAbstractParser(
     private val findFilesOf: (String) -> List<LcaFile>,
 ) {
+    private var productCount: Int = 0
 
     fun collect(pkgName: String): Pair<Package, List<Package>> {
         val visited = HashSet<String>()
@@ -190,8 +191,13 @@ class LcaLangAbstractParser(
 
     private fun product(psiProduct: PsiProduct): Expression {
         val unit = unit(psiProduct.getReferenceUnitField().getValue())
+        val name = psiProduct.getUid()?.name ?: run {
+            val result = "product_$productCount"
+            productCount += 1
+            result
+        }
         return EProduct(
-            psiProduct.getUid()?.name!!,
+            name,
             unit
         )
     }
