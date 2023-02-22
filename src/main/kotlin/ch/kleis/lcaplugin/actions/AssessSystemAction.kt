@@ -38,6 +38,9 @@ class AssessSystemAction(private val systemName: String) : AnAction() {
         } catch (e: LinkerException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
+        } catch (e: NoSuchElementException) {
+            val result = InventoryError(e.message ?: "evaluator: unknown error")
+            displayToolWindow(project, result)
         }
     }
 

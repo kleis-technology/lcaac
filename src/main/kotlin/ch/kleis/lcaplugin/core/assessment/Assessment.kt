@@ -35,7 +35,7 @@ class Assessment(
     }
 
     fun inventory(): InventoryResult {
-        val data = solver.solve(this.observable.matrix, this.controllable.matrix) ?: return InventoryError("The system cannot be solved")
+        val data = solver.solve(this.observable.matrix, this.controllable.matrix.negate()) ?: return InventoryError("The system cannot be solved")
         return InventoryMatrix(this.observableProducts, this.controllableProducts, data)
     }
 }

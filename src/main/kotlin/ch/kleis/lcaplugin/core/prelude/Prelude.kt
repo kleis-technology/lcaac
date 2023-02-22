@@ -19,6 +19,7 @@ class Prelude {
 
         private val definitions = listOf(
             EUnit("one", 1.0, none),
+            EUnit("person", 1.0, none),
             EUnit("percent", 1.0e-2, none),
             EUnit("kg", 1.0, mass),
             EUnit("g", 1.0e-3, mass),

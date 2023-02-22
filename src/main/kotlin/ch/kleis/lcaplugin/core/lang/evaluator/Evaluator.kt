@@ -10,7 +10,7 @@ class Evaluator(private val environment: Environment) {
         val reduced = reducer.reduce(expression)
         val freeVars = helper.freeVariables(reduced)
         if (freeVars.isNotEmpty()) {
-            val message = "$reduced contains free variables $freeVars"
+            val message = "unresolved variables $freeVars"
             throw EvaluatorException(message)
         }
         return asValue(reduced)
