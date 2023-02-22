@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.actions
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Compiler
 import ch.kleis.lcaplugin.core.lang.EntryPoint
+import ch.kleis.lcaplugin.core.lang.LinkerException
 import ch.kleis.lcaplugin.core.lang.VSystem
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.matrix.InventoryError
@@ -22,22 +23,25 @@ class AssessSystemAction(private val systemName: String) : AnAction() {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         val parser = LcaLangAbstractParser(project)
-        val (pkg, dependencies) = parser.collectRequiredPackages(file.getPackage().name!!)
-        val entryPoint = EntryPoint(pkg, systemName)
-        val program = Compiler(entryPoint, dependencies).compile()
 
         try {
+            val (pkg, dependencies) = parser.collect(file.getPackage().name!!)
+            val entryPoint = EntryPoint(pkg, systemName)
+            val program = Compiler(entryPoint, dependencies).compile()
             val value = program.run() as VSystem
             val assessment = Assessment(value)
             val result = assessment.inventory()
             displayToolWindow(project, result)
-        } catch (e : EvaluatorException) {
+        } catch (e: EvaluatorException) {
+            val result = InventoryError(e.message ?: "evaluator: unknown error")
+            displayToolWindow(project, result)
+        } catch (e: LinkerException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
         }
     }
 
-    private fun displayToolWindow(project: Project, result: InventoryResult)  {
+    private fun displayToolWindow(project: Project, result: InventoryResult) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
         val lcaResult = LcaResult(result)
         val content = ContentFactory.getInstance().createContent(lcaResult.getContent(), project.name, false)

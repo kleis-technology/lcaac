@@ -17,17 +17,34 @@ import com.intellij.psi.search.GlobalSearchScope
 
 class LcaLangAbstractParser(private val project: Project) {
 
-    fun collectRequiredPackages(pkgName: String): Pair<Package, Set<Package>> {
-        return collectRequiredPackages(pkgName, emptySet())
+    fun collect(pkgName: String): Pair<Package, List<Package>> {
+        val visited = HashSet<String>()
+        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
+        visited.add(pkgName)
+        val dependencies = pkg.imports
+            .flatMap {
+                val deps = collectDependencies(it.pkgName, visited)
+                visited.addAll(deps.map { dep -> dep.name })
+                deps
+            }
+        return Pair(pkg, dependencies)
     }
 
-    private fun collectRequiredPackages(pkgName: String, visited: Set<String>): Pair<Package, Set<Package>> {
+    private fun collectDependencies(pkgName: String, visited: HashSet<String>): List<Package> {
+        if (visited.contains(pkgName)) {
+            return emptyList()
+        }
         val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
+        if (pkg.imports.isEmpty()) {
+            return listOf(pkg)
+        }
         val dependencies = pkg.imports
-            .filter { !visited.contains(it.pkgName) }
-            .flatMap { collectRequiredPackages(it.pkgName, visited.plus(pkgName)).second }
-            .toSet()
-        return Pair(pkg, dependencies)
+            .flatMap {
+                val deps = collectDependencies(it.pkgName, visited)
+                visited.addAll(deps.map { dep -> dep.name })
+                deps
+            }
+        return dependencies.plus(pkg)
     }
 
     private fun mkPackage(pkgName: String): Package {
@@ -37,7 +54,7 @@ class LcaLangAbstractParser(private val project: Project) {
             .mapNotNull { psiManager.findFile(it) }
             .map { it as LcaFile }
             .filter { it.getPackage().name!! == pkgName }
-        if (files.isEmpty()) throw NoSuchElementException(pkgName)
+        if (files.isEmpty()) throw NoSuchElementException("cannot find any LCA file for package $pkgName")
 
         val globals = files
             .flatMap { it.getLocalAssignments() }
@@ -81,7 +98,7 @@ class LcaLangAbstractParser(private val project: Project) {
         return Package(
             pkgName,
             imports,
-            definitions
+            Environment.of(definitions)
         )
     }
 
@@ -173,12 +190,10 @@ class LcaLangAbstractParser(private val project: Project) {
     }
 
     private fun product(psiProduct: PsiProduct): Expression {
-        val dimension = Dimension.of(psiProduct.getDimensionField().getValue())
+        val unit = unit(psiProduct.getReferenceUnitField().getValue())
         return EProduct(
             psiProduct.getUid()?.name!!,
-            dimension,
-            psiProduct.getReferenceUnitField()?.let { unit(it.getValue()) }
-                ?: EUnit("ref_unit($dimension)", 1.0, dimension),
+            unit
         )
     }
 

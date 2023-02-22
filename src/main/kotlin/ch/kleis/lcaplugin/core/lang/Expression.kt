@@ -56,7 +56,6 @@ data class EPow(val quantity: Expression, val exponent: Double) : Expression
 
 data class EProduct(
     val name: String,
-    val dimension: Dimension,
     val referenceUnit: Expression,
 ) : Expression
 

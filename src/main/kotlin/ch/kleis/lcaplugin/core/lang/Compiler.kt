@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 
 data class Compiler(
     private val entryPoint: EntryPoint,
-    private val dependencies: Set<Package>,
+    private val dependencies: List<Package>,
 ) {
     fun compile(): Program {
         val deps = dependencies.plus(Prelude.packages.values)

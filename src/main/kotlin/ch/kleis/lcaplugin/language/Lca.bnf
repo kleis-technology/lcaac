@@ -94,7 +94,7 @@ coreExpr ::= product
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
 }
 
-product ::= PRODUCT_KEYWORD uid? LBRACE nameField dimField referenceUnitField? RBRACE {
+product ::= PRODUCT_KEYWORD uid? LBRACE nameField referenceUnitField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }

@@ -91,7 +91,6 @@ class Beta {
             )
             is EProduct -> EProduct(
                 expression.name,
-                expression.dimension,
                 substitute(binder, value, expression.referenceUnit),
             )
             is EAdd -> EAdd(

@@ -1,10 +1,45 @@
 package ch.kleis.lcaplugin.core.lang
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 
 class LinkerTest {
+    @Test
+    fun run_whenConflictingVariableUse_importWildcard() {
+        // given
+        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
+        val dep = Package(
+            "dep",
+            emptyList(),
+            Environment.of(
+                Pair("x", EQuantity(1.0, kg))
+            )
+        )
+        val abc = Package(
+            "abc",
+            listOf(ImportWildCard("dep")),
+            Environment.of(
+                Pair("x", EQuantity(2.0, kg)),
+                Pair("main", EAdd(EVar("x"), EQuantity(3.0, kg))),
+            )
+        )
+        val entryPoint = EntryPoint(abc, "main")
+        val linker = Linker(
+            entryPoint,
+            listOf(dep),
+        )
+
+        // when/then
+        try {
+
+            linker.link()
+            fail("should have thrown LinkerException")
+        } catch (e : LinkerException) {
+            // success
+        }
+    }
 
     @Test
     fun run_basic() {
@@ -13,21 +48,21 @@ class LinkerTest {
         val abc = Package(
             "abc",
             emptyList(),
-            mapOf(
+            Environment.of(
                 Pair("x", EQuantity(1.0, kg)),
             )
         )
         val entryPoint = EntryPoint(abc, "x")
         val linker = Linker(
             entryPoint,
-            emptySet(),
+            emptyList(),
         )
 
         // when
         val (_, actual) = linker.link()
 
         // then
-        val expected = mapOf(
+        val expected = Environment.of(
             Pair("abc.x", EQuantity(1.0, kg)),
         )
         assertEquals(expected, actual)
@@ -40,7 +75,7 @@ class LinkerTest {
         val abc = Package(
             "abc",
             emptyList(),
-            mapOf(
+            Environment.of(
                 Pair("x", EQuantity(1.0, kg)),
                 Pair("y", EVar("x")),
             )
@@ -48,14 +83,14 @@ class LinkerTest {
         val entryPoint = EntryPoint(abc, "x")
         val linker = Linker(
             entryPoint,
-            emptySet(),
+            emptyList(),
         )
 
         // when
         val (_, actual) = linker.link()
 
         // then
-        val expected = mapOf(
+        val expected = Environment.of(
             Pair("abc.x", EQuantity(1.0, kg)),
             Pair("abc.y", EVar("abc.x")),
         )
@@ -69,28 +104,28 @@ class LinkerTest {
         val dep = Package(
             "dep",
             emptyList(),
-            mapOf(
+            Environment.of(
                 Pair("x", EQuantity(1.0, kg))
             )
         )
         val abc = Package(
             "abc",
             listOf(ImportSymbol("dep", "x")),
-            mapOf(
+            Environment.of(
                 Pair("y", EVar("x")),
             )
         )
         val entryPoint = EntryPoint(abc, "y")
         val linker = Linker(
             entryPoint,
-            setOf(dep),
+            listOf(dep),
         )
 
         // when
         val (_, actual) = linker.link()
 
         // then
-        val expected = mapOf(
+        val expected = Environment.of(
             Pair("dep.x", EQuantity(1.0, kg)),
             Pair("abc.y", EVar("dep.x")),
         )
@@ -104,7 +139,7 @@ class LinkerTest {
         val dep = Package(
             "dep",
             emptyList(),
-            mapOf(
+            Environment.of(
                 Pair("z", EQuantity(1.0, kg)),
                 Pair("x", EVar("z")),
             )
@@ -112,21 +147,21 @@ class LinkerTest {
         val abc = Package(
             "abc",
             listOf(ImportSymbol("dep", "x")),
-            mapOf(
+            Environment.of(
                 Pair("y", EVar("x")),
             )
         )
         val entryPoint = EntryPoint(abc, "y")
         val linker = Linker(
             entryPoint,
-            setOf(dep),
+            listOf(dep),
         )
 
         // when
         val (_, actual) = linker.link()
 
         // then
-        val expected = mapOf(
+        val expected = Environment.of(
             Pair("dep.z", EQuantity(1.0, kg)),
             Pair("dep.x", EVar("dep.z")),
             Pair("abc.y", EVar("dep.x")),
@@ -141,7 +176,7 @@ class LinkerTest {
         val dep = Package(
             "dep",
             emptyList(),
-            mapOf(
+            Environment.of(
                 Pair("z", EQuantity(1.0, kg)),
                 Pair("x", EVar("z")),
             )
@@ -149,21 +184,21 @@ class LinkerTest {
         val abc = Package(
             "abc",
             listOf(ImportWildCard("dep")),
-            mapOf(
+            Environment.of(
                 Pair("y", EVar("x")),
             )
         )
         val entryPoint = EntryPoint(abc, "y")
         val linker = Linker(
             entryPoint,
-            setOf(dep),
+            listOf(dep),
         )
 
         // when
         val (_, actual) = linker.link()
 
         // then
-        val expected = mapOf(
+        val expected = Environment.of(
             Pair("dep.z", EQuantity(1.0, kg)),
             Pair("dep.x", EVar("dep.z")),
             Pair("abc.y", EVar("dep.x")),

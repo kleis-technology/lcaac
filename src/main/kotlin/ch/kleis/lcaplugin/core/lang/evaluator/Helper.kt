@@ -39,7 +39,6 @@ class Helper {
 
             is EProduct -> EProduct(
                 expression.name,
-                expression.dimension,
                 rename(existing, replacement, expression.referenceUnit)
             )
 

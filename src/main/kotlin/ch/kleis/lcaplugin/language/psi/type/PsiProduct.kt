@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
+import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
 import ch.kleis.lcaplugin.language.psi.type.field.PsiUnitField
 import ch.kleis.lcaplugin.psi.LcaTypes
@@ -14,11 +15,7 @@ interface PsiProduct : PsiElement {
         return node.findChildByType(LcaTypes.NAME_FIELD)?.psi as PsiStringLiteralField
     }
 
-    fun getDimensionField(): PsiStringLiteralField {
-        return node.findChildByType(LcaTypes.DIM_FIELD)?.psi as PsiStringLiteralField
-    }
-
-    fun getReferenceUnitField(): PsiUnitField? {
+    fun getReferenceUnitField(): PsiUnitField {
         return node.findChildByType(LcaTypes.REFERENCE_UNIT_FIELD)?.psi as PsiUnitField
     }
 }

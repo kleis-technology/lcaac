@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.EUnit
+import ch.kleis.lcaplugin.core.lang.Environment
 import ch.kleis.lcaplugin.core.lang.Package
 
 class Prelude {
@@ -53,7 +54,7 @@ class Prelude {
                 Package(
                     "prelude.units",
                     emptyList(),
-                    definitions,
+                    Environment.of(definitions),
                 )
             )
         )

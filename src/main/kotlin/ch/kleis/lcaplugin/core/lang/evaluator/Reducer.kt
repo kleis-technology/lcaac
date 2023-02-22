@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.*
 import kotlin.math.pow
 
 class Reducer(environment: Environment) {
-    private val environment = MutableEnvironment(environment)
+    private val environment = Environment(environment)
     private val beta = Beta()
 
     fun reduce(expression: Expression): Expression {
@@ -81,8 +81,7 @@ class Reducer(environment: Environment) {
             is EProduct -> {
                 EProduct(
                     expression.name,
-                    expression.dimension,
-                    reduce(expression.referenceUnit)
+                    reduce(expression.referenceUnit),
                 )
             }
 

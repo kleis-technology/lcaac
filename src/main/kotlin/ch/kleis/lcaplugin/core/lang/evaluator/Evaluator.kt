@@ -10,7 +10,7 @@ class Evaluator(private val environment: Environment) {
         val reduced = reducer.reduce(expression)
         val freeVars = helper.freeVariables(reduced)
         if (freeVars.isNotEmpty()) {
-            val message = "undefined variables: $freeVars"
+            val message = "$reduced contains free variables $freeVars"
             throw EvaluatorException(message)
         }
         return asValue(reduced)
@@ -29,7 +29,6 @@ class Evaluator(private val environment: Environment) {
             is EProduct -> {
                 return VProduct(
                     reduced.name,
-                    reduced.dimension,
                     asValue(reduced.referenceUnit) as VUnit,
                 )
             }
