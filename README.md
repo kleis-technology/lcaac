@@ -85,3 +85,48 @@ process water_production {
 }
 ```
 
+## Vocabulary definition
+
+> **process**: contains a list of exchanges
+
+> **exchange**: contains a list of (quantity, input | product | resource | land-use | emission)
+
+> **biosphere exchange**: exchange with a resource, a land-use, or an emission
+
+> **technosphere exchange**: exchange with an input or a product
+ 
+> **substance**: has a name, a compartiment, a sub-compartiment, and a list of emission-factors.
+> A substance is used by a resource or an emission
+
+> **emission-factor**: contains a value and an indicator name 
+
+### Example
+Un fermier exploite sa ferme pour produire des carottes. Pour produire 50T de carottes, il a besoin de
+- 60 h d'usage de tracteur
+- 10 ha de terrain
+- 1 T semi de carottes (qui elle même a besoin de carottes)
+- 50 m^3 d'eau irrigée
+- 50 m^3 d'eau de pluie
+
+Il obtient également 30T de fânes de carottes
+```lca
+package carotte_exemple
+
+process production_de_carottes {
+  products {
+   - carotte 50 T
+   - fane_de_carottes 30 T         
+  }
+  inputs{
+    - usage_de_tracteur 60 h
+    - semi_de_carottes 1 T
+    - eau_irrigee 50 m3
+  }
+    resources {
+     - eau 50 m3
+    }
+  land_use {
+    - terrain 10 ha
+  }
+}
+```
