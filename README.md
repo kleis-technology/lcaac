@@ -96,7 +96,7 @@ process water_production {
 > **technosphere exchange**: exchange with an input or a product
  
 > **substance**: has a name, a compartiment, a sub-compartiment, and a list of emission-factors.
-> A substance is used by a resource or an emission
+> A substance is used by a resource, an emission or a land-use 
 
 > **emission-factor**: contains a value and an indicator name 
 
