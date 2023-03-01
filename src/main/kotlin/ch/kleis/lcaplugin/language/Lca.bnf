@@ -19,6 +19,7 @@
       SYMBOL_KEYWORD = 'symbol'
       SUBSTANCE_KEYWORD = 'substance'
       PRODUCT_KEYWORD = 'product'
+      INDICATOR_KEYWORD = 'indicator'
       LET_KEYWORD = 'let'
       UNIT_KEYWORD = 'unit'
       REFERENCE_UNIT_KEYWORD = 'reference-unit'
@@ -94,7 +95,7 @@ coreExpr ::= product
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
 }
 
-product ::= PRODUCT_KEYWORD uid? LBRACE nameField referenceUnitField RBRACE {
+product ::= (PRODUCT_KEYWORD | INDICATOR_KEYWORD) uid? LBRACE nameField referenceUnitField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
