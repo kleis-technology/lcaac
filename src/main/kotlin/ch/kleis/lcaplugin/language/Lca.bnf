@@ -104,7 +104,7 @@ product ::= (PRODUCT_KEYWORD | INDICATOR_KEYWORD) uid? LBRACE nameField referenc
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
 
-substance ::= SUBSTANCE_KEYWORD uid? LBRACE
+substance ::= SUBSTANCE_KEYWORD uid LBRACE
     nameField
     compartmentField
     subCompartmentField

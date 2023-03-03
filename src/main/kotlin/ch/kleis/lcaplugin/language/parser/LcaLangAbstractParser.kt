@@ -180,21 +180,15 @@ class LcaLangAbstractParser(
     }
 
     private fun getProductFromSubstance(psiSubstance: PsiSubstance): Expression {
-        val unit = unit(psiSubstance.getReferenceUnitField().getValue())
-        val name = psiSubstance.getUid()?.name ?: run {
-            val result = "product_$productCount"
-            productCount += 1
-            result
-        }
         return EProduct(
-            name,
-            unit
+            psiSubstance.getUid().name!!,
+            unit(psiSubstance.getReferenceUnitField().getValue())
         )
     }
 
     private fun getProcessFromSubstance(psiSubstance: PsiSubstance): Expression {
-        val productVar = EVar(psiSubstance.getNameField().getValue())
-        val productQuantity = EQuantity(-1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
+        val productVar = EVar(psiSubstance.getUid().name!!)
+        val productQuantity = EQuantity(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
         val productExchange = EExchange(productQuantity, productVar)
 
         val emissionFactorExchanges = psiSubstance.getEmissionFactors()
