@@ -61,6 +61,17 @@ class LcaLangAbstractParser(
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
+        val substancesAsProduct = files
+            .flatMap { it.getSubstances() }
+            .filter { it.getUid() != null }
+            .associate { Pair(it.getUid()?.name!!, getProductFromSubstance(it)) }
+
+        val substancesAsProcess = files
+            .flatMap { it.getSubstances() }
+            .filter { it.hasEmissionFactors() }
+            .filter { it.getUid() != null }
+            .associate { Pair(it.getUid()?.name!!+"_process", getProcessFromSubstance(it)) }
+
         val systems = files
             .flatMap { it.getSystems() }
             .filter { it.getUid() != null }
@@ -76,6 +87,8 @@ class LcaLangAbstractParser(
             .plus(products)
             .plus(processes)
             .plus(systems)
+            .plus(substancesAsProduct)
+            .plus(substancesAsProcess)
 
         val imports = files
             .flatMap { it.getImports() }
@@ -164,6 +177,26 @@ class LcaLangAbstractParser(
             result = ETemplate(params, result)
         }
         return result
+    }
+
+    private fun getProductFromSubstance(psiSubstance: PsiSubstance): Expression {
+        return EProduct(
+            psiSubstance.getUid().name!!,
+            unit(psiSubstance.getReferenceUnitField().getValue())
+        )
+    }
+
+    private fun getProcessFromSubstance(psiSubstance: PsiSubstance): Expression {
+        val productVar = EVar(psiSubstance.getUid().name!!)
+        val productQuantity = EQuantity(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
+        val productExchange = EExchange(productQuantity, productVar)
+
+        val emissionFactorExchanges = psiSubstance.getEmissionFactors()
+            ?.getExchanges()
+            ?.map { exchange(it, Polarity.POSITIVE) }
+        val emissionBlock = EBlock(emissionFactorExchanges!!)
+
+        return EProcess(listOf(productExchange, emissionBlock))
     }
 
     private fun exchange(

@@ -38,7 +38,7 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
 
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> {
         return when (tokenType) {
-            PACKAGE_KEYWORD, PROCESS_KEYWORD, PARAMETERS_KEYWORD,
+            PACKAGE_KEYWORD, PROCESS_KEYWORD, INDICATOR_KEYWORD, SUBSTANCE_KEYWORD, EMISSION_FACTORS_KEYWORD, META_KEYWORD, PARAMETERS_KEYWORD,
             PARAMETER_KEYWORD, SYSTEM_KEYWORD,
             UNIT_KEYWORD, PRODUCT_KEYWORD, IMPORT_KEYWORD,
                 LET_KEYWORD, INCLUDE_KEYWORD, TEMPLATE_KEYWORD,
@@ -51,7 +51,8 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
 
             SCALE_KEYWORD, DIMENSION_KEYWORD,
             REFERENCE_UNIT_KEYWORD,
-            SYMBOL_KEYWORD, NAME_KEYWORD -> FIELD_KEYS
+            SYMBOL_KEYWORD, NAME_KEYWORD,
+            COMPARTMENT_KEYWORD, SUB_COMPARTMENT_KEYWORD -> FIELD_KEYS
 
             TokenType.BAD_CHARACTER -> BAD_CHARACTER_KEYS
 
