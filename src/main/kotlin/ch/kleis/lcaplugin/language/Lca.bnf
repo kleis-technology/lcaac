@@ -18,6 +18,10 @@
       PROCESS_KEYWORD = 'process'
       SYMBOL_KEYWORD = 'symbol'
       SUBSTANCE_KEYWORD = 'substance'
+      COMPARTMENT_KEYWORD = 'compartment'
+      SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
+      EMISSION_FACTORS_KEYWORD = 'emission-factors'
+      META_KEYWORD = "meta"
       PRODUCT_KEYWORD = 'product'
       INDICATOR_KEYWORD = 'indicator'
       LET_KEYWORD = 'let'
@@ -82,7 +86,7 @@ urn ::= uid DOT urn | uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
 }
 
-private definition ::= product | process | system | unitLiteral
+private definition ::= product | process | system | unitLiteral | substance
 
 coreExpr ::= product
     | process
@@ -99,6 +103,37 @@ product ::= (PRODUCT_KEYWORD | INDICATOR_KEYWORD) uid? LBRACE nameField referenc
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
+
+substance ::= SUBSTANCE_KEYWORD uid? LBRACE
+    nameField
+    compartmentField
+    subCompartmentField
+    referenceUnitField
+    emission_factors?
+    meta_block?
+    RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiSubstance"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
+}
+
+compartmentField ::= COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
+    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
+}
+subCompartmentField ::= SUB_COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
+    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
+}
+emission_factors ::= EMISSION_FACTORS_KEYWORD LBRACE (exchange)* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiEmissionFactors"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiEmissionFactorsMixin"
+}
+
+meta_block ::= META_KEYWORD LBRACE (IDENTIFIER EQUAL STRING_LITERAL)* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiMetaBlock"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiMetaBlockMixin"
+}
+
 nameField ::= NAME_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"

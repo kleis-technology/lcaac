@@ -10,29 +10,6 @@ import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
-    fun testIndicatorParse_shouldReturnAProduct() {
-        // given
-        val file = parseFile("climateChange","""
-            package climateChange
-            
-            indicator climate_change {
-                name = "Climate change"
-                reference_unit = kg
-            }
-        """.trimIndent()
-        ) as LcaFile
-        val parser = LcaLangAbstractParser {
-            listOf(file)
-        }
-        // when
-        val (pkg, _) = parser.collect("climateChange")
-        val actual = pkg.definitions["climate_change"]!!
-        // then
-        val expected = EProduct("climate_change", EVar("kg"))
-        TestCase.assertEquals(expected, actual)
-    }
-
-    @Test
     fun testParse() {
         // given
         val file = parseFile(
@@ -116,6 +93,144 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 )
             )
         )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testIndicatorParse_shouldReturnAProduct() {
+        // given
+        val file = parseFile("climateChange","""
+            package climateChange
+            
+            indicator climate_change {
+                name = "Climate change"
+                reference_unit = kg
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser {
+            listOf(file)
+        }
+        // when
+        val (pkg, _) = parser.collect("climateChange")
+        val actual = pkg.definitions["climate_change"]!!
+        // then
+        val expected = EProduct("climate_change", EVar("kg"))
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSubstanceParse_shouldReturnAProduct() {
+        // given
+        val file = parseFile("substances","""
+            package substances
+            
+            substance phosphate {
+                name = "phosphate"
+                compartment = "phosphate compartment"
+                sub_compartment = "phosphate sub-compartment"
+                reference_unit = kg
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser {
+            listOf(file)
+        }
+        // when
+        val (pkg, _) = parser.collect("substances")
+        val actual = pkg.definitions["phosphate"]!!
+        // then
+        val expected = EProduct("phosphate", EVar("kg"))
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSubstanceParse_shouldReturnAProcess() {
+        // given
+        val file = parseFile("substances","""
+            package substances
+            
+            substance phosphate {
+                name = "phosphate"
+                compartment = "phosphate compartment"
+                sub_compartment = "phosphate sub-compartment"
+                reference_unit = kg
+                
+                emission_factors {
+                    1 kg climate_change
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser {
+            listOf(file)
+        }
+        // when
+        val (pkg, _) = parser.collect("substances")
+        val actual = pkg.definitions["phosphate_process"]!!
+        // then
+        val expected = EProcess(listOf(EExchange(EQuantity(1.0, EVar("kg")), EVar("climate_change"))))
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testSubstanceParse_shouldNotReturnAProcessWhenNoEmissionFactors() {
+        // given
+        val file = parseFile("substances","""
+            package substances
+            
+            substance phosphate {
+                name = "phosphate"
+                compartment = "phosphate compartment"
+                sub_compartment = "phosphate sub-compartment"
+                reference_unit = kg
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser {
+            listOf(file)
+        }
+        // when
+        val (pkg, _) = parser.collect("substances")
+        TestCase.assertNull(pkg.definitions["phosphate_process"])
+    }
+
+    @Test
+    fun testSubstanceParse_shouldNotReturnAProcessThatProduceTheSubstance() {
+        // given
+        val file = parseFile("substances","""
+            package substances
+             
+            substance phosphate {
+                name = "phosphate"
+                compartment = "phosphate compartment"
+                sub_compartment = "phosphate sub-compartment"
+                reference_unit = kg
+                
+                emission_factors {
+                    1 kg climate_change
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser {
+            listOf(file)
+        }
+        // when
+        val (pkg, _) = parser.collect("substances")
+        val actual = pkg.definitions["phosphate_process"]!!
+        // then
+        val expected = EProcess(listOf(
+            EExchange(
+                EQuantity(-1.0, EVar("kg")),
+                EVar("phosphate")),
+            EBlock(
+                listOf(
+                EExchange(
+                    EQuantity(1.0,EVar("kg")),
+                    EVar("climate_change")
+                )
+            ))))
         TestCase.assertEquals(expected, actual)
     }
 

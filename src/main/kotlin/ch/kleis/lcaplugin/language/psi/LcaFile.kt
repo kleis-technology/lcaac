@@ -40,6 +40,11 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiProcess }
     }
 
+    fun getSubstances(): Collection<PsiSubstance> {
+        return node.getChildren(TokenSet.create(LcaTypes.SUBSTANCE))
+            .map { it.psi as PsiSubstance }
+    }
+
     fun getSystems(): Collection<PsiSystem> {
         return node.getChildren(TokenSet.create(LcaTypes.SYSTEM))
             .map { it.psi as PsiSystem }

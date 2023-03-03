@@ -79,6 +79,10 @@ FormulaContent = [^}]*
 <YYINITIAL> "product"                { return LcaTypes.PRODUCT_KEYWORD; }
 <YYINITIAL> "indicator"                { return LcaTypes.INDICATOR_KEYWORD; }
 <YYINITIAL> "substance"                { return LcaTypes.SUBSTANCE_KEYWORD; }
+<YYINITIAL> "compartment"                { return LcaTypes.COMPARTMENT_KEYWORD; }
+<YYINITIAL> "sub_compartment"                { return LcaTypes.SUB_COMPARTMENT_KEYWORD; }
+<YYINITIAL> "emission_factors"                { return LcaTypes.EMISSION_FACTORS_KEYWORD; }
+<YYINITIAL> "meta"                { return LcaTypes.META_KEYWORD; }
 <YYINITIAL> "template"                { return LcaTypes.TEMPLATE_KEYWORD; }
 <YYINITIAL> "name"                { return LcaTypes.NAME_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
