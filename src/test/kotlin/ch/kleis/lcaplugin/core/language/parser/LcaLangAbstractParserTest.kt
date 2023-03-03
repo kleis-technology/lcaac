@@ -169,7 +169,15 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val (pkg, _) = parser.collect("substances")
         val actual = pkg.definitions["phosphate_process"]!!
         // then
-        val expected = EProcess(listOf(EExchange(EQuantity(1.0, EVar("kg")), EVar("climate_change"))))
+        val expected = EProcess(listOf(
+            EExchange(EQuantity(1.0, EVar("kg")), EVar("phosphate")),
+            EBlock(listOf(
+                    EExchange(
+                        EQuantity(1.0,EVar("kg")),
+                        EVar("climate_change")
+                    )
+                ))
+            ))
         TestCase.assertEquals(expected, actual)
     }
 
@@ -222,7 +230,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val expected = EProcess(listOf(
             EExchange(
-                EQuantity(-1.0, EVar("kg")),
+                EQuantity(1.0, EVar("kg")),
                 EVar("phosphate")),
             EBlock(
                 listOf(
