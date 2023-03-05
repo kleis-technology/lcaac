@@ -1,6 +1,6 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang_obsolete
 
-import ch.kleis.lcaplugin.core.lang.evaluator.Beta
+import ch.kleis.lcaplugin.core.lang_obsolete.evaluator.Beta
 
 class LinkerException(msg: String): Exception(msg)
 

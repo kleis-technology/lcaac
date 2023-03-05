@@ -3,151 +3,92 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import ch.kleis.lcaplugin.core.lang.*
 
 class Beta {
-    private val helper = Helper()
+    fun substitute(binder: String, value: QuantityExpression, body: LcaProcessExpression): LcaProcessExpression {
+        return when (body) {
+            is EProcess -> EProcess(
+                products = body.products.map { substitute(binder, value, it) },
+                inputs = body.inputs.map { substitute(binder, value, it) },
+                biosphere = body.biosphere.map { substitute(binder, value, it) },
+            )
 
-    fun substitute(substitutions: List<Pair<String, Expression>>, expression: Expression): Expression {
-        var result = expression
-        substitutions.forEach {
-            result = substitute(it.first, it.second, result)
+            is EProcessRef -> body
+        }
+    }
+
+    private fun substitute(binder: String, value: QuantityExpression, exchange: ETechnoExchange): ETechnoExchange {
+        return ETechnoExchange(
+            substitute(binder, value, exchange.quantity),
+            substitute(binder, value, exchange.product),
+        )
+    }
+
+    private fun substitute(binder: String, value: QuantityExpression, exchange: EBioExchange): EBioExchange {
+        return EBioExchange(
+            substitute(binder, value, exchange.quantity),
+            exchange.substance,
+        )
+    }
+
+    private fun substitute(
+        binder: String,
+        value: QuantityExpression,
+        product: LcaProductExpression
+    ): LcaProductExpression {
+        return when (product) {
+            is EConstrainedProduct -> EConstrainedProduct(
+                product.product,
+                product.constraint.substituteWith(this, binder, value),
+            )
+
+            is EProduct -> product
+            is EProductRef -> product
+        }
+    }
+
+    fun substitute(
+        binder: String,
+        value: QuantityExpression,
+        quantity: QuantityExpression
+    ): QuantityExpression {
+        return when (quantity) {
+            is EQuantityAdd -> EQuantityAdd(
+                substitute(binder, value, quantity.left),
+                substitute(binder, value, quantity.right),
+            )
+
+            is EQuantityDiv -> EQuantityDiv(
+                substitute(binder, value, quantity.left),
+                substitute(binder, value, quantity.right),
+            )
+
+            is EQuantityLiteral -> quantity
+            is EQuantityMul -> EQuantityMul(
+                substitute(binder, value, quantity.left),
+                substitute(binder, value, quantity.right),
+            )
+
+            is EQuantityPow -> EQuantityPow(
+                substitute(binder, value, quantity.quantity),
+                quantity.exponent,
+            )
+
+            is EQuantityRef -> if (binder == quantity.name) value else quantity
+            is EQuantitySub -> EQuantitySub(
+                substitute(binder, value, quantity.left),
+                substitute(binder, value, quantity.right),
+            )
+        }
+    }
+}
+
+class Helper {
+    fun newName(binder: String, others: Set<String>): String {
+        var i = 0
+        var result = "${binder}0"
+        while (others.contains(result)) {
+            i += 1
+            result = "$binder$i"
         }
         return result
     }
-
-    fun substitute(binder: String, value: Expression, expression: Expression): Expression {
-        return when (expression) {
-            is ETemplate -> {
-                val params = expression.params
-
-                // parameter shadows binder
-                if (params.map { it.key }.contains(binder)) {
-                    return expression
-                }
-
-                // rename parameters conflicting with free variables of value
-                val p = renameParamsAndBody(value, params, expression.body)
-                val renamedParams = p.first
-                val renamedBody = p.second
-
-                // propagate substitution
-                return ETemplate(
-                    renamedParams
-                        .map { entry ->
-                            Pair(
-                                entry.key,
-                                entry.value?.let { substitute(binder, value, it) }
-                            )
-                        }.toMap(),
-                    substitute(binder, value, renamedBody),
-                )
-            }
-
-            is ELet -> {
-                val locals = expression.locals
-
-                // parameter shadows binder
-                if (locals.keys.contains(binder)) {
-                    return expression
-                }
-
-                // rename parameters conflicting with free variables of value
-                val p = renameParamsAndBody(value, locals, expression.body)
-                val renamedLocals = p.first
-                val renamedBody = p.second
-
-                // propagate substitution
-                return ELet(
-                    renamedLocals
-                        .map { entry ->
-                            Pair(entry.key, substitute(binder, value, entry.value!!))
-                        }.toMap(),
-                    substitute(binder, value, renamedBody),
-                )
-            }
-
-            is EVar -> {
-                if (binder == expression.name) {
-                    return value
-                }
-                return expression
-            }
-
-            is EBlock -> {
-                return EBlock(
-                    expression.elements.map { substitute(binder, value, it) },
-                )
-            }
-
-            is EExchange -> EExchange(
-                substitute(binder, value, expression.quantity),
-                substitute(binder, value, expression.product),
-            )
-            is EInstance -> EInstance(
-                substitute(binder, value, expression.template),
-                expression.arguments.mapValues { substitute(binder, value, it.value) },
-            )
-            is EProcess -> EProcess(
-                expression.elements.map { substitute(binder, value, it) }
-            )
-            is EProduct -> EProduct(
-                expression.name,
-                substitute(binder, value, expression.referenceUnit),
-            )
-            is EAdd -> EAdd(
-                substitute(binder, value, expression.left),
-                substitute(binder, value, expression.right),
-            )
-            is EDiv -> EDiv(
-                substitute(binder, value, expression.left),
-                substitute(binder, value, expression.right),
-            )
-            is EMul -> EMul(
-                substitute(binder, value, expression.left),
-                substitute(binder, value, expression.right),
-            )
-            is ENeg -> ENeg(
-                substitute(binder, value, expression.quantity)
-            )
-            is EPow -> EPow(
-                substitute(binder, value, expression.quantity),
-                expression.exponent,
-            )
-            is ESub -> ESub(
-                substitute(binder, value, expression.left),
-                substitute(binder, value, expression.right),
-            )
-            is EQuantity -> EQuantity(
-                expression.amount,
-                substitute(binder, value, expression.unit),
-            )
-            is ESystem -> ESystem(
-                expression.elements.map { substitute(binder, value, it) }
-            )
-            is EUnit -> EUnit(
-                expression.symbol,
-                expression.scale,
-                expression.dimension,
-            )
-        }
-    }
-
-    private fun renameParamsAndBody(
-        value: Expression,
-        params: Map<String, Expression?>,
-        body: Expression
-    ): Pair<Map<String, Expression?>, Expression> {
-        val valueFreeVars = helper.freeVariables(value)
-        val conflicts = valueFreeVars
-            .intersect(params.keys)
-            .associateWith { helper.newName(it, valueFreeVars) }
-        val renamedParams = HashMap<String, Expression?>(params)
-        var renamedBody: Expression = body
-        conflicts.forEach { (existing, replacement) ->
-            renamedParams[replacement] = renamedParams[existing]
-            renamedParams.remove(existing)
-            renamedBody = helper.rename(existing, replacement, renamedBody)
-        }
-        return Pair(renamedParams, renamedBody)
-    }
-
 }
-

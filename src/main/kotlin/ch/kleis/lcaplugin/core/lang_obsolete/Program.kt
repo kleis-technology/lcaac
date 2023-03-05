@@ -1,6 +1,6 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang_obsolete
 
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang_obsolete.evaluator.Evaluator
 
 data class Program(
     private val environment: Environment,

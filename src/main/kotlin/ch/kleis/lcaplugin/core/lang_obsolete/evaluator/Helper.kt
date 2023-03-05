@@ -1,6 +1,6 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang_obsolete.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang_obsolete.*
 
 class Helper {
     fun rename(existing: String, replacement: String, expression: Expression): Expression {

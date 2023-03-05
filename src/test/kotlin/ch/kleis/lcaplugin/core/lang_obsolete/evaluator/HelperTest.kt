@@ -1,8 +1,8 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang_obsolete.evaluator
 
-import ch.kleis.lcaplugin.core.lang.ELet
-import ch.kleis.lcaplugin.core.lang.ETemplate
-import ch.kleis.lcaplugin.core.lang.EVar
+import ch.kleis.lcaplugin.core.lang_obsolete.ELet
+import ch.kleis.lcaplugin.core.lang_obsolete.ETemplate
+import ch.kleis.lcaplugin.core.lang_obsolete.EVar
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

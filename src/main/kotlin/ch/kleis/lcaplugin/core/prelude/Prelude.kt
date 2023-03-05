@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.core.prelude
 
-import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.EUnit
-import ch.kleis.lcaplugin.core.lang.Environment
-import ch.kleis.lcaplugin.core.lang.Package
+import ch.kleis.lcaplugin.core.lang_obsolete.Dimension
+import ch.kleis.lcaplugin.core.lang_obsolete.EUnit
+import ch.kleis.lcaplugin.core.lang_obsolete.Environment
+import ch.kleis.lcaplugin.core.lang_obsolete.Package
 
 class Prelude {
     companion object {

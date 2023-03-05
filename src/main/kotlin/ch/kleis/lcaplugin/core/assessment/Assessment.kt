@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.core.assessment
 
-import ch.kleis.lcaplugin.core.lang.VProcess
-import ch.kleis.lcaplugin.core.lang.VProduct
-import ch.kleis.lcaplugin.core.lang.VSystem
+import ch.kleis.lcaplugin.core.lang_obsolete.VProcess
+import ch.kleis.lcaplugin.core.lang_obsolete.VProduct
+import ch.kleis.lcaplugin.core.lang_obsolete.VSystem
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 

@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang_obsolete
 
 data class EntryPoint(
     val pkg: Package,

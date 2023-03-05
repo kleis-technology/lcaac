@@ -1,48 +1,28 @@
 package ch.kleis.lcaplugin.core.lang
 
-data class Environment(
-    private val data: HashMap<String, Expression> = HashMap()
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+
+class Environment<E>(
+    data: HashMap<String, E> = HashMap()
 ) {
-    constructor(environment: Environment): this(environment.data)
+    private val data = HashMap(data)
+
+    constructor(environment: Environment<E>) : this(environment.data)
 
     companion object {
-        fun <E : Expression> of(vararg  pairs: Pair<String, E>): Environment {
-            val env = Environment()
-            pairs.forEach {
-                env[it.first] = it.second
-            }
-            return env
-        }
-
-        fun of(map: Map<String, Expression>): Environment {
-            val env = Environment()
-            map.forEach {
-                env[it.key] = it.value
-            }
-            return env
+        fun <E> empty(): Environment<E> {
+            return Environment()
         }
     }
 
-    operator fun get(key: String): Expression? {
+    operator fun get(key: String): E? {
         return data[key]
     }
 
-    operator fun set(key: String, expression: Expression) {
-        if (data.containsKey(key) && data[key] != expression) {
-            throw IllegalArgumentException("cannot set $key = $expression : variable $key already defined with value ${data[key]}")
+    operator fun set(key: String, e: E) {
+        if (data.containsKey(key)) {
+            throw EvaluatorException("reference $key already bound: $key = ${data[key]}")
         }
-        data[key] = expression
+        data[key] = e
     }
-
-    fun forEach(action: (String, Expression) -> Unit): Unit {
-        data.forEach(action)
-    }
-
-    fun keys(): Collection<String> {
-        return data.keys
-    }
-}
-
-fun emptyEnv(): Environment {
-    return Environment()
 }

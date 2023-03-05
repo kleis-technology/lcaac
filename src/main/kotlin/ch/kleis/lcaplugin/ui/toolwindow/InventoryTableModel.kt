@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.lang.VCharacterizationFactor
-import ch.kleis.lcaplugin.core.lang.VProduct
+import ch.kleis.lcaplugin.core.lang_obsolete.VCharacterizationFactor
+import ch.kleis.lcaplugin.core.lang_obsolete.VProduct
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel

@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang_obsolete
 
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import org.junit.Assert.assertEquals

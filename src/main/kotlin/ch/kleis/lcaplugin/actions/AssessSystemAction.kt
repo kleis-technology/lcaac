@@ -2,11 +2,11 @@ package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang.Compiler
-import ch.kleis.lcaplugin.core.lang.EntryPoint
-import ch.kleis.lcaplugin.core.lang.LinkerException
-import ch.kleis.lcaplugin.core.lang.VSystem
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang_obsolete.Compiler
+import ch.kleis.lcaplugin.core.lang_obsolete.EntryPoint
+import ch.kleis.lcaplugin.core.lang_obsolete.LinkerException
+import ch.kleis.lcaplugin.core.lang_obsolete.VSystem
+import ch.kleis.lcaplugin.core.lang_obsolete.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser

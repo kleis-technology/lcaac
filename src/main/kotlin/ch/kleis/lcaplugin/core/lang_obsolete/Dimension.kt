@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang_obsolete
 
 class Dimension(elements: Map<String, Double>) {
     private val elements: Map<String, Double>
@@ -22,6 +22,10 @@ class Dimension(elements: Map<String, Double>) {
 
     fun isNone(): Boolean {
         return this.elements.isEmpty()
+    }
+
+    fun referenceUnit(): VUnit {
+        return VUnit("ref_unit($this)", 1.0, this)
     }
 
     fun multiply(other: Dimension): Dimension {
