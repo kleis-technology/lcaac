@@ -39,7 +39,7 @@ class LcaSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getTokenHighlights(tokenType: IElementType): Array<TextAttributesKey> {
         return when (tokenType) {
             PACKAGE_KEYWORD, PROCESS_KEYWORD, INDICATOR_KEYWORD, SUBSTANCE_KEYWORD, EMISSION_FACTORS_KEYWORD, META_KEYWORD, PARAMETERS_KEYWORD,
-            PARAMETER_KEYWORD, SYSTEM_KEYWORD,
+            SYSTEM_KEYWORD,
             UNIT_KEYWORD, IMPORT_KEYWORD,
                 LET_KEYWORD, INCLUDE_KEYWORD, TEMPLATE_KEYWORD,
             PRODUCTS_KEYWORD, INPUTS_KEYWORD,

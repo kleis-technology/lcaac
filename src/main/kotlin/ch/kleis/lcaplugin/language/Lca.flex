@@ -73,7 +73,7 @@ CommentContent = .*
 <YYINITIAL> "import"                { return LcaTypes.IMPORT_KEYWORD; }
 <YYINITIAL> "include"                { return LcaTypes.INCLUDE_KEYWORD; }
 <YYINITIAL> "system"                { return LcaTypes.SYSTEM_KEYWORD; }
-<YYINITIAL> "let"                { return LcaTypes.LET_KEYWORD; }
+<YYINITIAL> "variables"                { return LcaTypes.LET_KEYWORD; }
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
 <YYINITIAL> "indicator"                { return LcaTypes.INDICATOR_KEYWORD; }
 <YYINITIAL> "substance"                { return LcaTypes.SUBSTANCE_KEYWORD; }
@@ -88,7 +88,6 @@ CommentContent = .*
 <YYINITIAL> "symbol"                   { return LcaTypes.SYMBOL_KEYWORD; }
 <YYINITIAL> "scale"                   { return LcaTypes.SCALE_KEYWORD; }
 <YYINITIAL> "dimension"                   { return LcaTypes.DIMENSION_KEYWORD; }
-<YYINITIAL> "param"             { return LcaTypes.PARAMETER_KEYWORD; }
 <YYINITIAL> "params"             { return LcaTypes.PARAMETERS_KEYWORD; }
 <YYINITIAL> "products"             { return LcaTypes.PRODUCTS_KEYWORD; }
 <YYINITIAL> "inputs"             { return LcaTypes.INPUTS_KEYWORD; }

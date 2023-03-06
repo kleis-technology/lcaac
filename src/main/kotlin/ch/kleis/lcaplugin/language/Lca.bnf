@@ -30,7 +30,6 @@
       SCALE_KEYWORD = 'scale'
       NAME_KEYWORD = 'name'
       DIMENSION_KEYWORD = 'dimension'
-      PARAMETER_KEYWORD = 'parameter'
       PARAMETERS_KEYWORD = 'parameters'
       INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
