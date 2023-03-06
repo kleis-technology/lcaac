@@ -56,11 +56,6 @@ class LcaLangAbstractParser(
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
-        val substancesAsProduct = files
-            .flatMap { it.getSubstances() }
-            .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, getProductFromSubstance(it)) }
-
         val substancesAsProcess = files
             .flatMap { it.getSubstances() }
             .filter { it.hasEmissionFactors() }
@@ -81,7 +76,6 @@ class LcaLangAbstractParser(
             .plus(units)
             .plus(processes)
             .plus(systems)
-            .plus(substancesAsProduct)
             .plus(substancesAsProcess)
 
         val imports = files
@@ -171,13 +165,6 @@ class LcaLangAbstractParser(
             result = ETemplate(params, result)
         }
         return result
-    }
-
-    private fun getProductFromSubstance(psiSubstance: PsiSubstance): Expression {
-        return EProduct(
-            psiSubstance.getUid().name!!,
-            unit(psiSubstance.getReferenceUnitField().getValue())
-        )
     }
 
     private fun getProcessFromSubstance(psiSubstance: PsiSubstance): Expression {

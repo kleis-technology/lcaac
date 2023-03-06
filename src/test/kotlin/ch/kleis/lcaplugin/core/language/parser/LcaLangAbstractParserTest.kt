@@ -48,31 +48,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testSubstanceParse_shouldReturnAProduct() {
-        // given
-        val file = parseFile("substances","""
-            package substances
-            
-            substance phosphate {
-                name = "phosphate"
-                compartment = "phosphate compartment"
-                sub_compartment = "phosphate sub-compartment"
-                reference_unit = kg
-            }
-        """.trimIndent()
-        ) as LcaFile
-        val parser = LcaLangAbstractParser {
-            listOf(file)
-        }
-        // when
-        val (pkg, _) = parser.collect("substances")
-        val actual = pkg.definitions["phosphate"]!!
-        // then
-        val expected = EProduct("phosphate", EVar("kg"))
-        TestCase.assertEquals(expected, actual)
-    }
-
-    @Test
     fun testSubstanceParse_shouldReturnAProcess() {
         // given
         val file = parseFile("substances","""
