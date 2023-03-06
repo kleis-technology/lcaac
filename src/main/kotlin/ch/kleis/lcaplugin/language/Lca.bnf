@@ -106,7 +106,7 @@ product ::= (PRODUCT_KEYWORD | INDICATOR_KEYWORD) uid? LBRACE nameField referenc
 substance ::= SUBSTANCE_KEYWORD uid LBRACE
     nameField
     compartmentField
-    subCompartmentField
+    subCompartmentField?
     referenceUnitField
     emission_factors?
     meta_block?
