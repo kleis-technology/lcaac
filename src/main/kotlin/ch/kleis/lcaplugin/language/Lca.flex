@@ -75,7 +75,6 @@ CommentContent = .*
 <YYINITIAL> "system"                { return LcaTypes.SYSTEM_KEYWORD; }
 <YYINITIAL> "let"                { return LcaTypes.LET_KEYWORD; }
 <YYINITIAL> "process"                { return LcaTypes.PROCESS_KEYWORD; }
-<YYINITIAL> "product"                { return LcaTypes.PRODUCT_KEYWORD; }
 <YYINITIAL> "indicator"                { return LcaTypes.INDICATOR_KEYWORD; }
 <YYINITIAL> "substance"                { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "compartment"                { return LcaTypes.COMPARTMENT_KEYWORD; }

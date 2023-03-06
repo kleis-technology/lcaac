@@ -22,7 +22,7 @@
       SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
       EMISSION_FACTORS_KEYWORD = 'emission-factors'
       META_KEYWORD = "meta"
-      PRODUCT_KEYWORD = 'product'
+      PRODUCTS_KEYWORD = 'products'
       INDICATOR_KEYWORD = 'indicator'
       LET_KEYWORD = 'let'
       UNIT_KEYWORD = 'unit'
@@ -32,7 +32,6 @@
       DIMENSION_KEYWORD = 'dimension'
       PARAMETER_KEYWORD = 'parameter'
       PARAMETERS_KEYWORD = 'parameters'
-      PRODUCTS_KEYWORD = 'products'
       INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
       RESOURCES_KEYWORD = 'resources'
@@ -85,10 +84,9 @@ urn ::= uid DOT urn | uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
 }
 
-private definition ::= product | process | system | unitLiteral | substance
+private definition ::= process | system | unitLiteral | substance
 
-coreExpr ::= product
-    | process
+coreExpr ::= process
     | system
     | block
     | quantity
@@ -96,11 +94,6 @@ coreExpr ::= product
     | exchange {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiCoreExpression"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
-}
-
-product ::= (PRODUCT_KEYWORD | INDICATOR_KEYWORD) uid? LBRACE nameField referenceUnitField RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiProduct"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProductMixin"
 }
 
 substance ::= SUBSTANCE_KEYWORD uid LBRACE
