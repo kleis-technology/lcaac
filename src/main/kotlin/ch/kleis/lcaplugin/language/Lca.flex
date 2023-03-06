@@ -29,9 +29,8 @@ Number_Exp = [eE][+-]?[0-9]+
 Number_Int = [0-9][0-9]*
 
 CommentContent = .*
-FormulaContent = [^}]*
 
-%state COMMENT_BLOCK, COMMENT_LINE, FORMULA
+%state COMMENT_BLOCK, COMMENT_LINE
 %%
 
 <YYINITIAL> "//"                     {
