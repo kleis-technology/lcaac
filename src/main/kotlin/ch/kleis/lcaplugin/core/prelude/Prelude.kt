@@ -18,7 +18,7 @@ class Prelude {
         private val radioactivity = Dimension.of("radioactivity")
 
         private val definitions = listOf(
-            EUnit("one", 1.0, none),
+            EUnit("piece", 1.0, none),
             EUnit("person", 1.0, none),
             EUnit("percent", 1.0e-2, none),
             EUnit("kg", 1.0, mass),
