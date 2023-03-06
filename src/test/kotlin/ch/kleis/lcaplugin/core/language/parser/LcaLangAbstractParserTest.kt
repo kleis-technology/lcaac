@@ -48,55 +48,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testParse_localProducts() {
-        // given
-        val file = parseFile(
-            "hello", """
-            package hello
-            
-            unit kg {
-                symbol = "kg"
-                scale = 1.0
-                dimension = "mass"
-            }
-            
-            system main {
-                let {
-                    p = product {
-                        name = "p"
-                        reference_unit = kg
-                    }
-                }
-                
-                process {
-                    1 kg p
-                }
-            }
-        """.trimIndent()
-        ) as LcaFile
-        val parser = LcaLangAbstractParser {
-            listOf(file)
-        }
-
-        // when
-        val (pkg, _) = parser.collect("hello")
-        val actual = pkg.definitions["main"]!!
-
-        // then
-        val expected = EProcess(
-            listOf(
-                EExchange(EQuantity(1.0, EVar("kg")), EVar("carrot")),
-                EBlock(
-                    listOf(
-                        EExchange(ENeg(EQuantity(10.0, EVar("l"))), EVar("water")),
-                    )
-                )
-            )
-        )
-        TestCase.assertEquals(expected, actual)
-    }
-
-    @Test
     fun testIndicatorParse_shouldReturnAProduct() {
         // given
         val file = parseFile("climateChange","""

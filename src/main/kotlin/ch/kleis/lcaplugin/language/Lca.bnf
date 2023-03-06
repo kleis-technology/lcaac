@@ -33,7 +33,6 @@
       PARAMETER_KEYWORD = 'parameter'
       PARAMETERS_KEYWORD = 'parameters'
       PRODUCTS_KEYWORD = 'products'
-      COPRODUCTS_KEYWORD = 'coproducts'
       INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
       RESOURCES_KEYWORD = 'resources'
@@ -192,7 +191,6 @@ param ::= uid (EQUAL coreExpr)? {
 block ::= (
     INPUTS_KEYWORD
     | PRODUCTS_KEYWORD
-    | COPRODUCTS_KEYWORD
     | EMISSIONS_KEYWORD
     | RESOURCES_KEYWORD) LBRACE exchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiBlock"]
