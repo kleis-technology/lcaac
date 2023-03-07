@@ -24,8 +24,8 @@ class ProductDefiner {
                 }
                 return expression
             }
-            is EInstance -> throw ProductDefinerException("ProductDefiner should not receive an instance expression")
-            is ETemplate -> throw ProductDefinerException("ProductDefiner should not receive a template expression")
+            is EInstance -> throw IllegalStateException("ProductDefiner should not receive an instance expression")
+            is ETemplate -> throw IllegalStateException("ProductDefiner should not receive a template expression")
             is ELet -> ELet(
                 expression.locals,
                 complete(expression.body),
