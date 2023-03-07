@@ -18,7 +18,6 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             root,
             LcaProcess::class.java,
             LcaSystem::class.java,
-            LcaProduct::class.java,
             LcaParams::class.java,
             LcaBlock::class.java,
             LcaUnitPrimitive::class.java,

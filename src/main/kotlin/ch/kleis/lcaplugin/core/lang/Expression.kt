@@ -54,10 +54,32 @@ data class EPow(val quantity: Expression, val exponent: Double) : Expression
     LCA Modeling
  */
 
-data class EProduct(
+class EProduct(
     val name: String,
     val referenceUnit: Expression,
-) : Expression
+) : Expression {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is EProduct) return false
+
+        if (name != other.name) return false
+
+        if (referenceUnit is EUnit && other.referenceUnit is EUnit){
+            return referenceUnit.dimension == other.referenceUnit.dimension
+        }
+        if (referenceUnit != other.referenceUnit) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        val result = 31 * name.hashCode()
+        if (referenceUnit is EUnit){
+            return result + referenceUnit.dimension.hashCode()
+        }
+        return result + referenceUnit.hashCode()
+    }
+}
 
 data class EProcess(
     val elements: List<Expression>

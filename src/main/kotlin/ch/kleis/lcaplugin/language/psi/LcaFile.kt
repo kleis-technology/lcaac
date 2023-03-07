@@ -30,11 +30,6 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiImport }
     }
 
-    fun getProducts(): Collection<PsiProduct> {
-        return node.getChildren(TokenSet.create(LcaTypes.PRODUCT))
-            .map { it.psi as PsiProduct }
-    }
-
     fun getProcesses(): Collection<PsiProcess> {
         return node.getChildren(TokenSet.create(LcaTypes.PROCESS))
             .map { it.psi as PsiProcess }

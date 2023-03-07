@@ -14,9 +14,6 @@ interface PsiCoreExpression : PsiElement {
         if (node.findChildByType(LcaTypes.PROCESS) != null) {
             return CoreExpressionType.PROCESS
         }
-        if (node.findChildByType(LcaTypes.PRODUCT) != null) {
-            return CoreExpressionType.PRODUCT
-        }
         if (node.findChildByType(LcaTypes.UNIT) != null) {
             return CoreExpressionType.UNIT
         }
@@ -34,9 +31,6 @@ interface PsiCoreExpression : PsiElement {
     }
     fun asProcess(): PsiProcess {
         return node.findChildByType(LcaTypes.PROCESS)?.psi as PsiProcess
-    }
-    fun asProduct(): PsiProduct {
-        return node.findChildByType(LcaTypes.PRODUCT)?.psi as PsiProduct
     }
     fun asUnit(): PsiUnit {
         return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit

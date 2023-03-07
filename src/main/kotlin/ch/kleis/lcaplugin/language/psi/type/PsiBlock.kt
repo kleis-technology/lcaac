@@ -12,7 +12,6 @@ interface PsiBlock : PsiElement {
     fun getPolarity(): Polarity {
         return node.findChildByType(LcaTypes.INPUTS_KEYWORD)?.let { Polarity.NEGATIVE }
             ?: node.findChildByType(LcaTypes.PRODUCTS_KEYWORD)?.let { Polarity.POSITIVE }
-            ?: node.findChildByType(LcaTypes.COPRODUCTS_KEYWORD)?.let { Polarity.POSITIVE }
             ?: node.findChildByType(LcaTypes.EMISSIONS_KEYWORD)?.let { Polarity.NEGATIVE }
             ?: node.findChildByType(LcaTypes.RESOURCES_KEYWORD)?.let { Polarity.NEGATIVE }
             ?: throw IllegalStateException("invalid psi block")

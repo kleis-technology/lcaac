@@ -4,16 +4,18 @@ import ch.kleis.lcaplugin.core.lang.*
 
 class Evaluator(private val environment: Environment) {
     private val reducer = Reducer(environment)
+    private val productDefiner = ProductDefiner()
     private val helper = Helper()
 
     fun eval(expression: Expression): Value {
         val reduced = reducer.reduce(expression)
-        val freeVars = helper.freeVariables(reduced)
+        val completed = productDefiner.complete(reduced)
+        val freeVars = helper.freeVariables(completed)
         if (freeVars.isNotEmpty()) {
             val message = "unresolved variables $freeVars"
             throw EvaluatorException(message)
         }
-        return asValue(reduced)
+        return asValue(completed)
     }
 
     private fun asValue(reduced: Expression): Value {
