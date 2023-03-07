@@ -9,29 +9,33 @@ import java.lang.ClassCastException
 class ProductDefinerTest {
 
     @Test
-    fun complete_exchange() {
+    fun complete_whenExchange_shouldSubstituteProductVarForExplicitProduct() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EVar("a")
         val exchange = EExchange(EQuantity(1.0, kg), a)
         val productDefiner = ProductDefiner()
+        
         // when
         val actual = productDefiner.complete(exchange)
+
         // then
         val expected = EExchange(EQuantity(1.0, kg), EProduct("a", kg))
         assertEquals(expected, actual)
     }
 
     @Test
-    fun complete_process() {
+    fun complete_whenProcess_shouldSubtituteProductVarForExplicitProduct() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EVar("a")
         val exchange = EExchange(EQuantity(1.0, kg), a)
         val process = EProcess(listOf(exchange))
         val productDefiner = ProductDefiner()
+
         // when
         val actual = productDefiner.complete(process)
+
         // then
         val expected = EProcess(
             listOf(
@@ -44,12 +48,13 @@ class ProductDefinerTest {
     }
 
     @Test
-    fun complete_exchangeWithVariableUnit() {
+    fun complete_whenQuantityIsNotFullyReduced_shouldThrow() {
         // given
         val kg = EVar("kg")
         val a = EVar("a")
         val exchange = EExchange(EQuantity(1.0, kg), a)
         val productDefiner = ProductDefiner()
+
         // when + then
         try {
             productDefiner.complete(exchange)
@@ -60,7 +65,7 @@ class ProductDefinerTest {
     }
 
     @Test
-    fun complete_let() {
+    fun complete_whenLetExpression_shouldNotSubstituteProductVariablesInLocalDefinitions() {
         // given
         val kg = EUnit("kg", 1.0, Dimension.of("mass"))
         val a = EVar("a")
@@ -69,8 +74,10 @@ class ProductDefinerTest {
             EExchange(EQuantity(1.0, kg), a)
         )
         val productDefiner = ProductDefiner()
+
         // when
         val actual = productDefiner.complete(let)
+
         // then
         val expected = ELet(
             mapOf(Pair("x", EExchange(EQuantity(1.0, kg), EVar("y")))),
