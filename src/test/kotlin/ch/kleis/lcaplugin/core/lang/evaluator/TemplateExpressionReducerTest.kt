@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -111,7 +112,7 @@ class TemplateExpressionReducerTest {
         val template = TemplateFixture.carrotProduction
         val expression = ETemplateRef("carrot_production")
         val reducer = TemplateExpressionReducer(
-            templateEnvironment = Environment(
+            templateRegister = Register(
                 hashMapOf(
                     Pair("carrot_production", template)
                 )

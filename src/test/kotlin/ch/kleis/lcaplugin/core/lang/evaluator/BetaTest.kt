@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
@@ -90,18 +91,5 @@ class BetaTest {
             biosphere = emptyList(),
         )
         assertEquals(expected, actual)
-    }
-
-    @Test
-    fun substitute_whenProcessRef_shouldRemainUnchanged() {
-        // given
-        val body = EProcessRef("p")
-        val beta = Beta()
-
-        // when
-        val actual = beta.substitute("x", QuantityFixture.oneLitre, body)
-
-        // then
-        assertEquals(body, actual)
     }
 }

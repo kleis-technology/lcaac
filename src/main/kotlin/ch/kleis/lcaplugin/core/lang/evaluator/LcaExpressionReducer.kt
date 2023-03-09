@@ -1,27 +1,27 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    processEnvironment: Environment<LcaProcessExpression> = Environment.empty(),
-    productEnvironment: Environment<LcaUnconstrainedProductExpression> = Environment.empty(),
-    substanceEnvironment: Environment<LcaSubstanceExpression> = Environment.empty(),
-    indicatorEnvironment: Environment<LcaIndicatorExpression> = Environment.empty(),
-    quantityEnvironment: Environment<QuantityExpression> = Environment.empty(),
-    unitEnvironment: Environment<UnitExpression> = Environment.empty(),
+    productRegister: Register<LcaUnconstrainedProductExpression> = Register.empty(),
+    substanceRegister: Register<LcaSubstanceExpression> = Register.empty(),
+    indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
+    quantityRegister: Register<QuantityExpression> = Register.empty(),
+    unitRegister: Register<UnitExpression> = Register.empty(),
+    substanceCharacterizationRegister: Register<ESubstanceCharacterization> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val processEnvironment = Environment(processEnvironment)
-    private val productEnvironment = Environment(productEnvironment)
-    private val substanceEnvironment = Environment(substanceEnvironment)
-    private val indicatorEnvironment = Environment(indicatorEnvironment)
+    private val productRegister = Register(productRegister)
+    private val substanceRegister = Register(substanceRegister)
+    private val indicatorRegister = Register(indicatorRegister)
+    private val substanceCharacterizationRegister = Register(substanceCharacterizationRegister)
 
-    private val unitExpressionReducer = UnitExpressionReducer(unitEnvironment)
-    private val quantityExpressionReducer = QuantityExpressionReducer(quantityEnvironment, unitEnvironment)
+    private val unitExpressionReducer = UnitExpressionReducer(unitRegister)
+    private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
         return when (expression) {
             is EProcess -> reduceLcaProcessExpression(expression)
-            is EProcessRef -> reduceLcaProcessExpression(expression)
 
             is EImpact -> reduceImpact(expression)
 
@@ -42,14 +42,23 @@ class LcaExpressionReducer(
             )
 
             is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
+            is ESystem -> ESystem(
+                expression.processes.map { reduceLcaProcessExpression(it) }
+            )
+
+            is ESubstanceCharacterizationRef -> reduceSubstanceCharacterization(expression)
         }
     }
 
-    private fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization): ESubstanceCharacterization {
-        return ESubstanceCharacterization(
-            reduceBioExchange(expression.referenceExchange),
-            expression.impacts.map { reduceImpact(it) },
-        )
+    private fun reduceSubstanceCharacterization(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+        return when (expression) {
+            is ESubstanceCharacterization -> ESubstanceCharacterization(
+                reduceBioExchange(expression.referenceExchange),
+                expression.impacts.map { reduceImpact(it) },
+            )
+            is ESubstanceCharacterizationRef -> substanceCharacterizationRegister[expression.name]?.let { reduceSubstanceCharacterization(it) }
+                ?: expression
+        }
     }
 
 
@@ -60,8 +69,6 @@ class LcaExpressionReducer(
                 expression.inputs.map { reduceTechnoExchange(it) },
                 expression.biosphere.map { reduceBioExchange(it) },
             )
-
-            is EProcessRef -> processEnvironment[expression.name]?.let { reduceLcaProcessExpression(it) } ?: expression
         }
     }
 
@@ -85,7 +92,7 @@ class LcaExpressionReducer(
     private fun reduceUnconstrainedProductExpression(expression: LcaUnconstrainedProductExpression): LcaUnconstrainedProductExpression {
         return when (expression) {
             is EProduct -> EProduct(expression.name, unitExpressionReducer.reduce(expression.referenceUnit))
-            is EProductRef -> productEnvironment[expression.name]?.let { reduceUnconstrainedProductExpression(it) }
+            is EProductRef -> productRegister[expression.name]?.let { reduceUnconstrainedProductExpression(it) }
                 ?: expression
         }
     }
@@ -111,7 +118,7 @@ class LcaExpressionReducer(
                 unitExpressionReducer.reduce(expression.referenceUnit),
             )
 
-            is ESubstanceRef -> substanceEnvironment[expression.name]?.let { reduceSubstanceExpression(it) }
+            is ESubstanceRef -> substanceRegister[expression.name]?.let { reduceSubstanceExpression(it) }
                 ?: expression
         }
     }
@@ -123,7 +130,7 @@ class LcaExpressionReducer(
                 unitExpressionReducer.reduce(expression.referenceUnit),
             )
 
-            is EIndicatorRef -> indicatorEnvironment[expression.name]?.let { reduceIndicatorExpression(it) }
+            is EIndicatorRef -> indicatorRegister[expression.name]?.let { reduceIndicatorExpression(it) }
                 ?: expression
         }
     }

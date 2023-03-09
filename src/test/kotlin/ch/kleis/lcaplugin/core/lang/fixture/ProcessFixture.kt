@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.EBioExchange
-import ch.kleis.lcaplugin.core.lang.EProcess
-import ch.kleis.lcaplugin.core.lang.ETechnoExchange
+import ch.kleis.lcaplugin.core.lang.expression.EBioExchange
+import ch.kleis.lcaplugin.core.lang.expression.EProcess
+import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 
 class ProcessFixture {
     companion object {

@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
 import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.EUnitLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 
 class DimensionFixture {
     companion object {

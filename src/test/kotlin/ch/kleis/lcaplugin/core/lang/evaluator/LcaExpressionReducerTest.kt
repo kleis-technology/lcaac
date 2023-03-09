@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -21,7 +22,7 @@ class LcaExpressionReducerTest {
             ),
         )
         val reducer = LcaExpressionReducer(
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q_carrot", QuantityFixture.oneKilogram),
                     Pair("q_water", QuantityFixture.oneLitre),
@@ -58,26 +59,6 @@ class LcaExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenProcessRef_shouldReadEnv() {
-        // given
-        val expression = EProcessRef("carrot_production")
-        val reducer = LcaExpressionReducer(
-            processEnvironment = Environment(
-                hashMapOf(
-                    Pair("carrot_production", ProcessFixture.carrotProduction)
-                )
-            )
-        )
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        val expected = ProcessFixture.carrotProduction
-        assertEquals(expected, actual)
-    }
-
-    @Test
     fun reduce_whenImpact_shouldReduceQuantityAndIndicator() {
         // given
         val expression = EImpact(
@@ -85,12 +66,12 @@ class LcaExpressionReducerTest {
             EIndicatorRef("cc")
         )
         val reducer = LcaExpressionReducer(
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
-            indicatorEnvironment = Environment(
+            indicatorRegister = Register(
                 hashMapOf(
                     Pair("cc", IndicatorFixture.cc)
                 )
@@ -116,12 +97,12 @@ class LcaExpressionReducerTest {
             EProductRef("carrot")
         )
         val reducer = LcaExpressionReducer(
-            productEnvironment = Environment(
+            productRegister = Register(
                 hashMapOf(
                     Pair("carrot", ProductFixture.carrot)
                 )
             ),
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -147,12 +128,12 @@ class LcaExpressionReducerTest {
             ESubstanceRef("propanol"),
         )
         val reducer = LcaExpressionReducer(
-            substanceEnvironment = Environment(
+            substanceRegister = Register(
                 hashMapOf(
                     Pair("propanol", SubstanceFixture.propanol),
                 )
             ),
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -178,7 +159,7 @@ class LcaExpressionReducerTest {
             EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -201,7 +182,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EIndicatorRef("cc")
         val reducer = LcaExpressionReducer(
-            indicatorEnvironment = Environment(
+            indicatorRegister = Register(
                 hashMapOf(
                     Pair("cc", IndicatorFixture.cc)
                 )
@@ -226,7 +207,7 @@ class LcaExpressionReducerTest {
             EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -251,7 +232,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = ESubstanceRef("propanol")
         val reducer = LcaExpressionReducer(
-            substanceEnvironment = Environment(
+            substanceRegister = Register(
                 hashMapOf(
                     Pair("propanol", SubstanceFixture.propanol),
                 )
@@ -274,7 +255,7 @@ class LcaExpressionReducerTest {
             EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -301,12 +282,12 @@ class LcaExpressionReducerTest {
         )
         val expression = EProductRef("carrot")
         val reducer = LcaExpressionReducer(
-            productEnvironment = Environment(
+            productRegister = Register(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -333,12 +314,12 @@ class LcaExpressionReducerTest {
         )
         val expression = EConstrainedProduct(EProductRef("carrot"), None)
         val reducer = LcaExpressionReducer(
-            productEnvironment = Environment(
+            productRegister = Register(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -375,17 +356,17 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            productEnvironment = Environment(
+            productRegister = Register(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q", EQuantityLiteral(3.0, EUnitRef("kg")))
                 )
             ),
-            unitEnvironment = Environment(
+            unitRegister = Register(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -427,7 +408,7 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            quantityEnvironment = Environment(
+            quantityRegister = Register(
                 hashMapOf(
                     Pair("q_propanol", QuantityFixture.oneKilogram),
                     Pair("q_cc", QuantityFixture.oneKilogram),

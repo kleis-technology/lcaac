@@ -8,7 +8,19 @@ enum class Polarity {
     POSITIVE, NEGATIVE,
 }
 
+enum class BlockType {
+    PRODUCTS, INPUTS, EMISSIONS, RESOURCES
+}
+
 interface PsiBlock : PsiElement {
+    fun getType() : BlockType {
+        return node.findChildByType(LcaTypes.INPUTS_KEYWORD)?.let { BlockType.INPUTS }
+            ?: node.findChildByType(LcaTypes.PRODUCTS_KEYWORD)?.let { BlockType.PRODUCTS }
+            ?: node.findChildByType(LcaTypes.EMISSIONS_KEYWORD)?.let { BlockType.EMISSIONS }
+            ?: node.findChildByType(LcaTypes.RESOURCES_KEYWORD)?.let { BlockType.RESOURCES }
+            ?: throw IllegalStateException("invalid psi block")
+    }
+
     fun getPolarity(): Polarity {
         return node.findChildByType(LcaTypes.INPUTS_KEYWORD)?.let { Polarity.NEGATIVE }
             ?: node.findChildByType(LcaTypes.PRODUCTS_KEYWORD)?.let { Polarity.POSITIVE }

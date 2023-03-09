@@ -1,11 +1,11 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.core.lang_obsolete.*
+import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
-import ch.kleis.lcaplugin.language.psi.type.enums.CoreExpressionType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
@@ -13,8 +13,6 @@ import ch.kleis.lcaplugin.language.psi.type.unit.*
 class LcaLangAbstractParser(
     private val findFilesOf: (String) -> List<LcaFile>,
 ) {
-    private var productCount: Int = 0
-
     fun collect(pkgName: String): Pair<Package, List<Package>> {
         val visited = HashSet<String>()
         val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
@@ -48,35 +46,31 @@ class LcaLangAbstractParser(
     private fun mkPackage(pkgName: String): Package {
         val files = findFilesOf(pkgName)
         val globals = files
-            .flatMap { it.getLocalAssignments() }
-            .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
+            .flatMap { it.getAssignments() }
+            .associate { Pair(it.getUid().name!!, quantity(it.getCoreExpression().asQuantity())) }
 
-        val processes = files
+        val templates = files
             .flatMap { it.getProcesses() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
-        val substancesAsProcess = files
+        val substanceCharacterizations = files
             .flatMap { it.getSubstances() }
             .filter { it.hasEmissionFactors() }
-            .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!+"_process", getProcessFromSubstance(it)) }
-
-        val systems = files
-            .flatMap { it.getSystems() }
-            .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, system(it)) }
+            .associate { Pair(it.getUid().name!!, substanceCharacterization(it)) }
 
         val units = files
             .flatMap { it.getUnitLiterals() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
-        val definitions = globals
-            .plus(units)
-            .plus(processes)
-            .plus(systems)
-            .plus(substancesAsProcess)
+
+        val environment = Environment(
+            quantities = Register(globals),
+            processTemplates = Register(templates),
+            units = Register(units),
+            substanceCharacterizations = Register(substanceCharacterizations)
+        )
 
         val imports = files
             .flatMap { it.getImports() }
@@ -90,127 +84,136 @@ class LcaLangAbstractParser(
         return Package(
             pkgName,
             imports,
-            Environment.of(definitions)
+            environment,
         )
     }
 
-
-    private fun unitLiteral(psiUnitLiteral: PsiUnitLiteral): Expression {
-        return EUnit(
+    private fun unitLiteral(psiUnitLiteral: PsiUnitLiteral): UnitExpression {
+        return EUnitLiteral(
             psiUnitLiteral.getSymbolField().getValue(),
             psiUnitLiteral.getScaleField().getValue(),
             Dimension.of(psiUnitLiteral.getDimensionField().getValue()),
         )
     }
 
-    private fun system(psiSystem: PsiSystem): Expression {
-        val locals = locals(psiSystem.getLocalAssignments())
-        val params = params(psiSystem.getParameters())
-        val subSystems = psiSystem.getSystems().map { system(it) }
-        val processes = psiSystem.getProcesses().map { process(it) }
-        val includes = psiSystem.getIncludes().map { include(it) }
-
-        var result: Expression = ESystem(
-            processes
-                .plus(subSystems)
-                .plus(includes)
-        )
-        if (locals.isNotEmpty()) {
-            result = ELet(locals, result)
-        }
-        if (params.isNotEmpty()) {
-            result = ETemplate(params, result)
-        }
-        return result
-    }
-
-    private fun include(psiInclude: PsiInclude): Expression {
-        val template = EVar(psiInclude.name!!)
-        val arguments = psiInclude.getArgumentAssignments()
-            .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
-        return EInstance(template, arguments)
-    }
-
-    private fun locals(assignments: Collection<PsiAssignment>): Map<String, Expression> {
+    private fun locals(assignments: Collection<PsiAssignment>): Map<String, QuantityExpression> {
         return assignments
-            .associate { Pair(it.getUid().name!!, coreExpression(it.getCoreExpression())) }
+            .associate { Pair(it.getUid().name!!, quantity(it.getCoreExpression().asQuantity())) }
     }
 
-    private fun params(parameters: Collection<PsiParameter>): Map<String, Expression?> {
+    private fun params(parameters: Collection<PsiParameter>): Map<String, QuantityExpression> {
         return parameters
             .associate {
                 Pair(
                     it.getUid().name!!,
-                    it.getCoreExpression()?.let { e -> coreExpression(e) }
+                    it.getCoreExpression()?.asQuantity()?.let { e -> quantity(e) }!!
                 )
             }
     }
 
-    private fun process(psiProcess: PsiProcess): Expression {
+    private fun process(psiProcess: PsiProcess): TemplateExpression {
         val locals = locals(psiProcess.getLocalAssignments())
         val params = params(psiProcess.getParameters())
-        val blocks = psiProcess.getBlocks().map { block(it) }
-        val exchanges = psiProcess.getExchanges().map { exchange(it, Polarity.POSITIVE) }
-        val includes = psiProcess.getIncludes().map { include(it) }
-
-        var result: Expression = EProcess(
-            exchanges
-                .plus(blocks)
-                .plus(includes)
+        val products = psiProcess.getBlocks()
+            .filter { it.getType() == BlockType.PRODUCTS }
+            .flatMap { technoBlock(it) }
+        val inputs = psiProcess.getBlocks()
+            .filter { it.getType() == BlockType.INPUTS }
+            .flatMap { technoBlock(it) }
+        val biosphere = psiProcess.getBlocks()
+            .filter { it.getType() == BlockType.EMISSIONS || it.getType() == BlockType.RESOURCES }
+            .flatMap { bioBlock(it) }
+        val body = EProcess(
+            products = products,
+            inputs = inputs,
+            biosphere = biosphere,
         )
-        if (locals.isNotEmpty()) {
-            result = ELet(locals, result)
-        }
-        if (params.isNotEmpty()) {
-            result = ETemplate(params, result)
-        }
-        return result
+        return EProcessTemplate(
+            params,
+            locals,
+            body,
+        )
     }
 
-    private fun getProcessFromSubstance(psiSubstance: PsiSubstance): Expression {
-        val productVar = EVar(psiSubstance.getUid().name!!)
-        val productQuantity = EQuantity(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
-        val productExchange = EExchange(productQuantity, productVar)
-
-        val emissionFactorExchanges = psiSubstance.getEmissionFactors()
+    private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
+        val substanceRef = substanceRef(psiSubstance.getUid().name!!)
+        val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
+        val referenceExchange = EBioExchange(quantity, substanceRef)
+        val impacts = psiSubstance.getEmissionFactors()
             ?.getExchanges()
-            ?.map { exchange(it, Polarity.POSITIVE) }
-        val emissionBlock = EBlock(emissionFactorExchanges!!)
+            ?.map { impact(it) }
+            ?: emptyList()
 
-        return EProcess(listOf(productExchange, emissionBlock))
+        return ESubstanceCharacterization(
+            referenceExchange,
+            impacts,
+        )
     }
 
-    private fun exchange(
-        psiExchange: PsiExchange,
-        polarity: Polarity,
-    ): Expression {
+    private fun impact(exchange: PsiExchange): EImpact {
+        return EImpact(
+            quantity(exchange.getQuantity()),
+            indicatorRef(exchange.getProduct()),
+        )
+    }
+
+    private fun indicatorRef(variable: PsiVariable): LcaIndicatorExpression {
+        return EIndicatorRef(variable.name!!)
+    }
+
+    private fun technoExchange(psiExchange: PsiExchange): ETechnoExchange {
+        return ETechnoExchange(
+            quantity(psiExchange.getQuantity()),
+            productRef(psiExchange.getProduct()),
+        )
+    }
+
+    private fun bioExchange(psiExchange: PsiExchange, polarity: Polarity): EBioExchange {
         return when (polarity) {
-            Polarity.POSITIVE -> EExchange(
+            Polarity.POSITIVE -> EBioExchange(
                 quantity(psiExchange.getQuantity()),
-                variable(psiExchange.getProduct().name!!),
+                substanceRef(psiExchange.getProduct()),
             )
 
-            Polarity.NEGATIVE -> EExchange(
-                ENeg(quantity(psiExchange.getQuantity())),
-                variable(psiExchange.getProduct().name!!),
+            Polarity.NEGATIVE -> EBioExchange(
+                EQuantityNeg(quantity(psiExchange.getQuantity())),
+                substanceRef(psiExchange.getProduct()),
             )
         }
     }
 
-    private fun block(psiBlock: PsiBlock): Expression {
-        return EBlock(
-            psiBlock.getExchanges().map { exchange(it, psiBlock.getPolarity()) },
-        )
+
+    private fun substanceRef(substance: PsiVariable): LcaSubstanceExpression {
+        return ESubstanceRef(substance.name!!)
     }
 
-    private fun quantity(quantity: PsiQuantity): Expression {
+    private fun substanceRef(name: String): LcaSubstanceExpression {
+        return ESubstanceRef(name)
+    }
+
+    private fun productRef(product: PsiVariable): LcaProductExpression {
+        return EProductRef(product.name!!)
+    }
+
+    private fun technoBlock(psiBlock: PsiBlock): List<ETechnoExchange> {
+        return psiBlock.getExchanges()
+            .map { technoExchange(it) }
+    }
+
+    private fun bioBlock(psiBlock: PsiBlock): List<EBioExchange> {
+        return psiBlock.getExchanges()
+            .map { bioExchange(it, psiBlock.getPolarity()) }
+    }
+
+
+    private fun quantity(quantity: PsiQuantity): QuantityExpression {
         val term = qTerm(quantity.getTerm())
         return when (quantity.getOperationType()) {
-            AdditiveOperationType.ADD -> EAdd(
+            AdditiveOperationType.ADD -> EQuantityAdd(
                 term, quantity(quantity.getNext()!!)
             )
 
-            AdditiveOperationType.SUB -> ESub(
+            AdditiveOperationType.SUB -> EQuantitySub(
                 term, quantity(quantity.getNext()!!)
             )
 
@@ -218,14 +221,14 @@ class LcaLangAbstractParser(
         }
     }
 
-    private fun qTerm(term: PsiQuantityTerm): Expression {
+    private fun qTerm(term: PsiQuantityTerm): QuantityExpression {
         val factor = qFactor(term.getFactor())
         return when (term.getOperationType()) {
-            MultiplicativeOperationType.MUL -> EMul(
+            MultiplicativeOperationType.MUL -> EQuantityMul(
                 factor, qTerm(term.getNext()!!)
             )
 
-            MultiplicativeOperationType.DIV -> EDiv(
+            MultiplicativeOperationType.DIV -> EQuantityDiv(
                 factor, qTerm(term.getNext()!!)
             )
 
@@ -233,32 +236,36 @@ class LcaLangAbstractParser(
         }
     }
 
-    private fun qFactor(factor: PsiQuantityFactor): Expression {
+    private fun qFactor(factor: PsiQuantityFactor): QuantityExpression {
         val primitive = qPrimitive(factor.getPrimitive())
-        return factor.getExponent()?.let { EPow(primitive, it) }
+        return factor.getExponent()?.let { EQuantityPow(primitive, it) }
             ?: primitive
     }
 
-    private fun qPrimitive(primitive: PsiQuantityPrimitive): Expression {
+    private fun qPrimitive(primitive: PsiQuantityPrimitive): QuantityExpression {
         return when (primitive.getType()) {
-            QuantityPrimitiveType.LITERAL -> EQuantity(
+            QuantityPrimitiveType.LITERAL -> EQuantityLiteral(
                 primitive.getAmount()!!,
                 unit(primitive.getUnit()!!),
             )
 
             QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen()!!)
-            QuantityPrimitiveType.VARIABLE -> variable(primitive.getVariable()!!)
+            QuantityPrimitiveType.VARIABLE -> quantityRef(primitive.getVariable()!!)
         }
     }
 
-    private fun unit(unit: PsiUnit): Expression {
+    private fun quantityRef(variable: PsiVariable): QuantityExpression {
+        return EQuantityRef(variable.name!!)
+    }
+
+    private fun unit(unit: PsiUnit): UnitExpression {
         val factor = uFactor(unit.getFactor())
         return when (unit.getOperationType()) {
-            MultiplicativeOperationType.MUL -> EMul(
+            MultiplicativeOperationType.MUL -> EUnitMul(
                 factor, unit(unit.getNext()!!)
             )
 
-            MultiplicativeOperationType.DIV -> EDiv(
+            MultiplicativeOperationType.DIV -> EUnitMul(
                 factor, unit(unit.getNext()!!),
             )
 
@@ -266,36 +273,21 @@ class LcaLangAbstractParser(
         }
     }
 
-    private fun uFactor(factor: PsiUnitFactor): Expression {
+    private fun uFactor(factor: PsiUnitFactor): UnitExpression {
         val primitive = uPrimitive(factor.getPrimitive())
-        return factor.getExponent()?.let { EPow(primitive, it) }
+        return factor.getExponent()?.let { EUnitPow(primitive, it) }
             ?: primitive
     }
 
-    private fun uPrimitive(primitive: PsiUnitPrimitive): Expression {
+    private fun uPrimitive(primitive: PsiUnitPrimitive): UnitExpression {
         return when (primitive.getType()) {
             UnitPrimitiveType.LITERAL -> unitLiteral(primitive.asLiteral()!!)
             UnitPrimitiveType.PAREN -> unit(primitive.asUnitInParen()!!)
-            UnitPrimitiveType.VARIABLE -> variable(primitive.asVariable()!!)
+            UnitPrimitiveType.VARIABLE -> unitRef(primitive.asVariable()!!)
         }
     }
 
-    private fun coreExpression(coreExpression: PsiCoreExpression): Expression {
-        return when (coreExpression.getExpressionType()) {
-            CoreExpressionType.SYSTEM -> system(coreExpression.asSystem())
-            CoreExpressionType.PROCESS -> process(coreExpression.asProcess())
-            CoreExpressionType.UNIT -> unit(coreExpression.asUnit())
-            CoreExpressionType.QUANTITY -> quantity(coreExpression.asQuantity())
-            CoreExpressionType.VARIABLE -> variable(coreExpression.asVariable())
-            null -> throw IllegalStateException("unknown core expression type")
-        }
-    }
-
-    private fun variable(psiVariable: PsiVariable): Expression {
-        return EVar(psiVariable.name!!)
-    }
-
-    private fun variable(name: String): Expression {
-        return EVar(name)
+    private fun unitRef(variable: PsiVariable): UnitExpression {
+        return EUnitRef(variable.name!!)
     }
 }

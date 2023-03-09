@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
@@ -12,8 +13,8 @@ class QuantityExpressionReducerTest {
     @Test
     fun reduce_whenLiteral_shouldReduceUnit() {
         // given
-        val quantityEnvironment = Environment.empty<QuantityExpression>()
-        val unitEnvironment = Environment<UnitExpression>(hashMapOf(
+        val quantityEnvironment = Register.empty<QuantityExpression>()
+        val unitEnvironment = Register<UnitExpression>(hashMapOf(
             Pair("kg", UnitFixture.kg)
         ))
         val quantity = EQuantityLiteral(1.0, EUnitRef("kg"))
@@ -33,8 +34,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(2.0, UnitFixture.kg)
         val b = EQuantityLiteral(1000.0, UnitFixture.g)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when
@@ -51,8 +52,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(2.0, UnitFixture.kg)
         val b = EQuantityLiteral(1000.0, UnitFixture.m)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when/then
@@ -70,8 +71,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(2.0, UnitFixture.kg)
         val b = EQuantityLiteral(1000.0, UnitFixture.g)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when
@@ -88,8 +89,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(2.0, UnitFixture.kg)
         val b = EQuantityLiteral(1000.0, UnitFixture.m)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when/then
@@ -107,8 +108,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(2.0, UnitFixture.person)
         val b = EQuantityLiteral(2.0, UnitFixture.km)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when
@@ -131,8 +132,8 @@ class QuantityExpressionReducerTest {
         val a = EQuantityLiteral(4.0, UnitFixture.km)
         val b = EQuantityLiteral(2.0, UnitFixture.hour)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when
@@ -154,8 +155,8 @@ class QuantityExpressionReducerTest {
         // given
         val a = EQuantityLiteral(4.0, UnitFixture.km)
         val reducer = QuantityExpressionReducer(
-            Environment.empty(),
-            Environment.empty(),
+            Register.empty(),
+            Register.empty(),
         )
 
         // when
@@ -177,10 +178,10 @@ class QuantityExpressionReducerTest {
         // given
         val a = EQuantityRef("a")
         val reducer = QuantityExpressionReducer(
-            Environment(hashMapOf(
+            Register(hashMapOf(
                 Pair("a", EQuantityLiteral(1.0, UnitFixture.kg))
             )),
-            Environment.empty(),
+            Register.empty(),
         )
 
         // when

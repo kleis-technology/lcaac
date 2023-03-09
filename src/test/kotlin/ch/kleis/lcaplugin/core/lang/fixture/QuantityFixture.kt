@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.EQuantityLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 
 class QuantityFixture {
     companion object {

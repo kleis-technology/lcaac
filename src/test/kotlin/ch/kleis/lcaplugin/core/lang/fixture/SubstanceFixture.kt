@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.ESubstance
+import ch.kleis.lcaplugin.core.lang.expression.ESubstance
 
 class SubstanceFixture {
     companion object {

@@ -1,41 +1,59 @@
 package ch.kleis.lcaplugin.core.assessment
 
-import ch.kleis.lcaplugin.core.lang_obsolete.VProcess
-import ch.kleis.lcaplugin.core.lang_obsolete.VProduct
-import ch.kleis.lcaplugin.core.lang_obsolete.VSystem
+import ch.kleis.lcaplugin.core.lang.PortValue
+import ch.kleis.lcaplugin.core.lang.SystemValue
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
 class Assessment(
-    system: VSystem,
+    system: SystemValue,
     private val solver: Solver = Solver.INSTANCE
 ) {
-    private val processes: IndexedCollection<VProcess>
-    private val observableProducts: IndexedCollection<VProduct>
-    private val observable: ObservableMatrix
-    private val controllableProducts: IndexedCollection<VProduct>
-    private val controllable: ControllableMatrix
+    private val observableMatrix: ObservableMatrix
+    private val controllableMatrix: ControllableMatrix
+    private val observablePorts: IndexedCollection<PortValue>
+    private val controllablePorts: IndexedCollection<PortValue>
 
     init {
-        this.processes = IndexedCollection(system.processes)
-        val referenceProducts = this.processes.getElements()
-            .filter { it.exchanges.isNotEmpty() }
-            .map { it.exchanges[0] } // the 1st product is the reference product
-            .map { it.product }
+        val processes = system.processes
+        val substanceCharacterizations = system.substanceCharacterizations
 
-        this.observableProducts = IndexedCollection(referenceProducts)
-        this.observable = ObservableMatrix(this.processes, this.observableProducts)
-
-        val otherProducts = this.processes.getElements()
-            .flatMap { it.exchanges }
+        val observableProducts = processes
+            .flatMap { it.products }
             .map { it.product }
-            .filter { !referenceProducts.contains(it) }
-        this.controllableProducts = IndexedCollection(otherProducts)
-        this.controllable = ControllableMatrix(processes, controllableProducts)
+        val observableSubstances = substanceCharacterizations
+            .map { it.referenceExchange.substance }
+        observablePorts = IndexedCollection(observableProducts.plus(observableSubstances))
+        observableMatrix = ObservableMatrix(
+            processes,
+            substanceCharacterizations,
+            observableProducts,
+            observableSubstances
+        )
+
+        val terminalProducts = processes
+            .flatMap { it.inputs }
+            .map { it.product }
+            .filter { !observableProducts.contains(it) }
+        val terminalSubstances = processes
+            .flatMap { it.biosphere }
+            .map { it.substance }
+            .filter { !observableSubstances.contains(it) }
+        val indicators = substanceCharacterizations
+            .flatMap { it.impacts }
+            .map { it.indicator }
+        controllablePorts = IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))
+        controllableMatrix = ControllableMatrix(
+            processes,
+            substanceCharacterizations,
+            terminalProducts,
+            terminalSubstances,
+            indicators
+        )
     }
 
     fun inventory(): InventoryResult {
-        val data = solver.solve(this.observable.matrix, this.controllable.matrix) ?: return InventoryError("The system cannot be solved")
-        return InventoryMatrix(this.observableProducts, this.controllableProducts, data)
+        val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix) ?: return InventoryError("The system cannot be solved")
+        return InventoryMatrix(this.observablePorts, this.controllablePorts, data)
     }
 }

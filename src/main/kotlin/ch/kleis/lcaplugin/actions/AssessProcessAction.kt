@@ -1,12 +1,10 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
-import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang_obsolete.Compiler
-import ch.kleis.lcaplugin.core.lang_obsolete.EntryPoint
-import ch.kleis.lcaplugin.core.lang_obsolete.LinkerException
-import ch.kleis.lcaplugin.core.lang_obsolete.VSystem
-import ch.kleis.lcaplugin.core.lang_obsolete.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.expression.TemplateExpression
+import ch.kleis.lcaplugin.core.lang.preprocessor.PreProcessor
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -22,7 +20,7 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
-class AssessSystemAction(private val systemName: String) : AnAction() {
+class AssessProcessAction(private val processName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
@@ -38,17 +36,16 @@ class AssessSystemAction(private val systemName: String) : AnAction() {
         }
 
         try {
-            val (pkg, dependencies) = parser.collect(file.getPackage().name!!)
-            val entryPoint = EntryPoint(pkg, systemName)
-            val program = Compiler(entryPoint, dependencies).compile()
-            val value = program.run() as VSystem
-            val assessment = Assessment(value)
-            val result = assessment.inventory()
-            displayToolWindow(project, result)
+            val (pkg, deps) = parser.collect(file.getPackage().name!!)
+            val fqn = "${pkg.name}.$processName"
+            val program = PreProcessor(
+                { it.processTemplates[fqn]!! },
+                pkg,
+                deps
+            ).prepare()
+            val value = Evaluator(program.environment).eval(program.entryPoint as TemplateExpression)
+            TODO()
         } catch (e: EvaluatorException) {
-            val result = InventoryError(e.message ?: "evaluator: unknown error")
-            displayToolWindow(project, result)
-        } catch (e: LinkerException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
         } catch (e: NoSuchElementException) {
@@ -64,7 +61,6 @@ class AssessSystemAction(private val systemName: String) : AnAction() {
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()
-
     }
 }
 

@@ -1,18 +1,18 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.lang_obsolete.VCharacterizationFactor
-import ch.kleis.lcaplugin.core.lang_obsolete.VProduct
+import ch.kleis.lcaplugin.core.lang.CharacterizationFactorValue
+import ch.kleis.lcaplugin.core.lang.PortValue
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
     override fun getRowCount(): Int {
-        return matrix.observableProducts.size()
+        return matrix.observablePorts.size()
     }
 
     override fun getColumnCount(): Int {
-        return 2 + matrix.controllableProducts.size()
+        return 2 + matrix.controllablePorts.size()
     }
 
     override fun getColumnName(columnIndex: Int): String {
@@ -24,8 +24,8 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
             return "unit"
         }
 
-        val product = matrix.controllableProducts[columnIndex - 2]
-        return "${product.name} [${product.referenceUnit.symbol}]"
+        val product = matrix.controllablePorts[columnIndex - 2]
+        return "${product.name()} [${product.referenceUnit().symbol}]"
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -33,7 +33,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
             return String::class.java
         }
 
-        return matrix.controllableProducts[columnIndex - 2]::class.java
+        return matrix.controllablePorts[columnIndex - 2]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -41,30 +41,30 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
     }
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
-        val outputProduct = matrix.observableProducts[rowIndex]
+        val outputProduct = matrix.observablePorts[rowIndex]
 
         if (columnIndex == 0) {
-            return outputProduct.name
+            return outputProduct.name()
         }
 
         if (columnIndex == 1) {
-            return outputProduct.referenceUnit.symbol
+            return outputProduct.referenceUnit().symbol
         }
 
-        val inputProduct = matrix.controllableProducts[columnIndex - 2]
+        val inputProduct = matrix.controllablePorts[columnIndex - 2]
         val cf = matrix.value(outputProduct, inputProduct)
         return render(cf, inputProduct, outputProduct)
     }
 
     private fun render(
-        cf: VCharacterizationFactor,
-        inputProduct: VProduct,
-        outputProduct: VProduct,
+        cf: CharacterizationFactorValue,
+        inputPort: PortValue,
+        outputPort: PortValue,
     ): Double {
         val input = cf.input
         val output = cf.output
-        val numerator = input.quantity.referenceValue() / inputProduct.referenceUnit.scale
-        val denominator = output.quantity.referenceValue() / outputProduct.referenceUnit.scale
+        val numerator = input.quantity().referenceValue() / inputPort.referenceUnit().scale
+        val denominator = output.quantity().referenceValue() / outputPort.referenceUnit().scale
         return numerator / denominator
     }
 

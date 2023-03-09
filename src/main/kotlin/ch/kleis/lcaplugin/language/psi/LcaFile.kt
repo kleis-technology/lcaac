@@ -43,7 +43,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiSystem }
     }
 
-    fun getLocalAssignments(): Collection<PsiAssignment> {
+    fun getAssignments(): Collection<PsiAssignment> {
         return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
             .map { it.psi as PsiAssignment }
     }

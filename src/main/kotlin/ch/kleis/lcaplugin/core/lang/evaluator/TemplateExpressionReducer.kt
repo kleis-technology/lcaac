@@ -1,23 +1,22 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    processEnvironment: Environment<LcaProcessExpression> = Environment.empty(),
-    productEnvironment: Environment<LcaUnconstrainedProductExpression> = Environment.empty(),
-    substanceEnvironment: Environment<LcaSubstanceExpression> = Environment.empty(),
-    indicatorEnvironment: Environment<LcaIndicatorExpression> = Environment.empty(),
-    quantityEnvironment: Environment<QuantityExpression> = Environment.empty(),
-    unitEnvironment: Environment<UnitExpression> = Environment.empty(),
-    templateEnvironment: Environment<TemplateExpression> = Environment.empty(),
+    productRegister: Register<LcaUnconstrainedProductExpression> = Register.empty(),
+    substanceRegister: Register<LcaSubstanceExpression> = Register.empty(),
+    indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
+    quantityRegister: Register<QuantityExpression> = Register.empty(),
+    unitRegister: Register<UnitExpression> = Register.empty(),
+    templateRegister: Register<TemplateExpression> = Register.empty(),
 ) : Reducer<TemplateExpression> {
-    private val templateEnvironment = Environment(templateEnvironment)
-    private val processEnvironment = Environment(processEnvironment)
-    private val productEnvironment = Environment(productEnvironment)
-    private val substanceEnvironment = Environment(substanceEnvironment)
-    private val indicatorEnvironment = Environment(indicatorEnvironment)
-    private val quantityEnvironment = Environment(quantityEnvironment)
-    private val unitEnvironment = Environment(unitEnvironment)
+    private val templateRegister = Register(templateRegister)
+    private val productRegister = Register(productRegister)
+    private val substanceRegister = Register(substanceRegister)
+    private val indicatorRegister = Register(indicatorRegister)
+    private val quantityRegister = Register(quantityRegister)
+    private val unitRegister = Register(unitRegister)
     private val beta = Beta()
 
     override fun reduce(expression: TemplateExpression): TemplateExpression {
@@ -31,25 +30,24 @@ class TemplateExpressionReducer(
                     throw EvaluatorException("unknown parameters: $unknownParameters")
                 }
 
-                val localEnvironment = Environment(quantityEnvironment)
+                val localRegister = Register(quantityRegister)
 
                 val actualArguments = template.params
                     .plus(expression.arguments)
                 actualArguments.forEach {
-                    localEnvironment[it.key] = it.value
+                    localRegister[it.key] = it.value
                 }
 
                 template.locals.forEach {
-                    localEnvironment[it.key] = it.value
+                    localRegister[it.key] = it.value
                 }
 
                 val reducer = LcaExpressionReducer(
-                    processEnvironment,
-                    productEnvironment,
-                    substanceEnvironment,
-                    indicatorEnvironment,
-                    localEnvironment,
-                    unitEnvironment
+                    productRegister,
+                    substanceRegister,
+                    indicatorRegister,
+                    localRegister,
+                    unitRegister
                 )
 
                 var result = template.body
@@ -63,7 +61,7 @@ class TemplateExpressionReducer(
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
-            is ETemplateRef -> templateEnvironment[expression.name]?.let { reduce(it) } ?: expression
+            is ETemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
         }
     }
 }

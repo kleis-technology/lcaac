@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
@@ -13,7 +14,7 @@ class UnitExpressionReducerTest {
     fun reduce_whenLiteral_shouldReturnSame() {
         // given
         val kg = UnitFixture.kg
-        val reducer = UnitExpressionReducer(Environment.empty())
+        val reducer = UnitExpressionReducer(Register.empty())
 
         // when
         val actual = reducer.reduce(kg)
@@ -27,7 +28,7 @@ class UnitExpressionReducerTest {
         // given
         val kg = UnitFixture.kg
         val l = UnitFixture.l
-        val reducer = UnitExpressionReducer(Environment.empty())
+        val reducer = UnitExpressionReducer(Register.empty())
 
         // when
         val actual = reducer.reduce(EUnitDiv(kg, l))
@@ -46,7 +47,7 @@ class UnitExpressionReducerTest {
         // given
         val kg = UnitFixture.kg
         val l = UnitFixture.l
-        val reducer = UnitExpressionReducer(Environment.empty())
+        val reducer = UnitExpressionReducer(Register.empty())
 
         // when
         val actual = reducer.reduce(EUnitMul(kg, l))
@@ -64,7 +65,7 @@ class UnitExpressionReducerTest {
     fun reduce_whenPow_shouldPow() {
         // given
         val m = UnitFixture.m
-        val reducer = UnitExpressionReducer(Environment.empty())
+        val reducer = UnitExpressionReducer(Register.empty())
 
         // when
         val actual = reducer.reduce(EUnitPow(m, 2.0))
@@ -82,7 +83,7 @@ class UnitExpressionReducerTest {
     fun reduce_whenRef_shouldReadEnv() {
         // given
         val ref = EUnitRef("kg")
-        val environment = Environment<UnitExpression>(
+        val environment = Register<UnitExpression>(
             hashMapOf(
                 Pair("kg", UnitFixture.kg)
             )

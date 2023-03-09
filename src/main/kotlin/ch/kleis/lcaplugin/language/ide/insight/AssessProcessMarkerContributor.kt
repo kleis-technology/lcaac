@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.actions.AssessSystemAction
+import ch.kleis.lcaplugin.actions.AssessProcessAction
+import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSystem
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
@@ -12,12 +13,12 @@ import com.intellij.psi.util.elementType
     https://github.com/JetBrains/intellij-plugins/blob/master/makefile/resources/META-INF/plugin.xml
  */
 
-class AssessSystemMarkerContributor : RunLineMarkerContributor() {
+class AssessProcessMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (isTarget(element)) {
-            val system = element.parent as PsiSystem
-            val target = system.getUid()?.name!!
-            val action = AssessSystemAction(target)
+            val process = element.parent as PsiProcess
+            val target = process.getUid()?.name!!
+            val action = AssessProcessAction(target)
             return Info(AllIcons.Actions.Execute, {
                 "Assess $target"
             }, action)
@@ -26,10 +27,10 @@ class AssessSystemMarkerContributor : RunLineMarkerContributor() {
     }
 
     private fun isTarget(element: PsiElement): Boolean {
-        if (element.elementType != LcaTypes.SYSTEM_KEYWORD || element.parent !is PsiSystem) {
+        if (element.elementType != LcaTypes.PROCESS_KEYWORD || element.parent !is PsiProcess) {
             return false
         }
-        val parent = element.parent as PsiSystem
+        val parent = element.parent as PsiProcess
         return parent.getUid() != null
     }
 }

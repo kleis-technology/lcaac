@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.EProduct
+import ch.kleis.lcaplugin.core.lang.expression.EProduct
 
 class ProductFixture {
     companion object {

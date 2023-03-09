@@ -64,7 +64,7 @@
 
         <runLineMarkerContributor
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessSystemMarkerContributor"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessProcessMarkerContributor"/>
     </extensions>
 
     <applicationListeners>
