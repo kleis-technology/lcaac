@@ -1,8 +1,10 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
+import ch.kleis.lcaplugin.core.lang.Program
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.expression.Expression
 import ch.kleis.lcaplugin.core.lang.expression.TemplateExpression
 import ch.kleis.lcaplugin.core.lang.preprocessor.PreProcessor
 import ch.kleis.lcaplugin.core.matrix.InventoryError
@@ -38,11 +40,8 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         try {
             val (pkg, deps) = parser.collect(file.getPackage().name!!)
             val fqn = "${pkg.name}.$processName"
-            val program = PreProcessor(
-                { it.processTemplates[fqn]!! },
-                pkg,
-                deps
-            ).prepare()
+            val environment = PreProcessor(pkg, deps).assemble()
+            val program = Program(environment.processTemplates[fqn] as Expression, environment)
             val value = Evaluator(program.environment).eval(program.entryPoint as TemplateExpression)
             TODO()
         } catch (e: EvaluatorException) {

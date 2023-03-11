@@ -349,7 +349,7 @@ class LcaExpressionReducerTest {
         val expression = EConstrainedProduct(
             EProductRef("carrot"),
             FromProcessRef(
-                "p",
+                ETemplateRef("p"),
                 mapOf(
                     Pair("x", EQuantityRef("q"))
                 )
@@ -383,7 +383,7 @@ class LcaExpressionReducerTest {
                 UnitFixture.kg,
             ),
             FromProcessRef(
-                "p",
+                ETemplateRef("p"),
                 mapOf(
                     Pair("x", EQuantityLiteral(3.0, UnitFixture.kg))
                 )

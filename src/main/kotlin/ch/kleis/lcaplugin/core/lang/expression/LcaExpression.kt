@@ -1,52 +1,91 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
-import ch.kleis.lcaplugin.core.lang.Constraint
+import arrow.optics.optics
 
-sealed interface LcaExpression : Expression
+@optics
+sealed interface LcaExpression : Expression {
+    companion object
+}
 
 // Product
-sealed interface LcaProductExpression : LcaExpression
-sealed interface LcaUnconstrainedProductExpression : LcaProductExpression
+@optics
+sealed interface LcaProductExpression : LcaExpression {
+    companion object
+}
 
+@optics
+sealed interface LcaUnconstrainedProductExpression : LcaProductExpression {
+    companion object
+}
+
+@optics
 data class EProduct(
     val name: String,
     val referenceUnit: UnitExpression,
-) : LcaUnconstrainedProductExpression
+) : LcaUnconstrainedProductExpression {
+    companion object
+}
+
+@optics
 data class EProductRef(val name: String) : LcaUnconstrainedProductExpression, RefExpression {
     override fun name(): String {
         return name
     }
 
     override fun toString(): String = name
+
+    companion object
 }
 
-data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint):
-    LcaProductExpression
-
+@optics
+data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
+    LcaProductExpression {
+    companion object
+}
 
 
 // Substance
-sealed interface LcaSubstanceExpression : LcaExpression
+@optics
+sealed interface LcaSubstanceExpression : LcaExpression {
+    companion object
+}
+
+@optics
 data class ESubstance(
     val name: String,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitExpression,
-) : LcaSubstanceExpression
+) : LcaSubstanceExpression {
+    companion object
+}
+
+@optics
 data class ESubstanceRef(val name: String) : LcaSubstanceExpression, RefExpression {
     override fun name(): String {
         return name
     }
 
     override fun toString(): String = name
+
+    companion object
 }
 
 // Indicator
-sealed interface LcaIndicatorExpression : LcaExpression
+@optics
+sealed interface LcaIndicatorExpression : LcaExpression {
+    companion object
+}
+
+@optics
 data class EIndicator(
     val name: String,
     val referenceUnit: UnitExpression,
-) : LcaIndicatorExpression
+) : LcaIndicatorExpression {
+    companion object
+}
+
+@optics
 data class EIndicatorRef(
     val name: String,
 ) : LcaIndicatorExpression, RefExpression {
@@ -55,28 +94,63 @@ data class EIndicatorRef(
     }
 
     override fun toString(): String = name
+
+    companion object
 }
 
 // Exchange
-sealed interface LcaExchangeExpression : LcaExpression
-data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression) : LcaExchangeExpression
-data class EBioExchange(val quantity: QuantityExpression, val substance: LcaSubstanceExpression) : LcaExchangeExpression
-data class EImpact(val quantity: QuantityExpression, val indicator: LcaIndicatorExpression) : LcaExchangeExpression
+@optics
+sealed interface LcaExchangeExpression : LcaExpression {
+    companion object
+}
+
+@optics
+data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression) :
+    LcaExchangeExpression {
+    companion object
+}
+
+@optics
+data class EBioExchange(val quantity: QuantityExpression, val substance: LcaSubstanceExpression) :
+    LcaExchangeExpression {
+    companion object
+}
+
+@optics
+data class EImpact(val quantity: QuantityExpression, val indicator: LcaIndicatorExpression) : LcaExchangeExpression {
+    companion object
+}
 
 // Process
-sealed interface LcaProcessExpression : LcaExpression
+@optics
+sealed interface LcaProcessExpression : LcaExpression {
+    companion object
+}
+
+@optics
 data class EProcess(
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,
-) : LcaProcessExpression
+) : LcaProcessExpression {
+    companion object
+}
 
 // Substance Characterization
-sealed interface LcaSubstanceCharacterizationExpression : LcaExpression
+@optics
+sealed interface LcaSubstanceCharacterizationExpression : LcaExpression {
+    companion object
+}
+
+@optics
 data class ESubstanceCharacterization(
     val referenceExchange: EBioExchange,
     val impacts: List<EImpact>
-) : LcaSubstanceCharacterizationExpression
+) : LcaSubstanceCharacterizationExpression {
+    companion object
+}
+
+@optics
 data class ESubstanceCharacterizationRef(
     val name: String
 ) : LcaSubstanceCharacterizationExpression, RefExpression {
@@ -85,5 +159,6 @@ data class ESubstanceCharacterizationRef(
     }
 
     override fun toString(): String = name
-}
 
+    companion object
+}

@@ -1,7 +1,10 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
+import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
+import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 
 class Evaluator(
     environment: Environment = Environment.empty(),
@@ -20,7 +23,22 @@ class Evaluator(
         val reduced = step(expression)
         return asValue(reduced)
     }
-    
+
+    private fun completeProducts(reduced: TemplateExpression): TemplateExpression {
+        return Merge(
+            listOf(
+                TemplateExpression.eProcessFinal.expression.eProcess.products compose Every.list(),
+                TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list(),
+            )
+        ).modify(reduced) { exchange ->
+            val q = exchange.quantity as EQuantityLiteral
+            (ETechnoExchange.product compose productRefInProductExpression)
+                .modify(exchange) {
+                    EProduct(it.name, q.unit)
+                }
+        }
+    }
+
     private fun step(expression: TemplateExpression): TemplateExpression {
         val reduced = when (expression) {
             is EInstance -> reducer.reduce(expression)
@@ -30,11 +48,12 @@ class Evaluator(
                 reducer.reduce(EInstance(expression, emptyMap()))
             } ?: expression
         }
-        val unboundedReferences = Helper().unboundedReferences(reduced)
+        val completed = completeProducts(reduced)
+        val unboundedReferences = Helper().unboundedReferences(completed)
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
-        return reduced
+        return completed
     }
 
     private fun asValue(reduced: TemplateExpression): Value {
@@ -121,6 +140,7 @@ class Evaluator(
                 unit.scale,
                 unit.dimension,
             )
+
             else -> throw EvaluatorException("$unit is not reduced")
         }
     }

@@ -54,6 +54,10 @@ class LcaLangAbstractParser(
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
+        val substances = files
+            .flatMap { it.getSubstances() }
+            .associate { Pair(it.getUid().name!!, substance(it)) }
+
         val substanceCharacterizations = files
             .flatMap { it.getSubstances() }
             .filter { it.hasEmissionFactors() }
@@ -69,6 +73,7 @@ class LcaLangAbstractParser(
             quantities = Register(globals),
             processTemplates = Register(templates),
             units = Register(units),
+            substances = Register(substances),
             substanceCharacterizations = Register(substanceCharacterizations)
         )
 
@@ -85,6 +90,18 @@ class LcaLangAbstractParser(
             pkgName,
             imports,
             environment,
+        )
+    }
+
+    /*
+        TODO: fill in compartment and subcompartment
+     */
+    private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
+        return ESubstance(
+            psiSubstance.getUid().name!!,
+            "IMPLEMENT ME",
+            "IMPLEMENT ME",
+            unit(psiSubstance.getReferenceUnitField().getValue())
         )
     }
 

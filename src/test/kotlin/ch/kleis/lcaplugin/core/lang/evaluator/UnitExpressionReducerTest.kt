@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import arrow.optics.Optional
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
@@ -9,7 +10,6 @@ import org.junit.Test
 import kotlin.math.pow
 
 class UnitExpressionReducerTest {
-
     @Test
     fun reduce_whenLiteral_shouldReturnSame() {
         // given

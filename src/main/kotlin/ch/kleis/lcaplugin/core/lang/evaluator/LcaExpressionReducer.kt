@@ -42,9 +42,6 @@ class LcaExpressionReducer(
             )
 
             is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
-            is ESystem -> ESystem(
-                expression.processes.map { reduceLcaProcessExpression(it) }
-            )
 
             is ESubstanceCharacterizationRef -> reduceSubstanceCharacterization(expression)
         }

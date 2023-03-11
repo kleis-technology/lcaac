@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.evaluator.Beta
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
@@ -55,7 +55,7 @@ class BetaTest {
                     EConstrainedProduct(
                         ProductFixture.carrot,
                         FromProcessRef(
-                            "carrot_production",
+                            ETemplateRef("carrot_production"),
                             mapOf(
                                 Pair("x", ref)
                             ),
@@ -79,7 +79,7 @@ class BetaTest {
                     EConstrainedProduct(
                         ProductFixture.carrot,
                         FromProcessRef(
-                            "carrot_production",
+                            ETemplateRef("carrot_production"),
                             mapOf(
                                 Pair("x", QuantityFixture.oneKilogram)
                             ),
