@@ -20,7 +20,8 @@ class InventoryMatrix(
         )
 
         val inputUnit = defaultUnitOf(inputPort.getDimension())
-        val amount = data.value(
+        val sign = if (outputPort is SubstanceValue) -1 else 1
+        val amount = sign * data.value(
             observablePorts.indexOf(outputPort),
             controllablePorts.indexOf(inputPort),
         )
