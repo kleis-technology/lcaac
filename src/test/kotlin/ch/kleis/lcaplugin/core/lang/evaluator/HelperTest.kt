@@ -133,11 +133,11 @@ class HelperTest {
         val helper = Helper()
 
         // when
-        val actual = helper.unboundedReferences(expression)
+        val actual = helper.allUnboundedReferencesButProductRefs(expression)
 
         // then
         val expected = setOf(
-            "quantity", "ua", "ub", "product", "template", "substance", "qa", "qb", "indicator"
+            "quantity", "ua", "ub", "template", "substance", "qa", "qb", "indicator"
         )
         assertEquals(expected, actual)
     }

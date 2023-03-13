@@ -31,7 +31,10 @@ class Evaluator(
                 TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list(),
             )
         ).modify(reduced) { exchange ->
-            val q = exchange.quantity as EQuantityLiteral
+            val q = exchange.quantity
+            if (q !is EQuantityLiteral) {
+                throw EvaluatorException("quantity $q is not reduced")
+            }
             (ETechnoExchange.product compose productRefInProductExpression)
                 .modify(exchange) {
                     EProduct(it.name, q.unit)
@@ -48,12 +51,11 @@ class Evaluator(
                 reducer.reduce(EInstance(expression, emptyMap()))
             } ?: expression
         }
-        val completed = completeProducts(reduced)
-        val unboundedReferences = Helper().unboundedReferences(completed)
+        val unboundedReferences = Helper().allUnboundedReferencesButProductRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
-        return completed
+        return completeProducts(reduced)
     }
 
     private fun asValue(reduced: TemplateExpression): Value {
