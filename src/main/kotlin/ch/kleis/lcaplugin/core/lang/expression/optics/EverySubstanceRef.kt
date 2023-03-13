@@ -70,19 +70,3 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
         )
     )
 
-val everySubstanceRefInSymbolTable: PEvery<SymbolTable, SymbolTable, ESubstanceRef, LcaSubstanceExpression> =
-    Merge(
-        listOf(
-            SymbolTable.substances compose everyRegister() compose substanceRefInLcaSubstanceExpression,
-            SymbolTable.substanceCharacterizations compose
-                    everyRegister() compose
-                    LcaSubstanceCharacterizationExpression
-                        .eSubstanceCharacterization
-                        .referenceExchange
-                        .substance compose
-                    substanceRefInLcaSubstanceExpression,
-            SymbolTable.processTemplates compose everyRegister() compose
-                    everyProcessTemplateInTemplateExpression compose
-                    EProcessTemplate.body compose everySubstanceRefInProcessExpression
-        )
-    )

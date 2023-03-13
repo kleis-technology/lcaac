@@ -4,12 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import arrow.optics.Every
-import arrow.optics.PEvery
 import arrow.optics.PPrism
-import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.indicators
-import ch.kleis.lcaplugin.core.lang.substanceCharacterizations
 
 val indicatorRefInIndicatorExpression =
     object : PPrism<LcaIndicatorExpression, LcaIndicatorExpression, EIndicatorRef, LcaIndicatorExpression> {
@@ -25,12 +21,6 @@ val indicatorRefInIndicatorExpression =
         }
     }
 
-val everyIndicatorRefInSubstanceCharacterizationExpression: PEvery<LcaSubstanceCharacterizationExpression, LcaSubstanceCharacterizationExpression, EIndicatorRef, LcaIndicatorExpression> =
-    LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose
-            Every.list() compose
-            EImpact.indicator compose
-            indicatorRefInIndicatorExpression
-
 val everyIndicatorRef: Every<Expression, EIndicatorRef> =
     Merge(
         listOf(
@@ -44,10 +34,3 @@ val everyIndicatorRef: Every<Expression, EIndicatorRef> =
         )
     )
 
-val everyIndicatorRefInSymbolTable: PEvery<SymbolTable, SymbolTable, EIndicatorRef, LcaIndicatorExpression> =
-    Merge(
-        listOf(
-            SymbolTable.indicators compose everyRegister() compose indicatorRefInIndicatorExpression,
-            SymbolTable.substanceCharacterizations compose everyRegister() compose everyIndicatorRefInSubstanceCharacterizationExpression
-        )
-    )

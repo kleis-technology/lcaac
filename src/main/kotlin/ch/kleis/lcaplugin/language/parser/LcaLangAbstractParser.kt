@@ -1,10 +1,11 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.ImportType
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
@@ -17,40 +18,9 @@ import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
 
 class LcaLangAbstractParser(
-    private val findFilesOf: (String) -> List<LcaFile>,
+    private val files: List<LcaFile>,
 ) {
-    fun collect(pkgName: String): Pair<Package, List<Package>> {
-        val visited = HashSet<String>()
-        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
-        visited.add(pkgName)
-        val dependencies = pkg.imports
-            .flatMap {
-                val deps = collectDependencies(it.pkgName, visited)
-                visited.addAll(deps.map { dep -> dep.name })
-                deps
-            }
-        return Pair(pkg, dependencies)
-    }
-
-    private fun collectDependencies(pkgName: String, visited: HashSet<String>): List<Package> {
-        if (visited.contains(pkgName)) {
-            return emptyList()
-        }
-        val pkg = Prelude.packages[pkgName] ?: mkPackage(pkgName)
-        if (pkg.imports.isEmpty()) {
-            return listOf(pkg)
-        }
-        val dependencies = pkg.imports
-            .flatMap {
-                val deps = collectDependencies(it.pkgName, visited)
-                visited.addAll(deps.map { dep -> dep.name })
-                deps
-            }
-        return dependencies.plus(pkg)
-    }
-
-    private fun mkPackage(pkgName: String): Package {
-        val files = findFilesOf(pkgName)
+    fun load(): SymbolTable {
         val globals = files
             .flatMap { it.getAssignments().entries }
             .associate { it.key to quantity(it.value) }
@@ -75,27 +45,12 @@ class LcaLangAbstractParser(
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
 
-        val symbolTable = SymbolTable(
+        return SymbolTable(
             quantities = Register(globals),
             processTemplates = Register(templates),
-            units = Register(units),
+            units = Register(Prelude.units.plus(units)),
             substances = Register(substances),
             substanceCharacterizations = Register(substanceCharacterizations)
-        )
-
-        val imports = files
-            .flatMap { it.getImports() }
-            .map {
-                when (it.getImportType()) {
-                    ImportType.SYMBOL -> ImportSymbol(it.getPackageName(), it.getSymbol()!!)
-                    ImportType.WILDCARD -> ImportWildCard(it.getPackageName())
-                }
-            }
-
-        return Package(
-            pkgName,
-            imports,
-            symbolTable,
         )
     }
 

@@ -217,18 +217,3 @@ val everyQuantityRef: Every<Expression, EQuantityRef> =
         )
     )
 
-val everyUnboundedQuantityRefInSymbolTable: PEvery<SymbolTable, SymbolTable, EQuantityRef, QuantityExpression> =
-    Merge(
-        listOf(
-            SymbolTable.quantities compose everyRegister() compose everyQuantityRefInQuantityExpression,
-            SymbolTable.processTemplates compose everyRegister() compose
-                    everyProcessTemplateInTemplateExpression compose
-                    Merge(
-                        listOf(
-                            EProcessTemplate.params compose Every.map() compose everyQuantityRefInQuantityExpression,
-                            EProcessTemplate.locals compose Every.map() compose everyQuantityRefInQuantityExpression,
-                            everyUnboundedQuantityRefInProcessTemplate,
-                        )
-                    )
-        )
-    )

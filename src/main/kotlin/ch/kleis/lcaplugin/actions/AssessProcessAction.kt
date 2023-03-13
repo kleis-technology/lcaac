@@ -1,15 +1,10 @@
 package ch.kleis.lcaplugin.actions
 
-import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.ProcessValue
-import ch.kleis.lcaplugin.core.lang.Program
 import ch.kleis.lcaplugin.core.lang.SystemValue
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.Expression
-import ch.kleis.lcaplugin.core.lang.expression.TemplateExpression
-import ch.kleis.lcaplugin.core.lang.preprocessor.PreProcessor
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -20,31 +15,17 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
 class AssessProcessAction(private val processName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
-        val psiManager = PsiManager.getInstance(project)
-        val parser = LcaLangAbstractParser { pkgName ->
-            val files = FileTypeIndex
-                .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
-                .mapNotNull { psiManager.findFile(it) }
-                .map { it as LcaFile }
-                .filter { it.getPackage().name!! == pkgName }
-            if (files.isEmpty()) throw NoSuchElementException("cannot find any LCA file for package $pkgName")
-            files
-        }
+        val parser = LcaLangAbstractParser(listOf(file)) // TODO: Manage multiple files
 
         try {
-            val (pkg, deps) = parser.collect(file.getPackage().name!!)
-            val symbolTable = PreProcessor(pkg, deps).assemble()
-            val fqn = "${pkg.name}.$processName"
-            val entryPoint = symbolTable.processTemplates[fqn]!!
+            val symbolTable = parser.load()
+            val entryPoint = symbolTable.processTemplates[processName]!!
             val value = Evaluator(symbolTable).eval(entryPoint) as ProcessValue
             /*
                 TODO: Infer system correctly

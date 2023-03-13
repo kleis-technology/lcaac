@@ -43,13 +43,6 @@ val everyTemplateRefInProcess: Every<EProcess, ETemplateRef> =
 val everyTemplateRefInProcessExpression =
     LcaProcessExpression.eProcess compose everyTemplateRefInProcess
 
-val everyTemplateRefInSymbolTable: Every<SymbolTable, ETemplateRef> =
-    SymbolTable.processTemplates compose everyRegister() compose
-            everyProcessTemplateInTemplateExpression compose
-            EProcessTemplate.body compose
-            everyTemplateRefInProcessExpression
-
-
 val everyTemplateRef: Every<Expression, ETemplateRef> =
     Merge(
         listOf(

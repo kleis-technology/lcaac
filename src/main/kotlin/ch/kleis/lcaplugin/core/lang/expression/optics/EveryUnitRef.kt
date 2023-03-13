@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 
@@ -187,14 +186,3 @@ val everyUnitRef: Every<Expression, EUnitRef> =
             Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcessExpression,
         )
     )
-
-val everyUnitRefInSymbolTable : PEvery<SymbolTable, SymbolTable, EUnitRef, UnitExpression> =
-    Merge(listOf(
-        SymbolTable.products compose everyRegister() compose everyUnitRefInUnconstrainedProductExpression,
-        SymbolTable.substances compose everyRegister() compose everyUnitRefInSubstanceExpression,
-        SymbolTable.indicators compose everyRegister() compose everyUnitRefInIndicatorExpression,
-        SymbolTable.quantities compose everyRegister() compose everyUnitRefInQuantityExpression,
-        SymbolTable.units compose everyRegister() compose everyUnitRefInUnitExpression,
-        SymbolTable.processTemplates compose everyRegister() compose everyUnitRefInTemplateExpression,
-        SymbolTable.substanceCharacterizations compose everyRegister() compose everyUnitRefInSubstanceCharacterizationExpression,
-    ))

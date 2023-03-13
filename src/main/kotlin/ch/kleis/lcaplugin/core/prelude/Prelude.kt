@@ -16,7 +16,7 @@ class Prelude {
         private val none = Dimension.None
         private val radioactivity = Dimension.of("radioactivity")
 
-        private val definitions = listOf(
+        val units = listOf(
             EUnitLiteral("piece", 1.0, none),
             EUnitLiteral("person", 1.0, none),
             EUnitLiteral("percent", 1.0e-2, none),
@@ -47,18 +47,5 @@ class Prelude {
             EUnitLiteral("MJ", 1.0e6 / 3600.0, energy),
             EUnitLiteral("W", 1.0, power),
         ).associateBy { it.symbol }
-
-        val packages = mapOf(
-            Pair(
-                "prelude.units",
-                Package(
-                    "prelude.units",
-                    emptyList(),
-                    SymbolTable(
-                        units = Register(definitions)
-                    )
-                )
-            )
-        )
     }
 }

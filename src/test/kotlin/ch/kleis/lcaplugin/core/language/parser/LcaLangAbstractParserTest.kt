@@ -26,13 +26,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser {
+        val parser = LcaLangAbstractParser(
             listOf(file)
-        }
+        )
 
         // when
-        val (pkg, _) = parser.collect("hello")
-        val actual = pkg.symbolTable.getTemplate("a")!!
+        val symbolTable = parser.load()
+        val actual = symbolTable.getTemplate("a")!!
 
         // then
         val expected = EProcessTemplate(
@@ -76,13 +76,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser {
+        val parser = LcaLangAbstractParser(
             listOf(file)
-        }
+        )
 
         // when
-        val (pkg, _) = parser.collect("substances")
-        val actual = pkg.symbolTable.getSubstanceCharacterization("phosphate")
+        val symbolTable = parser.load()
+        val actual = symbolTable.getSubstanceCharacterization("phosphate")
 
         // then
         val expected = ESubstanceCharacterization(
