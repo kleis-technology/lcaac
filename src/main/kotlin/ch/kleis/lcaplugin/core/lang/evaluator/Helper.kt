@@ -4,15 +4,13 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.*
 
-class Beta {
+class Helper {
     fun substitute(binder: String, value: QuantityExpression, body: LcaProcessExpression): LcaProcessExpression {
         return everyQuantityRefInProcessExpression.modify(body) {
             if (it.name == binder) value else it
         }
     }
-}
 
-class Helper {
     fun unboundedReferences(expression: Expression): Set<String> {
         val allRefs : Every<Expression, String> = Merge(listOf(
             everyIndicatorRef compose EIndicatorRef.name,

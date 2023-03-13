@@ -17,7 +17,7 @@ class TemplateExpressionReducer(
     private val indicatorRegister = Register(indicatorRegister)
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
-    private val beta = Beta()
+    private val helper = Helper()
 
     override fun reduce(expression: TemplateExpression): TemplateExpression {
         return when (expression) {
@@ -52,7 +52,7 @@ class TemplateExpressionReducer(
 
                 var result = template.body
                 actualArguments.forEach {
-                    result = beta.substitute(it.key, it.value, result)
+                    result = helper.substitute(it.key, it.value, result)
                 }
                 return EProcessFinal(
                     reducer.reduce(result) as LcaProcessExpression
