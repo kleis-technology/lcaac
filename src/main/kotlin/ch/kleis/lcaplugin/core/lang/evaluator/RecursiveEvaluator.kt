@@ -1,10 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import arrow.optics.Every
-import ch.kleis.lcaplugin.core.lang.ProcessValue
-import ch.kleis.lcaplugin.core.lang.SubstanceCharacterizationValue
-import ch.kleis.lcaplugin.core.lang.SymbolTable
-import ch.kleis.lcaplugin.core.lang.SystemValue
+import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class RecursiveEvaluator(
@@ -17,12 +14,23 @@ class RecursiveEvaluator(
         return state.asSystem()
     }
 
-    private fun aux(state: State, expression: TemplateExpression): State {
+    private fun aux(
+        state: State,
+        expression: TemplateExpression,
+        previousRequest: Request? = null
+    ): State {
         // eval
         val p = evaluator.step(expression)
         val v = evaluator.asValue(p)
         if (v !is ProcessValue) {
             throw EvaluatorException("$v is not a process")
+        }
+
+        previousRequest?.let { request ->
+            val provided = v.products.map { it.product.name }
+            if (!provided.contains(request.product.name)) {
+                throw EvaluatorException("${request.product.name} does not match any product of ${request.processRef}")
+            }
         }
 
         // termination condition
@@ -47,17 +55,29 @@ class RecursiveEvaluator(
         }
 
         // recursively visit next process template instances
-        val everyFromProcessRef =
+        val everyConstrainedProduct =
             TemplateExpression.eProcessFinal.expression.eProcess.inputs compose
                     Every.list() compose
-                    ETechnoExchange.product.eConstrainedProduct.constraint.fromProcessRef
-        everyFromProcessRef.getAll(p).forEach {
-            val template = symbolTable.getTemplate(it.template.name)
-                ?: throw EvaluatorException("unbounded template reference ${it.template.name}")
-            val arguments = it.arguments
-            newState.add(aux(newState, EInstance(template, arguments)))
-        }
+                    ETechnoExchange.product.eConstrainedProduct
 
+        for (it in everyConstrainedProduct.getAll(p)) {
+            val product = it.product as EProduct
+            val constraint = it.constraint
+            if (constraint !is FromProcessRef) {
+                continue
+            }
+            val processRef = constraint.template.name
+            val template = symbolTable.getTemplate(processRef)
+                ?: throw EvaluatorException("unbounded template reference $processRef")
+            val arguments = constraint.arguments
+            newState.add(
+                aux(
+                    newState,
+                    EInstance(template, arguments),
+                    Request(product, processRef),
+                )
+            )
+        }
         return newState
     }
 
@@ -65,7 +85,10 @@ class RecursiveEvaluator(
         val processes: MutableSet<ProcessValue> = HashSet(),
         val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet(),
     ) {
-        constructor(state: State): this(HashSet(state.processes), HashSet(state.substanceCharacterizations))
+        constructor(state: State) : this(
+            HashSet(state.processes),
+            HashSet(state.substanceCharacterizations),
+        )
 
         companion object {
             fun empty(): State {
@@ -85,5 +108,10 @@ class RecursiveEvaluator(
             )
         }
     }
+
+    data class Request(
+        val product: EProduct,
+        val processRef: String,
+    )
 }
 

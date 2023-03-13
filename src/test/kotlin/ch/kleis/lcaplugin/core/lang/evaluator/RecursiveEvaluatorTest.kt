@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.TechnoExchangeValue
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 class RecursiveEvaluatorTest {
@@ -66,6 +67,49 @@ class RecursiveEvaluatorTest {
             ),
         )
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenProductDoesNotMatchProcess_shouldThrow() {
+        // given
+        val symbolTable = SymbolTable(
+            processTemplates = Register(
+                mapOf(
+                    "carrot_production" to TemplateFixture.carrotProduction
+                )
+            )
+        )
+        val expression = EProcessTemplate(
+            emptyMap(),
+            emptyMap(),
+            EProcess(
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                ),
+                inputs = listOf(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(
+                            EProductRef("irrelevant_product"),
+                            FromProcessRef(
+                                ETemplateRef("carrot_production"),
+                                mapOf("q_water" to QuantityFixture.twoLitres),
+                            )
+                        )
+                    )
+                ),
+                biosphere = emptyList()
+            )
+        )
+        val recursiveEvaluator = RecursiveEvaluator(symbolTable)
+
+        // when/then
+        try {
+            recursiveEvaluator.eval(expression)
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            assertEquals("irrelevant_product does not match any product of carrot_production", e.message)
+        }
     }
 
     @Test
