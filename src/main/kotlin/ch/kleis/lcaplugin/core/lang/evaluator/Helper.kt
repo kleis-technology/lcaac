@@ -21,4 +21,15 @@ class Helper {
         ))
         return allRefs.getAll(expression).toSet()
     }
+
+    fun allUnboundedReferencesButIndicatorRefs(expression: Expression): Set<String> {
+        val allRefs : Every<Expression, String> = Merge(listOf(
+            everyProductRef compose EProductRef.name,
+            everyQuantityRef compose EQuantityRef.name,
+            everySubstanceRef compose ESubstanceRef.name,
+            everyTemplateRef compose ETemplateRef.name,
+            everyUnitRef compose EUnitRef.name
+        ))
+        return allRefs.getAll(expression).toSet()
+    }
 }

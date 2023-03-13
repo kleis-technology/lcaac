@@ -1,9 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
-import ch.kleis.lcaplugin.core.lang.expression.EInstance
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityAdd
-import ch.kleis.lcaplugin.core.lang.expression.ETemplateRef
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
@@ -127,5 +125,32 @@ class EvaluatorTest {
         } catch (e: EvaluatorException) {
             assertEquals("unbounded references: [q_carrot, q_water]", e.message)
         }
+    }
+
+    @Test
+    fun eval_whenSubstanceCharacterization_shouldCompleteIndicator() {
+        // given
+        val expression = ESubstanceCharacterization(
+            EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
+            listOf(
+                EImpact(QuantityFixture.oneKilogram, EIndicatorRef("cc"))
+            )
+        )
+        val evaluator = Evaluator(SymbolTable.empty())
+
+        // when
+        val actual = evaluator.eval(expression)
+
+        // then
+        val expected = SubstanceCharacterizationValue(
+            BioExchangeValue(QuantityValueFixture.oneKilogram, SubstanceValueFixture.propanol),
+            listOf(
+                ImpactValue(
+                    QuantityValueFixture.oneKilogram,
+                    IndicatorValue("cc", UnitValueFixture.kg)
+                )
+            )
+        )
+        assertEquals(expected, actual)
     }
 }

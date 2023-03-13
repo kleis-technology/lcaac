@@ -4,6 +4,7 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
+import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
 import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 
 class Evaluator(
@@ -50,6 +51,20 @@ class Evaluator(
         }
     }
 
+    private fun completeIndicators(reduced: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+        return (LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose Every.list())
+            .modify(reduced) { exchange ->
+                val q = exchange.quantity
+                if (q !is EQuantityLiteral) {
+                    throw EvaluatorException("quantity $q is not reduced")
+                }
+                (EImpact.indicator compose indicatorRefInIndicatorExpression)
+                    .modify(exchange) {
+                        EIndicator(it.name, q.unit)
+                    }
+            }
+    }
+
     fun step(expression: TemplateExpression): TemplateExpression {
         val reduced = when (expression) {
             is EInstance -> templateReducer.reduce(expression)
@@ -72,11 +87,11 @@ class Evaluator(
 
     private fun step(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
         val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
-        val unboundedReferences = Helper().allUnboundedReferencesButProductRefs(reduced)
+        val unboundedReferences = Helper().allUnboundedReferencesButIndicatorRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
-        return reduced
+        return completeIndicators(reduced)
     }
 
     fun asValue(reduced: TemplateExpression): Value {
@@ -169,11 +184,12 @@ class Evaluator(
     }
 
     private fun asValue(substanceCharacterization: LcaSubstanceCharacterizationExpression): SubstanceCharacterizationValue {
-        return when(substanceCharacterization) {
+        return when (substanceCharacterization) {
             is ESubstanceCharacterization -> SubstanceCharacterizationValue(
                 referenceExchange = asValue(substanceCharacterization.referenceExchange),
                 impacts = substanceCharacterization.impacts.map { asValue(it) },
             )
+
             is ESubstanceCharacterizationRef -> throw EvaluatorException("$substanceCharacterization is not reduced")
         }
     }
@@ -186,11 +202,12 @@ class Evaluator(
     }
 
     private fun asValue(indicator: LcaIndicatorExpression): IndicatorValue {
-        return when(indicator) {
+        return when (indicator) {
             is EIndicator -> IndicatorValue(
                 indicator.name,
                 asValue(indicator.referenceUnit),
             )
+
             is EIndicatorRef -> throw EvaluatorException("$indicator is not reduced")
         }
     }
