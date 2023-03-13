@@ -10,7 +10,7 @@ import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
-    fun testParse() {
+    fun testParse_simpleProcess() {
         // given
         val file = parseFile(
             "hello", """
@@ -48,7 +48,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 inputs = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(10.0, EUnitRef("l")),
-                        EProductRef("water")
+                        EConstrainedProduct(
+                            EProductRef("water"),
+                            None,
+                        )
                     ),
                 ),
                 biosphere = emptyList(),
@@ -58,7 +61,50 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testSubstanceParse_shouldReturnASubstanceCharacterization() {
+    fun testParse_withConstrainedProduct() {
+        // given
+        val file = parseFile(
+            "hello", """
+            package hello
+            
+            process a {
+                products {
+                    1 kg carrot
+                }
+                inputs {
+                    10 l water from water_proc(x = 3 l)
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when
+        val symbolTable = parser.load()
+        val expression = symbolTable.getTemplate("a")!!
+        val actual =
+            TemplateExpression.eProcessTemplate.body.eProcess.inputs.getAll(expression).flatten()
+
+        // then
+        val expected = listOf(
+            ETechnoExchange(
+                EQuantityLiteral(10.0, EUnitRef("l")),
+                EConstrainedProduct(
+                    EProductRef("water"),
+                    FromProcessRef(
+                        ETemplateRef("water_proc"),
+                        mapOf("x" to EQuantityLiteral(3.0, EUnitRef("l"))),
+                    ),
+                )
+            ),
+        )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_substanceWithImpacts_shouldReturnASubstanceCharacterization() {
         // given
         val file = parseFile(
             "substances", """
