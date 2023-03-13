@@ -181,7 +181,7 @@ assignment ::= uid EQUAL quantity {
     Blocks
  */
 
-block_products ::= PRODUCTS_KEYWORD LBRACE technoOutputExchange* RBRACE {
+block_products ::= PRODUCTS_KEYWORD LBRACE technoProductExchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
 }
@@ -210,14 +210,22 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE {
     Exchanges
  */
 
-technoInputExchange ::= quantity quantityRef {
+technoInputExchange ::= quantity quantityRef fromProcessConstraint? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoInputExchangeMixin"
 }
 
-technoOutputExchange ::= quantity productRef {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoOutputExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoOutputExchangeMixin"
+fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_assignments? RPAREN {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFromProcessConstraintMixin"
+}
+
+private comma_sep_assignments ::= assignment (COMA assignment)* COMA?
+
+
+technoProductExchange ::= quantity productRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
 }
 
 bioExchange ::= quantity substanceRef {
@@ -308,6 +316,11 @@ indicatorRef ::= uid {
 unitRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiUnitRefMixin"
+}
+
+processTemplateRef ::= uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateRefMixin"
 }
 
 /*

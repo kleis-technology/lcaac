@@ -12,7 +12,8 @@ import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoOutputExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
@@ -80,8 +81,8 @@ class LcaLangAbstractParser(
     private fun process(psiProcess: PsiProcess): TemplateExpression {
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
-        val products = psiProcess.getProducts().map { technoExchange(it) }
-        val inputs = psiProcess.getInputs().map { technoExchange(it) }
+        val products = psiProcess.getProducts().map { technoProductExchange(it) }
+        val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
         val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
         val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
         val biosphere = emissions.plus(resources)
@@ -123,7 +124,14 @@ class LcaLangAbstractParser(
         return EIndicatorRef(variable.name!!)
     }
 
-    private fun technoExchange(psiExchange: PsiTechnoOutputExchange): ETechnoExchange {
+    private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
+        return ETechnoExchange(
+            quantity(psiExchange.getQuantity()),
+            productRef(psiExchange.getProductRef()),
+        )
+    }
+
+    private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
             productRef(psiExchange.getProductRef()),
