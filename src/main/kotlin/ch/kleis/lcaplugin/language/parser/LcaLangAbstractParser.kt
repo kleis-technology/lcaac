@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
@@ -127,8 +128,34 @@ class LcaLangAbstractParser(
     private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
-            productRef(psiExchange.getProductRef()),
+            constrainedProduct(
+                psiExchange.getProductRef(),
+                psiExchange.getFromProcessConstraint()
+            ),
         )
+    }
+
+    private fun constrainedProduct(
+        psiProductRef: PsiProductRef,
+        psiFromProcessConstraint: PsiFromProcessConstraint?
+    ): EConstrainedProduct {
+        return EConstrainedProduct(
+            productRef(psiProductRef),
+            fromProcessConstraint(psiFromProcessConstraint),
+        )
+    }
+
+    private fun fromProcessConstraint(psiFromProcessConstraint: PsiFromProcessConstraint?): Constraint {
+        return psiFromProcessConstraint?.let {
+            FromProcessRef(
+                template = processTemplateRef(it.getProcessTemplateRef()),
+                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantity(q.value) },
+            )
+        } ?: None
+    }
+
+    private fun processTemplateRef(psiProcessTemplateRef: PsiProcessTemplateRef): ETemplateRef {
+        return ETemplateRef(psiProcessTemplateRef.name!!)
     }
 
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
@@ -161,7 +188,7 @@ class LcaLangAbstractParser(
         return ESubstanceRef(name)
     }
 
-    private fun productRef(product: PsiProductRef): LcaProductExpression {
+    private fun productRef(product: PsiProductRef): LcaUnconstrainedProductExpression {
         return EProductRef(product.name!!)
     }
 

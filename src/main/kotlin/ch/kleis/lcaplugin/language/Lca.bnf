@@ -210,7 +210,7 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE {
     Exchanges
  */
 
-technoInputExchange ::= quantity quantityRef fromProcessConstraint? {
+technoInputExchange ::= quantity productRef fromProcessConstraint? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoInputExchangeMixin"
 }
