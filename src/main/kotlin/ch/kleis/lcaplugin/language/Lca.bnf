@@ -21,6 +21,7 @@
       SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
       IMPACTS_KEYWORD = 'impacts'
       META_KEYWORD = "meta"
+      FROM_KEYWORD = "from"
       PRODUCTS_KEYWORD = 'products'
       INDICATOR_KEYWORD = 'indicator'
       VARIABLES_KEYWORD = 'variables'
@@ -180,12 +181,12 @@ assignment ::= uid EQUAL quantity {
     Blocks
  */
 
-block_products ::= PRODUCTS_KEYWORD LBRACE technoExchange* RBRACE {
+block_products ::= PRODUCTS_KEYWORD LBRACE technoOutputExchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
 }
 
-block_inputs ::= INPUTS_KEYWORD LBRACE technoExchange* RBRACE {
+block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockInputsMixin"
 }
@@ -209,9 +210,14 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE {
     Exchanges
  */
 
-technoExchange ::= quantity productRef {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoExchangeMixin"
+technoInputExchange ::= quantity quantityRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoInputExchangeMixin"
+}
+
+technoOutputExchange ::= quantity productRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoOutputExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoOutputExchangeMixin"
 }
 
 bioExchange ::= quantity substanceRef {

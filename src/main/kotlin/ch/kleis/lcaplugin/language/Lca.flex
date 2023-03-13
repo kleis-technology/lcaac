@@ -79,6 +79,7 @@ CommentContent = .*
 <YYINITIAL> "sub_compartment"                { return LcaTypes.SUB_COMPARTMENT_KEYWORD; }
 <YYINITIAL> "impacts"                { return LcaTypes.IMPACTS_KEYWORD; }
 <YYINITIAL> "meta"                { return LcaTypes.META_KEYWORD; }
+<YYINITIAL> "from"                { return LcaTypes.FROM_KEYWORD; }
 <YYINITIAL> "name"                { return LcaTypes.NAME_KEYWORD; }
 <YYINITIAL> "unit"                   { return LcaTypes.UNIT_KEYWORD; }
 <YYINITIAL> "reference_unit"                   { return LcaTypes.REFERENCE_UNIT_KEYWORD; }

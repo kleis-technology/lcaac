@@ -12,7 +12,7 @@ import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoOutputExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
@@ -123,7 +123,7 @@ class LcaLangAbstractParser(
         return EIndicatorRef(variable.name!!)
     }
 
-    private fun technoExchange(psiExchange: PsiTechnoExchange): ETechnoExchange {
+    private fun technoExchange(psiExchange: PsiTechnoOutputExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
             productRef(psiExchange.getProductRef()),
