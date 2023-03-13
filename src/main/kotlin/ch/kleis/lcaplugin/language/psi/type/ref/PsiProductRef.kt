@@ -1,5 +1,5 @@
 package ch.kleis.lcaplugin.language.psi.type.ref
 
-import ch.kleis.lcaplugin.language.psi.type.trait.PsiUrnOwner
+import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 
-interface PsiProductRef : PsiUrnOwner
+interface PsiProductRef : PsiUIDOwner

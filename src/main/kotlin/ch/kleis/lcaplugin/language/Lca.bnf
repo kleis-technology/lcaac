@@ -279,27 +279,27 @@ unitLiteral ::= UNIT_KEYWORD uid? LBRACE symbolField scaleField dimField RBRACE 
     Reference
  */
 
-productRef ::= urn {
+productRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProductRefMixin"
 }
 
-quantityRef ::= urn {
+quantityRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiQuantityRefMixin"
 }
 
-substanceRef ::= urn {
+substanceRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiSubstanceRefMixin"
 }
 
-indicatorRef ::= urn {
+indicatorRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiIndicatorRefMixin"
 }
 
-unitRef ::= urn {
+unitRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiUnitRefMixin"
 }

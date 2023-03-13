@@ -88,5 +88,4 @@ class Register<E>(
     override fun containsKey(key: String): Boolean {
         return data.containsKey(key)
     }
-
 }

@@ -39,16 +39,19 @@ class LcaLangAbstractParser(
             .filter { it.hasImpacts() }
             .associate { Pair(it.getUid().name!!, substanceCharacterization(it)) }
 
-        val units = files
+        val units = Register(Prelude.units)
+        files
             .flatMap { it.getUnitLiterals() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
-
+            .forEach {
+                units[it.key] = it.value
+            }
 
         return SymbolTable(
             quantities = Register(globals),
             processTemplates = Register(templates),
-            units = Register(Prelude.units.plus(units)),
+            units = units,
             substances = Register(substances),
             substanceCharacterizations = Register(substanceCharacterizations)
         )
