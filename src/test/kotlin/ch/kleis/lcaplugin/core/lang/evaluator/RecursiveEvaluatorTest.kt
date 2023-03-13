@@ -5,10 +5,7 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.TechnoExchangeValue
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
-import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
-import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaplugin.core.lang.fixture.TemplateFixture
+import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -53,6 +50,11 @@ class RecursiveEvaluatorTest {
         // then
         val expected = setOf(
             ProcessValue(
+                products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.salad)),
+                inputs = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.carrot)),
+                biosphere = emptyList(),
+            ),
+            ProcessValue(
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
@@ -62,11 +64,46 @@ class RecursiveEvaluatorTest {
                 inputs = listOf(TechnoExchangeValue(QuantityValueFixture.twoLitres, ProductValueFixture.water)),
                 biosphere = emptyList(),
             ),
-            ProcessValue(
-                products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.salad)),
-                inputs = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.carrot)),
-                biosphere = emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenNonEmptyBiosphere_thenIncludeSubstanceCharacterization() {
+        // given
+        val symbolTable = SymbolTable(
+            substanceCharacterizations = Register(
+                mapOf(
+                    "propanol" to SubstanceCharacterizationFixture.propanolCharacterization,
+                )
             ),
+            substances = Register(
+                mapOf(
+                    "propanol" to SubstanceFixture.propanol,
+                )
+            )
+        )
+        val expression = EProcessTemplate(
+            emptyMap(),
+            emptyMap(),
+            EProcess(
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                ),
+                inputs = emptyList(),
+                biosphere = listOf(
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("propanol"))
+                )
+            )
+        )
+        val recursiveEvaluator = RecursiveEvaluator(symbolTable)
+
+        // when
+        val actual = recursiveEvaluator.eval(expression).substanceCharacterizations.toSet()
+
+        // then
+        val expected = setOf(
+            SubstanceCharacterizationValueFixture.propanolCharacterization
         )
         assertEquals(expected, actual)
     }

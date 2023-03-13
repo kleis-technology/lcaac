@@ -10,7 +10,15 @@ class Evaluator(
     symbolTable: SymbolTable,
 ) {
     private val processTemplates = symbolTable.processTemplates
-    private val reducer = TemplateExpressionReducer(
+    private val lcaReducer = LcaExpressionReducer(
+        symbolTable.products,
+        symbolTable.substances,
+        symbolTable.indicators,
+        symbolTable.quantities,
+        symbolTable.units,
+        symbolTable.substanceCharacterizations
+    )
+    private val templateReducer = TemplateExpressionReducer(
         symbolTable.products,
         symbolTable.substances,
         symbolTable.indicators,
@@ -44,11 +52,11 @@ class Evaluator(
 
     fun step(expression: TemplateExpression): TemplateExpression {
         val reduced = when (expression) {
-            is EInstance -> reducer.reduce(expression)
+            is EInstance -> templateReducer.reduce(expression)
             is EProcessFinal -> expression
-            is EProcessTemplate -> reducer.reduce(EInstance(expression, emptyMap()))
+            is EProcessTemplate -> templateReducer.reduce(EInstance(expression, emptyMap()))
             is ETemplateRef -> processTemplates[expression.name]?.let {
-                reducer.reduce(EInstance(expression, emptyMap()))
+                templateReducer.reduce(EInstance(expression, emptyMap()))
             } ?: expression
         }
         val unboundedReferences = Helper().allUnboundedReferencesButProductRefs(reduced)
@@ -56,6 +64,19 @@ class Evaluator(
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
         return completeProducts(reduced)
+    }
+
+    fun eval(expression: LcaSubstanceCharacterizationExpression): SubstanceCharacterizationValue {
+        return asValue(step(expression))
+    }
+
+    private fun step(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+        val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
+        val unboundedReferences = Helper().allUnboundedReferencesButProductRefs(reduced)
+        if (unboundedReferences.isNotEmpty()) {
+            throw EvaluatorException("unbounded references: $unboundedReferences")
+        }
+        return reduced
     }
 
     fun asValue(reduced: TemplateExpression): Value {
@@ -144,6 +165,33 @@ class Evaluator(
             )
 
             else -> throw EvaluatorException("$unit is not reduced")
+        }
+    }
+
+    private fun asValue(substanceCharacterization: LcaSubstanceCharacterizationExpression): SubstanceCharacterizationValue {
+        return when(substanceCharacterization) {
+            is ESubstanceCharacterization -> SubstanceCharacterizationValue(
+                referenceExchange = asValue(substanceCharacterization.referenceExchange),
+                impacts = substanceCharacterization.impacts.map { asValue(it) },
+            )
+            is ESubstanceCharacterizationRef -> throw EvaluatorException("$substanceCharacterization is not reduced")
+        }
+    }
+
+    private fun asValue(impact: EImpact): ImpactValue {
+        return ImpactValue(
+            asValue(impact.quantity),
+            asValue(impact.indicator),
+        )
+    }
+
+    private fun asValue(indicator: LcaIndicatorExpression): IndicatorValue {
+        return when(indicator) {
+            is EIndicator -> IndicatorValue(
+                indicator.name,
+                asValue(indicator.referenceUnit),
+            )
+            is EIndicatorRef -> throw EvaluatorException("$indicator is not reduced")
         }
     }
 

@@ -73,7 +73,7 @@ class LcaExpressionReducerTest {
             ),
             indicatorRegister = Register(
                 hashMapOf(
-                    Pair("cc", IndicatorFixture.cc)
+                    Pair("cc", IndicatorFixture.climateChange)
                 )
             )
         )
@@ -84,7 +84,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EImpact(
             QuantityFixture.oneKilogram,
-            IndicatorFixture.cc,
+            IndicatorFixture.climateChange,
         )
         assertEquals(expected, actual)
     }
@@ -184,7 +184,7 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             indicatorRegister = Register(
                 hashMapOf(
-                    Pair("cc", IndicatorFixture.cc)
+                    Pair("cc", IndicatorFixture.climateChange)
                 )
             )
         )
@@ -193,7 +193,7 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = IndicatorFixture.cc
+        val expected = IndicatorFixture.climateChange
         assertEquals(expected, actual)
     }
 
@@ -403,7 +403,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(
                 EImpact(
                     EQuantityRef("q_cc"),
-                    IndicatorFixture.cc
+                    IndicatorFixture.climateChange
                 ),
             )
         )
@@ -428,7 +428,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(
                 EImpact(
                     QuantityFixture.oneKilogram,
-                    IndicatorFixture.cc
+                    IndicatorFixture.climateChange
                 ),
             )
         )

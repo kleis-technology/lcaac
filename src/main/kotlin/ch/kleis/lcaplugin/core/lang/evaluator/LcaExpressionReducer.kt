@@ -9,7 +9,7 @@ class LcaExpressionReducer(
     indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
-    substanceCharacterizationRegister: Register<ESubstanceCharacterization> = Register.empty(),
+    substanceCharacterizationRegister: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
     private val productRegister = Register(productRegister)
     private val substanceRegister = Register(substanceRegister)
@@ -47,7 +47,7 @@ class LcaExpressionReducer(
         }
     }
 
-    private fun reduceSubstanceCharacterization(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+    fun reduceSubstanceCharacterization(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
         return when (expression) {
             is ESubstanceCharacterization -> ESubstanceCharacterization(
                 reduceBioExchange(expression.referenceExchange),
