@@ -1,7 +1,10 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.LcaFileType
+import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.lang.ProcessValue
 import ch.kleis.lcaplugin.core.lang.Program
+import ch.kleis.lcaplugin.core.lang.SystemValue
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.Expression
@@ -42,8 +45,17 @@ class AssessProcessAction(private val processName: String) : AnAction() {
             val fqn = "${pkg.name}.$processName"
             val environment = PreProcessor(pkg, deps).assemble()
             val program = Program(environment.processTemplates[fqn] as Expression, environment)
-            val value = Evaluator(program.environment).eval(program.entryPoint as TemplateExpression)
-            TODO()
+            val value = Evaluator(program.environment).eval(program.entryPoint as TemplateExpression) as ProcessValue
+            /*
+                TODO: Infer system correctly
+             */
+            val system = SystemValue(
+                listOf(value),
+                emptyList(),
+            )
+            val assessment = Assessment(system)
+            val result = assessment.inventory()
+            displayToolWindow(project, result)
         } catch (e: EvaluatorException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
