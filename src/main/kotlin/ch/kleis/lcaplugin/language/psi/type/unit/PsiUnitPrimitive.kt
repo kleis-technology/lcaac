@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type.unit
 
-import ch.kleis.lcaplugin.language.psi.type.PsiVariable
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 
@@ -15,16 +15,15 @@ interface PsiUnitPrimitive : PsiElement {
             ?: UnitPrimitiveType.VARIABLE
     }
 
-    fun asLiteral(): PsiUnitLiteral? {
-        return node.findChildByType(LcaTypes.UNIT_LITERAL)?.psi as PsiUnitLiteral?
+    fun getLiteral(): PsiUnitLiteral {
+        return node.findChildByType(LcaTypes.UNIT_LITERAL)?.psi as PsiUnitLiteral
     }
 
-    fun asVariable(): PsiVariable? {
-        return node.findChildByType(LcaTypes.VARIABLE)?.psi as PsiVariable?
+    fun getUnitInParen(): PsiUnit {
+        return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit
     }
 
-    fun asUnitInParen(): PsiUnit? {
-        return node.findChildByType(LcaTypes.UNIT)?.psi as PsiUnit?
+    fun getRef(): PsiUnitRef {
+        return node.findChildByType(LcaTypes.UNIT_REF)?.psi as PsiUnitRef
     }
-
 }

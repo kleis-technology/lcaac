@@ -1,203 +1,144 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.ELet
-import ch.kleis.lcaplugin.core.lang.ETemplate
-import ch.kleis.lcaplugin.core.lang.EVar
+import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
+import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-
 class HelperTest {
     @Test
-    fun freeVariables_var_free() {
+    fun substitute_whenProcess_shouldSubstitute() {
         // given
-        val expression = EVar("x")
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("x")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_var_bounded() {
-        // given
-        val expression = EVar("x")
-        val boundedVars = setOf("x")
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = emptySet<String>()
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_let_bounded() {
-        // given
-        val expression = ELet(mapOf(
-            Pair("x", EVar("a"))
-        ), EVar("x"))
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("a")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_let_chaining() {
-        // given
-        val expression = ELet(mapOf(
-            Pair("x", EVar("a")),
-            Pair("y", EVar("x")),
-        ), EVar("y"))
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("a")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_template() {
-        // given
-        val expression = ETemplate(mapOf(
-            Pair("x", null)
-        ), EVar("a"))
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("a")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_template_withDefaultValue() {
-        // given
-        val expression = ETemplate(mapOf(
-            Pair("x", EVar("a"))
-        ), EVar("x"))
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("a")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun freeVariables_template_combined() {
-        // given
-        val expression = ETemplate(mapOf(
-            Pair("x", EVar("a"))
-        ), EVar("b"))
-        val boundedVars = emptySet<String>()
-        val helper = Helper()
-
-        // when
-        val actual = helper.freeVariables(boundedVars, expression)
-
-        // then
-        val expected = setOf("a", "b")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun rename_var() {
-        // given
-        val expression = EVar("x")
-        val helper = Helper()
-
-        // when
-        val actual = helper.rename("x", "y", expression)
-
-        // then
-        val expected = EVar("y")
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun rename_template_withDefaultValue() {
-        // given
-        val expression = ETemplate(
-            mapOf(
-                Pair("a", EVar("x")),
+        val ref = EQuantityRef("q")
+        val body = EProcess(
+            products = listOf(
+                ETechnoExchange(ref, ProductFixture.carrot)
             ),
-            EVar("z")
+            inputs = listOf(
+                ETechnoExchange(ref, ProductFixture.carrot)
+            ),
+            biosphere = listOf(
+                EBioExchange(ref, SubstanceFixture.propanol)
+            ),
         )
         val helper = Helper()
 
         // when
-        val actual = helper.rename("x", "y", expression)
+        val actual = helper.substitute("q", QuantityFixture.oneKilogram, body)
 
         // then
-        val expected = ETemplate(
-            mapOf(
-                Pair("a", EVar("y")),
+        val expected = EProcess(
+            products = listOf(
+                ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
-            EVar("z")
+            inputs = listOf(
+                ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+            ),
+            biosphere = listOf(
+                EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol)
+            ),
         )
         assertEquals(expected, actual)
     }
 
     @Test
-    fun rename_template_inBody() {
+    fun substitute_whenProcessWithConstrainedProduct_shouldSubstitute() {
         // given
-        val expression = ETemplate(
-            mapOf(
-                Pair("a", EVar("z")),
+        val ref = EQuantityRef("q")
+        val body = EProcess(
+            products = listOf(
+                ETechnoExchange(
+                    ref,
+                    EConstrainedProduct(
+                        ProductFixture.carrot,
+                        FromProcessRef(
+                            ETemplateRef("carrot_production"),
+                            mapOf(
+                                Pair("x", ref)
+                            ),
+                        )
+                    )
+                )
             ),
-            EVar("x")
+            inputs = emptyList(),
+            biosphere = emptyList(),
         )
         val helper = Helper()
 
         // when
-        val actual = helper.rename("x", "y", expression)
+        val actual = helper.substitute("q", QuantityFixture.oneKilogram, body)
 
         // then
-        val expected = ETemplate(
-            mapOf(
-                Pair("a", EVar("z")),
+        val expected = EProcess(
+            products = listOf(
+                ETechnoExchange(
+                    QuantityFixture.oneKilogram,
+                    EConstrainedProduct(
+                        ProductFixture.carrot,
+                        FromProcessRef(
+                            ETemplateRef("carrot_production"),
+                            mapOf(
+                                Pair("x", QuantityFixture.oneKilogram)
+                            ),
+                        )
+                    )
+                )
             ),
-            EVar("y")
+            inputs = emptyList(),
+            biosphere = emptyList(),
         )
         assertEquals(expected, actual)
     }
 
     @Test
-    fun newName() {
+    fun unboundedReferences() {
         // given
-        val binder = "x"
-        val others = setOf("x0", "x1", "y")
+        val expression = ESystem(
+            listOf(
+                EProcess(
+                    listOf(ETechnoExchange(EQuantityRef("quantity"), ProductFixture.carrot)),
+                    listOf(
+                        ETechnoExchange(
+                            EQuantityLiteral(
+                                1.0,
+                                EUnitMul(EUnitRef("ua"), EUnitRef("ub"))
+                            ), EProductRef("product")
+                        ),
+                        ETechnoExchange(
+                            QuantityFixture.oneLitre, EConstrainedProduct(
+                                ProductFixture.water,
+                                FromProcessRef(ETemplateRef("template"), emptyMap())
+                            )
+                        ),
+                    ),
+                    emptyList(),
+                )
+            ),
+            listOf(
+                ESubstanceCharacterization(
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("substance")),
+                    listOf(
+                        EImpact(
+                            EQuantityAdd(
+                                EQuantityRef("qa"),
+                                EQuantityRef("qb")
+                            ), EIndicatorRef("indicator")
+                        )
+                    ),
+                )
+            ),
+        )
         val helper = Helper()
 
         // when
-        val actual = helper.newName(binder, others)
+        val actual = helper.allUnboundedReferencesButProductRefs(expression)
 
         // then
-        val expected = "x2"
+        val expected = setOf(
+            "quantity", "ua", "ub", "template", "substance", "qa", "qb", "indicator"
+        )
         assertEquals(expected, actual)
     }
 }

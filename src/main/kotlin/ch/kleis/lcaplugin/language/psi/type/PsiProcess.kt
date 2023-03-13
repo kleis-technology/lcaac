@@ -1,5 +1,12 @@
 package ch.kleis.lcaplugin.language.psi.type
 
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockResources
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange
+import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
@@ -9,29 +16,41 @@ interface PsiProcess : PsiElement {
         return node.findChildByType(LcaTypes.UID)?.psi as PsiUID?
     }
 
-    fun getParameters(): Collection<PsiParameter> {
+    fun getParameters(): Map<String, PsiQuantity> {
         return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
-            .flatMap { it.getChildren(TokenSet.create(LcaTypes.PARAM)).toList() }
-            .map { it.psi as PsiParameter }
+            .map { it.psi as PsiParameters }
+            .flatMap { it.getEntries() }
+            .toMap()
     }
 
-    fun getLocalAssignments(): Collection<PsiAssignment> {
-        return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
-            .map { it.psi as PsiAssignment }
+    fun getProducts(): Collection<PsiTechnoExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_PRODUCTS))
+            .map { it.psi as PsiBlockProducts }
+            .flatMap { it.getExchanges() }
     }
 
-    fun getIncludes(): Collection<PsiInclude> {
-        return node.getChildren(TokenSet.create(LcaTypes.INCLUDE))
-            .map { it.psi as PsiInclude }
+    fun getInputs(): Collection<PsiTechnoExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_INPUTS))
+            .map { it.psi as PsiBlockInputs }
+            .flatMap { it.getExchanges() }
     }
 
-    fun getExchanges(): Collection<PsiExchange> {
-        return node.getChildren(TokenSet.create(LcaTypes.EXCHANGE))
-            .map { it.psi as PsiExchange }
+    fun getEmissions(): Collection<PsiBioExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_EMISSIONS))
+            .map { it.psi as PsiBlockEmissions }
+            .flatMap { it.getExchanges() }
     }
 
-    fun getBlocks(): Collection<PsiBlock> {
-        return node.getChildren(TokenSet.create(LcaTypes.BLOCK))
-            .map { it.psi as PsiBlock }
+    fun getResources(): Collection<PsiBioExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_RESOURCES))
+            .map { it.psi as PsiBlockResources }
+            .flatMap { it.getExchanges() }
+    }
+
+    fun getVariables(): Map<String, PsiQuantity> {
+        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
+            .map { it.psi as PsiVariables }
+            .flatMap { it.getEntries() }
+            .toMap()
     }
 }

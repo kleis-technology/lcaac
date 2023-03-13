@@ -17,6 +17,8 @@ plugins {
     id("org.jetbrains.qodana") version "0.1.13"
     // Gradle Grammar kit Plugin
     id("org.jetbrains.grammarkit") version "2021.2.2"
+    // Arrow optics auto-generation Plugin
+    id("com.google.devtools.ksp") version "1.8.10-1.0.9"
 }
 
 group = properties("pluginGroup")
@@ -42,6 +44,12 @@ dependencies {
     })
     implementation("org.ojalgo:ojalgo:52.0.1")
     testImplementation("io.mockk:mockk:1.13.4")
+
+    val arrowVersion = "1.1.5"
+    implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
+    implementation("io.arrow-kt:arrow-core")
+    implementation("io.arrow-kt:arrow-optics")
+    ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
 }
 
 

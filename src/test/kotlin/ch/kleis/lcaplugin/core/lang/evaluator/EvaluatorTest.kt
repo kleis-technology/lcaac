@@ -1,53 +1,131 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.EInstance
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityAdd
+import ch.kleis.lcaplugin.core.lang.expression.ETemplateRef
+import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 
 class EvaluatorTest {
 
     @Test
-    fun eval() {
+    fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
         // given
-        val kg = EUnit("kg", 1.0, Dimension.of("mass"))
-        val l = EUnit("l", 1.0, Dimension.of("volume"))
-        val carrot = EProduct("carrot", kg)
-        val water = EProduct("water", l)
-        val expression = ESystem(
-            listOf(
-                EProcess(
-                    listOf(
-                        EExchange(EQuantity(1.0, kg), carrot),
-                        EBlock(
-                            listOf(
-                                EExchange(EQuantity(-3.0, l), water),
-                            ),
-                        )
+        val template = TemplateFixture.carrotProduction
+        val instance = EInstance(
+            template, mapOf(
+                Pair(
+                    "q_water", EQuantityAdd(
+                        QuantityFixture.oneLitre,
+                        QuantityFixture.oneLitre,
                     )
                 )
             )
         )
-        val evaluator = Evaluator(emptyEnv())
+        val evaluator = Evaluator()
 
         // when
-        val actual = evaluator.eval(expression)
+        val actual = evaluator.eval(instance)
 
         // then
-        val vKg = VUnit("kg", 1.0, Dimension.of("mass"))
-        val vL = VUnit("l", 1.0, Dimension.of("volume"))
-        val vCarrot = VProduct("carrot", vKg)
-        val vWater = VProduct("water", vL)
-        val expected = VSystem(
+        val expected = ProcessValue(
             listOf(
-                VProcess(
-                    listOf(
-                        VExchange(VQuantity(1.0, vKg), vCarrot),
-                        VExchange(VQuantity(-3.0, vL), vWater),
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                )
+            ),
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.twoLitres,
+                    ProductValueFixture.water,
+                )
+            ),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
+        // given
+        val template = TemplateFixture.carrotProduction
+        val evaluator = Evaluator()
+
+        // when
+        val actual = evaluator.eval(template)
+
+        // then
+        val expected = ProcessValue(
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot
+                )
+            ),
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneLitre,
+                    ProductValueFixture.water
+                )
+            ),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenTemplateRef_shouldReadEnv() {
+        // given
+        val templateRef = ETemplateRef("p")
+        val evaluator = Evaluator(
+            SymbolTable(
+                processTemplates = Register(
+                    hashMapOf(
+                        Pair("p", TemplateFixture.carrotProduction)
                     )
                 )
             )
         )
+
+        // when
+        val actual = evaluator.eval(templateRef)
+
+        // then
+        val expected = ProcessValue(
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot
+                )
+            ),
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneLitre,
+                    ProductValueFixture.water
+                )
+            ),
+            emptyList(),
+        )
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenContainsUnboundedReference_shouldThrow() {
+        // given
+        val template = TemplateFixture.withUnboundedRef
+        val evaluator = Evaluator()
+
+        // when/then
+        try {
+            evaluator.eval(template)
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            assertEquals("unbounded references: [q_carrot, q_water]", e.message)
+        }
     }
 }

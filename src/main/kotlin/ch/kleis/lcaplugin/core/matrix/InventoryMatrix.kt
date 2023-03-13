@@ -1,9 +1,6 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.VCharacterizationFactor
-import ch.kleis.lcaplugin.core.lang.VExchange
-import ch.kleis.lcaplugin.core.lang.VProduct
-import ch.kleis.lcaplugin.core.lang.VQuantity
+import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 
@@ -11,21 +8,31 @@ sealed interface InventoryResult
 
 class InventoryError(val message: String) : InventoryResult
 class InventoryMatrix(
-    val observableProducts: IndexedCollection<VProduct>,
-    val controllableProducts: IndexedCollection<VProduct>,
+    val observablePorts: IndexedCollection<PortValue>,
+    val controllablePorts: IndexedCollection<PortValue>,
     private val data: Matrix
 ) : InventoryResult {
-    fun value(outputProduct: VProduct, inputProduct: VProduct): VCharacterizationFactor {
-        val outputUnit = outputProduct.dimensionDefaultUnit()
-        val output = VExchange(VQuantity(1.0, outputUnit), outputProduct)
-
-        val inputUnit = inputProduct.dimensionDefaultUnit()
-        val amount = data.value(
-            observableProducts.indexOf(outputProduct),
-            controllableProducts.indexOf(inputProduct),
+    fun value(outputPort: PortValue, inputPort: PortValue): CharacterizationFactorValue {
+        val outputUnit = defaultUnitOf(outputPort.getDimension())
+        val output = GenericExchangeValue(
+            QuantityValue(1.0, outputUnit),
+            outputPort
         )
-        val input = VExchange(VQuantity(amount, inputUnit), inputProduct)
 
-        return VCharacterizationFactor(output, input)
+        val inputUnit = defaultUnitOf(inputPort.getDimension())
+        val amount = data.value(
+            observablePorts.indexOf(outputPort),
+            controllablePorts.indexOf(inputPort),
+        )
+        val input = GenericExchangeValue(
+            QuantityValue(amount, inputUnit),
+            inputPort
+        )
+
+        return CharacterizationFactorValue(output, input)
+    }
+
+    private fun defaultUnitOf(dim: Dimension): UnitValue {
+        return UnitValue("default($dim)", 1.0, dim)
     }
 }
