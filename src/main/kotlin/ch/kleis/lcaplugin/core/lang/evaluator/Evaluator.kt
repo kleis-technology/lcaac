@@ -7,7 +7,7 @@ import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 
 class Evaluator(
-    symbolTable: SymbolTable = SymbolTable.empty(),
+    symbolTable: SymbolTable,
 ) {
     private val processTemplates = symbolTable.processTemplates
     private val reducer = TemplateExpressionReducer(
@@ -42,7 +42,7 @@ class Evaluator(
         }
     }
 
-    private fun step(expression: TemplateExpression): TemplateExpression {
+    fun step(expression: TemplateExpression): TemplateExpression {
         val reduced = when (expression) {
             is EInstance -> reducer.reduce(expression)
             is EProcessFinal -> expression
@@ -58,7 +58,7 @@ class Evaluator(
         return completeProducts(reduced)
     }
 
-    private fun asValue(reduced: TemplateExpression): Value {
+    fun asValue(reduced: TemplateExpression): Value {
         return when (reduced) {
             is EProcessFinal -> asValue(reduced.expression)
             else -> throw EvaluatorException("$reduced is not reduced")

@@ -26,7 +26,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator()
+        val evaluator = Evaluator(SymbolTable.empty())
 
         // when
         val actual = evaluator.eval(instance)
@@ -54,7 +54,7 @@ class EvaluatorTest {
     fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
         // given
         val template = TemplateFixture.carrotProduction
-        val evaluator = Evaluator()
+        val evaluator = Evaluator(SymbolTable.empty())
 
         // when
         val actual = evaluator.eval(template)
@@ -118,7 +118,7 @@ class EvaluatorTest {
     fun eval_whenContainsUnboundedReference_shouldThrow() {
         // given
         val template = TemplateFixture.withUnboundedRef
-        val evaluator = Evaluator()
+        val evaluator = Evaluator(SymbolTable.empty())
 
         // when/then
         try {
