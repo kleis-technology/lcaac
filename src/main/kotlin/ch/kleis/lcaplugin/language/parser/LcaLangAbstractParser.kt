@@ -4,10 +4,16 @@ import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.*
+import ch.kleis.lcaplugin.language.psi.type.ImportType
+import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
+import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
 
 class LcaLangAbstractParser(
@@ -46,8 +52,8 @@ class LcaLangAbstractParser(
     private fun mkPackage(pkgName: String): Package {
         val files = findFilesOf(pkgName)
         val globals = files
-            .flatMap { it.getAssignments() }
-            .associate { Pair(it.getUid().name!!, quantity(it.getCoreExpression().asQuantity())) }
+            .flatMap { it.getAssignments().entries }
+            .associate { it.key to quantity(it.value) }
 
         val templates = files
             .flatMap { it.getProcesses() }
@@ -60,7 +66,7 @@ class LcaLangAbstractParser(
 
         val substanceCharacterizations = files
             .flatMap { it.getSubstances() }
-            .filter { it.hasEmissionFactors() }
+            .filter { it.hasImpacts() }
             .associate { Pair(it.getUid().name!!, substanceCharacterization(it)) }
 
         val units = files
@@ -113,33 +119,14 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun locals(assignments: Collection<PsiAssignment>): Map<String, QuantityExpression> {
-        return assignments
-            .associate { Pair(it.getUid().name!!, quantity(it.getCoreExpression().asQuantity())) }
-    }
-
-    private fun params(parameters: Collection<PsiParameter>): Map<String, QuantityExpression> {
-        return parameters
-            .associate {
-                Pair(
-                    it.getUid().name!!,
-                    it.getCoreExpression()?.asQuantity()?.let { e -> quantity(e) }!!
-                )
-            }
-    }
-
     private fun process(psiProcess: PsiProcess): TemplateExpression {
-        val locals = locals(psiProcess.getLocalAssignments())
-        val params = params(psiProcess.getParameters())
-        val products = psiProcess.getBlocks()
-            .filter { it.getType() == BlockType.PRODUCTS }
-            .flatMap { technoBlock(it) }
-        val inputs = psiProcess.getBlocks()
-            .filter { it.getType() == BlockType.INPUTS }
-            .flatMap { technoBlock(it) }
-        val biosphere = psiProcess.getBlocks()
-            .filter { it.getType() == BlockType.EMISSIONS || it.getType() == BlockType.RESOURCES }
-            .flatMap { bioBlock(it) }
+        val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
+        val params = psiProcess.getParameters().mapValues { quantity(it.value) }
+        val products = psiProcess.getProducts().map { technoExchange(it) }
+        val inputs = psiProcess.getInputs().map { technoExchange(it) }
+        val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
+        val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
+        val biosphere = emissions.plus(resources)
         val body = EProcess(
             products = products,
             inputs = inputs,
@@ -156,7 +143,7 @@ class LcaLangAbstractParser(
         val substanceRef = substanceRef(psiSubstance.getUid().name!!)
         val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
         val referenceExchange = EBioExchange(quantity, substanceRef)
-        val impacts = psiSubstance.getEmissionFactors()
+        val impacts = psiSubstance.getImpacts()
             ?.getExchanges()
             ?.map { impact(it) }
             ?: emptyList()
@@ -167,40 +154,40 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun impact(exchange: PsiExchange): EImpact {
+    private fun impact(exchange: PsiImpactExchange): EImpact {
         return EImpact(
             quantity(exchange.getQuantity()),
-            indicatorRef(exchange.getProduct()),
+            indicatorRef(exchange.getIndicatorRef()),
         )
     }
 
-    private fun indicatorRef(variable: PsiVariable): LcaIndicatorExpression {
+    private fun indicatorRef(variable: PsiIndicatorRef): LcaIndicatorExpression {
         return EIndicatorRef(variable.name!!)
     }
 
-    private fun technoExchange(psiExchange: PsiExchange): ETechnoExchange {
+    private fun technoExchange(psiExchange: PsiTechnoExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
-            productRef(psiExchange.getProduct()),
+            productRef(psiExchange.getProductRef()),
         )
     }
 
-    private fun bioExchange(psiExchange: PsiExchange, polarity: Polarity): EBioExchange {
+    private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity): EBioExchange {
         return when (polarity) {
             Polarity.POSITIVE -> EBioExchange(
                 quantity(psiExchange.getQuantity()),
-                substanceRef(psiExchange.getProduct()),
+                substanceRef(psiExchange.getSubstanceRef()),
             )
 
             Polarity.NEGATIVE -> EBioExchange(
                 EQuantityNeg(quantity(psiExchange.getQuantity())),
-                substanceRef(psiExchange.getProduct()),
+                substanceRef(psiExchange.getSubstanceRef()),
             )
         }
     }
 
 
-    private fun substanceRef(substance: PsiVariable): LcaSubstanceExpression {
+    private fun substanceRef(substance: PsiSubstanceRef): LcaSubstanceExpression {
         return ESubstanceRef(substance.name!!)
     }
 
@@ -208,18 +195,8 @@ class LcaLangAbstractParser(
         return ESubstanceRef(name)
     }
 
-    private fun productRef(product: PsiVariable): LcaProductExpression {
+    private fun productRef(product: PsiProductRef): LcaProductExpression {
         return EProductRef(product.name!!)
-    }
-
-    private fun technoBlock(psiBlock: PsiBlock): List<ETechnoExchange> {
-        return psiBlock.getExchanges()
-            .map { technoExchange(it) }
-    }
-
-    private fun bioBlock(psiBlock: PsiBlock): List<EBioExchange> {
-        return psiBlock.getExchanges()
-            .map { bioExchange(it, psiBlock.getPolarity()) }
     }
 
 
@@ -262,16 +239,16 @@ class LcaLangAbstractParser(
     private fun qPrimitive(primitive: PsiQuantityPrimitive): QuantityExpression {
         return when (primitive.getType()) {
             QuantityPrimitiveType.LITERAL -> EQuantityLiteral(
-                primitive.getAmount()!!,
-                unit(primitive.getUnit()!!),
+                primitive.getAmount(),
+                unit(primitive.getUnit()),
             )
 
-            QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen()!!)
-            QuantityPrimitiveType.VARIABLE -> quantityRef(primitive.getVariable()!!)
+            QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen())
+            QuantityPrimitiveType.QUANTITY_REF -> quantityRef(primitive.getRef())
         }
     }
 
-    private fun quantityRef(variable: PsiVariable): QuantityExpression {
+    private fun quantityRef(variable: PsiQuantityRef): QuantityExpression {
         return EQuantityRef(variable.name!!)
     }
 
@@ -298,13 +275,17 @@ class LcaLangAbstractParser(
 
     private fun uPrimitive(primitive: PsiUnitPrimitive): UnitExpression {
         return when (primitive.getType()) {
-            UnitPrimitiveType.LITERAL -> unitLiteral(primitive.asLiteral()!!)
-            UnitPrimitiveType.PAREN -> unit(primitive.asUnitInParen()!!)
-            UnitPrimitiveType.VARIABLE -> unitRef(primitive.asVariable()!!)
+            UnitPrimitiveType.LITERAL -> unitLiteral(primitive.getLiteral())
+            UnitPrimitiveType.PAREN -> unit(primitive.getUnitInParen())
+            UnitPrimitiveType.VARIABLE -> unitRef(primitive.getRef())
         }
     }
 
-    private fun unitRef(variable: PsiVariable): UnitExpression {
-        return EUnitRef(variable.name!!)
+    private fun unitRef(unitRef: PsiUnitRef): UnitExpression {
+        return EUnitRef(unitRef.name!!)
     }
+}
+
+private enum class Polarity {
+    POSITIVE, NEGATIVE
 }

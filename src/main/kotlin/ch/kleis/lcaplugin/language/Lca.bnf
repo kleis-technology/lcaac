@@ -14,17 +14,16 @@
 
   tokens=[
       PACKAGE_KEYWORD = 'package'
-      SYSTEM_KEYWORD = 'system'
       PROCESS_KEYWORD = 'process'
       SYMBOL_KEYWORD = 'symbol'
       SUBSTANCE_KEYWORD = 'substance'
       COMPARTMENT_KEYWORD = 'compartment'
       SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
-      EMISSION_FACTORS_KEYWORD = 'emission-factors'
+      IMPACTS_KEYWORD = 'impacts'
       META_KEYWORD = "meta"
       PRODUCTS_KEYWORD = 'products'
       INDICATOR_KEYWORD = 'indicator'
-      LET_KEYWORD = 'let'
+      VARIABLES_KEYWORD = 'variables'
       UNIT_KEYWORD = 'unit'
       REFERENCE_UNIT_KEYWORD = 'reference-unit'
       SCALE_KEYWORD = 'scale'
@@ -35,8 +34,6 @@
       EMISSIONS_KEYWORD = 'emissions'
       RESOURCES_KEYWORD = 'resources'
       IMPORT_KEYWORD = 'import'
-      INCLUDE_KEYWORD = 'include'
-      TEMPLATE_KEYWORD = 'template'
       IDENTIFIER = 'identifier'
       NUMBER = 'number'
       LSQBRACE = 'left-sqbrace'
@@ -59,12 +56,19 @@
       SLASH = "slash"
       HAT = "hat"
       EQUAL = "equal"
-      SEMICOLON = "semicolon"
       DOUBLE_QUOTE = "double-quote"
   ]
 }
 
-lcaFile ::= package  (definition | let | import)*
+/*
+    LCA File
+ */
+
+lcaFile ::= package  import* (process | unitLiteral | substance | variables )*
+
+/*
+    Package
+ */
 
 package ::= PACKAGE_KEYWORD urn {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
@@ -78,30 +82,19 @@ import ::= IMPORT_KEYWORD urn wildcard? {
 
 wildcard ::= DOT STAR
 
-urn ::= uid DOT urn | uid {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
-}
 
-private definition ::= process | system | unitLiteral | substance
 
-coreExpr ::= process
-    | system
-    | block
-    | quantity
-    | unit
-    | exchange {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiCoreExpression"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiCoreExpressionMixin"
-}
+/*
+    Substance
+ */
 
 substance ::= SUBSTANCE_KEYWORD uid LBRACE
     nameField
     compartmentField
     subCompartmentField?
     referenceUnitField
-    emission_factors?
-    meta_block?
+    block_impacts?
+    block_meta?
     RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiSubstance"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
@@ -111,139 +104,215 @@ compartmentField ::= COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
+
 subCompartmentField ::= SUB_COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
-emission_factors ::= EMISSION_FACTORS_KEYWORD LBRACE (exchange)* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiEmissionFactors"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiEmissionFactorsMixin"
+
+block_meta ::= META_KEYWORD LBRACE (IDENTIFIER EQUAL STRING_LITERAL)* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockMeta"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockMetaMixin"
 }
 
-meta_block ::= META_KEYWORD LBRACE (IDENTIFIER EQUAL STRING_LITERAL)* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiMetaBlock"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiMetaBlockMixin"
-}
+/*
+    Fields
+ */
 
 nameField ::= NAME_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
+
 dimField ::= DIMENSION_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
+
 referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL unit {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiUnitField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiUnitFieldMixin"
-}
-
-process ::= PROCESS_KEYWORD uid?
-LBRACE (
-    params
-    | exchange
-    | block
-    | include
-    | let )* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
-}
-
-system ::= SYSTEM_KEYWORD uid?
-LBRACE (
-    params
-    | process
-    | system
-    | include
-    | let )* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiSystem"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSystemMixin"
-}
-
-include ::= INCLUDE_KEYWORD urn (LPAREN comma_sep_assignments? RPAREN)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiInclude"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiIncludeMixin"
-}
-
-private comma_sep_assignments ::= assignment ((COMA assignment)* COMA?)?
-private semicolon_sep_assignments ::= (assignment (SEMICOLON? assignment)? SEMICOLON?)*
-assignment ::= uid EQUAL coreExpr {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiAssignment"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiAssignmentMixin"
-}
-
-private let ::= LET_KEYWORD LBRACE semicolon_sep_assignments RBRACE
-
-params ::= PARAMETERS_KEYWORD LBRACE param* RBRACE
-param ::= uid (EQUAL coreExpr)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiParameter"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParameterMixin"
-}
-
-block ::= (
-    INPUTS_KEYWORD
-    | PRODUCTS_KEYWORD
-    | EMISSIONS_KEYWORD
-    | RESOURCES_KEYWORD) LBRACE exchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiBlock"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiBlockMixin"
-}
-
-exchange ::= quantity variable {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiExchangeMixin"
-}
-
-quantity ::= quantityTerm ((PLUS | MINUS) quantity)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityMixin"
-}
-quantityTerm ::= quantityFactor ((STAR | SLASH) quantityTerm)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityTerm"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityTermMixin"
-}
-quantityFactor ::= quantityPrimitive (HAT NUMBER)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityFactor"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityFactorMixin"
-}
-quantityPrimitive ::= NUMBER unit | LPAREN quantity RPAREN | variable {
-    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityPrimitive"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityPrimitiveMixin"
-}
-
-unit ::= unitFactor ((STAR | SLASH) unit)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnit"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitMixin"
-}
-unitFactor ::= unitPrimitive (HAT NUMBER)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitFactor"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitFactorMixin"
-}
-unitPrimitive ::=
-    unitLiteral
-    | LPAREN unit RPAREN
-    | variable {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
-}
-unitLiteral ::= UNIT_KEYWORD uid? LBRACE symbolField scaleField dimField RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
 }
 
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
+
 scaleField ::= SCALE_KEYWORD EQUAL NUMBER {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiNumberField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiNumberFieldMixin"
 }
 
-variable ::= urn {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiVariable"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiVariableMixin"
+/*
+    Process
+ */
+
+process ::= PROCESS_KEYWORD uid?
+LBRACE (
+    params
+    | variables
+    | block_products
+    | block_inputs
+    | block_emissions
+    | block_resources
+    )* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
 }
+
+params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiParameters"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParametersMixin"
+}
+
+variables ::= VARIABLES_KEYWORD LBRACE assignment* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiVariables"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiVariablesMixin"
+}
+
+assignment ::= uid EQUAL quantity {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiAssignment"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiAssignmentMixin"
+}
+
+/*
+    Blocks
+ */
+
+block_products ::= PRODUCTS_KEYWORD LBRACE technoExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
+}
+
+block_inputs ::= INPUTS_KEYWORD LBRACE technoExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockInputsMixin"
+}
+
+block_emissions ::= EMISSIONS_KEYWORD LBRACE bioExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockEmissionsMixin"
+}
+
+block_resources ::= RESOURCES_KEYWORD LBRACE bioExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockResources"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockResourcesMixin"
+}
+
+block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockImpacts"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockImpactsMixin"
+}
+
+/*
+    Exchanges
+ */
+
+technoExchange ::= quantity productRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoExchangeMixin"
+}
+
+bioExchange ::= quantity substanceRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiBioExchangeMixin"
+}
+
+impactExchange ::= quantity indicatorRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiImpactExchangeMixin"
+}
+
+/*
+    Quantity
+ */
+
+quantity ::= quantityTerm ((PLUS | MINUS) quantity)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityMixin"
+}
+
+quantityTerm ::= quantityFactor ((STAR | SLASH) quantityTerm)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityTerm"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityTermMixin"
+}
+
+quantityFactor ::= quantityPrimitive (HAT NUMBER)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityFactor"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityFactorMixin"
+}
+
+quantityPrimitive ::= NUMBER unit | LPAREN quantity RPAREN | quantityRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityPrimitive"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityPrimitiveMixin"
+}
+
+/*
+    Unit
+ */
+
+unit ::= unitFactor ((STAR | SLASH) unit)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnit"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitMixin"
+}
+
+unitFactor ::= unitPrimitive (HAT NUMBER)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitFactor"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitFactorMixin"
+}
+
+unitPrimitive ::=
+    unitLiteral
+    | LPAREN unit RPAREN
+    | unitRef {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
+}
+
+unitLiteral ::= UNIT_KEYWORD uid? LBRACE symbolField scaleField dimField RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
+}
+
+/*
+    Reference
+ */
+
+productRef ::= urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProductRefMixin"
+}
+
+quantityRef ::= urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiQuantityRefMixin"
+}
+
+substanceRef ::= urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiSubstanceRefMixin"
+}
+
+indicatorRef ::= urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiIndicatorRefMixin"
+}
+
+unitRef ::= urn {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiUnitRefMixin"
+}
+
+/*
+    Identifier
+ */
+
+urn ::= uid DOT urn | uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiUrn"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUrnMixin"
+}
+
 uid ::= IDENTIFIER {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiUID"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiUIDMixin"

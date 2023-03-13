@@ -17,10 +17,14 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
         val blocks = PsiTreeUtil.findChildrenOfAnyType(
             root,
             LcaProcess::class.java,
-            LcaSystem::class.java,
             LcaParams::class.java,
-            LcaBlock::class.java,
-            LcaUnitPrimitive::class.java,
+            LcaVariables::class.java,
+            LcaBlockProducts::class.java,
+            LcaBlockInputs::class.java,
+            LcaBlockEmissions::class.java,
+            LcaBlockResources::class.java,
+            LcaBlockImpacts::class.java,
+            LcaUnitLiteral::class.java,
         )
         blocks.forEach { block ->
             val braces = PsiTreeUtil.collectElements(block) {

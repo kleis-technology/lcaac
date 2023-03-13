@@ -70,7 +70,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 sub_compartment = "phosphate sub-compartment"
                 reference_unit = kg
                 
-                emission_factors {
+                impacts {
                     1 kg climate_change
                 }
             }
