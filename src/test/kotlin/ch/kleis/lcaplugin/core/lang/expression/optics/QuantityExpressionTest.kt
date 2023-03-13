@@ -1,10 +1,9 @@
 package ch.kleis.lcaplugin.core.lang.expression.optics
 
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityAdd
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityDiv
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityRef
-import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
+import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -51,6 +50,82 @@ class QuantityExpressionTest {
             EQuantityDiv(
                 EQuantityRef("y"),
                 QuantityFixture.oneKilogram,
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun optics_unboundedQuantityRefInTemplate_getAll() {
+        // given
+        val template = EProcessTemplate(
+            mapOf("a" to QuantityFixture.oneKilogram),
+            mapOf("b" to QuantityFixture.oneLitre),
+            EProcess(
+                listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
+                listOf(
+                    ETechnoExchange(
+                        EQuantityAdd(
+                            EQuantityRef("b"),
+                            EQuantityRef("x"),
+                        ),
+                        ProductFixture.water
+                    )
+                ),
+                listOf(EBioExchange(EQuantityRef("y"), SubstanceFixture.propanol)),
+            )
+        )
+
+        // when
+        val actual = everyUnboundedQuantityRefInTemplateExpression.getAll(template).map { it.name }
+
+        // then
+        val expected = listOf("x", "y")
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun optics_unboundedQuantityRefInTemplate_modify() {
+        // given
+        val template = EProcessTemplate(
+            mapOf("a" to QuantityFixture.oneKilogram),
+            mapOf("b" to QuantityFixture.oneLitre),
+            EProcess(
+                listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
+                listOf(
+                    ETechnoExchange(
+                        EQuantityAdd(
+                            EQuantityRef("b"),
+                            EQuantityRef("x"),
+                        ),
+                        ProductFixture.water
+                    )
+                ),
+                listOf(EBioExchange(EQuantityRef("y"), SubstanceFixture.propanol)),
+            )
+        )
+
+        // when
+        val actual = everyUnboundedQuantityRefInTemplateExpression.modify(template) {
+            if (it.name == "x") QuantityFixture.oneKilogram else it
+        }
+
+        // then
+        val expected = EProcessTemplate(
+            mapOf("a" to QuantityFixture.oneKilogram),
+            mapOf("b" to QuantityFixture.oneLitre),
+            EProcess(
+                listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
+                listOf(
+                    ETechnoExchange(
+                        EQuantityAdd(
+                            EQuantityRef("b"),
+                            QuantityFixture.oneKilogram,
+                        ),
+                        ProductFixture.water
+                    )
+                ),
+                listOf(EBioExchange(EQuantityRef("y"), SubstanceFixture.propanol)),
             )
         )
         assertEquals(expected, actual)

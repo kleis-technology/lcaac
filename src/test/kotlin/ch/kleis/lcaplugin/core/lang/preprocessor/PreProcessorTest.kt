@@ -15,7 +15,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 products = Register(
                     mapOf(
                         "carrot" to ProductFixture.carrot
@@ -41,7 +41,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 units = Register(
                     mapOf(
                         "kg" to UnitFixture.kg,
@@ -67,7 +67,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 units = Register(
                     mapOf(
                         "kg" to UnitFixture.kg,
@@ -99,7 +99,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 units = Register(
                     mapOf(
                         "kg" to UnitFixture.kg,
@@ -128,7 +128,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 quantities = Register(
                     mapOf(
                         "q" to QuantityFixture.oneKilogram,
@@ -182,7 +182,7 @@ class PreProcessorTest {
         val pkg = Package(
             "hello",
             emptyList(),
-            Environment(
+            SymbolTable(
                 products = Register(
                     mapOf(
                         "carrot" to ProductFixture.carrot,
@@ -252,7 +252,7 @@ class PreProcessorTest {
             listOf(
                 ImportSymbol("prelude.units", "kg")
             ),
-            Environment(
+            SymbolTable(
                 products = Register(
                     mapOf(
                         "carrot" to EProduct("carrot", EUnitRef("kg"))
@@ -264,7 +264,7 @@ class PreProcessorTest {
             Package(
                 "prelude.units",
                 emptyList(),
-                Environment(
+                SymbolTable(
                     units = Register(mapOf(
                         "kg" to UnitFixture.kg,
                         "l" to UnitFixture.l,
@@ -293,7 +293,7 @@ class PreProcessorTest {
             listOf(
                 ImportSymbol("prelude.units", "kg")
             ),
-            Environment(
+            SymbolTable(
                 products = Register(
                     mapOf(
                         "water" to EProduct("water", EUnitRef("l"))
@@ -305,7 +305,7 @@ class PreProcessorTest {
             Package(
                 "prelude.units",
                 emptyList(),
-                Environment(
+                SymbolTable(
                     units = Register(mapOf(
                         "kg" to UnitFixture.kg,
                         "l" to UnitFixture.l,
@@ -334,7 +334,7 @@ class PreProcessorTest {
             listOf(
                 ImportWildCard("prelude.units")
             ),
-            Environment(
+            SymbolTable(
                 products = Register(
                     mapOf(
                         "water" to EProduct("water", EUnitRef("l")),
@@ -347,7 +347,7 @@ class PreProcessorTest {
             Package(
                 "prelude.units",
                 emptyList(),
-                Environment(
+                SymbolTable(
                     units = Register(mapOf(
                         "kg" to UnitFixture.kg,
                         "l" to UnitFixture.l,

@@ -7,15 +7,15 @@ import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 
 class Evaluator(
-    environment: Environment = Environment.empty(),
+    symbolTable: SymbolTable = SymbolTable.empty(),
 ) {
-    private val processTemplates = environment.processTemplates
+    private val processTemplates = symbolTable.processTemplates
     private val reducer = TemplateExpressionReducer(
-        environment.products,
-        environment.substances,
-        environment.indicators,
-        environment.quantities,
-        environment.units,
+        symbolTable.products,
+        symbolTable.substances,
+        symbolTable.indicators,
+        symbolTable.quantities,
+        symbolTable.units,
         processTemplates,
     )
 

@@ -6,7 +6,7 @@ import arrow.core.right
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.optics.PPrism
-import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.indicators
 import ch.kleis.lcaplugin.core.lang.substanceCharacterizations
@@ -44,10 +44,10 @@ val everyIndicatorRef: Every<Expression, EIndicatorRef> =
         )
     )
 
-val everyIndicatorRefInEnvironment: PEvery<Environment, Environment, EIndicatorRef, LcaIndicatorExpression> =
+val everyIndicatorRefInSymbolTable: PEvery<SymbolTable, SymbolTable, EIndicatorRef, LcaIndicatorExpression> =
     Merge(
         listOf(
-            Environment.indicators compose everyRegister() compose indicatorRefInIndicatorExpression,
-            Environment.substanceCharacterizations compose everyRegister() compose everyIndicatorRefInSubstanceCharacterizationExpression
+            SymbolTable.indicators compose everyRegister() compose indicatorRefInIndicatorExpression,
+            SymbolTable.substanceCharacterizations compose everyRegister() compose everyIndicatorRefInSubstanceCharacterizationExpression
         )
     )

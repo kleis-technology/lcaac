@@ -69,7 +69,7 @@ class LcaLangAbstractParser(
             .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
 
 
-        val environment = Environment(
+        val symbolTable = SymbolTable(
             quantities = Register(globals),
             processTemplates = Register(templates),
             units = Register(units),
@@ -89,7 +89,7 @@ class LcaLangAbstractParser(
         return Package(
             pkgName,
             imports,
-            environment,
+            symbolTable,
         )
     }
 

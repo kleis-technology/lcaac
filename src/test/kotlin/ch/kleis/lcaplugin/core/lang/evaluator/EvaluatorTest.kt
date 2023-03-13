@@ -83,7 +83,7 @@ class EvaluatorTest {
         // given
         val templateRef = ETemplateRef("p")
         val evaluator = Evaluator(
-            Environment(
+            SymbolTable(
                 processTemplates = Register(
                     hashMapOf(
                         Pair("p", TemplateFixture.carrotProduction)

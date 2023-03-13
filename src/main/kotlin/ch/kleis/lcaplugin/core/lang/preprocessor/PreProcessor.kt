@@ -9,75 +9,71 @@ class PreProcessor(
     private val pkg: Package,
     private val dependencies: List<Package>,
 ) {
-    fun assemble(): Environment {
+    fun assemble(): SymbolTable {
         val wildcards = pkg.imports.filterIsInstance<ImportWildCard>().map { it.pkgName }
         val externalSymbols = pkg.imports.filterIsInstance<ImportSymbol>()
 
-        val depEnvs = dependencies.map { dep ->
+        val dependencyTables = dependencies.map { dep ->
             val syms = externalSymbols.filter { it.pkgName == dep.name }.map { it.name }
-            val filter : (String) -> Boolean = {
+            val filter: (String) -> Boolean = {
                 wildcards.contains(dep.name) || syms.contains(it)
             }
-            dep.name to Environment(
-                products = Register(dep.environment.products.filterKeys { filter(it) }),
-                substances = Register(dep.environment.substances.filterKeys { filter(it) }),
-                indicators = Register(dep.environment.indicators.filterKeys { filter(it) }),
-                quantities = Register(dep.environment.quantities.filterKeys { filter(it) }),
-                units = Register(dep.environment.units.filterKeys { filter(it) }),
-                processTemplates = Register(dep.environment.processTemplates.filterKeys { filter(it) }),
-                substanceCharacterizations = Register(dep.environment.substanceCharacterizations.filterKeys {
-                    syms.contains(
-                        it
-                    )
-                }),
+            dep.name to SymbolTable(
+                products = Register(dep.symbolTable.products.filterKeys { filter(it) }),
+                substances = Register(dep.symbolTable.substances.filterKeys { filter(it) }),
+                indicators = Register(dep.symbolTable.indicators.filterKeys { filter(it) }),
+                quantities = Register(dep.symbolTable.quantities.filterKeys { filter(it) }),
+                units = Register(dep.symbolTable.units.filterKeys { filter(it) }),
+                processTemplates = Register(dep.symbolTable.processTemplates.filterKeys { filter(it) }),
+                substanceCharacterizations = Register(dep.symbolTable.substanceCharacterizations.filterKeys { filter(it) }),
             )
         }
 
-        val result = Environment.empty()
+        val result = SymbolTable.empty()
         var substitution = Substitution.empty()
-        depEnvs.plus(pkg.name to pkg.environment)
-            .forEach { (pkgName, pkgEnv) ->
-                val s = load(result, pkgName, pkgEnv)
+        dependencyTables.plus(pkg.name to pkg.symbolTable)
+            .forEach { (pkgName, pkgTable) ->
+                val s = load(result, pkgName, pkgTable)
                 substitution = substitution.plus(s)
             }
 
         return substitution.apply(result)
     }
 
-    private fun load(environment: Environment, pkgName: String, pkgEnv: Environment): Substitution {
+    private fun load(symbolTable: SymbolTable, pkgName: String, pkgTable: SymbolTable): Substitution {
         val products = HashMap<String, String>()
-        pkgEnv.products.entries.forEach {
-            environment.products[fqn(pkgName, it.key)] = it.value
+        pkgTable.products.entries.forEach {
+            symbolTable.products[fqn(pkgName, it.key)] = it.value
             products[it.key] = fqn(pkgName, it.key)
         }
 
         val substances = HashMap<String, String>()
-        pkgEnv.substances.entries.forEach {
-            environment.substances[fqn(pkgName, it.key)] = it.value
+        pkgTable.substances.entries.forEach {
+            symbolTable.substances[fqn(pkgName, it.key)] = it.value
             substances[it.key] = fqn(pkgName, it.key)
         }
 
         val indicators = HashMap<String, String>()
-        pkgEnv.indicators.entries.forEach {
-            environment.indicators[fqn(pkgName, it.key)] = it.value
+        pkgTable.indicators.entries.forEach {
+            symbolTable.indicators[fqn(pkgName, it.key)] = it.value
             indicators[it.key] = fqn(pkgName, it.key)
         }
 
         val quantities = HashMap<String, String>()
-        pkgEnv.quantities.forEach {
-            environment.quantities[fqn(pkgName, it.key)] = it.value
+        pkgTable.quantities.forEach {
+            symbolTable.quantities[fqn(pkgName, it.key)] = it.value
             quantities[it.key] = fqn(pkgName, it.key)
         }
 
         val units = HashMap<String, String>()
-        pkgEnv.units.entries.forEach {
-            environment.units[fqn(pkgName, it.key)] = it.value
+        pkgTable.units.entries.forEach {
+            symbolTable.units[fqn(pkgName, it.key)] = it.value
             units[it.key] = fqn(pkgName, it.key)
         }
 
         val processTemplates = HashMap<String, String>()
-        pkgEnv.processTemplates.forEach {
-            environment.processTemplates[fqn(pkgName, it.key)] = it.value
+        pkgTable.processTemplates.forEach {
+            symbolTable.processTemplates[fqn(pkgName, it.key)] = it.value
             processTemplates[it.key] = fqn(pkgName, it.key)
         }
 
@@ -129,23 +125,23 @@ private data class Substitution(
         )
     }
 
-    fun apply(environment: Environment): Environment {
-        val updateProductRef = everyProductRefInEnvironment.lift { ref ->
+    fun apply(symbolTable: SymbolTable): SymbolTable {
+        val updateProductRef = everyProductRefInSymbolTable.lift { ref ->
             products[ref.name]?.let { EProductRef(it) } ?: ref
         }
-        val updateSubstanceRef = everySubstanceRefInEnvironment.lift { ref ->
+        val updateSubstanceRef = everySubstanceRefInSymbolTable.lift { ref ->
             substances[ref.name]?.let { ESubstanceRef(it) } ?: ref
         }
-        val updateIndicatorRef = everyIndicatorRefInEnvironment.lift { ref ->
+        val updateIndicatorRef = everyIndicatorRefInSymbolTable.lift { ref ->
             indicators[ref.name]?.let { EIndicatorRef(it) } ?: ref
         }
-        val updateQuantityRef = everyQuantityRefInEnvironment.lift { ref ->
+        val updateQuantityRef = everyUnboundedQuantityRefInSymbolTable.lift { ref ->
             quantities[ref.name]?.let { EQuantityRef(it) } ?: ref
         }
-        val updateUnitRef = everyUnitRefInEnvironment.lift { ref ->
+        val updateUnitRef = everyUnitRefInSymbolTable.lift { ref ->
             units[ref.name]?.let { EUnitRef(it) } ?: ref
         }
-        val updateTemplateRef = everyTemplateRefInEnvironment.lift { ref ->
+        val updateTemplateRef = everyTemplateRefInSymbolTable.lift { ref ->
             processTemplates[ref.name]?.let { ETemplateRef(it) } ?: ref
         }
 
@@ -157,7 +153,7 @@ private data class Substitution(
             updateUnitRef,
             updateTemplateRef,
         ).reduce { acc, function -> acc.compose(function) }
-            .invoke(environment)
+            .invoke(symbolTable)
     }
 }
 

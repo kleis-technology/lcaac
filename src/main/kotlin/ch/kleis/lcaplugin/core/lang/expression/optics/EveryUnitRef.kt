@@ -188,13 +188,13 @@ val everyUnitRef: Every<Expression, EUnitRef> =
         )
     )
 
-val everyUnitRefInEnvironment : PEvery<Environment, Environment, EUnitRef, UnitExpression> =
+val everyUnitRefInSymbolTable : PEvery<SymbolTable, SymbolTable, EUnitRef, UnitExpression> =
     Merge(listOf(
-        Environment.products compose everyRegister() compose everyUnitRefInUnconstrainedProductExpression,
-        Environment.substances compose everyRegister() compose everyUnitRefInSubstanceExpression,
-        Environment.indicators compose everyRegister() compose everyUnitRefInIndicatorExpression,
-        Environment.quantities compose everyRegister() compose everyUnitRefInQuantityExpression,
-        Environment.units compose everyRegister() compose everyUnitRefInUnitExpression,
-        Environment.processTemplates compose everyRegister() compose everyUnitRefInTemplateExpression,
-        Environment.substanceCharacterizations compose everyRegister() compose everyUnitRefInSubstanceCharacterizationExpression,
+        SymbolTable.products compose everyRegister() compose everyUnitRefInUnconstrainedProductExpression,
+        SymbolTable.substances compose everyRegister() compose everyUnitRefInSubstanceExpression,
+        SymbolTable.indicators compose everyRegister() compose everyUnitRefInIndicatorExpression,
+        SymbolTable.quantities compose everyRegister() compose everyUnitRefInQuantityExpression,
+        SymbolTable.units compose everyRegister() compose everyUnitRefInUnitExpression,
+        SymbolTable.processTemplates compose everyRegister() compose everyUnitRefInTemplateExpression,
+        SymbolTable.substanceCharacterizations compose everyRegister() compose everyUnitRefInSubstanceCharacterizationExpression,
     ))

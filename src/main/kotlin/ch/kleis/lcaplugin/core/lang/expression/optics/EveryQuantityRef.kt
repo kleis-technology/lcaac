@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.processTemplates
 import ch.kleis.lcaplugin.core.lang.quantities
@@ -171,6 +171,42 @@ private val everyQuantityRefInTemplateExpression: PEvery<TemplateExpression, Tem
         ),
     )
 
+val everyUnboundedQuantityRefInProcessTemplate =
+    object : PEvery<EProcessTemplate, EProcessTemplate, EQuantityRef, QuantityExpression> {
+        override fun <R> foldMap(M: Monoid<R>, source: EProcessTemplate, map: (focus: EQuantityRef) -> R): R {
+            val boundedRefs = source.params
+                .plus(source.locals)
+                .keys
+                .map { EQuantityRef(it) }.toSet()
+            val allRefs = everyQuantityRefInTemplateExpression.getAll(source).toSet()
+            val unboundedRefs = allRefs.minus(boundedRefs).toList()
+            return M.fold(
+                unboundedRefs.map(map)
+            )
+        }
+
+        override fun modify(
+            source: EProcessTemplate,
+            map: (focus: EQuantityRef) -> QuantityExpression
+        ): EProcessTemplate {
+            val boundedRefs = source.params
+                .plus(source.locals)
+                .keys
+                .map { EQuantityRef(it) }.toSet()
+            return EProcessTemplate(
+                source.params,
+                source.locals,
+                everyQuantityRefInProcessExpression.modify(source.body) {
+                    if (boundedRefs.contains(it)) it
+                    else map(it)
+                }
+            )
+        }
+    }
+
+val everyUnboundedQuantityRefInTemplateExpression : PEvery<TemplateExpression, TemplateExpression, EQuantityRef, QuantityExpression > =
+    TemplateExpression.eProcessTemplate compose everyUnboundedQuantityRefInProcessTemplate
+
 val everyQuantityRef: Every<Expression, EQuantityRef> =
     Merge(
         listOf(
@@ -181,17 +217,17 @@ val everyQuantityRef: Every<Expression, EQuantityRef> =
         )
     )
 
-val everyQuantityRefInEnvironment: PEvery<Environment, Environment, EQuantityRef, QuantityExpression> =
+val everyUnboundedQuantityRefInSymbolTable: PEvery<SymbolTable, SymbolTable, EQuantityRef, QuantityExpression> =
     Merge(
         listOf(
-            Environment.quantities compose everyRegister() compose everyQuantityRefInQuantityExpression,
-            Environment.processTemplates compose everyRegister() compose
+            SymbolTable.quantities compose everyRegister() compose everyQuantityRefInQuantityExpression,
+            SymbolTable.processTemplates compose everyRegister() compose
                     everyProcessTemplateInTemplateExpression compose
                     Merge(
                         listOf(
                             EProcessTemplate.params compose Every.map() compose everyQuantityRefInQuantityExpression,
                             EProcessTemplate.locals compose Every.map() compose everyQuantityRefInQuantityExpression,
-                            EProcessTemplate.body compose everyQuantityRefInProcessExpression,
+                            everyUnboundedQuantityRefInProcessTemplate,
                         )
                     )
         )

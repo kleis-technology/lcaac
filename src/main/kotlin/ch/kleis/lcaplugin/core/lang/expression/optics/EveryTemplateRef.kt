@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.processTemplates
 
@@ -43,8 +43,8 @@ val everyTemplateRefInProcess: Every<EProcess, ETemplateRef> =
 val everyTemplateRefInProcessExpression =
     LcaProcessExpression.eProcess compose everyTemplateRefInProcess
 
-val everyTemplateRefInEnvironment: Every<Environment, ETemplateRef> =
-    Environment.processTemplates compose everyRegister() compose
+val everyTemplateRefInSymbolTable: Every<SymbolTable, ETemplateRef> =
+    SymbolTable.processTemplates compose everyRegister() compose
             everyProcessTemplateInTemplateExpression compose
             EProcessTemplate.body compose
             everyTemplateRefInProcessExpression

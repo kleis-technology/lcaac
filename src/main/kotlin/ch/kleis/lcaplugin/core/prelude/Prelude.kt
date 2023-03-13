@@ -54,7 +54,7 @@ class Prelude {
                 Package(
                     "prelude.units",
                     emptyList(),
-                    Environment(
+                    SymbolTable(
                         units = Register(definitions)
                     )
                 )

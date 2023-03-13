@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 @optics
-data class Environment(
+data class SymbolTable(
     val products: Register<LcaUnconstrainedProductExpression> = Register.empty(),
     val substances: Register<LcaSubstanceExpression> = Register.empty(),
     val indicators: Register<LcaIndicatorExpression> = Register.empty(),
@@ -15,7 +15,7 @@ data class Environment(
     val substanceCharacterizations: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
 ) {
     companion object {
-        fun empty() = Environment()
+        fun empty() = SymbolTable()
     }
 
     fun getTemplate(name: String): TemplateExpression? {

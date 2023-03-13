@@ -6,7 +6,7 @@ import arrow.core.right
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.optics.PPrism
-import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.processTemplates
 import ch.kleis.lcaplugin.core.lang.products
@@ -66,11 +66,11 @@ val everyProductRef: Every<Expression, EProductRef> =
         )
     )
 
-val everyProductRefInEnvironment: PEvery<Environment, Environment, EProductRef, LcaUnconstrainedProductExpression> =
+val everyProductRefInSymbolTable: PEvery<SymbolTable, SymbolTable, EProductRef, LcaUnconstrainedProductExpression> =
     Merge(
         listOf(
-            Environment.products compose everyRegister() compose productRefInUnconstrainedProductExpression,
-            Environment.processTemplates compose everyRegister() compose
+            SymbolTable.products compose everyRegister() compose productRefInUnconstrainedProductExpression,
+            SymbolTable.processTemplates compose everyRegister() compose
                     everyProcessTemplateInTemplateExpression compose
                     EProcessTemplate.body compose everyProductRefInProcessExpression,
         )

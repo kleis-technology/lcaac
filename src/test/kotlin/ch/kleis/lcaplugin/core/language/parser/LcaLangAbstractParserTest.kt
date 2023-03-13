@@ -32,7 +32,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val (pkg, _) = parser.collect("hello")
-        val actual = pkg.environment.getTemplate("a")!!
+        val actual = pkg.symbolTable.getTemplate("a")!!
 
         // then
         val expected = EProcessTemplate(
@@ -82,7 +82,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val (pkg, _) = parser.collect("substances")
-        val actual = pkg.environment.getSubstanceCharacterization("phosphate")
+        val actual = pkg.symbolTable.getSubstanceCharacterization("phosphate")
 
         // then
         val expected = ESubstanceCharacterization(

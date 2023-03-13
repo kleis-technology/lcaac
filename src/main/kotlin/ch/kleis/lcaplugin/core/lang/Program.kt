@@ -4,5 +4,5 @@ import ch.kleis.lcaplugin.core.lang.expression.Expression
 
 data class Program(
     val entryPoint: Expression,
-    val environment: Environment,
+    val symbolTable: SymbolTable,
 )

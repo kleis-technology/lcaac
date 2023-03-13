@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang
 class Package(
     val name: String,
     val imports: List<Import> = emptyList(),
-    val environment: Environment,
+    val symbolTable: SymbolTable,
 ) {
 }
 

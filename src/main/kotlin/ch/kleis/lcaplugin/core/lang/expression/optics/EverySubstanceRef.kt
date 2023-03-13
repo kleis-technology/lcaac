@@ -6,7 +6,7 @@ import arrow.core.right
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.optics.PPrism
-import ch.kleis.lcaplugin.core.lang.Environment
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.processTemplates
 import ch.kleis.lcaplugin.core.lang.substanceCharacterizations
@@ -70,18 +70,18 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
         )
     )
 
-val everySubstanceRefInEnvironment: PEvery<Environment, Environment, ESubstanceRef, LcaSubstanceExpression> =
+val everySubstanceRefInSymbolTable: PEvery<SymbolTable, SymbolTable, ESubstanceRef, LcaSubstanceExpression> =
     Merge(
         listOf(
-            Environment.substances compose everyRegister() compose substanceRefInLcaSubstanceExpression,
-            Environment.substanceCharacterizations compose
+            SymbolTable.substances compose everyRegister() compose substanceRefInLcaSubstanceExpression,
+            SymbolTable.substanceCharacterizations compose
                     everyRegister() compose
                     LcaSubstanceCharacterizationExpression
                         .eSubstanceCharacterization
                         .referenceExchange
                         .substance compose
                     substanceRefInLcaSubstanceExpression,
-            Environment.processTemplates compose everyRegister() compose
+            SymbolTable.processTemplates compose everyRegister() compose
                     everyProcessTemplateInTemplateExpression compose
                     EProcessTemplate.body compose everySubstanceRefInProcessExpression
         )

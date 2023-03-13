@@ -42,10 +42,10 @@ class AssessProcessAction(private val processName: String) : AnAction() {
 
         try {
             val (pkg, deps) = parser.collect(file.getPackage().name!!)
+            val symbolTable = PreProcessor(pkg, deps).assemble()
             val fqn = "${pkg.name}.$processName"
-            val environment = PreProcessor(pkg, deps).assemble()
-            val program = Program(environment.processTemplates[fqn] as Expression, environment)
-            val value = Evaluator(program.environment).eval(program.entryPoint as TemplateExpression) as ProcessValue
+            val entryPoint = symbolTable.processTemplates[fqn]!!
+            val value = Evaluator(symbolTable).eval(entryPoint) as ProcessValue
             /*
                 TODO: Infer system correctly
              */
