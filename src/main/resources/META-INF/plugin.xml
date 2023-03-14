@@ -1,13 +1,8 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
-<idea-plugin>
+<idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>ch.kleis.lcaplugin</id>
     <name>Life Cycle Analysis as Code</name>
-    <vendor
-            url="https://kleis.ch"
-            email="contact@kleis.ch"
-    >
-        Kleis
-    </vendor>
+    <vendor url="https://kleis.ch" email="contact@kleis.ch">Kleis</vendor>
     <description>
         <![CDATA[
         Adds support for a new domain-specific language targeting <i>Life Cycle Analysis</i> experts. The following features are available for free.
@@ -19,6 +14,7 @@
         </ul>
     ]]>
     </description>
+    <xi:include href="/META-INF/tips-kleis-1.xml"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -42,8 +38,8 @@
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
         <lang.commenter
-            language="LCA"
-            implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
 
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
