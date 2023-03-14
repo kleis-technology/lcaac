@@ -117,6 +117,56 @@ class RecursiveEvaluatorTest {
     }
 
     @Test
+    fun eval_withExplicitProcessResolution_whenMoreThanOneProcess_shouldThrow() {
+        // given
+        val symbolTable = SymbolTable(
+            processTemplates = Register(
+                mapOf(
+                    "carrot_production" to TemplateFixture.carrotProduction,
+                    "carrot_production_bis" to TemplateFixture.carrotProduction,
+                )
+            )
+        )
+        val expression = EProcessTemplate(
+            emptyMap(),
+            emptyMap(),
+            EProcess(
+                products = listOf(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
+                ),
+                inputs = listOf(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(
+                            EProductRef("carrot"),
+                            FromProcessRef(
+                                ETemplateRef("carrot_production"),
+                                emptyMap(),
+                            ),
+                        )
+                    )
+                ),
+                biosphere = emptyList()
+            )
+        )
+        val recursiveEvaluator = RecursiveEvaluator(symbolTable)
+
+        // when/then
+        try {
+            recursiveEvaluator.eval(expression).processes.toSet()
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            assertEquals(
+                "more than one process produces carrot : [carrot_production, carrot_production_bis]",
+                e.message
+            )
+        }
+    }
+
+    @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
         val symbolTable = SymbolTable(

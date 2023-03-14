@@ -63,6 +63,7 @@ class RecursiveEvaluator(
             val product = it.product as EProduct
             when (val constraint = it.constraint) {
                 is FromProcessRef -> {
+                    resolveAndCheckCandidates(product)
                     val processRef = constraint.template.name
                     val template = symbolTable.getTemplate(processRef)
                         ?: throw EvaluatorException("unbounded template reference $processRef")
@@ -78,11 +79,7 @@ class RecursiveEvaluator(
                 }
 
                 None -> {
-                    val candidates = processResolver.resolve(product.name)
-                    if (candidates.size > 1) {
-                        val candidateNames = candidates.map { it.first }
-                        throw EvaluatorException("more than one process produces ${product.name} : $candidateNames")
-                    }
+                    val candidates = resolveAndCheckCandidates(product)
                     val template = candidates.firstOrNull()?.second ?: continue
                     val arguments = emptyMap<String, QuantityExpression>()
                     newState.add(
@@ -96,6 +93,15 @@ class RecursiveEvaluator(
             }
         }
         return newState
+    }
+
+    private fun resolveAndCheckCandidates(product: EProduct): Set<Pair<String, TemplateExpression>> {
+        val candidates = processResolver.resolve(product.name)
+        if (candidates.size > 1) {
+            val candidateNames = candidates.map { it.first }
+            throw EvaluatorException("more than one process produces ${product.name} : $candidateNames")
+        }
+        return candidates
     }
 
     class State(
