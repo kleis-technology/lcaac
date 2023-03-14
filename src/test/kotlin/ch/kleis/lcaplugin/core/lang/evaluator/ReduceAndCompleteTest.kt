@@ -49,6 +49,47 @@ class ReduceAndCompleteTest {
     }
 
     @Test
+    fun eval_withUnknownSubstances_shouldCompleteSubstances() {
+        // given
+        val template = EProcessTemplate(
+            params = emptyMap(),
+            locals = emptyMap(),
+            body = EProcess(
+                products = emptyList(),
+                inputs = emptyList(),
+                biosphere = listOf(
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("co2"))
+                ),
+            )
+        )
+        val instance = EInstance(
+            template, emptyMap()
+        )
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
+
+        // when
+        val actual = reduceAndComplete.apply(instance).toValue()
+
+        // then
+        val expected = ProcessValue(
+            emptyList(),
+            emptyList(),
+            listOf(
+                BioExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    SubstanceValue(
+                        "co2",
+                        "__unknown__",
+                        null,
+                        UnitValueFixture.kg,
+                    )
+                )
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
         // given
         val template = TemplateFixture.carrotProduction

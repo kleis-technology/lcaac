@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
 import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
+import ch.kleis.lcaplugin.core.lang.expression.optics.substanceRefInLcaSubstanceExpression
 
 class ReduceAndComplete(
     symbolTable: SymbolTable,
@@ -39,23 +40,21 @@ class ReduceAndComplete(
                 templateReducer.reduce(EInstance(expression, emptyMap()))
             } ?: expression
         }
-        val unboundedReferences = Helper().allUnboundedReferencesButProductRefs(reduced)
+        val unboundedReferences = Helper().allRequiredRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
-        return completeProducts(reduced)
+        return completeSubstances(completeProducts(reduced))
     }
 
     fun apply(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
         val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
-        val unboundedReferences = Helper().allUnboundedReferencesButIndicatorRefs(reduced)
+        val unboundedReferences = Helper().allRequiredRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
         return completeIndicators(reduced)
     }
-
-
 
 
     private fun completeProducts(reduced: TemplateExpression): TemplateExpression {
@@ -74,6 +73,25 @@ class ReduceAndComplete(
                     EProduct(it.name, q.unit)
                 }
         }
+    }
+
+    private fun completeSubstances(reduced: TemplateExpression): TemplateExpression {
+        return (TemplateExpression.eProcessFinal.expression.eProcess.biosphere compose Every.list())
+            .modify(reduced) { exchange ->
+                val q = exchange.quantity
+                if (q !is EQuantityLiteral) {
+                    throw EvaluatorException("quantity $q is not reduced")
+                }
+                (EBioExchange.substance compose substanceRefInLcaSubstanceExpression)
+                    .modify(exchange) {
+                        ESubstance(
+                            it.name,
+                            "__unknown__",
+                            null,
+                            q.unit,
+                        )
+                    }
+            }
     }
 
     private fun completeIndicators(reduced: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {

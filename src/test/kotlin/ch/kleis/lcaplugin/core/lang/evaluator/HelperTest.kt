@@ -137,7 +137,7 @@ class HelperTest {
         val helper = Helper()
 
         // when
-        val actual = helper.allUnboundedReferencesButProductRefs(expression)
+        val actual = helper.allRequiredRefs(expression)
 
         // then
         val expected = setOf(
