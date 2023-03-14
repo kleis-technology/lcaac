@@ -5,7 +5,6 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
 import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 import ch.kleis.lcaplugin.core.lang.expression.optics.substanceRefInLcaSubstanceExpression
@@ -44,7 +43,7 @@ class ReduceAndComplete(
         if (unboundedReferences.isNotEmpty()) {
             throw EvaluatorException("unbounded references: $unboundedReferences")
         }
-        return completeSubstances(completeProducts(reduced))
+        return completeSubstances(completeInputs(reduced))
     }
 
     fun apply(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
@@ -57,22 +56,18 @@ class ReduceAndComplete(
     }
 
 
-    private fun completeProducts(reduced: TemplateExpression): TemplateExpression {
-        return Merge(
-            listOf(
-                TemplateExpression.eProcessFinal.expression.eProcess.products compose Every.list(),
-                TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list(),
-            )
-        ).modify(reduced) { exchange ->
-            val q = exchange.quantity
-            if (q !is EQuantityLiteral) {
-                throw EvaluatorException("quantity $q is not reduced")
-            }
-            (ETechnoExchange.product compose productRefInProductExpression)
-                .modify(exchange) {
-                    EProduct(it.name, q.unit)
+    private fun completeInputs(reduced: TemplateExpression): TemplateExpression {
+        return (TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list())
+            .modify(reduced) { exchange ->
+                val q = exchange.quantity
+                if (q !is EQuantityLiteral) {
+                    throw EvaluatorException("quantity $q is not reduced")
                 }
-        }
+                (ETechnoExchange.product compose productRefInProductExpression)
+                    .modify(exchange) {
+                        EProduct(it.name, q.unit)
+                    }
+            }
     }
 
     private fun completeSubstances(reduced: TemplateExpression): TemplateExpression {

@@ -28,7 +28,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = listOf(
@@ -78,7 +78,7 @@ class RecursiveEvaluatorTest {
                     "carrot_production" to TemplateFixture.carrotProduction,
                     "carrot_production_bis" to TemplateFixture.carrotProduction,
                 )
-            )
+            ),
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -87,7 +87,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = listOf(
@@ -134,7 +134,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = listOf(
@@ -183,7 +183,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = listOf(
@@ -244,7 +244,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = listOf(
@@ -295,7 +295,7 @@ class RecursiveEvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(EProductRef("salad"), None),
+                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
                     )
                 ),
                 inputs = emptyList(),

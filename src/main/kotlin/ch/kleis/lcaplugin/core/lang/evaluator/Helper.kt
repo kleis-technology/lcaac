@@ -13,6 +13,7 @@ class Helper {
 
     fun allRequiredRefs(expression: Expression): Set<String> {
         val allRefs : Every<Expression, String> = Merge(listOf(
+            everyRequiredProductRef compose EProductRef.name,
             everyQuantityRef compose EQuantityRef.name,
             everyTemplateRef compose ETemplateRef.name,
             everyUnitRef compose EUnitRef.name

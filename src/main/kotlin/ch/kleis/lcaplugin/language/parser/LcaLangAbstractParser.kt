@@ -32,6 +32,11 @@ class LcaLangAbstractParser(
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
 
+        val products = files
+            .flatMap { it.getProcesses() }
+            .flatMap { productsOf(it) }
+            .associateBy { it.name }
+
         val substances = files
             .flatMap { it.getSubstances() }
             .associate { Pair(it.getUid().name!!, substance(it)) }
@@ -52,6 +57,7 @@ class LcaLangAbstractParser(
 
         return SymbolTable(
             quantities = Register(globals),
+            products = Register(products),
             processTemplates = Register(templates),
             units = units,
             substances = Register(substances),
@@ -97,6 +103,16 @@ class LcaLangAbstractParser(
             locals,
             body,
         )
+    }
+
+    private fun productsOf(psiProcess: PsiProcess): List<EProduct> {
+        return psiProcess.getProducts()
+            .map {
+                EProduct(
+                    it.getProductRef().name!!,
+                    unit(it.getQuantity().getUnit())
+                )
+            }
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
@@ -195,6 +211,12 @@ class LcaLangAbstractParser(
         return EProductRef(product.name!!)
     }
 
+    private fun quantity(quantityExplicit: PsiQuantityExplicit): QuantityExpression {
+        return EQuantityLiteral(
+            quantityExplicit.getAmount(),
+            unit(quantityExplicit.getUnit()),
+        )
+    }
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {
         val term = qTerm(quantity.getTerm())

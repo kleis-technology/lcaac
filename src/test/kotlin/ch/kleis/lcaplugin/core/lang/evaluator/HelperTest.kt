@@ -141,7 +141,7 @@ class HelperTest {
 
         // then
         val expected = setOf(
-            "quantity", "ua", "ub", "template", "substance", "qa", "qb", "indicator"
+            "quantity", "ua", "ub", "template", "qa", "qb"
         )
         assertEquals(expected, actual)
     }
