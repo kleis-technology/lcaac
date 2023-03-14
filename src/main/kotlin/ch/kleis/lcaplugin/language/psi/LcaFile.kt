@@ -9,6 +9,9 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.FileViewProvider
+import com.intellij.psi.PsiElement
+import com.intellij.psi.ResolveState
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 
 class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLanguage.INSTANCE) {
@@ -49,5 +52,25 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     fun getUnitLiterals(): Collection<PsiUnitLiteral> {
         return node.getChildren(TokenSet.create(LcaTypes.UNIT_LITERAL))
             .map { it.psi as PsiUnitLiteral }
+    }
+
+    fun getPsiVariablesBlocks(): Collection<PsiVariables> {
+        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
+            .map { it.psi as PsiVariables }
+    }
+
+    override fun processDeclarations(
+        processor: PsiScopeProcessor,
+        state: ResolveState,
+        lastParent: PsiElement?,
+        place: PsiElement
+    ): Boolean {
+        for (block in getPsiVariablesBlocks()) {
+            if (!processor.execute(block, state)){
+                return false
+            }
+        }
+
+        return true
     }
 }

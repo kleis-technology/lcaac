@@ -7,11 +7,7 @@ import com.intellij.psi.PsiElement
 
 abstract class PsiUIDMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUID {
     override fun getName(): String {
-        return this.firstChild.text.trim('"')
-    }
-
-    override fun setName(name: String): PsiElement {
-        throw UnsupportedOperationException()
+        return super<PsiUID>.getName()
     }
 
     override fun toString(): String {

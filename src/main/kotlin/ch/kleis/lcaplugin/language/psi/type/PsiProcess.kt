@@ -10,6 +10,8 @@ import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
+import com.intellij.psi.ResolveState
+import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 
 interface PsiProcess : PsiElement {
@@ -53,5 +55,36 @@ interface PsiProcess : PsiElement {
             .map { it.psi as PsiVariables }
             .flatMap { it.getEntries() }
             .toMap()
+    }
+
+    fun getPsiVariablesBlocks(): Collection<PsiVariables> {
+        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
+            .map { it.psi as PsiVariables }
+    }
+
+    fun getPsiParametersBlocks(): Collection<PsiParameters> {
+        return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
+            .map { it.psi as PsiParameters }
+    }
+
+    override fun processDeclarations(
+        processor: PsiScopeProcessor,
+        state: ResolveState,
+        lastParent: PsiElement?,
+        place: PsiElement
+    ): Boolean {
+        for (block in getPsiVariablesBlocks()) {
+            if (!processor.execute(block, state)){
+               return false
+            }
+        }
+
+        for (block in getPsiParametersBlocks()) {
+            if (!processor.execute(block, state)) {
+                return false
+            }
+        }
+
+        return true
     }
 }
