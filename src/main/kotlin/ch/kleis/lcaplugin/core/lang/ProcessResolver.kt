@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemp
 class ProcessResolver(
     private val symbolTable: SymbolTable
 ) {
-    fun resolve(productName: String): Set<TemplateExpression> {
+    fun resolve(productName: String): Set<Pair<String, TemplateExpression>> {
         val optics = Merge(
             listOf(
                 everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
@@ -24,10 +24,11 @@ class ProcessResolver(
                         LcaUnconstrainedProductExpression.eProductRef.name,
                     )
                 )
-        return symbolTable.processTemplates.values
+        return symbolTable.processTemplates.entries
             .filter {
-                optics.getAll(it).contains(productName)
+                optics.getAll(it.value).contains(productName)
             }
+            .map { it.key to it.value }
             .toSet()
     }
 }

@@ -53,7 +53,7 @@ class ProcessResolverTest {
         val actual = resolver.resolve("carrot")
 
         // then
-        assertEquals(setOf(carrotProduction), actual)
+        assertEquals(setOf("carrot_production" to carrotProduction), actual)
     }
 
     @Test
@@ -101,6 +101,6 @@ class ProcessResolverTest {
         val actual = resolver.resolve("carrot")
 
         // then
-        assertEquals(setOf(carrotProduction), actual)
+        assertEquals(setOf("carrot_production" to carrotProduction), actual)
     }
 }
