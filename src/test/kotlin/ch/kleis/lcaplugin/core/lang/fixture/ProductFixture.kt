@@ -8,6 +8,10 @@ class ProductFixture {
             "carrot",
             UnitFixture.kg,
         )
+        val salad = EProduct(
+            "salad",
+            UnitFixture.kg,
+        )
         val water = EProduct(
             "water",
             UnitFixture.l,

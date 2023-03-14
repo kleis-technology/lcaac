@@ -25,6 +25,7 @@ data class SymbolTable(
     fun getSubstanceCharacterization(name: String): LcaSubstanceCharacterizationExpression? {
         return substanceCharacterizations[name]
     }
+
 }
 
 class Register<E>(
