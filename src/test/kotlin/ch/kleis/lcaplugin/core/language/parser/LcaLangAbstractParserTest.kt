@@ -42,16 +42,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 products = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(1.0, EUnitRef("kg")),
-                        EProductRef("carrot")
+                        EConstrainedProduct(EProductRef("carrot"), None),
                     ),
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(10.0, EUnitRef("l")),
-                        EConstrainedProduct(
-                            EProductRef("water"),
-                            None,
-                        )
+                        EConstrainedProduct(EProductRef("water"), None)
                     ),
                 ),
                 biosphere = emptyList(),

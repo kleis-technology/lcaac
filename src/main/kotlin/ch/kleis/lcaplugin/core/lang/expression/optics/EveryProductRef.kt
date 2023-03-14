@@ -23,12 +23,7 @@ private val productRefInUnconstrainedProductExpression =
     }
 
 val productRefInProductExpression =
-    Merge(
-        listOf(
-            LcaProductExpression.lcaUnconstrainedProductExpression compose productRefInUnconstrainedProductExpression,
-            LcaProductExpression.eConstrainedProduct.product compose productRefInUnconstrainedProductExpression,
-        )
-    )
+    LcaProductExpression.eConstrainedProduct.product compose productRefInUnconstrainedProductExpression
 
 val everyProductRef: Every<Expression, EProductRef> =
     Merge(
@@ -36,7 +31,7 @@ val everyProductRef: Every<Expression, EProductRef> =
             Expression.lcaExpression.lcaProductExpression compose productRefInProductExpression,
             Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product compose productRefInProductExpression,
             Expression.lcaExpression.lcaProcessExpression.eProcess.products compose Every.list() compose
-                ETechnoExchange.product compose productRefInProductExpression,
+                    ETechnoExchange.product compose productRefInProductExpression,
             Expression.lcaExpression.lcaProcessExpression.eProcess.inputs compose Every.list() compose
                     ETechnoExchange.product compose productRefInProductExpression,
         )

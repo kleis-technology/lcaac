@@ -55,7 +55,7 @@ class ReduceAndCompleteTest {
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = reduceAndComplete.apply(template)
+        val actual = reduceAndComplete.apply(template).toValue()
 
         // then
         val expected = ProcessValue(

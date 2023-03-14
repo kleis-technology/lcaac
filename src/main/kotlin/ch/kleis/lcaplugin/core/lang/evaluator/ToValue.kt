@@ -89,13 +89,6 @@ fun LcaProductExpression.toValue(): ProductValue {
                 actualProduct.referenceUnit.toValue(),
             )
         }
-
-        is EProduct -> ProductValue(
-            this.name,
-            this.referenceUnit.toValue(),
-        )
-
-        is EProductRef -> throw EvaluatorException("$this is not reduced")
     }
 }
 

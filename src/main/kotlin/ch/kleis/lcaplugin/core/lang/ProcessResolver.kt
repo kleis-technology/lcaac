@@ -17,7 +17,7 @@ class ProcessResolver(
         ) compose
                 LcaProcessExpression.eProcess.products compose
                 Every.list() compose
-                ETechnoExchange.product.lcaUnconstrainedProductExpression compose
+                ETechnoExchange.product.eConstrainedProduct.product compose
                 Merge(
                     listOf(
                         LcaUnconstrainedProductExpression.eProduct.name,

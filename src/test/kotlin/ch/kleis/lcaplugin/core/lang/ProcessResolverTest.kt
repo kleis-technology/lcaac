@@ -42,10 +42,12 @@ class ProcessResolverTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register(mapOf(
-                "carrot_production" to carrotProduction,
-                "salad_production" to saladProduction,
-            ))
+            processTemplates = Register(
+                mapOf(
+                    "carrot_production" to carrotProduction,
+                    "salad_production" to saladProduction,
+                )
+            )
         )
         val resolver = ProcessResolver(symbolTable)
 
@@ -68,7 +70,12 @@ class ProcessResolverTest {
             ),
             body = EProcess(
                 products = listOf(
-                    ETechnoExchange(EQuantityRef("q_carrot"), EProductRef("carrot")),
+                    ETechnoExchange(
+                        EQuantityRef("q_carrot"), EConstrainedProduct(
+                            EProductRef("carrot"),
+                            None,
+                        )
+                    ),
                 ),
                 inputs = listOf(
                     ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
@@ -90,10 +97,12 @@ class ProcessResolverTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register(mapOf(
-                "carrot_production" to carrotProduction,
-                "salad_production" to saladProduction,
-            ))
+            processTemplates = Register(
+                mapOf(
+                    "carrot_production" to carrotProduction,
+                    "salad_production" to saladProduction,
+                )
+            )
         )
         val resolver = ProcessResolver(symbolTable)
 

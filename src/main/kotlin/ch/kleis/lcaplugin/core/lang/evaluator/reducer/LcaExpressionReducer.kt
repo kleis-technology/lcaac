@@ -34,8 +34,6 @@ class LcaExpressionReducer(
             is ESubstance -> reduceSubstanceExpression(expression)
             is ESubstanceRef -> reduceSubstanceExpression(expression)
 
-            is EProduct -> reduceUnconstrainedProductExpression(expression)
-            is EProductRef -> reduceUnconstrainedProductExpression(expression)
             is EConstrainedProduct -> EConstrainedProduct(
                 reduceUnconstrainedProductExpression(expression.product),
                 expression.constraint.reduceWith(quantityExpressionReducer),
@@ -100,9 +98,6 @@ class LcaExpressionReducer(
                 reduceUnconstrainedProductExpression(expression.product),
                 expression.constraint.reduceWith(quantityExpressionReducer),
             )
-
-            is EProduct -> reduceUnconstrainedProductExpression(expression)
-            is EProductRef -> reduceUnconstrainedProductExpression(expression)
         }
     }
 

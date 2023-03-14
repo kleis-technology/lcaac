@@ -77,15 +77,8 @@ val everyUnitRefInEConstrainedProduct =
     )
 
 val everyUnitRefInProductExpression: PEvery<LcaProductExpression, LcaProductExpression, EUnitRef, UnitExpression> =
-    Merge(
-        listOf(
-            LcaProductExpression.eConstrainedProduct compose
-                    everyUnitRefInEConstrainedProduct,
-            LcaProductExpression.lcaUnconstrainedProductExpression compose
-                    LcaUnconstrainedProductExpression.eProduct compose
-                    everyUnitRefInProduct,
-        )
-    )
+    LcaProductExpression.eConstrainedProduct compose
+            everyUnitRefInEConstrainedProduct
 
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =
     Merge(

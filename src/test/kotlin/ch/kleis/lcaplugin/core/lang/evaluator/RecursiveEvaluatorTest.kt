@@ -26,7 +26,10 @@ class RecursiveEvaluatorTest {
             emptyMap(),
             EProcess(
                 products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
@@ -82,7 +85,10 @@ class RecursiveEvaluatorTest {
             emptyMap(),
             EProcess(
                 products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
@@ -125,7 +131,10 @@ class RecursiveEvaluatorTest {
             emptyMap(),
             EProcess(
                 products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
@@ -183,7 +192,10 @@ class RecursiveEvaluatorTest {
             emptyMap(),
             EProcess(
                 products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
@@ -231,7 +243,10 @@ class RecursiveEvaluatorTest {
             emptyMap(),
             EProcess(
                 products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, EProductRef("salad"))
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        EConstrainedProduct(EProductRef("salad"), None),
+                    )
                 ),
                 inputs = emptyList(),
                 biosphere = listOf(

@@ -14,7 +14,13 @@ sealed interface LcaProductExpression : LcaExpression {
 }
 
 @optics
-sealed interface LcaUnconstrainedProductExpression : LcaProductExpression {
+data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
+    LcaProductExpression {
+    companion object
+}
+
+@optics
+sealed interface LcaUnconstrainedProductExpression {
     companion object
 }
 
@@ -37,11 +43,6 @@ data class EProductRef(val name: String) : LcaUnconstrainedProductExpression, Re
     companion object
 }
 
-@optics
-data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
-    LcaProductExpression {
-    companion object
-}
 
 
 // Substance

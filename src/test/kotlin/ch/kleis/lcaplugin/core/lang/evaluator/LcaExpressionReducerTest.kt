@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
@@ -95,12 +95,15 @@ class LcaExpressionReducerTest {
         // given
         val expression = ETechnoExchange(
             EQuantityRef("q"),
-            EProductRef("carrot")
+            EConstrainedProduct(
+                EProductRef("carrot"),
+                None,
+            )
         )
         val reducer = LcaExpressionReducer(
             productRegister = Register(
                 hashMapOf(
-                    Pair("carrot", ProductFixture.carrot)
+                    Pair("carrot", UnconstrainedProductFixture.carrot)
                 )
             ),
             quantityRegister = Register(
@@ -251,9 +254,12 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenProduct_shouldReduceUnit() {
         // given
-        val expression = EProduct(
-            "carrot",
-            EUnitRef("kg"),
+        val expression = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                EUnitRef("kg"),
+            ),
+            None,
         )
         val reducer = LcaExpressionReducer(
             unitRegister = Register(
@@ -267,9 +273,12 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EProduct(
-            "carrot",
-            UnitFixture.kg,
+        val expected = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                UnitFixture.kg,
+            ),
+            None,
         )
         assertEquals(expected, actual)
     }
@@ -281,7 +290,10 @@ class LcaExpressionReducerTest {
             "carrot",
             EUnitRef("kg"),
         )
-        val expression = EProductRef("carrot")
+        val expression = EConstrainedProduct(
+            EProductRef("carrot"),
+            None,
+        )
         val reducer = LcaExpressionReducer(
             productRegister = Register(
                 hashMapOf(
@@ -299,9 +311,12 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EProduct(
-            "carrot",
-            UnitFixture.kg,
+        val expected = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                UnitFixture.kg,
+            ),
+            None,
         )
         assertEquals(expected, actual)
     }

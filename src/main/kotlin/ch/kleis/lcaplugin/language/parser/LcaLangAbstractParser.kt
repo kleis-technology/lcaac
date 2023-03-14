@@ -161,7 +161,10 @@ class LcaLangAbstractParser(
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
-            productRef(psiExchange.getProductRef()),
+            EConstrainedProduct(
+                productRef(psiExchange.getProductRef()),
+                None,
+            )
         )
     }
 
