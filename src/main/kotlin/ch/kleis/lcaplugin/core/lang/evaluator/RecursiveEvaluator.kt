@@ -7,25 +7,23 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 class RecursiveEvaluator(
     private val symbolTable: SymbolTable,
 ) {
-    private val evaluator = Evaluator(symbolTable)
+    private val reduceAndComplete = ReduceAndComplete(symbolTable)
 
     fun eval(expression: TemplateExpression): SystemValue {
-        val state = aux(State.empty(), expression)
+        val state = recursiveEval(State.empty(), expression)
         return state.asSystem()
     }
 
-    private fun aux(
+    private fun recursiveEval(
         state: State,
         expression: TemplateExpression,
         previousRequest: Request? = null
     ): State {
         // eval
-        val p = evaluator.step(expression)
-        val v = evaluator.asValue(p)
-        if (v !is ProcessValue) {
-            throw EvaluatorException("$v is not a process")
-        }
+        val p = reduceAndComplete.apply(expression)
+        val v = p.toValue()
 
+        // check requested product match provided products
         previousRequest?.let { request ->
             val provided = v.products.map { it.product.name }
             if (!provided.contains(request.product.name)) {
@@ -49,7 +47,7 @@ class RecursiveEvaluator(
                     EBioExchange.substance.eSubstance
         everySubstance.getAll(p).forEach { substance ->
             symbolTable.getSubstanceCharacterization(substance.name)?.let {
-                val scv = evaluator.eval(it)
+                val scv = reduceAndComplete.apply(it).toValue()
                 newState.substanceCharacterizations.add(scv)
             }
         }
@@ -71,7 +69,7 @@ class RecursiveEvaluator(
                 ?: throw EvaluatorException("unbounded template reference $processRef")
             val arguments = constraint.arguments
             newState.add(
-                aux(
+                recursiveEval(
                     newState,
                     EInstance(template, arguments),
                     Request(product, processRef),

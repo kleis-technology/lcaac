@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.evaluator.QuantityExpressionReducer
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 
 @optics
 sealed interface Constraint {

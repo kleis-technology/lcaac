@@ -1,6 +1,7 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlin.math.pow
 

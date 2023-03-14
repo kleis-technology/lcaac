@@ -8,7 +8,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 
-class EvaluatorTest {
+class ReduceAndCompleteTest {
 
     @Test
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
@@ -24,10 +24,10 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(SymbolTable.empty())
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = evaluator.eval(instance)
+        val actual = reduceAndComplete.apply(instance).toValue()
 
         // then
         val expected = ProcessValue(
@@ -52,10 +52,10 @@ class EvaluatorTest {
     fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
         // given
         val template = TemplateFixture.carrotProduction
-        val evaluator = Evaluator(SymbolTable.empty())
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = evaluator.eval(template)
+        val actual = reduceAndComplete.apply(template)
 
         // then
         val expected = ProcessValue(
@@ -80,7 +80,7 @@ class EvaluatorTest {
     fun eval_whenTemplateRef_shouldReadEnv() {
         // given
         val templateRef = ETemplateRef("p")
-        val evaluator = Evaluator(
+        val reduceAndComplete = ReduceAndComplete(
             SymbolTable(
                 processTemplates = Register(
                     hashMapOf(
@@ -91,7 +91,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(templateRef)
+        val actual = reduceAndComplete.apply(templateRef).toValue()
 
         // then
         val expected = ProcessValue(
@@ -116,11 +116,11 @@ class EvaluatorTest {
     fun eval_whenContainsUnboundedReference_shouldThrow() {
         // given
         val template = TemplateFixture.withUnboundedRef
-        val evaluator = Evaluator(SymbolTable.empty())
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when/then
         try {
-            evaluator.eval(template)
+            reduceAndComplete.apply(template)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             assertEquals("unbounded references: [q_carrot, q_water]", e.message)
@@ -136,10 +136,10 @@ class EvaluatorTest {
                 EImpact(QuantityFixture.oneKilogram, EIndicatorRef("cc"))
             )
         )
-        val evaluator = Evaluator(SymbolTable.empty())
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = evaluator.eval(expression)
+        val actual = reduceAndComplete.apply(expression).toValue()
 
         // then
         val expected = SubstanceCharacterizationValue(
