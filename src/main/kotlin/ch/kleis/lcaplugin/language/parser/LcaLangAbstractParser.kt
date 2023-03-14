@@ -277,7 +277,7 @@ class LcaLangAbstractParser(
                 factor, unit(unit.getNext()!!)
             )
 
-            MultiplicativeOperationType.DIV -> EUnitMul(
+            MultiplicativeOperationType.DIV -> EUnitDiv(
                 factor, unit(unit.getNext()!!),
             )
 

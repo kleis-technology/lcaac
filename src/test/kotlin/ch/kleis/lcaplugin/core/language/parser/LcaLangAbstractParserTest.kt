@@ -1,5 +1,7 @@
 package ch.kleis.lcaplugin.core.language.parser
 
+import arrow.optics.dsl.index
+import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
@@ -53,6 +55,142 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 ),
                 biosphere = emptyList(),
             )
+        )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_unitExpression_div() {
+        // given
+        val file = parseFile(
+            "hello", """
+            package hello
+            
+            process a {
+                inputs {
+                    10 x/y water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when
+        val symbolTable = parser.load()
+        val template = symbolTable.getTemplate("a")!!
+        val actual = (
+                TemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                        ETechnoExchange.quantity.eQuantityLiteral.unit
+                ).getOrNull(template)!!
+
+        // then
+        val expected = EUnitDiv(
+            EUnitRef("x"),
+            EUnitRef("y"),
+        )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_unitExpression_mul() {
+        // given
+        val file = parseFile(
+            "hello", """
+            package hello
+            
+            process a {
+                inputs {
+                    10 x * y water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when
+        val symbolTable = parser.load()
+        val template = symbolTable.getTemplate("a")!!
+        val actual = (
+                TemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                        ETechnoExchange.quantity.eQuantityLiteral.unit
+                ).getOrNull(template)!!
+
+        // then
+        val expected = EUnitMul(
+            EUnitRef("x"),
+            EUnitRef("y"),
+        )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_quantityExpression_div() {
+        // given
+        val file = parseFile(
+            "hello", """
+            package hello
+            
+            process a {
+                inputs {
+                    10 x / (20 y) water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when
+        val symbolTable = parser.load()
+        val template = symbolTable.getTemplate("a")!!
+        val actual = (
+                TemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                        ETechnoExchange.quantity
+                ).getOrNull(template)!!
+
+        // then
+        val expected = EQuantityDiv(
+            EQuantityLiteral(10.0, EUnitRef("x")),
+            EQuantityLiteral(20.0, EUnitRef("y"))
+        )
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_quantityExpression_mul() {
+        // given
+        val file = parseFile(
+            "hello", """
+            package hello
+            
+            process a {
+                inputs {
+                    10 x * (20 y) water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when
+        val symbolTable = parser.load()
+        val template = symbolTable.getTemplate("a")!!
+        val actual = (
+                TemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                        ETechnoExchange.quantity
+                ).getOrNull(template)!!
+
+        // then
+        val expected = EQuantityMul(
+            EQuantityLiteral(10.0, EUnitRef("x")),
+            EQuantityLiteral(20.0, EUnitRef("y"))
         )
         TestCase.assertEquals(expected, actual)
     }
