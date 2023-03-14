@@ -1,13 +1,10 @@
 package ch.kleis.lcaplugin
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.util.IconLoader
 
 object LcaIcons {
-    //val FILE = IconLoader.getIcon("META_INF/pluginIcon.svg", LcaIcons::class.java)
+    val FILE = IconLoader.getIcon("pluginIcon.svg", LcaIcons::class.java)
 
-    val FILE = AllIcons.FileTypes.AS
-
-    //val PROJECT = IconLoader.getIcon("META_INF/lca.svg", LcaIcons::class.java)
-
-    val PROJECT = AllIcons.General.ProjectStructure
+    val PROJECT = IconLoader.getIcon("lca.svg", LcaIcons::class.java)
 }
