@@ -110,7 +110,7 @@ class LcaLangAbstractParser(
             .map {
                 EProduct(
                     it.getProductRef().name!!,
-                    unit(it.getQuantity().getUnit())
+                    EUnitOf(quantity(it.getQuantity()))
                 )
             }
     }
@@ -209,13 +209,6 @@ class LcaLangAbstractParser(
 
     private fun productRef(product: PsiProductRef): LcaUnconstrainedProductExpression {
         return EProductRef(product.name!!)
-    }
-
-    private fun quantity(quantityExplicit: PsiQuantityExplicit): QuantityExpression {
-        return EQuantityLiteral(
-            quantityExplicit.getAmount(),
-            unit(quantityExplicit.getUnit()),
-        )
     }
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {

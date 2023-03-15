@@ -1,11 +1,15 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
-import arrow.optics.*
-import arrow.typeclasses.Monoid
+import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
 
 @optics
 sealed interface UnitExpression : Expression {
+    companion object
+}
+
+@optics
+data class EUnitOf(val quantity: QuantityExpression) : UnitExpression {
     companion object
 }
 

@@ -26,6 +26,7 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
             is EUnitPow -> foldMap(M, source.unit, map)
             is EUnitLiteral -> M.empty()
             is EUnitRef -> map(source)
+            is EUnitOf -> TODO()
         }
     }
 
@@ -48,6 +49,7 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
             )
 
             is EUnitRef -> map(source)
+            is EUnitOf -> TODO()
         }
     }
 }

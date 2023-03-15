@@ -11,6 +11,7 @@ class QuantityExpressionReducer(
 ) : Reducer<QuantityExpression> {
     private val quantityRegister = Register(quantityRegister)
     private val unitExpressionReducer = UnitExpressionReducer(unitRegister)
+
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
             is EQuantityAdd -> reduceAdd(expression)
@@ -21,6 +22,19 @@ class QuantityExpressionReducer(
             is EQuantityLiteral -> reduceLiteral(expression)
             is EQuantityRef -> reduceRef(expression)
             is EQuantityNeg -> reduceNeg(expression)
+        }
+    }
+
+    fun reduceUnit(expression: UnitExpression): UnitExpression {
+        return when(val u = unitExpressionReducer.reduce(expression)) {
+            is EUnitOf -> {
+                val q = reduce(u.quantity)
+                when (q) {
+                    is EQuantityLiteral -> q.unit
+                    else -> EUnitOf(q)
+                }
+            }
+            else -> u
         }
     }
 
@@ -40,8 +54,9 @@ class QuantityExpressionReducer(
 
     private fun reduceLiteral(expression: EQuantityLiteral) = EQuantityLiteral(
         expression.amount,
-        unitExpressionReducer.reduce(expression.unit)
+        reduceUnit(expression.unit)
     )
+
 
     private fun reducePow(expression: EQuantityPow): QuantityExpression {
         val quantity = reduce(expression.quantity)
@@ -51,7 +66,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             quantity.amount.pow(exponent),
-            unitExpressionReducer.reduce(EUnitPow(quantity.unit, exponent))
+            reduceUnit(EUnitPow(quantity.unit, exponent))
         )
     }
 
@@ -74,7 +89,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             left.amount / right.amount,
-            unitExpressionReducer.reduce(EUnitDiv(leftUnit, rightUnit)),
+            reduceUnit(EUnitDiv(leftUnit, rightUnit)),
         )
     }
 
@@ -97,7 +112,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             left.amount * right.amount,
-            unitExpressionReducer.reduce(EUnitMul(leftUnit, rightUnit)),
+            reduceUnit(EUnitMul(leftUnit, rightUnit)),
         )
     }
 

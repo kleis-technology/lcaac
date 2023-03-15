@@ -16,7 +16,6 @@ class LcaExpressionReducer(
     private val indicatorRegister = Register(indicatorRegister)
     private val substanceCharacterizationRegister = Register(substanceCharacterizationRegister)
 
-    private val unitExpressionReducer = UnitExpressionReducer(unitRegister)
     private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
@@ -86,7 +85,7 @@ class LcaExpressionReducer(
 
     private fun reduceUnconstrainedProductExpression(expression: LcaUnconstrainedProductExpression): LcaUnconstrainedProductExpression {
         return when (expression) {
-            is EProduct -> EProduct(expression.name, unitExpressionReducer.reduce(expression.referenceUnit))
+            is EProduct -> EProduct(expression.name, quantityExpressionReducer.reduceUnit(expression.referenceUnit))
             is EProductRef -> productRegister[expression.name]?.let { reduceUnconstrainedProductExpression(it) }
                 ?: expression
         }
@@ -107,7 +106,7 @@ class LcaExpressionReducer(
                 expression.name,
                 expression.compartment,
                 expression.subcompartment,
-                unitExpressionReducer.reduce(expression.referenceUnit),
+                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
             )
 
             is ESubstanceRef -> substanceRegister[expression.name]?.let { reduceSubstanceExpression(it) }
@@ -119,7 +118,7 @@ class LcaExpressionReducer(
         return when (expression) {
             is EIndicator -> EIndicator(
                 expression.name,
-                unitExpressionReducer.reduce(expression.referenceUnit),
+                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
             )
 
             is EIndicatorRef -> indicatorRegister[expression.name]?.let { reduceIndicatorExpression(it) }

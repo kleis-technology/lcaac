@@ -4,8 +4,11 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlin.math.pow
 
-class UnitExpressionReducer(unitRegister: Register<UnitExpression>) : Reducer<UnitExpression> {
+internal class UnitExpressionReducer(
+    unitRegister: Register<UnitExpression>
+) : Reducer<UnitExpression> {
     private val unitRegister = Register(unitRegister)
+
     override fun reduce(expression: UnitExpression): UnitExpression {
         return when (expression) {
             is EUnitLiteral -> reduceLiteral(expression)
@@ -13,6 +16,7 @@ class UnitExpressionReducer(unitRegister: Register<UnitExpression>) : Reducer<Un
             is EUnitMul -> reduceMul(expression)
             is EUnitPow -> reducePow(expression)
             is EUnitRef -> reduceRef(expression)
+            is EUnitOf -> expression
         }
     }
 

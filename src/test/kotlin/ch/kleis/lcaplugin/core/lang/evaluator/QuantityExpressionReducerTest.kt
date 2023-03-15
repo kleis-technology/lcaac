@@ -4,12 +4,32 @@ import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
+import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 
 class QuantityExpressionReducerTest {
+
+    @Test
+    fun reduce_whenLiteralWithUnitOf_shouldReduce() {
+        // given
+        val innerQuantity = QuantityFixture.twoKilograms
+        val unit = EUnitOf(innerQuantity)
+        val quantity = EQuantityLiteral(1.0, unit)
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduce(quantity)
+
+        // then
+        val expected = EQuantityLiteral(1.0, UnitFixture.kg)
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun reduce_whenLiteral_shouldReduceUnit() {

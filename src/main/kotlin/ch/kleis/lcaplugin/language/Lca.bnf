@@ -223,7 +223,7 @@ fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_assig
 private comma_sep_assignments ::= assignment (COMA assignment)* COMA?
 
 
-technoProductExchange ::= quantityExplicit productRef {
+technoProductExchange ::= quantity productRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
 }
@@ -260,11 +260,6 @@ quantityFactor ::= quantityPrimitive (HAT NUMBER)? {
 quantityPrimitive ::= NUMBER unit | LPAREN quantity RPAREN | quantityRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityPrimitiveMixin"
-}
-
-quantityExplicit ::= NUMBER unit {
-    implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityExplicit"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityExplicitMixin"
 }
 
 /*

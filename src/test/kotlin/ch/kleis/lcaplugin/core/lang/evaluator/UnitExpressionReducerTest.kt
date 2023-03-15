@@ -4,12 +4,27 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.UnitExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
+import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.pow
 
 class UnitExpressionReducerTest {
+    @Test
+    fun reduce_whenUnitOf_shouldDoNothing() {
+        // given
+        val quantity = QuantityFixture.twoKilograms
+        val unit = EUnitOf(quantity)
+        val reducer = UnitExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(unit)
+
+        // then
+        assertEquals(unit, actual)
+    }
+
     @Test
     fun reduce_whenLiteral_shouldReturnSame() {
         // given

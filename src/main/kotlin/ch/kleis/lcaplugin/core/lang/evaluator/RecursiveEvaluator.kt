@@ -11,26 +11,26 @@ class RecursiveEvaluator(
     private val processResolver = ProcessResolver(symbolTable)
 
     fun eval(expression: TemplateExpression): SystemValue {
-        val state = recursiveEval(State.empty(), expression)
+        val state = State.empty()
+        recursiveEval(state, expression)
         return state.asSystem()
     }
 
     private fun recursiveEval(
         state: State,
         expression: TemplateExpression,
-    ): State {
+    ) {
         // eval
         val p = reduceAndComplete.apply(expression)
         val v = p.toValue()
 
         // termination condition
         if (state.containsProcess(v)) {
-            return state
+            return
         }
 
         // add evaluated process
-        val newState = State(state)
-        newState.addProcess(v)
+        state.addProcess(v)
 
         // add substance characterizations
         val everySubstance =
@@ -40,7 +40,7 @@ class RecursiveEvaluator(
         everySubstance.getAll(p).forEach { substance ->
             symbolTable.getSubstanceCharacterization(substance.name)?.let {
                 val scv = reduceAndComplete.apply(it).toValue()
-                newState.addSubstanceCharacterization(scv)
+                state.addSubstanceCharacterization(scv)
             }
         }
 
@@ -51,23 +51,20 @@ class RecursiveEvaluator(
                     ETechnoExchange.product.eConstrainedProduct
 
         for (it in everyConstrainedProduct.getAll(p)) {
-            val candidates = resolveAndCheckCandidates(it)
-            val template = candidates.firstOrNull()?.second ?: continue
+            val candidate = resolveAndCheckCandidates(it)
+            val template = candidate?.second ?: continue
             val arguments = when (it.constraint) {
                 is FromProcessRef -> it.constraint.arguments
                 None -> emptyMap()
             }
-            newState.addState(
-                recursiveEval(
-                    newState,
-                    EInstance(template, arguments),
-                )
+            recursiveEval(
+                state,
+                EInstance(template, arguments),
             )
         }
-        return newState
     }
 
-    private fun resolveAndCheckCandidates(product: EConstrainedProduct): Set<Pair<String, TemplateExpression>> {
+    private fun resolveAndCheckCandidates(product: EConstrainedProduct): Pair<String, TemplateExpression>? {
         val eProduct = product.product as EProduct
         return when (product.constraint) {
             is FromProcessRef -> {
@@ -80,7 +77,7 @@ class RecursiveEvaluator(
                 val candidate = candidates
                     .firstOrNull { it.first == processRef }
                     ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
-                return setOf(candidate)
+                return candidate
             }
 
             None -> {
@@ -89,7 +86,7 @@ class RecursiveEvaluator(
                     val candidateNames = candidates.map { it.first }
                     throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
                 }
-                candidates
+                candidates.firstOrNull()
             }
         }
     }

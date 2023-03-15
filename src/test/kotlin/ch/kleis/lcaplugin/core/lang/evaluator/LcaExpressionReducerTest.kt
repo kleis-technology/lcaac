@@ -9,6 +9,39 @@ import org.junit.Test
 
 class LcaExpressionReducerTest {
     @Test
+    fun reduce_whenExchangeWithEUnitOf_shouldReduce() {
+        // given
+        val innerQuantity = QuantityFixture.twoKilograms
+        val unit = EUnitOf(innerQuantity)
+        val quantity = EQuantityLiteral(1.0, unit)
+        val reducer = LcaExpressionReducer()
+        val exchange = ETechnoExchange(
+            quantity,
+            EConstrainedProduct(
+                EProduct(
+                    "carrot",
+                    unit
+                ), None
+            )
+        )
+
+        // when
+        val actual = reducer.reduce(exchange)
+
+        // then
+        val expected = ETechnoExchange(
+            EQuantityLiteral(1.0, UnitFixture.kg),
+            EConstrainedProduct(
+                EProduct(
+                    "carrot",
+                    UnitFixture.kg,
+                ), None
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun reduce_whenProcess_shouldReduceExchanges() {
         // given
         val expression = EProcess(
