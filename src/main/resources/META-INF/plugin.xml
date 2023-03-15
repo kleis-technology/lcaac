@@ -16,9 +16,6 @@
     </description>
     <xi:include href="/META-INF/tips-kleis-1.xml"/>
 
-    <depends>com.intellij.modules.platform</depends>
-    <depends>com.intellij.modules.lang</depends>
-
     <extensions defaultExtensionNs="com.intellij">
 
         <moduleType
