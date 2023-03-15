@@ -18,19 +18,10 @@ class RecursiveEvaluator(
     private fun recursiveEval(
         state: State,
         expression: TemplateExpression,
-        previousRequest: Request? = null
     ): State {
         // eval
         val p = reduceAndComplete.apply(expression)
         val v = p.toValue()
-
-        // check requested product match provided products
-        previousRequest?.let { request ->
-            val provided = v.products.map { it.product.name }
-            if (!provided.contains(request.product.name)) {
-                throw EvaluatorException("${request.product.name} does not match any product of ${request.processRef}")
-            }
-        }
 
         // termination condition
         if (state.processes.contains(v)) {
@@ -60,48 +51,47 @@ class RecursiveEvaluator(
                     ETechnoExchange.product.eConstrainedProduct
 
         for (it in everyConstrainedProduct.getAll(p)) {
-            val product = it.product as EProduct
-            when (val constraint = it.constraint) {
-                is FromProcessRef -> {
-                    resolveAndCheckCandidates(product)
-                    val processRef = constraint.template.name
-                    val template = symbolTable.getTemplate(processRef)
-                        ?: throw EvaluatorException("unbounded template reference $processRef")
-
-                    val arguments = constraint.arguments
-                    newState.add(
-                        recursiveEval(
-                            newState,
-                            EInstance(template, arguments),
-                            Request(product, processRef),
-                        )
-                    )
-                }
-
-                None -> {
-                    val candidates = resolveAndCheckCandidates(product)
-                    val template = candidates.firstOrNull()?.second ?: continue
-                    val arguments = emptyMap<String, QuantityExpression>()
-                    newState.add(
-                        recursiveEval(
-                            newState,
-                            EInstance(template, arguments),
-                            Request(product, null),
-                        )
-                    )
-                }
+            val candidates = resolveAndCheckCandidates(it)
+            val template = candidates.firstOrNull()?.second ?: continue
+            val arguments = when (it.constraint) {
+                is FromProcessRef -> it.constraint.arguments
+                None -> emptyMap()
             }
+            newState.add(
+                recursiveEval(
+                    newState,
+                    EInstance(template, arguments),
+                )
+            )
         }
         return newState
     }
 
-    private fun resolveAndCheckCandidates(product: EProduct): Set<Pair<String, TemplateExpression>> {
-        val candidates = processResolver.resolve(product.name)
-        if (candidates.size > 1) {
-            val candidateNames = candidates.map { it.first }
-            throw EvaluatorException("more than one process produces ${product.name} : $candidateNames")
+    private fun resolveAndCheckCandidates(product: EConstrainedProduct): Set<Pair<String, TemplateExpression>> {
+        val eProduct = product.product as EProduct
+        return when (product.constraint) {
+            is FromProcessRef -> {
+                val processRef = product.constraint.template.name
+                val candidates = processResolver.resolve(eProduct.name)
+                if (candidates.size > 1) {
+                    val candidateNames = candidates.map { it.first }
+                    throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
+                }
+                val candidate = candidates
+                    .firstOrNull { it.first == processRef }
+                    ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
+                return setOf(candidate)
+            }
+
+            None -> {
+                val candidates = processResolver.resolve(eProduct.name)
+                if (candidates.size > 1) {
+                    val candidateNames = candidates.map { it.first }
+                    throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
+                }
+                candidates
+            }
         }
-        return candidates
     }
 
     class State(
@@ -131,10 +121,5 @@ class RecursiveEvaluator(
             )
         }
     }
-
-    data class Request(
-        val product: EProduct,
-        val processRef: String?,
-    )
 }
 

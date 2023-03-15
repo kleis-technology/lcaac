@@ -110,7 +110,7 @@ class RecursiveEvaluatorTest {
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             assertEquals(
-                "more than one process produces carrot : [carrot_production, carrot_production_bis]",
+                "more than one process produces 'carrot' : [carrot_production, carrot_production_bis]",
                 e.message
             )
         }
@@ -160,7 +160,7 @@ class RecursiveEvaluatorTest {
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             assertEquals(
-                "more than one process produces carrot : [carrot_production, carrot_production_bis]",
+                "more than one process produces 'carrot' : [carrot_production, carrot_production_bis]",
                 e.message
             )
         }
@@ -269,7 +269,7 @@ class RecursiveEvaluatorTest {
             recursiveEvaluator.eval(expression)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("irrelevant_product does not match any product of carrot_production", e.message)
+            assertEquals("no process 'carrot_production' providing 'irrelevant_product' found", e.message)
         }
     }
 
