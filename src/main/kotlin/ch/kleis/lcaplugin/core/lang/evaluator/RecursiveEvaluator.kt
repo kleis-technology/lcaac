@@ -24,13 +24,13 @@ class RecursiveEvaluator(
         val v = p.toValue()
 
         // termination condition
-        if (state.processes.contains(v)) {
+        if (state.containsProcess(v)) {
             return state
         }
 
         // add evaluated process
         val newState = State(state)
-        newState.processes.add(v)
+        newState.addProcess(v)
 
         // add substance characterizations
         val everySubstance =
@@ -40,7 +40,7 @@ class RecursiveEvaluator(
         everySubstance.getAll(p).forEach { substance ->
             symbolTable.getSubstanceCharacterization(substance.name)?.let {
                 val scv = reduceAndComplete.apply(it).toValue()
-                newState.substanceCharacterizations.add(scv)
+                newState.addSubstanceCharacterization(scv)
             }
         }
 
@@ -57,7 +57,7 @@ class RecursiveEvaluator(
                 is FromProcessRef -> it.constraint.arguments
                 None -> emptyMap()
             }
-            newState.add(
+            newState.addState(
                 recursiveEval(
                     newState,
                     EInstance(template, arguments),
@@ -95,8 +95,8 @@ class RecursiveEvaluator(
     }
 
     class State(
-        val processes: MutableSet<ProcessValue> = HashSet(),
-        val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet(),
+        private val processes: MutableSet<ProcessValue> = HashSet(),
+        private val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet(),
     ) {
         constructor(state: State) : this(
             HashSet(state.processes),
@@ -109,7 +109,19 @@ class RecursiveEvaluator(
             }
         }
 
-        fun add(state: State) {
+        fun containsProcess(process: ProcessValue) : Boolean {
+            return processes.contains(process)
+        }
+
+        fun addProcess(process: ProcessValue) {
+            processes.add(process)
+        }
+
+        fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue) {
+            substanceCharacterizations.add(substanceCharacterization)
+        }
+
+        fun addState(state: State) {
             processes.addAll(state.processes)
             substanceCharacterizations.addAll(state.substanceCharacterizations)
         }
