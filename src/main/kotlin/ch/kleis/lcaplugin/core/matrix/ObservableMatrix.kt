@@ -37,7 +37,7 @@ class ObservableMatrix(
                 .filter { ports.contains(it.substance) }
                 .forEach {
                     val col = ports.indexOf(it.substance)
-                    matrix.add(row, col, it.quantity.referenceValue())
+                    matrix.add(row, col, -it.quantity.referenceValue())
                 }
         }
 
