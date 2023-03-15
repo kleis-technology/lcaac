@@ -1,14 +1,52 @@
 package ch.kleis.lcaplugin.core.lang.expression.optics
 
-import ch.kleis.lcaplugin.core.lang.expression.EUnitDiv
-import ch.kleis.lcaplugin.core.lang.expression.EUnitMul
-import ch.kleis.lcaplugin.core.lang.expression.EUnitPow
-import ch.kleis.lcaplugin.core.lang.expression.EUnitRef
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class UnitExpressionTest {
+    @Test
+    fun optics_unitReferences_whenUnitOfQuantity_shouldGetAll() {
+        // given
+        val quantity = EQuantityLiteral(
+            1.0,
+            EUnitRef("a"),
+        )
+        val expression = EUnitOf(quantity)
+
+        // when
+        val actual = everyUnitRefInUnitExpression.getAll(expression)
+
+        // then
+        val expected = listOf(EUnitRef("a"))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun optics_unitReferences_whenUnitOfQuantity_shouldModify() {
+        // given
+        val quantity = EQuantityLiteral(
+            1.0,
+            EUnitRef("a"),
+        )
+        val expression = EUnitOf(quantity)
+
+        // when
+        val actual = everyUnitRefInUnitExpression.modify(expression) {
+            EUnitRef("b")
+        }
+
+        // then
+        val expected = EUnitOf(
+            EQuantityLiteral(
+                1.0,
+                EUnitRef("b")
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
     @Test
     fun optics_unitReferences_shouldGetAll() {
         // given
