@@ -34,6 +34,7 @@ class Register<E>(
     private val data = HashMap(data)
 
     constructor(register: Register<E>) : this(register.data)
+    constructor(vararg pairs: Pair<String, E>) : this(mapOf(*pairs))
 
     companion object {
         fun <E> empty(): Register<E> {

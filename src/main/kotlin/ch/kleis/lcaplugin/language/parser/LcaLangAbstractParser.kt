@@ -27,6 +27,15 @@ class LcaLangAbstractParser(
             .flatMap { it.getAssignments().entries }
             .associate { it.key to quantity(it.value) }
 
+        val units = Register(Prelude.units)
+        files
+            .flatMap { it.getUnitLiterals() }
+            .filter { it.getUid() != null }
+            .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
+            .forEach {
+                units[it.key] = it.value
+            }
+
         val templates = files
             .flatMap { it.getProcesses() }
             .filter { it.getUid() != null }
@@ -34,7 +43,7 @@ class LcaLangAbstractParser(
 
         val products = files
             .flatMap { it.getProcesses() }
-            .flatMap { productsOf(it) }
+            .flatMap { productsOf(it, globals, units) }
             .associateBy { it.name }
 
         val substances = files
@@ -46,14 +55,6 @@ class LcaLangAbstractParser(
             .filter { it.hasImpacts() }
             .associate { Pair(it.getUid().name!!, substanceCharacterization(it)) }
 
-        val units = Register(Prelude.units)
-        files
-            .flatMap { it.getUnitLiterals() }
-            .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
-            .forEach {
-                units[it.key] = it.value
-            }
 
         return SymbolTable(
             quantities = Register(globals),
@@ -105,12 +106,18 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun productsOf(psiProcess: PsiProcess): List<EProduct> {
+    private fun productsOf(psiProcess: PsiProcess, globals: Map<String, QuantityExpression>, units: Map<String, UnitExpression>): List<EProduct> {
+        val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
+        val params = psiProcess.getParameters().mapValues { quantity(it.value) }
+        val symbolTable = SymbolTable(
+            quantities = Register(globals.plus(params).plus(locals)),
+            units = Register(units),
+        )
         return psiProcess.getProducts()
             .map {
                 EProduct(
                     it.getProductRef().name!!,
-                    EUnitOf(quantity(it.getQuantity()))
+                    EUnitClosure(symbolTable, EUnitOf(quantity(it.getQuantity())))
                 )
             }
     }

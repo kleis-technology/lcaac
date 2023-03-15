@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 
 @optics
 sealed interface UnitExpression : Expression {
@@ -10,6 +11,11 @@ sealed interface UnitExpression : Expression {
 
 @optics
 data class EUnitOf(val quantity: QuantityExpression) : UnitExpression {
+    companion object
+}
+
+@optics
+data class EUnitClosure(val symbolTable: SymbolTable, val expression: UnitExpression): UnitExpression {
     companion object
 }
 

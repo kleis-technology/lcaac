@@ -9,8 +9,12 @@ import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
+import kotlin.math.pow
 
 class QuantityExpressionReducerTest {
+    /*
+        QUANTITIES
+     */
 
     @Test
     fun reduce_whenLiteralWithUnitOf_shouldReduce() {
@@ -211,5 +215,153 @@ class QuantityExpressionReducerTest {
         // then
         val expected = EQuantityLiteral(1.0, UnitFixture.kg)
         assertEquals(expected, actual)
+    }
+
+    /*
+        UNITS
+     */
+
+    @Test
+    fun reduce_whenUnitOf_shouldReduceQuantity() {
+        // given
+        val quantity = QuantityFixture.twoKilograms
+        val unit = EUnitOf(quantity)
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduceUnit(unit)
+
+        // then
+        val expected = UnitFixture.kg
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenUnitClosure_shouldReduceWithGivenTable() {
+        // given
+        val symbolTable = SymbolTable(
+            units = Register(
+                "a" to UnitFixture.kg
+            )
+        )
+        val unit = EUnitClosure(symbolTable, EUnitRef("a"))
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register(
+                "a" to UnitFixture.l
+            )
+        )
+
+        // when
+        val actual = reducer.reduceUnit(unit)
+        
+        // then
+        val expected = UnitFixture.kg
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenLiteral_shouldReturnSame() {
+        // given
+        val kg = UnitFixture.kg
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduceUnit(kg)
+
+        // then
+        assertEquals(kg, actual)
+    }
+
+    @Test
+    fun reduce_whenDiv_shouldDivide() {
+        // given
+        val kg = UnitFixture.kg
+        val l = UnitFixture.l
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduceUnit(EUnitDiv(kg, l))
+
+        // then
+        val expected = EUnitLiteral(
+            "kg/l",
+            1.0 / 1.0e-3,
+            DimensionFixture.mass.divide(DimensionFixture.volume),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenMul_shouldMultiply() {
+        // given
+        val kg = UnitFixture.kg
+        val l = UnitFixture.l
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduceUnit(EUnitMul(kg, l))
+
+        // then
+        val expected = EUnitLiteral(
+            "kg.l",
+            1.0 * 1.0e-3,
+            DimensionFixture.mass.multiply(DimensionFixture.volume),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenPow_shouldPow() {
+        // given
+        val m = UnitFixture.m
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduceUnit(EUnitPow(m, 2.0))
+
+        // then
+        val expected = EUnitLiteral(
+            "m^(2.0)",
+            1.0.pow(2.0),
+            DimensionFixture.length.pow(2.0),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenRef_shouldReadEnv() {
+        // given
+        val ref = EUnitRef("kg")
+        val units = Register<UnitExpression>(
+            hashMapOf(
+                Pair("kg", UnitFixture.kg)
+            )
+        )
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            units,
+        )
+
+        // when
+        val actual = reducer.reduceUnit(ref)
+
+        // then
+        assertEquals(UnitFixture.kg, actual)
     }
 }
