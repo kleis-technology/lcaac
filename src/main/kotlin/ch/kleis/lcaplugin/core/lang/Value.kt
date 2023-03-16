@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.HasUID
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 sealed interface Value
 
@@ -77,18 +78,35 @@ data class GenericExchangeValue(
 }
 
 data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue) : ExchangeValue {
+    init {
+        if (quantity.unit.dimension != product.referenceUnit.dimension) {
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${product.referenceUnit.dimension}")
+        }
+    }
     override fun quantity(): QuantityValue {
         return quantity
     }
 }
 
 data class BioExchangeValue(val quantity: QuantityValue, val substance: SubstanceValue) : ExchangeValue {
+    init {
+        if (quantity.unit.dimension != substance.referenceUnit.dimension) {
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${substance.referenceUnit.dimension}")
+        }
+    }
+
     override fun quantity(): QuantityValue {
         return quantity
     }
 }
 
 data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValue) : ExchangeValue {
+    init {
+        if (quantity.unit.dimension != indicator.referenceUnit.dimension) {
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${indicator.referenceUnit.dimension}")
+        }
+    }
+
     override fun quantity(): QuantityValue {
         return quantity
     }

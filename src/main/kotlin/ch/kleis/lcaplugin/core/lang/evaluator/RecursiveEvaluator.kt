@@ -74,10 +74,9 @@ class RecursiveEvaluator(
                     val candidateNames = candidates.map { it.first }
                     throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
                 }
-                val candidate = candidates
+                return candidates
                     .firstOrNull { it.first == processRef }
                     ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
-                return candidate
             }
 
             None -> {
@@ -91,14 +90,9 @@ class RecursiveEvaluator(
         }
     }
 
-    class State(
-        private val processes: MutableSet<ProcessValue> = HashSet(),
-        private val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet(),
-    ) {
-        constructor(state: State) : this(
-            HashSet(state.processes),
-            HashSet(state.substanceCharacterizations),
-        )
+    class State {
+        private val processes: MutableSet<ProcessValue> = HashSet()
+        private val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet()
 
         companion object {
             fun empty(): State {
@@ -106,7 +100,7 @@ class RecursiveEvaluator(
             }
         }
 
-        fun containsProcess(process: ProcessValue) : Boolean {
+        fun containsProcess(process: ProcessValue): Boolean {
             return processes.contains(process)
         }
 
@@ -116,11 +110,6 @@ class RecursiveEvaluator(
 
         fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue) {
             substanceCharacterizations.add(substanceCharacterization)
-        }
-
-        fun addState(state: State) {
-            processes.addAll(state.processes)
-            substanceCharacterizations.addAll(state.substanceCharacterizations)
         }
 
         fun asSystem(): SystemValue {
