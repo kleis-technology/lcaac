@@ -91,8 +91,7 @@ substance ::= SUBSTANCE_KEYWORD uid LBRACE
     compartmentField
     subCompartmentField?
     referenceUnitField
-    block_impacts?
-    block_meta?
+    ( block_impacts | block_meta )*
     RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiSubstance"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
@@ -154,6 +153,7 @@ LBRACE (
     | block_inputs
     | block_emissions
     | block_resources
+    | block_meta
     )* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
