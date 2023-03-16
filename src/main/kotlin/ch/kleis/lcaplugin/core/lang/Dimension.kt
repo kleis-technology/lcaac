@@ -37,7 +37,7 @@ class Dimension(elements: Map<String, Double>) {
         val es = HashMap<String, Double>(elements)
         other.elements.entries.forEach { entry ->
             es[entry.key] = es[entry.key]?.let { it - entry.value }
-                ?: entry.value
+                ?: (-entry.value)
         }
         return Dimension(es)
     }

@@ -1,16 +1,14 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
-import ch.kleis.lcaplugin.core.lang.expression.EInstance
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityAdd
-import ch.kleis.lcaplugin.core.lang.expression.ETemplateRef
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 
 
-class EvaluatorTest {
+class ReduceAndCompleteTest {
 
     @Test
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
@@ -26,10 +24,10 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator()
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = evaluator.eval(instance)
+        val actual = reduceAndComplete.apply(instance).toValue()
 
         // then
         val expected = ProcessValue(
@@ -51,13 +49,54 @@ class EvaluatorTest {
     }
 
     @Test
+    fun eval_withUnknownSubstances_shouldCompleteSubstances() {
+        // given
+        val template = EProcessTemplate(
+            params = emptyMap(),
+            locals = emptyMap(),
+            body = EProcess(
+                products = emptyList(),
+                inputs = emptyList(),
+                biosphere = listOf(
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("co2"))
+                ),
+            )
+        )
+        val instance = EInstance(
+            template, emptyMap()
+        )
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
+
+        // when
+        val actual = reduceAndComplete.apply(instance).toValue()
+
+        // then
+        val expected = ProcessValue(
+            emptyList(),
+            emptyList(),
+            listOf(
+                BioExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    SubstanceValue(
+                        "co2",
+                        "__unknown__",
+                        null,
+                        UnitValueFixture.kg,
+                    )
+                )
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
         // given
         val template = TemplateFixture.carrotProduction
-        val evaluator = Evaluator()
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when
-        val actual = evaluator.eval(template)
+        val actual = reduceAndComplete.apply(template).toValue()
 
         // then
         val expected = ProcessValue(
@@ -82,7 +121,7 @@ class EvaluatorTest {
     fun eval_whenTemplateRef_shouldReadEnv() {
         // given
         val templateRef = ETemplateRef("p")
-        val evaluator = Evaluator(
+        val reduceAndComplete = ReduceAndComplete(
             SymbolTable(
                 processTemplates = Register(
                     hashMapOf(
@@ -93,7 +132,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(templateRef)
+        val actual = reduceAndComplete.apply(templateRef).toValue()
 
         // then
         val expected = ProcessValue(
@@ -118,14 +157,41 @@ class EvaluatorTest {
     fun eval_whenContainsUnboundedReference_shouldThrow() {
         // given
         val template = TemplateFixture.withUnboundedRef
-        val evaluator = Evaluator()
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when/then
         try {
-            evaluator.eval(template)
+            reduceAndComplete.apply(template)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             assertEquals("unbounded references: [q_carrot, q_water]", e.message)
         }
+    }
+
+    @Test
+    fun eval_whenSubstanceCharacterization_shouldCompleteIndicator() {
+        // given
+        val expression = ESubstanceCharacterization(
+            EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
+            listOf(
+                EImpact(QuantityFixture.oneKilogram, EIndicatorRef("cc"))
+            )
+        )
+        val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
+
+        // when
+        val actual = reduceAndComplete.apply(expression).toValue()
+
+        // then
+        val expected = SubstanceCharacterizationValue(
+            BioExchangeValue(QuantityValueFixture.oneKilogram, SubstanceValueFixture.propanol),
+            listOf(
+                ImpactValue(
+                    QuantityValueFixture.oneKilogram,
+                    IndicatorValue("cc", UnitValueFixture.kg)
+                )
+            )
+        )
+        assertEquals(expected, actual)
     }
 }

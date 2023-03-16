@@ -1,6 +1,7 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlin.math.pow
 
@@ -8,8 +9,9 @@ class QuantityExpressionReducer(
     quantityRegister: Register<QuantityExpression>,
     unitRegister: Register<UnitExpression>,
 ) : Reducer<QuantityExpression> {
+    private val unitRegister = Register(unitRegister)
     private val quantityRegister = Register(quantityRegister)
-    private val unitExpressionReducer = UnitExpressionReducer(unitRegister)
+
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
             is EQuantityAdd -> reduceAdd(expression)
@@ -20,6 +22,27 @@ class QuantityExpressionReducer(
             is EQuantityLiteral -> reduceLiteral(expression)
             is EQuantityRef -> reduceRef(expression)
             is EQuantityNeg -> reduceNeg(expression)
+        }
+    }
+
+    fun reduceUnit(expression: UnitExpression): UnitExpression {
+        return when(expression) {
+            is EUnitClosure -> {
+                val reducer = QuantityExpressionReducer(
+                    expression.symbolTable.quantities,
+                    expression.symbolTable.units,
+                )
+                return reducer.reduceUnit(expression.expression)
+            }
+            is EUnitDiv -> reduceDiv(expression)
+            is EUnitLiteral -> reduceLiteral(expression)
+            is EUnitMul -> reduceMul(expression)
+            is EUnitOf -> when (val q = reduce(expression.quantity)) {
+                is EQuantityLiteral -> q.unit
+                else -> EUnitOf(q)
+            }
+            is EUnitPow -> reducePow(expression)
+            is EUnitRef -> reduceRef(expression)
         }
     }
 
@@ -39,8 +62,9 @@ class QuantityExpressionReducer(
 
     private fun reduceLiteral(expression: EQuantityLiteral) = EQuantityLiteral(
         expression.amount,
-        unitExpressionReducer.reduce(expression.unit)
+        reduceUnit(expression.unit)
     )
+
 
     private fun reducePow(expression: EQuantityPow): QuantityExpression {
         val quantity = reduce(expression.quantity)
@@ -50,7 +74,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             quantity.amount.pow(exponent),
-            unitExpressionReducer.reduce(EUnitPow(quantity.unit, exponent))
+            reduceUnit(EUnitPow(quantity.unit, exponent))
         )
     }
 
@@ -73,7 +97,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             left.amount / right.amount,
-            unitExpressionReducer.reduce(EUnitDiv(leftUnit, rightUnit)),
+            reduceUnit(EUnitDiv(leftUnit, rightUnit)),
         )
     }
 
@@ -96,7 +120,7 @@ class QuantityExpressionReducer(
         }
         return EQuantityLiteral(
             left.amount * right.amount,
-            unitExpressionReducer.reduce(EUnitMul(leftUnit, rightUnit)),
+            reduceUnit(EUnitMul(leftUnit, rightUnit)),
         )
     }
 
@@ -159,4 +183,55 @@ class QuantityExpressionReducer(
             resultUnit,
         )
     }
+
+    private fun reduceRef(expression: EUnitRef) =
+        (unitRegister[expression.name]?.let { reduceUnit(it) }
+            ?: expression)
+
+    private fun reducePow(expression: EUnitPow): UnitExpression {
+        val unit = reduceUnit(expression.unit)
+        val exponent = expression.exponent
+        if (unit !is EUnitLiteral) {
+            return EUnitPow(unit, exponent)
+        }
+        return EUnitLiteral(
+            "${unit.symbol}^($exponent)",
+            unit.scale.pow(exponent),
+            unit.dimension.pow(exponent),
+        )
+    }
+
+    private fun reduceMul(expression: EUnitMul): UnitExpression {
+        val left = reduceUnit(expression.left)
+        val right = reduceUnit(expression.right)
+        if (left !is EUnitLiteral) {
+            return EUnitMul(left, right)
+        }
+        if (right !is EUnitLiteral) {
+            return EUnitMul(left, right)
+        }
+        return EUnitLiteral(
+            "${left.symbol}.${right.symbol}",
+            left.scale * right.scale,
+            left.dimension.multiply(right.dimension)
+        )
+    }
+
+    private fun reduceDiv(expression: EUnitDiv): UnitExpression {
+        val left = reduceUnit(expression.left)
+        val right = reduceUnit(expression.right)
+        if (left !is EUnitLiteral) {
+            return EUnitDiv(left, right)
+        }
+        if (right !is EUnitLiteral) {
+            return EUnitDiv(left, right)
+        }
+        return EUnitLiteral(
+            "${left.symbol}/${right.symbol}",
+            left.scale / right.scale,
+            left.dimension.divide(right.dimension)
+        )
+    }
+
+    private fun reduceLiteral(expression: UnitExpression) = expression
 }

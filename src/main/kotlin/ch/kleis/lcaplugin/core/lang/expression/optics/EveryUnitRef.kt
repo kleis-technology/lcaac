@@ -26,6 +26,8 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
             is EUnitPow -> foldMap(M, source.unit, map)
             is EUnitLiteral -> M.empty()
             is EUnitRef -> map(source)
+            is EUnitOf -> everyUnitRefInQuantityExpression.foldMap(M, source.quantity, map)
+            is EUnitClosure -> foldMap(M, source.expression, map)
         }
     }
 
@@ -48,6 +50,14 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
             )
 
             is EUnitRef -> map(source)
+            is EUnitOf -> EUnitOf(
+                everyUnitRefInQuantityExpression.modify(source.quantity, map)
+            )
+
+            is EUnitClosure -> EUnitClosure(
+                source.symbolTable,
+                modify(source.expression, map),
+            )
         }
     }
 }
@@ -77,15 +87,8 @@ val everyUnitRefInEConstrainedProduct =
     )
 
 val everyUnitRefInProductExpression: PEvery<LcaProductExpression, LcaProductExpression, EUnitRef, UnitExpression> =
-    Merge(
-        listOf(
-            LcaProductExpression.eConstrainedProduct compose
-                    everyUnitRefInEConstrainedProduct,
-            LcaProductExpression.lcaUnconstrainedProductExpression compose
-                    LcaUnconstrainedProductExpression.eProduct compose
-                    everyUnitRefInProduct,
-        )
-    )
+    LcaProductExpression.eConstrainedProduct compose
+            everyUnitRefInEConstrainedProduct
 
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =
     Merge(

@@ -6,13 +6,15 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
@@ -25,10 +27,24 @@ class LcaLangAbstractParser(
             .flatMap { it.getAssignments().entries }
             .associate { it.key to quantity(it.value) }
 
+        val units = Register(Prelude.units)
+        files
+            .flatMap { it.getUnitLiterals() }
+            .filter { it.getUid() != null }
+            .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
+            .forEach {
+                units[it.key] = it.value
+            }
+
         val templates = files
             .flatMap { it.getProcesses() }
             .filter { it.getUid() != null }
             .associate { Pair(it.getUid()?.name!!, process(it)) }
+
+        val products = files
+            .flatMap { it.getProcesses() }
+            .flatMap { productsOf(it, globals, units) }
+            .associateBy { it.name }
 
         val substances = files
             .flatMap { it.getSubstances() }
@@ -39,17 +55,10 @@ class LcaLangAbstractParser(
             .filter { it.hasImpacts() }
             .associate { Pair(it.getUid().name!!, substanceCharacterization(it)) }
 
-        val units = Register(Prelude.units)
-        files
-            .flatMap { it.getUnitLiterals() }
-            .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
-            .forEach {
-                units[it.key] = it.value
-            }
 
         return SymbolTable(
             quantities = Register(globals),
+            products = Register(products),
             processTemplates = Register(templates),
             units = units,
             substances = Register(substances),
@@ -80,8 +89,8 @@ class LcaLangAbstractParser(
     private fun process(psiProcess: PsiProcess): TemplateExpression {
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
-        val products = psiProcess.getProducts().map { technoExchange(it) }
-        val inputs = psiProcess.getInputs().map { technoExchange(it) }
+        val products = psiProcess.getProducts().map { technoProductExchange(it) }
+        val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
         val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
         val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
         val biosphere = emissions.plus(resources)
@@ -95,6 +104,22 @@ class LcaLangAbstractParser(
             locals,
             body,
         )
+    }
+
+    private fun productsOf(psiProcess: PsiProcess, globals: Map<String, QuantityExpression>, units: Map<String, UnitExpression>): List<EProduct> {
+        val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
+        val params = psiProcess.getParameters().mapValues { quantity(it.value) }
+        val symbolTable = SymbolTable(
+            quantities = Register(globals.plus(params).plus(locals)),
+            units = Register(units),
+        )
+        return psiProcess.getProducts()
+            .map {
+                EProduct(
+                    it.getProductRef().name!!,
+                    EUnitClosure(symbolTable, EUnitOf(quantity(it.getQuantity())))
+                )
+            }
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
@@ -123,10 +148,46 @@ class LcaLangAbstractParser(
         return EIndicatorRef(variable.name!!)
     }
 
-    private fun technoExchange(psiExchange: PsiTechnoExchange): ETechnoExchange {
+    private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
-            productRef(psiExchange.getProductRef()),
+            constrainedProduct(
+                psiExchange.getProductRef(),
+                psiExchange.getFromProcessConstraint()
+            ),
+        )
+    }
+
+    private fun constrainedProduct(
+        psiProductRef: PsiProductRef,
+        psiFromProcessConstraint: PsiFromProcessConstraint?
+    ): EConstrainedProduct {
+        return EConstrainedProduct(
+            productRef(psiProductRef),
+            fromProcessConstraint(psiFromProcessConstraint),
+        )
+    }
+
+    private fun fromProcessConstraint(psiFromProcessConstraint: PsiFromProcessConstraint?): Constraint {
+        return psiFromProcessConstraint?.let {
+            FromProcessRef(
+                template = processTemplateRef(it.getProcessTemplateRef()),
+                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantity(q.value) },
+            )
+        } ?: None
+    }
+
+    private fun processTemplateRef(psiProcessTemplateRef: PsiProcessTemplateRef): ETemplateRef {
+        return ETemplateRef(psiProcessTemplateRef.name!!)
+    }
+
+    private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
+        return ETechnoExchange(
+            quantity(psiExchange.getQuantity()),
+            EConstrainedProduct(
+                productRef(psiExchange.getProductRef()),
+                None,
+            )
         )
     }
 
@@ -153,10 +214,9 @@ class LcaLangAbstractParser(
         return ESubstanceRef(name)
     }
 
-    private fun productRef(product: PsiProductRef): LcaProductExpression {
+    private fun productRef(product: PsiProductRef): LcaUnconstrainedProductExpression {
         return EProductRef(product.name!!)
     }
-
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {
         val term = qTerm(quantity.getTerm())
@@ -217,7 +277,7 @@ class LcaLangAbstractParser(
                 factor, unit(unit.getNext()!!)
             )
 
-            MultiplicativeOperationType.DIV -> EUnitMul(
+            MultiplicativeOperationType.DIV -> EUnitDiv(
                 factor, unit(unit.getNext()!!),
             )
 

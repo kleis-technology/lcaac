@@ -1,12 +1,46 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LcaExpressionReducerTest {
+    @Test
+    fun reduce_whenExchangeWithEUnitOf_shouldReduce() {
+        // given
+        val innerQuantity = QuantityFixture.twoKilograms
+        val unit = EUnitOf(innerQuantity)
+        val quantity = EQuantityLiteral(1.0, unit)
+        val reducer = LcaExpressionReducer()
+        val exchange = ETechnoExchange(
+            quantity,
+            EConstrainedProduct(
+                EProduct(
+                    "carrot",
+                    unit
+                ), None
+            )
+        )
+
+        // when
+        val actual = reducer.reduce(exchange)
+
+        // then
+        val expected = ETechnoExchange(
+            EQuantityLiteral(1.0, UnitFixture.kg),
+            EConstrainedProduct(
+                EProduct(
+                    "carrot",
+                    UnitFixture.kg,
+                ), None
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
     @Test
     fun reduce_whenProcess_shouldReduceExchanges() {
         // given
@@ -73,7 +107,7 @@ class LcaExpressionReducerTest {
             ),
             indicatorRegister = Register(
                 hashMapOf(
-                    Pair("cc", IndicatorFixture.cc)
+                    Pair("cc", IndicatorFixture.climateChange)
                 )
             )
         )
@@ -84,7 +118,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EImpact(
             QuantityFixture.oneKilogram,
-            IndicatorFixture.cc,
+            IndicatorFixture.climateChange,
         )
         assertEquals(expected, actual)
     }
@@ -94,12 +128,15 @@ class LcaExpressionReducerTest {
         // given
         val expression = ETechnoExchange(
             EQuantityRef("q"),
-            EProductRef("carrot")
+            EConstrainedProduct(
+                EProductRef("carrot"),
+                None,
+            )
         )
         val reducer = LcaExpressionReducer(
             productRegister = Register(
                 hashMapOf(
-                    Pair("carrot", ProductFixture.carrot)
+                    Pair("carrot", UnconstrainedProductFixture.carrot)
                 )
             ),
             quantityRegister = Register(
@@ -184,7 +221,7 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             indicatorRegister = Register(
                 hashMapOf(
-                    Pair("cc", IndicatorFixture.cc)
+                    Pair("cc", IndicatorFixture.climateChange)
                 )
             )
         )
@@ -193,7 +230,7 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = IndicatorFixture.cc
+        val expected = IndicatorFixture.climateChange
         assertEquals(expected, actual)
     }
 
@@ -250,9 +287,12 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenProduct_shouldReduceUnit() {
         // given
-        val expression = EProduct(
-            "carrot",
-            EUnitRef("kg"),
+        val expression = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                EUnitRef("kg"),
+            ),
+            None,
         )
         val reducer = LcaExpressionReducer(
             unitRegister = Register(
@@ -266,9 +306,12 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EProduct(
-            "carrot",
-            UnitFixture.kg,
+        val expected = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                UnitFixture.kg,
+            ),
+            None,
         )
         assertEquals(expected, actual)
     }
@@ -280,7 +323,10 @@ class LcaExpressionReducerTest {
             "carrot",
             EUnitRef("kg"),
         )
-        val expression = EProductRef("carrot")
+        val expression = EConstrainedProduct(
+            EProductRef("carrot"),
+            None,
+        )
         val reducer = LcaExpressionReducer(
             productRegister = Register(
                 hashMapOf(
@@ -298,9 +344,12 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EProduct(
-            "carrot",
-            UnitFixture.kg,
+        val expected = EConstrainedProduct(
+            EProduct(
+                "carrot",
+                UnitFixture.kg,
+            ),
+            None,
         )
         assertEquals(expected, actual)
     }
@@ -403,7 +452,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(
                 EImpact(
                     EQuantityRef("q_cc"),
-                    IndicatorFixture.cc
+                    IndicatorFixture.climateChange
                 ),
             )
         )
@@ -428,7 +477,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(
                 EImpact(
                     QuantityFixture.oneKilogram,
-                    IndicatorFixture.cc
+                    IndicatorFixture.climateChange
                 ),
             )
         )

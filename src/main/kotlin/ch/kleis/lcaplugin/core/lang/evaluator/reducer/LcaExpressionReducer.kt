@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -9,14 +9,13 @@ class LcaExpressionReducer(
     indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
-    substanceCharacterizationRegister: Register<ESubstanceCharacterization> = Register.empty(),
+    substanceCharacterizationRegister: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
     private val productRegister = Register(productRegister)
     private val substanceRegister = Register(substanceRegister)
     private val indicatorRegister = Register(indicatorRegister)
     private val substanceCharacterizationRegister = Register(substanceCharacterizationRegister)
 
-    private val unitExpressionReducer = UnitExpressionReducer(unitRegister)
     private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
@@ -34,8 +33,6 @@ class LcaExpressionReducer(
             is ESubstance -> reduceSubstanceExpression(expression)
             is ESubstanceRef -> reduceSubstanceExpression(expression)
 
-            is EProduct -> reduceUnconstrainedProductExpression(expression)
-            is EProductRef -> reduceUnconstrainedProductExpression(expression)
             is EConstrainedProduct -> EConstrainedProduct(
                 reduceUnconstrainedProductExpression(expression.product),
                 expression.constraint.reduceWith(quantityExpressionReducer),
@@ -47,7 +44,7 @@ class LcaExpressionReducer(
         }
     }
 
-    private fun reduceSubstanceCharacterization(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+    fun reduceSubstanceCharacterization(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
         return when (expression) {
             is ESubstanceCharacterization -> ESubstanceCharacterization(
                 reduceBioExchange(expression.referenceExchange),
@@ -88,7 +85,7 @@ class LcaExpressionReducer(
 
     private fun reduceUnconstrainedProductExpression(expression: LcaUnconstrainedProductExpression): LcaUnconstrainedProductExpression {
         return when (expression) {
-            is EProduct -> EProduct(expression.name, unitExpressionReducer.reduce(expression.referenceUnit))
+            is EProduct -> EProduct(expression.name, quantityExpressionReducer.reduceUnit(expression.referenceUnit))
             is EProductRef -> productRegister[expression.name]?.let { reduceUnconstrainedProductExpression(it) }
                 ?: expression
         }
@@ -100,9 +97,6 @@ class LcaExpressionReducer(
                 reduceUnconstrainedProductExpression(expression.product),
                 expression.constraint.reduceWith(quantityExpressionReducer),
             )
-
-            is EProduct -> reduceUnconstrainedProductExpression(expression)
-            is EProductRef -> reduceUnconstrainedProductExpression(expression)
         }
     }
 
@@ -112,7 +106,7 @@ class LcaExpressionReducer(
                 expression.name,
                 expression.compartment,
                 expression.subcompartment,
-                unitExpressionReducer.reduce(expression.referenceUnit),
+                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
             )
 
             is ESubstanceRef -> substanceRegister[expression.name]?.let { reduceSubstanceExpression(it) }
@@ -124,7 +118,7 @@ class LcaExpressionReducer(
         return when (expression) {
             is EIndicator -> EIndicator(
                 expression.name,
-                unitExpressionReducer.reduce(expression.referenceUnit),
+                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
             )
 
             is EIndicatorRef -> indicatorRegister[expression.name]?.let { reduceIndicatorExpression(it) }

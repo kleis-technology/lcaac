@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnconstrainedProductFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -52,7 +53,7 @@ class HelperTest {
                 ETechnoExchange(
                     ref,
                     EConstrainedProduct(
-                        ProductFixture.carrot,
+                        UnconstrainedProductFixture.carrot,
                         FromProcessRef(
                             ETemplateRef("carrot_production"),
                             mapOf(
@@ -76,7 +77,7 @@ class HelperTest {
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
                     EConstrainedProduct(
-                        ProductFixture.carrot,
+                        UnconstrainedProductFixture.carrot,
                         FromProcessRef(
                             ETemplateRef("carrot_production"),
                             mapOf(
@@ -104,11 +105,14 @@ class HelperTest {
                             EQuantityLiteral(
                                 1.0,
                                 EUnitMul(EUnitRef("ua"), EUnitRef("ub"))
-                            ), EProductRef("product")
+                            ), EConstrainedProduct(
+                                EProductRef("product"),
+                                None,
+                            )
                         ),
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EConstrainedProduct(
-                                ProductFixture.water,
+                                UnconstrainedProductFixture.water,
                                 FromProcessRef(ETemplateRef("template"), emptyMap())
                             )
                         ),
@@ -133,11 +137,11 @@ class HelperTest {
         val helper = Helper()
 
         // when
-        val actual = helper.allUnboundedReferencesButProductRefs(expression)
+        val actual = helper.allRequiredRefs(expression)
 
         // then
         val expected = setOf(
-            "quantity", "ua", "ub", "template", "substance", "qa", "qb", "indicator"
+            "quantity", "ua", "ub", "template", "qa", "qb"
         )
         assertEquals(expected, actual)
     }

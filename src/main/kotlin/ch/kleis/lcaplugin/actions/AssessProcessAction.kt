@@ -1,10 +1,8 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang.ProcessValue
-import ch.kleis.lcaplugin.core.lang.SystemValue
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.RecursiveEvaluator
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -26,14 +24,7 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         try {
             val symbolTable = parser.load()
             val entryPoint = symbolTable.processTemplates[processName]!!
-            val value = Evaluator(symbolTable).eval(entryPoint) as ProcessValue
-            /*
-                TODO: Infer system correctly
-             */
-            val system = SystemValue(
-                listOf(value),
-                emptyList(),
-            )
+            val system = RecursiveEvaluator(symbolTable).eval(entryPoint)
             val assessment = Assessment(system)
             val result = assessment.inventory()
             displayToolWindow(project, result)
