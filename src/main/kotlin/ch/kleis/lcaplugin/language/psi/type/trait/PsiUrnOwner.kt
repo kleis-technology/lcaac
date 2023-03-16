@@ -18,7 +18,7 @@ interface PsiUrnOwner : PsiNameIdentifierOwner {
         return getUrn()
     }
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return getUrn().getParts().joinToString(".")
     }
 

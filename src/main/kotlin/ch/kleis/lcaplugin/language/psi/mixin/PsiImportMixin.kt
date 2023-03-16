@@ -5,5 +5,5 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 
 abstract class PsiImportMixin(node: ASTNode): ASTWrapperPsiElement(node), PsiImport {
-    override fun getName(): String? = super<PsiImport>.getName()
+    override fun getName(): String = super<PsiImport>.getName()
 }
