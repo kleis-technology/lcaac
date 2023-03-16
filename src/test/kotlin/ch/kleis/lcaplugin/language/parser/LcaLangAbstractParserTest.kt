@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.language.parser
+package ch.kleis.lcaplugin.language.parser
 
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
