@@ -5,13 +5,16 @@
     <vendor url="https://kleis.ch" email="contact@kleis.ch">Kleis</vendor>
     <description>
         <![CDATA[
-        Adds support for a new domain-specific language targeting <i>Life Cycle Analysis</i> experts. The following features are available for free.
+        Adds support for a new domain-specific language targeting <i>Life Cycle
+            Analysis</i> experts. The following features are available for free.
         <ul>
-            <li>EF 3.1 flows and characterization factors from the <a href="https://eplca.jrc.ec.europa.eu/LCDN/developerEF.xhtml">European Platform on Life Cycle Assessment</a></li>
+            <li>EF 3.1 flows and characterization factors from the <a
+                    href="https://eplca.jrc.ec.europa.eu/LCDN/developerEF.xhtml">European Platform on Life Cycle
+                Assessment</a></li>
             <li>Description of processes, intermediary and elementary flows, with parameters.</li>
             <li>Embedded inventory computation engine.</li>
             <li>Code navigation.</li>
-        </ul>
+            </ul>
     ]]>
     </description>
     <xi:include href="/META-INF/tips-kleis-1.xml"/>
@@ -48,6 +51,9 @@
         <lang.syntaxHighlighterFactory
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.reference.PsiQuantityRefManipulator"/>
 
         <toolWindow id="LCA Output"
                     icon="AllIcons.General.Modified"
