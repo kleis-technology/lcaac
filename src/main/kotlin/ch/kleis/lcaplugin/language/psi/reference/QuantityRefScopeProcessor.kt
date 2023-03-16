@@ -8,7 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.ResolveState
 import com.intellij.psi.scope.PsiScopeProcessor
 
-class QuantityRefResolver(
+class QuantityRefScopeProcessor(
     private val quantityRef: PsiQuantityRef
 ) : PsiScopeProcessor {
     private var result: PsiUID? = null

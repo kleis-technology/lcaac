@@ -12,7 +12,7 @@ class QuantityReference(
     element: PsiQuantityRef
 ) : PsiReferenceBase<PsiQuantityRef>(element) {
     override fun resolve(): PsiElement? {
-        val resolver = QuantityRefResolver(element)
+        val resolver = QuantityRefScopeProcessor(element)
         var lastParent : PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {
             it.elementType == LcaFile::elementType
