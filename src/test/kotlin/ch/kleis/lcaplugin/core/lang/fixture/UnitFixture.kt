@@ -19,6 +19,7 @@ class UnitFixture {
         val m = EUnitLiteral("m", 1.0, DimensionFixture.length)
         val km = EUnitLiteral("km", 1000.0, DimensionFixture.length)
         val person = EUnitLiteral("person", 1.0, Dimension.None)
+        val pack = EUnitLiteral("pack", 1.0, Dimension.None)
         val l = EUnitLiteral("l", 1.0e-3, DimensionFixture.volume)
         val s = EUnitLiteral("s", 1.0, DimensionFixture.time)
         val hour = EUnitLiteral("hour", 3600.0, DimensionFixture.time)
