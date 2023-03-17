@@ -26,6 +26,9 @@ data class SymbolTable(
         return substanceCharacterizations[name]
     }
 
+    override fun toString(): String {
+        return "[symbolTable]"
+    }
 }
 
 class Register<E>(
@@ -89,5 +92,9 @@ class Register<E>(
 
     override fun containsKey(key: String): Boolean {
         return data.containsKey(key)
+    }
+
+    override fun toString(): String {
+        return "[register<${this.javaClass.simpleName}>]"
     }
 }

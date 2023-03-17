@@ -43,11 +43,10 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiSubstance }
     }
 
-    fun getAssignments(): Map<String, PsiQuantity> {
+    fun getAssignments(): Collection<Pair<String, PsiQuantity>> {
         return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
             .map { it.psi as PsiVariables }
             .flatMap { it.getEntries() }
-            .toMap()
     }
 
     fun getUnitLiterals(): Collection<PsiUnitLiteral> {
