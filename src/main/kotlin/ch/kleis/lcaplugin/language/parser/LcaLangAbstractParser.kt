@@ -84,14 +84,11 @@ class LcaLangAbstractParser(
         )
     }
 
-    /*
-        TODO: fill in compartment and subcompartment
-     */
     private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
         return ESubstance(
-            psiSubstance.getUid().name,
-            "IMPLEMENT ME",
-            "IMPLEMENT ME",
+            psiSubstance.getNameField().getValue(),
+            psiSubstance.getCompartmentField().getValue(),
+            psiSubstance.getSubcompartmentField()?.getValue(),
             unit(psiSubstance.getReferenceUnitField().getValue())
         )
     }
@@ -148,10 +145,7 @@ class LcaLangAbstractParser(
         val substanceRef = substanceRef(psiSubstance.getUid().name)
         val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
         val referenceExchange = EBioExchange(quantity, substanceRef)
-        val impacts = psiSubstance.getImpacts()
-            ?.getExchanges()
-            ?.map { impact(it) }
-            ?: emptyList()
+        val impacts = psiSubstance.getImpactExchanges().map { impact(it) }
 
         return ESubstanceCharacterization(
             referenceExchange,

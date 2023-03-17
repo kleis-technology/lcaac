@@ -1,13 +1,29 @@
 package ch.kleis.lcaplugin.language.psi.type
 
+import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockImpacts
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
+import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
 import ch.kleis.lcaplugin.language.psi.type.field.PsiUnitField
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.TokenSet
 
 interface PsiSubstance: PsiElement {
     fun getUid(): PsiUID {
         return node.findChildByType(LcaTypes.UID)!!.psi as PsiUID
+    }
+
+    fun getNameField(): PsiStringLiteralField {
+        return node.findChildByType(LcaTypes.NAME_FIELD)?.psi as PsiStringLiteralField
+    }
+
+    fun getCompartmentField(): PsiStringLiteralField {
+        return node.findChildByType(LcaTypes.COMPARTMENT_FIELD)?.psi as PsiStringLiteralField
+    }
+
+    fun getSubcompartmentField(): PsiStringLiteralField? {
+        return node.findChildByType(LcaTypes.SUB_COMPARTMENT_FIELD)?.psi as PsiStringLiteralField?
     }
 
     fun getReferenceUnitField(): PsiUnitField {
@@ -17,7 +33,13 @@ interface PsiSubstance: PsiElement {
     fun hasImpacts(): Boolean {
         return node.findChildByType(LcaTypes.BLOCK_IMPACTS) != null
     }
-    fun getImpacts(): PsiBlockImpacts? {
-        return node.findChildByType(LcaTypes.BLOCK_IMPACTS)?.psi as PsiBlockImpacts?
+    fun getBlockImpacts(): Collection<PsiBlockImpacts> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_IMPACTS))
+            .map { it.psi as PsiBlockImpacts }
+    }
+
+    fun getImpactExchanges(): Collection<PsiImpactExchange> {
+        return getBlockImpacts()
+            .flatMap { it.getExchanges() }
     }
 }
