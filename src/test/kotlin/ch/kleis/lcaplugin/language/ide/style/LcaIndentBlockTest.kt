@@ -145,6 +145,10 @@ scale = 1
    resources{
      0.5 kg co2
   }
+  
+                        land_use{
+        2ha lu
+                  }
 }""",
             """
                 process process_a {
@@ -179,6 +183,10 @@ scale = 1
                 
                     resources {
                         0.5 kg co2
+                    }
+                
+                    land_use {
+                        2 ha lu
                     }
                 }
                 """.trimIndent()
