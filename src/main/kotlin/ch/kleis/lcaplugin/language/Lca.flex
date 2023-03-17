@@ -90,6 +90,7 @@ CommentContent = .*
 <YYINITIAL> "products"             { return LcaTypes.PRODUCTS_KEYWORD; }
 <YYINITIAL> "inputs"             { return LcaTypes.INPUTS_KEYWORD; }
 <YYINITIAL> "emissions"             { return LcaTypes.EMISSIONS_KEYWORD; }
+<YYINITIAL> "land_use"             { return LcaTypes.LAND_USE_KEYWORD; }
 <YYINITIAL> "resources"             { return LcaTypes.RESOURCES_KEYWORD; }
 
 
