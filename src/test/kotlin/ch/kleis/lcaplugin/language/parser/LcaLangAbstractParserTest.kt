@@ -12,12 +12,43 @@ import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun testParse_withoutPackage_thenDefaultPackageName() {
+        // given
+        val file = parseFile(
+            "hello", """
+        """.trimIndent()
+        ) as LcaFile
+
+        // when
+        val actual = file.getPackageName()
+
+        // then
+        val expected = "default"
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_withPackage_shouldReturnGivenPackageName() {
+        // given
+        val file = parseFile(
+            "hello", """
+                package a.b.c
+        """.trimIndent()
+        ) as LcaFile
+
+        // when
+        val actual = file.getPackageName()
+
+        // then
+        val expected = "a.b.c"
+        TestCase.assertEquals(expected, actual)
+    }
+    
+    @Test
     fun testParse_simpleProcess() {
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 products {
                     1 kg carrot
@@ -64,8 +95,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 inputs {
                     10 x/y water
@@ -98,8 +127,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 inputs {
                     10 x * y water
@@ -132,8 +159,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 inputs {
                     10 x / (20 y) water
@@ -166,8 +191,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 inputs {
                     10 x * (20 y) water
@@ -200,8 +223,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "hello", """
-            package hello
-            
             process a {
                 products {
                     1 kg carrot
@@ -243,8 +264,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // given
         val file = parseFile(
             "substances", """
-            package substances
-            
             substance phosphate {
                 name = "phosphate"
                 compartment = "phosphate compartment"

@@ -23,8 +23,9 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         return "Lca File"
     }
 
-    fun getPackage(): PsiPackage {
-        return node.findChildByType(LcaTypes.PACKAGE)?.psi as PsiPackage
+    fun getPackageName(): String {
+        return (node.findChildByType(LcaTypes.PACKAGE)?.psi as PsiPackage?)?.name
+            ?: "default"
     }
 
     fun getImports(): Collection<PsiImport> {
