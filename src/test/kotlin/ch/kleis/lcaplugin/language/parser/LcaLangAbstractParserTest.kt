@@ -4,14 +4,37 @@ import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun testParse_substance_shouldParseFields() {
+        val file = parseFile(
+            "hello", """
+                substance co2 {
+                    name = "carbon dioxide"
+                    compartment = "air"
+                    sub_compartment = "low pop"
+                    reference_unit = kg
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        val symbolTable = parser.load()
+
+        // when
+        val actual = symbolTable.substances["co2"] as ESubstance
+
+        // then
+        TestCase.assertEquals("carbon dioxide", actual.name)
+        TestCase.assertEquals("air", actual.compartment)
+        TestCase.assertEquals("low pop", actual.subcompartment)
+        TestCase.assertEquals(EUnitRef("kg"), actual.referenceUnit)
+    }
+
     @Test
     fun testParse_whenDefineProcessTwice_shouldThrow() {
         // given
@@ -132,7 +155,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             parser.load()
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            TestCase.assertEquals("reference a already bound: a = ESubstance(name=a, compartment=IMPLEMENT ME, subcompartment=IMPLEMENT ME, referenceUnit=kg)", e.message)
+            TestCase.assertEquals("reference a already bound: a = ESubstance(name=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)", e.message)
         }
     }
 

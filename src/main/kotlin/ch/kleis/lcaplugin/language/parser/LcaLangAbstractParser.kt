@@ -84,14 +84,11 @@ class LcaLangAbstractParser(
         )
     }
 
-    /*
-        TODO: fill in compartment and subcompartment
-     */
     private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
         return ESubstance(
-            psiSubstance.getUid().name,
-            "IMPLEMENT ME",
-            "IMPLEMENT ME",
+            psiSubstance.getNameField().getValue(),
+            psiSubstance.getCompartmentField().getValue(),
+            psiSubstance.getSubcompartmentField()?.getValue(),
             unit(psiSubstance.getReferenceUnitField().getValue())
         )
     }
