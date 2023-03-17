@@ -1,9 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockResources
+import ch.kleis.lcaplugin.language.psi.type.block.*
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
@@ -41,6 +38,12 @@ interface PsiProcess : PsiElement {
     fun getEmissions(): Collection<PsiBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_EMISSIONS))
             .map { it.psi as PsiBlockEmissions }
+            .flatMap { it.getExchanges() }
+    }
+
+    fun getLandUse(): Collection<PsiBioExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_LAND_USE))
+            .map { it.psi as PsiBlockLandUse }
             .flatMap { it.getExchanges() }
     }
 

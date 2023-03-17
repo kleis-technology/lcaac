@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.parser
 
+import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
@@ -10,6 +11,35 @@ import junit.framework.TestCase
 import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun testParse_processWithLandUse_shouldParse() {
+        val file = parseFile(
+            "hello", """
+                process a {
+                    products {
+                        1 kg x
+                    }
+                    land_use {
+                        1 kg lu
+                    }
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+        val symbolTable = parser.load()
+
+        // when
+        val template = symbolTable.processTemplates["a"] as TemplateExpression
+        val actual =
+            (TemplateExpression.eProcessTemplate.body.eProcess.biosphere compose
+                Every.list() compose EBioExchange.substance.eSubstanceRef).firstOrNull(template)
+
+        // then
+        TestCase.assertEquals("lu", actual?.name)
+    }
+
     @Test
     fun testParse_substance_shouldParseFields() {
         val file = parseFile(
@@ -55,7 +85,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             parser.load()
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            TestCase.assertEquals("reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(products=[], inputs=[], biosphere=[]))", e.message)
+            TestCase.assertEquals(
+                "reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(products=[], inputs=[], biosphere=[]))",
+                e.message
+            )
         }
     }
 
@@ -85,7 +118,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             parser.load()
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            TestCase.assertEquals("reference x already bound: x = EProduct(name=x, referenceUnit=EUnitClosure(symbolTable=[symbolTable], expression=EUnitOf(quantity=EQuantityLiteral(amount=1.0, unit=kg))))", e.message)
+            TestCase.assertEquals(
+                "reference x already bound: x = EProduct(name=x, referenceUnit=EUnitClosure(symbolTable=[symbolTable], expression=EUnitOf(quantity=EQuantityLiteral(amount=1.0, unit=kg))))",
+                e.message
+            )
         }
     }
 
@@ -155,7 +191,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             parser.load()
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            TestCase.assertEquals("reference a already bound: a = ESubstance(name=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)", e.message)
+            TestCase.assertEquals(
+                "reference a already bound: a = ESubstance(name=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)",
+                e.message
+            )
         }
     }
 

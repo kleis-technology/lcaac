@@ -23,6 +23,7 @@
       META_KEYWORD = "meta"
       FROM_KEYWORD = "from"
       PRODUCTS_KEYWORD = 'products'
+      LAND_USE_KEYWORD = 'land_use'
       INDICATOR_KEYWORD = 'indicator'
       VARIABLES_KEYWORD = 'variables'
       UNIT_KEYWORD = 'unit'
@@ -157,6 +158,7 @@ LBRACE (
     | block_products
     | block_inputs
     | block_emissions
+    | block_land_use
     | block_resources
     | block_meta
     )* RBRACE {
@@ -196,6 +198,11 @@ block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE {
 block_emissions ::= EMISSIONS_KEYWORD LBRACE bioExchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockEmissionsMixin"
+}
+
+block_land_use ::= LAND_USE_KEYWORD LBRACE bioExchange* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockLandUse"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockLandUseMixin"
 }
 
 block_resources ::= RESOURCES_KEYWORD LBRACE bioExchange* RBRACE {

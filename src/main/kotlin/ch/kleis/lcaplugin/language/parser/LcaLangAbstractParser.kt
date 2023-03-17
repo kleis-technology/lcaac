@@ -107,8 +107,9 @@ class LcaLangAbstractParser(
         val products = psiProcess.getProducts().map { technoProductExchange(it) }
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
         val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
+        val landUse = psiProcess.getLandUse().map { bioExchange(it, Polarity.POSITIVE) }
         val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
-        val biosphere = emissions.plus(resources)
+        val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
             products = products,
             inputs = inputs,
