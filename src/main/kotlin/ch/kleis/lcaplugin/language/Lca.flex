@@ -22,7 +22,7 @@ import com.intellij.psi.TokenType;
 
 
 WhiteSpace     = \s+
-Identifier     = \w+
+Identifier     = [a-zA-Z]\w*
 StringLiteral  = \" ( [^\\\"] | \\[^] )* ( \" | \\ )?
 
 Number_Exp = [eE][+-]?[0-9]+
@@ -93,7 +93,7 @@ CommentContent = .*
 <YYINITIAL> "resources"             { return LcaTypes.RESOURCES_KEYWORD; }
 
 
-<YYINITIAL> [+-]?{Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
+<YYINITIAL> [-]?{Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }
 <YYINITIAL> {Identifier}             { return LcaTypes.IDENTIFIER; }
 <YYINITIAL> {StringLiteral}          { return LcaTypes.STRING_LITERAL; }
 

@@ -34,6 +34,7 @@ class LcaIndentBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
             BLOCK_INPUTS, BLOCK_PRODUCTS, BLOCK_RESOURCES, BLOCK_EMISSIONS, BLOCK_IMPACTS, BLOCK_META,
             TECHNO_PRODUCT_EXCHANGE, TECHNO_INPUT_EXCHANGE, BIO_EXCHANGE, IMPACT_EXCHANGE,
             NAME_FIELD, SYMBOL_FIELD, DIM_FIELD, REFERENCE_UNIT_FIELD, COMPARTMENT_FIELD, SUB_COMPARTMENT_FIELD,
+            SCALE_FIELD, META_ASSIGNMENT
             -> Indent.getNormalIndent(true)
 
             else -> Indent.getNoneIndent()
