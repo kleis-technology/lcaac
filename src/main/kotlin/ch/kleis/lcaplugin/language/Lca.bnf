@@ -65,7 +65,7 @@
     LCA File
  */
 
-lcaFile ::= package  import* (process | unitLiteral | substance | variables )*
+lcaFile ::= package?  import* (process | unitLiteral | substance | variables )*
 
 /*
     Package

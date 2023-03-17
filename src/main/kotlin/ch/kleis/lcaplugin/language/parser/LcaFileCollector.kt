@@ -16,7 +16,7 @@ class LcaFileCollector(
         if (visited.contains(pkgName)) {
             return
         }
-        val files = projectFiles.filter { it.getPackage().name == pkgName }
+        val files = projectFiles.filter { it.getPackageName() == pkgName }
         accumulator.addAll(files)
 
         val imports = files

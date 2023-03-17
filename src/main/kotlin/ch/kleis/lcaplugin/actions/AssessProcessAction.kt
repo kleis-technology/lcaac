@@ -30,7 +30,7 @@ class AssessProcessAction(private val processName: String) : AnAction() {
             .map { psiManager.findFile(it) as LcaFile }
         val collector = LcaFileCollector(projectFiles)
         val parser = LcaLangAbstractParser(
-            collector.collect(file.getPackage().name)
+            collector.collect(file.getPackageName())
         )
 
         try {
