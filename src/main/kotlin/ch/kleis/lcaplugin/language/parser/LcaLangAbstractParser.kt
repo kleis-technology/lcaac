@@ -23,46 +23,64 @@ class LcaLangAbstractParser(
     private val files: List<LcaFile>,
 ) {
     fun load(): SymbolTable {
-        val globals = files
-            .flatMap { it.getAssignments().entries }
-            .associate { it.key to quantity(it.value) }
+        val globals = Register.empty<QuantityExpression>()
+        files
+            .flatMap { it.getAssignments()}
+            .forEach {
+                globals[it.first] = quantity(it.second)
+            }
 
         val units = Register(Prelude.units)
         files
             .flatMap { it.getUnitLiterals() }
             .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, unitLiteral(it)) }
+            .map { Pair(it.getUid()?.name!!, unitLiteral(it)) }
             .forEach {
-                units[it.key] = it.value
+                units[it.first] = it.second
             }
 
-        val templates = files
+        val templates = Register.empty<TemplateExpression>()
+        files
             .flatMap { it.getProcesses() }
             .filter { it.getUid() != null }
-            .associate { Pair(it.getUid()?.name!!, process(it)) }
+            .map { Pair(it.getUid()?.name!!, process(it)) }
+            .forEach {
+                templates[it.first] = it.second
+            }
 
-        val products = files
+        val products = Register.empty<LcaUnconstrainedProductExpression>()
+        files
             .flatMap { it.getProcesses() }
             .flatMap { productsOf(it, globals, units) }
-            .associateBy { it.name }
+            .map { Pair(it.name, it) }
+            .forEach {
+                products[it.first] = it.second
+            }
 
-        val substances = files
+        val substances = Register.empty<LcaSubstanceExpression>()
+        files
             .flatMap { it.getSubstances() }
-            .associate { Pair(it.getUid().name, substance(it)) }
+            .map { Pair(it.getUid().name, substance(it)) }
+            .forEach {
+                substances[it.first] = it.second
+            }
 
-        val substanceCharacterizations = files
+        val substanceCharacterizations = Register.empty<LcaSubstanceCharacterizationExpression>()
+        files
             .flatMap { it.getSubstances() }
             .filter { it.hasImpacts() }
-            .associate { Pair(it.getUid().name, substanceCharacterization(it)) }
-
+            .map { Pair(it.getUid().name, substanceCharacterization(it)) }
+            .forEach {
+                substanceCharacterizations[it.first] = it.second
+            }
 
         return SymbolTable(
-            quantities = Register(globals),
-            products = Register(products),
-            processTemplates = Register(templates),
+            quantities = globals,
+            products = products,
+            processTemplates = templates,
             units = units,
-            substances = Register(substances),
-            substanceCharacterizations = Register(substanceCharacterizations)
+            substances = substances,
+            substanceCharacterizations = substanceCharacterizations,
         )
     }
 
@@ -106,7 +124,11 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun productsOf(psiProcess: PsiProcess, globals: Map<String, QuantityExpression>, units: Map<String, UnitExpression>): List<EProduct> {
+    private fun productsOf(
+        psiProcess: PsiProcess,
+        globals: Map<String, QuantityExpression>,
+        units: Map<String, UnitExpression>
+    ): List<EProduct> {
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
         val symbolTable = SymbolTable(

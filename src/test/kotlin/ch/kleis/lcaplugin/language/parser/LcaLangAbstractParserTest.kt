@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.parser
 
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
@@ -11,6 +12,60 @@ import junit.framework.TestCase
 import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun testParse_whenDefineProcessTwice_shouldThrow() {
+        // given
+        val file = parseFile(
+            "hello", """
+                process a {
+                }
+                process a {
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when/then
+        try {
+            parser.load()
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            TestCase.assertEquals("reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(products=[], inputs=[], biosphere=[]))", e.message)
+        }
+    }
+
+    @Test
+    fun testParse_whenDefineProductTwice_shouldThrow() {
+        // given
+        val file = parseFile(
+            "hello", """
+                process a {
+                    products {
+                        1 kg x
+                    }
+                }
+                process b {
+                    products {
+                        1 kg x
+                    }
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when/then
+        try {
+            parser.load()
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            TestCase.assertEquals("reference x already bound: x = EProduct(name=x, referenceUnit=EUnitClosure(symbolTable=[symbolTable], expression=EUnitOf(quantity=EQuantityLiteral(amount=1.0, unit=kg))))", e.message)
+        }
+    }
+
     @Test
     fun testParse_withoutPackage_thenDefaultPackageName() {
         // given
@@ -25,6 +80,60 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val expected = "default"
         TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_whenDefineGlobalVariableTwice_shouldThrow() {
+        // given
+        val file = parseFile(
+            "hello", """
+                variables {
+                    x = 1 kg
+                    x = 3 l
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when/then
+        try {
+            parser.load()
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            TestCase.assertEquals("reference x already bound: x = EQuantityLiteral(amount=1.0, unit=kg)", e.message)
+        }
+    }
+
+    @Test
+    fun testParse_whenDefineSubstanceTwice_shouldThrow() {
+        // given
+        val file = parseFile(
+            "hello", """
+                substance a {
+                    name = "first"
+                    compartment = "first compartment"
+                    reference_unit = kg
+                }
+                substance a {
+                    name = "second"
+                    compartment = "second compartment"
+                    reference_unit = l
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+
+        // when/then
+        try {
+            parser.load()
+            fail("should have thrown")
+        } catch (e: EvaluatorException) {
+            TestCase.assertEquals("reference a already bound: a = ESubstance(name=a, compartment=IMPLEMENT ME, subcompartment=IMPLEMENT ME, referenceUnit=kg)", e.message)
+        }
     }
 
     @Test
@@ -43,7 +152,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val expected = "a.b.c"
         TestCase.assertEquals(expected, actual)
     }
-    
+
     @Test
     fun testParse_simpleProcess() {
         // given
