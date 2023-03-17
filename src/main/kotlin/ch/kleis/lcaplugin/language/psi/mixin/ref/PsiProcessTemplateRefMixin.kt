@@ -6,7 +6,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 
 abstract class PsiProcessTemplateRefMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiProcessTemplateRef {
-    override fun getName(): String? {
+    override fun getName(): String {
         return super<PsiProcessTemplateRef>.getName()
     }
 }

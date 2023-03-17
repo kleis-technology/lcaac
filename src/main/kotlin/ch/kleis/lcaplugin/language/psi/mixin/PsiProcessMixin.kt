@@ -16,4 +16,8 @@ abstract class PsiProcessMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiP
     ): Boolean {
         return super<PsiProcess>.processDeclarations(processor, state, lastParent, place)
     }
+
+    override fun getName(): String {
+        return super<PsiProcess>.getName()
+    }
 }

@@ -96,6 +96,8 @@ substance ::= SUBSTANCE_KEYWORD uid LBRACE
     RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiSubstance"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.SubstanceStubElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
 }
 
 compartmentField ::= COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
@@ -151,7 +153,7 @@ scaleField ::= SCALE_KEYWORD EQUAL NUMBER {
     Process
  */
 
-process ::= PROCESS_KEYWORD uid?
+process ::= PROCESS_KEYWORD uid
 LBRACE (
     params
     | variables
@@ -293,7 +295,7 @@ unitPrimitive ::=
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
 
-unitLiteral ::= UNIT_KEYWORD uid? LBRACE symbolField scaleField dimField RBRACE {
+unitLiteral ::= UNIT_KEYWORD uid LBRACE symbolField scaleField dimField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
 }

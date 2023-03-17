@@ -5,7 +5,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 
 abstract class PsiUnitRefMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUnitRef {
-    override fun getName(): String? {
+    override fun getName(): String {
         return super<PsiUnitRef>.getName()
     }
 }

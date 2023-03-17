@@ -13,7 +13,7 @@ interface PsiUIDOwner : PsiNameIdentifierOwner {
         return node.findChildByType(LcaTypes.UID)?.psi as PsiUID
     }
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return (nameIdentifier as PsiUID).name
     }
 

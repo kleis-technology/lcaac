@@ -33,8 +33,7 @@ class LcaLangAbstractParser(
         val units = Register(Prelude.units)
         files
             .flatMap { it.getUnitLiterals() }
-            .filter { it.getUid() != null }
-            .map { Pair(it.getUid()?.name!!, unitLiteral(it)) }
+            .map { Pair(it.getUID().name, unitLiteral(it)) }
             .forEach {
                 units[it.first] = it.second
             }
@@ -42,8 +41,7 @@ class LcaLangAbstractParser(
         val templates = Register.empty<TemplateExpression>()
         files
             .flatMap { it.getProcesses() }
-            .filter { it.getUid() != null }
-            .map { Pair(it.getUid()?.name!!, process(it)) }
+            .map { Pair(it.getUID().name, process(it)) }
             .forEach {
                 templates[it.first] = it.second
             }
@@ -60,7 +58,7 @@ class LcaLangAbstractParser(
         val substances = Register.empty<LcaSubstanceExpression>()
         files
             .flatMap { it.getSubstances() }
-            .map { Pair(it.getUid().name, substance(it)) }
+            .map { Pair(it.getUID().name, substance(it)) }
             .forEach {
                 substances[it.first] = it.second
             }
@@ -69,7 +67,7 @@ class LcaLangAbstractParser(
         files
             .flatMap { it.getSubstances() }
             .filter { it.hasImpacts() }
-            .map { Pair(it.getUid().name, substanceCharacterization(it)) }
+            .map { Pair(it.getUID().name, substanceCharacterization(it)) }
             .forEach {
                 substanceCharacterizations[it.first] = it.second
             }
@@ -136,14 +134,14 @@ class LcaLangAbstractParser(
         return psiProcess.getProducts()
             .map {
                 EProduct(
-                    it.getProductRef().name!!,
+                    it.getProductRef().name,
                     EUnitClosure(symbolTable, EUnitOf(quantity(it.getQuantity())))
                 )
             }
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
-        val substanceRef = substanceRef(psiSubstance.getUid().name)
+        val substanceRef = substanceRef(psiSubstance.getUID().name)
         val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
         val referenceExchange = EBioExchange(quantity, substanceRef)
         val impacts = psiSubstance.getImpactExchanges().map { impact(it) }
@@ -162,7 +160,7 @@ class LcaLangAbstractParser(
     }
 
     private fun indicatorRef(variable: PsiIndicatorRef): LcaIndicatorExpression {
-        return EIndicatorRef(variable.name!!)
+        return EIndicatorRef(variable.name)
     }
 
     private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
@@ -195,7 +193,7 @@ class LcaLangAbstractParser(
     }
 
     private fun processTemplateRef(psiProcessTemplateRef: PsiProcessTemplateRef): ETemplateRef {
-        return ETemplateRef(psiProcessTemplateRef.name!!)
+        return ETemplateRef(psiProcessTemplateRef.name)
     }
 
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
@@ -224,7 +222,7 @@ class LcaLangAbstractParser(
 
 
     private fun substanceRef(substance: PsiSubstanceRef): LcaSubstanceExpression {
-        return ESubstanceRef(substance.name!!)
+        return ESubstanceRef(substance.name)
     }
 
     private fun substanceRef(name: String): LcaSubstanceExpression {
@@ -232,7 +230,7 @@ class LcaLangAbstractParser(
     }
 
     private fun productRef(product: PsiProductRef): LcaUnconstrainedProductExpression {
-        return EProductRef(product.name!!)
+        return EProductRef(product.name)
     }
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {
@@ -284,7 +282,7 @@ class LcaLangAbstractParser(
     }
 
     private fun quantityRef(variable: PsiQuantityRef): QuantityExpression {
-        return EQuantityRef(variable.name!!)
+        return EQuantityRef(variable.name)
     }
 
     private fun unit(unit: PsiUnit): UnitExpression {
@@ -317,7 +315,7 @@ class LcaLangAbstractParser(
     }
 
     private fun unitRef(unitRef: PsiUnitRef): UnitExpression {
-        return EUnitRef(unitRef.name!!)
+        return EUnitRef(unitRef.name)
     }
 }
 

@@ -41,8 +41,6 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
 
-        <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
-
         <lang.foldingBuilder
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
@@ -57,6 +55,8 @@
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.reference.PsiQuantityRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.reference.PsiSubstanceRefManipulator"/>
 
         <additionalLibraryRootsProvider
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
