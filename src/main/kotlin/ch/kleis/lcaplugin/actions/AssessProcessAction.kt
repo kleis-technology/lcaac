@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.actions
 
-import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.RecursiveEvaluator
@@ -16,21 +15,15 @@ import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiManager
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.content.ContentFactory
 
 class AssessProcessAction(private val processName: String) : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
-        val psiManager = PsiManager.getInstance(project)
-        val projectFiles = FileTypeIndex
-            .getFiles(LcaFileType.INSTANCE, GlobalSearchScope.projectScope(project))
-            .map { psiManager.findFile(it) as LcaFile }
-        val collector = LcaFileCollector(projectFiles)
+        val collector = LcaFileCollector()
         val parser = LcaLangAbstractParser(
-            collector.collect(file.getPackageName())
+            collector.collect(file)
         )
 
         try {

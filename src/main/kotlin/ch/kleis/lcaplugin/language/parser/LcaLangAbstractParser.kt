@@ -84,7 +84,7 @@ class LcaLangAbstractParser(
 
     private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
         return ESubstance(
-            psiSubstance.getNameField().getValue(),
+            psiSubstance.name,
             psiSubstance.getCompartmentField().getValue(),
             psiSubstance.getSubcompartmentField()?.getValue(),
             unit(psiSubstance.getReferenceUnitField().getValue())
