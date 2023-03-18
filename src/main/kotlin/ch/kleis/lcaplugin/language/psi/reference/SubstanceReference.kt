@@ -38,6 +38,7 @@ class SubstanceReference(
     override fun getVariants(): Array<Any> {
         return StubIndex.getInstance()
             .getAllKeys(LcaStubIndexKeys.SUBSTANCES, element.project)
+            .filter { it.contains(element.name) }
             .map { LookupElementBuilder.create(it) }
             .toTypedArray()
     }
