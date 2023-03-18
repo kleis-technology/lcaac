@@ -104,6 +104,7 @@ class LcaExpressionReducer(
         return when (expression) {
             is ESubstance -> ESubstance(
                 expression.name,
+                expression.displayName,
                 expression.compartment,
                 expression.subcompartment,
                 quantityExpressionReducer.reduceUnit(expression.referenceUnit),

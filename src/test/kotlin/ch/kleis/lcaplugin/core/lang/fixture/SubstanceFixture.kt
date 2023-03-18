@@ -6,6 +6,7 @@ class SubstanceFixture {
     companion object {
         val propanol = ESubstance(
             "propanol",
+            "propanol",
             "air",
             null,
             UnitFixture.kg,

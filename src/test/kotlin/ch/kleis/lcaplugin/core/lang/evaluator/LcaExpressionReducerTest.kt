@@ -239,6 +239,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = ESubstance(
             "propanol",
+            "propanol",
             "air",
             null,
             EUnitRef("kg"),
@@ -256,6 +257,7 @@ class LcaExpressionReducerTest {
 
         // then
         val expected = ESubstance(
+            "propanol",
             "propanol",
             "air",
             null,
