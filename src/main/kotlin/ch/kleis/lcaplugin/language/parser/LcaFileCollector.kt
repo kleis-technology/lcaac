@@ -1,9 +1,13 @@
 package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
 
-class LcaFileCollector {
-
+class LcaFileCollector(
+    private val substanceRefFileResolver: (PsiSubstanceRef) -> LcaFile? = { ref ->
+        ref.reference?.resolve()?.containingFile as LcaFile?
+    }
+) {
     fun collect(file: LcaFile): List<LcaFile> {
         val result = ArrayList<LcaFile>()
         recursiveCollect(result, emptyList(), file)
@@ -33,9 +37,7 @@ class LcaFileCollector {
                     .plus(it.getLandUse())
             }
             .map { it.getSubstanceRef() }
-            .mapNotNull { it.reference }
-            .mapNotNull { it.resolve() }
-            .map { it.containingFile as LcaFile }
+            .mapNotNull { substanceRefFileResolver(it) }
             .filter { imports.contains(it.getPackageName()) }
     }
 }
