@@ -2,19 +2,18 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
+import ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeKeyIndex
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
-class SubstanceReference(
-    element: PsiSubstanceRef
-) : PsiReferenceBase<PsiSubstanceRef>(element), PsiPolyVariantReference {
+class ProductReference(
+    element: PsiProductRef
+) : PsiReferenceBase<PsiProductRef>(element), PsiPolyVariantReference {
     private val file = element.containingFile as LcaFile
     private val packages = file.getImports().map { it.getPackageName() }
         .plus(file.getPackageName())
-
 
     override fun resolve(): PsiElement? {
         val resolveResults = multiResolve(false)
@@ -26,7 +25,7 @@ class SubstanceReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        return SubstanceKeyIndex.findSubstances(
+        return TechnoProductExchangeKeyIndex.findTechnoProductExchanges(
             element.project,
             element.name,
         )
@@ -37,7 +36,7 @@ class SubstanceReference(
 
     override fun getVariants(): Array<Any> {
         return StubIndex.getInstance()
-            .getAllKeys(LcaStubIndexKeys.SUBSTANCES, element.project)
+            .getAllKeys(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, element.project)
             .map { LookupElementBuilder.create(it) }
             .toTypedArray()
     }

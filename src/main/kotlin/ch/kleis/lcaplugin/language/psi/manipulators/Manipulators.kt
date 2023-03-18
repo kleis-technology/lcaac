@@ -1,5 +1,7 @@
-package ch.kleis.lcaplugin.language.psi.reference
+package ch.kleis.lcaplugin.language.psi.manipulators
 
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
@@ -15,3 +17,15 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
 
 class PsiQuantityRefManipulator() : PsiUIDOwnerManipulator<PsiQuantityRef>()
 class PsiSubstanceRefManipulator() : PsiUIDOwnerManipulator<PsiSubstanceRef>()
+class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
+
+class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
+    override fun handleContentChange(
+        element: PsiTechnoProductExchange,
+        range: TextRange,
+        newContent: String?
+    ): PsiTechnoProductExchange? {
+        newContent?.let { element.getProductRef().setName(it) }
+        return element
+    }
+}
