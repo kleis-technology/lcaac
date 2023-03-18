@@ -37,6 +37,7 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
+
         <lang.commenter
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
@@ -52,6 +53,13 @@
         <lang.syntaxHighlighterFactory
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaTechnoInputExchangeAnnotator"/>
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiQuantityRefManipulator"/>
