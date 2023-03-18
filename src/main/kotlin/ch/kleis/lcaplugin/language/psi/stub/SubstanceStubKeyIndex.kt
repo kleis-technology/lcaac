@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys.SUBSTANCES
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
@@ -10,7 +9,7 @@ import com.intellij.psi.stubs.StubIndexKey
 
 class SubstanceKeyIndex : StringStubIndexExtension<PsiSubstance>() {
     override fun getKey(): StubIndexKey<String, PsiSubstance> =
-        SUBSTANCES
+        LcaStubIndexKeys.SUBSTANCES
 
     companion object {
 
@@ -19,7 +18,7 @@ class SubstanceKeyIndex : StringStubIndexExtension<PsiSubstance>() {
             target: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiSubstance> =
-            StubIndex.getElements(SUBSTANCES, target, project, scope, PsiSubstance::class.java)
+            StubIndex.getElements(LcaStubIndexKeys.SUBSTANCES, target, project, scope, PsiSubstance::class.java)
 
     }
 }

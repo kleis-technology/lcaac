@@ -62,6 +62,7 @@
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <toolWindow id="LCA Output"
