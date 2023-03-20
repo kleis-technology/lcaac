@@ -166,6 +166,8 @@ LBRACE (
     )* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub"
 }
 
 params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE {
@@ -227,6 +229,7 @@ technoInputExchange ::= quantity productRef fromProcessConstraint? {
 }
 
 fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_assignments? RPAREN {
+    pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFromProcessConstraintMixin"
 }

@@ -20,6 +20,5 @@ class SubstanceKeyIndex : StringStubIndexExtension<PsiSubstance>() {
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiSubstance> =
             StubIndex.getElements(LcaStubIndexKeys.SUBSTANCES, target, project, scope, PsiSubstance::class.java)
-
     }
 }

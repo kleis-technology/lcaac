@@ -59,6 +59,9 @@
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaTechnoInputExchangeAnnotator"/>
         <annotator
                 language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaFromProcessRefAnnotator"/>
+        <annotator
+                language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
@@ -67,6 +70,8 @@
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiSubstanceRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProductRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiTechnoProductExchangeManipulator"/>
 
@@ -75,6 +80,7 @@
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <toolWindow id="LCA Output"

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.manipulators
 
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
@@ -18,6 +19,7 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
 class PsiQuantityRefManipulator() : PsiUIDOwnerManipulator<PsiQuantityRef>()
 class PsiSubstanceRefManipulator() : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
+class PsiProcessTemplateRefManipulator() : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
 
 class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
     override fun handleContentChange(
