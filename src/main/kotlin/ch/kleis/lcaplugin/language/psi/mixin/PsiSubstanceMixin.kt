@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.mixin
 
-import ch.kleis.lcaplugin.language.psi.stub.SubstanceStub
+import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode

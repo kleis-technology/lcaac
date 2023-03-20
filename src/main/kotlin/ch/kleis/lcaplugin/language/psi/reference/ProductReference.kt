@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*

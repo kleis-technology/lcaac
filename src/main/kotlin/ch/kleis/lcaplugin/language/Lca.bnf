@@ -96,8 +96,8 @@ substance ::= SUBSTANCE_KEYWORD uid LBRACE
     RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiSubstance"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.SubstanceStubElementType"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.SubstanceStub"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStubElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub"
 }
 
 compartmentField ::= COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
@@ -237,8 +237,8 @@ private comma_sep_assignments ::= assignment (COMA assignment)* COMA?
 technoProductExchange ::= quantity productRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeElementType"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeStub"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub"
 }
 
 bioExchange ::= quantity substanceRef {
