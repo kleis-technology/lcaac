@@ -237,6 +237,8 @@ private comma_sep_assignments ::= assignment (COMA assignment)* COMA?
 technoProductExchange ::= quantity productRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeStub"
 }
 
 bioExchange ::= quantity substanceRef {

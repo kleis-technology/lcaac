@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.LcaLanguage
-import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
@@ -34,7 +33,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun createPsi(stub: SubstanceStub): PsiSubstance {
-        return LcaSubstanceImpl(stub, this);
+        return LcaSubstanceImpl(stub, this)
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {

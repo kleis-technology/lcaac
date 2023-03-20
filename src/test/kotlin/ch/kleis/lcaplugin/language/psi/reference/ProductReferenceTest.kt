@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiReference
@@ -17,28 +18,29 @@ import io.mockk.unmockkStatic
 import junit.framework.TestCase
 import org.junit.Test
 
-class SubstanceReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+
+class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun test_resolve() {
         // given
         val file = parseFile(
             "hello",
             """
-               import ef31
+               import abc
                
                process p {
                     products {
-                        1 kg a
+                        1 kg carrot
                     }
-                    emissions {
-                        1 kg co2_air
+                    inputs {
+                        1 kg water
                     }
                }
             """.trimIndent()
         ) as LcaFile
-        val ref = file.getProcesses().first().getEmissions().first().getSubstanceRef().reference as PsiReference
-        val ef31Co2Air = ef31Co2Air()
-        val substances = listOf(ef31Co2Air, ef32Co2Air())
+        val ref = file.getProcesses().first().getInputs().first().getProductRef().reference as PsiReference
+        val abcWater = abcWater()
+        val exchanges = listOf(abcWater, xyzWater())
 
         mockkStatic(GlobalSearchScope::class)
         every { GlobalSearchScope.allScope(any()) } returns mockk()
@@ -46,23 +48,38 @@ class SubstanceReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition())
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiSubstance>>(),
+                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
                 any<String>(),
                 any<Project>(),
                 any<GlobalSearchScope>(),
-                any<Class<PsiSubstance>>(),
+                any<Class<PsiTechnoProductExchange>>(),
             )
-        } returns substances
+        } returns exchanges
 
         // when
         val actual = ref.resolve()
 
         // then
-        TestCase.assertEquals(ef31Co2Air, actual)
+        TestCase.assertEquals(abcWater, actual)
 
         // clean
         unmockkStatic(GlobalSearchScope::class)
         unmockkStatic(StubIndex::class)
+    }
+
+    private fun abcWater(): PsiTechnoProductExchange {
+        val file = parseFile(
+            "abc", """
+            package abc
+            
+            process w {
+                products {
+                    1 kg water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        return file.getProcesses().first().getProducts().first()
     }
 
     @Test
@@ -77,21 +94,21 @@ class SubstanceReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition())
                     products {
                         1 kg a
                     }
-                    emissions {
-                        1 kg co2
+                    inputs {
+                        1 kg car
                     }
                }
             """.trimIndent()
         ) as LcaFile
-        val ref = file.getProcesses().first().getEmissions().first().getSubstanceRef().reference as PsiReference
+        val ref = file.getProcesses().first().getInputs().first().getProductRef().reference as PsiReference
 
         val stubIndex = mockk<StubIndex>()
         mockkStatic(StubIndex::class)
         every {StubIndex.getInstance()} returns stubIndex
-        val results = listOf("co2_air", "water_co2", "propanol_air", "water_propanol")
+        val results = listOf("carrot", "auto_car", "salad", "computer")
         every {
             stubIndex.getAllKeys(
-                any<StubIndexKey<String, PsiSubstance>>(),
+                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
                 any<Project>(),
             )
         } returns results
@@ -106,34 +123,19 @@ class SubstanceReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition())
         unmockkStatic(StubIndex::class)
     }
 
-    private fun ef31Co2Air(): PsiSubstance {
+    private fun xyzWater(): PsiTechnoProductExchange {
         val file = parseFile(
-            "substances", """
-            package ef31
+            "xyz", """
+            package xyz
             
-            substance co2_air {
-                name = "co2"
-                compartment = "air"
-                reference_unit = kg
+            process w {
+                products {
+                    1 kg water
+                }
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getSubstances().first()
-    }
-
-    private fun ef32Co2Air(): PsiSubstance {
-        val file = parseFile(
-            "substances", """
-            package ef32
-            
-            substance co2_air {
-                name = "co2"
-                compartment = "air"
-                reference_unit = kg
-            }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getSubstances().first()
+        return file.getProcesses().first().getProducts().first()
     }
 
     override fun getTestDataPath(): String {

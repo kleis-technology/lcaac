@@ -37,6 +37,7 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
+
         <lang.commenter
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
@@ -53,15 +54,27 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
 
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaTechnoInputExchangeAnnotator"/>
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
+
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
-                                 implementationClass="ch.kleis.lcaplugin.language.psi.reference.PsiQuantityRefManipulator"/>
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiQuantityRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef"
-                                 implementationClass="ch.kleis.lcaplugin.language.psi.reference.PsiSubstanceRefManipulator"/>
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiSubstanceRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProductRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiTechnoProductExchangeManipulator"/>
 
         <additionalLibraryRootsProvider
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.SubstanceKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <toolWindow id="LCA Output"
