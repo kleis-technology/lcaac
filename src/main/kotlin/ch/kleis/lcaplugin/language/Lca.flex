@@ -22,7 +22,7 @@ import com.intellij.psi.TokenType;
 
 
 WhiteSpace     = \s+
-Identifier     = [a-zA-Z]\w*
+Identifier     = [a-zA-Z_]\w*
 StringLiteral  = \" ( [^\\\"] | \\[^] )* ( \" | \\ )?
 
 Number_Exp = [eE][+-]?[0-9]+

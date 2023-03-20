@@ -18,6 +18,7 @@ class Prelude {
         private val radioactivity = Dimension.of("radioactivity")
 
         val units : Register<UnitExpression> = Register(listOf(
+            EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),
             EUnitLiteral("person", 1.0, none),
             EUnitLiteral("percent", 1.0e-2, none),
@@ -40,6 +41,7 @@ class Prelude {
             EUnitLiteral("min", 60.0, time),
             EUnitLiteral("hour", 3600.0, time),
             EUnitLiteral("day", 24 * 3600.0, time),
+            EUnitLiteral("year", 365 * 24 * 3600.0, time),
             EUnitLiteral("Wh", 1.0, energy),
             EUnitLiteral("kWh", 1.0e3, energy),
             EUnitLiteral("MWh", 1.0e6, energy),

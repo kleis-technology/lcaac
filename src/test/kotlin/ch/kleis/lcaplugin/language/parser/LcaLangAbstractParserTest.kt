@@ -12,6 +12,26 @@ import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun testParse_referenceStartingWithUnderscore_shouldParse() {
+        // given
+        val file = parseFile(
+            "hello", """
+                variables {
+                    _1kg = 1 kg
+                }
+        """.trimIndent()
+        ) as LcaFile
+
+        // when
+        val actual = file.getPsiVariablesBlocks().first()
+            .getUIDs().first()
+
+        // then
+        val expected = "_1kg"
+        TestCase.assertEquals(expected, actual.name)
+    }
+
+    @Test
     fun testParse_processWithLandUse_shouldParse() {
         val file = parseFile(
             "hello", """
@@ -59,7 +79,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = symbolTable.substances["co2"] as ESubstance
 
         // then
-        TestCase.assertEquals("carbon dioxide", actual.name)
+        TestCase.assertEquals("co2", actual.name)
+        TestCase.assertEquals("carbon dioxide", actual.displayName)
         TestCase.assertEquals("air", actual.compartment)
         TestCase.assertEquals("low pop", actual.subcompartment)
         TestCase.assertEquals(EUnitRef("kg"), actual.referenceUnit)
@@ -192,7 +213,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "reference a already bound: a = ESubstance(name=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)",
+                "reference a already bound: a = ESubstance(name=a, displayName=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)",
                 e.message
             )
         }

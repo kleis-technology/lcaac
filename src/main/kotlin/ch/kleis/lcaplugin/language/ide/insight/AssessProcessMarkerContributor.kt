@@ -16,7 +16,7 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (isTarget(element)) {
             val process = element.parent as PsiProcess
-            val target = process.getUid()?.name!!
+            val target = process.getUID().name
             val action = AssessProcessAction(target)
             return Info(AllIcons.Actions.Execute, {
                 "Assess $target"
@@ -29,7 +29,6 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
         if (element.elementType != LcaTypes.PROCESS_KEYWORD || element.parent !is PsiProcess) {
             return false
         }
-        val parent = element.parent as PsiProcess
-        return parent.getUid() != null
+        return true
     }
 }

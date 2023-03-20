@@ -81,6 +81,7 @@ class ReduceAndComplete(
                     .modify(exchange) {
                         ESubstance(
                             it.name,
+                            it.name,
                             "__unknown__",
                             null,
                             q.unit,

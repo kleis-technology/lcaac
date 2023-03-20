@@ -54,6 +54,7 @@ sealed interface LcaSubstanceExpression : LcaExpression {
 @optics
 data class ESubstance(
     val name: String,
+    val displayName: String,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitExpression,

@@ -10,7 +10,7 @@ abstract class PsiQuantityRefMixin(node: ASTNode) : ASTWrapperPsiElement(node), 
         return super<PsiQuantityRef>.getReference()
     }
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return super<PsiQuantityRef>.getName()
     }
 }
