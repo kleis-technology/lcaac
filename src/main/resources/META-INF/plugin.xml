@@ -74,6 +74,9 @@
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiTechnoProductExchangeManipulator"/>
+        <lang.findUsagesProvider language="LCA"
+                                 implementationClass="ch.kleis.lcaplugin.language.ide.find_usage.LcaFindUsagesProvider"/>
+
 
         <additionalLibraryRootsProvider
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
