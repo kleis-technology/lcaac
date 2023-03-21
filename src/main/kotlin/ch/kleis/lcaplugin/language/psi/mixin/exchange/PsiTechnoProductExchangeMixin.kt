@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.mixin.exchange
 
-import ch.kleis.lcaplugin.language.psi.stub.TechnoProductExchangeStub
+import ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode

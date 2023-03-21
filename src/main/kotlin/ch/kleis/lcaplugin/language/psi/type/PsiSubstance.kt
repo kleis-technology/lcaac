@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.stub.SubstanceStub
+import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockImpacts
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField

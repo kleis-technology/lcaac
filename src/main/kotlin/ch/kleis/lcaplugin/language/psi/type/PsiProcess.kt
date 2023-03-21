@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
+import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
 import ch.kleis.lcaplugin.language.psi.type.block.*
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
@@ -9,10 +10,11 @@ import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.ResolveState
+import com.intellij.psi.StubBasedPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 
-interface PsiProcess : PsiUIDOwner {
+interface PsiProcess : PsiUIDOwner, StubBasedPsiElement<ProcessStub> {
     fun getParameters(): Map<String, PsiQuantity> {
         return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
             .map { it.psi as PsiParameters }
