@@ -50,7 +50,7 @@
       COMMENT_BLOCK_START = 'comment-block-start'
       COMMENT_BLOCK_END = 'comment-block-end'
       COMMENT_CONTENT = 'comment-content'
-      COMMENT_LINE_START = 'comment-line-start'
+      COMMENT_LINE = 'comment-line'
       PLUS = "plus"
       MINUS = "MINUS"
       DOT = "dot"

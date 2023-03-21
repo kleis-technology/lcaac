@@ -23,7 +23,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
         DefaultWordsScanner(
             LcaLexerAdapter(),
             TokenSet.create(IDENTIFIER),
-            TokenSet.create(COMMENT_LINE_START, COMMENT_CONTENT, COMMENT_BLOCK_START, COMMENT_BLOCK_END),
+            TokenSet.create(COMMENT_LINE, COMMENT_CONTENT, COMMENT_BLOCK_START, COMMENT_BLOCK_END),
             TokenSet.EMPTY,
         )
 

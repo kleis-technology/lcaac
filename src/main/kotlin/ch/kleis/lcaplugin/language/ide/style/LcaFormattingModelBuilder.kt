@@ -14,13 +14,13 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
             return SpacingBuilder(settings, INSTANCE)
                 // Before Block
                 .before(IMPORT)
-                .spacing(0, 0, 0, false, 2)
+                .spacing(0, 0, 0, true, 2)
                 .before(UNIT_LITERAL)
-                .spacing(0, 0, 0, false, 1)
+                .spacing(0, 0, 0, true, 1)
                 .before(PROCESS)
-                .spacing(0, 0, 0, false, 1)
+                .spacing(0, 0, 0, true, 1)
                 .before(SUBSTANCE)
-                .spacing(0, 0, 0, false, 1)
+                .spacing(0, 0, 0, true, 1)
                 // Braces
                 .before(RBRACE)
                 .spacing(0, 0, 0, true, 0)
@@ -58,6 +58,11 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .spacing(0 , 0, 0, true, 1)
                 .beforeInside(BLOCK_META, PROCESS)
                 .spacing(0 , 0, 0, true, 1)
+                // Comments
+                .before(COMMENT_CONTENT)
+                .spaces(0)
+                .before(COMMENT_BLOCK_END)
+                .spaces(0)
                 // Formula
                 .around(PLUS).spaces(1)
                 .around(MINUS).spaces(1)
