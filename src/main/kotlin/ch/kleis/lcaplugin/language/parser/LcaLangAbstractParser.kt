@@ -130,6 +130,7 @@ class LcaLangAbstractParser(
     }
 
     private fun process(psiProcess: PsiProcess): TemplateExpression {
+        val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
         val products = psiProcess.getProducts().map { technoProductExchange(it) }
@@ -139,6 +140,7 @@ class LcaLangAbstractParser(
         val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
+            name = name,
             products = products,
             inputs = inputs,
             biosphere = biosphere,
@@ -216,14 +218,10 @@ class LcaLangAbstractParser(
     private fun fromProcessConstraint(psiFromProcessConstraint: PsiFromProcessConstraint?): Constraint {
         return psiFromProcessConstraint?.let {
             FromProcessRef(
-                template = processTemplateRef(it.getProcessTemplateRef()),
+                ref = it.getProcessTemplateRef().name,
                 arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantity(q.value) },
             )
         } ?: None
-    }
-
-    private fun processTemplateRef(psiProcessTemplateRef: PsiProcessTemplateRef): ETemplateRef {
-        return ETemplateRef(psiProcessTemplateRef.name)
     }
 
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {

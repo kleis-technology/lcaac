@@ -62,6 +62,7 @@ class QuantityExpressionTest {
             mapOf("a" to QuantityFixture.oneKilogram),
             mapOf("b" to QuantityFixture.oneLitre),
             EProcess(
+                name = "process",
                 listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
                 listOf(
                     ETechnoExchange(
@@ -91,6 +92,7 @@ class QuantityExpressionTest {
             mapOf("a" to QuantityFixture.oneKilogram),
             mapOf("b" to QuantityFixture.oneLitre),
             EProcess(
+                name = "process",
                 listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
                 listOf(
                     ETechnoExchange(
@@ -115,6 +117,7 @@ class QuantityExpressionTest {
             mapOf("a" to QuantityFixture.oneKilogram),
             mapOf("b" to QuantityFixture.oneLitre),
             EProcess(
+                name = "process",
                 listOf(ETechnoExchange(EQuantityRef("a"), ProductFixture.carrot)),
                 listOf(
                     ETechnoExchange(

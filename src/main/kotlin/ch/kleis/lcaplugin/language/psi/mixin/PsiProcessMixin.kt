@@ -13,7 +13,7 @@ abstract class PsiProcessMixin : StubBasedPsiElementBase<ProcessStub>, PsiProces
     constructor(node: ASTNode) : super(node)
     constructor(stub: ProcessStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return super<PsiProcess>.getName()
     }
 

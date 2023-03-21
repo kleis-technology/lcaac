@@ -31,10 +31,16 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot,
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.twoLitres),
+                        )
+                    ),
                 )
             ),
             listOf(
@@ -55,6 +61,7 @@ class ReduceAndCompleteTest {
             params = emptyMap(),
             locals = emptyMap(),
             body = EProcess(
+                name = "process",
                 products = emptyList(),
                 inputs = emptyList(),
                 biosphere = listOf(
@@ -72,6 +79,7 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "process",
             emptyList(),
             emptyList(),
             listOf(
@@ -100,10 +108,17 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                            ConstraintFlag.IS_DEFAULT,
+                        )
+                    )
                 )
             ),
             listOf(
@@ -136,10 +151,17 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                            ConstraintFlag.IS_DEFAULT,
+                        )
+                    )
                 )
             ),
             listOf(

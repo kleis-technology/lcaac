@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
+import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.Helper
@@ -20,6 +21,9 @@ class TemplateExpressionReducer(
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
     private val helper = Helper()
+    private val everyConstraintInProducts = LcaProcessExpression.eProcess.products compose
+            Every.list() compose
+            ETechnoExchange.product.eConstrainedProduct.constraint
 
     override fun reduce(expression: TemplateExpression): TemplateExpression {
         return when (expression) {
@@ -51,19 +55,41 @@ class TemplateExpressionReducer(
                     localRegister,
                     unitRegister
                 )
+                val quantityReducer = QuantityExpressionReducer(
+                    localRegister, unitRegister,
+                )
 
                 var result = template.body
                 actualArguments.forEach {
                     result = helper.substitute(it.key, it.value, result)
                 }
-                return EProcessFinal(
-                    reducer.reduce(result) as LcaProcessExpression
-                )
+                result = reducer.reduce(result) as EProcess
+                result = constrainProducts(result as EProcess, template.params, actualArguments, quantityReducer)
+                return EProcessFinal(result)
             }
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
             is ETemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
         }
+    }
+
+    private fun constrainProducts(
+        result: EProcess,
+        templateParams: Map<String, QuantityExpression>,
+        actualArguments: Map<String, QuantityExpression>,
+        quantityReducer: QuantityExpressionReducer
+    ) = everyConstraintInProducts.modify(result) {
+        val reducedTemplateParams = templateParams.mapValues { quantityReducer.reduce(it.value) }
+        val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
+        val flag =
+            if (reducedActualArguments == reducedTemplateParams)
+                ConstraintFlag.IS_DEFAULT
+            else ConstraintFlag.NONE
+        FromProcessRef(
+            result.name,
+            reducedActualArguments,
+            flag,
+        )
     }
 }

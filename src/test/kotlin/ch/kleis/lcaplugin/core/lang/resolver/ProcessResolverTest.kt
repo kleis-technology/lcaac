@@ -1,5 +1,7 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang.resolver
 
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
@@ -19,6 +21,7 @@ class ProcessResolverTest {
                 Pair("q_carrot", QuantityFixture.oneKilogram)
             ),
             body = EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
                 ),
@@ -32,6 +35,7 @@ class ProcessResolverTest {
             params = emptyMap(),
             locals = emptyMap(),
             body = EProcess(
+                name = "salad_production",
                 products = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
@@ -52,7 +56,7 @@ class ProcessResolverTest {
         val resolver = ProcessResolver(symbolTable)
 
         // when
-        val actual = resolver.resolve("carrot")
+        val actual = resolver.resolveByProductName("carrot")
 
         // then
         assertEquals(setOf("carrot_production" to carrotProduction), actual)
@@ -69,6 +73,7 @@ class ProcessResolverTest {
                 Pair("q_carrot", QuantityFixture.oneKilogram)
             ),
             body = EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
                         EQuantityRef("q_carrot"), EConstrainedProduct(
@@ -87,6 +92,7 @@ class ProcessResolverTest {
             params = emptyMap(),
             locals = emptyMap(),
             body = EProcess(
+                name = "salad_production",
                 products = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
@@ -107,7 +113,7 @@ class ProcessResolverTest {
         val resolver = ProcessResolver(symbolTable)
 
         // when
-        val actual = resolver.resolve("carrot")
+        val actual = resolver.resolveByProductName("carrot")
 
         // then
         assertEquals(setOf("carrot_production" to carrotProduction), actual)

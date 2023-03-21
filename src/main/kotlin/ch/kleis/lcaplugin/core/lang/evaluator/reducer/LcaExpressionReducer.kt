@@ -59,6 +59,7 @@ class LcaExpressionReducer(
     private fun reduceLcaProcessExpression(expression: LcaProcessExpression): LcaProcessExpression {
         return when (expression) {
             is EProcess -> EProcess(
+                expression.name,
                 expression.products.map { reduceTechnoExchange(it) },
                 expression.inputs.map { reduceTechnoExchange(it) },
                 expression.biosphere.map { reduceBioExchange(it) },

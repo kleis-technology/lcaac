@@ -15,6 +15,7 @@ class TemplateFixture {
                 Pair("q_carrot", QuantityFixture.oneKilogram)
             ),
             body = EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
                 ),
@@ -28,6 +29,7 @@ class TemplateFixture {
             params = emptyMap(),
             locals = emptyMap(),
             body = EProcess(
+                name = "with_unbounded_ref",
                 products = listOf(
                     ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
                 ),

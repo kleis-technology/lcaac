@@ -17,6 +17,10 @@ sealed interface LcaProductExpression : LcaExpression {
 data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
     LcaProductExpression {
     companion object
+
+    fun withConstraint(constraint: Constraint): EConstrainedProduct {
+        return EConstrainedProduct(product, constraint)
+    }
 }
 
 @optics
@@ -131,6 +135,7 @@ sealed interface LcaProcessExpression : LcaExpression {
 
 @optics
 data class EProcess(
+    val name: String,
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,

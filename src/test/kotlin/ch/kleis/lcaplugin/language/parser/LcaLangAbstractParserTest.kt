@@ -192,7 +192,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(products=[], inputs=[], biosphere=[]))",
+                "reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(name=a, products=[], inputs=[], biosphere=[]))",
                 e.message
             )
         }
@@ -349,6 +349,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             params = emptyMap(),
             locals = emptyMap(),
             EProcess(
+                name = "a",
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(1.0, EQuantityRef("kg")),
@@ -525,7 +526,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 EConstrainedProduct(
                     EProductRef("water"),
                     FromProcessRef(
-                        ETemplateRef("water_proc"),
+                        "water_proc",
                         mapOf("x" to EQuantityScale(3.0, EQuantityRef("l"))),
                     ),
                 )

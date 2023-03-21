@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 class ProcessFixture {
     companion object {
         val carrotProduction = EProcess(
+            name = "carrot_production",
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
             ),
