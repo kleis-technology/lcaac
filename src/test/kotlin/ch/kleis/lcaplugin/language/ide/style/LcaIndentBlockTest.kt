@@ -330,6 +330,168 @@ scale = 1
         )
     }
 
+    @Test
+    fun test_formattingLineComments() {
+        doTextTest(
+            """  
+                // Before1
+            import ef31
+                // Before
+            process farm_carrot {
+            // You
+                    // You
+                params {
+                        // All quantities are strongly typed
+            // All quantities are strongly typed
+                    qElec = 3.0 kJ
+                }
+            }
+                // Before
+        // Before
+            substance propanol_eau {
+                    // Before
+            // Before
+                name = "propanol"
+                compartment = "eau"
+                reference_unit = kg
+            }
+                // Before
+        // Before
+            unit Tonne {
+                    // Before
+            // Before
+                symbol = "T"
+                scale = 1000
+                dimension = "mass"
+            }
+ """.trimIndent(), """
+            // Before1
+            import ef31
+            // Before
+            process farm_carrot {
+                // You
+                // You
+                params {
+                    // All quantities are strongly typed
+                    // All quantities are strongly typed
+                    qElec = 3.0 kJ
+                }
+            }
+            // Before
+            // Before
+            substance propanol_eau {
+                // Before
+                // Before
+                name = "propanol"
+                compartment = "eau"
+                reference_unit = kg
+            }
+            // Before
+            // Before
+            unit Tonne {
+                // Before
+                // Before
+                symbol = "T"
+                scale = 1000
+                dimension = "mass"
+            }
+""".trimIndent()
+        )
+    }
+    @Test
+    fun test_formattingBlockComments() {
+        // There ise clear limitation at the moment: the formatter only realign COMMENT_BLOCK_START, not COMMENT_CONTENT or COMMENT_BLOCK_END
+        doTextTest(
+            """  
+                  /* Before1
+            k dja
+            */
+            import ef31
+                  /* Before2
+            k djb
+            */
+            process farm_carrot {
+                  /* Before3
+                k djc
+                */
+                params {
+                  /* Before4
+                    k djd
+                    */
+                    qElec = 3.0 kJ
+                }
+            }
+            
+                  /* Before5
+            k dje
+            */
+            substance propanol_eau {
+                  /* Before6
+                k djf
+                */
+                name = "propanol"
+                compartment = "eau"
+                reference_unit = kg
+            }
+            
+                  /* Before7
+            k djg
+            */
+            unit Tonne {
+                  /* Before8
+                k djh
+                */
+                symbol = "T"
+                scale = 1000
+                dimension = "mass"
+            }
+ """.trimIndent(), """
+             /* Before1
+             k dja
+             */
+             import ef31
+             /* Before2
+             k djb
+             */
+             process farm_carrot {
+                 /* Before3
+                 k djc
+                 */
+                 params {
+                     /* Before4
+                     k djd
+                     */
+                     qElec = 3.0 kJ
+                 }
+             }
+        
+             /* Before5
+             k dje
+             */
+             substance propanol_eau {
+                 /* Before6
+                 k djf
+                 */
+                 name = "propanol"
+                 compartment = "eau"
+                 reference_unit = kg
+             }
+        
+             /* Before7
+             k djg
+             */
+             unit Tonne {
+                 /* Before8
+                 k djh
+                 */
+                 symbol = "T"
+                 scale = 1000
+                 dimension = "mass"
+             }
+""".trimIndent()
+        )
+    }
+
     override fun getTestDataPath(): String {
         return ""
     }

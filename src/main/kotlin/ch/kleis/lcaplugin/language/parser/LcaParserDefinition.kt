@@ -39,7 +39,7 @@ class LcaParserDefinition : ParserDefinition {
             LcaTypes.COMMENT_BLOCK_START,
             LcaTypes.COMMENT_CONTENT,
             LcaTypes.COMMENT_BLOCK_END,
-            LcaTypes.COMMENT_LINE_START
+            LcaTypes.COMMENT_LINE
         )
     }
 

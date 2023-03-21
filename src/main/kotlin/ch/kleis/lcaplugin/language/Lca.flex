@@ -30,19 +30,13 @@ Number_Int = [0-9][0-9]*
 
 CommentContent = .*
 
-%state COMMENT_BLOCK, COMMENT_LINE
+%state COMMENT_BLOCK
 %%
 
-<YYINITIAL> "//"                     {
-                                         yybegin(COMMENT_LINE);
-                                         return LcaTypes.COMMENT_LINE_START;
-                                     }
-
-<COMMENT_LINE> {CommentContent}      {
+<YYINITIAL> "//"{CommentContent}    {
                                          yybegin(YYINITIAL);
-                                         return LcaTypes.COMMENT_CONTENT;
+                                         return LcaTypes.COMMENT_LINE;
                                      }
-
 
 <YYINITIAL> "/*"                     {
                                          commentDepth = 0;

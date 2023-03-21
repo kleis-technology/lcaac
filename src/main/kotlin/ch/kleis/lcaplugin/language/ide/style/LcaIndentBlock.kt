@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.psi.LcaTypes.*
 import com.intellij.formatting.*
 import com.intellij.lang.ASTNode
 import com.intellij.psi.formatter.common.AbstractBlock
+import com.intellij.psi.impl.source.tree.PsiCommentImpl
 import com.intellij.psi.tree.TokenSet.*
 
 class LcaIndentBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
@@ -19,13 +20,7 @@ class LcaIndentBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
     }
 
     override fun getIndent(): Indent? {
-
-        if (node.firstChildNode == null) {
-            return Indent.getNoneIndent()
-        }
-
-        if (node.elementType == VARIABLES
-            && node.treeParent.psi is LcaFile) {
+        if (node.treeParent?.psi is LcaFile) {
             return Indent.getNoneIndent()
         }
 
@@ -34,7 +29,8 @@ class LcaIndentBlock(node: ASTNode, private val spaceBuilder: SpacingBuilder) :
             BLOCK_INPUTS, BLOCK_PRODUCTS, BLOCK_RESOURCES, BLOCK_EMISSIONS, BLOCK_IMPACTS, BLOCK_META, BLOCK_LAND_USE,
             TECHNO_PRODUCT_EXCHANGE, TECHNO_INPUT_EXCHANGE, BIO_EXCHANGE, IMPACT_EXCHANGE,
             NAME_FIELD, SYMBOL_FIELD, DIM_FIELD, REFERENCE_UNIT_FIELD, COMPARTMENT_FIELD, SUB_COMPARTMENT_FIELD,
-            SCALE_FIELD, META_ASSIGNMENT
+            SCALE_FIELD, META_ASSIGNMENT,
+            COMMENT_LINE, COMMENT_BLOCK_START, COMMENT_CONTENT, COMMENT_BLOCK_END
             -> Indent.getNormalIndent(true)
 
             else -> Indent.getNoneIndent()
