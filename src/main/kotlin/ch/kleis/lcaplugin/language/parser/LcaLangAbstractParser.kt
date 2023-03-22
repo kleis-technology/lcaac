@@ -41,7 +41,7 @@ class LcaLangAbstractParser(
         val templates = Register.empty<TemplateExpression>()
         files
             .flatMap { it.getProcesses() }
-            .map { Pair(it.getUID().name, process(it)) }
+            .map { Pair(it.getProcessTemplateRef().getUID().name, process(it)) }
             .forEach {
                 templates[it.first] = it.second
             }

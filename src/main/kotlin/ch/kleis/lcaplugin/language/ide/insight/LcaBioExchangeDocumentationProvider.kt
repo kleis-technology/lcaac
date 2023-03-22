@@ -40,7 +40,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
             }
             is LcaProcess -> {
                 val sb = StringBuilder()
-                documentTitle(sb, "Process", element.name)
+                documentTitle(sb, "Process", element.getProcessTemplateRef().name)
                 documentProcessParams(sb, element)
                 addSeparatorLine(sb)
                 sb.toString()
@@ -94,7 +94,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         if (process == null) {
             documentUid(sb, "unknown")
         } else {
-            documentUid(sb, process.uid.name)
+            documentUid(sb, process.getProcessTemplateRef().uid.name)
         }
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }
