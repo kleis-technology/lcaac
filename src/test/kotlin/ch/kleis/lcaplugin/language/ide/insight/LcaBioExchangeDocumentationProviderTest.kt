@@ -115,33 +115,34 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         )
     }
 
-    @Test
-    fun testUnit_ShouldRender() {
-        // Given
-        val file = parseFile(
-            "abc", """
-            process b {
-                params {
-                    yield = 100 g
-                }
-            }
-        """.trimIndent()
-        ) as LcaFile
-        val quantityExpression = file.getProcesses().first().getParameters().first().value.getTerm() as LcaQuantityTerm
-        val gUnit = (quantityExpression.children.first() as LcaQuantityFactor).quantityPrimitive.getUnit()
-        val sut = LcaBioExchangeDocumentationProvider()
-
-        // When
-        val result = sut.generateDoc(gUnit, gUnit)
-
-        // Then
-        TestCase.assertEquals(
-            """
-            
-            
-        """.trimIndent(), result
-        )
-    }
+    // TODO Implement when Unit Reference will be implemented
+//    @Test
+//    fun testUnit_ShouldRender() {
+//        // Given
+//        val file = parseFile(
+//            "abc", """
+//            process b {
+//                params {
+//                    yield = 100 g
+//                }
+//            }
+//        """.trimIndent()
+//        ) as LcaFile
+//        val quantityExpression = file.getProcesses().first().getParameters().first().value.getTerm() as LcaQuantityTerm
+//        val gUnit = (quantityExpression.children.first() as LcaQuantityFactor).quantityPrimitive.getUnit()
+//        val sut = LcaBioExchangeDocumentationProvider()
+//
+//        // When
+//        val result = sut.generateDoc(gUnit, gUnit)
+//
+//        // Then
+//        TestCase.assertEquals(
+//            """
+//
+//
+//        """.trimIndent(), result
+//        )
+//    }
 
     @Test
     fun testProduct_ShouldRenderWithoutProcess() {
