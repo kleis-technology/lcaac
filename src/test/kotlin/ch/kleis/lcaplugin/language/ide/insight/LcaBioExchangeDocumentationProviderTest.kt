@@ -237,6 +237,67 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         )
     }
 
+  @Test
+    fun testProcess_ShouldRenderWithProcessAndMeta() {
+        // Given
+        val file = parseFile(
+            "abc", """
+            process b {
+                meta {
+                    author = "Alain Colas"
+                    description = "Propan-1-ol..."
+                }
+                params {
+                    p1 = 1 kg
+                    p2 = p1 + p1
+                }            
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val process = file.getProcesses().first() as LcaProcess
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(process, process)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Process</span> <span style="color:#0000ff;font-weight:bold;">b</span>
+        </pre></div>
+        <div class='content'>
+        <span style="">Propan-1-ol...</span></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Author</td>
+        <td valign='top'>Alain Colas</td>
+        </tr>
+        </table>
+        </div>
+        <div class='content'>
+        <span style="color:#808080;font-style:italic;">Process Parameters:</span><table class='sections'>
+        <tr>
+        <td valign='top' class='section'>p1 = </td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>p2 = </td>
+        <td valign='top'>p1 + p1</td>
+        </tr>
+        </table>
+        </div>
+        <div class='definition'><pre>
+        </pre></div>
+
+        """.trimIndent(), result
+        )
+    }
+
 
     override fun getTestDataPath(): String {
         return ""
