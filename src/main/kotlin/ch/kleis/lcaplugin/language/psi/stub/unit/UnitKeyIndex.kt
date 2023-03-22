@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
 class UnitKeyIndex : StringStubIndexExtension<PsiUnitLiteral>() {
@@ -17,6 +18,7 @@ class UnitKeyIndex : StringStubIndexExtension<PsiUnitLiteral>() {
             project: Project,
             target: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-        ) : Collection<PsiUnitLiteral> = TODO()
+        ) : Collection<PsiUnitLiteral> =
+            StubIndex.getElements(LcaStubIndexKeys.UNITS, target, project, scope, PsiUnitLiteral::class.java)
     }
 }

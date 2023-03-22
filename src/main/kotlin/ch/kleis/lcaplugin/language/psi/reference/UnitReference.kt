@@ -1,23 +1,42 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
+import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiPolyVariantReference
-import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.ResolveResult
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.psi.*
+import com.intellij.psi.stubs.StubIndex
 
 class UnitReference(
     element: PsiUnitRef,
 ) : PsiReferenceBase<PsiUnitRef>(element), PsiPolyVariantReference {
+    private val file = element.containingFile as LcaFile
+    private val packages = file.getImports().map { it.getPackageName() }
+        .plus(file.getPackageName())
+
     override fun resolve(): PsiElement? {
-        TODO("Not yet implemented")
+        val resolveResults = multiResolve(false)
+        return if (resolveResults.size == 1) resolveResults[0].element else null
+    }
+
+    private fun pkgNameOf(element: PsiElement): String {
+        return (element.containingFile as LcaFile).getPackageName()
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        TODO("Not yet implemented")
+        return UnitKeyIndex.findUnits(
+            element.project,
+            element.name,
+        ).filter { packages.contains(pkgNameOf(it)) }
+            .map { PsiElementResolveResult(it) }
+            .toTypedArray()
     }
 
     override fun getVariants(): Array<Any> {
-        TODO("Not yet implemented")
+        return StubIndex.getInstance()
+            .getAllKeys(LcaStubIndexKeys.UNITS, element.project)
+            .map { LookupElementBuilder.create(it) }
+            .toTypedArray()
     }
 }

@@ -27,7 +27,7 @@ class ProcessStubElementType(debugName: String) :
         return ProcessStubImpl(
             parentStub as StubElement<PsiProcess>,
             tree.charTable.intern(keyNode.text).toString()
-        );
+        )
     }
 
     override fun createStub(psi: PsiProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
