@@ -303,6 +303,8 @@ unitPrimitive ::=
 unitLiteral ::= UNIT_KEYWORD uid LBRACE symbolField scaleField dimField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.unit.UnitStub"
 }
 
 /*

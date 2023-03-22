@@ -87,6 +87,7 @@
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <toolWindow id="LCA Output"
