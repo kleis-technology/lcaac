@@ -53,6 +53,9 @@
         <lang.syntaxHighlighterFactory
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
+        <lang.documentationProvider
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeDocumentationProvider"/>
 
         <annotator
                 language="LCA"
