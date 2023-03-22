@@ -38,7 +38,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .aroundInside(UID, UNIT_LITERAL)
                 .spaces(1)
                 // PROCESS
-                .aroundInside(UID, PROCESS)
+                .aroundInside(PROCESS_TEMPLATE_REF, PROCESS)
                 .spaces(1)
                 .betweenInside(IDENTIFIER, LBRACE, PROCESS)
                 .spacing(1, 1, 0, false, 0)

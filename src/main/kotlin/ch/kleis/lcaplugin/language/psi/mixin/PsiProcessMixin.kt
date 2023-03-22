@@ -1,9 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.mixin
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
@@ -15,6 +13,10 @@ abstract class PsiProcessMixin : StubBasedPsiElementBase<ProcessStub>, PsiProces
     constructor(node: ASTNode) : super(node)
     constructor(stub: ProcessStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
+    override fun getName(): String? {
+        return super<PsiProcess>.getName()
+    }
+
     override fun processDeclarations(
         processor: PsiScopeProcessor,
         state: ResolveState,
@@ -22,9 +24,5 @@ abstract class PsiProcessMixin : StubBasedPsiElementBase<ProcessStub>, PsiProces
         place: PsiElement
     ): Boolean {
         return super<PsiProcess>.processDeclarations(processor, state, lastParent, place)
-    }
-
-    override fun getName(): String {
-        return super<PsiProcess>.getName()
     }
 }

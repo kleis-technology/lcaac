@@ -31,7 +31,7 @@ class ProcessStubElementType(debugName: String) :
     }
 
     override fun createStub(psi: PsiProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
-        val uid = psi.getUID().name
+        val uid = psi.getProcessTemplateRef().getUID().name
         return ProcessStubImpl(parentStub as StubElement<PsiProcess>, uid)
     }
 
