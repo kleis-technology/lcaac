@@ -77,6 +77,8 @@
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiTechnoProductExchangeManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiUnitRefManipulator"/>
         <lang.findUsagesProvider language="LCA"
                                  implementationClass="ch.kleis.lcaplugin.language.ide.find_usage.LcaFindUsagesProvider"/>
 
@@ -87,6 +89,7 @@
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
         <toolWindow id="LCA Output"

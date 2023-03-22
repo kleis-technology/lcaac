@@ -1,10 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.manipulators
 
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
+import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
@@ -20,6 +17,7 @@ class PsiQuantityRefManipulator() : PsiUIDOwnerManipulator<PsiQuantityRef>()
 class PsiSubstanceRefManipulator() : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiProcessTemplateRefManipulator() : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
+class PsiUnitRefManipulator(): PsiUIDOwnerManipulator<PsiUnitRef>()
 
 class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
     override fun handleContentChange(

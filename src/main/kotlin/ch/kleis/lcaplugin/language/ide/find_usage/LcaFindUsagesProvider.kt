@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
 import ch.kleis.lcaplugin.psi.LcaTypes.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.cacheBuilder.WordsScanner
@@ -31,6 +32,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
         when (psiElement) {
             is PsiTechnoProductExchange -> true
             is PsiSubstance -> true
+            is PsiUnitLiteral -> true
             else -> false
         }
 
@@ -41,6 +43,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
             is PsiSubstance -> "Substance"
             is PsiTechnoInputExchange -> "Product"
             is PsiTechnoProductExchange -> "Product"
+            is PsiUnitLiteral -> "Unit"
             else -> ""
         }
 
