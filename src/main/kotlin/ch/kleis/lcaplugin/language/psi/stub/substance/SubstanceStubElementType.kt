@@ -29,7 +29,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
-        val uid = psi.getUID().name
+        val uid = psi.getSubstanceRef().getUID().name
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, uid)
     }
 

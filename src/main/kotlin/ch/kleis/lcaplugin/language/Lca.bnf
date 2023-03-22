@@ -87,7 +87,7 @@ import ::= IMPORT_KEYWORD urn {
     Substance
  */
 
-substance ::= SUBSTANCE_KEYWORD uid LBRACE
+substance ::= SUBSTANCE_KEYWORD substanceRef LBRACE
     nameField
     compartmentField
     subCompartmentField?

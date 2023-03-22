@@ -25,7 +25,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         return when (element) {
             is LcaSubstance -> {
                 val sb = StringBuilder()
-                documentTitle(sb, "Substance", element.name)
+                documentTitle(sb, "Substance", element.getSubstanceRef().name)
                 documentBlockMetaOwner(sb, element)
                 documentSubstanceData(sb, element)
                 sb.toString()

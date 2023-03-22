@@ -58,7 +58,7 @@ class LcaLangAbstractParser(
         val substances = Register.empty<LcaSubstanceExpression>()
         files
             .flatMap { it.getSubstances() }
-            .map { Pair(it.getUID().name, substance(it)) }
+            .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
             .forEach {
                 substances[it.first] = it.second
             }
@@ -67,7 +67,7 @@ class LcaLangAbstractParser(
         files
             .flatMap { it.getSubstances() }
             .filter { it.hasImpacts() }
-            .map { Pair(it.getUID().name, substanceCharacterization(it)) }
+            .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
             .forEach {
                 substanceCharacterizations[it.first] = it.second
             }
@@ -84,7 +84,7 @@ class LcaLangAbstractParser(
 
     private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
         return ESubstance(
-            psiSubstance.name,
+            psiSubstance.getSubstanceRef().name,
             psiSubstance.getNameField().getValue(),
             psiSubstance.getCompartmentField().getValue(),
             psiSubstance.getSubcompartmentField()?.getValue(),
@@ -142,7 +142,7 @@ class LcaLangAbstractParser(
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
-        val substanceRef = substanceRef(psiSubstance.getUID().name)
+        val substanceRef = substanceRef(psiSubstance.getSubstanceRef().getUID().name)
         val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
         val referenceExchange = EBioExchange(quantity, substanceRef)
         val impacts = psiSubstance.getImpactExchanges().map { impact(it) }
