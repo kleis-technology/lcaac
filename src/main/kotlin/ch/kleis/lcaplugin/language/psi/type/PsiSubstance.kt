@@ -19,7 +19,7 @@ interface PsiSubstance: BlockMetaOwner, PsiNameIdentifierOwner, StubBasedPsiElem
         return node.findChildByType(LcaTypes.SUBSTANCE_REF)?.psi as PsiSubstanceRef
     }
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return getSubstanceRef().name
     }
 

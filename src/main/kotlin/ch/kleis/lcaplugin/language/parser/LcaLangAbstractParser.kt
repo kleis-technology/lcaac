@@ -26,7 +26,7 @@ class LcaLangAbstractParser(
         val globals = Register(Prelude.unitQuantities)
         files
             .flatMap { it.getUnitLiterals() }
-            .map { it.getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
             .forEach {
                 globals[it.first] = it.second
             }
@@ -39,7 +39,7 @@ class LcaLangAbstractParser(
         val units = Register(Prelude.units)
         files
             .flatMap { it.getUnitLiterals() }
-            .map { Pair(it.getUID().name, unitLiteral(it)) }
+            .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
             .forEach {
                 units[it.first] = it.second
             }

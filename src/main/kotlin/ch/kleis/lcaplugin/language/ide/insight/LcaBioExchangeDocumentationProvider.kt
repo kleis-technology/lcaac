@@ -56,7 +56,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
                     val elt = element.parent as LcaUnitRef
                     // As for now Prelude Unit can't be resolved
                     (elt.reference?.resolve() as LcaUnitLiteral?)?.let { unit ->
-                        documentTitle(sb, "Unit", unit.getUID().name)
+                        documentTitle(sb, "Unit", unit.getUnitRef().getUID().name)
                         documentUnitData(sb, unit)
                     } ?: run {
                         documentTitle(sb, "Native Unit", elt.getUID().name)
