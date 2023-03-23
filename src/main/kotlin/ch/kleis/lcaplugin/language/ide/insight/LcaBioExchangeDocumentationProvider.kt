@@ -33,14 +33,18 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
 
             is LcaTechnoProductExchange -> {
                 val sb = StringBuilder()
-                documentProductTitle(sb, element.getProductRef(), element.parent?.parent as LcaProcess?)
-                documentProcessParams(sb, element.parent?.parent as LcaProcess?)
+                val processProducer = element.parent?.parent as LcaProcess?
+                documentProductTitle(sb, element.getProductRef(), processProducer)
+                documentBlockMetaOwner(sb, processProducer)
+                documentProcessParams(sb, processProducer)
                 addSeparatorLine(sb)
                 sb.toString()
             }
+
             is LcaProcess -> {
                 val sb = StringBuilder()
                 documentTitle(sb, "Process", element.getProcessTemplateRef().name)
+                documentBlockMetaOwner(sb, element)
                 documentProcessParams(sb, element)
                 addSeparatorLine(sb)
                 sb.toString()
@@ -94,7 +98,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         if (process == null) {
             documentUid(sb, "unknown")
         } else {
-            documentUid(sb, process.getProcessTemplateRef().uid.name)
+            documentUid(sb, process.getProcessTemplateRef().name)
         }
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }
@@ -140,23 +144,25 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         if (withCR) sb.append("\n")
     }
 
-    private fun documentBlockMetaOwner(sb: StringBuilder, blockOwner: BlockMetaOwner) {
-        val meta = blockOwner.getBlockMetaList()
-            .flatMap { it.metaAssignmentList }
-            .associate { Pair(it.name, it.getValue()) }
-        val desc = meta["description"]
-        if (desc != null) {
-            sb.append(DocumentationMarkup.CONTENT_START).append("\n")
-            HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), desc, 0.5f)
-            sb.append(DocumentationMarkup.CONTENT_END).append("\n")
-        }
-        val author = meta["author"]
-        if (author != null) {
-            sb.append(DocumentationMarkup.CONTENT_START).append("\n")
-            sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
-            addKeyValueSection("Author", author, sb)
-            sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
-            sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+    private fun documentBlockMetaOwner(sb: StringBuilder, blockOwner: BlockMetaOwner?) {
+        if (blockOwner != null) {
+            val meta = blockOwner.getBlockMetaList()
+                .flatMap { it.metaAssignmentList }
+                .associate { Pair(it.name, it.getValue()) }
+            val desc = meta["description"]
+            if (desc != null) {
+                sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+                HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), desc, 0.5f)
+                sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+            }
+            val author = meta["author"]
+            if (author != null) {
+                sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+                sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
+                addKeyValueSection("Author", author, sb)
+                sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
+                sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+            }
         }
     }
 
