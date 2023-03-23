@@ -273,7 +273,7 @@ quantityFactor ::= quantityPrimitive (HAT NUMBER)? {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityFactorMixin"
 }
 
-quantityPrimitive ::= NUMBER unit | LPAREN quantity RPAREN | quantityRef {
+quantityPrimitive ::= NUMBER quantityRef | LPAREN quantity RPAREN | quantityRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityPrimitiveMixin"
 }
@@ -300,7 +300,7 @@ unitPrimitive ::=
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
 
-unitLiteral ::= UNIT_KEYWORD uid LBRACE symbolField scaleField dimField RBRACE {
+unitLiteral ::= UNIT_KEYWORD unitRef LBRACE symbolField scaleField dimField RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"

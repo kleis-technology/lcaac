@@ -23,7 +23,13 @@ class LcaLangAbstractParser(
     private val files: List<LcaFile>,
 ) {
     fun load(): SymbolTable {
-        val globals = Register.empty<QuantityExpression>()
+        val globals = Register(Prelude.unitQuantities)
+        files
+            .flatMap { it.getUnitLiterals() }
+            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+            .forEach {
+                globals[it.first] = it.second
+            }
         files
             .flatMap { it.getAssignments()}
             .forEach {
@@ -33,7 +39,7 @@ class LcaLangAbstractParser(
         val units = Register(Prelude.units)
         files
             .flatMap { it.getUnitLiterals() }
-            .map { Pair(it.getUID().name, unitLiteral(it)) }
+            .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
             .forEach {
                 units[it.first] = it.second
             }
@@ -272,11 +278,10 @@ class LcaLangAbstractParser(
 
     private fun qPrimitive(primitive: PsiQuantityPrimitive): QuantityExpression {
         return when (primitive.getType()) {
-            QuantityPrimitiveType.LITERAL -> EQuantityLiteral(
+            QuantityPrimitiveType.LITERAL -> EQuantityScale(
                 primitive.getAmount(),
-                unit(primitive.getUnit()),
+                quantityRef(primitive.getRef())
             )
-
             QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen())
             QuantityPrimitiveType.QUANTITY_REF -> quantityRef(primitive.getRef())
         }

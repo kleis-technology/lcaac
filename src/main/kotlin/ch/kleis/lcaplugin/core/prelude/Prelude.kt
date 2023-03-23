@@ -1,7 +1,9 @@
 package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
+import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
 import ch.kleis.lcaplugin.core.lang.expression.UnitExpression
 
 
@@ -16,8 +18,7 @@ class Prelude {
         private val power = energy.divide(time)
         private val none = Dimension.None
         private val radioactivity = Dimension.of("radioactivity")
-
-        val units : Register<UnitExpression> = Register(listOf(
+        private val unitMap = listOf(
             EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),
             EUnitLiteral("person", 1.0, none),
@@ -49,6 +50,11 @@ class Prelude {
             EUnitLiteral("kJ", 1.0e3 / 3600.0, energy),
             EUnitLiteral("MJ", 1.0e6 / 3600.0, energy),
             EUnitLiteral("W", 1.0, power),
-        ).associateBy { it.symbol })
+        ).associateBy { it.symbol }
+
+        val units : Register<UnitExpression> = Register(unitMap)
+        val unitQuantities = Register<QuantityExpression>(
+            unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
+        )
     }
 }

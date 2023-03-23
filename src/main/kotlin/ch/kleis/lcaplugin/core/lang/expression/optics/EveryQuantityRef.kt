@@ -43,6 +43,8 @@ val everyQuantityRefInQuantityExpression =
                         foldMap(M, source.right, map),
                     )
                 )
+
+                is EQuantityScale -> foldMap(M, source.quantity, map)
             }
         }
 
@@ -80,6 +82,11 @@ val everyQuantityRefInQuantityExpression =
                 is EQuantitySub -> EQuantitySub(
                     modify(source.left, map),
                     modify(source.right, map),
+                )
+
+                is EQuantityScale -> EQuantityScale(
+                    source.scale,
+                    modify(source.quantity, map),
                 )
             }
         }

@@ -13,6 +13,11 @@ data class EQuantityLiteral(val amount: Double, val unit: UnitExpression) : Quan
 }
 
 @optics
+data class EQuantityScale(val scale: Double, val quantity: QuantityExpression): QuantityExpression {
+    companion object
+}
+
+@optics
 data class EQuantityAdd(val left: QuantityExpression, val right: QuantityExpression) : QuantityExpression {
     companion object
 }

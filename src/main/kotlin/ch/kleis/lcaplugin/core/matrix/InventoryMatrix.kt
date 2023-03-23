@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.CharacterizationFactorValue
+import ch.kleis.lcaplugin.core.lang.GenericExchangeValue
+import ch.kleis.lcaplugin.core.lang.PortValue
+import ch.kleis.lcaplugin.core.lang.QuantityValue
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 
@@ -13,13 +16,13 @@ class InventoryMatrix(
     private val data: Matrix
 ) : InventoryResult {
     fun value(outputPort: PortValue, inputPort: PortValue): CharacterizationFactorValue {
-        val outputUnit = defaultUnitOf(outputPort.getDimension())
+        val outputUnit = outputPort.getDimension().getDefaultUnitValue()
         val output = GenericExchangeValue(
             QuantityValue(1.0, outputUnit),
             outputPort
         )
 
-        val inputUnit = defaultUnitOf(inputPort.getDimension())
+        val inputUnit = inputPort.getDimension().getDefaultUnitValue()
         val amount = data.value(
             observablePorts.indexOf(outputPort),
             controllablePorts.indexOf(inputPort),
@@ -30,9 +33,5 @@ class InventoryMatrix(
         )
 
         return CharacterizationFactorValue(output, input)
-    }
-
-    private fun defaultUnitOf(dim: Dimension): UnitValue {
-        return UnitValue("default($dim)", 1.0, dim)
     }
 }

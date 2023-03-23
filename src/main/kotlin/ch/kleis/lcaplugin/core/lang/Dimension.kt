@@ -20,6 +20,10 @@ class Dimension(elements: Map<String, Double>) {
         }
     }
 
+    fun getDefaultUnitValue(): UnitValue {
+        return UnitValue("default($this)", 1.0, this)
+    }
+
     fun isNone(): Boolean {
         return this.elements.isEmpty()
     }

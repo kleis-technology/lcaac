@@ -35,7 +35,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .between(LBRACE, BIO_EXCHANGE )
                 .spacing(0, 0, 1, true, 0)
                 // Unit_Literal
-                .aroundInside(UID, UNIT_LITERAL)
+                .aroundInside(UNIT_REF, UNIT_LITERAL)
                 .spaces(1)
                 // PROCESS
                 .aroundInside(PROCESS_TEMPLATE_REF, PROCESS)

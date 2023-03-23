@@ -10,7 +10,7 @@ abstract class PsiSubstanceMixin : StubBasedPsiElementBase<SubstanceStub>, PsiSu
     constructor(node: ASTNode) : super(node)
     constructor(stub: SubstanceStub, nodeType: IStubElementType<*, *>) : super(stub, nodeType)
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return super<PsiSubstance>.getName()
     }
 }

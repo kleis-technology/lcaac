@@ -36,7 +36,7 @@ class UnitElementType(debugName: String): ILightStubElementType<
     }
 
     override fun createStub(psi: PsiUnitLiteral, parentStub: StubElement<out PsiElement>?): UnitStub {
-        val uid = psi.getUID().name
+        val uid = psi.getUnitRef().getUID().name
         return UnitStubImpl(parentStub as StubElement<PsiUnitLiteral>, uid)
     }
 

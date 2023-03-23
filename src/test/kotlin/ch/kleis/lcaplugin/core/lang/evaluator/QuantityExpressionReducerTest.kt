@@ -17,6 +17,41 @@ class QuantityExpressionReducerTest {
      */
 
     @Test
+    fun reduce_whenScale_shouldReduce() {
+        // given
+        val innerQuantity = QuantityFixture.oneKilogram
+        val quantity = EQuantityScale(2.0, innerQuantity)
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduce(quantity)
+
+        // then
+        val expected = QuantityFixture.twoKilograms
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenScaleAndUnboundRef_shouldDoNothing() {
+        // given
+        val innerQuantity = EQuantityRef("a")
+        val quantity = EQuantityScale(2.0, innerQuantity)
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+
+        // when
+        val actual = reducer.reduce(quantity)
+
+        // then
+        assertEquals(quantity, actual)
+    }
+
+    @Test
     fun reduce_whenLiteralWithUnitOf_shouldReduce() {
         // given
         val innerQuantity = QuantityFixture.twoKilograms
