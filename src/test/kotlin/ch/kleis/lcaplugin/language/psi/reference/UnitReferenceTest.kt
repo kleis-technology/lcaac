@@ -26,20 +26,16 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             """
                import my_units
                
-               variables {
-                    x = 1 foo
-               }
+            substance s {
+                name = "s"
+                compartment = "c"
+                reference_unit = foo
+            }
             """.trimIndent()
         ) as LcaFile
-        val ref = file.getPsiVariablesBlocks().first().getEntries().first()
-            .second
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getUnit()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
+        val ref = file.getSubstances().first()
+            .getReferenceUnitField()
+            .getValue().getFactor().getPrimitive().getRef()
             .reference as PsiReference
         val unitFoo = unitFoo()
         val units = listOf(unitFoo, unitBar())
@@ -77,20 +73,16 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             """
                import my_units
                
-               variables {
-                    x = 1 fo
-               }
+            substance s {
+                name = "s"
+                compartment = "c"
+                reference_unit = foo
+            }
             """.trimIndent()
         ) as LcaFile
-        val ref = file.getPsiVariablesBlocks().first().getEntries().first()
-            .second
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getUnit()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
+        val ref = file.getSubstances().first()
+            .getReferenceUnitField()
+            .getValue().getFactor().getPrimitive().getRef()
             .reference as PsiReference
 
         val stubIndex = mockk<StubIndex>()

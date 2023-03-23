@@ -22,6 +22,7 @@ class QuantityExpressionReducer(
             is EQuantityLiteral -> reduceLiteral(expression)
             is EQuantityRef -> reduceRef(expression)
             is EQuantityNeg -> reduceNeg(expression)
+            is EQuantityScale -> reduceScale(expression)
         }
     }
 
@@ -65,6 +66,17 @@ class QuantityExpressionReducer(
         reduceUnit(expression.unit)
     )
 
+    private fun reduceScale(expression: EQuantityScale): QuantityExpression {
+        val quantity = reduce(expression.quantity)
+        val scale = expression.scale
+        if (quantity !is EQuantityLiteral) {
+            return EQuantityScale(scale, quantity)
+        }
+        return EQuantityLiteral(
+            scale * quantity.amount,
+            quantity.unit,
+        )
+    }
 
     private fun reducePow(expression: EQuantityPow): QuantityExpression {
         val quantity = reduce(expression.quantity)

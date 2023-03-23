@@ -92,19 +92,16 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
             
             import xyz
             
-            variables {
-                x = 1 foo
+            substance s {
+                name = "s"
+                compartment = "c"
+                reference_unit = foo
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getPsiVariablesBlocks().first()
-            .getEntries()
-            .first()
-            .second
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getUnit()
+        return file.getSubstances().first()
+            .getReferenceUnitField()
+            .getValue()
             .getFactor()
             .getPrimitive()
             .getRef()
