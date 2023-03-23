@@ -22,8 +22,20 @@ data class SymbolTable(
         return processTemplates[name]
     }
 
+    fun getUnit(name: String): UnitExpression? {
+        return units[name]
+    }
+
+    fun getQuantity(name: String): QuantityExpression? {
+        return quantities[name]
+    }
+
     fun getSubstanceCharacterization(name: String): LcaSubstanceCharacterizationExpression? {
         return substanceCharacterizations[name]
+    }
+
+    fun getSubstance(name: String): LcaSubstanceExpression? {
+        return substances[name]
     }
 
     override fun toString(): String {
@@ -96,5 +108,20 @@ class Register<E>(
 
     override fun toString(): String {
         return "[register<${this.javaClass.simpleName}>]"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Register<*>
+
+        if (data != other.data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return data.hashCode()
     }
 }
