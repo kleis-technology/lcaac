@@ -28,7 +28,7 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
             is EUnitRef -> map(source)
             is EUnitOf -> everyUnitRefInQuantityExpression.foldMap(M, source.quantity, map)
             is EUnitClosure -> foldMap(M, source.expression, map)
-            is EUnitComposition -> TODO()
+            is EUnitAlias -> TODO()
         }
     }
 
@@ -59,7 +59,7 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
                 source.symbolTable,
                 modify(source.expression, map),
             )
-            is EUnitComposition -> TODO()
+            is EUnitAlias -> TODO()
         }
     }
 }

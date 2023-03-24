@@ -25,7 +25,7 @@ data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Di
 }
 
 @optics
-data class EUnitComposition(val symbol: String, val unitOf: EUnitOf) : UnitExpression {
+data class EUnitAlias(val symbol: String, val aliasFor: QuantityExpression) : UnitExpression {
     companion object
 }
 
