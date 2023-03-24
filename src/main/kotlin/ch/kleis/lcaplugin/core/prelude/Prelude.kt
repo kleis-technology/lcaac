@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.prelude
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
@@ -9,16 +10,17 @@ import ch.kleis.lcaplugin.core.lang.expression.UnitExpression
 
 class Prelude {
     companion object {
-        private val mass = Dimension.of("mass")
-        private val length = Dimension.of("length")
-        private val area = length.multiply(length)
-        private val volume = length.multiply(area)
-        private val energy = Dimension.of("energy")
-        private val time = Dimension.of("time")
-        private val power = energy.divide(time)
-        private val none = Dimension.None
-        private val radioactivity = Dimension.of("radioactivity")
-        private val unitMap = listOf(
+        val mass = Dimension.of("mass")
+        val length = Dimension.of("length")
+        val area = length.multiply(length)
+        val volume = length.multiply(area)
+        val energy = Dimension.of("energy")
+        val time = Dimension.of("time")
+        val land_use = area.multiply(time)
+        val power = energy.divide(time)
+        val none = Dimension.None
+        val radioactivity = Dimension.of("radioactivity")
+        val unitMap = listOf(
             EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),
             EUnitLiteral("person", 1.0, none),
@@ -50,9 +52,10 @@ class Prelude {
             EUnitLiteral("kJ", 1.0e3 / 3600.0, energy),
             EUnitLiteral("MJ", 1.0e6 / 3600.0, energy),
             EUnitLiteral("W", 1.0, power),
+            EUnitLiteral("m2a", 1.0, land_use),
         ).associateBy { it.symbol }
 
-        val units : Register<UnitExpression> = Register(unitMap)
+        val units: Register<UnitExpression> = Register(unitMap)
         val unitQuantities = Register<QuantityExpression>(
             unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
         )

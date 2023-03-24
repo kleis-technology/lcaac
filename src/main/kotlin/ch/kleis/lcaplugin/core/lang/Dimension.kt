@@ -20,6 +20,10 @@ class Dimension(elements: Map<String, Double>) {
         fun of(name: String): Dimension {
             return if (name == "none") None else Dimension(mapOf(Pair(name, 1.0)))
         }
+
+        fun of(name: String, power: Int): Dimension {
+            return if (name == "none") None else Dimension(mapOf(Pair(name, power.toDouble())))
+        }
     }
 
     fun getDefaultUnitValue(): UnitValue {
