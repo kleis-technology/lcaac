@@ -78,7 +78,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "hello", """
                 unit foo {
                     symbol = "foo"
-                    scale = 1.0
                     dimension = "foo"
                 }
         """.trimIndent()

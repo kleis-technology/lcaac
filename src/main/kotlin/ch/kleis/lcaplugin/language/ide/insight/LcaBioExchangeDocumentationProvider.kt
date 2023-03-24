@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
+import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup
@@ -127,8 +128,12 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Symbol", element.getSymbolField().getValue(), sb)
-        addKeyValueSection("Scale", element.getScaleField().getValue().toString(), sb)
-        addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
+        if (element.getType() == UnitDefinitionType.LITERAL){
+            addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
+        }
+        if (element.getType() == UnitDefinitionType.ALIAS) {
+            addKeyValueSection("Alias for", element.getAliasForField().getValue().text, sb)
+        }
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }

@@ -28,7 +28,6 @@
       VARIABLES_KEYWORD = 'variables'
       UNIT_KEYWORD = 'unit'
       REFERENCE_UNIT_KEYWORD = 'reference-unit'
-      SCALE_KEYWORD = 'scale'
       ALIAS_FOR_KEYWORD = 'alias_for'
       NAME_KEYWORD = 'name'
       DIMENSION_KEYWORD = 'dimension'
@@ -143,11 +142,6 @@ referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL unit {
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
-}
-
-scaleField ::= SCALE_KEYWORD EQUAL NUMBER {
-    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiNumberField"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiNumberFieldMixin"
 }
 
 aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantity {
@@ -306,7 +300,7 @@ unitPrimitive ::=
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
 
-unitDefinition ::= UNIT_KEYWORD unitRef LBRACE symbolField (scaleField dimField | aliasForField) RBRACE {
+unitDefinition ::= UNIT_KEYWORD unitRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitDefinitionMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"

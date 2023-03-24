@@ -113,7 +113,6 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             
             unit foo {
                 symbol = "foo"
-                scale = 1.0
                 dimension = "foo"
             }
         """.trimIndent()
@@ -128,7 +127,6 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             
             unit foo {
                 symbol = "bar"
-                scale = 1.0
                 dimension = "bar"
             }
         """.trimIndent()

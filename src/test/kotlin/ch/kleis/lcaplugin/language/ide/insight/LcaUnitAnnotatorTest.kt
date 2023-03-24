@@ -114,7 +114,6 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
             
             unit foo {
                 symbol = "foo"
-                scale = 1.0
                 dimension = "foo"
             }
         """.trimIndent()
@@ -129,7 +128,6 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
             
             unit bar {
                 symbol = "bar"
-                scale = 1.0
                 dimension = "bar"
             }
         """.trimIndent()

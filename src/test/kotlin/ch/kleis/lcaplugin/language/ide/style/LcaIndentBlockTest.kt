@@ -40,7 +40,6 @@ class LcaIndentBlockTest : FormatterTestCase() {
             """
  unit   pack{
   symbol = "pack"
-scale = 1
         dimension = "none"
 
 
@@ -48,7 +47,6 @@ scale = 1
             """
                 unit pack {
                     symbol = "pack"
-                    scale = 1
                     dimension = "none"
                 }
             """.trimIndent()
@@ -361,9 +359,14 @@ scale = 1
                     // Before
             // Before
                 symbol = "T"
-                scale = 1000
-                dimension = "mass"
+                alias_for = 1000 kg
             }
+            unit kg {
+                    // Before
+            // Before
+                    symbol = "T"
+        dimension = "mass"
+        }
  """.trimIndent(), """
             // Before1
             import ef31
@@ -392,7 +395,12 @@ scale = 1
                 // Before
                 // Before
                 symbol = "T"
-                scale = 1000
+                alias_for = 1000 kg
+            }
+            unit kg {
+                // Before
+                // Before
+                symbol = "T"
                 dimension = "mass"
             }
 """.trimIndent()
@@ -442,8 +450,7 @@ scale = 1
                 k djh
                 */
                 symbol = "T"
-                scale = 1000
-                dimension = "mass"
+                alias_for = 1000 kg
             }
  """.trimIndent(), """
              /* Before1
@@ -485,8 +492,7 @@ scale = 1
                  k djh
                  */
                  symbol = "T"
-                 scale = 1000
-                 dimension = "mass"
+                 alias_for = 1000 kg
              }
 """.trimIndent()
         )
