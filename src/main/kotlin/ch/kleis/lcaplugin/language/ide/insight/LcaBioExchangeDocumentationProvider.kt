@@ -127,7 +127,6 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Symbol", element.getSymbolField().getValue(), sb)
-        addKeyValueSection("Scale", element.getScaleField().getValue().toString(), sb)
         addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")

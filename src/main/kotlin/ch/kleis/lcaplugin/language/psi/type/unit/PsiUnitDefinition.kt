@@ -41,10 +41,6 @@ interface PsiUnitDefinition : PsiNameIdentifierOwner, StubBasedPsiElement<UnitSt
         return node.findChildByType(LcaTypes.DIM_FIELD)?.psi as PsiStringLiteralField
     }
 
-    fun getScaleField(): PsiNumberField {
-        return node.findChildByType(LcaTypes.SCALE_FIELD)?.psi as PsiNumberField
-    }
-
     fun getAliasForField(): PsiAliasForField {
         return node.findChildByType(LcaTypes.ALIAS_FOR_FIELD)?.psi as PsiAliasForField
     }

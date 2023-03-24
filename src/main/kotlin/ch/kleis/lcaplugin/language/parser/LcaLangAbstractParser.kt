@@ -117,8 +117,8 @@ class LcaLangAbstractParser(
     private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): UnitExpression {
         return EUnitLiteral(
             psiUnitDefinition.getSymbolField().getValue(),
-            psiUnitDefinition.getScaleField().getValue(),
-            Dimension.of(psiUnitDefinition.getDimensionField().getValue()),
+            1.0,
+            Dimension.of(psiUnitDefinition.getDimensionField().getValue())
         )
     }
 
