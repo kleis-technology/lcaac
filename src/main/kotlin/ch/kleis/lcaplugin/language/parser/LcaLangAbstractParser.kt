@@ -25,13 +25,15 @@ class LcaLangAbstractParser(
     fun load(): SymbolTable {
         val globals = Register(Prelude.unitQuantities)
         files
-            .flatMap { it.getUnitLiterals() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.LITERAL }
             .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
             .forEach {
                 globals[it.first] = it.second
             }
         files
-            .flatMap { it.getUnitAliases() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.ALIAS }
             .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
             .forEach {
                 globals[it.first] = it.second
@@ -44,13 +46,15 @@ class LcaLangAbstractParser(
 
         val units = Register(Prelude.units)
         files
-            .flatMap { it.getUnitLiterals() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.LITERAL }
             .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
             .forEach {
                 units[it.first] = it.second
             }
         files
-            .flatMap { it.getUnitAliases() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.ALIAS }
             .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
             .forEach {
                 units[it.first] = it.second

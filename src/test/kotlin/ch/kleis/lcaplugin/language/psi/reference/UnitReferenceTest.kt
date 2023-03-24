@@ -118,7 +118,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getUnitLiterals().first()
+        return file.getUnitDefinitions().first()
     }
 
     private fun unitBar(): PsiUnitDefinition {
@@ -133,7 +133,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getUnitLiterals().first()
+        return file.getUnitDefinitions().first()
     }
 
     override fun getTestDataPath(): String {
