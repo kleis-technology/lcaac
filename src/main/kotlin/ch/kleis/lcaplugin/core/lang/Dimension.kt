@@ -1,5 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
+import ch.kleis.lcaplugin.core.lang.value.UnitValue
+
 class Dimension(elements: Map<String, Double>) {
     private val elements: Map<String, Double>
 

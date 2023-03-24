@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.BioExchangeValue
-import ch.kleis.lcaplugin.core.lang.ImpactValue
-import ch.kleis.lcaplugin.core.lang.SubstanceCharacterizationValue
+import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.ImpactValue
+import ch.kleis.lcaplugin.core.lang.value.SubstanceCharacterizationValue
 
 class SubstanceCharacterizationValueFixture {
     companion object {

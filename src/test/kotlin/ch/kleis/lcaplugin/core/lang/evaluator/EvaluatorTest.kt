@@ -3,6 +3,9 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
+import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
+import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import com.intellij.openapi.ui.naturalSorted
 import org.junit.Assert.*
 import org.junit.Test

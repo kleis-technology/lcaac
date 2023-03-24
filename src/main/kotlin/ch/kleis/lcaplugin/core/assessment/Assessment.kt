@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.assessment
 
-import ch.kleis.lcaplugin.core.lang.PortValue
-import ch.kleis.lcaplugin.core.lang.SystemValue
+import ch.kleis.lcaplugin.core.lang.value.PortValue
+import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 

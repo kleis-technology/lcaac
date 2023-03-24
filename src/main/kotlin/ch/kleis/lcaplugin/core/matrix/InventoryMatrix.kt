@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.CharacterizationFactorValue
-import ch.kleis.lcaplugin.core.lang.GenericExchangeValue
-import ch.kleis.lcaplugin.core.lang.PortValue
-import ch.kleis.lcaplugin.core.lang.QuantityValue
+import ch.kleis.lcaplugin.core.lang.value.CharacterizationFactorValue
+import ch.kleis.lcaplugin.core.lang.value.GenericExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.PortValue
+import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 

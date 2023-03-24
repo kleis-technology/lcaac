@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.evaluator.Helper
+import ch.kleis.lcaplugin.core.lang.evaluator.compiler.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(

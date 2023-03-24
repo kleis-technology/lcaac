@@ -1,18 +1,15 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.lang.ProductValue
-import ch.kleis.lcaplugin.core.lang.evaluator.toValue
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.evaluator.compiler.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.matrix.*
-import ch.kleis.lcaplugin.core.matrix.impl.Matrix
-import ch.kleis.lcaplugin.core.matrix.impl.MatrixFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
 import com.intellij.ui.table.JBTable
-import io.mockk.InternalPlatformDsl.toArray
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

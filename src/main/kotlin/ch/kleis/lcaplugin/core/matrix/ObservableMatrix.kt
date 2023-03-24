@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 import ch.kleis.lcaplugin.core.matrix.impl.MatrixFactory
 

@@ -1,10 +1,13 @@
-package ch.kleis.lcaplugin.core.lang
+package ch.kleis.lcaplugin.core.lang.value
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.fixture.IndicatorValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
+import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.ImpactValue
+import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
