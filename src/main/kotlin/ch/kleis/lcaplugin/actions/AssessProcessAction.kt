@@ -14,7 +14,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 
 class AssessProcessAction(private val processName: String) : AnAction() {

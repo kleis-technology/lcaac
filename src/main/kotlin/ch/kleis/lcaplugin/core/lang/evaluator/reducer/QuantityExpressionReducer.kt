@@ -44,6 +44,7 @@ class QuantityExpressionReducer(
             }
             is EUnitPow -> reducePow(expression)
             is EUnitRef -> reduceRef(expression)
+            is EUnitComposition -> expression.unitOf
         }
     }
 

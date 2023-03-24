@@ -257,6 +257,22 @@ class QuantityExpressionReducerTest {
      */
 
     @Test
+    fun reduce_whenUnitComposition_shouldReturnAEUnitOf(){
+        // given
+        val kg = EUnitLiteral("kg", 1.0, Dimension.of("mass"))
+        val quantityConversion = EQuantityLiteral(2.2, kg)
+        val unitOf = EUnitOf(quantityConversion)
+        val unitComposition = EUnitComposition("lbs", EUnitOf(quantityConversion))
+        val reducer = QuantityExpressionReducer(
+            Register.empty(),
+            Register.empty(),
+        )
+        // when
+        val actual = reducer.reduceUnit(unitComposition)
+        // then
+        assertEquals(actual, unitOf)
+    }
+    @Test
     fun reduce_whenUnitOf_shouldReduceQuantity() {
         // given
         val quantity = QuantityFixture.twoKilograms
