@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -52,13 +53,13 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     fun getUnitLiterals(): Collection<PsiUnitDefinition> {
         return node.getChildren(TokenSet.create(LcaTypes.UNIT_DEFINITION))
             .map { it.psi as PsiUnitDefinition }
-            .filter { !it.isAlias() }
+            .filter { it.getType() == UnitDefinitionType.LITERAL }
     }
 
     fun getUnitAliases(): Collection<PsiUnitDefinition> {
         return node.getChildren(TokenSet.create(LcaTypes.UNIT_DEFINITION))
             .map { it.psi as PsiUnitDefinition }
-            .filter { it.isAlias() }
+            .filter { it.getType() == UnitDefinitionType.ALIAS }
     }
 
     fun getPsiVariablesBlocks(): Collection<PsiVariables> {
