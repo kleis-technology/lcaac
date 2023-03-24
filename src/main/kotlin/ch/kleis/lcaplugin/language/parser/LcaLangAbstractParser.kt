@@ -31,6 +31,12 @@ class LcaLangAbstractParser(
                 globals[it.first] = it.second
             }
         files
+            .flatMap { it.getUnitAliases() }
+            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
+            .forEach {
+                globals[it.first] = it.second
+            }
+        files
             .flatMap { it.getAssignments()}
             .forEach {
                 globals[it.first] = quantity(it.second)
@@ -40,6 +46,12 @@ class LcaLangAbstractParser(
         files
             .flatMap { it.getUnitLiterals() }
             .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
+            .forEach {
+                units[it.first] = it.second
+            }
+        files
+            .flatMap { it.getUnitAliases() }
+            .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
             .forEach {
                 units[it.first] = it.second
             }
@@ -103,6 +115,13 @@ class LcaLangAbstractParser(
             psiUnitLiteral.getSymbolField().getValue(),
             psiUnitLiteral.getScaleField().getValue(),
             Dimension.of(psiUnitLiteral.getDimensionField().getValue()),
+        )
+    }
+
+    private fun unitAlias(psiUnitAlias: PsiUnitAlias): UnitExpression {
+        return EUnitAlias(
+            psiUnitAlias.getSymbolField().getValue(),
+            quantity(psiUnitAlias.getAliasForField().getValue())
         )
     }
 
