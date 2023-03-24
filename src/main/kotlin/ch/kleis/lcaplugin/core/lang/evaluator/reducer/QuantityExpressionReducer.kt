@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
+import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -44,7 +45,19 @@ class QuantityExpressionReducer(
             }
             is EUnitPow -> reducePow(expression)
             is EUnitRef -> reduceRef(expression)
+            is EUnitAlias -> reduceAlias(expression)
         }
+    }
+
+    private fun reduceAlias(expression: EUnitAlias): UnitExpression {
+        val qty = reduce(expression.aliasFor)
+        if (qty !is EQuantityLiteral) return EUnitAlias(expression.symbol, qty)
+
+        val amount = qty.amount
+        val unitAlias = reduceUnit(qty.unit)
+        if (unitAlias !is EUnitLiteral) return EUnitAlias(expression.symbol, qty)
+
+        return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
     }
 
     private fun reduceRef(expression: EQuantityRef) =

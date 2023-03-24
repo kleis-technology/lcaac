@@ -25,8 +25,16 @@ class LcaLangAbstractParser(
     fun load(): SymbolTable {
         val globals = Register(Prelude.unitQuantities)
         files
-            .flatMap { it.getUnitLiterals() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.LITERAL }
             .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+            .forEach {
+                globals[it.first] = it.second
+            }
+        files
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.ALIAS }
+            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
             .forEach {
                 globals[it.first] = it.second
             }
@@ -38,8 +46,16 @@ class LcaLangAbstractParser(
 
         val units = Register(Prelude.units)
         files
-            .flatMap { it.getUnitLiterals() }
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.LITERAL }
             .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
+            .forEach {
+                units[it.first] = it.second
+            }
+        files
+            .flatMap { it.getUnitDefinitions() }
+            .filter { it.getType() == UnitDefinitionType.ALIAS }
+            .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
             .forEach {
                 units[it.first] = it.second
             }
@@ -98,11 +114,18 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun unitLiteral(psiUnitLiteral: PsiUnitLiteral): UnitExpression {
+    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): UnitExpression {
         return EUnitLiteral(
-            psiUnitLiteral.getSymbolField().getValue(),
-            psiUnitLiteral.getScaleField().getValue(),
-            Dimension.of(psiUnitLiteral.getDimensionField().getValue()),
+            psiUnitDefinition.getSymbolField().getValue(),
+            psiUnitDefinition.getScaleField().getValue(),
+            Dimension.of(psiUnitDefinition.getDimensionField().getValue()),
+        )
+    }
+
+    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
+        return EUnitAlias(
+            psiUnitAlias.getSymbolField().getValue(),
+            quantity(psiUnitAlias.getAliasForField().getValue())
         )
     }
 
@@ -314,7 +337,7 @@ class LcaLangAbstractParser(
 
     private fun uPrimitive(primitive: PsiUnitPrimitive): UnitExpression {
         return when (primitive.getType()) {
-            UnitPrimitiveType.LITERAL -> unitLiteral(primitive.getLiteral())
+            UnitPrimitiveType.DEFINITION -> unitLiteral(primitive.getDefinition())
             UnitPrimitiveType.PAREN -> unit(primitive.getUnitInParen())
             UnitPrimitiveType.VARIABLE -> unitRef(primitive.getRef())
         }

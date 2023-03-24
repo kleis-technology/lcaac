@@ -23,6 +23,12 @@ data class EUnitClosure(val symbolTable: SymbolTable, val expression: UnitExpres
 data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Dimension) : UnitExpression {
     companion object
 }
+
+@optics
+data class EUnitAlias(val symbol: String, val aliasFor: QuantityExpression) : UnitExpression {
+    companion object
+}
+
 @optics
 data class EUnitMul(val left: UnitExpression, val right: UnitExpression) : UnitExpression {
     companion object

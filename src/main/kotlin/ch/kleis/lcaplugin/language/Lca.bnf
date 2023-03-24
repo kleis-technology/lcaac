@@ -29,6 +29,7 @@
       UNIT_KEYWORD = 'unit'
       REFERENCE_UNIT_KEYWORD = 'reference-unit'
       SCALE_KEYWORD = 'scale'
+      ALIAS_FOR_KEYWORD = 'alias_for'
       NAME_KEYWORD = 'name'
       DIMENSION_KEYWORD = 'dimension'
       PARAMETERS_KEYWORD = 'parameters'
@@ -66,7 +67,7 @@
     LCA File
  */
 
-lcaFile ::= package?  import* (process | unitLiteral | substance | variables )*
+lcaFile ::= package?  import* (process | unitDefinition | substance | variables )*
 
 /*
     Package
@@ -147,6 +148,11 @@ symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
 scaleField ::= SCALE_KEYWORD EQUAL NUMBER {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiNumberField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiNumberFieldMixin"
+}
+
+aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantity {
+        implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiAliasForField"]
+        mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAliasForFieldMixin"
 }
 
 /*
@@ -293,16 +299,16 @@ unitFactor ::= unitPrimitive (HAT NUMBER)? {
 }
 
 unitPrimitive ::=
-    unitLiteral
+    unitDefinition
     | LPAREN unit RPAREN
     | unitRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
 
-unitLiteral ::= UNIT_KEYWORD unitRef LBRACE symbolField scaleField dimField RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitLiteralMixin"
+unitDefinition ::= UNIT_KEYWORD unitRef LBRACE symbolField (scaleField dimField | aliasForField) RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitDefinitionMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.unit.UnitStub"
 }

@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiReference
@@ -46,11 +46,11 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiUnitLiteral>>(),
+                any<StubIndexKey<String, PsiUnitDefinition>>(),
                 any<String>(),
                 any<Project>(),
                 any<GlobalSearchScope>(),
-                any<Class<PsiUnitLiteral>>(),
+                any<Class<PsiUnitDefinition>>(),
             )
         } returns units
 
@@ -91,7 +91,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val results = listOf("foo", "bar", "foo_2", "_1_bar")
         every {
             stubIndex.getAllKeys(
-                any<StubIndexKey<String, PsiUnitLiteral>>(),
+                any<StubIndexKey<String, PsiUnitDefinition>>(),
                 any<Project>(),
             )
         } returns results
@@ -106,7 +106,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         unmockkStatic(StubIndex::class)
     }
 
-    private fun unitFoo(): PsiUnitLiteral {
+    private fun unitFoo(): PsiUnitDefinition {
         val file = parseFile(
             "units", """
             package my_units
@@ -118,10 +118,10 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getUnitLiterals().first()
+        return file.getUnitDefinitions().first()
     }
 
-    private fun unitBar(): PsiUnitLiteral {
+    private fun unitBar(): PsiUnitDefinition {
         val file = parseFile(
             "units", """
             package my_units_2
@@ -133,7 +133,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getUnitLiterals().first()
+        return file.getUnitDefinitions().first()
     }
 
     override fun getTestDataPath(): String {

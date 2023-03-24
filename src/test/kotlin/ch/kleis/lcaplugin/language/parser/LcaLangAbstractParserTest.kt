@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.language.parser
 import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
+import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -12,6 +13,28 @@ import junit.framework.TestCase
 import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun testParse_shouldLoadUnitAlias() {
+        // given
+        val file = parseFile(
+            "hello", """
+            unit lbs {
+                symbol = "lbs"
+                alias_for = 2.2 kg
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+        // when
+        val symbolTable = parser.load()
+        // then
+        val actual = symbolTable.getUnit("lbs")
+        val expect = EUnitAlias("lbs", EQuantityScale(2.2, EQuantityRef("kg")))
+        assertEquals(expect, actual)
+    }
+
     @Test
     fun testParse_shouldLoadPreludeUnits() {
         // given
