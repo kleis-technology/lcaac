@@ -26,8 +26,8 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
             is LcaSubstance -> {
                 val sb = StringBuilder()
                 documentTitle(sb, "Substance", element.getSubstanceRef().name)
-                documentBlockMetaOwner(sb, element)
                 documentSubstanceData(sb, element)
+                documentBlockMetaOwner(sb, element)
                 sb.toString()
             }
 
@@ -68,6 +68,14 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
             }
 
             else -> super.generateDoc(element, originalElement)
+        }
+    }
+
+    private fun documentName(sb: StringBuilder, name: String?) {
+        if (name != null) {
+            sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+            HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), name, 0.5f)
+            sb.append(DocumentationMarkup.CONTENT_END).append("\n")
         }
     }
 
@@ -129,6 +137,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
     private fun documentSubstanceData(sb: StringBuilder, element: LcaSubstance) {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
+        addKeyValueSection("Name", element.getNameField().getValue(), sb)
         addKeyValueSection("Compartment", element.getCompartmentField().getValue(), sb)
         addKeyValueSection("Sub-Compartment", element.getSubcompartmentField()?.getValue(), sb)
         addKeyValueSection("Reference Unit", element.getReferenceUnitField().getValue().text, sb)

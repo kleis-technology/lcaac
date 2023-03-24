@@ -41,6 +41,10 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
             <div class='content'>
             <table class='sections'>
             <tr>
+            <td valign='top' class='section'>Name</td>
+            <td valign='top'>co2</td>
+            </tr>
+            <tr>
             <td valign='top' class='section'>Compartment</td>
             <td valign='top'>compartment</td>
             </tr>
@@ -85,17 +89,11 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         <span style="color:#ffc800;font-style:italic;">Substance</span> <span style="color:#0000ff;font-weight:bold;">propanol_air</span>
         </pre></div>
         <div class='content'>
-        <span style="">Propan-1-ol...</span></div>
-        <div class='content'>
         <table class='sections'>
         <tr>
-        <td valign='top' class='section'>Author</td>
-        <td valign='top'>Alain Colas</td>
+        <td valign='top' class='section'>Name</td>
+        <td valign='top'>propanol</td>
         </tr>
-        </table>
-        </div>
-        <div class='content'>
-        <table class='sections'>
         <tr>
         <td valign='top' class='section'>Compartment</td>
         <td valign='top'>air</td>
@@ -110,7 +108,17 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         </tr>
         </table>
         </div>
-     
+        <div class='content'>
+        <span style="">Propan-1-ol...</span></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Author</td>
+        <td valign='top'>Alain Colas</td>
+        </tr>
+        </table>
+        </div>
+        
         """.trimIndent(), result
         )
     }
