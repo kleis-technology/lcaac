@@ -110,15 +110,15 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun unitLiteral(psiUnitLiteral: PsiUnitLiteral): UnitExpression {
+    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): UnitExpression {
         return EUnitLiteral(
-            psiUnitLiteral.getSymbolField().getValue(),
-            psiUnitLiteral.getScaleField().getValue(),
-            Dimension.of(psiUnitLiteral.getDimensionField().getValue()),
+            psiUnitDefinition.getSymbolField().getValue(),
+            psiUnitDefinition.getScaleField().getValue(),
+            Dimension.of(psiUnitDefinition.getDimensionField().getValue()),
         )
     }
 
-    private fun unitAlias(psiUnitAlias: PsiUnitAlias): UnitExpression {
+    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
             quantity(psiUnitAlias.getAliasForField().getValue())
@@ -333,7 +333,7 @@ class LcaLangAbstractParser(
 
     private fun uPrimitive(primitive: PsiUnitPrimitive): UnitExpression {
         return when (primitive.getType()) {
-            UnitPrimitiveType.LITERAL -> unitLiteral(primitive.getLiteral())
+            UnitPrimitiveType.DEFINITION -> unitLiteral(primitive.getDefinition())
             UnitPrimitiveType.PAREN -> unit(primitive.getUnitInParen())
             UnitPrimitiveType.VARIABLE -> unitRef(primitive.getRef())
         }

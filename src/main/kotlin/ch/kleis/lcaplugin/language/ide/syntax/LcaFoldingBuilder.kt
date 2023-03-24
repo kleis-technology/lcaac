@@ -24,7 +24,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             LcaBlockEmissions::class.java,
             LcaBlockResources::class.java,
             LcaBlockImpacts::class.java,
-            LcaUnitLiteral::class.java,
+            LcaUnitDefinition::class.java,
         )
         blocks.forEach { block ->
             val braces = PsiTreeUtil.collectElements(block) {

@@ -1,15 +1,15 @@
 package ch.kleis.lcaplugin.language.psi.stub.unit
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class UnitKeyIndex : StringStubIndexExtension<PsiUnitLiteral>() {
-    override fun getKey(): StubIndexKey<String, PsiUnitLiteral> {
+class UnitKeyIndex : StringStubIndexExtension<PsiUnitDefinition>() {
+    override fun getKey(): StubIndexKey<String, PsiUnitDefinition> {
         return LcaStubIndexKeys.UNITS
     }
 
@@ -18,7 +18,7 @@ class UnitKeyIndex : StringStubIndexExtension<PsiUnitLiteral>() {
             project: Project,
             target: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-        ) : Collection<PsiUnitLiteral> =
-            StubIndex.getElements(LcaStubIndexKeys.UNITS, target, project, scope, PsiUnitLiteral::class.java)
+        ) : Collection<PsiUnitDefinition> =
+            StubIndex.getElements(LcaStubIndexKeys.UNITS, target, project, scope, PsiUnitDefinition::class.java)
     }
 }

@@ -55,7 +55,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
                     val sb = StringBuilder()
                     val elt = element.parent as LcaUnitRef
                     // As for now Prelude Unit can't be resolved
-                    (elt.reference?.resolve() as LcaUnitLiteral?)?.let { unit ->
+                    (elt.reference?.resolve() as LcaUnitDefinition?)?.let { unit ->
                         documentTitle(sb, "Unit", unit.getUnitRef().getUID().name)
                         documentUnitData(sb, unit)
                     } ?: run {
@@ -115,7 +115,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }
 
-    private fun documentUnitData(sb: StringBuilder, element: LcaUnitLiteral) {
+    private fun documentUnitData(sb: StringBuilder, element: LcaUnitDefinition) {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Symbol", element.getSymbolField().getValue(), sb)

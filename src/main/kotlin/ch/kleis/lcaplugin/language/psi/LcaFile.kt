@@ -4,8 +4,7 @@ import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitAlias
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -50,14 +49,16 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .flatMap { it.getEntries() }
     }
 
-    fun getUnitLiterals(): Collection<PsiUnitLiteral> {
-        return node.getChildren(TokenSet.create(LcaTypes.UNIT_LITERAL))
-            .map { it.psi as PsiUnitLiteral }
+    fun getUnitLiterals(): Collection<PsiUnitDefinition> {
+        return node.getChildren(TokenSet.create(LcaTypes.UNIT_DEFINITION))
+            .map { it.psi as PsiUnitDefinition }
+            .filter { !it.isAlias() }
     }
 
-    fun getUnitAliases(): Collection<PsiUnitAlias> {
-        return node.getChildren(TokenSet.create(LcaTypes.UNIT_ALIAS))
-            .map { it.psi as PsiUnitAlias }
+    fun getUnitAliases(): Collection<PsiUnitDefinition> {
+        return node.getChildren(TokenSet.create(LcaTypes.UNIT_DEFINITION))
+            .map { it.psi as PsiUnitDefinition }
+            .filter { it.isAlias() }
     }
 
     fun getPsiVariablesBlocks(): Collection<PsiVariables> {

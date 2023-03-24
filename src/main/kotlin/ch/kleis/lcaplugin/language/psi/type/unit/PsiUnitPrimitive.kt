@@ -5,18 +5,18 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 
 enum class UnitPrimitiveType {
-    LITERAL, PAREN, VARIABLE
+    DEFINITION, PAREN, VARIABLE
 }
 
 interface PsiUnitPrimitive : PsiElement {
     fun getType(): UnitPrimitiveType {
-        return node.findChildByType(LcaTypes.UNIT_LITERAL)?.let { UnitPrimitiveType.LITERAL }
+        return node.findChildByType(LcaTypes.UNIT_DEFINITION)?.let { UnitPrimitiveType.DEFINITION }
             ?: node.findChildByType(LcaTypes.LPAREN)?.let { UnitPrimitiveType.PAREN }
             ?: UnitPrimitiveType.VARIABLE
     }
 
-    fun getLiteral(): PsiUnitLiteral {
-        return node.findChildByType(LcaTypes.UNIT_LITERAL)?.psi as PsiUnitLiteral
+    fun getDefinition(): PsiUnitDefinition {
+        return node.findChildByType(LcaTypes.UNIT_DEFINITION)?.psi as PsiUnitDefinition
     }
 
     fun getUnitInParen(): PsiUnit {

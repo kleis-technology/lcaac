@@ -51,14 +51,13 @@ class QuantityExpressionReducer(
 
     private fun reduceAlias(expression: EUnitAlias): UnitExpression {
         val qty = reduce(expression.aliasFor)
-        if (qty is EQuantityLiteral) {
-            val amount = qty.amount
-            val unitAlias = reduceUnit(qty.unit)
-            if (unitAlias is EUnitLiteral) {
-                return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
-            }
-        }
-        return EUnitAlias(expression.symbol, qty)
+        if (qty !is EQuantityLiteral) return EUnitAlias(expression.symbol, qty)
+
+        val amount = qty.amount
+        val unitAlias = reduceUnit(qty.unit)
+        if (unitAlias !is EUnitLiteral) return EUnitAlias(expression.symbol, qty)
+
+        return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
     }
 
     private fun reduceRef(expression: EQuantityRef) =

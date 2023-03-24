@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitLiteral
+import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
@@ -29,11 +29,11 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiUnitLiteral>>(),
+                any<StubIndexKey<String, PsiUnitDefinition>>(),
                 any<String>(),
                 any<Project>(),
                 any<GlobalSearchScope>(),
-                any<Class<PsiUnitLiteral>>(),
+                any<Class<PsiUnitDefinition>>(),
             )
         } returns emptyList()
 
@@ -65,11 +65,11 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiUnitLiteral>>(),
+                any<StubIndexKey<String, PsiUnitDefinition>>(),
                 any<String>(),
                 any<Project>(),
                 any<GlobalSearchScope>(),
-                any<Class<PsiUnitLiteral>>(),
+                any<Class<PsiUnitDefinition>>(),
             )
         } returns listOf(unitFoo(), unitBar())
 
@@ -107,7 +107,7 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
             .getRef()
     }
 
-    private fun unitFoo(): PsiUnitLiteral {
+    private fun unitFoo(): PsiUnitDefinition {
         val file = parseFile(
             "xyz", """
             package xyz
@@ -122,7 +122,7 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         return file.getUnitLiterals().first()
     }
 
-    private fun unitBar(): PsiUnitLiteral {
+    private fun unitBar(): PsiUnitDefinition {
         val file = parseFile(
             "xyz", """
             package xyz
