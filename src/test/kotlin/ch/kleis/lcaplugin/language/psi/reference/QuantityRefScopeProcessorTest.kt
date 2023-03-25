@@ -25,7 +25,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             """.trimIndent()
         ) as LcaFile
         val process = file.getProcesses().first()
-        val uid = process.getPsiParametersBlocks().first().getUIDs().first()
+        val assignment = process.getPsiParametersBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
@@ -33,7 +33,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         val actual = quantityRef.reference?.resolve()
 
         // then
-        TestCase.assertEquals(uid, actual)
+        TestCase.assertEquals(assignment, actual)
     }
 
     @Test
@@ -54,7 +54,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             """.trimIndent()
         ) as LcaFile
         val process = file.getProcesses().first()
-        val uid = process.getPsiVariablesBlocks().first().getUIDs().first()
+        val assignment = process.getPsiVariablesBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
@@ -62,7 +62,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         val actual = quantityRef.reference?.resolve()
 
         // then
-        TestCase.assertEquals(uid, actual)
+        TestCase.assertEquals(assignment, actual)
     }
 
     @Test
@@ -83,7 +83,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
                 }
             """.trimIndent()
         ) as LcaFile
-        val uid = file.getPsiGlobalVariablesBlocks().first().getUIDs().first()
+        val globalAssignment = file.getPsiGlobalVariablesBlocks().first().getGlobalAssignments().first()
         val process = file.getProcesses().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
@@ -92,7 +92,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         val actual = quantityRef.reference?.resolve()
 
         // then
-        TestCase.assertEquals(uid, actual)
+        TestCase.assertEquals(globalAssignment, actual)
     }
 
     override fun getTestDataPath(): String {

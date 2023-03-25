@@ -6,10 +6,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 
 interface PsiVariables: PsiElement {
-    fun getUIDs(): Collection<PsiUID> {
+    fun getAssignments(): Collection<PsiAssignment> {
         return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
             .map { it.psi as PsiAssignment }
-            .map { it.getUID() }
     }
 
     fun getEntries(): Collection<Pair<String, PsiQuantity>> {
