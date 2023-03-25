@@ -12,8 +12,7 @@ interface PsiGlobalVariables: PsiElement {
     }
 
     fun getEntries(): Collection<Pair<String, PsiQuantity>> {
-        return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
-            .map { it.psi as PsiAssignment }
+        return getGlobalAssignments()
             .map { Pair(it.getQuantityRef().name, it.getValue()) }
     }
 }
