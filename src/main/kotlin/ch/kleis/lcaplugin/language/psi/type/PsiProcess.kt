@@ -17,7 +17,7 @@ import com.intellij.psi.StubBasedPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 
-interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,BlockMetaOwner {
+interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner, BlockMetaOwner {
     fun getProcessTemplateRef(): PsiProcessTemplateRef {
         return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_REF)?.psi as PsiProcessTemplateRef
     }
