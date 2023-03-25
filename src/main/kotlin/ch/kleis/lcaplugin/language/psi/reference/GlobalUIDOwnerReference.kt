@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
+import com.intellij.util.containers.tail
 
 open class GlobalUIDOwnerReference<R : PsiUIDOwner, T : PsiElement>(
     element: R,
@@ -34,7 +35,13 @@ open class GlobalUIDOwnerReference<R : PsiUIDOwner, T : PsiElement>(
 
     override fun getVariants(): Array<Any> {
         return getAllKeys(element.project)
-            .filter { key -> allPkgNames.any { key.startsWith(it) } }
+            .filter { key ->
+                allPkgNames.any {
+                    val parts = key.split(".")
+                    val prefix = parts.take(parts.size - 1).joinToString(".")
+                    prefix.startsWith(it)
+                }
+            }
             .map { it.split(".").last() }
             .map { LookupElementBuilder.create(it) }
             .toTypedArray()

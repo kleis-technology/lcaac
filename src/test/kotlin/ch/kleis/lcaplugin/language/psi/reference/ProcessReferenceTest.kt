@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.language.psi.reference
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiReference
@@ -55,7 +54,12 @@ class ProcessReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
                 any<GlobalSearchScope>(),
                 any<Class<PsiProcess>>(),
             )
-        } returns processes
+        } answers {
+            val target = it.invocation.args[1]
+            if (target == "carrot.carrot_production") {
+                listOf(carrotProduction)
+            } else emptyList()
+        }
 
         // when
         val actual = ref.resolve()
@@ -94,7 +98,7 @@ class ProcessReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         val stubIndex = mockk<StubIndex>()
         mockkStatic(StubIndex::class)
         every { StubIndex.getInstance() } returns stubIndex
-        val results = listOf("carrot_production", "salad_production", "another_process")
+        val results = listOf("carrot.carrot_production", "carrot.salad_production", "carrot.another_process")
         every {
             stubIndex.getAllKeys(
                 any<StubIndexKey<String, PsiProcess>>(),
@@ -106,7 +110,8 @@ class ProcessReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         val actual = ref.variants.toList().map { (it as LookupElementBuilder).lookupString }
 
         // then
-        TestCase.assertEquals(results, actual)
+        val expected = results.map { it.split(".").last() }
+        TestCase.assertEquals(expected, actual)
 
         // clean
         unmockkStatic(StubIndex::class)

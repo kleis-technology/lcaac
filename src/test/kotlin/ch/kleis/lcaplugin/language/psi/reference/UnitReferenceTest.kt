@@ -24,7 +24,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val file = parseFile(
             "hello",
             """
-               import my_units
+            import my_units
                
             substance s {
                 name = "s"
@@ -38,7 +38,6 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             .getValue().getFactor().getPrimitive().getRef()
             .reference as PsiReference
         val unitFoo = unitFoo()
-        val units = listOf(unitFoo, unitBar())
 
         mockkStatic(GlobalSearchScope::class)
         every { GlobalSearchScope.allScope(any()) } returns mockk()
@@ -52,7 +51,12 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 any<GlobalSearchScope>(),
                 any<Class<PsiUnitDefinition>>(),
             )
-        } returns units
+        } answers {
+            val target = it.invocation.args[1]
+            if (target == "my_units.foo") {
+                listOf(unitFoo)
+            } else emptyList()
+        }
 
         // when
         val actual = ref.resolve()
@@ -71,7 +75,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val file = parseFile(
             "hello",
             """
-               import my_units
+            import my_units
                
             substance s {
                 name = "s"
@@ -88,7 +92,7 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val stubIndex = mockk<StubIndex>()
         mockkStatic(StubIndex::class)
         every {StubIndex.getInstance()} returns stubIndex
-        val results = listOf("foo", "bar", "foo_2", "_1_bar")
+        val results = listOf("my_units.foo", "my_units.bar", "my_units.foo_2", "my_units._1_bar")
         every {
             stubIndex.getAllKeys(
                 any<StubIndexKey<String, PsiUnitDefinition>>(),
@@ -100,7 +104,8 @@ class UnitReferenceTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val actual = ref.variants.toList().map { (it as LookupElementBuilder).lookupString }
 
         // then
-        TestCase.assertEquals(results, actual)
+        val expected = listOf("foo", "bar", "foo_2", "_1_bar")
+        TestCase.assertEquals(expected, actual)
 
         // clean
         unmockkStatic(StubIndex::class)

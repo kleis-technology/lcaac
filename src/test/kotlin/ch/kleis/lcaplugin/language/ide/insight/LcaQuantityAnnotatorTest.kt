@@ -2,10 +2,11 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
@@ -13,13 +14,14 @@ import com.intellij.testFramework.ParsingTestCase
 import io.mockk.*
 import org.junit.Test
 
-class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class LcaQuantityAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
-        val element = fromCarrotProductionRef()
+        val element = quantityFooRef()
         val mock = AnnotationHolderMock()
-        val annotator = LcaFromProcessRefAnnotator()
+        val annotator = LcaQuantityAnnotator()
+
 
         mockkStatic(GlobalSearchScope::class)
         every { GlobalSearchScope.allScope(any()) } returns mockk()
@@ -27,11 +29,11 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiProcess>>(),
-                any(),
-                any(),
-                any(),
-                any<Class<PsiProcess>>(),
+                any<StubIndexKey<String, PsiGlobalAssignment>>(),
+                any<String>(),
+                any<Project>(),
+                any<GlobalSearchScope>(),
+                any<Class<PsiGlobalAssignment>>(),
             )
         } returns emptyList()
 
@@ -39,7 +41,7 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved process carrot_production") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity foo") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
@@ -52,9 +54,10 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
     @Test
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
-        val element = fromCarrotProductionRef()
+        val element = quantityFooRef()
         val mock = AnnotationHolderMock()
-        val annotator = LcaFromProcessRefAnnotator()
+        val annotator = LcaTechnoInputExchangeAnnotator()
+
 
         mockkStatic(GlobalSearchScope::class)
         every { GlobalSearchScope.allScope(any()) } returns mockk()
@@ -62,18 +65,13 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
         mockkStatic(StubIndex::class)
         every {
             StubIndex.getElements(
-                any<StubIndexKey<String, PsiProcess>>(),
-                any(),
-                any(),
-                any(),
-                any<Class<PsiProcess>>(),
+                any<StubIndexKey<String, PsiGlobalAssignment>>(),
+                any<String>(),
+                any<Project>(),
+                any<GlobalSearchScope>(),
+                any<Class<PsiGlobalAssignment>>(),
             )
-        } answers {
-            val target = it.invocation.args[1] as String
-            if (target == "carrot.carrot_production") {
-                listOf(carrotProduction())
-            } else emptyList()
-        }
+        } returns listOf(quantityFoo(), quantityBar())
 
         // when
         annotator.annotate(element, mock.holder)
@@ -87,37 +85,55 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
         unmockkStatic(StubIndex::class)
     }
 
-    private fun fromCarrotProductionRef(): PsiProcessTemplateRef {
+    private fun quantityFooRef(): PsiQuantityRef {
         val file = parseFile(
             "abc", """
             package abc
             
-            import carrot
+            import xyz
             
-            process w {
-                inputs {
-                    1 kg carrot from carrot_production()
-                }
+            variables {
+                x = foo
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getProcesses().first().getInputs().first()
-            .getFromProcessConstraint()!!.getProcessTemplateRef()
+        return file.getGlobalAssignments().first()
+            .second
+            .getTerm().getFactor().getPrimitive().getRef()
     }
 
-    private fun carrotProduction(): PsiProcess {
+    private fun quantityFoo(): PsiGlobalAssignment {
         val file = parseFile(
-            "carrot", """
-            package carrot
+            "xyz", """
+            package xyz
             
-            process carrot_production {
+            variables {
+                foo = 1 kg
             }
         """.trimIndent()
         ) as LcaFile
-        return file.getProcesses().first()
+        return file.getPsiGlobalVariablesBlocks()
+            .first()
+            .getGlobalAssignments().first()
+    }
+
+    private fun quantityBar(): PsiGlobalAssignment {
+        val file = parseFile(
+            "xyz", """
+            package xyz
+            
+            variables {
+                bar = 1 kg
+            }
+        """.trimIndent()
+        ) as LcaFile
+        return file.getPsiGlobalVariablesBlocks()
+            .first()
+            .getGlobalAssignments().first()
     }
 
     override fun getTestDataPath(): String {
         return ""
     }
+
 }

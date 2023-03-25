@@ -108,7 +108,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val actual = file.getPsiGlobalVariablesBlocks().first()
-            .getGlobalAssignments().first().getUID()
+            .getGlobalAssignments().first().getQuantityRef().getUID()
 
         // then
         val expected = "_1kg"

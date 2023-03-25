@@ -40,7 +40,6 @@ class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         ) as LcaFile
         val ref = file.getProcesses().first().getInputs().first().getProductRef().reference as PsiReference
         val abcWater = abcWater()
-        val exchanges = listOf(abcWater, xyzWater())
 
         mockkStatic(GlobalSearchScope::class)
         every { GlobalSearchScope.allScope(any()) } returns mockk()
@@ -54,7 +53,12 @@ class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
                 any<GlobalSearchScope>(),
                 any<Class<PsiTechnoProductExchange>>(),
             )
-        } returns exchanges
+        } answers {
+            val target = it.invocation.args[1]
+            if (target == "abc.water") {
+                listOf(abcWater)
+            } else emptyList()
+        }
 
         // when
         val actual = ref.resolve()
@@ -105,7 +109,7 @@ class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         val stubIndex = mockk<StubIndex>()
         mockkStatic(StubIndex::class)
         every {StubIndex.getInstance()} returns stubIndex
-        val results = listOf("carrot", "auto_car", "salad", "computer")
+        val results = listOf("default.carrot", "default.auto_car", "default.salad", "default.computer")
         every {
             stubIndex.getAllKeys(
                 any<StubIndexKey<String, PsiTechnoProductExchange>>(),
@@ -117,25 +121,11 @@ class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         val actual = ref.variants.toList().map { (it as LookupElementBuilder).lookupString }
 
         // then
-        TestCase.assertEquals(results, actual)
+        val expected = listOf("carrot", "auto_car", "salad", "computer")
+        TestCase.assertEquals(expected, actual)
 
         // clean
         unmockkStatic(StubIndex::class)
-    }
-
-    private fun xyzWater(): PsiTechnoProductExchange {
-        val file = parseFile(
-            "xyz", """
-            package xyz
-            
-            process w {
-                products {
-                    1 kg water
-                }
-            }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getProcesses().first().getProducts().first()
     }
 
     override fun getTestDataPath(): String {

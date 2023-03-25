@@ -65,36 +65,6 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         TestCase.assertEquals(assignment, actual)
     }
 
-    @Test
-    fun test_whenGlobalVariable_thenCorrect() {
-        // given
-        val file = parseFile(
-            "resolver", """
-                package resolver
-                
-                variables {
-                    x = 1 kg
-                }
-                
-                process a {
-                    products {
-                        x carrot
-                    }
-                }
-            """.trimIndent()
-        ) as LcaFile
-        val globalAssignment = file.getPsiGlobalVariablesBlocks().first().getGlobalAssignments().first()
-        val process = file.getProcesses().first()
-        val quantityRef = process.getProducts().first()
-            .getQuantity().getTerm().getFactor().getPrimitive().getRef()
-
-        // when
-        val actual = quantityRef.reference?.resolve()
-
-        // then
-        TestCase.assertEquals(globalAssignment, actual)
-    }
-
     override fun getTestDataPath(): String {
         return ""
     }
