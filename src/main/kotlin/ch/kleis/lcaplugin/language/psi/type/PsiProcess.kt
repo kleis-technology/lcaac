@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
-import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner

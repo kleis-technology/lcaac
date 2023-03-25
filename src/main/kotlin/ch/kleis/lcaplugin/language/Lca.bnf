@@ -90,7 +90,7 @@ globalVariables ::= VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalVariables"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalVariablesMixin"
 }
-globalAssignment ::= uid EQUAL quantity {
+globalAssignment ::= quantityRef EQUAL quantity {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalAssignmentMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssignmentStubElementType"
@@ -195,7 +195,7 @@ variables ::= VARIABLES_KEYWORD LBRACE assignment* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiVariablesMixin"
 }
 
-assignment ::= uid EQUAL quantity {
+assignment ::= quantityRef EQUAL quantity {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiAssignmentMixin"
 }

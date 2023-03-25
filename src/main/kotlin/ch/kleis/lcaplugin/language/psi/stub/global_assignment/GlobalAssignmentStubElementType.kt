@@ -25,7 +25,7 @@ class GlobalAssignmentStubElementType(debugName: String) :
     }
 
     override fun createStub(psi: PsiGlobalAssignment, parentStub: StubElement<out PsiElement>?): GlobalAssignmentStub {
-        val fqn = psi.getFullyQualifiedName()
+        val fqn = psi.getQuantityRef().getFullyQualifiedName()
         return GlobalAssignmentStubImpl(parentStub as StubElement<PsiGlobalAssignment>, fqn)
     }
 
