@@ -66,6 +66,9 @@
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaQuantityAnnotator"/>
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiQuantityRefManipulator"/>
