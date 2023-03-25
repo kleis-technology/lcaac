@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.language.psi.stub.unit
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaUnitDefinitionImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
-import com.intellij.lang.LighterASTTokenNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LightTreeUtil
 import com.intellij.psi.stubs.*
 
 class UnitElementType(debugName: String): ILightStubElementType<
@@ -28,16 +25,12 @@ class UnitElementType(debugName: String): ILightStubElementType<
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): UnitStub {
-        val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.UID) as LighterASTTokenNode
-        return UnitStubImpl(
-            parentStub as StubElement<PsiUnitDefinition>,
-            tree.charTable.intern(keyNode.text).toString(),
-        )
+        throw UnsupportedOperationException("cannot create unit stub from lighter ast node")
     }
 
     override fun createStub(psi: PsiUnitDefinition, parentStub: StubElement<out PsiElement>?): UnitStub {
-        val uid = psi.getUnitRef().getUID().name
-        return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, uid)
+        val fqn = psi.getUnitRef().getFullyQualifiedName()
+        return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, fqn)
     }
 
     override fun createPsi(stub: UnitStub): PsiUnitDefinition {
@@ -45,10 +38,10 @@ class UnitElementType(debugName: String): ILightStubElementType<
     }
 
     override fun indexStub(stub: UnitStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.UNITS, stub.uid)
+        sink.occurrence(LcaStubIndexKeys.UNITS, stub.fqn)
     }
 
     override fun serialize(stub: UnitStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uid)
+        dataStream.writeName(stub.fqn)
     }
 }

@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.StubElement
 
 class TechnoProductExchangeStubImpl(
     parent: StubElement<PsiTechnoProductExchange>,
-    override val uid: String,
+    override val fqn: String,
 ) : StubBase<PsiTechnoProductExchange>(
     parent,
     LcaTypes.TECHNO_PRODUCT_EXCHANGE as IStubElementType<out StubElement<*>, *>

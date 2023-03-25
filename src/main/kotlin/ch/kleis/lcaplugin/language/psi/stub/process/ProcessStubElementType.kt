@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.language.psi.stub.process
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaProcessImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
-import com.intellij.lang.LighterASTTokenNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LightTreeUtil
 import com.intellij.psi.stubs.*
 
 class ProcessStubElementType(debugName: String) :
@@ -23,16 +20,12 @@ class ProcessStubElementType(debugName: String) :
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): ProcessStub {
-        val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.UID) as LighterASTTokenNode
-        return ProcessStubImpl(
-            parentStub as StubElement<PsiProcess>,
-            tree.charTable.intern(keyNode.text).toString()
-        )
+        throw UnsupportedOperationException("cannot create process stub from lighter ast node")
     }
 
     override fun createStub(psi: PsiProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
-        val uid = psi.getProcessTemplateRef().getUID().name
-        return ProcessStubImpl(parentStub as StubElement<PsiProcess>, uid)
+        val fqn = psi.getProcessTemplateRef().getFullyQualifiedName()
+        return ProcessStubImpl(parentStub as StubElement<PsiProcess>, fqn)
     }
 
     override fun createPsi(stub: ProcessStub): PsiProcess {
@@ -40,10 +33,10 @@ class ProcessStubElementType(debugName: String) :
     }
 
     override fun indexStub(stub: ProcessStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.uid);
+        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.fqn);
     }
 
     override fun serialize(stub: ProcessStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uid);
+        dataStream.writeName(stub.fqn);
     }
 }

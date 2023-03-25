@@ -16,9 +16,9 @@ class UnitKeyIndex : StringStubIndexExtension<PsiUnitDefinition>() {
     companion object {
         fun findUnits(
             project: Project,
-            target: String,
+            fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ) : Collection<PsiUnitDefinition> =
-            StubIndex.getElements(LcaStubIndexKeys.UNITS, target, project, scope, PsiUnitDefinition::class.java)
+            StubIndex.getElements(LcaStubIndexKeys.UNITS, fqn, project, scope, PsiUnitDefinition::class.java)
     }
 }

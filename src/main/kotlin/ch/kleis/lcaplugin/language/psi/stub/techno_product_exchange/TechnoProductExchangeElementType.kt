@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
-import com.intellij.lang.LighterASTTokenNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LightTreeUtil
 import com.intellij.psi.stubs.*
 
 class TechnoProductExchangeElementType(debugName: String) : ILightStubElementType<
@@ -29,22 +26,17 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
         node: LighterASTNode,
         parentStub: StubElement<*>
     ): TechnoProductExchangeStub {
-        val refNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.PRODUCT_REF) as LighterASTTokenNode
-        val keyNode = LightTreeUtil.firstChildOfType(tree, refNode, LcaTypes.UID) as LighterASTTokenNode
-        return TechnoProductExchangeStubImpl(
-            parentStub as StubElement<PsiTechnoProductExchange>,
-            tree.charTable.intern(keyNode.text).toString()
-        )
+        throw UnsupportedOperationException("cannot create techno product exchange stub from lighter ast node")
     }
 
     override fun createStub(
         psi: PsiTechnoProductExchange,
         parentStub: StubElement<out PsiElement>?
     ): TechnoProductExchangeStub {
-        val uid = psi.getProductRef().getUID().name
+        val fqn = psi.getProductRef().getFullyQualifiedName()
         return TechnoProductExchangeStubImpl(
             parentStub as StubElement<PsiTechnoProductExchange>,
-            uid,
+            fqn,
         )
     }
 
@@ -53,10 +45,10 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
     }
 
     override fun indexStub(stub: TechnoProductExchangeStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, stub.uid)
+        sink.occurrence(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, stub.fqn)
     }
 
     override fun serialize(stub: TechnoProductExchangeStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uid)
+        dataStream.writeName(stub.fqn)
     }
 }
