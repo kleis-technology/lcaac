@@ -83,7 +83,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
                 }
             """.trimIndent()
         ) as LcaFile
-        val uid = file.getPsiVariablesBlocks().first().getUIDs().first()
+        val uid = file.getPsiGlobalVariablesBlocks().first().getUIDs().first()
         val process = file.getProcesses().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()

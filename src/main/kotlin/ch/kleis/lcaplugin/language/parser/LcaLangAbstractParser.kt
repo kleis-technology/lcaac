@@ -38,7 +38,7 @@ class LcaLangAbstractParser(
             )
             .plus(
                 files
-                    .flatMap { it.getAssignments() }
+                    .flatMap { it.getGlobalAssignments() }
                     .map { it.first to quantity(it.second) }
             )
 
