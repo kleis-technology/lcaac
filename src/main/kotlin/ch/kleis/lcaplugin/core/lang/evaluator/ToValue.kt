@@ -1,6 +1,5 @@
-package ch.kleis.lcaplugin.core.lang.evaluator.compiler
+package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.value.*
 
@@ -105,7 +104,6 @@ private fun Constraint.toValue(): ConstraintValue {
     return FromProcessRefValue(
         this.ref,
         this.arguments.mapValues { it.value.toValue() },
-        this.flag,
     )
 }
 

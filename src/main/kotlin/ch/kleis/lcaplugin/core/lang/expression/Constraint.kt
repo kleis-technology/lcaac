@@ -20,15 +20,10 @@ object None : Constraint {
     }
 }
 
-enum class ConstraintFlag {
-    IS_DEFAULT, NONE
-}
-
 @optics
 data class FromProcessRef(
     val ref: String,
     val arguments: Map<String, QuantityExpression>,
-    val flag: ConstraintFlag = ConstraintFlag.NONE,
 ) : Constraint {
     override fun reduceWith(reducer: QuantityExpressionReducer): Constraint {
         return FromProcessRef(

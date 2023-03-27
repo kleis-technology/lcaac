@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import ch.kleis.lcaplugin.core.lang.evaluator.compiler.toValue
+import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture

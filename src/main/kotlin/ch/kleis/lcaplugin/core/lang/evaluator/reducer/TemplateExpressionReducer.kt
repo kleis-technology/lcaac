@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.evaluator.compiler.Helper
+import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
@@ -59,7 +59,7 @@ class TemplateExpressionReducer(
                     result = helper.substitute(it.key, it.value, result)
                 }
                 result = reducer.reduce(result) as EProcess
-                result = constrainProducts(result as EProcess, template.params, actualArguments, quantityReducer)
+                result = constrainProducts(result as EProcess, actualArguments, quantityReducer)
                 return EProcessFinal(result)
             }
 
@@ -71,20 +71,13 @@ class TemplateExpressionReducer(
 
     private fun constrainProducts(
         result: EProcess,
-        templateParams: Map<String, QuantityExpression>,
         actualArguments: Map<String, QuantityExpression>,
         quantityReducer: QuantityExpressionReducer
     ) = everyConstraintInProducts.modify(result) {
-        val reducedTemplateParams = templateParams.mapValues { quantityReducer.reduce(it.value) }
         val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-        val flag =
-            if (reducedActualArguments == reducedTemplateParams)
-                ConstraintFlag.IS_DEFAULT
-            else ConstraintFlag.NONE
         FromProcessRef(
             result.name,
             reducedActualArguments,
-            flag,
         )
     }
 }

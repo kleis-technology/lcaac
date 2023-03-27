@@ -81,7 +81,6 @@ class EvaluatorTest {
                                 mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre
                                 ),
-                                ConstraintFlag.IS_DEFAULT,
                             )
                         )
                     )
@@ -103,7 +102,6 @@ class EvaluatorTest {
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
-                                ConstraintFlag.IS_DEFAULT,
                             )
                         )
                     )
@@ -116,7 +114,6 @@ class EvaluatorTest {
                                 "carrot_production", mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
                                 ),
-                                ConstraintFlag.IS_DEFAULT,
                             )
                         )
                     )
@@ -278,7 +275,6 @@ class EvaluatorTest {
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
-                                ConstraintFlag.IS_DEFAULT
                             )
                         )
                     )

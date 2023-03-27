@@ -1,7 +1,8 @@
-package ch.kleis.lcaplugin.core.lang.evaluator.compiler
+package ch.kleis.lcaplugin.core.lang.evaluator.step
 
 import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.*
@@ -118,7 +119,6 @@ class ReduceAndCompleteTest {
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
-                            ConstraintFlag.IS_DEFAULT,
                         )
                     )
                 )
@@ -161,7 +161,6 @@ class ReduceAndCompleteTest {
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
-                            ConstraintFlag.IS_DEFAULT,
                         )
                     )
                 )
