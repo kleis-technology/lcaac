@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.value
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
 
-sealed interface ConnectionValue : Value, HasUID
+sealed interface MatrixRowIndex : Value, HasUID
 
 @optics
 data class ProcessValue(
@@ -11,7 +11,7 @@ data class ProcessValue(
     val products: List<TechnoExchangeValue>,
     val inputs: List<TechnoExchangeValue>,
     val biosphere: List<BioExchangeValue>,
-) : Value, ConnectionValue {
+) : Value, MatrixRowIndex {
     companion object
 }
 
@@ -19,6 +19,6 @@ data class ProcessValue(
 data class SubstanceCharacterizationValue(
     val referenceExchange: BioExchangeValue,
     val impacts: List<ImpactValue>,
-) : Value, ConnectionValue {
+) : Value, MatrixRowIndex {
     companion object
 }

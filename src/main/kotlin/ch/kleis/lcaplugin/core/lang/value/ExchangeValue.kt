@@ -12,7 +12,7 @@ sealed interface ExchangeValue : Value {
 
 @optics
 data class GenericExchangeValue(
-    val quantity: QuantityValue, val port: PortValue
+    val quantity: QuantityValue, val port: MatrixColumnIndex
 ) : ExchangeValue {
     override fun quantity(): QuantityValue {
         return quantity

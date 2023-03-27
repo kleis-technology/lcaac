@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.assessment
 
-import ch.kleis.lcaplugin.core.lang.value.PortValue
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
@@ -11,8 +11,8 @@ class Assessment(
 ) {
     private val observableMatrix: ObservableMatrix
     private val controllableMatrix: ControllableMatrix
-    private val observablePorts: IndexedCollection<PortValue>
-    private val controllablePorts: IndexedCollection<PortValue>
+    private val observablePorts: IndexedCollection<MatrixColumnIndex>
+    private val controllablePorts: IndexedCollection<MatrixColumnIndex>
 
     init {
         val processes = system.processes

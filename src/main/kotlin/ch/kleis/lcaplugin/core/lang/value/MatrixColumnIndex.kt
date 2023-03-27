@@ -4,7 +4,7 @@ import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
 import ch.kleis.lcaplugin.core.lang.Dimension
 
-sealed interface PortValue : Value, HasUID {
+sealed interface MatrixColumnIndex : Value, HasUID {
     fun getDimension(): Dimension
     fun name(): String
     fun referenceUnit(): UnitValue
@@ -15,7 +15,7 @@ sealed interface PortValue : Value, HasUID {
 
 @optics
 data class ProductValue(val name: String, val referenceUnit: UnitValue, val constraint: ConstraintValue = NoneValue) :
-    Value, PortValue {
+    Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
@@ -44,7 +44,7 @@ data class SubstanceValue(
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitValue,
-) : Value, PortValue {
+) : Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
@@ -60,7 +60,7 @@ data class SubstanceValue(
     companion object
 }
 
-data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Value, PortValue {
+data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
