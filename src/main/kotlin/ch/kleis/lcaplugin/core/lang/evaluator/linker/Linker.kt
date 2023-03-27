@@ -6,8 +6,9 @@ import ch.kleis.lcaplugin.core.lang.value.*
 
 class Linker {
     private val everyInputProduct =
-        ProcessValue.inputs compose
-                Every.list() compose TechnoExchangeValue.product
+        ProcessValue.inputs
+            .compose(Every.list())
+            .compose(TechnoExchangeValue.product)
 
     fun link(
         systemObject: UnlinkedSystem

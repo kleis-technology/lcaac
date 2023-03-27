@@ -3,10 +3,10 @@ package ch.kleis.lcaplugin.core.lang.evaluator.linker
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.compiler.UnlinkedSystem
 import ch.kleis.lcaplugin.core.lang.expression.ConstraintFlag
+import ch.kleis.lcaplugin.core.lang.expression.EConstrainedProduct
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.NoneValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import com.intellij.openapi.ui.naturalSorted
 
 class ProductMatcher(
     private val systemObject: UnlinkedSystem,
@@ -20,10 +20,10 @@ class ProductMatcher(
     fun match(product: ProductValue): ProductValue? {
         val group = products[product.name] ?: emptyList()
         val candidates = group
-            .filter { productPartialOrder.leq(it, product) }
-            .let { productPartialOrder.minimal(it) }
+            .filter { productPartialOrder.moreConcreteThanOrEqualTo(it, product) }
+            .let { productPartialOrder.mostConcreteElementsOf(it) }
         if (candidates.size > 1) {
-            val defaultCandidates = candidates.filter { it.isDefault() }
+            val defaultCandidates = candidates.filter { isDefault(it) }
             if (defaultCandidates.size > 1) {
                 throw EvaluatorException("more than one default matches for ${product.name}")
             }
@@ -32,11 +32,11 @@ class ProductMatcher(
         }
         return candidates.firstOrNull()
     }
-}
 
-private fun ProductValue.isDefault(): Boolean {
-    return when (this.constraint) {
-        is FromProcessRefValue -> this.constraint.flag == ConstraintFlag.IS_DEFAULT
-        NoneValue -> false
+    private fun isDefault(it: ProductValue): Boolean {
+        return when (it.constraint) {
+            is FromProcessRefValue -> it.constraint.flag == ConstraintFlag.IS_DEFAULT
+            NoneValue -> false
+        }
     }
 }

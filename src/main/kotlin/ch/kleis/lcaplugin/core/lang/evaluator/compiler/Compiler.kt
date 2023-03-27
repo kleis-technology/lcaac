@@ -5,43 +5,39 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
-import ch.kleis.lcaplugin.core.lang.resolver.ProductResolver
 
 class Compiler(
     private val symbolTable: SymbolTable,
 ) {
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
-    private val productResolver = ProductResolver(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
     private val completeDefaultArguments = CompleteDefaultArguments(processResolver)
     private val everyInputProduct =
-        TemplateExpression.eProcessFinal.expression.eProcess.inputs compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+        TemplateExpression.eProcessFinal.expression.eProcess.inputs
+            .compose(Every.list())
+            .compose(ETechnoExchange.product.eConstrainedProduct)
 
 
     fun compile(expression: TemplateExpression): UnlinkedSystem {
-        val state = UnlinkedSystem.empty()
-        recursiveCompile(state, expression)
-        return state
+        return recursiveCompile(UnlinkedSystem.empty(), expression)
     }
 
     private fun recursiveCompile(
-        state: UnlinkedSystem,
+        accumulator: UnlinkedSystem,
         expression: TemplateExpression,
-    ) {
+    ): UnlinkedSystem {
         // eval
         val e = completeDefaultArguments.apply(expression)
         val p = reduceAndComplete.apply(e)
         val v = p.toValue()
 
         // termination condition
-        if (state.containsProcess(v)) {
-            return
+        if (accumulator.containsProcess(v)) {
+            return accumulator
         }
 
         // add evaluated process
-        state.addProcess(v)
+        var result = accumulator.plus(v)
 
         // add substance characterizations
         val everySubstance =
@@ -51,29 +47,30 @@ class Compiler(
         everySubstance.getAll(p).forEach { substance ->
             symbolTable.getSubstanceCharacterization(substance.name)?.let {
                 val scv = reduceAndComplete.apply(it).toValue()
-                state.addSubstanceCharacterization(scv)
+                result = result.plus(scv)
             }
         }
 
         // recursively visit process template instances
         everyInputProduct.getAll(p)
             .forEach {
-                val candidate = resolveAndCheckCandidates(it) ?: return
-                val template = candidate.second
-                val arguments = when (it.constraint) {
-                    is FromProcessRef -> it.constraint.arguments
-                    None -> emptyMap()
+                resolveAndCheckCandidates(it)?.let { candidate ->
+                    val template = candidate.second
+                    val arguments = when (it.constraint) {
+                        is FromProcessRef -> it.constraint.arguments
+                        None -> emptyMap()
+                    }
+                    result = recursiveCompile(result, EInstance(template, arguments))
                 }
-                recursiveCompile(state, EInstance(template, arguments))
             }
+        return result
     }
 
 
     private fun resolveAndCheckCandidates(product: EConstrainedProduct): Pair<String, TemplateExpression>? {
-        val eProduct = when (product.product) {
-            is EProduct -> product.product
-            is EProductRef -> productResolver.resolve(product.product.name)
-        } ?: throw EvaluatorException("unbound product ${product.product}")
+        val eProduct =
+            if (product.product is EProduct) product.product
+            else throw EvaluatorException("unbound product ${product.product}")
         return when (product.constraint) {
             is FromProcessRef -> {
                 val processRef = product.constraint.ref

@@ -3,13 +3,14 @@ package ch.kleis.lcaplugin.core.lang.evaluator.compiler
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SubstanceCharacterizationValue
 
-class UnlinkedSystem {
-    private val processes: MutableSet<ProcessValue> = HashSet()
-    private val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue> = HashSet()
+class UnlinkedSystem(
+    private val processes: Set<ProcessValue>,
+    private val substanceCharacterizations: Set<SubstanceCharacterizationValue>,
+) {
 
     companion object {
         fun empty(): UnlinkedSystem {
-            return UnlinkedSystem()
+            return UnlinkedSystem(emptySet(), emptySet())
         }
     }
 
@@ -17,12 +18,25 @@ class UnlinkedSystem {
         return processes.contains(process)
     }
 
-    fun addProcess(process: ProcessValue) {
-        processes.add(process)
+    fun plus(process: ProcessValue): UnlinkedSystem {
+        return UnlinkedSystem(
+            processes.plus(process),
+            substanceCharacterizations,
+        )
     }
 
-    fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue) {
-        substanceCharacterizations.add(substanceCharacterization)
+    fun plus(substanceCharacterization: SubstanceCharacterizationValue): UnlinkedSystem {
+        return UnlinkedSystem(
+            processes,
+            substanceCharacterizations.plus(substanceCharacterization),
+        )
+    }
+
+    fun plus(unlinkedSystem: UnlinkedSystem): UnlinkedSystem {
+        return UnlinkedSystem(
+            processes.plus(unlinkedSystem.processes),
+            substanceCharacterizations.plus(unlinkedSystem.substanceCharacterizations),
+        )
     }
 
     fun getProcesses(): Set<ProcessValue> {

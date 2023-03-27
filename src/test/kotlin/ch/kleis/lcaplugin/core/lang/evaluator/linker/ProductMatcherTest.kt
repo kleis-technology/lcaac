@@ -6,7 +6,10 @@ import ch.kleis.lcaplugin.core.lang.expression.ConstraintFlag
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
-import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.*
@@ -31,9 +34,9 @@ class ProductMatcherTest {
         val product = ProductValueFixture.product("product")
 
         val productPartialOrder = mockk<ProductPartialOrder>()
-        every { productPartialOrder.leq(any(), any()) } returns false
-        every { productPartialOrder.leq(expected, product) } returns true
-        every { productPartialOrder.minimal(any()) } answers { it.invocation.args[0] as List<ProductValue> }
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), any()) } returns false
+        every { productPartialOrder.moreConcreteThanOrEqualTo(expected, product) } returns true
+        every { productPartialOrder.mostConcreteElementsOf(any()) } answers { it.invocation.args[0] as List<ProductValue> }
 
         val matcher = ProductMatcher(systemObject, productPartialOrder)
 
@@ -56,9 +59,9 @@ class ProductMatcherTest {
         val product = ProductValueFixture.product("product")
 
         val productPartialOrder = mockk<ProductPartialOrder>()
-        every { productPartialOrder.leq(any(), any()) } returns false
-        every { productPartialOrder.leq(any(), eq(product)) } returns true
-        every { productPartialOrder.minimal(any()) } answers { it.invocation.args[0] as List<ProductValue> }
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), any()) } returns false
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), eq(product)) } returns true
+        every { productPartialOrder.mostConcreteElementsOf(any()) } answers { it.invocation.args[0] as List<ProductValue> }
 
         val matcher = ProductMatcher(systemObject, productPartialOrder)
 
@@ -86,9 +89,9 @@ class ProductMatcherTest {
         val product = ProductValueFixture.product("carrot")
 
         val productPartialOrder = mockk<ProductPartialOrder>()
-        every { productPartialOrder.leq(any(), any()) } returns false
-        every { productPartialOrder.leq(any(), eq(product)) } returns true
-        every { productPartialOrder.minimal(any()) } answers { it.invocation.args[0] as List<ProductValue> }
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), any()) } returns false
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), eq(product)) } returns true
+        every { productPartialOrder.mostConcreteElementsOf(any()) } answers { it.invocation.args[0] as List<ProductValue> }
 
         val matcher = ProductMatcher(systemObject, productPartialOrder)
 
@@ -115,9 +118,9 @@ class ProductMatcherTest {
         val product = ProductValueFixture.product("product")
 
         val productPartialOrder = mockk<ProductPartialOrder>()
-        every { productPartialOrder.leq(any(), any()) } returns false
-        every { productPartialOrder.leq(any(), eq(product)) } returns true
-        every { productPartialOrder.minimal(any()) } answers { it.invocation.args[0] as List<ProductValue> }
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), any()) } returns false
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), eq(product)) } returns true
+        every { productPartialOrder.mostConcreteElementsOf(any()) } answers { it.invocation.args[0] as List<ProductValue> }
 
         val matcher = ProductMatcher(systemObject, productPartialOrder)
 
@@ -143,9 +146,9 @@ class ProductMatcherTest {
         val product = ProductValueFixture.product("product")
 
         val productPartialOrder = mockk<ProductPartialOrder>()
-        every { productPartialOrder.leq(any(), any()) } returns false
-        every { productPartialOrder.leq(expected, product) } returns true
-        every { productPartialOrder.minimal(any()) } answers { it.invocation.args[0] as List<ProductValue> }
+        every { productPartialOrder.moreConcreteThanOrEqualTo(any(), any()) } returns false
+        every { productPartialOrder.moreConcreteThanOrEqualTo(expected, product) } returns true
+        every { productPartialOrder.mostConcreteElementsOf(any()) } answers { it.invocation.args[0] as List<ProductValue> }
 
         val matcher = ProductMatcher(systemObject, productPartialOrder)
 
@@ -167,9 +170,9 @@ class ProductMatcherTest {
     private fun systemObjectFromProcesses(
         processes: List<ProcessValue>
     ): UnlinkedSystem {
-        val result = UnlinkedSystem()
-        processes.forEach { result.addProcess(it) }
-        return result
+        return processes.fold(UnlinkedSystem.empty()) { unlinkedSystem, processValue ->
+            unlinkedSystem.plus(processValue)
+        }
     }
 
     private fun processWith(product: ProductValue): ProcessValue {

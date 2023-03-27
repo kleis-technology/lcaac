@@ -18,7 +18,7 @@ class ConstraintPartialOrderTest {
         val b = NoneValue
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(true, actual)
@@ -32,7 +32,7 @@ class ConstraintPartialOrderTest {
         val b = mockk<FromProcessRefValue>()
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
@@ -46,7 +46,7 @@ class ConstraintPartialOrderTest {
         val b = NoneValue
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(true, actual)
@@ -60,7 +60,7 @@ class ConstraintPartialOrderTest {
         val b = FromProcessRefValue("b", emptyMap())
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
@@ -82,7 +82,7 @@ class ConstraintPartialOrderTest {
         )
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
@@ -104,7 +104,7 @@ class ConstraintPartialOrderTest {
         )
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
@@ -127,7 +127,7 @@ class ConstraintPartialOrderTest {
         )
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
@@ -150,7 +150,7 @@ class ConstraintPartialOrderTest {
         )
 
         // when
-        val actual = poset.leq(a, b)
+        val actual = poset.moreConcreteThanOrEqualTo(a, b)
 
         // then
         assertEquals(false, actual)
