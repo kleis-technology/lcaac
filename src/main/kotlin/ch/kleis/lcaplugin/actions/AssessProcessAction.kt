@@ -27,7 +27,7 @@ class AssessProcessAction(private val processName: String) : AnAction() {
 
         try {
             val symbolTable = parser.load()
-            val entryPoint = symbolTable.processTemplates[processName]!!
+            val entryPoint = symbolTable.getTemplate(processName)!!
             val system = Evaluator(symbolTable).eval(entryPoint)
             val assessment = Assessment(system)
             val result = assessment.inventory()

@@ -36,17 +36,12 @@ class TemplateExpressionReducer(
                     throw EvaluatorException("unknown parameters: $unknownParameters")
                 }
 
-                val localRegister = Register(quantityRegister)
-
                 val actualArguments = template.params
                     .plus(expression.arguments)
-                actualArguments.forEach {
-                    localRegister[it.key] = it.value
-                }
 
-                template.locals.forEach {
-                    localRegister[it.key] = it.value
-                }
+                val localRegister = Register(quantityRegister)
+                    .plus(actualArguments)
+                    .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(
                     productRegister,

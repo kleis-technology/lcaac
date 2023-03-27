@@ -192,7 +192,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "reference a already bound: a = EProcessTemplate(params={}, locals={}, body=EProcess(name=a, products=[], inputs=[], biosphere=[]))",
+                "[a] are already bound",
                 e.message
             )
         }
@@ -225,7 +225,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "reference x already bound: x = EProduct(name=x, referenceUnit=EUnitClosure(symbolTable=[symbolTable], expression=EUnitOf(quantity=EQuantityScale(scale=1.0, quantity=kg))))",
+                "[x] are already bound",
                 e.message
             )
         }
@@ -267,7 +267,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             parser.load()
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            TestCase.assertEquals("reference x already bound: x = EQuantityScale(scale=1.0, quantity=kg)", e.message)
+            TestCase.assertEquals("[x] are already bound", e.message)
         }
     }
 
@@ -298,7 +298,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "reference a already bound: a = ESubstance(name=a, displayName=first, compartment=first compartment, subcompartment=null, referenceUnit=kg)",
+                "[a] are already bound",
                 e.message
             )
         }
