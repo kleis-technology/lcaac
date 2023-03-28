@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.psi.PsiReference
 
 interface PsiProcessTemplateRef : PsiUIDOwner {
-    override fun getReference(): PsiReference? {
+    override fun getReference(): ProcessReference {
         return ProcessReference(this)
     }
 }

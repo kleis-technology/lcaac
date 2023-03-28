@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.psi.PsiReference
 
 interface PsiQuantityRef : PsiUIDOwner {
-    override fun getReference(): PsiReference? {
+    override fun getReference(): QuantityReference {
         return QuantityReference(this)
     }
 }
