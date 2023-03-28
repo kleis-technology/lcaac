@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.language.psi.stub.substance
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.psi.LcaTypes
 import ch.kleis.lcaplugin.psi.impl.LcaSubstanceImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
-import com.intellij.lang.LighterASTTokenNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.tree.LightTreeUtil
 import com.intellij.psi.stubs.*
 
 class SubstanceStubElementType(debugName: String) : ILightStubElementType<SubstanceStub,
@@ -21,16 +18,12 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): SubstanceStub {
-        val keyNode = LightTreeUtil.firstChildOfType(tree, node, LcaTypes.UID) as LighterASTTokenNode
-        return SubstanceStubImpl(
-            parentStub as StubElement<PsiSubstance>,
-            tree.charTable.intern(keyNode.text).toString()
-        );
+        throw UnsupportedOperationException("cannot create substance stub from lighter ast node")
     }
 
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
-        val uid = psi.getSubstanceRef().getUID().name
-        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, uid)
+        val fqn = psi.getSubstanceRef().getFullyQualifiedName()
+        return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, fqn)
     }
 
     override fun createPsi(stub: SubstanceStub): PsiSubstance {
@@ -38,10 +31,10 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.uid);
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.fqn);
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.uid);
+        dataStream.writeName(stub.fqn);
     }
 }

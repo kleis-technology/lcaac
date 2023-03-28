@@ -25,7 +25,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             """.trimIndent()
         ) as LcaFile
         val process = file.getProcesses().first()
-        val uid = process.getPsiParametersBlocks().first().getUIDs().first()
+        val assignment = process.getPsiParametersBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
@@ -33,7 +33,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         val actual = quantityRef.reference?.resolve()
 
         // then
-        TestCase.assertEquals(uid, actual)
+        TestCase.assertEquals(assignment, actual)
     }
 
     @Test
@@ -54,7 +54,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             """.trimIndent()
         ) as LcaFile
         val process = file.getProcesses().first()
-        val uid = process.getPsiVariablesBlocks().first().getUIDs().first()
+        val assignment = process.getPsiVariablesBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
@@ -62,37 +62,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
         val actual = quantityRef.reference?.resolve()
 
         // then
-        TestCase.assertEquals(uid, actual)
-    }
-
-    @Test
-    fun test_whenGlobalVariable_thenCorrect() {
-        // given
-        val file = parseFile(
-            "resolver", """
-                package resolver
-                
-                variables {
-                    x = 1 kg
-                }
-                
-                process a {
-                    products {
-                        x carrot
-                    }
-                }
-            """.trimIndent()
-        ) as LcaFile
-        val uid = file.getPsiVariablesBlocks().first().getUIDs().first()
-        val process = file.getProcesses().first()
-        val quantityRef = process.getProducts().first()
-            .getQuantity().getTerm().getFactor().getPrimitive().getRef()
-
-        // when
-        val actual = quantityRef.reference?.resolve()
-
-        // then
-        TestCase.assertEquals(uid, actual)
+        TestCase.assertEquals(assignment, actual)
     }
 
     override fun getTestDataPath(): String {

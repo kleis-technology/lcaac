@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.find_usage
 
 import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
+import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
@@ -33,6 +34,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
             is PsiTechnoProductExchange -> true
             is PsiSubstance -> true
             is PsiUnitDefinition -> true
+            is PsiGlobalAssignment -> true
             else -> false
         }
 
@@ -44,6 +46,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
             is PsiTechnoInputExchange -> "Product"
             is PsiTechnoProductExchange -> "Product"
             is PsiUnitDefinition -> "Unit"
+            is PsiGlobalAssignment -> "Quantity"
             else -> ""
         }
 

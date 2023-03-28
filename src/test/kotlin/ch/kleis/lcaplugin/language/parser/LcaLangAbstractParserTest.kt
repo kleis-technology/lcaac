@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.language.parser
 import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
-import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -108,8 +107,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         ) as LcaFile
 
         // when
-        val actual = file.getPsiVariablesBlocks().first()
-            .getUIDs().first()
+        val actual = file.getPsiGlobalVariablesBlocks().first()
+            .getGlobalAssignments().first().getQuantityRef().getUID()
 
         // then
         val expected = "_1kg"

@@ -66,7 +66,7 @@
     LCA File
  */
 
-lcaFile ::= package?  import* (process | unitDefinition | substance | variables )*
+lcaFile ::= package?  import* (process | unitDefinition | substance | globalVariables )*
 
 /*
     Package
@@ -82,6 +82,20 @@ import ::= IMPORT_KEYWORD urn {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
 }
 
+/*
+    Global variables
+ */
+
+globalVariables ::= VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalVariables"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalVariablesMixin"
+}
+globalAssignment ::= quantityRef EQUAL quantity {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalAssignmentMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssignmentStubElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssignmentStub"
+}
 
 /*
     Substance
@@ -149,6 +163,7 @@ aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantity {
         mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAliasForFieldMixin"
 }
 
+
 /*
     Process
  */
@@ -180,7 +195,7 @@ variables ::= VARIABLES_KEYWORD LBRACE assignment* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiVariablesMixin"
 }
 
-assignment ::= uid EQUAL quantity {
+assignment ::= quantityRef EQUAL quantity {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiAssignmentMixin"
 }

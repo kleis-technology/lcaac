@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.StubElement
 
 class UnitStubImpl(
     parent: StubElement<PsiUnitDefinition>,
-    override val uid: String,
+    override val fqn: String,
 ) : StubBase<PsiUnitDefinition>(
     parent,
     LcaTypes.UNIT_DEFINITION as IStubElementType<out StubElement<*>, *>

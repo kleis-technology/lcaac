@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
-import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
@@ -17,7 +16,7 @@ import com.intellij.psi.StubBasedPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
 
-interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,BlockMetaOwner {
+interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner, BlockMetaOwner {
     fun getProcessTemplateRef(): PsiProcessTemplateRef {
         return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_REF)?.psi as PsiProcessTemplateRef
     }

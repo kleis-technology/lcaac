@@ -1,0 +1,12 @@
+package language.psi.reference.subst.test_resolve
+
+import language.psi.reference.subst.test_resolve.co2_air
+
+process p {
+    products {
+        1 kg a
+    }
+    emissions {
+        1 kg co2_air
+    }
+}

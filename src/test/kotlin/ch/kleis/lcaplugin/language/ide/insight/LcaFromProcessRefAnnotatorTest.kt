@@ -68,7 +68,12 @@ class LcaFromProcessRefAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefin
                 any(),
                 any<Class<PsiProcess>>(),
             )
-        } returns listOf(carrotProduction())
+        } answers {
+            val target = it.invocation.args[1] as String
+            if (target == "carrot.carrot_production") {
+                listOf(carrotProduction())
+            } else emptyList()
+        }
 
         // when
         annotator.annotate(element, mock.holder)

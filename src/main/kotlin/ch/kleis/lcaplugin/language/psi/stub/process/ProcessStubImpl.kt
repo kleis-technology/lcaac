@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.StubElement
 
 class ProcessStubImpl(
     parent: StubElement<PsiProcess>,
-    override val uid: String,
+    override val fqn: String,
 ) :
         StubBase<PsiProcess>(parent, LcaTypes.PROCESS as IStubElementType<out StubElement<*>, *>),
         ProcessStub

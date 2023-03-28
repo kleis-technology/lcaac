@@ -16,9 +16,9 @@ class TechnoProductExchangeKeyIndex : StringStubIndexExtension<PsiTechnoProductE
     companion object {
         fun findTechnoProductExchanges(
             project: Project,
-            target: String,
+            fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiTechnoProductExchange> =
-            StubIndex.getElements(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, target, project, scope, PsiTechnoProductExchange::class.java)
+            StubIndex.getElements(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, fqn, project, scope, PsiTechnoProductExchange::class.java)
     }
 }

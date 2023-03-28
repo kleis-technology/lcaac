@@ -1,5 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.manipulators
 
+import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
+import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
@@ -26,6 +28,28 @@ class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTech
         newContent: String?
     ): PsiTechnoProductExchange? {
         newContent?.let { element.getProductRef().setName(it) }
+        return element
+    }
+}
+
+class PsiGlobalAssignmentManipulator() : AbstractElementManipulator<PsiGlobalAssignment>() {
+    override fun handleContentChange(
+        element: PsiGlobalAssignment,
+        range: TextRange,
+        newContent: String?
+    ): PsiGlobalAssignment? {
+        newContent?.let { element.getQuantityRef().setName(it) }
+        return element
+    }
+}
+
+class PsiAssignmentManipulator() : AbstractElementManipulator<PsiAssignment>() {
+    override fun handleContentChange(
+        element: PsiAssignment,
+        range: TextRange,
+        newContent: String?
+    ): PsiAssignment? {
+        newContent?.let { element.getQuantityRef().setName(it) }
         return element
     }
 }

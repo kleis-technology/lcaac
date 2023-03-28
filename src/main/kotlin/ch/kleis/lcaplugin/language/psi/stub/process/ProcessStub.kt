@@ -4,5 +4,5 @@ import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import com.intellij.psi.stubs.StubElement
 
 interface ProcessStub : StubElement<PsiProcess> {
-    val uid: String
+    val fqn: String
 }

@@ -12,8 +12,12 @@ interface PsiFromProcessConstraint : PsiElement {
     }
 
     fun getArguments(): Map<String, PsiQuantity> {
+        return getAssignments()
+            .associate { it.getQuantityRef().name to it.getValue() }
+    }
+
+    fun getAssignments(): Collection<PsiAssignment> {
         return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
             .map { it.psi as PsiAssignment }
-            .associate { it.getUID().name to it.getValue() }
     }
 }

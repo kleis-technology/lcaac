@@ -43,9 +43,9 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiSubstance }
     }
 
-    fun getAssignments(): Collection<Pair<String, PsiQuantity>> {
-        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
-            .map { it.psi as PsiVariables }
+    fun getGlobalAssignments(): Collection<Pair<String, PsiQuantity>> {
+        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
+            .map { it.psi as PsiGlobalVariables }
             .flatMap { it.getEntries() }
     }
 
@@ -54,9 +54,9 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiUnitDefinition }
     }
 
-    fun getPsiVariablesBlocks(): Collection<PsiVariables> {
-        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
-            .map { it.psi as PsiVariables }
+    fun getPsiGlobalVariablesBlocks(): Collection<PsiGlobalVariables> {
+        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
+            .map { it.psi as PsiGlobalVariables }
     }
 
     override fun processDeclarations(
@@ -65,7 +65,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
-        for (block in getPsiVariablesBlocks()) {
+        for (block in getPsiGlobalVariablesBlocks()) {
             if (!processor.execute(block, state)){
                 return false
             }

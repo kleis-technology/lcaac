@@ -72,7 +72,12 @@ class LcaTechnoInputExchangeAnnotatorTest : ParsingTestCase("", "lca", LcaParser
                 any<GlobalSearchScope>(),
                 any<Class<PsiTechnoProductExchange>>(),
             )
-        } returns listOf(electricity())
+        } answers {
+            val target = it.invocation.args[1] as String
+            if (target == "xyz.electricity") {
+                listOf(electricity())
+            } else emptyList()
+        }
 
         // when
         annotator.annotate(element, mock.holder)

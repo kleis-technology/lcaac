@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type.trait
 
+import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.factory.LcaFileFactory
 import ch.kleis.lcaplugin.language.psi.factory.LcaUIDFactory
 import ch.kleis.lcaplugin.language.psi.type.PsiUID
@@ -9,6 +10,11 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 
 interface PsiUIDOwner : PsiNameIdentifierOwner {
+    fun getFullyQualifiedName(): String {
+        val pkgName = (containingFile as LcaFile).getPackageName()
+        return "$pkgName.${this.name}"
+    }
+
     fun getUID(): PsiUID {
         return node.findChildByType(LcaTypes.UID)?.psi as PsiUID
     }
