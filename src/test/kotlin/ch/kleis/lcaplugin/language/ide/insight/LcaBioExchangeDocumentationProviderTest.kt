@@ -1,31 +1,37 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.psi.LcaProcess
-import ch.kleis.lcaplugin.psi.LcaQuantityFactor
-import ch.kleis.lcaplugin.psi.LcaQuantityTerm
-import com.intellij.testFramework.ParsingTestCase
+import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.jetbrains.rd.util.first
 import junit.framework.TestCase
-import org.junit.Assert.*
 import org.junit.Test
-import org.hamcrest.CoreMatchers
 
-class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class LcaBioExchangeDocumentationProviderTest : BasePlatformTestCase() {
+    override fun getTestDataPath(): String {
+        return "testdata/language/ide/insight"
+    }
+
+    override fun setUp() {
+        super.setUp()
+        myFixture.copyDirectoryToProject("", "")
+    }
 
     @Test
     fun testSubstance_ShouldRender_WithMinimumInfo() {
         // Given
-        val file = parseFile(
-            "abc", """
+        val virtualFile = myFixture.createFile(
+            "testSubstance_ShouldRender_WithMinimumInfo.lca", """
             substance co2 {
                 name = "co2"
                 compartment = "compartment"
                 reference_unit = kg
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val substance = file.getSubstances().first()
         val sut = LcaBioExchangeDocumentationProvider()
 
@@ -62,8 +68,8 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
     @Test
     fun testSubstance_ShouldRender_WithAllInfos() {
         // Given
-        val file = parseFile(
-            "abc", """
+        val virtualFile = myFixture.createFile(
+            "testSubstance_ShouldRender_WithAllInfos.lca", """
             substance propanol_air {
                 name = "propanol"
                 compartment = "air"
@@ -75,7 +81,8 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val substance = file.getSubstances().first()
         val sut = LcaBioExchangeDocumentationProvider()
 
@@ -123,40 +130,323 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         )
     }
 
-    // TODO Implement when Unit Reference will be implemented
-//    @Test
-//    fun testUnit_ShouldRender() {
-//        // Given
-//        val file = parseFile(
-//            "abc", """
-//            process b {
-//                params {
-//                    yield = 100 g
-//                }
-//            }
-//        """.trimIndent()
-//        ) as LcaFile
-//        val quantityExpression = file.getProcesses().first().getParameters().first().value.getTerm() as LcaQuantityTerm
-//        val gUnit = (quantityExpression.children.first() as LcaQuantityFactor).quantityPrimitive.getUnit()
-//        val sut = LcaBioExchangeDocumentationProvider()
-//
-//        // When
-//        val result = sut.generateDoc(gUnit, gUnit)
-//
-//        // Then
-//        TestCase.assertEquals(
-//            """
-//
-//
-//        """.trimIndent(), result
-//        )
-//    }
+    @Test
+    fun testQuantityRef_whenUnit_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenUnit_ShouldRender.lca", """
+            process b {
+                params {
+                    yield = 100 g
+                }
+            }
+            
+            unit g {
+                symbol = "g"
+                dimension = "mass"
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getParameters().first().value
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef() as LcaQuantityRef
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Unit</span> <span style="color:#0000ff;font-weight:bold;">g</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>g</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Dimension</td>
+        <td valign='top'>mass</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
+    fun testQuantityRef_whenUnitAlias_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenUnitAlias_ShouldRender.lca", """
+            process b {
+                params {
+                    yield = 100 g
+                }
+            }
+            
+            unit g {
+                symbol = "g"
+                alias_for = 1e-3 kg
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getParameters().first().value
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef() as LcaQuantityRef
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Unit</span> <span style="color:#0000ff;font-weight:bold;">g</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>g</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Alias for</td>
+        <td valign='top'>1e-3 kg</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
+    fun testQuantityRef_whenGlobalAssignment_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenGlobalAssignment_ShouldRender.lca", """
+            variables {
+                x = 1 kg
+            }
+            
+            process b {
+                params {
+                    yield = 100 x
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getParameters().first().value
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef() as LcaQuantityRef
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Global quantity</span> <span style="color:#0000ff;font-weight:bold;">x</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>x</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Value</td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
+    fun testQuantityRef_whenLocalVariable_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenLocalVariable_ShouldRender.lca", """
+            process b {
+                variables {
+                    x = 1 kg
+                }
+            
+                params {
+                    yield = 100 x
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getParameters().first().value
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef() as LcaQuantityRef
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Quantity</span> <span style="color:#0000ff;font-weight:bold;">x</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>x</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Value</td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
+    fun testQuantityRef_whenLocalParameter_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenLocalParameter_ShouldRender.lca", """
+            process b {
+                params {
+                    x = 1 kg
+                }
+            
+                params {
+                    yield = 100 x
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getParameters()["yield"]!!
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef() as LcaQuantityRef
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Quantity</span> <span style="color:#0000ff;font-weight:bold;">x</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>x</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Value</td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
+    fun testQuantityRef_whenArgument_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testQuantityRef_whenArgument_ShouldRender.lca", """
+            process a {
+                inputs {
+                    1 kg carrot from b(x = 3 kg)
+                }
+            }
+            
+            process b {
+                params {
+                    x = 1 kg
+                }
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first()
+            .getInputs().first()
+            .getFromProcessConstraint()!!
+            .getAssignments().first()
+            .getQuantityRef()
+        val sut = LcaBioExchangeDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(ref, ref)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Quantity</span> <span style="color:#0000ff;font-weight:bold;">x</span>
+        </pre></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Symbol</td>
+        <td valign='top'>x</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Value</td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        </table>
+        </div>
+        
+        """.trimIndent(), result
+        )
+    }
 
     @Test
     fun testProduct_ShouldRenderWithoutProcess() {
         // Given
-        val file = parseFile(
-            "abc", """
+        val virtualFile = myFixture.createFile(
+            "testProduct_ShouldRenderWithoutProcess.lca", """
             process b {
                 params {
                     p1 = 1 kg
@@ -167,7 +457,8 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val carrotInputExchange = file.getProcesses().first().getProducts().first()
         val sut = LcaBioExchangeDocumentationProvider()
 
@@ -198,11 +489,12 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         """.trimIndent(), result
         )
     }
+
     @Test
     fun testProcess_ShouldRenderWithoutProcess() {
         // Given
-        val file = parseFile(
-            "abc", """
+        val virtualFile = myFixture.createFile(
+            "testProcess_ShouldRenderWithoutProcess.lca", """
             process b {
                 params {
                     p1 = 1 kg
@@ -213,7 +505,8 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val process = file.getProcesses().first() as LcaProcess
         val sut = LcaBioExchangeDocumentationProvider()
 
@@ -245,11 +538,11 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
         )
     }
 
-  @Test
+    @Test
     fun testProcess_ShouldRenderWithProcessAndMeta() {
         // Given
-        val file = parseFile(
-            "abc", """
+        val virtualFile = myFixture.createFile(
+            "testProcess_ShouldRenderWithProcessAndMeta.lca", """
             process b {
                 meta {
                     author = "Alain Colas"
@@ -264,7 +557,8 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val process = file.getProcesses().first() as LcaProcess
         val sut = LcaBioExchangeDocumentationProvider()
 
@@ -304,10 +598,5 @@ class LcaBioExchangeDocumentationProviderTest : ParsingTestCase("", "lca", LcaPa
 
         """.trimIndent(), result
         )
-    }
-
-
-    override fun getTestDataPath(): String {
-        return ""
     }
 }

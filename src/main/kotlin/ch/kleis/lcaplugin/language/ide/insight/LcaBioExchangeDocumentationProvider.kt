@@ -51,20 +51,27 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
                 sb.toString()
             }
 
-            is LcaUid -> {
-                if (element.parent is LcaUnitRef) {
-                    val sb = StringBuilder()
-                    val elt = element.parent as LcaUnitRef
-                    // As for now Prelude Unit can't be resolved
-                    (elt.reference?.resolve() as LcaUnitDefinition?)?.let { unit ->
-                        documentTitle(sb, "Unit", unit.getUnitRef().getUID().name)
-                        documentUnitData(sb, unit)
-                    } ?: run {
-                        documentTitle(sb, "Native Unit", elt.getUID().name)
+            is LcaQuantityRef -> {
+                when (val target = element.reference?.resolve()) {
+                    is LcaUnitDefinition -> {
+                        val sb = StringBuilder()
+                        documentTitle(sb, "Unit", element.name)
+                        documentUnitData(sb, target)
+                        sb.toString()
                     }
-                    sb.toString()
-                } else {
-                    super.generateDoc(element, originalElement)
+                    is LcaGlobalAssignment -> {
+                        val sb = StringBuilder()
+                        documentTitle(sb, "Global quantity", element.name)
+                        documentQuantityData(sb, target)
+                        sb.toString()
+                    }
+                    is LcaAssignment -> {
+                        val sb = StringBuilder()
+                        documentTitle(sb, "Quantity", element.name)
+                        documentQuantityData(sb, target)
+                        sb.toString()
+                    }
+                    else -> super.generateDoc(element, originalElement)
                 }
             }
 
@@ -128,12 +135,30 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Symbol", element.getSymbolField().getValue(), sb)
-        if (element.getType() == UnitDefinitionType.LITERAL){
+        if (element.getType() == UnitDefinitionType.LITERAL) {
             addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
         }
         if (element.getType() == UnitDefinitionType.ALIAS) {
             addKeyValueSection("Alias for", element.getAliasForField().getValue().text, sb)
         }
+        sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
+        sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+    }
+
+    private fun documentQuantityData(sb: StringBuilder, element: LcaGlobalAssignment) {
+        sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+        sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
+        addKeyValueSection("Symbol", element.getQuantityRef().name, sb)
+        addKeyValueSection("Value", element.getValue().text, sb)
+        sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
+        sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+    }
+
+    private fun documentQuantityData(sb: StringBuilder, element: LcaAssignment) {
+        sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+        sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
+        addKeyValueSection("Symbol", element.getQuantityRef().name, sb)
+        addKeyValueSection("Value", element.getValue().text, sb)
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }
