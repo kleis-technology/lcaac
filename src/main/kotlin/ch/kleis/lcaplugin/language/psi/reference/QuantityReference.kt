@@ -4,7 +4,10 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
+import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
+import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.psi.PsiElement
@@ -36,9 +39,28 @@ class QuantityReference(
     )
 
     override fun resolve(): PsiElement? {
-        return tryLocally()
+        return tryAsProcessParameter()
+            ?: tryLocally()
             ?: tryGlobalAssignments()
             ?: tryUnits()
+    }
+
+    private fun tryAsProcessParameter(): PsiElement? {
+        val assignment = element.parent
+        if (assignment !is PsiAssignment) {
+            return null
+        }
+        val fromProcessConstraint = assignment.parent
+        if (fromProcessConstraint !is PsiFromProcessConstraint) {
+            return null
+        }
+        return fromProcessConstraint.getProcessTemplateRef().reference?.resolve()?.let { process ->
+            if (process !is PsiProcess) {
+                return null
+            }
+            return process.getPsiParametersBlocks().flatMap { it.getAssignments() }
+                .find { it.getQuantityRef().name == element.name }
+        }
     }
 
     private fun tryLocally(): PsiElement? {
