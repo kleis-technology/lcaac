@@ -1,0 +1,11 @@
+package language.psi.reference.units.test_resolve.my_units
+
+unit foo {
+    symbol = "foo"
+    dimension = "foo"
+}
+
+unit bar {
+    symbol = "bar"
+    dimension = "bar"
+}

@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
+import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
@@ -10,7 +10,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.testFramework.ParsingTestCase
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -19,116 +19,51 @@ import junit.framework.TestCase
 import org.junit.Test
 
 
-class ProductReferenceTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
+class ProductReferenceTest : BasePlatformTestCase() {
+    override fun getTestDataPath(): String {
+        return "testdata/language/psi/reference/prod"
+    }
+
+    override fun setUp() {
+        super.setUp()
+        myFixture.copyDirectoryToProject("", "")
+    }
+
     @Test
     fun test_resolve() {
         // given
-        val file = parseFile(
-            "hello",
-            """
-               import abc
-               
-               process p {
-                    products {
-                        1 kg carrot
-                    }
-                    inputs {
-                        1 kg water
-                    }
-               }
-            """.trimIndent()
-        ) as LcaFile
-        val ref = file.getProcesses().first().getInputs().first().getProductRef().reference as PsiReference
-        val abcWater = abcWater()
-
-        mockkStatic(GlobalSearchScope::class)
-        every { GlobalSearchScope.allScope(any()) } returns mockk()
-
-        mockkStatic(StubIndex::class)
-        every {
-            StubIndex.getElements(
-                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
-                any<String>(),
-                any<Project>(),
-                any<GlobalSearchScope>(),
-                any<Class<PsiTechnoProductExchange>>(),
-            )
-        } answers {
-            val target = it.invocation.args[1]
-            if (target == "abc.water") {
-                listOf(abcWater)
-            } else emptyList()
-        }
+        val pkgName = "language.psi.reference.prod.test_resolve"
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .getProductRef()
 
         // when
-        val actual = ref.resolve()
+        val actual = ref.reference?.resolve()
 
         // then
-        TestCase.assertEquals(abcWater, actual)
-
-        // clean
-        unmockkStatic(GlobalSearchScope::class)
-        unmockkStatic(StubIndex::class)
-    }
-
-    private fun abcWater(): PsiTechnoProductExchange {
-        val file = parseFile(
-            "abc", """
-            package abc
-            
-            process w {
-                products {
-                    1 kg water
-                }
-            }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getProcesses().first().getProducts().first()
+        val expected = TechnoProductExchangeKeyIndex.findTechnoProductExchanges(project, "$pkgName.water.water").first()
+        TestCase.assertEquals(expected, actual)
     }
 
     @Test
     fun test_getVariants() {
         // given
-        val file = parseFile(
-            "hello",
-            """
-               import ef31
-               
-               process p {
-                    products {
-                        1 kg a
-                    }
-                    inputs {
-                        1 kg car
-                    }
-               }
-            """.trimIndent()
-        ) as LcaFile
-        val ref = file.getProcesses().first().getInputs().first().getProductRef().reference as PsiReference
-
-        val stubIndex = mockk<StubIndex>()
-        mockkStatic(StubIndex::class)
-        every {StubIndex.getInstance()} returns stubIndex
-        val results = listOf("default.carrot", "default.auto_car", "default.salad", "default.computer")
-        every {
-            stubIndex.getAllKeys(
-                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
-                any<Project>(),
-            )
-        } returns results
+        val pkgName = "language.psi.reference.prod.test_resolve"
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .getProductRef()
 
         // when
-        val actual = ref.variants.toList().map { (it as LookupElementBuilder).lookupString }
+        val actual = ref.reference
+            ?.variants?.map { (it as LookupElementBuilder).lookupString }
+            ?.sorted()
+            ?: emptyList()
 
         // then
-        val expected = listOf("carrot", "auto_car", "salad", "computer")
+        val expected = listOf("carrot", "water")
         TestCase.assertEquals(expected, actual)
 
         // clean
         unmockkStatic(StubIndex::class)
-    }
-
-    override fun getTestDataPath(): String {
-        return ""
     }
 }

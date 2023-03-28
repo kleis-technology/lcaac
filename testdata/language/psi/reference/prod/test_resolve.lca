@@ -1,0 +1,12 @@
+package language.psi.reference.prod.test_resolve
+
+import language.psi.reference.prod.test_resolve.water
+
+process p {
+    products {
+        1 kg carrot
+    }
+    inputs {
+        1 l water
+    }
+}
