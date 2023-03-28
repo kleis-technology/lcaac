@@ -1,8 +1,11 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.step
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
+import ch.kleis.lcaplugin.core.lang.value.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -31,10 +34,16 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot,
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.twoLitres),
+                        )
+                    ),
                 )
             ),
             listOf(
@@ -55,6 +64,7 @@ class ReduceAndCompleteTest {
             params = emptyMap(),
             locals = emptyMap(),
             body = EProcess(
+                name = "process",
                 products = emptyList(),
                 inputs = emptyList(),
                 biosphere = listOf(
@@ -72,6 +82,7 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "process",
             emptyList(),
             emptyList(),
             listOf(
@@ -100,10 +111,16 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                        )
+                    )
                 )
             ),
             listOf(
@@ -136,10 +153,16 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = ProcessValue(
+            name = "carrot_production",
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot
+                    ProductValueFixture.carrot.withConstraint(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                        )
+                    )
                 )
             ),
             listOf(

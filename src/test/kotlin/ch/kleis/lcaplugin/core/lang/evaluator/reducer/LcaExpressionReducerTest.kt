@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
@@ -45,6 +45,7 @@ class LcaExpressionReducerTest {
     fun reduce_whenProcess_shouldReduceExchanges() {
         // given
         val expression = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
             ),
@@ -70,6 +71,7 @@ class LcaExpressionReducerTest {
 
         // then
         val expected = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
@@ -400,7 +402,7 @@ class LcaExpressionReducerTest {
         val expression = EConstrainedProduct(
             EProductRef("carrot"),
             FromProcessRef(
-                ETemplateRef("p"),
+                "p",
                 mapOf(
                     Pair("x", EQuantityRef("q"))
                 )
@@ -434,7 +436,7 @@ class LcaExpressionReducerTest {
                 UnitFixture.kg,
             ),
             FromProcessRef(
-                ETemplateRef("p"),
+                "p",
                 mapOf(
                     Pair("x", EQuantityLiteral(3.0, UnitFixture.kg))
                 )

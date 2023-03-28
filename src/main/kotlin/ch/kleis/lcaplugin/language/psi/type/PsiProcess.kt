@@ -22,7 +22,7 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_REF)?.psi as PsiProcessTemplateRef
     }
 
-    override fun getName(): String? {
+    override fun getName(): String {
         return getProcessTemplateRef().name
     }
 

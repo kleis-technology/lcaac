@@ -3,9 +3,7 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.processTemplates
 
 val everyTemplateRefInTemplateExpression =
     object : PEvery<TemplateExpression, TemplateExpression, ETemplateRef, TemplateExpression> {
@@ -38,7 +36,7 @@ val everyTemplateRefInProcess: Every<EProcess, ETemplateRef> =
             EProcess.products compose Every.list() compose ETechnoExchange.product.eConstrainedProduct.constraint,
             EProcess.inputs compose Every.list() compose ETechnoExchange.product.eConstrainedProduct.constraint,
         )
-    ) compose Constraint.fromProcessRef.template
+    ) compose Constraint.fromProcessRef.ref compose ETemplateRef.iso.reverse()
 
 val everyTemplateRefInProcessExpression =
     LcaProcessExpression.eProcess compose everyTemplateRefInProcess
@@ -47,7 +45,8 @@ val everyTemplateRef: Every<Expression, ETemplateRef> =
     Merge(
         listOf(
             Expression.templateExpression compose everyTemplateRefInTemplateExpression,
-            Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product.eConstrainedProduct.constraint.fromProcessRef.template,
+            Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product.eConstrainedProduct.constraint.fromProcessRef.ref compose
+                    ETemplateRef.iso.reverse(),
             Expression.lcaExpression.lcaProcessExpression compose everyTemplateRefInProcessExpression,
             Expression.systemExpression.eSystem.processes compose Every.list() compose everyTemplateRefInProcessExpression,
         )

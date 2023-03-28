@@ -15,14 +15,14 @@ class RegisterTest {
         val register = Register.empty<QuantityExpression>()
 
         // when
-        register[key] = a
+        val actual = register.plus(key to a)
 
         // then
-        assertEquals(a, register[key])
+        assertEquals(a, actual[key])
     }
 
     @Test
-    fun set_whenDuplicate() {
+    fun set_whenDuplicate_atOnce() {
         // given
         val key = "abc.x"
         val a = EQuantityRef("a")
@@ -31,8 +31,25 @@ class RegisterTest {
 
         // when
         try {
-            register[key] = a
-            register[key] = b
+            val r = register.plus(listOf(key to a, key to b))
+            fail("should have thrown IllegalArgumentException")
+        } catch (e: EvaluatorException) {
+            assertEquals("[abc.x] are already bound", e.message)
+        }
+    }
+
+    @Test
+    fun set_whenDuplicate_successive() {
+        // given
+        val key = "abc.x"
+        val a = EQuantityRef("a")
+        val b = EQuantityRef("b")
+        val register = Register.empty<QuantityExpression>()
+
+        // when
+        try {
+            val r = register.plus(key to a)
+            r.plus(key to b)
             fail("should have thrown IllegalArgumentException")
         } catch (e: EvaluatorException) {
             assertEquals("reference $key already bound: $key = $a", e.message)

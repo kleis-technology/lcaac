@@ -3,10 +3,7 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.processTemplates
-import ch.kleis.lcaplugin.core.lang.quantities
 
 val everyQuantityRefInQuantityExpression =
     object : PEvery<QuantityExpression, QuantityExpression, EQuantityRef, QuantityExpression> {

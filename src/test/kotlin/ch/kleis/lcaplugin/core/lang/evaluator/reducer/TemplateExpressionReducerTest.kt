@@ -1,7 +1,7 @@
-package ch.kleis.lcaplugin.core.lang.evaluator
+package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
-import ch.kleis.lcaplugin.core.lang.*
-import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
@@ -22,6 +22,7 @@ class TemplateExpressionReducerTest {
                 Pair("x", QuantityFixture.oneKilogram)
             ),
             body = EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
@@ -48,10 +49,19 @@ class TemplateExpressionReducerTest {
         // then
         val expected = EProcessFinal(
             EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(3.0, UnitFixture.kg),
-                        ProductFixture.carrot
+                        ProductFixture.carrot.withConstraint(
+                            FromProcessRef(
+                                "carrot_production",
+                                mapOf(
+                                    "q_carrot" to QuantityFixture.twoKilograms,
+                                    "q_water" to QuantityFixture.oneLitre,
+                                )
+                            )
+                        )
                     ),
                 ),
                 inputs = listOf(
@@ -78,6 +88,7 @@ class TemplateExpressionReducerTest {
                 Pair("x", QuantityFixture.oneKilogram)
             ),
             body = EProcess(
+                name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(

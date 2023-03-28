@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.value.*
 
 fun TemplateExpression.toValue(): ProcessValue {
     return when (this) {
@@ -44,6 +44,7 @@ fun LcaProcessExpression.toValue(): ProcessValue {
         throw EvaluatorException("$this is not reduced")
     }
     return ProcessValue(
+        this.name,
         this.products.map { it.toValue() },
         this.inputs.map { it.toValue() },
         this.biosphere.map { it.toValue() },
@@ -87,9 +88,23 @@ fun LcaProductExpression.toValue(): ProductValue {
             ProductValue(
                 actualProduct.name,
                 actualProduct.referenceUnit.toValue(),
+                this.constraint.toValue(),
             )
         }
     }
+}
+
+private fun Constraint.toValue(): ConstraintValue {
+    if (this == None) {
+        return NoneValue
+    }
+    if (this !is FromProcessRef) {
+        throw EvaluatorException("unknown constraint")
+    }
+    return FromProcessRefValue(
+        this.ref,
+        this.arguments.mapValues { it.value.toValue() },
+    )
 }
 
 fun QuantityExpression.toValue(): QuantityValue {

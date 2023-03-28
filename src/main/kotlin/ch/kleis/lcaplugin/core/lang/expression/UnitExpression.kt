@@ -21,6 +21,9 @@ data class EUnitClosure(val symbolTable: SymbolTable, val expression: UnitExpres
 
 @optics
 data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Dimension) : UnitExpression {
+    override fun toString(): String {
+        return symbol
+    }
     companion object
 }
 

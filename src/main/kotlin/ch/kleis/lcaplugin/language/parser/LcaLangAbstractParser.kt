@@ -24,75 +24,67 @@ class LcaLangAbstractParser(
 ) {
     fun load(): SymbolTable {
         val globals = Register(Prelude.unitQuantities)
-        files
-            .flatMap { it.getUnitDefinitions() }
-            .filter { it.getType() == UnitDefinitionType.LITERAL }
-            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
-            .forEach {
-                globals[it.first] = it.second
-            }
-        files
-            .flatMap { it.getUnitDefinitions() }
-            .filter { it.getType() == UnitDefinitionType.ALIAS }
-            .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
-            .forEach {
-                globals[it.first] = it.second
-            }
-        files
-            .flatMap { it.getAssignments()}
-            .forEach {
-                globals[it.first] = quantity(it.second)
-            }
+            .plus(
+                files
+                    .flatMap { it.getUnitDefinitions() }
+                    .filter { it.getType() == UnitDefinitionType.LITERAL }
+                    .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+            )
+            .plus(
+                files
+                    .flatMap { it.getUnitDefinitions() }
+                    .filter { it.getType() == UnitDefinitionType.ALIAS }
+                    .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
+            )
+            .plus(
+                files
+                    .flatMap { it.getAssignments() }
+                    .map { it.first to quantity(it.second) }
+            )
 
         val units = Register(Prelude.units)
-        files
-            .flatMap { it.getUnitDefinitions() }
-            .filter { it.getType() == UnitDefinitionType.LITERAL }
-            .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
-            .forEach {
-                units[it.first] = it.second
-            }
-        files
-            .flatMap { it.getUnitDefinitions() }
-            .filter { it.getType() == UnitDefinitionType.ALIAS }
-            .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
-            .forEach {
-                units[it.first] = it.second
-            }
+            .plus(
+                files
+                    .flatMap { it.getUnitDefinitions() }
+                    .filter { it.getType() == UnitDefinitionType.LITERAL }
+                    .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
+            )
+            .plus(
+                files
+                    .flatMap { it.getUnitDefinitions() }
+                    .filter { it.getType() == UnitDefinitionType.ALIAS }
+                    .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
+            )
 
         val templates = Register.empty<TemplateExpression>()
-        files
-            .flatMap { it.getProcesses() }
-            .map { Pair(it.getProcessTemplateRef().getUID().name, process(it)) }
-            .forEach {
-                templates[it.first] = it.second
-            }
+            .plus(
+                files
+                    .flatMap { it.getProcesses() }
+                    .map { Pair(it.getProcessTemplateRef().getUID().name, process(it)) }
+            )
 
         val products = Register.empty<LcaUnconstrainedProductExpression>()
-        files
-            .flatMap { it.getProcesses() }
-            .flatMap { productsOf(it, globals, units) }
-            .map { Pair(it.name, it) }
-            .forEach {
-                products[it.first] = it.second
-            }
+            .plus(
+                files
+                    .flatMap { it.getProcesses() }
+                    .flatMap { productsOf(it, globals, units) }
+                    .map { Pair(it.name, it) }
+            )
 
         val substances = Register.empty<LcaSubstanceExpression>()
-        files
-            .flatMap { it.getSubstances() }
-            .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
-            .forEach {
-                substances[it.first] = it.second
-            }
+            .plus(
+                files
+                    .flatMap { it.getSubstances() }
+                    .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
+            )
 
         val substanceCharacterizations = Register.empty<LcaSubstanceCharacterizationExpression>()
-        files
-            .flatMap { it.getSubstances() }
-            .filter { it.hasImpacts() }
-            .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
-            .forEach {
-                substanceCharacterizations[it.first] = it.second
-            }
+            .plus(
+                files
+                    .flatMap { it.getSubstances() }
+                    .filter { it.hasImpacts() }
+                    .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
+            )
 
         return SymbolTable(
             quantities = globals,
@@ -130,6 +122,7 @@ class LcaLangAbstractParser(
     }
 
     private fun process(psiProcess: PsiProcess): TemplateExpression {
+        val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
         val products = psiProcess.getProducts().map { technoProductExchange(it) }
@@ -139,6 +132,7 @@ class LcaLangAbstractParser(
         val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
+            name = name,
             products = products,
             inputs = inputs,
             biosphere = biosphere,
@@ -216,14 +210,10 @@ class LcaLangAbstractParser(
     private fun fromProcessConstraint(psiFromProcessConstraint: PsiFromProcessConstraint?): Constraint {
         return psiFromProcessConstraint?.let {
             FromProcessRef(
-                template = processTemplateRef(it.getProcessTemplateRef()),
+                ref = it.getProcessTemplateRef().name,
                 arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantity(q.value) },
             )
         } ?: None
-    }
-
-    private fun processTemplateRef(psiProcessTemplateRef: PsiProcessTemplateRef): ETemplateRef {
-        return ETemplateRef(psiProcessTemplateRef.name)
     }
 
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
@@ -305,6 +295,7 @@ class LcaLangAbstractParser(
                 primitive.getAmount(),
                 quantityRef(primitive.getRef())
             )
+
             QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen())
             QuantityPrimitiveType.QUANTITY_REF -> quantityRef(primitive.getRef())
         }

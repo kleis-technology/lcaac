@@ -6,11 +6,7 @@ import arrow.core.right
 import arrow.optics.Every
 import arrow.optics.PEvery
 import arrow.optics.PPrism
-import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.processTemplates
-import ch.kleis.lcaplugin.core.lang.substanceCharacterizations
-import ch.kleis.lcaplugin.core.lang.substances
 
 val substanceRefInLcaSubstanceExpression =
     object : PPrism<LcaSubstanceExpression, LcaSubstanceExpression, ESubstanceRef, LcaSubstanceExpression> {

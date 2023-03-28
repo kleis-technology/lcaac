@@ -14,15 +14,26 @@ object None : Constraint {
     override fun reduceWith(reducer: QuantityExpressionReducer): Constraint {
         return this
     }
+
+    override fun toString(): String {
+        return "None"
+    }
 }
 
 @optics
-data class FromProcessRef(val template: ETemplateRef, val arguments: Map<String, QuantityExpression>) : Constraint {
+data class FromProcessRef(
+    val ref: String,
+    val arguments: Map<String, QuantityExpression>,
+) : Constraint {
     override fun reduceWith(reducer: QuantityExpressionReducer): Constraint {
         return FromProcessRef(
-            template,
+            ref,
             arguments.mapValues { reducer.reduce(it.value) }
         )
+    }
+
+    override fun toString(): String {
+        return "from $ref$arguments"
     }
 
     companion object

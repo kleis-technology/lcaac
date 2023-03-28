@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.IndicatorValue
+import ch.kleis.lcaplugin.core.lang.value.IndicatorValue
 
 class IndicatorValueFixture {
     companion object {

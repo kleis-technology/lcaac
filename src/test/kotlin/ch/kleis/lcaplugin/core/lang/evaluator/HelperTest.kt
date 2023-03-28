@@ -14,6 +14,7 @@ class HelperTest {
         // given
         val ref = EQuantityRef("q")
         val body = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(ref, ProductFixture.carrot)
             ),
@@ -31,6 +32,7 @@ class HelperTest {
 
         // then
         val expected = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
@@ -49,13 +51,14 @@ class HelperTest {
         // given
         val ref = EQuantityRef("q")
         val body = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(
                     ref,
                     EConstrainedProduct(
                         UnconstrainedProductFixture.carrot,
                         FromProcessRef(
-                            ETemplateRef("carrot_production"),
+                            "carrot_production",
                             mapOf(
                                 Pair("x", ref)
                             ),
@@ -73,13 +76,14 @@ class HelperTest {
 
         // then
         val expected = EProcess(
+            name = "p",
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
                     EConstrainedProduct(
                         UnconstrainedProductFixture.carrot,
                         FromProcessRef(
-                            ETemplateRef("carrot_production"),
+                            "carrot_production",
                             mapOf(
                                 Pair("x", QuantityFixture.oneKilogram)
                             ),
@@ -99,6 +103,7 @@ class HelperTest {
         val expression = ESystem(
             listOf(
                 EProcess(
+                    name = "p",
                     listOf(ETechnoExchange(EQuantityRef("quantity"), ProductFixture.carrot)),
                     listOf(
                         ETechnoExchange(
@@ -113,7 +118,7 @@ class HelperTest {
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EConstrainedProduct(
                                 UnconstrainedProductFixture.water,
-                                FromProcessRef(ETemplateRef("template"), emptyMap())
+                                FromProcessRef("template", emptyMap())
                             )
                         ),
                     ),
@@ -126,7 +131,7 @@ class HelperTest {
                     listOf(
                         EImpact(
                             EQuantityAdd(
-                                EQuantityRef("qa"),
+                                EQuantityScale(3.0, EQuantityRef("qa")),
                                 EQuantityRef("qb")
                             ), EIndicatorRef("indicator")
                         )

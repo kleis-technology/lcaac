@@ -9,7 +9,11 @@ sealed interface QuantityExpression : Expression {
 
 @optics
 data class EQuantityLiteral(val amount: Double, val unit: UnitExpression) : QuantityExpression {
+    override fun toString(): String {
+        return "$amount $unit"
+    }
     companion object
+
 }
 
 @optics

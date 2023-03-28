@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 import ch.kleis.lcaplugin.core.matrix.impl.MatrixFactory
 
@@ -12,8 +12,8 @@ class ControllableMatrix(
     private val terminalSubstances: Collection<SubstanceValue>,
     private val indicators : Collection<IndicatorValue>,
 ) {
-    private val connections: IndexedCollection<ConnectionValue> = IndexedCollection(processes.plus(substanceCharacterizations))
-    private val ports: IndexedCollection<PortValue> = IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))
+    private val connections: IndexedCollection<MatrixRowIndex> = IndexedCollection(processes.plus(substanceCharacterizations))
+    private val ports: IndexedCollection<MatrixColumnIndex> = IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(connections.size(), ports.size())
 
     init {
