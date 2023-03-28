@@ -1,0 +1,192 @@
+package prelude.units
+
+/*
+Dimensionless
+*/
+
+unit u {
+    symbol = "u"
+    dimension = "none"
+}
+
+unit piece {
+    symbol = "piece"
+    alias_for = 1 u
+}
+
+unit person {
+    symbol = "person"
+    alias_for = 1 u
+}
+
+unit percent {
+    symbol = "person"
+    alias_for = 1e-2 u
+}
+
+/*
+Mass
+*/
+
+unit kg {
+    symbol = "kg"
+    dimension = "mass"
+}
+
+unit g {
+    symbol = "g"
+    alias_for = 1e-3 kg
+}
+
+/*
+Length
+*/
+
+unit m {
+    symbol = "m"
+    dimension = "length"
+}
+
+unit mm {
+    symbol = "mm"
+    alias_for = 1e-3 m
+}
+
+unit cm {
+    symbol = "cm"
+    alias_for = 1e-2 m
+}
+
+unit km {
+    symbol = "km"
+    alias_for = 1e3 m
+}
+
+/*
+Area
+*/
+
+unit m2 {
+    symbol = "m2"
+    alias_for = m^2.0
+}
+
+unit ha {
+    symbol = "ha"
+    alias_for = 1e4 m2
+}
+
+unit km2 {
+    symbol = "km2"
+    alias_for = 1e6 m2
+}
+
+/*
+Volume
+*/
+
+unit m3 {
+    symbol = "m3"
+    alias_for = m^3.0
+}
+
+unit l {
+    symbol = "l"
+    alias_for = 1e-3 m3
+}
+
+unit cl {
+    symbol = "cl"
+    alias_for = 1e-2 l
+}
+
+unit ml {
+    symbol = "ml"
+    alias_for = 1e-3 l
+}
+
+/*
+Radioactivity
+*/
+
+unit Bq {
+    symbol = "Bq"
+    dimension = "radioactivity"
+}
+
+unit kBq {
+    symbol = "kBq"
+    alias_for = 1e3 Bq
+}
+
+/*
+Time
+*/
+
+unit s {
+    symbol = "s"
+    dimension = "time"
+}
+
+unit min {
+    symbol = "min"
+    alias_for = 60 s
+}
+
+unit hour {
+    symbol = "hour"
+    alias_for = 60 min
+}
+
+unit day {
+    symbol = "day"
+    alias_for = 24 hour
+}
+
+unit year {
+    symbol = "day"
+    alias_for = 365 day
+}
+
+/*
+Energy
+*/
+
+unit Wh {
+    symbol = "Wh"
+    dimension = "energy"
+}
+
+unit kWh {
+    symbol = "kWh"
+    alias_for = 1e3 Wh
+}
+
+unit MWh {
+    symbol = "MWh"
+    alias_for = 1e6 Wh
+}
+
+unit J {
+    symbol = "J"
+    alias_for = 1 Wh / 3600 u
+}
+
+unit kJ {
+    symbol = "kJ"
+    alias_for = 1e3 J
+}
+
+unit MJ {
+    symbol = "kJ"
+    alias_for = 1e6 J
+}
+
+/*
+Power
+*/
+
+unit W {
+    symbol = "W"
+    alias_for = 1 Wh / 1 hour
+}
