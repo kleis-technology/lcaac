@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.psi.LcaTypes
@@ -12,12 +13,12 @@ interface PsiFromProcessConstraint : PsiElement {
     }
 
     fun getArguments(): Map<String, PsiQuantity> {
-        return getAssignments()
-            .associate { it.getQuantityRef().name to it.getValue() }
+        return getPsiArguments()
+            .associate { it.name to it.getValue() }
     }
 
-    fun getAssignments(): Collection<PsiAssignment> {
-        return node.getChildren(TokenSet.create(LcaTypes.ASSIGNMENT))
-            .map { it.psi as PsiAssignment }
+    fun getPsiArguments(): Collection<PsiArgument> {
+        return node.getChildren(TokenSet.create(LcaTypes.ARGUMENT))
+            .map { it.psi as PsiArgument }
     }
 }

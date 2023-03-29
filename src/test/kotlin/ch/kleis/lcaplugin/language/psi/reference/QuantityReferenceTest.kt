@@ -65,7 +65,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val quantityRef = process
             .getInputs().first()
             .getFromProcessConstraint()!!
-            .getAssignments().first()
+            .getPsiArguments().first()
             .getQuantityRef()
 
         // when
