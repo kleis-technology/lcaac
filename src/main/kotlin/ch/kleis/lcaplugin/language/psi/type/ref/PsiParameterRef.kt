@@ -4,6 +4,6 @@ import ch.kleis.lcaplugin.language.psi.reference.ParameterReference
 
 interface PsiParameterRef : PsiLcaRef {
     override fun getReference(): ParameterReference {
-        TODO()
+        return ParameterReference(this)
     }
 }

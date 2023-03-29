@@ -52,7 +52,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
             }
 
             is LcaQuantityRef -> {
-                when (val target = element.reference?.resolve()) {
+                when (val target = element.reference.resolve()) {
                     is LcaUnitDefinition -> {
                         val sb = StringBuilder()
                         documentTitle(sb, "Unit", element.name)
@@ -65,6 +65,18 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
                         documentQuantityData(sb, target)
                         sb.toString()
                     }
+                    is LcaAssignment -> {
+                        val sb = StringBuilder()
+                        documentTitle(sb, "Quantity", element.name)
+                        documentQuantityData(sb, target)
+                        sb.toString()
+                    }
+                    else -> super.generateDoc(element, originalElement)
+                }
+            }
+
+            is LcaParameterRef -> {
+                when (val target = element.reference.resolve()) {
                     is LcaAssignment -> {
                         val sb = StringBuilder()
                         documentTitle(sb, "Quantity", element.name)

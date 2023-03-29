@@ -408,7 +408,7 @@ class LcaBioExchangeDocumentationProviderTest : BasePlatformTestCase() {
             .getInputs().first()
             .getFromProcessConstraint()!!
             .getPsiArguments().first()
-            .getQuantityRef()
+            .getParameterRef()
         val sut = LcaBioExchangeDocumentationProvider()
 
         // When
