@@ -31,7 +31,7 @@ class RegisterTest {
 
         // when
         try {
-            val r = register.plus(listOf(key to a, key to b))
+            register.plus(listOf(key to a, key to b))
             fail("should have thrown IllegalArgumentException")
         } catch (e: EvaluatorException) {
             assertEquals("[abc.x] are already bound", e.message)
