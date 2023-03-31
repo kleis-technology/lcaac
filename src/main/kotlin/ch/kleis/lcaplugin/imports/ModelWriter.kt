@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.imports
 
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import java.io.Closeable
 import java.io.File
 import java.io.FileWriter
@@ -10,6 +13,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
+
 
 interface Renderer<T> {
     fun render(block: T, writer: ModelWriter)
@@ -49,6 +53,12 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         openedFiles.entries.forEach { (path, writer) ->
             try {
                 writer.close()
+                val fullPath = Paths.get(rootFolder + File.separatorChar + path)
+                val virtualFile = LocalFileSystem.getInstance().findFileByPath(fullPath.toString())
+                virtualFile?.let {
+                    RefreshQueue.getInstance()
+                        .refresh(false, false, null, ModalityState.current(), it)
+                }
             } catch (e: IOException) {
                 LOG.error("Unable to close file $path", e)
             }
