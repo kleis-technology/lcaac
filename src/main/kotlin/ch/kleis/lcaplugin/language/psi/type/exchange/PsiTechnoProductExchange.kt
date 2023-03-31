@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type.exchange
 
+import ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.psi.LcaTypes
@@ -26,5 +27,9 @@ interface PsiTechnoProductExchange : PsiNameIdentifierOwner {
 
     override fun getNameIdentifier(): PsiElement? {
         return getProductRef().nameIdentifier
+    }
+
+    fun getAllocateField(): PsiAllocateField? {
+        return node.findChildByType(LcaTypes.ALLOCATE_FIELD)?.psi as PsiAllocateField?
     }
 }
