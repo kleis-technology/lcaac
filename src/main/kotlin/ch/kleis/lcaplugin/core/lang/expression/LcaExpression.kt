@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
+import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.prelude.Prelude
 
 @optics
 sealed interface LcaExpression : Expression {
@@ -111,8 +113,9 @@ sealed interface LcaExchangeExpression : LcaExpression {
 }
 
 @optics
-data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression) :
+data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression, val allocation: QuantityExpression) :
     LcaExchangeExpression {
+    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(quantity, product, EQuantityLiteral(100.0, EUnitLiteral("percent", 1.0, Dimension.None)))
     companion object
 }
 

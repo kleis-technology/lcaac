@@ -8,5 +8,6 @@ class QuantityFixture {
         val twoKilograms = EQuantityLiteral(2.0, UnitFixture.kg)
         val oneLitre = EQuantityLiteral(1.0, UnitFixture.l)
         val twoLitres = EQuantityLiteral(2.0, UnitFixture.l)
+        val hundredPercent = EQuantityLiteral(100.0, UnitFixture.percent)
     }
 }

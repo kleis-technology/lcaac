@@ -62,6 +62,7 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
     return TechnoExchangeValue(
         this.quantity.toValue(),
         this.product.toValue(),
+        this.allocation.toValue()
     )
 }
 

@@ -81,6 +81,7 @@ class LcaExpressionReducer(
         return ETechnoExchange(
             quantityExpressionReducer.reduce(expression.quantity),
             reduceProductExpression(expression.product),
+            quantityExpressionReducer.reduce(expression.allocation)
         )
     }
 
