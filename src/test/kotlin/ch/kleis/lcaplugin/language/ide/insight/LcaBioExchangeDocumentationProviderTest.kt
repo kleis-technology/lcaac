@@ -11,12 +11,7 @@ import org.junit.Test
 
 class LcaBioExchangeDocumentationProviderTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
-        return "testdata/language/ide/insight"
-    }
-
-    override fun setUp() {
-        super.setUp()
-        myFixture.copyDirectoryToProject("", "")
+        return ""
     }
 
     @Test
