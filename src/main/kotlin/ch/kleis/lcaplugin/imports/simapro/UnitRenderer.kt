@@ -40,11 +40,15 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
             """.trimIndent()
             } else {
                 knownUnits[symbol] = UnitValue(unit.name(), unit.conversionFactor(), dimension)
+                val refUnitSymbol = writer.sanitizeString(unit.referenceUnit())
+                if (refUnitSymbol == symbol) {
+                    throw ImportException("Unit $symbol is referencing itself in its own declaration")
+                }
                 """
                 
                 unit $symbol {
                     symbol = "${unit.name()}"
-                    alias_for = ${unit.conversionFactor()} ${writer.sanitizeString(unit.referenceUnit())}
+                    alias_for = ${unit.conversionFactor()} $refUnitSymbol
                 }
             """.trimIndent()
             }

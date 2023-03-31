@@ -172,6 +172,27 @@ class UnitRendererTest {
     }
 
     @Test
+    fun test_writeUnit_ShouldFailWithAReferenceToItselfInAnExistingDimension() {
+        // Given
+        val sut = UnitRenderer.of(mapOf(Pair("g", UnitValue("g", 1.0, Prelude.mass))))
+        val data = UnitRow().name("kg")
+            .quantity("mass")
+            .conversionFactor(1.0)
+            .referenceUnit("kg")
+
+        // When + Then
+        try {
+            sut.render(data, writer)
+            fail("Should not pass !")
+        } catch (e: ImportException) {
+            assertEquals(
+                "Unit kg is referencing itself in its own declaration",
+                e.message
+            )
+        }
+    }
+
+    @Test
     fun test_areCompatible() {
         // Given
         val input = listOf<Triple<Dimension, Dimension, Boolean>>(

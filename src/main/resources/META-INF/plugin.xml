@@ -113,6 +113,10 @@
         <runLineMarkerContributor
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessProcessMarkerContributor"/>
+
+        <notificationGroup id="LcaNotificationError"
+                           displayType="BALLOON"
+                           bundle="messages.MyBundle"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.LcaImportSettings"/>
     </extensions>
 

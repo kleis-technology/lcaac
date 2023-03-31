@@ -1,9 +1,12 @@
 package ch.kleis.lcaplugin.ide.imports
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.simapro.Importer
 import com.intellij.BundleBase
 import com.intellij.ide.IdeBundle
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -197,8 +200,15 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
 
     override fun doOKAction() {
         if (okAction.isEnabled) {
-            Importer(settings).importFile()
-            close(OK_EXIT_CODE)
+            try {
+                Importer(settings).importFile()
+                close(OK_EXIT_CODE)
+            } catch (e: ImportException) {
+                NotificationGroupManager.getInstance()
+                    .getNotificationGroup("LcaNotificationError")
+                    .createNotification("Unable to import your library: ${e.message}", NotificationType.ERROR)
+                    .notify(ProjectManager.getInstance().openProjects.firstOrNull());
+            }
         }
     }
 
