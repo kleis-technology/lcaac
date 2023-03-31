@@ -25,9 +25,11 @@ class Importer(private val settings: LcaImportSettings) {
                     val process = block.asProcessBlock()
                     // ...
                 } else if (block.isUnitBlock) {
-                    val unitBlock = block.asUnitBlock()
-                    unitBlock.units()
-                        .forEach { unitRenderer.render(it, writer) }
+                    if (settings.importUnits) {
+                        val unitBlock = block.asUnitBlock()
+                        unitBlock.units()
+                            .forEach { unitRenderer.render(it, writer) }
+                    }
                 }
             }
         }
