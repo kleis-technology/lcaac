@@ -9,11 +9,22 @@ import ch.kleis.lcaplugin.imports.Renderer
 import org.openlca.simapro.csv.refdata.UnitRow
 
 class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Renderer<UnitRow> {
-    private val volume = Dimension.of("volume")
-    private val area = Dimension.of("area")
-    private val power = Dimension.of("power")
-    private val amount = Dimension.of("amount")
-    private val landUse = Dimension.of("land use")
+    data class AliasFor(val alias: Dimension, val aliasFor: Dimension) {
+        constructor(alias: String, aliasFor: Dimension) : this(Dimension.of(alias), aliasFor)
+    }
+
+    private val dimAlias = listOf(
+        AliasFor("volume", Prelude.volume),
+        AliasFor("area", Prelude.area),
+        AliasFor("power", Prelude.power),
+        AliasFor("amount", Prelude.none),
+        AliasFor("land use", Prelude.land_use),
+        AliasFor("transport", Prelude.transport),
+        AliasFor("length.time", Prelude.length_time),
+        AliasFor("person.distance", Prelude.person_distance),
+        AliasFor("mass.time", Prelude.mass_time),
+        AliasFor("volume.time", Prelude.volume_time),
+    ).associateBy { it.alias }
 
     companion object {
         fun of(existingUnits: Map<String, UnitValue>): UnitRenderer {
@@ -78,12 +89,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun areCompatibleSym(dim1: Dimension, dim2: Dimension): Boolean {
-        return dim1 == dim2
-                || (dim1 == Prelude.volume && dim2 == volume)
-                || (dim1 == Prelude.area && dim2 == area)
-                || (dim1 == Prelude.power && dim2 == power)
-                || (dim1 == Prelude.none && dim2 == amount)
-                || (dim1 == Prelude.land_use && dim2 == landUse)
+        return dim1 == dim2 || dimAlias[dim1]?.aliasFor == dim2
     }
 
 }

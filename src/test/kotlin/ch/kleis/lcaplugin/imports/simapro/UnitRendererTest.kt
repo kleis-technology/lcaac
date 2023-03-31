@@ -209,6 +209,18 @@ class UnitRendererTest {
             Triple(Prelude.none, Dimension.of("amount"), true),
             Triple(Dimension.of("amount"), Prelude.none, true),
 
+            Triple(Prelude.transport, Dimension.of("transport"), true),
+            Triple(Dimension.of("transport"), Prelude.transport, true),
+
+            Triple(Prelude.length_time, Dimension.of("length.time"), true),
+            Triple(Dimension.of("length.time"), Prelude.length_time, true),
+
+            Triple(Prelude.person_distance, Dimension.of("person.distance"), true),
+            Triple(Dimension.of("person.distance"), Prelude.person_distance, true),
+
+            Triple(Prelude.volume_time, Dimension.of("volume.time"), true),
+            Triple(Dimension.of("volume.time"), Prelude.volume_time, true),
+
             Triple(Prelude.radioactivity, Dimension.of("amount"), false),
             Triple(Dimension.of("amount"), Prelude.radioactivity, false),
         )
