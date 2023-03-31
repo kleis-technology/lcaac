@@ -9,5 +9,8 @@ class QuantityValueFixture {
         val oneLitre = QuantityValue(1.0, UnitValueFixture.l)
         val twoLitres = QuantityValue(2.0, UnitValueFixture.l)
         val hundredPercent = QuantityValue(100.0, UnitValueFixture.percent)
+        val fiftyPercent = QuantityValue(50.0, UnitValueFixture.percent)
+        val twenyPiece = QuantityValue(20.0, UnitValueFixture.piece)
+        val thirtyPiece = QuantityValue(30.0, UnitValueFixture.piece)
     }
 }

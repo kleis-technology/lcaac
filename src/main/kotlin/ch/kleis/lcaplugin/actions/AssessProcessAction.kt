@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector

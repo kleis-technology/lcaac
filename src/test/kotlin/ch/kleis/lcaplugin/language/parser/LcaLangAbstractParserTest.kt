@@ -599,7 +599,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val expect = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
             EConstrainedProduct(EProductRef("carrot"), None),
-            EQuantityLiteral(100.0, EUnitLiteral("percent", 1.0, Dimension.None))
+            EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
         assertEquals(expect, actual)
     }

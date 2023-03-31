@@ -224,7 +224,7 @@ class LcaLangAbstractParser(
                 None,
             ),
             psiExchange.getAllocateField()?.let { quantity(it.getValue()) } ?: run {
-                EQuantityLiteral(100.0, EUnitLiteral("percent", 1.0, Dimension.None))
+                EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
             }
         )
     }

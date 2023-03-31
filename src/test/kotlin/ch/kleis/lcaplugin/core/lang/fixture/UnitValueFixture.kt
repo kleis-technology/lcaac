@@ -10,5 +10,6 @@ class UnitValueFixture {
         val kg = UnitValue("kg", 1.0, DimensionFixture.mass)
         val l = UnitValue("l", 1.0e-3, DimensionFixture.volume)
         val percent = UnitValue("percent", 1.0e-2, Dimension.None)
+        val piece = UnitValue("piece", 1.0, Dimension.None)
     }
 }

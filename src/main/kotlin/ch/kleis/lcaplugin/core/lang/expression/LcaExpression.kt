@@ -115,7 +115,7 @@ sealed interface LcaExchangeExpression : LcaExpression {
 @optics
 data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression, val allocation: QuantityExpression) :
     LcaExchangeExpression {
-    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(quantity, product, EQuantityLiteral(100.0, EUnitLiteral("percent", 1.0, Dimension.None)))
+    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(quantity, product, EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None)))
     companion object
 }
 

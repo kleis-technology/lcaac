@@ -6,11 +6,11 @@ import ch.kleis.lcaplugin.core.matrix.impl.MatrixFactory
 
 
 class ObservableMatrix(
-    private val processes: Collection<ProcessValue>,
-    private val substanceCharacterizations: Collection<SubstanceCharacterizationValue>,
+    processes: Collection<ProcessValue>,
+    substanceCharacterizations: Collection<SubstanceCharacterizationValue>,
 
-    private val observableProducts: Collection<ProductValue>,
-    private val observableSubstances: Collection<SubstanceValue>,
+    observableProducts: Collection<ProductValue>,
+    observableSubstances: Collection<SubstanceValue>,
 ) {
     private val connections: IndexedCollection<MatrixRowIndex> = IndexedCollection(processes.plus(substanceCharacterizations))
     private val ports: IndexedCollection<MatrixColumnIndex> = IndexedCollection(observableProducts.plus(observableSubstances))

@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.e2e
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
@@ -231,6 +232,108 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 TestCase.assertEquals("co2", input.name())
                 TestCase.assertEquals(13.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+            }
+        }
+    }
+
+    @Test
+    fun test_allocate() {
+        // given
+        val file = parseFile(
+            "hello", """
+            process p {
+                products {
+                    1 kg out1 allocate 90 percent
+                    1 kg out2 allocate 10 percent
+                }
+                inputs {
+                    1 kg in
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+
+        // when
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        val system = Evaluator(symbolTable).eval(entryPoint)
+        val assessment = Assessment(system)
+        when (val result = assessment.inventory()) {
+            // then
+            is InventoryError -> fail("$result")
+            is InventoryMatrix -> {
+                val output1 = result.observablePorts.getElements()[0]
+                val output2 = result.observablePorts.getElements()[1]
+                val input = result.controllablePorts.getElements().first()
+                val cf1 = result.value(output1, input)
+                val cf2 = result.value(output2, input)
+
+                val delta = 1E-9
+                TestCase.assertEquals(0.9, cf1.input.quantity().amount, delta)
+                TestCase.assertEquals(0.1, cf2.input.quantity().amount, delta)
+            }
+        }
+    }
+
+    @Test
+    fun test_allocate_whenOneProduct_allocateIsOptional(){
+        // given
+        val file = parseFile(
+            "hello", """
+            process p {
+                products {
+                    1 kg out
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        // when
+        val symbolTable = parser.load()
+        val actual = (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+        // then
+        TestCase.assertEquals(100.0, actual)
+    }
+
+    @Test
+    fun test_allocate_whenTwoProducts_shouldReturnWeigtedResult(){
+        // given
+        val file = parseFile(
+            "hello", """
+            process p {
+                products {
+                    1 kg out allocate 20 piece
+                    1 kg otherOut allocate 10 piece
+                }
+                inputs {
+                    1 m3 water
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        // when
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        val system = Evaluator(symbolTable).eval(entryPoint)
+        val assessment = Assessment(system)
+        // then
+        when (val result = assessment.inventory()) {
+            // then
+            is InventoryError -> fail("$result")
+            is InventoryMatrix -> {
+                val output1 = result.observablePorts.getElements()[0]
+                val output2 = result.observablePorts.getElements()[1]
+                val input = result.controllablePorts.getElements().first()
+                val cf1 = result.value(output1, input)
+                val cf2 = result.value(output2, input)
+
+                val delta = 1E-9
+                val expected1 = 1.0*20/30
+                val expected2 = 1.0*10/30
+                TestCase.assertEquals(expected1, cf1.input.quantity().amount, delta)
+                TestCase.assertEquals(expected2, cf2.input.quantity().amount, delta)
             }
         }
     }

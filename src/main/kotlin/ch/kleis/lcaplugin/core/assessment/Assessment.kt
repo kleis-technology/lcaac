@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.assessment
 
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
@@ -15,8 +15,9 @@ class Assessment(
     private val controllablePorts: IndexedCollection<MatrixColumnIndex>
 
     init {
-        val processes = system.processes
-        val substanceCharacterizations = system.substanceCharacterizations
+        val allocatedSystem = applyAllocation(system)
+        val processes = allocatedSystem.processes
+        val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
         val observableProducts = processes
             .flatMap { it.products }
@@ -55,5 +56,66 @@ class Assessment(
     fun inventory(): InventoryResult {
         val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate()) ?: return InventoryError("The system cannot be solved")
         return InventoryMatrix(this.observablePorts, this.controllablePorts, data)
+    }
+
+    fun applyAllocation(system: SystemValue): SystemValue {
+        var allocatedSystem = SystemValue.empty()
+        system.processes.forEach { processValue ->
+            run {
+                val totalAllocation = totalAllocation(processValue)
+                processValue.products.forEach { technoExchangeValue ->
+                    run {
+                        val allocatedProcess = ProcessValue(
+                            processValue.name,
+                            listOf(technoExchangeValue),
+                            applyAllocationToInputs(processValue.inputs, technoExchangeValue.allocation, totalAllocation),
+                            applyAllocationToBioSphere(processValue.biosphere, technoExchangeValue.allocation, totalAllocation)
+                        )
+                        allocatedSystem = allocatedSystem.plus(allocatedProcess)
+                    }
+                }
+            }
+        }
+        return allocatedSystem
+    }
+
+    fun totalAllocation(processValue: ProcessValue): Double {
+        allocationUnitCheck(processValue)
+        return processValue.products.sumOf { it.allocation.referenceValue() }
+    }
+
+    fun allocationUnitCheck(processValue: ProcessValue) {
+        if (processValue.products.map { it.allocation.unit.dimension }.distinct().count() > 1){
+            throw EvaluatorException("non-consistent allocation units for process ${processValue.name}")
+        }
+    }
+
+    private fun applyAllocationToInputs(inputs: List<TechnoExchangeValue>, allocation: QuantityValue, totalAllocation: Double): List<TechnoExchangeValue>{
+        return inputs.map { applyAllocationToInput(it, allocation, totalAllocation) }
+    }
+
+    private fun applyAllocationToInput(technoExchangeValue: TechnoExchangeValue, allocation: QuantityValue, totalAllocation: Double): TechnoExchangeValue{
+        return TechnoExchangeValue(
+            QuantityValue(
+        technoExchangeValue.quantity.amount*allocation.referenceValue()/totalAllocation,
+                technoExchangeValue.quantity.unit
+            ),
+            technoExchangeValue.product,
+            technoExchangeValue.allocation
+        )
+    }
+
+    private fun applyAllocationToBioSphere(biosphere: List<BioExchangeValue>, allocation: QuantityValue, totalAllocation: Double): List<BioExchangeValue>{
+        return biosphere.map { applyAllocationToBioExchange(it, allocation, totalAllocation) }
+    }
+
+    private fun applyAllocationToBioExchange(bioExchange: BioExchangeValue, allocation: QuantityValue, totalAllocation: Double): BioExchangeValue{
+        return BioExchangeValue(
+            QuantityValue(
+                bioExchange.quantity.amount*allocation.referenceValue()/totalAllocation,
+                bioExchange.quantity.unit
+            ),
+            bioExchange.substance
+        )
     }
 }
