@@ -6,12 +6,10 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
 import com.intellij.util.io.exists
-import io.mockk.every
-import io.mockk.justRun
-import io.mockk.mockk
-import io.mockk.mockkStatic
+import io.mockk.*
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -44,6 +42,11 @@ class ImporterTest {
         val refresh = mockk<RefreshQueue>()
         every { RefreshQueue.getInstance() } returns refresh
         justRun { refresh.refresh(false, false, null, ModalityState.current(), vfile) }
+    }
+
+    @After
+    fun after() {
+        unmockkAll()
     }
 
     @Test
