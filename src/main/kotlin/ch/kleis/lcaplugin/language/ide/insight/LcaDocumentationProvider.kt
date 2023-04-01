@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.ui.JBColor
 import java.awt.Font
 
-class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
+class LcaDocumentationProvider : AbstractDocumentationProvider() {
     private companion object {
         private var SECTION_ROW_START = "<tr>\n<td valign='top' class='section'>"
         private var SECTION_NEXT_COL = "</td>\n<td valign='top'>"
@@ -60,18 +60,21 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
                         documentUnitData(sb, target)
                         sb.toString()
                     }
+
                     is LcaGlobalAssignment -> {
                         val sb = StringBuilder()
                         documentTitle(sb, "Global quantity", element.name)
                         documentQuantityData(sb, target)
                         sb.toString()
                     }
+
                     is LcaAssignment -> {
                         val sb = StringBuilder()
                         documentTitle(sb, "Quantity", element.name)
                         documentQuantityData(sb, target)
                         sb.toString()
                     }
+
                     else -> super.generateDoc(element, originalElement)
                 }
             }
@@ -204,7 +207,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
             val desc = meta["description"]
             if (desc != null) {
                 sb.append(DocumentationMarkup.CONTENT_START).append("\n")
-                HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), desc, 0.5f)
+                HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), desc.replace("\n", "<br>"), 0.5f)
                 sb.append(DocumentationMarkup.CONTENT_END).append("\n")
             }
             val author = meta["author"]

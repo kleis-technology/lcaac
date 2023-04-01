@@ -18,6 +18,8 @@ import java.nio.file.Path
 
 class ImporterTest {
     private val file = this.javaClass.classLoader.getResource("sample_wfldb_370.csv")!!.file
+
+    //    private val file = "/Users/pke/Downloads/ecoinvent_38.csv"
     private val rootFolder = Files.createTempDirectory("lca_test_").toString()
     private var settings = mockk<LcaImportSettings>()
 

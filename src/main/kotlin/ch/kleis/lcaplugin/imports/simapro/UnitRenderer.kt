@@ -37,7 +37,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
 
         val dimensionName = unit.quantity().lowercase()
         val dimension = Dimension.of(dimensionName)
-        val symbol = writer.sanitizeString(unit.name())
+        val symbol = ModelWriter.sanitizeString(unit.name())
         val existingUnits = knownUnits[symbol]
         val block = if (existingUnits == null) {
             if (isNewDimensionReference(unit)) {
@@ -51,7 +51,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
             """.trimIndent()
             } else {
                 knownUnits[symbol] = UnitValue(unit.name(), unit.conversionFactor(), dimension)
-                val refUnitSymbol = writer.sanitizeString(unit.referenceUnit())
+                val refUnitSymbol = ModelWriter.sanitizeString(unit.referenceUnit())
                 if (refUnitSymbol == symbol) {
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 }
@@ -67,7 +67,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
             if (areCompatible(existingUnits.dimension, dimension)) {
                 ""
             } else {
-                throw ImportException("A Unit ${writer.sanitizeString(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
+                throw ImportException("A Unit ${ModelWriter.sanitizeString(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
             }
         }
         writer.write("unit.lca", block)

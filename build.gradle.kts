@@ -55,7 +55,6 @@ dependencies {
 }
 
 
-
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
 intellij {
     pluginName.set(properties("pluginName"))
@@ -148,6 +147,7 @@ tasks {
 
     runIde {
         systemProperty("jdk.attach.allowAttachSelf", "true")
+        maxHeapSize = "4G"
     }
 
     // Configure UI tests plugin

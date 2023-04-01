@@ -2,47 +2,145 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
+import io.ktor.utils.io.*
+import org.openlca.simapro.csv.process.ExchangeRow
 import org.openlca.simapro.csv.process.ProcessBlock
+import org.openlca.simapro.csv.refdata.CalculatedParameterRow
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
+import javax.script.ScriptException
+
+fun ProcessBlock.uid(): String {
+    return if (this.name().isNullOrBlank()) this.identifier() else this.name()
+}
+
+fun ExchangeRow.uid(): String {
+    return this.name()
+}
 
 class ProcessRenderer : Renderer<ProcessBlock> {
+    companion object {
+        private val engine: ScriptEngine
+        val formulaDetector = Regex("[a-zA-Z()+*]")
+
+        init {
+            val mgr = ScriptEngineManager()
+            engine = mgr.getEngineByName("Groovy")
+        }
+
+    }
+
+
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun render(process: ProcessBlock, writer: ModelWriter) {
 
-        val name = process.name()
+        val uid = ModelWriter.sanitizeString(process.uid())
+        val metas = mutableMapOf<String, String>()
+        process.comment().let { metas["description"] = ModelWriter.compactText(it) }
+        process.category().let { metas["category"] = ModelWriter.compactText(it.toString()) }
+        val metaBloc = metas.map { """${it.key} = "${it.value}"""" }
 
-        val meta = mutableMapOf<String, String>()
+        val products = process.products().map { render(it) }
+        val avoidProducts = process.avoidedProducts().map { render(it) } // C'est quoi ?
+
+        val params = process.calculatedParameters().map { render(it) }.flatten()
+
+        val inputsMatAndFuel = process.materialsAndFuels().map { render(it) }
+        val inputsElectricity = process.electricityAndHeat().map { render(it) }
+
+        val emissionsToAir = process.emissionsToAir().map { render(it, "_air") }
+        val emissionsToWater = process.emissionsToWater().map { render(it, "_water") }
+        val emissionsToSoil = process.emissionsToSoil().map { render(it, "_soil") }
+        val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }
+        val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }
+        val emissionsSocials = process.socialIssues().map { render(it, "_social") }
+        val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it, "_waste") }
+        val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it, "_waste") }
+        val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
+        val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
+
+        val resources = process.resources().map { render(it, "_raw") }
 
         writer.write(
-            "",
+            "processes/${process.category()}.lca",
             """
 
-            process $name {
-            
-                meta {
-                
-                }
+process $uid {
 
-                // Product
-                products {
-                    1 piece kleis
-                }
-                // Coproduct
-                products {
-                    1 piece kleis
-                }
+${ModelWriter.block("meta {", metaBloc)}
 
-                inputs {
-                    1 piece ss2i from ss2i( n_employees = 7 person, surface = 150 m2 )
-                }
-                
-                emissions {
-                }
+${ModelWriter.optionalBlock("variables {", params)}
 
-                resources {
-                
-                }
-            }
-            """.trimIndent()
+${ModelWriter.block("products { // Product", products)}
+    
+${ModelWriter.block("products { // Avoid Products", avoidProducts)}
+    
+${ModelWriter.block("inputs { // materialsAndFuels", inputsMatAndFuel)}
+
+${ModelWriter.block("inputs { // electricityAndHeat", inputsElectricity)}
+
+${ModelWriter.block("emissions { // To Air", emissionsToAir)}
+
+${ModelWriter.block("emissions { // To Water", emissionsToWater)}
+
+${ModelWriter.block("emissions { // To Soil", emissionsToSoil)}
+
+${ModelWriter.block("emissions { // Economics", emissionsEconomic)}
+
+${ModelWriter.block("emissions { // Non Material", emissionsNonMat)}
+
+${ModelWriter.block("emissions { // Non Material", emissionsSocials)}
+
+${ModelWriter.block("emissions { // Final Waste Flows", emissionsFinalWasteFlows)}
+
+${ModelWriter.block("emissions { // Waste To Treatment", emissionsWasteToTreatment)}
+
+${ModelWriter.block("emissions { // Remaining Waste", emissionsRemainingWaste)}
+
+${ModelWriter.block("emissions { // Separated Waste", emissionsSeparatedWaste)}
+
+${ModelWriter.block("resources {", resources)}
+
+}
+"""
         )
+    }
+
+
+    private fun render(param: CalculatedParameterRow): List<String> {
+        val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
+        val amountFormula = param.expression()
+        val amount = tryToCompute(amountFormula)
+        val unit = "u"
+        val uid = ModelWriter.sanitizeString(param.name())
+        return result.plus("$uid = $amount $unit // $amountFormula")
+    }
+
+    private fun render(exchange: ExchangeRow, suffix: String = ""): String {
+        val amountFormula = exchange.amount()
+        val amount = tryToCompute(amountFormula.toString())
+        val unit = exchange.unit()
+        val uid = ModelWriter.sanitizeString(exchange.uid() + suffix)
+        return "$amount $unit $uid // $amountFormula"
+    }
+//
+//    private fun render(exchange: ExchangeRow): String {
+//        val amountFormula = exchange.amount()
+//        val amount = tryToCompute(amountFormula.toString())
+//        val unit = exchange.unit()
+//        val uid = ModelWriter.sanitizeString(exchange.uid())
+//        return "$amount $unit $uid // $amountFormula"
+//    }
+
+    private fun tryToCompute(amountFormula: String): Any? {
+        return try {
+            if (formulaDetector.matches(amountFormula)) {
+                engine.eval(amountFormula)
+            } else {
+                "// QQQ ${amountFormula}"
+            }
+        } catch (e: ScriptException) {
+            "// QQQ Invalid regex detector for ${amountFormula}"
+        }
     }
 }
