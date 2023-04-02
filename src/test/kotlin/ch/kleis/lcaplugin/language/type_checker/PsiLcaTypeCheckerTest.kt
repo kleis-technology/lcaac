@@ -679,4 +679,51 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs mass[1.0]", e.message)
         }
     }
+
+    @Test
+    fun test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow() {
+        // given
+        val pkgName = """test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow"""
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                unit foo {
+                    symbol = "foo"
+                    dimension = "foo_dim"
+                }
+                
+                unit kg {
+                    symbol = "kg"
+                    dimension = "mass"
+                }
+                
+                process p {
+                    inputs {
+                        1 kg foo_product from foo_prod(x = 2 kg)
+                    }
+                }
+                
+                process foo_prod {
+                    params {
+                        x = 1 foo
+                    }
+                    products {
+                        1 kg foo_product
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        try {
+            checker.check(target)
+            fail("should have thrown")
+        } catch (e: TypeCheckException) {
+            TestCase.assertEquals("incompatible dimensions: expecting foo_dim[1.0], found mass[1.0]", e.message)
+        }
+    }
 }

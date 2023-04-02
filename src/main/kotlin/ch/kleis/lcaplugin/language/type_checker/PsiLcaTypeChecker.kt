@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
+import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
@@ -26,6 +27,10 @@ class PsiLcaTypeChecker {
         }
     }
 
+    private fun checkProcessArguments(element: PsiProcess): Map<String, TQuantity> {
+        return element.getParameters().mapValues { checkQuantity(it.value) }
+    }
+
     private fun checkTechnoInputExchange(element: PsiTechnoInputExchange): TTechnoExchange {
         val tyQuantity = checkQuantity(element.getQuantity())
         val productName = element.getProductRef().name
@@ -38,8 +43,22 @@ class PsiLcaTypeChecker {
                 throw TypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
             }
         }
+        element.getFromProcessConstraint()?.let {
+            val psiProcess = it.getProcessTemplateRef().reference.resolve() as PsiProcess?
+                ?: throw TypeCheckException("unbound reference ${it.getProcessTemplateRef().name}")
+            val tyArguments = checkProcessArguments(psiProcess)
+            it.getArguments()
+                .forEach { (key, value) ->
+                    val tyActual = checkQuantity(value)
+                    val tyExpected = tyArguments[key] ?: throw TypeCheckException("unknown parameter $key")
+                    if (tyExpected != tyActual) {
+                        throw TypeCheckException("incompatible dimensions: expecting ${tyExpected.dimension}, found ${tyActual.dimension}")
+                    }
+                }
+        }
         return TTechnoExchange(TProduct(productName, tyQuantity.dimension))
     }
+
 
     private fun checkTechnoProductExchange(element: PsiTechnoProductExchange): TTechnoExchange {
         val tyQuantity = checkQuantity(element.getQuantity())
