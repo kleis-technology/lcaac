@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 class LcaTechnoInputExchangeAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiTechnoInputExchange) {
-            val target = element.getProductRef().reference?.resolve()
+            val target = element.getProductRef().reference.resolve()
             if (target == null || target !is PsiTechnoProductExchange) {
                 val name = element.getProductRef().name
                 holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product $name")

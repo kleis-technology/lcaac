@@ -5,15 +5,13 @@ import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.ResolveState
+import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 
 class QuantityReference(
     element: PsiQuantityRef
-) : PsiReferenceBase<PsiQuantityRef>(element) {
+) : PsiReferenceBase<PsiQuantityRef>(element), PsiPolyVariantReference {
     private val globalAssignmentRef = GlobalUIDOwnerReference(
         element,
         { project, fqn ->

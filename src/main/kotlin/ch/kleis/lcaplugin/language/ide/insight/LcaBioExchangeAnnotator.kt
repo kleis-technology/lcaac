@@ -12,7 +12,7 @@ import com.intellij.psi.PsiElement
 class LcaBioExchangeAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiBioExchange) {
-            val target = element.getSubstanceRef().reference?.resolve()
+            val target = element.getSubstanceRef().reference.resolve()
             if (target == null || target !is PsiSubstance) {
                 val name = element.getSubstanceRef().name
                 holder.newAnnotation(HighlightSeverity.WARNING, "unresolved substance $name")

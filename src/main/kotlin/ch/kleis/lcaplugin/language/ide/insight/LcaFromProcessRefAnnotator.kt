@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 class LcaFromProcessRefAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiProcessTemplateRef) {
-            val target = element.reference?.resolve()
+            val target = element.reference.resolve()
             if (target == null || target !is PsiProcess) {
                 val name = element.name
                 holder.newAnnotation(HighlightSeverity.WARNING, "unresolved process $name")
