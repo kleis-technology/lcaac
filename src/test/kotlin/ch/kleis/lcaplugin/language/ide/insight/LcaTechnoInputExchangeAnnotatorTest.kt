@@ -1,83 +1,195 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
-import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.testFramework.ParsingTestCase
-import io.mockk.*
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import io.mockk.verify
 import org.junit.Test
 
-class LcaTechnoInputExchangeAnnotatorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
+
+    override fun getTestDataPath(): String {
+        return "testdata"
+    }
+
+    override fun setUp() {
+        super.setUp()
+        myFixture.copyFileToProject("samples/units.lca")
+    }
 
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
-        val element = technoInputExchange()
+        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            import prelude.units
+            
+            process p {
+                inputs {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent())
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
         val mock = AnnotationHolderMock()
         val annotator = LcaTechnoInputExchangeAnnotator()
 
-
-        mockkStatic(GlobalSearchScope::class)
-        every { GlobalSearchScope.allScope(any()) } returns mockk()
-
-        mockkStatic(StubIndex::class)
-        every {
-            StubIndex.getElements(
-                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
-                any<String>(),
-                any<Project>(),
-                any<GlobalSearchScope>(),
-                any<Class<PsiTechnoProductExchange>>(),
-            )
-        } returns emptyList()
 
         // when
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product electricity") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product carrot") }
         verify { mock.builder.range(element.getProductRef()) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
-
-        // clean
-        unmockkStatic(GlobalSearchScope::class)
-        unmockkStatic(StubIndex::class)
     }
 
     @Test
-    fun testAnnotate_whenFound_shouldDoNothing() {
+    fun testAnnotate_whenFound_wrongDim_shouldAnnotate() {
         // given
-        val element = technoInputExchange()
+        val pkgName = "testAnnotate_whenFound_wrongDim_shouldAnnotate"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            import prelude.units
+            
+            process p {
+                inputs {
+                    1 l carrot
+                }
+            }
+            
+            process carrot_prod {
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent())
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
         val mock = AnnotationHolderMock()
         val annotator = LcaTechnoInputExchangeAnnotator()
 
 
-        mockkStatic(GlobalSearchScope::class)
-        every { GlobalSearchScope.allScope(any()) } returns mockk()
+        // when
+        annotator.annotate(element, mock.holder)
 
-        mockkStatic(StubIndex::class)
-        every {
-            StubIndex.getElements(
-                any<StubIndexKey<String, PsiTechnoProductExchange>>(),
-                any<String>(),
-                any<Project>(),
-                any<GlobalSearchScope>(),
-                any<Class<PsiTechnoProductExchange>>(),
-            )
-        } answers {
-            val target = it.invocation.args[1] as String
-            if (target == "xyz.electricity") {
-                listOf(electricity())
-            } else emptyList()
-        }
+        // then
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "incompatible dimensions: length[3.0] vs mass[1.0]") }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
+    @Test
+    fun testAnnotate_withFromProcess_wrongDim_shouldAnnotate() {
+        // given
+        val pkgName = "testAnnotate_withFromProcess_wrongDim_shouldAnnotate"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            import prelude.units
+            
+            process p {
+                inputs {
+                    1 kg carrot from carrot_prod(x = 1 l)
+                }
+            }
+            
+            process carrot_prod {
+                params {
+                    x = 1 kg
+                }
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent())
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaTechnoInputExchangeAnnotator()
+
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "incompatible dimensions: expecting mass[1.0], found length[3.0]") }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
+    @Test
+    fun testAnnotate_withFromProcess_unknownParameter_shouldAnnotate() {
+        // given
+        val pkgName = "testAnnotate_withFromProcess_unknownParameter_shouldAnnotate"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            import prelude.units
+            
+            process p {
+                inputs {
+                    1 kg carrot from carrot_prod(y = 1 l)
+                }
+            }
+            
+            process carrot_prod {
+                params {
+                    x = 1 kg
+                }
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent())
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaTechnoInputExchangeAnnotator()
+
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "unknown parameter y") }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
+    @Test
+    fun testAnnotate_whenFound_shouldDoNothing() {
+        val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            import prelude.units
+            
+            process p {
+                inputs {
+                    1 kg carrot
+                }
+            }
+            
+            process carrot_prod {
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent())
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaTechnoInputExchangeAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -85,48 +197,5 @@ class LcaTechnoInputExchangeAnnotatorTest : ParsingTestCase("", "lca", LcaParser
         // then
         verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
         verify(exactly = 0) { mock.builder.create() }
-
-        // clean
-        unmockkStatic(GlobalSearchScope::class)
-        unmockkStatic(StubIndex::class)
-    }
-
-    private fun technoInputExchange(): PsiTechnoInputExchange {
-        val file = parseFile(
-            "abc", """
-            package abc
-            
-            import xyz
-            
-            process w {
-                products {
-                    1 kg water
-                }
-                inputs {
-                    1 kWh electricity
-                }
-            }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getProcesses().first().getInputs().first()
-    }
-
-    private fun electricity(): PsiTechnoProductExchange {
-        val file = parseFile(
-            "electricity", """
-                package xyz
-                
-                process p {
-                    products {
-                        1 kWh electricity
-                    }
-                }
-            """.trimIndent()
-        ) as LcaFile
-        return file.getProcesses().first().getProducts().first()
-    }
-
-    override fun getTestDataPath(): String {
-        return ""
     }
 }

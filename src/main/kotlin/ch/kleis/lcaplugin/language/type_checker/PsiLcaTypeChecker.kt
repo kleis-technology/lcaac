@@ -125,25 +125,29 @@ class PsiLcaTypeChecker {
     }
 
     private fun checkQuantityPrimitive(primitive: PsiQuantityPrimitive): TQuantity {
-        return when(primitive.getType()) {
+        return when (primitive.getType()) {
             QuantityPrimitiveType.LITERAL -> {
                 val tyUnit = primitive.getRef().reference.resolve()?.let { check(it) }
-                    ?: throw TypeCheckException("unbound reference")
-                when(tyUnit) {
+                    ?: throw TypeCheckException("unbound reference ${primitive.getRef().name}")
+                when (tyUnit) {
                     is TUnit -> TQuantity(tyUnit.dimension)
                     is TQuantity -> tyUnit
                     else -> throw TypeCheckException("")
                 }
             }
+
             QuantityPrimitiveType.PAREN -> checkQuantity(primitive.getQuantityInParen())
             QuantityPrimitiveType.QUANTITY_REF -> primitive.getRef().reference.resolve()?.let {
                 val ty = check(it)
-                if (ty !is TQuantity) {
-                    throw TypeCheckException("expected TQuantity, found $ty")
+                if (ty is TQuantity) {
+                    return ty
                 }
-                ty
-            }
-                ?: throw TypeCheckException("unbound reference")
+                if (ty is TUnit) {
+                    return TQuantity(ty.dimension)
+                }
+                throw TypeCheckException("expected TQuantity, found $ty")
+            } as TQuantity?
+                ?: throw TypeCheckException("unbound reference ${primitive.getRef().name}")
         }
     }
 }

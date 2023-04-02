@@ -1,7 +1,9 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
+import ch.kleis.lcaplugin.core.lang.type.TypeCheckException
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.type_checker.PsiLcaTypeChecker
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -17,6 +19,15 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
                 holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product $name")
                     .range(element.getProductRef())
                     .highlightType(ProblemHighlightType.WARNING)
+                    .create()
+            }
+            val checker = PsiLcaTypeChecker()
+            try {
+                checker.check(element)
+            } catch (e: TypeCheckException) {
+                holder.newAnnotation(HighlightSeverity.ERROR, e.message.orEmpty())
+                    .range(element)
+                    .highlightType(ProblemHighlightType.ERROR)
                     .create()
             }
         }
