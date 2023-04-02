@@ -11,7 +11,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 class QuantityRefScopeProcessor(
     private val quantityRef: PsiQuantityRef
 ) : PsiScopeProcessor {
-    private var result: PsiNameIdentifierOwner? = null
+    private var results: Set<PsiNameIdentifierOwner> = emptySet()
 
     override fun execute(element: PsiElement, state: ResolveState): Boolean {
         if (element is PsiVariables) {
@@ -26,14 +26,14 @@ class QuantityRefScopeProcessor(
     }
 
     private fun checkDecl(entries: Collection<PsiNameIdentifierOwner>): Boolean {
-        result = entries.find { it.name == quantityRef.name }
-        if (result != null) {
+        results = entries.filter { it.name == quantityRef.name }.toSet()
+        if (results.isNotEmpty()) {
             return false
         }
         return true
     }
 
-    fun getResult(): PsiNameIdentifierOwner? {
-        return result
+    fun getResults(): Set<PsiNameIdentifierOwner> {
+        return results
     }
 }

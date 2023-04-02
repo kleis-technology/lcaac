@@ -4,9 +4,7 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import com.intellij.psi.ResolveState
@@ -36,18 +34,22 @@ class QuantityReference(
     )
 
     override fun resolve(): PsiElement? {
-        return tryLocally()
-            ?: tryGlobalAssignments()
-            ?: tryUnits()
+        val results = multiResolve(false).mapNotNull { it.element }
+        return if (results.size == 1) results.first() else null
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        return tryLocally()?.let { arrayOf(PsiElementResolveResult(it)) }
-            ?: globalAssignmentRef.multiResolve(false).plus(unitRef.multiResolve(false))
-            ?: emptyArray()
+        val localMatches = tryLocally()
+        if (localMatches.isNotEmpty()) {
+            return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
+        }
+        return tryGlobalAssignments()
+            .plus(tryUnits())
+            .map { PsiElementResolveResult(it) }
+            .toTypedArray()
     }
 
-    private fun tryLocally(): PsiElement? {
+    private fun tryLocally(): Set<PsiElement> {
         val resolver = QuantityRefScopeProcessor(element)
         var lastParent: PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {
@@ -60,16 +62,18 @@ class QuantityReference(
             }
             lastParent = parent
         }
-        return resolver.getResult()
+        return resolver.getResults()
     }
 
-    private fun tryGlobalAssignments(): PsiElement? {
-        return globalAssignmentRef.resolve()
-                ?.let { it as PsiGlobalAssignment }
+    private fun tryGlobalAssignments(): Set<PsiElement> {
+        return globalAssignmentRef.multiResolve(false)
+                .mapNotNull { it.element }
+            .toSet()
     }
 
-    private fun tryUnits(): PsiElement? {
-        return unitRef.resolve()
-            ?.let { it as PsiUnitDefinition }
+    private fun tryUnits(): Set<PsiElement> {
+        return unitRef.multiResolve(false)
+            .mapNotNull { it.element }
+            .toSet()
     }
 }
