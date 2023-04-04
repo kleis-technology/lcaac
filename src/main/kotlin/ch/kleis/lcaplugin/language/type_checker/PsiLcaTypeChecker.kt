@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.type.*
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
@@ -10,6 +11,7 @@ import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import com.intellij.psi.PsiElement
@@ -124,30 +126,32 @@ class PsiLcaTypeChecker {
             ?: tyPrimitive
     }
 
+    private fun checkDimensionOf(quantityRef: PsiQuantityRef): Dimension {
+        return quantityRef.reference.resolve()
+            ?.let {
+                when (val ty = check(it)) {
+                    is TQuantity -> ty.dimension
+                    is TUnit -> ty.dimension
+                    else -> throw TypeCheckException("expected TQuantity or TUnit, found $ty")
+                }
+            }
+            ?: Prelude.unitMap[quantityRef.name]?.dimension
+            ?: throw TypeCheckException("unbound reference ${quantityRef.name}")
+    }
+
     private fun checkQuantityPrimitive(primitive: PsiQuantityPrimitive): TQuantity {
         return when (primitive.getType()) {
             QuantityPrimitiveType.LITERAL -> {
-                val tyUnit = primitive.getRef().reference.resolve()?.let { check(it) }
-                    ?: throw TypeCheckException("unbound reference ${primitive.getRef().name}")
-                when (tyUnit) {
-                    is TUnit -> TQuantity(tyUnit.dimension)
-                    is TQuantity -> tyUnit
-                    else -> throw TypeCheckException("")
-                }
+                val dim = checkDimensionOf(primitive.getRef())
+                TQuantity(dim)
+            }
+
+            QuantityPrimitiveType.QUANTITY_REF -> {
+                val dim = checkDimensionOf(primitive.getRef())
+                TQuantity(dim)
             }
 
             QuantityPrimitiveType.PAREN -> checkQuantity(primitive.getQuantityInParen())
-            QuantityPrimitiveType.QUANTITY_REF -> primitive.getRef().reference.resolve()?.let {
-                val ty = check(it)
-                if (ty is TQuantity) {
-                    return ty
-                }
-                if (ty is TUnit) {
-                    return TQuantity(ty.dimension)
-                }
-                throw TypeCheckException("expected TQuantity, found $ty")
-            } as TQuantity?
-                ?: throw TypeCheckException("unbound reference ${primitive.getRef().name}")
         }
     }
 }

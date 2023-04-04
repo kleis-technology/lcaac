@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.type.*
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
@@ -725,5 +726,34 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         } catch (e: TypeCheckException) {
             TestCase.assertEquals("incompatible dimensions: expecting foo_dim[1.0], found mass[1.0]", e.message)
         }
+    }
+
+    @Test
+    fun test_whenPreludeUnit() {
+        // given
+        val pkgName = """test_whenPreludeUnit"""
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process p {
+                    inputs {
+                        1 kg foo_product
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val checker = PsiLcaTypeChecker()
+
+        // when
+        val actual = checker.check(target)
+
+        // then
+        val expected = TTechnoExchange(
+            TProduct("foo_product", Prelude.mass)
+        )
+        TestCase.assertEquals(expected, actual)
     }
 }
