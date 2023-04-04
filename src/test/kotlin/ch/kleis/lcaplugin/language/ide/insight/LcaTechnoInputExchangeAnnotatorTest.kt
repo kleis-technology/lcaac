@@ -13,19 +13,12 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         return "testdata"
     }
 
-    override fun setUp() {
-        super.setUp()
-        myFixture.copyFileToProject("samples/units.lca")
-    }
-
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile("$pkgName.lca", """
             package $pkgName
-            
-            import prelude.units
             
             process p {
                 inputs {
@@ -55,8 +48,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         val pkgName = "testAnnotate_whenFound_wrongDim_shouldAnnotate"
         myFixture.createFile("$pkgName.lca", """
             package $pkgName
-            
-            import prelude.units
             
             process p {
                 inputs {
@@ -92,8 +83,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         val pkgName = "testAnnotate_withFromProcess_wrongDim_shouldAnnotate"
         myFixture.createFile("$pkgName.lca", """
             package $pkgName
-            
-            import prelude.units
             
             process p {
                 inputs {
@@ -133,8 +122,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         myFixture.createFile("$pkgName.lca", """
             package $pkgName
             
-            import prelude.units
-            
             process p {
                 inputs {
                     1 kg carrot from carrot_prod(y = 1 l)
@@ -171,8 +158,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
         myFixture.createFile("$pkgName.lca", """
             package $pkgName
-            
-            import prelude.units
             
             process p {
                 inputs {
