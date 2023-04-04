@@ -119,6 +119,10 @@
                            displayType="BALLOON"
                            bundle="messages.MyBundle"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.LcaImportSettings"/>
+
+        <codeInsight.lineMarkerProvider
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.GraphChildProcessesMarkerProvider"/>
     </extensions>
 
     <applicationListeners>
