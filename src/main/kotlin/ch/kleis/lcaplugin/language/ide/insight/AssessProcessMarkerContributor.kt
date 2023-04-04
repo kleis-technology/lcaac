@@ -25,10 +25,6 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
         return null
     }
 
-    private fun isTarget(element: PsiElement): Boolean {
-        if (element.elementType != LcaTypes.PROCESS_KEYWORD || element.parent !is PsiProcess) {
-            return false
-        }
-        return true
-    }
+    private fun isTarget(element: PsiElement): Boolean =
+            element.elementType == LcaTypes.PROCESS_KEYWORD && element.parent is PsiProcess
 }
