@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -11,8 +11,8 @@ import com.intellij.psi.PsiElement
 class LcaUnitAnnotator  : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiUnitRef) {
-            val target = element.reference.resolve()
-            if (target == null || target !is PsiUnitDefinition) {
+            val target = tryResolve(element)
+            if (target == null) {
                 val name = element.name
                 holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit $name")
                     .range(element)
@@ -20,5 +20,11 @@ class LcaUnitAnnotator  : Annotator {
                     .create()
             }
         }
+    }
+
+    // there should be a better way ...
+    private fun tryResolve(psiUnitRef: PsiUnitRef): Unit? {
+        return psiUnitRef.reference.resolve()?.let { }
+            ?: Prelude.unitMap[psiUnitRef.name]?.let { }
     }
 }

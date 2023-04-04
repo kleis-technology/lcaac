@@ -70,4 +70,32 @@ class LcaQuantityAnnotatorTest: BasePlatformTestCase() {
         verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
         verify(exactly = 0) { mock.builder.create() }
     }
+
+    @Test
+    fun testAnnotate_whenFoundInPrelude_shouldDoNothing() {
+        // given
+        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            variables {
+                x = 3 kg
+            }
+        """.trimIndent())
+        val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
+            .getValue()
+            .getTerm()
+            .getFactor()
+            .getPrimitive()
+            .getRef()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaQuantityAnnotator()
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
+        verify(exactly = 0) { mock.builder.create() }
+    }
 }

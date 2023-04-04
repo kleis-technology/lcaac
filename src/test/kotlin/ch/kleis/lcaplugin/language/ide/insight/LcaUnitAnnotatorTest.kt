@@ -38,7 +38,7 @@ class LcaUnitAnnotatorTest: BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit foo") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit unknown") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
