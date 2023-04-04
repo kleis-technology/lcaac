@@ -1,7 +1,10 @@
 package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.type.*
+import ch.kleis.lcaplugin.core.lang.type.TProduct
+import ch.kleis.lcaplugin.core.lang.type.TQuantity
+import ch.kleis.lcaplugin.core.lang.type.TTechnoExchange
+import ch.kleis.lcaplugin.core.lang.type.TUnit
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
@@ -241,7 +244,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         try {
             checker.check(target)
             fail("should have thrown")
-        } catch (e: TypeCheckException) {
+        } catch (e: PsiTypeCheckException) {
             TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs foo2_dim[1.0]", e.message)
         }
     }
@@ -534,7 +537,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         try {
             checker.check(target)
             fail("should have thrown")
-        } catch (e: TypeCheckException) {
+        } catch (e: PsiTypeCheckException) {
             TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs foo2_dim[1.0]", e.message)
         }
     }
@@ -676,7 +679,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         try {
             checker.check(target)
             fail("should have thrown")
-        } catch (e: TypeCheckException) {
+        } catch (e: PsiTypeCheckException) {
             TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs mass[1.0]", e.message)
         }
     }
@@ -723,7 +726,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         try {
             checker.check(target)
             fail("should have thrown")
-        } catch (e: TypeCheckException) {
+        } catch (e: PsiTypeCheckException) {
             TestCase.assertEquals("incompatible dimensions: expecting foo_dim[1.0], found mass[1.0]", e.message)
         }
     }

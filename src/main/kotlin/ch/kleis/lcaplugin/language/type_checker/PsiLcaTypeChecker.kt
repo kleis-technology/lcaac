@@ -39,22 +39,22 @@ class PsiLcaTypeChecker {
         element.getProductRef().reference.resolve()?.let {
             val tyProductExchange = check(it)
             if (tyProductExchange !is TTechnoExchange) {
-                throw TypeCheckException("expected TTechnoExchange, found $tyProductExchange")
+                throw PsiTypeCheckException("expected TTechnoExchange, found $tyProductExchange")
             }
             if (tyProductExchange.product.dimension != tyQuantity.dimension) {
-                throw TypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
+                throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
             }
         }
         element.getFromProcessConstraint()?.let {
             val psiProcess = it.getProcessTemplateRef().reference.resolve() as PsiProcess?
-                ?: throw TypeCheckException("unbound reference ${it.getProcessTemplateRef().name}")
+                ?: throw PsiTypeCheckException("unbound reference ${it.getProcessTemplateRef().name}")
             val tyArguments = checkProcessArguments(psiProcess)
             it.getArguments()
                 .forEach { (key, value) ->
                     val tyActual = checkQuantity(value)
-                    val tyExpected = tyArguments[key] ?: throw TypeCheckException("unknown parameter $key")
+                    val tyExpected = tyArguments[key] ?: throw PsiTypeCheckException("unknown parameter $key")
                     if (tyExpected != tyActual) {
-                        throw TypeCheckException("incompatible dimensions: expecting ${tyExpected.dimension}, found ${tyActual.dimension}")
+                        throw PsiTypeCheckException("incompatible dimensions: expecting ${tyExpected.dimension}, found ${tyActual.dimension}")
                     }
                 }
         }
@@ -90,7 +90,7 @@ class PsiLcaTypeChecker {
             AdditiveOperationType.ADD, AdditiveOperationType.SUB -> {
                 val tyRight = checkQuantity(psiQuantity.getNext()!!)
                 if (tyLeft.dimension != tyRight.dimension) {
-                    throw TypeCheckException("incompatible dimensions: ${tyLeft.dimension} vs ${tyRight.dimension}")
+                    throw PsiTypeCheckException("incompatible dimensions: ${tyLeft.dimension} vs ${tyRight.dimension}")
                 }
                 return tyLeft
             }
@@ -132,11 +132,11 @@ class PsiLcaTypeChecker {
                 when (val ty = check(it)) {
                     is TQuantity -> ty.dimension
                     is TUnit -> ty.dimension
-                    else -> throw TypeCheckException("expected TQuantity or TUnit, found $ty")
+                    else -> throw PsiTypeCheckException("expected TQuantity or TUnit, found $ty")
                 }
             }
             ?: Prelude.unitMap[quantityRef.name]?.dimension
-            ?: throw TypeCheckException("unbound reference ${quantityRef.name}")
+            ?: throw PsiTypeCheckException("unbound reference ${quantityRef.name}")
     }
 
     private fun checkQuantityPrimitive(primitive: PsiQuantityPrimitive): TQuantity {

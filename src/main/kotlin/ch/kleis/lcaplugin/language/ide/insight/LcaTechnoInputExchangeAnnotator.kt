@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.core.lang.type.TypeCheckException
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.type_checker.PsiLcaTypeChecker
+import ch.kleis.lcaplugin.language.type_checker.PsiTypeCheckException
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -24,7 +24,7 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
             val checker = PsiLcaTypeChecker()
             try {
                 checker.check(element)
-            } catch (e: TypeCheckException) {
+            } catch (e: PsiTypeCheckException) {
                 holder.newAnnotation(HighlightSeverity.ERROR, e.message.orEmpty())
                     .range(element)
                     .highlightType(ProblemHighlightType.ERROR)
