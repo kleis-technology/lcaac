@@ -97,7 +97,8 @@
                 implementation="ch.kleis.lcaplugin.project.LcaRootLibraryProvider"/>
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
-        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
+        <stubIndex
+                implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex"/>
@@ -112,10 +113,22 @@
         <runLineMarkerContributor
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.AssessProcessMarkerContributor"/>
+
+        <notificationGroup id="LcaNotificationError"
+                           displayType="BALLOON"
+                           bundle="messages.MyBundle"/>
+        <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.LcaImportSettings"/>
     </extensions>
 
     <applicationListeners>
         <listener class="ch.kleis.lcaplugin.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+    <actions>
+        <action id="ImportLibrary" class="ch.kleis.lcaplugin.ide.imports.LcaImportClickAction" text="Import Library">
+            <add-to-group group-id="FileMenu" anchor="first"/>
+        </action>
+
+    </actions>
+
 </idea-plugin>

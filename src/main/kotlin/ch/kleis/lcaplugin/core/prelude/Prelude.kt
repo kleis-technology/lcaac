@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.prelude
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
@@ -9,19 +10,26 @@ import ch.kleis.lcaplugin.core.lang.expression.UnitExpression
 
 class Prelude {
     companion object {
-        private val mass = Dimension.of("mass")
-        private val length = Dimension.of("length")
-        private val area = length.multiply(length)
-        private val volume = length.multiply(area)
-        private val energy = Dimension.of("energy")
-        private val time = Dimension.of("time")
-        private val power = energy.divide(time)
-        private val none = Dimension.None
-        private val radioactivity = Dimension.of("radioactivity")
-        private val unitMap = listOf(
+        val mass = Dimension.of("mass")
+        val length = Dimension.of("length")
+        val area = length.multiply(length)
+        val volume = length.multiply(area)
+        val energy = Dimension.of("energy")
+        val time = Dimension.of("time")
+        val land_use = area.multiply(time)
+        val transport = mass.multiply(length)
+        val power = energy.divide(time)
+        val none = Dimension.None
+        val radioactivity = Dimension.of("radioactivity")
+        val length_time = Prelude.length.multiply(Prelude.time)
+        val person_distance = Prelude.none.multiply(Prelude.length)
+        val mass_time = Prelude.mass.multiply(Prelude.time)
+        val volume_time = Prelude.volume.multiply(Prelude.time)
+        val unitMap = listOf(
             EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),
             EUnitLiteral("person", 1.0, none),
+            EUnitLiteral("p", 1.0, none),
             EUnitLiteral("percent", 1.0e-2, none),
             EUnitLiteral("kg", 1.0, mass),
             EUnitLiteral("g", 1.0e-3, mass),
@@ -50,9 +58,15 @@ class Prelude {
             EUnitLiteral("kJ", 1.0e3 / 3600.0, energy),
             EUnitLiteral("MJ", 1.0e6 / 3600.0, energy),
             EUnitLiteral("W", 1.0, power),
+            EUnitLiteral("m2a", 1.0, land_use),
+            EUnitLiteral("tkm", 1.0, transport),
+            EUnitLiteral("my", 365 * 24 * 3600.0, length_time),
+            EUnitLiteral("personkm", 1000.0, person_distance),
+            EUnitLiteral("kgy", 365 * 24 * 3600.0, mass_time),
+            EUnitLiteral("m3y", 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol }
 
-        val units : Register<UnitExpression> = Register(unitMap)
+        val units: Register<UnitExpression> = Register(unitMap)
         val unitQuantities = Register<QuantityExpression>(
             unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
         )
