@@ -21,7 +21,7 @@ fun ExchangeRow.uid(): String {
 class ProcessRenderer : Renderer<ProcessBlock> {
     companion object {
         private val engine: ScriptEngine
-        val formulaDetector = Regex("[a-zA-Z()+*]")
+        val formulaDetector = Regex("[a-zA-DF-Z()+* ]")
 
         init {
             val mgr = ScriptEngineManager()
@@ -123,21 +123,13 @@ ${ModelWriter.block("resources {", resources)}
         val uid = ModelWriter.sanitizeString(exchange.uid() + suffix)
         return "$amount $unit $uid // $amountFormula"
     }
-//
-//    private fun render(exchange: ExchangeRow): String {
-//        val amountFormula = exchange.amount()
-//        val amount = tryToCompute(amountFormula.toString())
-//        val unit = exchange.unit()
-//        val uid = ModelWriter.sanitizeString(exchange.uid())
-//        return "$amount $unit $uid // $amountFormula"
-//    }
 
     private fun tryToCompute(amountFormula: String): Any? {
         return try {
             if (formulaDetector.matches(amountFormula)) {
                 engine.eval(amountFormula)
             } else {
-                "// QQQ ${amountFormula}"
+                amountFormula
             }
         } catch (e: ScriptException) {
             "// QQQ Invalid regex detector for ${amountFormula}"
