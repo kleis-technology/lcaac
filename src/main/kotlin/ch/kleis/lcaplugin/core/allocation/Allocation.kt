@@ -22,7 +22,7 @@ class Allocation {
                 }
             }
         }
-        return allocatedSystem
+        return SystemValue(allocatedSystem.processes, system.substanceCharacterizations)
     }
 
     fun totalAmount(processValue: ProcessValue): Double {

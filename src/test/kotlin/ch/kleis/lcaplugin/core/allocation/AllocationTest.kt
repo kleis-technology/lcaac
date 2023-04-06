@@ -3,12 +3,10 @@ package ch.kleis.lcaplugin.core.allocation
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
+import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixture.Companion.propanolCharacterization
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SystemValueFixture
-import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
-import ch.kleis.lcaplugin.core.lang.value.ProcessValue
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.*
 import org.junit.Assert
 import org.junit.Test
 
@@ -308,5 +306,18 @@ class AllocationTest {
         val totalAllocation = QuantityValueFixture.twenyPiece.amount + QuantityValueFixture.thirtyPiece.amount
         val expected = QuantityValueFixture.twoLitres.amount* QuantityValueFixture.twenyPiece.amount/totalAllocation
         Assert.assertEquals(expected, actual, delta)
+    }
+
+    @Test
+    fun apply_shouldKeepAllocation(){
+        // given
+        val system = SystemValue(
+            setOf(ProcessValue("", listOf(), listOf(), listOf())),
+            setOf(propanolCharacterization)
+        )
+        // when
+        val actual = Allocation().apply(system).substanceCharacterizations
+        // then
+        Assert.assertEquals(setOf(propanolCharacterization), actual)
     }
 }
