@@ -11,6 +11,7 @@ class QuantityExpressionReducer(
 ) : Reducer<QuantityExpression> {
     private val unitRegister = Register(unitRegister)
     private val quantityRegister = Register(quantityRegister)
+    private val unitAliasReducedRegister = arrayListOf<String>()
 
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
@@ -48,7 +49,9 @@ class QuantityExpressionReducer(
         }
     }
 
-    private fun reduceAlias(expression: EUnitAlias): UnitExpression {
+    fun reduceAlias(expression: EUnitAlias): UnitExpression {
+        checkUnitAliasInfiniteLoop(expression)
+
         val qty = reduce(expression.aliasFor)
         if (qty !is EQuantityLiteral) return EUnitAlias(expression.symbol, qty)
 
@@ -57,6 +60,13 @@ class QuantityExpressionReducer(
         if (unitAlias !is EUnitLiteral) return EUnitAlias(expression.symbol, qty)
 
         return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
+    }
+
+    private fun checkUnitAliasInfiniteLoop(expression: EUnitAlias){
+        if (unitAliasReducedRegister.contains(expression.symbol)){
+            throw EvaluatorException("Recursive dependency for unit ${expression.symbol}");
+        }
+        unitAliasReducedRegister.add(expression.symbol)
     }
 
     private fun reduceRef(expression: EQuantityRef) =
