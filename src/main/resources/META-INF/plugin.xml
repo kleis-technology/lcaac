@@ -89,6 +89,8 @@
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiAssignmentManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiUnitRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiParameterRefManipulator"/>
         <lang.findUsagesProvider language="LCA"
                                  implementationClass="ch.kleis.lcaplugin.language.ide.find_usage.LcaFindUsagesProvider"/>
 

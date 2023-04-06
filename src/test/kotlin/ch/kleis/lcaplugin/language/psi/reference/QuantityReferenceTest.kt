@@ -8,6 +8,11 @@ import junit.framework.TestCase
 import org.junit.Test
 
 class QuantityReferenceTest : BasePlatformTestCase() {
+
+    override fun getTestDataPath(): String {
+        return "testdata/language/psi/reference/quantity"
+    }
+
     override fun setUp() {
         super.setUp()
         myFixture.copyDirectoryToProject("", "")
@@ -19,7 +24,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.quantity.test_resolve_whenFromGlobalAssignment"
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
-        val quantityRef = process.getProducts().first()
+        val ref = process.getProducts().first()
             .getQuantity()
             .getTerm()
             .getFactor()
@@ -27,7 +32,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
             .getRef()
 
         // when
-        val actual = quantityRef.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = GlobalAssigmentStubKeyIndex
@@ -41,7 +46,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.quantity.test_resolve_whenFromUnitDefinition"
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
-        val quantityRef = process.getProducts().first()
+        val ref = process.getProducts().first()
             .getQuantity()
             .getTerm()
             .getFactor()
@@ -49,7 +54,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
             .getRef()
 
         // when
-        val actual = quantityRef.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = UnitKeyIndex.findUnits(project, "$pkgName.x").first()
@@ -62,23 +67,19 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.quantity.test_resolve_whenFromProcessParameter"
         val fqn = "$pkgName.caller"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
-        val quantityRef = process
+        val ref = process
             .getInputs().first()
             .getFromProcessConstraint()!!
-            .getAssignments().first()
-            .getQuantityRef()
+            .getPsiArguments().first()
+            .getParameterRef()
 
         // when
-        val actual = quantityRef.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = ProcessStubKeyIndex.findProcesses(project, "$pkgName.called").first()
             .getPsiParametersBlocks().first()
             .getAssignments().first()
         TestCase.assertEquals(expected, actual)
-    }
-
-    override fun getTestDataPath(): String {
-        return "testdata/language/psi/reference/quantity"
     }
 }

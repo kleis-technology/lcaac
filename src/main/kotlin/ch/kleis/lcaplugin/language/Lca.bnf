@@ -243,14 +243,17 @@ technoInputExchange ::= quantity productRef fromProcessConstraint? {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoInputExchangeMixin"
 }
 
-fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_assignments? RPAREN {
+fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_arguments? RPAREN {
     pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFromProcessConstraintMixin"
 }
 
-private comma_sep_assignments ::= assignment (COMA assignment)* COMA?
-
+private comma_sep_arguments ::= argument (COMA argument)* COMA?
+argument ::= parameterRef EQUAL quantity {
+    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
+}
 
 technoProductExchange ::= quantity productRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
@@ -354,6 +357,11 @@ unitRef ::= uid {
 processTemplateRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateRefMixin"
+}
+
+parameterRef ::= uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiParameterRefMixin"
 }
 
 /*

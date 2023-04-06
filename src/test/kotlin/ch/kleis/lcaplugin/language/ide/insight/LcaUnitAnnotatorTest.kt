@@ -1,77 +1,69 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
-import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.stubs.StubIndexKey
-import com.intellij.testFramework.ParsingTestCase
-import io.mockk.*
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import io.mockk.verify
 import org.junit.Test
 
-class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
+class LcaUnitAnnotatorTest: BasePlatformTestCase() {
+
+    override fun getTestDataPath(): String {
+        return "testdata"
+    }
+
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
-        val element = unitFooRef()
+        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            substance s {
+                name = "s"
+                compartment = "c"
+                reference_unit = unknown
+            }
+        """.trimIndent())
+        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+            .getReferenceUnitField().getValue()
+            .getFactor()
+            .getPrimitive()
+            .getRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaUnitAnnotator()
-
-
-        mockkStatic(GlobalSearchScope::class)
-        every { GlobalSearchScope.allScope(any()) } returns mockk()
-
-        mockkStatic(StubIndex::class)
-        every {
-            StubIndex.getElements(
-                any<StubIndexKey<String, PsiUnitDefinition>>(),
-                any<String>(),
-                any<Project>(),
-                any<GlobalSearchScope>(),
-                any<Class<PsiUnitDefinition>>(),
-            )
-        } returns emptyList()
 
         // when
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit foo") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit unknown") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
-
-        // clean
-        unmockkStatic(GlobalSearchScope::class)
-        unmockkStatic(StubIndex::class)
     }
 
     @Test
-    fun testAnnotate_whenFound_shouldDoNothing() {
+    fun testAnnotate_whenFoundInPrelude_shouldDoNothing() {
         // given
-        val element = unitFooRef()
+        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
+            
+            substance s {
+                name = "s"
+                compartment = "c"
+                reference_unit = kg
+            }
+        """.trimIndent())
+        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+            .getReferenceUnitField().getValue()
+            .getFactor()
+            .getPrimitive()
+            .getRef()
         val mock = AnnotationHolderMock()
-        val annotator = LcaTechnoInputExchangeAnnotator()
-
-
-        mockkStatic(GlobalSearchScope::class)
-        every { GlobalSearchScope.allScope(any()) } returns mockk()
-
-        mockkStatic(StubIndex::class)
-        every {
-            StubIndex.getElements(
-                any<StubIndexKey<String, PsiUnitDefinition>>(),
-                any<String>(),
-                any<Project>(),
-                any<GlobalSearchScope>(),
-                any<Class<PsiUnitDefinition>>(),
-            )
-        } returns listOf(unitFoo(), unitBar())
+        val annotator = LcaUnitAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -79,64 +71,39 @@ class LcaUnitAnnotatorTest: ParsingTestCase("", "lca", LcaParserDefinition()) {
         // then
         verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
         verify(exactly = 0) { mock.builder.create() }
-
-        // clean
-        unmockkStatic(GlobalSearchScope::class)
-        unmockkStatic(StubIndex::class)
     }
 
-    private fun unitFooRef(): PsiUnitRef {
-        val file = parseFile(
-            "abc", """
-            package abc
-            
-            import xyz
+    @Test
+    fun testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing() {
+        // given
+        val pkgName = "testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing"
+        myFixture.createFile("$pkgName.lca", """
+            package $pkgName
             
             substance s {
                 name = "s"
                 compartment = "c"
                 reference_unit = foo
             }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getSubstances().first()
-            .getReferenceUnitField()
-            .getValue()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
-    }
-
-    private fun unitFoo(): PsiUnitDefinition {
-        val file = parseFile(
-            "xyz", """
-            package xyz
             
             unit foo {
                 symbol = "foo"
                 dimension = "foo"
             }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getUnitDefinitions().first()
-    }
+        """.trimIndent())
+        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+            .getReferenceUnitField().getValue()
+            .getFactor()
+            .getPrimitive()
+            .getRef()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaUnitAnnotator()
 
-    private fun unitBar(): PsiUnitDefinition {
-        val file = parseFile(
-            "xyz", """
-            package xyz
-            
-            unit bar {
-                symbol = "bar"
-                dimension = "bar"
-            }
-        """.trimIndent()
-        ) as LcaFile
-        return file.getUnitDefinitions().first()
-    }
+        // when
+        annotator.annotate(element, mock.holder)
 
-    override fun getTestDataPath(): String {
-        return ""
+        // then
+        verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
+        verify(exactly = 0) { mock.builder.create() }
     }
-
 }

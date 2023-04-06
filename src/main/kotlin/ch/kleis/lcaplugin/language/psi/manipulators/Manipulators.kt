@@ -20,6 +20,7 @@ class PsiSubstanceRefManipulator() : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiProcessTemplateRefManipulator() : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
 class PsiUnitRefManipulator(): PsiUIDOwnerManipulator<PsiUnitRef>()
+class PsiParameterRefManipulator(): PsiUIDOwnerManipulator<PsiParameterRef>()
 
 class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
     override fun handleContentChange(

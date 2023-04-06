@@ -4,21 +4,14 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
-import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
-import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiReferenceBase
-import com.intellij.psi.ResolveState
+import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 
 class QuantityReference(
     element: PsiQuantityRef
-) : PsiReferenceBase<PsiQuantityRef>(element) {
+) : PsiReferenceBase<PsiQuantityRef>(element), PsiPolyVariantReference {
     private val globalAssignmentRef = GlobalUIDOwnerReference(
         element,
         { project, fqn ->
@@ -39,31 +32,22 @@ class QuantityReference(
     )
 
     override fun resolve(): PsiElement? {
-        return tryAsProcessParameter()
-            ?: tryLocally()
-            ?: tryGlobalAssignments()
-            ?: tryUnits()
+        val results = multiResolve(false).mapNotNull { it.element }
+        return if (results.size == 1) results.first() else null
     }
 
-    private fun tryAsProcessParameter(): PsiElement? {
-        val assignment = element.parent
-        if (assignment !is PsiAssignment) {
-            return null
+    override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
+        val localMatches = tryLocally()
+        if (localMatches.isNotEmpty()) {
+            return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
         }
-        val fromProcessConstraint = assignment.parent
-        if (fromProcessConstraint !is PsiFromProcessConstraint) {
-            return null
-        }
-        return fromProcessConstraint.getProcessTemplateRef().reference?.resolve()?.let { process ->
-            if (process !is PsiProcess) {
-                return null
-            }
-            return process.getPsiParametersBlocks().flatMap { it.getAssignments() }
-                .find { it.getQuantityRef().name == element.name }
-        }
+        return tryGlobalAssignments()
+            .plus(tryUnits())
+            .map { PsiElementResolveResult(it) }
+            .toTypedArray()
     }
 
-    private fun tryLocally(): PsiElement? {
+    private fun tryLocally(): Set<PsiElement> {
         val resolver = QuantityRefScopeProcessor(element)
         var lastParent: PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {
@@ -76,16 +60,18 @@ class QuantityReference(
             }
             lastParent = parent
         }
-        return resolver.getResult()
+        return resolver.getResults()
     }
 
-    private fun tryGlobalAssignments(): PsiElement? {
-        return globalAssignmentRef.resolve()
-                ?.let { it as PsiGlobalAssignment }
+    private fun tryGlobalAssignments(): Set<PsiElement> {
+        return globalAssignmentRef.multiResolve(false)
+                .mapNotNull { it.element }
+            .toSet()
     }
 
-    private fun tryUnits(): PsiElement? {
-        return unitRef.resolve()
-            ?.let { it as PsiUnitDefinition }
+    private fun tryUnits(): Set<PsiElement> {
+        return unitRef.multiResolve(false)
+            .mapNotNull { it.element }
+            .toSet()
     }
 }
