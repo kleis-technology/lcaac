@@ -89,7 +89,7 @@ ${ModelWriter.block("emissions { // Economics", emissionsEconomic)}
 
 ${ModelWriter.block("emissions { // Non Material", emissionsNonMat)}
 
-${ModelWriter.block("emissions { // Non Material", emissionsSocials)}
+${ModelWriter.block("emissions { // Social", emissionsSocials)}
 
 ${ModelWriter.block("emissions { // Final Waste Flows", emissionsFinalWasteFlows)}
 

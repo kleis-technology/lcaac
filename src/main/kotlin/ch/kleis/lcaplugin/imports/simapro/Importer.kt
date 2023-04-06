@@ -14,7 +14,7 @@ class Importer(private val settings: LcaImportSettings) {
     fun importFile() {
         val path = Path.of(settings.libraryFile)
         val predefined = Prelude.unitMap.values
-            .map { UnitValue(it.symbol, it.scale, it.dimension) }
+            .map { UnitValue(it.symbol.lowercase(), it.scale, it.dimension) }
             .associateBy { it.symbol }
         val unitRenderer = UnitRenderer.of(predefined)
         val pkg = settings.rootPackage.ifBlank { "default" }
@@ -22,12 +22,15 @@ class Importer(private val settings: LcaImportSettings) {
         writer.use {
             SimaProCsv.read(path.toFile()) { block: CsvBlock ->
                 if (block.isProcessBlock) {
-                    val process = block.asProcessBlock()
-                    ProcessRenderer().render(process, writer)
-                    // ...
+                    if (settings.importProcesses) {
+                        val process = block.asProcessBlock()
+                        ProcessRenderer().render(process, writer)
+                    }
                 } else if (block.isElementaryFlowBlock) { // Resources / Substances ?
-                    val elementary = block.asElementaryFlowBlock()
-                    SubstanceRenderer().render(elementary, writer)
+                    if (settings.importSubstances) {
+                        val elementary = block.asElementaryFlowBlock()
+                        SubstanceRenderer().render(elementary, writer)
+                    }
                 } else if (block.isQuantityBlock) { // Dimensions => no need
                     val elementary = block.asQuantityBlock()
                     // ...
@@ -42,9 +45,9 @@ class Importer(private val settings: LcaImportSettings) {
                     // ...
                 } else if (block.isSystemDescriptionBlock) {// Ecoinvent => entete de library
                     val desc = block.asSystemDescriptionBlock()
-
                     writer.write("main.lca", ModelWriter.pad(ModelWriter.asComment(desc.name()), 0))
                     writer.write("main.lca", ModelWriter.pad(ModelWriter.asComment(desc.description()), 0))
+// TODO Review write to align with other
                 } else if (block.isImpactMethodBlock) {
                     val impact = block.asImpactMethodBlock()
                     // ...

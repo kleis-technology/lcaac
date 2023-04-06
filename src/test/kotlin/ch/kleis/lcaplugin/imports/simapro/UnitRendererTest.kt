@@ -23,12 +23,12 @@ class UnitRendererTest {
     @Before
     fun before() {
         every { writer.write(any(), any()) } returns Unit
-        every { writer.sanitizeString("k+g") } returns "k_g"
-        every { writer.sanitizeString("kg") } returns "kg"
-        every { writer.sanitizeString("s") } returns "s"
-        every { writer.sanitizeString("s€c") } returns "s_c"
-        every { writer.sanitizeString("me2") } returns "me2"
-        every { writer.sanitizeString("m2") } returns "m2"
+        every { ModelWriter.sanitizeString("k+g") } returns "k_g"
+        every { ModelWriter.sanitizeString("kg") } returns "kg"
+        every { ModelWriter.sanitizeString("s") } returns "s"
+        every { ModelWriter.sanitizeString("s€c") } returns "s_c"
+        every { ModelWriter.sanitizeString("me2") } returns "me2"
+        every { ModelWriter.sanitizeString("m2") } returns "m2"
     }
 
     @Test

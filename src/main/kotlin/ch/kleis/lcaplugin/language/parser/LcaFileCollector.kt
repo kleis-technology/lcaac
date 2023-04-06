@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.*
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -10,8 +11,14 @@ class LcaFileCollector(
         ref.reference?.resolve()?.containingFile as LcaFile?
     },
 ) {
-    fun collect(file: LcaFile): List<LcaFile> {
+
+    companion object {
+        private val LOG = Logger.getInstance(LcaFileCollector::class.java)
+    }
+
+    fun collect(file: LcaFile): List<LcaFile> { // TODO Collect Symbole instead of files ?
         val result = ArrayList<LcaFile>()
+        LOG.info("Start recursive collect")
         recursiveCollect(result, file)
         return result
     }

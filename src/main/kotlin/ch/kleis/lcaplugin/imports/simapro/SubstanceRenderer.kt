@@ -41,7 +41,6 @@ substance $uid {
 
     name = "${element.name()}-$compartiment"
     compartment = "$compartiment"
-    sub_compartment = ""
     reference_unit = ${element.unit()}
 
     impacts {

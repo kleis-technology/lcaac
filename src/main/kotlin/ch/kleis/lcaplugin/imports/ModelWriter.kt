@@ -24,7 +24,7 @@ interface Renderer<T> {
 class ModelWriter(private val packageName: String, private val rootFolder: String) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
-        public val BASE_PAD = 4
+        private const val BASE_PAD = 4
 
         fun sanitizeString(s: String): String {
             if (s.isBlank()) {
@@ -34,6 +34,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
             val spaces = """\s+""".toRegex()
             val nonAlphaNumeric = """[^a-zA-Z0-9_]+""".toRegex()
             return r
+                .lowercase()
                 .trim()
                 .replace(spaces, "_")
                 .replace("*", "_m_")
@@ -42,6 +43,8 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
                 .replace(">", "_more_")
                 .replace("<", "_less_")
                 .replace(nonAlphaNumeric, "_")
+                .replace("___", "_")
+                .replace("__", "_")
                 .trimEnd('_')
         }
 
