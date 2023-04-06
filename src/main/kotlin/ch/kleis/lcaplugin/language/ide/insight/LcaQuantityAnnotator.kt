@@ -14,19 +14,21 @@ class LcaQuantityAnnotator : Annotator {
             return
         }
 
-        val target = tryResolve(element)
-        if (target == null) {
-            val name = element.name
-            holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity $name")
-                .range(element)
-                .highlightType(ProblemHighlightType.WARNING)
-                .create()
+        if (doesResolve(element)) {
+            return
         }
+
+        val name = element.name
+        holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity $name")
+            .range(element)
+            .highlightType(ProblemHighlightType.WARNING)
+            .create()
     }
 
     // there should be a better way ...
-    private fun tryResolve(psiQuantityRef: PsiQuantityRef): Unit? {
-        return psiQuantityRef.reference.resolve()?.let { }
-            ?: Prelude.unitMap[psiQuantityRef.name]?.let { }
+    private fun doesResolve(psiQuantityRef: PsiQuantityRef): Boolean {
+        return psiQuantityRef.reference.resolve()?.let { true }
+            ?: Prelude.unitMap[psiQuantityRef.name]?.let { true }
+            ?: false
     }
 }
