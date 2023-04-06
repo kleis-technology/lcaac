@@ -11,7 +11,26 @@ import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 
 fun ProcessBlock.uid(): String {
-    return if (this.name().isNullOrBlank()) this.identifier() else this.name()
+    val mainProductName = if (this.products().isNullOrEmpty()) {
+        ModelWriter.sanitizeString(this.identifier())
+    } else {
+        ModelWriter.sanitizeString(this.products()[0].uid())
+    }
+    val identifier = if (this.identifier().isNullOrEmpty()) {
+        "unknown"
+    } else {
+        ModelWriter.sanitizeString(this.identifier())
+    }
+    return if (this.name().isNullOrBlank()) {
+        mainProductName
+    } else {
+        // Create unique name in case of coproduct with multiple processes
+        // TODO Review recreate coproducts in same process
+        // Same process name with 2 case :
+        // * same process name and same product name with different identifier : 2 different locations
+        // * same process name and diff product name with same identifier : 2 coproducts
+        this.name() + (mainProductName.hashCode() % 10000) + "_" + (identifier.hashCode() % 10000)
+    }
 }
 
 fun ExchangeRow.uid(): String {
@@ -21,7 +40,7 @@ fun ExchangeRow.uid(): String {
 class ProcessRenderer : Renderer<ProcessBlock> {
     companion object {
         private val engine: ScriptEngine
-        val formulaDetector = Regex("[a-zA-DF-Z()+* ]")
+        val formulaDetector = Regex(".*[a-zA-DF-Z()/+* ]+.*")
 
         init {
             val mgr = ScriptEngineManager()
@@ -38,9 +57,17 @@ class ProcessRenderer : Renderer<ProcessBlock> {
         val metas = mutableMapOf<String, String>()
         process.comment().let { metas["description"] = ModelWriter.compactText(it) }
         process.category().let { metas["category"] = ModelWriter.compactText(it.toString()) }
+        process.identifier().let { metas["identifier"] = ModelWriter.compactText(it.toString()) }
         val metaBloc = metas.map { """${it.key} = "${it.value}"""" }
 
-        val products = process.products().map { render(it) }
+        val baseProducts = process.products().map { render(it) }
+        val wasteTreatment =
+            if (process.wasteTreatment() == null) listOf() else listOf(render(process.wasteTreatment()))
+        val wasteScenario = if (process.wasteScenario() == null) listOf() else listOf(render(process.wasteScenario()))
+        val products = baseProducts
+            .plus(wasteTreatment)
+            .plus(wasteScenario)
+
         val avoidProducts = process.avoidedProducts().map { render(it) } // C'est quoi ?
 
         val params = process.calculatedParameters().map { render(it) }.flatten()
@@ -54,15 +81,15 @@ class ProcessRenderer : Renderer<ProcessBlock> {
         val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }
         val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }
         val emissionsSocials = process.socialIssues().map { render(it, "_social") }
-        val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it, "_waste") }
-        val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it, "_waste") }
+        val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it) }
+        val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it) }
         val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
         val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
 
         val resources = process.resources().map { render(it, "_raw") }
 
         writer.write(
-            "processes/${process.category()}.lca",
+            "processes/${process.category()}",
             """
 
 process $uid {
@@ -93,7 +120,7 @@ ${ModelWriter.block("emissions { // Social", emissionsSocials)}
 
 ${ModelWriter.block("emissions { // Final Waste Flows", emissionsFinalWasteFlows)}
 
-${ModelWriter.block("emissions { // Waste To Treatment", emissionsWasteToTreatment)}
+${ModelWriter.block("inputs { // Waste To Treatment", emissionsWasteToTreatment)}
 
 ${ModelWriter.block("emissions { // Remaining Waste", emissionsRemainingWaste)}
 
@@ -120,7 +147,7 @@ ${ModelWriter.block("resources {", resources)}
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
-        val uid = ModelWriter.sanitizeString(exchange.uid() + suffix)
+        val uid = ModelWriter.sanitizeString(exchange.uid()) + suffix
         return "$amount $unit $uid // $amountFormula"
     }
 

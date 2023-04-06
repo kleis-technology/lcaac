@@ -21,6 +21,24 @@ interface Renderer<T> {
     fun render(block: T, writer: ModelWriter)
 }
 
+private const val MAX_FILE_SIZE = 2000000
+
+data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) : Closeable {
+    fun write(block: CharSequence) {
+        val str = "$block\n"
+        writer.write(str)
+        currentSize += str.length
+    }
+
+    fun isFull(): Boolean {
+        return currentSize > MAX_FILE_SIZE
+    }
+
+    override fun close() {
+        writer.close()
+    }
+}
+
 class ModelWriter(private val packageName: String, private val rootFolder: String) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
@@ -92,30 +110,38 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
 
     }
 
-    private val openedFiles: MutableMap<String, FileWriter> = mutableMapOf()
+    private val openedFiles: MutableMap<String, FileWriterWithSize> = mutableMapOf()
 
-    fun write(relativePath: String, block: CharSequence) {
+    fun write(relativePath: String, block: CharSequence, index: Boolean = true) {
         if (block.isNotEmpty()) {
-            val file = recreateIfNotOpened(relativePath)
-            file.write(block.toString())
-            file.write("\n")
-            file.flush()
+            val file = recreateIfNeeded(relativePath, index)
+            file.write(block)
         }
     }
 
-    private fun recreateIfNotOpened(relativePath: String): FileWriter {
+    private fun recreateIfNeeded(relativePath: String, index: Boolean): FileWriterWithSize {
         val existingFile = openedFiles[relativePath]
         return if (existingFile == null) {
-            val path = Paths.get(rootFolder + File.separatorChar + relativePath)
-            if (path.exists()) path.deleteExisting()
-            Files.createDirectories(path.parent)
-            val new = FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8"))
-            openedFiles[relativePath] = new
-            new.write("package $packageName\n\n")
-            new
+            createNewFile(relativePath, 1, index)
+        } else if (existingFile.isFull() && index) {
+            existingFile.close()
+            @Suppress("KotlinConstantConditions")
+            createNewFile(relativePath, existingFile.currentIndex + 1, index)
         } else {
             existingFile
         }
+    }
+
+    private fun createNewFile(relativePath: String, currentIndex: Int, index: Boolean): FileWriterWithSize {
+        val extension = if (index) "_$currentIndex.lca" else ".lca"
+        val path = Paths.get(rootFolder + File.separatorChar + relativePath + extension)
+        if (path.exists()) path.deleteExisting()
+        Files.createDirectories(path.parent)
+        val new = // TODO Simplifier FileWriter
+            FileWriterWithSize(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentIndex)
+        openedFiles[relativePath] = new
+        new.write("package $packageName\n\n")
+        return new
     }
 
     override fun close() {

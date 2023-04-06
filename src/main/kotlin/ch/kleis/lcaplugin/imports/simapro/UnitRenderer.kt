@@ -34,7 +34,6 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun render(unit: UnitRow, writer: ModelWriter) {
-// TODO Align with others and pad
         val dimensionName = unit.quantity().lowercase()
         val dimension = Dimension.of(dimensionName)
         val symbol = ModelWriter.sanitizeString(unit.name())
@@ -43,12 +42,12 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
             if (isNewDimensionReference(unit)) {
                 knownUnits[symbol] = UnitValue(unit.name(), 1.0, dimension)
                 """
-                
-                unit $symbol {
-                    symbol = "${unit.name()}"
-                    dimension = "$dimensionName"
-                }
-            """.trimIndent()
+
+unit $symbol {
+    symbol = "${unit.name()}"
+    dimension = "$dimensionName"
+}
+""".trimIndent()
             } else {
                 knownUnits[symbol] = UnitValue(unit.name(), unit.conversionFactor(), dimension)
                 val refUnitSymbol = ModelWriter.sanitizeString(unit.referenceUnit())
@@ -56,12 +55,12 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 }
                 """
-                
-                unit $symbol {
-                    symbol = "${unit.name()}"
-                    alias_for = ${unit.conversionFactor()} $refUnitSymbol
-                }
-            """.trimIndent()
+
+unit $symbol {
+    symbol = "${unit.name()}"
+    alias_for = ${unit.conversionFactor()} $refUnitSymbol
+}
+"""
             }
         } else {
             if (areCompatible(existingUnits.dimension, dimension)) {
@@ -70,7 +69,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
                 throw ImportException("A Unit ${ModelWriter.sanitizeString(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
             }
         }
-        writer.write("unit.lca", block)
+        writer.write("unit", block, false)
     }
 
     private fun isNewDimensionReference(unit: UnitRow): Boolean {

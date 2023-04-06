@@ -10,11 +10,11 @@ class InputParameterRenderer : Renderer<InputParameterBlock> {
         if (block.parameters().size > 0) {
             val vars = block.parameters().flatMap { render(it) }
             writer.write(
-                "main.lca", """
+                "main", """
 variables {
 ${ModelWriter.pad(vars)}
 }
-"""
+""", false
             )
         }
     }

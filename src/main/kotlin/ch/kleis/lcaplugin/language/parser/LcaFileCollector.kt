@@ -11,7 +11,7 @@ class LcaFileCollector(
         ref.reference?.resolve()?.containingFile as LcaFile?
     },
 ) {
-
+    
     companion object {
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
@@ -20,6 +20,7 @@ class LcaFileCollector(
         val result = ArrayList<LcaFile>()
         LOG.info("Start recursive collect")
         recursiveCollect(result, file)
+        LOG.info("End recursive collect")
         return result
     }
 

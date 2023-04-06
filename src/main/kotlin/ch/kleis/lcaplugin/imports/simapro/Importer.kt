@@ -45,8 +45,8 @@ class Importer(private val settings: LcaImportSettings) {
                     // ...
                 } else if (block.isSystemDescriptionBlock) {// Ecoinvent => entete de library
                     val desc = block.asSystemDescriptionBlock()
-                    writer.write("main.lca", ModelWriter.pad(ModelWriter.asComment(desc.name()), 0))
-                    writer.write("main.lca", ModelWriter.pad(ModelWriter.asComment(desc.description()), 0))
+                    writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.name()), 0), false)
+                    writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.description()), 0), false)
 // TODO Review write to align with other
                 } else if (block.isImpactMethodBlock) {
                     val impact = block.asImpactMethodBlock()

@@ -35,7 +35,7 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
         val uid = ModelWriter.sanitizeString("${element.name()}-$compartiment")
         val description = ModelWriter.compactText(element.comment())
         writer.write(
-            "substances/$compartiment.lca",
+            "substances/$compartiment",
             """
 substance $uid {
 
