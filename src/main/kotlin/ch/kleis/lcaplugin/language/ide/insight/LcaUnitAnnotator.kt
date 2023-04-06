@@ -8,17 +8,19 @@ import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 
-class LcaUnitAnnotator  : Annotator {
+class LcaUnitAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (element is PsiUnitRef) {
-            val target = tryResolve(element)
-            if (target == null) {
-                val name = element.name
-                holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit $name")
-                    .range(element)
-                    .highlightType(ProblemHighlightType.WARNING)
-                    .create()
-            }
+        if (element !is PsiUnitRef) {
+            return
+        }
+
+        val target = tryResolve(element)
+        if (target == null) {
+            val name = element.name
+            holder.newAnnotation(HighlightSeverity.WARNING, "unresolved unit $name")
+                .range(element)
+                .highlightType(ProblemHighlightType.WARNING)
+                .create()
         }
     }
 

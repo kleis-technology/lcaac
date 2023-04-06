@@ -10,15 +10,17 @@ import com.intellij.psi.PsiElement
 
 class LcaQuantityAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (element is PsiQuantityRef) {
-            val target = tryResolve(element)
-            if (target == null) {
-                val name = element.name
-                holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity $name")
-                    .range(element)
-                    .highlightType(ProblemHighlightType.WARNING)
-                    .create()
-            }
+        if (element !is PsiQuantityRef) {
+            return
+        }
+
+        val target = tryResolve(element)
+        if (target == null) {
+            val name = element.name
+            holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity $name")
+                .range(element)
+                .highlightType(ProblemHighlightType.WARNING)
+                .create()
         }
     }
 
