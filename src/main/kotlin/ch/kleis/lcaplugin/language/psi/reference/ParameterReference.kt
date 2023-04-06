@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
+import ch.kleis.lcaplugin.language.psi.type.PsiParameters
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
@@ -26,12 +27,24 @@ class ParameterReference(
         return fromProcessConstraint.getProcessTemplateRef().reference.multiResolve(false)
             .mapNotNull { it.element }
             .filterIsInstance<PsiProcess>()
-            .flatMap { process ->
-                process.getPsiParametersBlocks()
-                    .flatMap { it.getAssignments() }
-                    .filter { it.getQuantityRef().name == element.name }
-            }
-            .map { PsiElementResolveResult(it) }
+            .flatMap { process -> findAssignments(process) }
             .toTypedArray()
+    }
+
+    private fun findAssignments(psiElement: PsiElement): List<PsiElementResolveResult> {
+        if (psiElement !is PsiProcess) {
+            return emptyList()
+        }
+        return psiElement.getPsiParametersBlocks()
+            .flatMap { filterAndMap(it) }
+    }
+
+    private fun filterAndMap(parameters: PsiParameters): List<PsiElementResolveResult> {
+        return parameters.getAssignments()
+            .mapNotNull { assignment ->
+                assignment
+                    .takeIf { it.getQuantityRef().name == element.name }
+                    ?.let { PsiElementResolveResult(it) }
+            }
     }
 }
