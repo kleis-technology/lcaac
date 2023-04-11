@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
+import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
@@ -22,7 +23,8 @@ data class GenericExchangeValue(
 }
 
 @optics
-data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue) : ExchangeValue {
+data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue, val allocation: QuantityValue) : ExchangeValue {
+    constructor(quantity: QuantityValue, product: ProductValue): this(quantity, product, QuantityValue(100.0, UnitValue("percent", 1E-2, Dimension.None)))
     init {
         if (quantity.unit.dimension != product.referenceUnit.dimension) {
             throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${product.referenceUnit.dimension}")

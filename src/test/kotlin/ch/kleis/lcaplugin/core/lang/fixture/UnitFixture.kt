@@ -23,5 +23,6 @@ class UnitFixture {
         val l = EUnitLiteral("l", 1.0e-3, DimensionFixture.volume)
         val s = EUnitLiteral("s", 1.0, DimensionFixture.time)
         val hour = EUnitLiteral("hour", 3600.0, DimensionFixture.time)
+        val percent = EUnitLiteral("percent", 1.0e-2, Dimension.None)
     }
 }

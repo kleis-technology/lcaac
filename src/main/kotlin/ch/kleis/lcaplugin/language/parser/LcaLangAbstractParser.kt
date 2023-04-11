@@ -193,7 +193,7 @@ class LcaLangAbstractParser(
             constrainedProduct(
                 psiExchange.getProductRef(),
                 psiExchange.getFromProcessConstraint()
-            ),
+            )
         )
     }
 
@@ -222,7 +222,10 @@ class LcaLangAbstractParser(
             EConstrainedProduct(
                 productRef(psiExchange.getProductRef()),
                 None,
-            )
+            ),
+            psiExchange.getAllocateField()?.let { quantity(it.getValue()) } ?: run {
+                EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+            }
         )
     }
 

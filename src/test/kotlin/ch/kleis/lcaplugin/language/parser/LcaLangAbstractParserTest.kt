@@ -3,8 +3,10 @@ package ch.kleis.lcaplugin.language.parser
 import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
+import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
@@ -573,6 +575,60 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             )
         )
         TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_productWithoutAllocation_should_return_100percent_allocation(){
+        // given
+        val file = parseFile(
+            "carrot", """
+            process carrot {
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+        // when
+        val symbolTable = parser.load()
+        // then
+        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val expect = ETechnoExchange(
+            EQuantityScale(1.0, EQuantityRef("kg")),
+            EConstrainedProduct(EProductRef("carrot"), None),
+            EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+        )
+        assertEquals(expect, actual)
+    }
+
+    @Test
+    fun testParse_productWithAllocation(){
+        // given
+        val file = parseFile(
+            "carrot", """
+            process carrot {
+                products {
+                    1 kg carrot allocate 10 percent
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            listOf(file)
+        )
+        // when
+        val symbolTable = parser.load()
+        // then
+        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val expect = ETechnoExchange(
+            EQuantityScale(1.0, EQuantityRef("kg")),
+            EConstrainedProduct(EProductRef("carrot"), None),
+            EQuantityScale(10.0, EQuantityRef("percent"))
+        )
+        assertEquals(expect, actual)
     }
 
     override fun getTestDataPath(): String {

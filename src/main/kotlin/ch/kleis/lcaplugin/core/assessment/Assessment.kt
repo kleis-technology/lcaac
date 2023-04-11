@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.assessment
 
+import ch.kleis.lcaplugin.core.allocation.Allocation
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.matrix.*
@@ -15,8 +16,9 @@ class Assessment(
     private val controllablePorts: IndexedCollection<MatrixColumnIndex>
 
     init {
-        val processes = system.processes
-        val substanceCharacterizations = system.substanceCharacterizations
+        val allocatedSystem = Allocation().apply(system)
+        val processes = allocatedSystem.processes
+        val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
         val observableProducts = processes
             .flatMap { it.products }
@@ -56,4 +58,6 @@ class Assessment(
         val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate()) ?: return InventoryError("The system cannot be solved")
         return InventoryMatrix(this.observablePorts, this.controllablePorts, data)
     }
+
+
 }

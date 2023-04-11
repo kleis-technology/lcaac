@@ -29,6 +29,7 @@
       UNIT_KEYWORD = 'unit'
       REFERENCE_UNIT_KEYWORD = 'reference-unit'
       ALIAS_FOR_KEYWORD = 'alias_for'
+      ALLOCATE_KEYWORD = 'allocate'
       NAME_KEYWORD = 'name'
       DIMENSION_KEYWORD = 'dimension'
       PARAMETERS_KEYWORD = 'parameters'
@@ -255,7 +256,12 @@ argument ::= parameterRef EQUAL quantity {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
 }
 
-technoProductExchange ::= quantity productRef {
+allocateField ::= ALLOCATE_KEYWORD quantity {
+    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAllocateFieldMixin"
+}
+
+technoProductExchange ::= quantity productRef allocateField? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeElementType"

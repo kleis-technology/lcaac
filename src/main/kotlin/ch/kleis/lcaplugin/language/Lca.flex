@@ -79,6 +79,7 @@ CommentContent = .*
 <YYINITIAL> "reference_unit"                   { return LcaTypes.REFERENCE_UNIT_KEYWORD; }
 <YYINITIAL> "symbol"                   { return LcaTypes.SYMBOL_KEYWORD; }
 <YYINITIAL> "alias_for"                   { return LcaTypes.ALIAS_FOR_KEYWORD; }
+<YYINITIAL> "allocate"                   { return LcaTypes.ALLOCATE_KEYWORD; }
 <YYINITIAL> "dimension"                   { return LcaTypes.DIMENSION_KEYWORD; }
 <YYINITIAL> "params"             { return LcaTypes.PARAMETERS_KEYWORD; }
 <YYINITIAL> "products"             { return LcaTypes.PRODUCTS_KEYWORD; }
