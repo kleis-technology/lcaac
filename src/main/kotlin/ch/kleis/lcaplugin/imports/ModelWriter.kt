@@ -44,7 +44,13 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         private val LOG = Logger.getInstance(ModelWriter::class.java)
         private const val BASE_PAD = 4
 
-        fun sanitizeString(s: String): String {
+        fun sanitizeAndCompact(s: String): String {
+            return sanitize(s)
+                .replace("___", "_")
+                .replace("__", "_")
+        }
+
+        fun sanitize(s: String): String {
             if (s.isBlank()) {
                 return s
             }
@@ -61,8 +67,6 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
                 .replace(">", "_more_")
                 .replace("<", "_less_")
                 .replace(nonAlphaNumeric, "_")
-                .replace("___", "_")
-                .replace("__", "_")
                 .trimEnd('_')
         }
 

@@ -12,20 +12,19 @@ import javax.script.ScriptException
 
 fun ProcessBlock.uid(): String {
     val mainProductName = if (this.products().isNullOrEmpty()) {
-        ModelWriter.sanitizeString(this.identifier())
+        ModelWriter.sanitizeAndCompact(this.identifier())
     } else {
-        ModelWriter.sanitizeString(this.products()[0].uid())
+        ModelWriter.sanitizeAndCompact(this.products()[0].uid())
     }
     val identifier = if (this.identifier().isNullOrEmpty()) {
         "unknown"
     } else {
-        ModelWriter.sanitizeString(this.identifier())
+        ModelWriter.sanitizeAndCompact(this.identifier())
     }
     return if (this.name().isNullOrBlank()) {
         mainProductName
     } else {
         // Create unique name in case of coproduct with multiple processes
-        // TODO Review recreate coproducts in same process
         // Same process name with 2 case :
         // * same process name and same product name with different identifier : 2 different locations
         // * same process name and diff product name with same identifier : 2 coproducts
@@ -53,7 +52,7 @@ class ProcessRenderer : Renderer<ProcessBlock> {
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun render(process: ProcessBlock, writer: ModelWriter) {
 
-        val uid = ModelWriter.sanitizeString(process.uid())
+        val pUid = ModelWriter.sanitizeAndCompact(process.uid())
         val metas = mutableMapOf<String, String>()
         process.comment().let { metas["description"] = ModelWriter.compactText(it) }
         process.category().let { metas["category"] = ModelWriter.compactText(it.toString()) }
@@ -92,7 +91,7 @@ class ProcessRenderer : Renderer<ProcessBlock> {
             "processes/${process.category()}",
             """
 
-process $uid {
+process $pUid {
 
 ${ModelWriter.block("meta {", metaBloc)}
 
@@ -139,7 +138,7 @@ ${ModelWriter.block("resources {", resources)}
         val amountFormula = param.expression()
         val amount = tryToCompute(amountFormula)
         val unit = "u"
-        val uid = ModelWriter.sanitizeString(param.name())
+        val uid = ModelWriter.sanitize(param.name())
         return result.plus("$uid = $amount $unit // $amountFormula")
     }
 
@@ -147,7 +146,7 @@ ${ModelWriter.block("resources {", resources)}
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
-        val uid = ModelWriter.sanitizeString(exchange.uid()) + suffix
+        val uid = ModelWriter.sanitize(exchange.uid()) + suffix
         return "$amount $unit $uid // $amountFormula"
     }
 

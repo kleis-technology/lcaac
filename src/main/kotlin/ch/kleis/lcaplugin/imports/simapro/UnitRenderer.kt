@@ -36,7 +36,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     override fun render(unit: UnitRow, writer: ModelWriter) {
         val dimensionName = unit.quantity().lowercase()
         val dimension = Dimension.of(dimensionName)
-        val symbol = ModelWriter.sanitizeString(unit.name())
+        val symbol = ModelWriter.sanitizeAndCompact(unit.name())
         val existingUnits = knownUnits[symbol]
         val block = if (existingUnits == null) {
             if (isNewDimensionReference(unit)) {
@@ -50,7 +50,7 @@ unit $symbol {
 """.trimIndent()
             } else {
                 knownUnits[symbol] = UnitValue(unit.name(), unit.conversionFactor(), dimension)
-                val refUnitSymbol = ModelWriter.sanitizeString(unit.referenceUnit())
+                val refUnitSymbol = ModelWriter.sanitizeAndCompact(unit.referenceUnit())
                 if (refUnitSymbol == symbol) {
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 }
@@ -66,7 +66,7 @@ unit $symbol {
             if (areCompatible(existingUnits.dimension, dimension)) {
                 ""
             } else {
-                throw ImportException("A Unit ${ModelWriter.sanitizeString(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
+                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
             }
         }
         writer.write("unit", block, false)

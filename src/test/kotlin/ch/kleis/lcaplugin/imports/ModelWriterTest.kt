@@ -34,7 +34,7 @@ class ModelWriterTest {
         val sut = ModelWriter("pkg", "root")
 
         // When
-        val result = data.map { p -> Result(ModelWriter.sanitizeString(p.raw), p.expected) }
+        val result = data.map { p -> Result(ModelWriter.sanitizeAndCompact(p.raw), p.expected) }
 
         // Then
         result.forEach { r -> TestCase.assertEquals(r.expected, r.result) }
