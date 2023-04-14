@@ -16,7 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
-class LcaResultTest() {
+class LcaProcessAssessResultTest() {
 
     @Test
     fun test_getContent_WhenAnErrorHappened() {
@@ -24,7 +24,7 @@ class LcaResultTest() {
         val inv: InventoryResult = InventoryError("An error")
 
         // When
-        val sut = LcaResult(inv)
+        val sut = LcaProcessAssessResult(inv)
 
         // Then
         val panel = sut.getContent()
@@ -44,14 +44,14 @@ class LcaResultTest() {
         val inv: InventoryResult = InventoryMatrix(
             IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data)
 
-        val lcaResult = LcaResult (inv)
-        val panel = lcaResult.getContent()
+        val lcaProcessAssessResult = LcaProcessAssessResult (inv)
+        val panel = lcaProcessAssessResult.getContent()
         val scrollPanel = panel.getComponent(0) as JBScrollPane
         val viewPort = scrollPanel.getComponent(0)    as JBViewport
         val table = viewPort.getComponent(0)    as JBTable
         table.setRowSelectionInterval(0,0)
 
-        val sut = table.transferHandler as LcaResult.WithHeaderTransferableHandler
+        val sut = table.transferHandler as LcaProcessAssessResult.WithHeaderTransferableHandler
 
         // When
        val result = sut.createTransferable(table) as BasicTransferable
