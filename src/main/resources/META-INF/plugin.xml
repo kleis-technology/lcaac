@@ -108,7 +108,7 @@
         <toolWindow id="LCA Output"
                     icon="AllIcons.General.Modified"
                     anchor="bottom"
-                    factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaResultFactory"
+                    factoryClass="ch.kleis.lcaplugin.ui.toolwindow.LcaOutputToolWindowFactory"
                     canCloseContents="true"/>
 
         <runLineMarkerContributor
