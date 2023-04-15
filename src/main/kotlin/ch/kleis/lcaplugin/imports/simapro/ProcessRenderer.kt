@@ -146,7 +146,7 @@ ${ModelWriter.block("resources {", resources)}
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
-        val uid = ModelWriter.sanitize(exchange.uid()) + suffix
+        val uid = ModelWriter.sanitizeAndCompact(exchange.uid()) + suffix
         return "$amount $unit $uid // $amountFormula"
     }
 
