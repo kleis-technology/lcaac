@@ -84,12 +84,9 @@ class Register<E>(
     fun plus(pairs: Iterable<Pair<String, E>>): Register<E> {
         val keys = data.keys.toList()
             .plus(pairs.map { it.first })
-        val conflicts = keys
-            .map {key ->
-                key to keys.count { key == it }
-            }
-            .filter { it.second > 1 }
-            .map { it.first }
+        val conflicts = keys.groupingBy { it }.eachCount()
+            .filter { it.value > 1 }
+            .map { it.key }
             .toSet()
         if (conflicts.isNotEmpty()) {
             throw EvaluatorException("$conflicts are already bound")
