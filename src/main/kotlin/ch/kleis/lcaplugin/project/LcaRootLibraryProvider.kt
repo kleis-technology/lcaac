@@ -33,7 +33,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
     }
 
-    fun getEmissionFactorLib(lib: AdditionalLib, plugin: IdeaPluginDescriptor?): EmissionFactorLibrary? {
+    private fun getEmissionFactorLib(lib: AdditionalLib, plugin: IdeaPluginDescriptor?): EmissionFactorLibrary? {
         val jarVirtualFile = plugin?.pluginPath?.let {
             val jarFile = if (it.isDirectory()) {
                 // Case of the LCA As Code run as a plugin from Intellij
@@ -44,7 +44,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
             }
             val virtualFile = VfsUtil.findFile(jarFile, false)
             if (virtualFile == null) {
-                LOG.error("Unable to locate LCAProvider jar files, jar File was if $jarFile")
+                LOG.error("Unable to locate LCAProvider jar files, jar File was $jarFile")
             }
             virtualFile
         }

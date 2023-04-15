@@ -87,19 +87,12 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
                         documentQuantityData(sb, target)
                         sb.toString()
                     }
+
                     else -> super.generateDoc(element, originalElement)
                 }
             }
 
             else -> super.generateDoc(element, originalElement)
-        }
-    }
-
-    private fun documentName(sb: StringBuilder, name: String?) {
-        if (name != null) {
-            sb.append(DocumentationMarkup.CONTENT_START).append("\n")
-            HtmlSyntaxInfoUtil.appendStyledSpan(sb, TextAttributes(), name, 0.5f)
-            sb.append(DocumentationMarkup.CONTENT_END).append("\n")
         }
     }
 
@@ -162,23 +155,21 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
     }
 
     private fun documentQuantityData(sb: StringBuilder, element: LcaGlobalAssignment) {
-        sb.append(DocumentationMarkup.CONTENT_START).append("\n")
-        sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
-        addKeyValueSection("Symbol", element.getQuantityRef().name, sb)
-        addKeyValueSection("Value", element.getValue().text, sb)
-        sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
-        sb.append(DocumentationMarkup.CONTENT_END).append("\n")
+        documentQuantityData(sb, element.getQuantityRef().name, element.getValue().text)
     }
 
     private fun documentQuantityData(sb: StringBuilder, element: LcaAssignment) {
+        documentQuantityData(sb, element.getQuantityRef().name, element.getValue().text)
+    }
+
+    private fun documentQuantityData(sb: StringBuilder, qtyName: String, value: String) {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
-        addKeyValueSection("Symbol", element.getQuantityRef().name, sb)
-        addKeyValueSection("Value", element.getValue().text, sb)
+        addKeyValueSection("Symbol", qtyName, sb)
+        addKeyValueSection("Value", value, sb)
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }
-
 
     private fun documentSubstanceData(sb: StringBuilder, element: LcaSubstance) {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")

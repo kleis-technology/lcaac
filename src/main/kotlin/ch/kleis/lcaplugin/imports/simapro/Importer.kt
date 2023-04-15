@@ -4,11 +4,15 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
 import ch.kleis.lcaplugin.imports.ModelWriter
+import com.intellij.openapi.diagnostic.Logger
 import org.openlca.simapro.csv.CsvBlock
 import org.openlca.simapro.csv.SimaProCsv
 import java.nio.file.Path
 
 class Importer(private val settings: LcaImportSettings) {
+    companion object {
+        private val LOG = Logger.getInstance(Importer::class.java)
+    }
 
 
     fun importFile() {
@@ -57,6 +61,8 @@ class Importer(private val settings: LcaImportSettings) {
                         unitBlock.units()
                             .forEach { unitRenderer.render(it, writer) }
                     }
+                } else {
+                    LOG.warn("Missing case for ${block.javaClass}")
                 }
             }
         }
