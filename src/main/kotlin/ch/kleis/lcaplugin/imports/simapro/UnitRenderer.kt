@@ -55,12 +55,10 @@ unit $symbol {
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 }
                 """
-
 unit $symbol {
     symbol = "${unit.name()}"
     alias_for = ${unit.conversionFactor()} $refUnitSymbol
-}
-"""
+}"""
             }
         } else {
             if (areCompatible(existingUnits.dimension, dimension)) {

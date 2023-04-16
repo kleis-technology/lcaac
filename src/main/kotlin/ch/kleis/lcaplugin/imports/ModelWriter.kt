@@ -83,7 +83,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
             return text.joinToString("\n") { "$sep$it" }
         }
 
-        fun padList(text: List<CharSequence>, number: Int): List<CharSequence> {
+        private fun padList(text: List<CharSequence>, number: Int): List<CharSequence> {
             val sep = " ".repeat(number)
             return text.map { "$sep$it" }
         }
@@ -144,7 +144,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         val new = // TODO Simplifier FileWriter
             FileWriterWithSize(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentIndex)
         openedFiles[relativePath] = new
-        new.write("package $packageName\n\n")
+        new.write("package $packageName\n")
         return new
     }
 

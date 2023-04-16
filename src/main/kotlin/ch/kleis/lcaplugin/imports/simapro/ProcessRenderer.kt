@@ -158,7 +158,7 @@ ${ModelWriter.block("resources {", resources)}
                 amountFormula
             }
         } catch (e: ScriptException) {
-            "// QQQ Invalid regex detector for ${amountFormula}"
+            "// QQQ Invalid regex detector for $amountFormula"
         }
     }
 }

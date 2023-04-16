@@ -19,11 +19,12 @@ import java.nio.file.Path
 class ImporterTest {
     private val file = this.javaClass.classLoader.getResource("sample_wfldb_370.csv")!!.file
 
-    //    private val file = "/Users/pke/Downloads/ecoinvent_38.csv"
     private val rootFolder = Files.createTempDirectory("lca_test_").toString()
     private var settings = mockk<LcaImportSettings>()
 
     private val output_unit_file = "$rootFolder${File.separatorChar}unit.lca"
+    private val output_process_file = "$rootFolder${File.separatorChar}process.lca"
+    private val output_substance_file = "$rootFolder${File.separatorChar}substance.lca"
 
     @Suppress("RemoveExplicitTypeArguments")
     @Before
@@ -37,7 +38,7 @@ class ImporterTest {
         val fileSys = mockk<LocalFileSystem>()
         every { LocalFileSystem.getInstance() } returns fileSys
         val vfile = mockk<VirtualFile>()
-        every { fileSys.findFileByPath(output_unit_file) } returns vfile
+        every { fileSys.findFileByPath(any()) } returns vfile
         mockkStatic(ModalityState::class)
         every { ModalityState.current() } returns mockk()
         mockkStatic(RefreshQueue::class)
@@ -55,6 +56,8 @@ class ImporterTest {
     fun test_e2e_import_all_when_switch_on() {
         // Given
         every { settings.importUnits } returns true
+        every { settings.importProcesses } returns true
+        every { settings.importSubstances } returns true
 
         // When
         Importer(settings).importFile()
@@ -67,12 +70,16 @@ class ImporterTest {
     fun test_e2e_import_nothing_when_switch_off() {
         // Given
         every { settings.importUnits } returns false
+        every { settings.importProcesses } returns false
+        every { settings.importSubstances } returns false
 
         // When
         Importer(settings).importFile()
 
         // Then
-        assertFalse("Unit file should exists", Path.of(output_unit_file).exists())
+        assertFalse("Unit file should not exists", Path.of(output_unit_file).exists())
+        assertFalse("Process file should not exists", Path.of(output_process_file).exists())
+        assertFalse("Substance file should not exists", Path.of(output_substance_file).exists())
     }
 
 }

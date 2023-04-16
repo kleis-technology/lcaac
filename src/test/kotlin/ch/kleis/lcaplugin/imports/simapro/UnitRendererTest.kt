@@ -5,12 +5,10 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import io.mockk.verifyOrder
+import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.fail
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.openlca.simapro.csv.refdata.UnitRow
@@ -22,13 +20,19 @@ class UnitRendererTest {
 
     @Before
     fun before() {
-        every { writer.write(any(), any()) } returns Unit
+        every { writer.write(any(), any(), any()) } returns Unit
+        mockkObject(ModelWriter.Companion)
         every { ModelWriter.sanitizeAndCompact("k+g") } returns "k_g"
         every { ModelWriter.sanitizeAndCompact("kg") } returns "kg"
         every { ModelWriter.sanitizeAndCompact("s") } returns "s"
         every { ModelWriter.sanitizeAndCompact("s€c") } returns "s_c"
         every { ModelWriter.sanitizeAndCompact("me2") } returns "me2"
         every { ModelWriter.sanitizeAndCompact("m2") } returns "m2"
+    }
+
+    @After
+    fun after() {
+        unmockkAll()
     }
 
     @Test
@@ -45,7 +49,7 @@ class UnitRendererTest {
 
         // Then
         verify {
-            writer.write("unit.lca", "")
+            writer.write("unit", "", false)
         }
     }
 
@@ -71,7 +75,7 @@ class UnitRendererTest {
 """.trimIndent()
         verify {
             writer.write(
-                "unit.lca", expected
+                "unit", expected, false
             )
         }
     }
@@ -90,7 +94,7 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
+
             unit me2 {
                 symbol = "me2"
                 alias_for = 1.0 m2
@@ -98,7 +102,7 @@ class UnitRendererTest {
 """.trimIndent()
         verify {
             writer.write(
-                "unit.lca", expected
+                "unit", expected, false
             )
         }
     }
@@ -125,7 +129,7 @@ class UnitRendererTest {
 """.trimIndent()
         verify {
             writer.write(
-                "unit.lca", expected
+                "unit", expected, false
             )
         }
     }
@@ -145,8 +149,8 @@ class UnitRendererTest {
 
         // Then
         verifyOrder {
-            writer.write("unit.lca", any())
-            writer.write("unit.lca", "")
+            writer.write("unit", any(), false)
+            writer.write("unit", "", false)
         }
     }
 
