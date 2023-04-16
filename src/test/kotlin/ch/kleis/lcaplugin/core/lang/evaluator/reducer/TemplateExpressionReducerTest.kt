@@ -124,7 +124,7 @@ class TemplateExpressionReducerTest {
         val template = TemplateFixture.carrotProduction
         val expression = ETemplateRef("carrot_production")
         val reducer = TemplateExpressionReducer(
-            templateRegister = Register(
+            templateRegister = Register.from(
                 hashMapOf(
                     Pair("carrot_production", template)
                 )

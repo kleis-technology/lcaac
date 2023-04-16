@@ -48,7 +48,7 @@ class Evaluator(
         val nextInstances = HashSet<EInstance>()
         val e = everyInputProduct.modify(reduced) {
             resolveAndCheckCandidates(it)?.let { candidate ->
-                val template = candidate.second as EProcessTemplate
+                val template = candidate as EProcessTemplate
                 val body = template.body as EProcess
                 val arguments = when (it.constraint) {
                     is FromProcessRef -> it.constraint.arguments
@@ -92,7 +92,7 @@ class Evaluator(
     }
 
 
-    private fun resolveAndCheckCandidates(product: EConstrainedProduct): Pair<String, TemplateExpression>? {
+    private fun resolveAndCheckCandidates(product: EConstrainedProduct): TemplateExpression? {
         val eProduct =
             if (product.product is EProduct) product.product
             else throw EvaluatorException("unbound product ${product.product}")
@@ -100,23 +100,10 @@ class Evaluator(
             is FromProcessRef -> {
                 val processRef = product.constraint.ref
                 val candidates = processResolver.resolveByProductName(eProduct.name)
-                if (candidates.size > 1) {
-                    val candidateNames = candidates.map { it.first }
-                    throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
-                }
                 return candidates
-                    .firstOrNull { it.first == processRef }
                     ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
             }
-
-            None -> {
-                val candidates = processResolver.resolveByProductName(eProduct.name)
-                if (candidates.size > 1) {
-                    val candidateNames = candidates.map { it.first }
-                    throw EvaluatorException("more than one process produces '${eProduct.name}' : $candidateNames")
-                }
-                candidates.firstOrNull()
-            }
+            None -> processResolver.resolveByProductName(eProduct.name)
         }
     }
 

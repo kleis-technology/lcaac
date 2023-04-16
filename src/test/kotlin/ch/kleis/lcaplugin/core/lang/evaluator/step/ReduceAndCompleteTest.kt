@@ -142,7 +142,7 @@ class ReduceAndCompleteTest {
         val templateRef = ETemplateRef("p")
         val reduceAndComplete = ReduceAndComplete(
             SymbolTable(
-                processTemplates = Register(
+                processTemplates = Register.from(
                     hashMapOf(
                         Pair("p", TemplateFixture.carrotProduction)
                     )

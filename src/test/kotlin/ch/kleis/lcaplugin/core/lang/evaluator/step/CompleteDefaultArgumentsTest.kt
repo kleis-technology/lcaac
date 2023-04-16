@@ -22,7 +22,7 @@ class CompleteDefaultArgumentsTest {
         )
         val processResolver = ProcessResolver(
             SymbolTable(
-                processTemplates = Register(
+                processTemplates = Register.from(
                     mapOf(
                         "carrot_production" to EProcessTemplate(
                             params = params,
@@ -81,7 +81,7 @@ class CompleteDefaultArgumentsTest {
         )
         val processResolver = ProcessResolver(
             SymbolTable(
-                processTemplates = Register(
+                processTemplates = Register.from(
                     mapOf(
                         "carrot_production" to EProcessTemplate(
                             params = params,
@@ -138,7 +138,7 @@ class CompleteDefaultArgumentsTest {
         )
         val processResolver = ProcessResolver(
             SymbolTable(
-                processTemplates = Register(
+                processTemplates = Register.from(
                     mapOf(
                         "carrot_production" to EProcessTemplate(
                             params = params,

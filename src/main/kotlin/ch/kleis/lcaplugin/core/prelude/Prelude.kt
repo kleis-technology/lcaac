@@ -68,8 +68,8 @@ class Prelude {
             EUnitLiteral("m3y", 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol }
 
-        val units: Register<UnitExpression> = Register(unitMap)
-        val unitQuantities = Register<QuantityExpression>(
+        val units: Register<UnitExpression> = Register.from(unitMap)
+        val unitQuantities : Register<QuantityExpression> = Register.from(
             unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
         )
     }

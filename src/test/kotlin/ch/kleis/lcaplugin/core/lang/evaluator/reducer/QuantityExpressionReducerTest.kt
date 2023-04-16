@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
@@ -74,7 +75,7 @@ class QuantityExpressionReducerTest {
     fun reduce_whenLiteral_shouldReduceUnit() {
         // given
         val quantityEnvironment = Register.empty<QuantityExpression>()
-        val unitEnvironment = Register<UnitExpression>(hashMapOf(
+        val unitEnvironment : Register<UnitExpression> = Register.from(hashMapOf(
             Pair("kg", UnitFixture.kg)
         ))
         val quantity = EQuantityLiteral(1.0, EUnitRef("kg"))
@@ -238,7 +239,7 @@ class QuantityExpressionReducerTest {
         // given
         val a = EQuantityRef("a")
         val reducer = QuantityExpressionReducer(
-            Register(hashMapOf(
+            Register.from(hashMapOf(
                 Pair("a", EQuantityLiteral(1.0, UnitFixture.kg))
             )),
             Register.empty(),
@@ -312,15 +313,15 @@ class QuantityExpressionReducerTest {
     fun reduce_whenUnitClosure_shouldReduceWithGivenTable() {
         // given
         val symbolTable = SymbolTable(
-            units = Register(
-                "a" to UnitFixture.kg
+            units = Register.from(
+                mapOf("a" to UnitFixture.kg)
             )
         )
         val unit = EUnitClosure(symbolTable, EUnitRef("a"))
         val reducer = QuantityExpressionReducer(
             Register.empty(),
-            Register(
-                "a" to UnitFixture.l
+            Register.from(
+                mapOf("a" to UnitFixture.l)
             )
         )
 
@@ -417,7 +418,7 @@ class QuantityExpressionReducerTest {
     fun reduce_whenRef_shouldReadEnv() {
         // given
         val ref = EUnitRef("kg")
-        val units = Register<UnitExpression>(
+        val units : Register<UnitExpression> = Register.from(
             hashMapOf(
                 Pair("kg", UnitFixture.kg)
             )

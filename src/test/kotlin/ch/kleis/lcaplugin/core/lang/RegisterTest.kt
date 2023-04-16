@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityRef
+import ch.kleis.lcaplugin.core.lang.expression.Expression
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
 import org.junit.Assert.*
 import org.junit.Test
@@ -15,7 +16,7 @@ class RegisterTest {
         val register = Register.empty<QuantityExpression>()
 
         // when
-        val actual = register.plus(key to a)
+        val actual = register.plus(listOf(key to a))
 
         // then
         assertEquals(a, actual[key])
@@ -32,7 +33,7 @@ class RegisterTest {
         // when
         try {
             register.plus(listOf(key to a, key to b))
-            fail("should have thrown IllegalArgumentException")
+            fail("should have thrown EvaluatorException")
         } catch (e: EvaluatorException) {
             assertEquals("[abc.x] are already bound", e.message)
         }
@@ -48,19 +49,19 @@ class RegisterTest {
 
         // when
         try {
-            val r = register.plus(key to a)
-            r.plus(key to b)
-            fail("should have thrown IllegalArgumentException")
+            val r = register.plus(listOf(key to a))
+            r.plus(listOf(key to b))
+            fail("should have thrown EvaluatorException")
         } catch (e: EvaluatorException) {
-            assertEquals("reference $key already bound: $key = $a", e.message)
+            assertEquals("[$key] are already bound", e.message)
         }
     }
 
     @Test
     fun equals_whenEquals_thenTrue() {
         // given
-        val r1 = Register("a" to 1.0, "b" to 2.0)
-        val r2 = Register("a" to 1.0, "b" to 2.0)
+        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
 
         // then
         assertEquals(r1, r2)
@@ -69,8 +70,8 @@ class RegisterTest {
     @Test
     fun equals_whenSameKeysDifferentValue_thenFalse() {
         // given
-        val r1 = Register("a" to 1.0, "b" to 2.0)
-        val r2 = Register("a" to 1.0, "b" to 3.0)
+        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 3.0))
 
         // then
         assertNotEquals(r1, r2)
@@ -79,8 +80,8 @@ class RegisterTest {
     @Test
     fun equals_whenDifferentKeys_thenFalse() {
         // given
-        val r1 = Register("a" to 1.0, "b" to 2.0)
-        val r2 = Register("a" to 1.0, "c" to 2.0)
+        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "c" to 2.0))
 
         // then
         assertNotEquals(r1, r2)

@@ -24,27 +24,8 @@ class ProcessResolver(
         }
     }
 
-    fun resolveByProductName(productName: String): Set<Pair<String, TemplateExpression>> {
-        val optics = Merge(
-            listOf(
-                everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
-                TemplateExpression.eProcessFinal.expression,
-            )
-        ) compose
-                LcaProcessExpression.eProcess.products compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct.product compose
-                Merge(
-                    listOf(
-                        LcaUnconstrainedProductExpression.eProduct.name,
-                        LcaUnconstrainedProductExpression.eProductRef.name,
-                    )
-                )
-        return symbolTable.processTemplates.entries
-            .filter {
-                optics.getAll(it.value).contains(productName)
-            }
-            .map { it.key to it.value }
-            .toSet()
+    fun resolveByProductName(productName: String): TemplateExpression? {
+        return symbolTable.getTemplateFromProductName(productName)
     }
+
 }
