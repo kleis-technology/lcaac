@@ -42,7 +42,6 @@ sourceSets {
 }
 
 dependencies {
-    implementation("org.openlca:olca-simapro-csv:3.0.3")
     implementation(files(layout.buildDirectory.dir("stdlib/ef3.1")) {
         builtBy("generateEmissionFactors31")
     })

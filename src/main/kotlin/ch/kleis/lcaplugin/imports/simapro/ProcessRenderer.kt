@@ -10,6 +10,7 @@ import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
 import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
+import java.io.File
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -117,7 +118,7 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
         val landUses = (allRes["land_use"] ?: listOf()).map { renderElementary(it, "Land_use", "raw") }.flatten()
 
         writer.write(
-            "processes/${process.category()}",
+            "processes${File.separatorChar}${process.category()}${File.separatorChar}$pUid.lca",
             """
 
 process $pUid {
@@ -159,7 +160,7 @@ ${ModelWriter.block("resources {", resources)}
 ${ModelWriter.block("land_use {", landUses)}
 
 }
-"""
+""", index = true, closeAfterWrite = true
         )
         nbProcesses++
     }

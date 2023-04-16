@@ -146,11 +146,14 @@ class ModelWriter(
 
     private val openedFiles: MutableMap<String, FileWriterWithSize> = mutableMapOf()
 
-    fun write(relativePath: String, block: CharSequence, index: Boolean = true) {
+    fun write(relativePath: String, block: CharSequence, index: Boolean = true, closeAfterWrite: Boolean = false) {
         if (block.isNotEmpty()) {
             watcher.notifyCurrentWork(relativePath)
             val file = recreateIfNeeded(relativePath, index)
             file.write(block)
+            if (closeAfterWrite) {
+                openedFiles.remove(relativePath)?.close()
+            }
         }
     }
 

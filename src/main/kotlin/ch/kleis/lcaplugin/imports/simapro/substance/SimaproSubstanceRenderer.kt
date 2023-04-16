@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.imports.Renderer
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
+import java.io.File
 
 
 class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
@@ -48,7 +49,7 @@ class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
             if (element.platformId().isNullOrBlank()) "" else "\"platformId\" = \"${element.platformId()}\""
         val subType = resolveSimaproType(type, element.name())
         writer.write(
-            "substances/$compartiment",
+            "substances${File.separatorChar}$compartiment${File.separatorChar}${uid}.lca",
             """
 substance $uid {
 
