@@ -73,12 +73,12 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
+
             unit s_c {
                 symbol = "s€c"
                 dimension = "time"
             }
-""".trimIndent()
+            """.trimIndent()
         // Better way to view large diff than using mockk.verify
         Assert.assertEquals("unit", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
@@ -99,12 +99,36 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-
             unit me2 {
                 symbol = "me2"
                 alias_for = 1.0 m2
             }
-""".trimIndent()
+            """.trimIndent()
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
+    }
+
+    @Test
+    fun test_writeUnit_ShouldDeclareAliasWithTheRightCase() {
+        // Given
+        val sut = UnitRenderer.of(mapOf(Pair("MJ", UnitValue("MJ", 1.0, Prelude.length.pow(2.0)))))
+        val data = UnitRow().name("GJ")
+            .quantity("Energy")
+            .conversionFactor(1000.0)
+            .referenceUnit("mj")
+
+        // When
+        sut.render(data, writer)
+
+        // Then
+        val expected = """
+            unit GJ {
+                symbol = "GJ"
+                alias_for = 1000.0 MJ
+            }
+            """.trimIndent()
         // Better way to view large diff than using mockk.verify
         Assert.assertEquals("unit", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
@@ -114,7 +138,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldDeclareAliasWhenItsNotTheReference() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("s", UnitValue("S", 1.0, Prelude.mass))))
         val data = UnitRow().name("s€c")
             .quantity("Time")
             .conversionFactor(2.0)
@@ -125,10 +149,9 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
             unit s_c {
                 symbol = "s€c"
-                alias_for = 2.0 s
+                alias_for = 2.0 S
             }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify

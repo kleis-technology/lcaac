@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
+import com.intellij.util.applyIf
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import java.io.Closeable
@@ -44,13 +45,13 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         private val LOG = Logger.getInstance(ModelWriter::class.java)
         private const val BASE_PAD = 4
 
-        fun sanitizeAndCompact(s: String): String {
-            return sanitize(s)
+        fun sanitizeAndCompact(s: String, toLowerCase: Boolean = true): String {
+            return sanitize(s, toLowerCase)
                 .replace("___", "_")
                 .replace("__", "_")
         }
 
-        fun sanitize(s: String): String {
+        fun sanitize(s: String, toLowerCase: Boolean = true): String {
             if (s.isBlank()) {
                 return s
             }
@@ -58,7 +59,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
             val spaces = """\s+""".toRegex()
             val nonAlphaNumeric = """[^a-zA-Z0-9_]+""".toRegex()
             return r
-                .lowercase()
+                .applyIf(toLowerCase, String::lowercase)
                 .trim()
                 .replace(spaces, "_")
                 .replace("*", "_m_")

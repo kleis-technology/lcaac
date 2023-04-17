@@ -18,8 +18,8 @@ class Importer(private val settings: LcaImportSettings) {
     fun importFile() {
         val path = Path.of(settings.libraryFile)
         val predefined = Prelude.unitMap.values
-            .map { UnitValue(it.symbol.lowercase(), it.scale, it.dimension) }
-            .associateBy { it.symbol }
+            .map { UnitValue(ModelWriter.sanitize(it.symbol, false), it.scale, it.dimension) }
+            .associateBy { it.symbol.lowercase() }
         val unitRenderer = UnitRenderer.of(predefined)
         val pkg = settings.rootPackage.ifBlank { "default" }
         val writer = ModelWriter(pkg, settings.rootFolder)
