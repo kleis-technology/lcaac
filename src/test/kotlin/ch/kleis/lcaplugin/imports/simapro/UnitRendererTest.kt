@@ -9,6 +9,7 @@ import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.fail
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.openlca.simapro.csv.refdata.UnitRow
@@ -17,10 +18,13 @@ class UnitRendererTest {
 
 
     private val writer = mockk<ModelWriter>()
+    private val pathSlot = slot<String>()
+    private val bodySlot = slot<String>()
+    private val indexSlot = slot<Boolean>()
 
     @Before
     fun before() {
-        every { writer.write(any(), any(), any()) } returns Unit
+        every { writer.write(capture(pathSlot), capture(bodySlot), capture(indexSlot)) } returns Unit
         mockkObject(ModelWriter.Companion)
         every { ModelWriter.sanitizeAndCompact("k+g") } returns "k_g"
         every { ModelWriter.sanitizeAndCompact("kg") } returns "kg"
@@ -48,9 +52,11 @@ class UnitRendererTest {
         sut.render(data, writer)
 
         // Then
-        verify {
-            writer.write("unit", "", false)
-        }
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals("", bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
+
     }
 
     @Test
@@ -73,11 +79,10 @@ class UnitRendererTest {
                 dimension = "time"
             }
 """.trimIndent()
-        verify {
-            writer.write(
-                "unit", expected, false
-            )
-        }
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
@@ -100,11 +105,10 @@ class UnitRendererTest {
                 alias_for = 1.0 m2
             }
 """.trimIndent()
-        verify {
-            writer.write(
-                "unit", expected, false
-            )
-        }
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
@@ -127,11 +131,10 @@ class UnitRendererTest {
                 alias_for = 2.0 s
             }
 """.trimIndent()
-        verify {
-            writer.write(
-                "unit", expected, false
-            )
-        }
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
@@ -199,7 +202,7 @@ class UnitRendererTest {
     @Test
     fun test_areCompatible() {
         // Given
-        val input = listOf<Triple<Dimension, Dimension, Boolean>>(
+        val input = listOf(
             Triple(Prelude.length, Prelude.length, true),
             Triple(Dimension.of("volume"), Prelude.length.pow(3.0), true),
             Triple(Prelude.length.pow(3.0), Dimension.of("volume"), true),

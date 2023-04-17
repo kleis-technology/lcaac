@@ -36,24 +36,20 @@ class Importer(private val settings: LcaImportSettings) {
                         SubstanceRenderer().render(elementary, writer)
                     }
                 } else if (block.isQuantityBlock) { // Dimensions => no need
-                    val elementary = block.asQuantityBlock()
-                    // ...
+                    //  val elementary = block.asQuantityBlock()
                 } else if (block.isCalculatedParameterBlock) { // Ecoinvent => empty
-                    val elementary = block.asCalculatedParameterBlock()
-                    // ...
+                    // val elementary = block.asCalculatedParameterBlock()
                 } else if (block.isInputParameterBlock) {
                     val paramBlock = block.asInputParameterBlock()
                     InputParameterRenderer().render(paramBlock, writer)
                 } else if (block.isProductStageBlock) {// Ecoinvent => empty
-                    val elementary = block.asProductStageBlock()
-                    // ...
+                    // val elementary = block.asProductStageBlock()
                 } else if (block.isSystemDescriptionBlock) {// Ecoinvent => entete de library
                     val desc = block.asSystemDescriptionBlock()
                     writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.name()), 0), false)
                     writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.description()), 0), false)
-// TODO Review write to align with other
-                } else if (block.isImpactMethodBlock) {
-                    val impact = block.asImpactMethodBlock()
+//                } else if (block.isImpactMethodBlock) {
+//                    val impact = block.asImpactMethodBlock()
                     // ...
                 } else if (block.isUnitBlock) {
                     if (settings.importUnits) {
@@ -67,6 +63,4 @@ class Importer(private val settings: LcaImportSettings) {
             }
         }
     }
-
-
 }

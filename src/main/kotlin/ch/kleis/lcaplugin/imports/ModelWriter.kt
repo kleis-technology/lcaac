@@ -83,13 +83,28 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
             return text.joinToString("\n") { "$sep$it" }
         }
 
+        fun compactAndPad(s: String, number: Int = BASE_PAD): String {
+            val text = s.split("\n")
+                .map { compactText(it) }
+                .filter { it.isNotBlank() }
+            return padButFirst(text, number)
+        }
+
+        fun padButFirst(text: List<CharSequence>, number: Int = BASE_PAD): String {
+            val sep = " ".repeat(number)
+            return text.joinToString("\n$sep")
+        }
+
         private fun padList(text: List<CharSequence>, number: Int): List<CharSequence> {
             val sep = " ".repeat(number)
             return text.map { "$sep$it" }
         }
 
         fun asComment(str: String): ImmutableList<String> {
-            return str.let { str.split("\n").map { "// $it" } }.toImmutableList()
+            return str.split("\n")
+                .filter { it.isNotBlank() }
+                .map { "// $it" }
+                .toImmutableList()
         }
 
         fun optionalBlock(title: String, blockLines: List<String>, pad: Int = BASE_PAD): CharSequence {

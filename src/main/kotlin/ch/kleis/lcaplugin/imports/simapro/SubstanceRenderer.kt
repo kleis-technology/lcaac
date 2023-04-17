@@ -9,37 +9,24 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
     override fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)
-//            if (block.type() == ElementaryFlowType.EMISSIONS_TO_AIR) {
-//            "air"
-//        } else if (block.type() == ElementaryFlowType.EMISSIONS_TO_SOIL) {
-//            "soil"
-//        } else if (block.type() == ElementaryFlowType.EMISSIONS_TO_WATER) {
-//            "soil"
-//        } else if (block.type() == ElementaryFlowType.FINAL_WASTE_FLOWS) {
-//            "waste"
-//        } else if (block.type() == ElementaryFlowType.ECONOMIC_ISSUES) {
-//            "eco"
-//        } else if (block.type() == ElementaryFlowType.NON_MATERIAL_EMISSIONS) {
-//            "non_mat"
-//        } else if (block.type() == ElementaryFlowType.RESOURCES) {
-//            "res"
-//        } else if (block.type() == ElementaryFlowType.SOCIAL_ISSUES) {
-//            "social"
-//        } else {
-//            "unknown"
-//        }
         block.flows().forEach { render(it, compartiment, writer) }
     }
 
     private fun render(element: ElementaryFlowRow, compartiment: String, writer: ModelWriter) {
         val uid = ModelWriter.sanitizeAndCompact("${element.name()}-$compartiment")
-        val description = ModelWriter.compactText(element.comment())
+        val description = element.comment()
+            ?.split("\n")
+            ?.map { ModelWriter.compactText(it) }
+            ?.filter { it.isNotBlank() }
+            ?: listOf("")
+        val optionalPlatform =
+            if (element.platformId().isNullOrBlank()) "" else "platformId = \"${element.platformId()}\""
         writer.write(
             "substances/$compartiment",
             """
 substance $uid {
 
-    name = "${element.name()}-$compartiment"
+    name = "${element.name()}"
     compartment = "$compartiment"
     reference_unit = ${element.unit()}
 
@@ -50,9 +37,9 @@ substance $uid {
     meta {
         type = "emissions"
         generator = "kleis-lca-generator"
-        description = "$description"
+        description = "${ModelWriter.padButFirst(description, 12)}"
         casNumber = "${element.cas()}"
-        platformId = "${element.platformId()}"
+        $optionalPlatform
     }
 }"""
         )

@@ -1,11 +1,14 @@
 package ch.kleis.lcaplugin.imports.simapro
 
+import arrow.core.toNonEmptyListOrNull
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
 import io.ktor.utils.io.*
-import org.openlca.simapro.csv.process.ExchangeRow
-import org.openlca.simapro.csv.process.ProcessBlock
+import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
@@ -36,6 +39,8 @@ fun ExchangeRow.uid(): String {
     return this.name()
 }
 
+private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
+
 class ProcessRenderer : Renderer<ProcessBlock> {
     companion object {
         private val engine: ScriptEngine
@@ -54,38 +59,62 @@ class ProcessRenderer : Renderer<ProcessBlock> {
 
         val pUid = ModelWriter.sanitizeAndCompact(process.uid())
         val metas = mutableMapOf<String, String>()
-        process.comment().let { metas["description"] = ModelWriter.compactText(it) }
-        process.category().let { metas["category"] = ModelWriter.compactText(it.toString()) }
-        process.identifier().let { metas["identifier"] = ModelWriter.compactText(it.toString()) }
+        process.comment()?.let { metas["description"] = ModelWriter.compactAndPad(it, 12) }
+        process.category()?.let { metas["category"] = ModelWriter.compactText(it.toString()) }
+        process.identifier()?.let { metas["identifier"] = ModelWriter.compactText(it) }
+        process.comment()?.let { metas["comment"] = ModelWriter.compactAndPad(it, 12) }
+        process.date()?.let {
+            metas["date"] =
+                ModelWriter.compactText(dateFormatter.format(it.toInstant().atZone(ZoneId.of("UTC")).toLocalDate()))
+        }
+        process.generator()?.let { metas["generator"] = ModelWriter.compactAndPad(it, 12) }
+        process.collectionMethod()?.let { metas["collectionMethod"] = ModelWriter.compactAndPad(it, 12) }
+        process.dataTreatment()?.let { metas["dataTreatment"] = ModelWriter.compactAndPad(it, 12) }
+        process.verification()?.let { metas["verification"] = ModelWriter.compactAndPad(it, 12) }
+        process.systemDescription()
+            ?.let { metas["systemDescription"] = ModelWriter.compactText("${it.name()}: ${it.comment()}") }
+        process.allocationRules()?.let { metas["allocationRules"] = ModelWriter.compactAndPad(it, 12) }
+        process.processType()?.let { metas["processType"] = ModelWriter.compactText(it.toString()) }
+        process.status()?.let { metas["status"] = ModelWriter.compactText(it.toString()) }
+        process.infrastructure()?.let { metas["infrastructure"] = ModelWriter.compactText(it.toString()) }
+        process.record()?.let { metas["record"] = ModelWriter.compactText(it) }
+        process.platformId()?.let { metas["platformId"] = ModelWriter.compactText(it) }
+        process.literatures()?.toNonEmptyListOrNull()
+            ?.let {
+                metas["literatures"] =
+                    it.map { s -> renderLiterature(s) }
+                        .joinToString("\n", "\n")
+            }
         val metaBloc = metas.map { """${it.key} = "${it.value}"""" }
 
-        val baseProducts = process.products().map { render(it) }
+        val baseProducts = process.products().map { renderProduct(it) }
         val wasteTreatment =
-            if (process.wasteTreatment() == null) listOf() else listOf(render(process.wasteTreatment()))
-        val wasteScenario = if (process.wasteScenario() == null) listOf() else listOf(render(process.wasteScenario()))
+            if (process.wasteTreatment() == null) listOf() else listOf(renderWasteTreatment(process.wasteTreatment()))
+        val wasteScenario =
+            if (process.wasteScenario() == null) listOf() else listOf(renderWasteTreatment(process.wasteScenario()))
         val products = baseProducts
             .plus(wasteTreatment)
-            .plus(wasteScenario)
+            .plus(wasteScenario).flatten()
 
-        val avoidProducts = process.avoidedProducts().map { render(it) } // C'est quoi ?
+        val avoidProducts = process.avoidedProducts().map { render(it) }.flatten()
 
         val params = process.calculatedParameters().map { render(it) }.flatten()
 
-        val inputsMatAndFuel = process.materialsAndFuels().map { render(it) }
-        val inputsElectricity = process.electricityAndHeat().map { render(it) }
+        val inputsMatAndFuel = process.materialsAndFuels().map { render(it) }.flatten()
+        val inputsElectricity = process.electricityAndHeat().map { render(it) }.flatten()
 
-        val emissionsToAir = process.emissionsToAir().map { render(it, "_air") }
-        val emissionsToWater = process.emissionsToWater().map { render(it, "_water") }
-        val emissionsToSoil = process.emissionsToSoil().map { render(it, "_soil") }
-        val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }
-        val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }
-        val emissionsSocials = process.socialIssues().map { render(it, "_social") }
-        val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it) }
-        val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it) }
+        val emissionsToAir = process.emissionsToAir().map { render(it, "_air") }.flatten()
+        val emissionsToWater = process.emissionsToWater().map { render(it, "_water") }.flatten()
+        val emissionsToSoil = process.emissionsToSoil().map { render(it, "_soil") }.flatten()
+        val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }.flatten()
+        val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }.flatten()
+        val emissionsSocials = process.socialIssues().map { render(it, "_social") }.flatten()
+        val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it) }.flatten()
+        val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it) }.flatten()
         val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
         val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
 
-        val resources = process.resources().map { render(it, "_raw") }
+        val resources = process.resources().map { render(it, "_raw") }.flatten()
 
         writer.write(
             "processes/${process.category()}",
@@ -132,6 +161,14 @@ ${ModelWriter.block("resources {", resources)}
         )
     }
 
+    private fun renderLiterature(s: LiteratureRow): String {
+        val sep = " ".repeat(12)
+        return s.name()
+            ?.split("\n")
+            ?.joinToString("\n$sep", "$sep* ") { ModelWriter.compactText(it) }
+            ?: ""
+    }
+
 
     private fun render(param: CalculatedParameterRow): List<String> {
         val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
@@ -142,15 +179,39 @@ ${ModelWriter.block("resources {", resources)}
         return result.plus("$uid = $amount $unit // $amountFormula")
     }
 
-    private fun render(exchange: ExchangeRow, suffix: String = ""): String {
+    private fun render(
+        exchange: ExchangeRow,
+        suffix: String = "",
+        additionalComments: List<String> = listOf()
+    ): List<String> {
+        val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
         val uid = ModelWriter.sanitizeAndCompact(exchange.uid()) + suffix
-        return "$amount $unit $uid // $amountFormula"
+        return additionalComments.plus(comments)
+            .plus("$amount $unit $uid // $amountFormula")
+    }
+
+    private fun renderProduct(product: ProductOutputRow): List<String> {
+        val additionalComments = ArrayList<String>();
+        product.name()?.let { additionalComments.add("// name: $it") }
+        product.category()?.let { additionalComments.add("// category: $it") }
+
+        return render(product, additionalComments = additionalComments)
+    }
+
+    private fun renderWasteTreatment(exchange: WasteTreatmentRow): List<String> {
+        val additionalComments = ArrayList<String>();
+        exchange.name()?.let { additionalComments.add("// name: $it") }
+        exchange.category()?.let { additionalComments.add("// category: $it") }
+        exchange.wasteType()?.let { additionalComments.add("// wasteType: $it") }
+
+        return render(exchange, additionalComments = additionalComments)
     }
 
     private fun tryToCompute(amountFormula: String): Any? {
+
         return try {
             if (formulaDetector.matches(amountFormula)) {
                 engine.eval(amountFormula)
