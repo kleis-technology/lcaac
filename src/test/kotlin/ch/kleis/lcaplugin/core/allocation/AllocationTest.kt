@@ -32,11 +32,13 @@ class AllocationTest {
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
-                            ProductValueFixture.carrot
+                            ProductValueFixture.carrot,
+                            QuantityValueFixture.fiftyPercent
                         ),
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
-                            ProductValueFixture.salad
+                            ProductValueFixture.salad,
+                            QuantityValueFixture.fiftyPercent
                         )
                     ),
                     listOf(),
@@ -62,11 +64,13 @@ class AllocationTest {
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
-                            ProductValueFixture.carrot
+                            ProductValueFixture.carrot,
+                            QuantityValueFixture.fiftyPercent
                         ),
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
-                            ProductValueFixture.salad
+                            ProductValueFixture.salad,
+                            QuantityValueFixture.fiftyPercent
                         )
                     ),
                     listOf(),
@@ -190,12 +194,12 @@ class AllocationTest {
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
-                    QuantityValueFixture.twenyPiece
+                    QuantityValueFixture.eightyPercent
                 ),
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.salad,
-                    QuantityValueFixture.thirtyPiece
+                    QuantityValueFixture.twentyPercent
                 )
             ),
             listOf(),
@@ -205,7 +209,7 @@ class AllocationTest {
         val actual = allocation.totalAmount(processValue)
         // then
         val delta = 1E-9
-        Assert.assertEquals(50.0, actual, delta)
+        Assert.assertEquals(1.0, actual, delta)
     }
 
     @Test
@@ -218,12 +222,12 @@ class AllocationTest {
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
-                    QuantityValueFixture.twenyPiece
+                    QuantityValueFixture.fiftyPercent
                 ),
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.salad,
-                    QuantityValueFixture.thirtyPiece
+                    QuantityValueFixture.fiftyPercent
                 )
             ),
             listOf(),
@@ -234,36 +238,6 @@ class AllocationTest {
             allocation.allocationUnitCheck(processValue)
         } catch (e: AssertionError) {
             Assert.fail("Should not fail")
-        }
-    }
-
-    @Test
-    fun allocationUnitCheck_whenNonConsistentUnits_shouldThrowAnError(){
-        // given
-        val allocation = Allocation()
-        val processValue = ProcessValue(
-            "carrot",
-            listOf(
-                TechnoExchangeValue(
-                    QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot,
-                    QuantityValueFixture.twenyPiece
-                ),
-                TechnoExchangeValue(
-                    QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.salad,
-                    QuantityValueFixture.oneKilogram
-                )
-            ),
-            listOf(),
-            listOf()
-        )
-        // when + then
-        try {
-            allocation.allocationUnitCheck(processValue)
-            Assert.fail("Should throw an error")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals("non-consistent allocation units for process carrot", e.message)
         }
     }
 
@@ -279,12 +253,12 @@ class AllocationTest {
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
-                            QuantityValueFixture.twenyPiece
+                            QuantityValueFixture.twentyPercent
                         ),
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.salad,
-                            QuantityValueFixture.thirtyPiece
+                            QuantityValueFixture.eightyPercent
                         )
                     ),
                     listOf(
@@ -303,8 +277,8 @@ class AllocationTest {
 
         // then
         val delta = 1E-9
-        val totalAllocation = QuantityValueFixture.twenyPiece.amount + QuantityValueFixture.thirtyPiece.amount
-        val expected = QuantityValueFixture.twoLitres.amount* QuantityValueFixture.twenyPiece.amount/totalAllocation
+        val totalAllocation = QuantityValueFixture.twentyPercent.amount + QuantityValueFixture.eightyPercent.amount
+        val expected = QuantityValueFixture.twoLitres.amount* QuantityValueFixture.twentyPercent.amount/totalAllocation
         Assert.assertEquals(expected, actual, delta)
     }
 
@@ -319,5 +293,100 @@ class AllocationTest {
         val actual = Allocation().apply(system).substanceCharacterizations
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
+    }
+    @Test
+    fun allocationUnitCheck_whenAllocationUnitIsNotPercentage_shouldThrowAnError(){
+        // given
+        val processValue = ProcessValue(
+            "carrot",
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                    QuantityValueFixture.hundredPiece
+                )
+            ),
+            listOf(),
+            listOf()
+        )
+        // when
+        try {
+            Allocation().allocationUnitCheck(processValue)
+            Assert.fail("Should throw an error")
+        } catch (e: EvaluatorException) {
+            Assert.assertEquals("Only percent is allowed for allocation unit (process: ${processValue.name})", e.message)
+        }
+    }
+    @Test
+    fun allocationUnitCheck_whenAllocationUnitIsPercentage_shouldNotThrowAnError(){
+        // given
+        val processValue = ProcessValue(
+            "carrot",
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                    QuantityValueFixture.hundredPercent
+                )
+            ),
+            listOf(),
+            listOf()
+        )
+        // when
+        try {
+            Allocation().allocationUnitCheck(processValue)
+        } catch (e: EvaluatorException) {
+            Assert.fail("Should throw an error")
+        }
+    }
+    @Test
+    fun allocationUnitCheck_whenSumOfAllocationAreNotHundredPercent_shouldThrowAnError(){
+        // given
+        val processValue = ProcessValue(
+            "carrot",
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                    QuantityValueFixture.fiftyPercent
+                )
+            ),
+            listOf(),
+            listOf()
+        )
+        // when
+        try {
+            Allocation().allocationUnitCheck(processValue)
+            Assert.fail("Should throw an error")
+        } catch (e: EvaluatorException) {
+            Assert.assertEquals("The sum of the allocations should be hundred percent (process: ${processValue.name})", e.message)
+        }
+    }
+    @Test
+    fun allocationUnitCheck_whenSumOfAllocationAreHundredPercent_shouldNotThrowAnError(){
+        // given
+        val processValue = ProcessValue(
+            "carrot",
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                    QuantityValueFixture.fiftyPercent
+                ),
+                TechnoExchangeValue(
+                    QuantityValueFixture.twoKilograms,
+                    ProductValueFixture.salad,
+                    QuantityValueFixture.fiftyPercent
+                )
+            ),
+            listOf(),
+            listOf()
+        )
+        // when
+        try {
+            Allocation().allocationUnitCheck(processValue)
+        } catch (e: EvaluatorException) {
+            Assert.fail("Should throw an error")
+        }
     }
 }

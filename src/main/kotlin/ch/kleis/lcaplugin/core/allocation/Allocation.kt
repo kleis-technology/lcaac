@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.allocation
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
+import kotlin.math.absoluteValue
 
 class Allocation {
     fun apply(system: SystemValue): SystemValue {
@@ -27,9 +28,16 @@ class Allocation {
     }
 
     fun allocationUnitCheck(processValue: ProcessValue) {
-        if (processValue.products.map { it.allocation.unit.dimension }.distinct().count() > 1) {
-            throw EvaluatorException("non-consistent allocation units for process ${processValue.name}")
+        if (!processValue.products.map { it.allocation.unit.symbol }.contains("percent")) {
+            throw EvaluatorException("Only percent is allowed for allocation unit (process: ${processValue.name})")
         }
+        if ((totalAllocationAmounts(processValue) - 100).absoluteValue > 10E-3) {
+            throw EvaluatorException("The sum of the allocations should be hundred percent (process: ${processValue.name})")
+        }
+    }
+
+    private fun totalAllocationAmounts(processValue: ProcessValue): Double{
+        return processValue.products.map { it.allocation.amount }.sum();
     }
 
     private fun applyAllocationToInputs(
