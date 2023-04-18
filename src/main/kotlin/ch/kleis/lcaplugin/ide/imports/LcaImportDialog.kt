@@ -201,7 +201,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
     override fun doOKAction() {
         if (okAction.isEnabled) {
             try {
-                Importer(settings).importFile()
+                Importer(settings).import()
                 close(OK_EXIT_CODE)
             } catch (e: ImportException) {
                 NotificationGroupManager.getInstance()

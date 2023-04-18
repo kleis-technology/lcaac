@@ -11,10 +11,10 @@ class InputParameterRenderer : Renderer<InputParameterBlock> {
             val vars = block.parameters().flatMap { render(it) }
             writer.write(
                 "main", """
-variables {
-${ModelWriter.pad(vars)}
-}
-""", false
+                    variables {
+                    ${ModelWriter.pad(vars)}
+                    }
+                    """.trimIndent(), false
             )
         }
     }

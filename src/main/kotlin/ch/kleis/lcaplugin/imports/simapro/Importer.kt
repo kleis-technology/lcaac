@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.imports.ModelWriter
 import com.intellij.openapi.diagnostic.Logger
 import org.openlca.simapro.csv.CsvBlock
 import org.openlca.simapro.csv.SimaProCsv
+import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
 import java.nio.file.Path
 
 class Importer(private val settings: LcaImportSettings) {
@@ -15,7 +16,7 @@ class Importer(private val settings: LcaImportSettings) {
     }
 
 
-    fun importFile() {
+    fun import() {
         val path = Path.of(settings.libraryFile)
         val predefined = Prelude.unitMap.values
             .map { UnitValue(ModelWriter.sanitize(it.symbol, false), it.scale, it.dimension) }
@@ -24,43 +25,43 @@ class Importer(private val settings: LcaImportSettings) {
         val pkg = settings.rootPackage.ifBlank { "default" }
         val writer = ModelWriter(pkg, settings.rootFolder)
         writer.use {
-            SimaProCsv.read(path.toFile()) { block: CsvBlock ->
-                if (block.isProcessBlock) {
-                    if (settings.importProcesses) {
-                        val process = block.asProcessBlock()
-                        ProcessRenderer().render(process, writer)
-                    }
-                } else if (block.isElementaryFlowBlock) { // Resources / Substances ?
-                    if (settings.importSubstances) {
-                        val elementary = block.asElementaryFlowBlock()
-                        SubstanceRenderer().render(elementary, writer)
-                    }
-                } else if (block.isQuantityBlock) { // Dimensions => no need
-                    //  val elementary = block.asQuantityBlock()
-                } else if (block.isCalculatedParameterBlock) { // Ecoinvent => empty
-                    // val elementary = block.asCalculatedParameterBlock()
-                } else if (block.isInputParameterBlock) {
-                    val paramBlock = block.asInputParameterBlock()
-                    InputParameterRenderer().render(paramBlock, writer)
-                } else if (block.isProductStageBlock) {// Ecoinvent => empty
-                    // val elementary = block.asProductStageBlock()
-                } else if (block.isSystemDescriptionBlock) {// Ecoinvent => entete de library
-                    val desc = block.asSystemDescriptionBlock()
-                    writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.name()), 0), false)
-                    writer.write("main", ModelWriter.pad(ModelWriter.asComment(desc.description()), 0), false)
-//                } else if (block.isImpactMethodBlock) {
-//                    val impact = block.asImpactMethodBlock()
-                    // ...
-                } else if (block.isUnitBlock) {
-                    if (settings.importUnits) {
-                        val unitBlock = block.asUnitBlock()
-                        unitBlock.units()
-                            .forEach { unitRenderer.render(it, writer) }
-                    }
-                } else {
-                    LOG.warn("Missing case for ${block.javaClass}")
-                }
-            }
+            importFile(path, it, unitRenderer)
         }
     }
+
+    private fun importFile(path: Path, writer: ModelWriter, unitRenderer: UnitRenderer) {
+        SimaProCsv.read(path.toFile()) { block: CsvBlock ->
+            importBlock(block, writer, unitRenderer)
+        }
+    }
+
+    @SuppressWarnings("kotlin:S108", "Ignore empty block bellow")
+    private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
+        when {
+            block.isProcessBlock && settings.importProcesses -> ProcessRenderer().render(block.asProcessBlock(), writer)
+            block.isElementaryFlowBlock && settings.importSubstances ->
+                SubstanceRenderer().render(block.asElementaryFlowBlock(), writer)
+
+            block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
+                .forEach { unitRenderer.render(it, writer) }
+
+            block.isInputParameterBlock -> InputParameterRenderer().render(block.asInputParameterBlock(), writer)
+            block.isSystemDescriptionBlock -> renderMain(block.asSystemDescriptionBlock(), writer)
+            block.isQuantityBlock -> {} // Dimensions => no need
+            block.isCalculatedParameterBlock -> {} // Ecoinvent => empty
+            block.isProductStageBlock -> {} // Ecoinvent => empty
+            block.isImpactMethodBlock -> {} // Ecoinvent => empty
+
+            else -> LOG.warn("Missing case for ${block.javaClass}")
+        }
+    }
+
+    private fun renderMain(block: SystemDescriptionBlock?, writer: ModelWriter) {
+        block?.let {
+            writer.write("main", ModelWriter.pad(ModelWriter.asComment(block.name()), 0), false)
+            writer.write("main", ModelWriter.pad(ModelWriter.asComment(block.description()), 0), false)
+        }
+    }
+
+
 }

@@ -24,24 +24,24 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
         writer.write(
             "substances/$compartiment",
             """
-substance $uid {
-
-    name = "${element.name()}"
-    compartment = "$compartiment"
-    reference_unit = ${element.unit()}
-
-    impacts {
-        1 ${element.unit()} $uid
-    }
-
-    meta {
-        type = "emissions"
-        generator = "kleis-lca-generator"
-        description = "${ModelWriter.padButFirst(description, 12)}"
-        casNumber = "${element.cas()}"
-        $optionalPlatform
-    }
-}"""
+            substance $uid {
+            
+                name = "${element.name()}"
+                compartment = "$compartiment"
+                reference_unit = ${element.unit()}
+            
+                impacts {
+                    1 ${element.unit()} $uid
+                }
+            
+                meta {
+                    type = "emissions"
+                    generator = "kleis-lca-generator"
+                    description = "${ModelWriter.padButFirst(description, 12)}"
+                    casNumber = "${element.cas()}"
+                    $optionalPlatform
+                }
+            }""".trimIndent()
         )
     }
 

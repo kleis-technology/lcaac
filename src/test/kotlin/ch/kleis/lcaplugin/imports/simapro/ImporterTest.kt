@@ -60,7 +60,7 @@ class ImporterTest {
         every { settings.importSubstances } returns true
 
         // When
-        Importer(settings).importFile()
+        Importer(settings).import()
 
         // Then
         assertTrue("Unit file should exists", Path.of(output_unit_file).exists())
@@ -74,7 +74,7 @@ class ImporterTest {
         every { settings.importSubstances } returns false
 
         // When
-        Importer(settings).importFile()
+        Importer(settings).import()
 
         // Then
         assertFalse("Unit file should not exists", Path.of(output_unit_file).exists())

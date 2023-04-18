@@ -38,8 +38,8 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
         val dimensionName = unit.quantity().lowercase()
         val dimension = Dimension.of(dimensionName)
         val symbol = ModelWriter.sanitizeAndCompact(unit.name(), false)
-        val existingUnits = getUnit(symbol)
-        val block = if (existingUnits == null) {
+        val existingUnit = getUnit(symbol)
+        val block = if (existingUnit == null) {
             if (isNewDimensionReference(unit)) {
                 addUnit(UnitValue(symbol, 1.0, dimension))
                 """
@@ -64,10 +64,10 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
                 }
             }
         } else {
-            if (areCompatible(existingUnits.dimension, dimension)) {
+            if (areCompatible(existingUnit.dimension, dimension)) {
                 ""
             } else {
-                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
+                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnit.dimension}.")
             }
         }
         writer.write("unit", block, false)

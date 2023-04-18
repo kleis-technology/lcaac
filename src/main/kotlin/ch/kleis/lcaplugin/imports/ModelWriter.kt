@@ -13,6 +13,7 @@ import java.io.FileWriter
 import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
@@ -24,7 +25,13 @@ interface Renderer<T> {
 
 private const val MAX_FILE_SIZE = 2000000
 
-data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) : Closeable {
+data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) :
+    Closeable {
+
+    constructor(path: Path, currentSize: Int) :
+            this(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentSize)
+
+
     fun write(block: CharSequence) {
         val str = "$block\n"
         writer.write(str)
@@ -44,11 +51,11 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
         private const val BASE_PAD = 4
+        private val multipleSeparator = Regex("_{2,}")
 
         fun sanitizeAndCompact(s: String, toLowerCase: Boolean = true): String {
             return sanitize(s, toLowerCase)
-                .replace("___", "_")
-                .replace("__", "_")
+                .replace(multipleSeparator, "_")
         }
 
         fun sanitize(s: String, toLowerCase: Boolean = true): String {
@@ -157,8 +164,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         val path = Paths.get(rootFolder + File.separatorChar + relativePath + extension)
         if (path.exists()) path.deleteExisting()
         Files.createDirectories(path.parent)
-        val new = // TODO Simplifier FileWriter
-            FileWriterWithSize(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentIndex)
+        val new = FileWriterWithSize(path, currentIndex)
         openedFiles[relativePath] = new
         new.write("package $packageName\n")
         return new
