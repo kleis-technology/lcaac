@@ -303,8 +303,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             "hello", """
             process p {
                 products {
-                    1 kg out allocate 20 piece
-                    1 kg otherOut allocate 10 piece
+                    1 kg out allocate 20 percent
+                    1 kg otherOut allocate 80 percent
                 }
                 inputs {
                     1 m3 water
@@ -330,8 +330,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val cf2 = result.value(output2, input)
 
                 val delta = 1E-9
-                val expected1 = 1.0*20/30
-                val expected2 = 1.0*10/30
+                val expected1 = 1.0*20/100
+                val expected2 = 1.0*80/100
                 TestCase.assertEquals(expected1, cf1.input.quantity().amount, delta)
                 TestCase.assertEquals(expected2, cf2.input.quantity().amount, delta)
             }

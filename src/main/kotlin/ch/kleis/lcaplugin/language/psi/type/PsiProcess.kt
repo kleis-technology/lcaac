@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.language.psi.type.block.*
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchangeWithAllocateField
 import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
@@ -45,6 +46,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_PRODUCTS))
             .map { it.psi as PsiBlockProducts }
             .flatMap { it.getExchanges() }
+    }
+
+    fun getProductsWithAllocation(): Collection<PsiTechnoProductExchangeWithAllocateField> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_PRODUCTS))
+            .map { it.psi as PsiBlockProducts }
+            .flatMap { it.getExchangesWithAllocateField() }
     }
 
     fun getInputs(): Collection<PsiTechnoInputExchange> {

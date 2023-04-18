@@ -3,6 +3,9 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
+import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeImpl
+import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeWithAllocateFieldImpl
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.jetbrains.rd.util.first
@@ -594,4 +597,46 @@ class LcaBioExchangeDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent(), result
         )
     }
+
+    @Test
+    fun test_technoExchangeWithAllocateField_ShouldRender() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "test_technoExchangeWithAllocateField.lca", """
+            process glyphosate {
+                products {
+                    1 kg glyphosate allocate 90 percent
+                    1 kg waste allocate 10 percent
+                }
+            }
+            
+            process p {
+                products {
+                    1 kg p
+                }
+                inputs {
+                    1 kg glyphosate
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val ref = file.getProcesses().first().getProductsWithAllocation().first().getTechnoProductExchange()
+        val sut = LcaBioExchangeDocumentationProvider()
+        // When
+        val actual = sut.generateDoc(ref, ref)
+        // Then
+        TestCase.assertEquals("""
+            <div class='definition'><pre>
+            <span style="color:#ffc800;font-style:italic;">Product</span> <span style="color:#0000ff;font-weight:bold;">glyphosate</span><span style="color:#ffc800;font-style:italic;"> from </span><span style="color:#0000ff;font-weight:bold;">glyphosate</span>
+            </pre></div>
+            <div class='content'>
+            <span style="color:#808080;font-style:italic;">Process Parameters:</span><table class='sections'>
+            </table>
+            </div>
+            <div class='definition'><pre>
+            </pre></div>
+            
+            """.trimIndent(), actual)
+        }
 }

@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
+import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeWithAllocateFieldImpl
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.editor.markup.TextAttributes
@@ -34,7 +35,7 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
 
             is LcaTechnoProductExchange -> {
                 val sb = StringBuilder()
-                val processProducer = element.parent?.parent as LcaProcess?
+                val processProducer = getProcessProducer(element)
                 documentProductTitle(sb, element.getProductRef(), processProducer)
                 documentBlockMetaOwner(sb, processProducer)
                 documentProcessParams(sb, processProducer)
@@ -230,5 +231,12 @@ class LcaBioExchangeDocumentationProvider : AbstractDocumentationProvider() {
     private fun addSeparatorLine(sb: StringBuilder) {
         sb.append(DocumentationMarkup.DEFINITION_START).append("\n")
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
+    }
+
+    private fun getProcessProducer(element: PsiElement): LcaProcess?{
+        if (element.parent is LcaTechnoProductExchangeWithAllocateFieldImpl){
+            return element.parent.parent?.parent as LcaProcess?
+        }
+        return element.parent?.parent as LcaProcess?
     }
 }
