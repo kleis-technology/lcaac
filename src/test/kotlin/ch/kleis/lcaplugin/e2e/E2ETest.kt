@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.e2e
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.matrix.InventoryError
@@ -12,6 +13,7 @@ import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
+import org.junit.Assert
 import org.junit.Test
 
 class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
@@ -335,6 +337,135 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 TestCase.assertEquals(expected1, cf1.input.quantity().amount, delta)
                 TestCase.assertEquals(expected2, cf2.input.quantity().amount, delta)
             }
+        }
+    }
+
+    @Test
+    fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError(){
+        // given
+        val file = parseFile(
+            "hello", """
+            unit foo {
+                symbol = "foo"
+                alias_for = 1 foo
+            }
+            
+            process p {
+                products {
+                    1 foo carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        // when
+        try {
+            Evaluator(symbolTable).eval(entryPoint)
+            Assert.fail("Should fail")
+        } catch (e: EvaluatorException){
+            Assert.assertEquals("Recursive dependency for unit foo", e.message)
+        }
+    }
+
+    @Test
+    fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError(){
+        // given
+        val file = parseFile(
+            "hello", """
+            unit bar {
+                symbol = "bar"
+                alias_for = 1 foo
+            }
+            
+            unit foo {
+                symbol = "foo"
+                alias_for = 1 bar
+            }
+            
+            process p {
+                products {
+                    1 foo carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        // when
+        try {
+            Evaluator(symbolTable).eval(entryPoint)
+            Assert.fail("Should fail")
+        } catch (e: EvaluatorException){
+            Assert.assertEquals("Recursive dependency for unit foo", e.message)
+        }
+    }
+
+    @Test
+    fun test_unitAlias_shouldNotThrowAnError(){
+        // given
+        val file = parseFile(
+            "hello", """
+            unit bar {
+                symbol = "bar"
+                alias_for = 1 kg
+            }
+            
+            unit foo {
+                symbol = "foo"
+                alias_for = 1 bar
+            }
+            
+            process p {
+                products {
+                    1 foo carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        // when
+        try {
+            Evaluator(symbolTable).eval(entryPoint)
+        } catch (e: EvaluatorException){
+            Assert.fail("Should fail")
+        }
+    }
+
+    @Test
+    fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError(){
+        // given
+        val file = parseFile(
+            "hello", """
+            unit bar {
+                symbol = "bar"
+                alias_for = 1 kg
+            }
+            
+            unit foo {
+                symbol = "foo"
+                alias_for = 1 bar + 1 bar
+            }
+            
+            process p {
+                products {
+                    1 foo carrot
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        // when
+        try {
+            Evaluator(symbolTable).eval(entryPoint)
+        } catch (e: EvaluatorException){
+            Assert.fail("Should fail")
         }
     }
 

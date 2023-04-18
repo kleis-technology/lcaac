@@ -49,7 +49,7 @@ class QuantityExpressionReducer(
         }
     }
 
-    fun reduceAlias(expression: EUnitAlias): UnitExpression {
+    private fun reduceAlias(expression: EUnitAlias): UnitExpression {
         checkUnitAliasInfiniteLoop(expression)
 
         val qty = reduce(expression.aliasFor)

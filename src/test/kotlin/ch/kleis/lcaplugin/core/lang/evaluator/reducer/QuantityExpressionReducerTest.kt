@@ -433,19 +433,4 @@ class QuantityExpressionReducerTest {
         // then
         assertEquals(UnitFixture.kg, actual)
     }
-
-    @Test
-    fun reduceAlias_whenLoop_shouldThrowError(){
-        // given
-        val units = Register<UnitExpression>(hashMapOf())
-        val reducer = QuantityExpressionReducer(Register.empty(), units)
-        val unitAlias = EUnitAlias("foo", EQuantityScale(1.0, EQuantityRef("foo")))
-        // when
-        try {
-            reducer.reduceAlias(unitAlias)
-            fail("Should fail")
-        } catch (e: EvaluatorException){
-            assertEquals("Recursive dependency for unit foo", e.message)
-        }
-    }
 }
