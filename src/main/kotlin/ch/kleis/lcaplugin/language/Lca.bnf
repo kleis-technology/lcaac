@@ -17,6 +17,10 @@
       PROCESS_KEYWORD = 'process'
       SYMBOL_KEYWORD = 'symbol'
       SUBSTANCE_KEYWORD = 'substance'
+      TYPE_KEYWORD = 'type'
+      TYPE_EMISSION_KEYWORD = 'Emission'
+      TYPE_RESOURCE_KEYWORD = 'Resource'
+      TYPE_LAND_USE_KEYWORD = 'Land_use'
       COMPARTMENT_KEYWORD = 'compartment'
       SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
       IMPACTS_KEYWORD = 'impacts'
@@ -104,6 +108,7 @@ globalAssignment ::= quantityRef EQUAL quantity {
 
 substance ::= SUBSTANCE_KEYWORD substanceRef LBRACE
     nameField
+    typeField
     compartmentField
     subCompartmentField?
     referenceUnitField
@@ -113,6 +118,11 @@ substance ::= SUBSTANCE_KEYWORD substanceRef LBRACE
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiSubstanceMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStubElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub"
+}
+
+typeField ::= TYPE_KEYWORD EQUAL (TYPE_EMISSION_KEYWORD|TYPE_RESOURCE_KEYWORD|TYPE_LAND_USE_KEYWORD) {
+    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiSubstanceTypeField"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiSubstanceTypeFieldMixin"
 }
 
 compartmentField ::= COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {

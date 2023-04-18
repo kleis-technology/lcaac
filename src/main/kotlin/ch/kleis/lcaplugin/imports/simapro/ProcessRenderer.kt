@@ -194,7 +194,7 @@ ${ModelWriter.block("resources {", resources)}
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {
-        val additionalComments = ArrayList<String>();
+        val additionalComments = ArrayList<String>()
         product.name()?.let { additionalComments.add("// name: $it") }
         product.category()?.let { additionalComments.add("// category: $it") }
 
@@ -209,7 +209,7 @@ ${ModelWriter.block("resources {", resources)}
     }
 
     private fun renderWasteTreatment(exchange: WasteTreatmentRow): List<String> {
-        val additionalComments = ArrayList<String>();
+        val additionalComments = ArrayList<String>()
         exchange.name()?.let { additionalComments.add("// name: $it") }
         exchange.category()?.let { additionalComments.add("// category: $it") }
         exchange.wasteType()?.let { additionalComments.add("// wasteType: $it") }

@@ -21,7 +21,7 @@ fun LcaSubstanceCharacterizationExpression.toValue(): SubstanceCharacterizationV
     }
 }
 
-fun EImpact.toValue() : ImpactValue {
+fun EImpact.toValue(): ImpactValue {
     return ImpactValue(
         this.quantity.toValue(),
         this.indicator.toValue(),
@@ -70,6 +70,7 @@ fun LcaSubstanceExpression.toValue(): SubstanceValue {
     return when (this) {
         is ESubstance -> SubstanceValue(
             this.name,
+            this.type,
             this.compartment,
             this.subcompartment,
             this.referenceUnit.toValue(),

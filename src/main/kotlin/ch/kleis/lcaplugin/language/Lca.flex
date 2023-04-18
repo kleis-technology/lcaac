@@ -70,6 +70,10 @@ CommentContent = .*
 <YYINITIAL> "indicator"                { return LcaTypes.INDICATOR_KEYWORD; }
 <YYINITIAL> "substance"                { return LcaTypes.SUBSTANCE_KEYWORD; }
 <YYINITIAL> "compartment"                { return LcaTypes.COMPARTMENT_KEYWORD; }
+<YYINITIAL> "type"                { return LcaTypes.TYPE_KEYWORD; }
+<YYINITIAL> "Emission"             { return LcaTypes.TYPE_EMISSION_KEYWORD; }
+<YYINITIAL> "Resource"             { return LcaTypes.TYPE_RESOURCE_KEYWORD; }
+<YYINITIAL> "Land_use"             { return LcaTypes.TYPE_LAND_USE_KEYWORD; }
 <YYINITIAL> "sub_compartment"                { return LcaTypes.SUB_COMPARTMENT_KEYWORD; }
 <YYINITIAL> "impacts"                { return LcaTypes.IMPACTS_KEYWORD; }
 <YYINITIAL> "meta"                { return LcaTypes.META_KEYWORD; }

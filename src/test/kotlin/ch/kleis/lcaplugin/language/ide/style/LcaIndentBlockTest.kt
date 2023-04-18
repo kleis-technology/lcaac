@@ -305,10 +305,11 @@ class LcaIndentBlockTest : FormatterTestCase() {
         doTextTest(
             """  substance propanol {
         name= "propanol"
-          compartment = "air"
-             sub_compartment = "null"
-               reference_unit = kg
-                     impacts {
+           type   =Emission
+              compartment = "air"
+                 sub_compartment = "null"
+                   reference_unit = kg
+                         impacts {
         1   kg    cc
                         1kg tox_hum
     }
@@ -316,6 +317,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
   }""", """
         substance propanol {
             name = "propanol"
+            type = Emission
             compartment = "air"
             sub_compartment = "null"
             reference_unit = kg
@@ -350,6 +352,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
                     // Before
             // Before
                 name = "propanol"
+                type = Land_use
                 compartment = "eau"
                 reference_unit = kg
             }
@@ -386,6 +389,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
                 // Before
                 // Before
                 name = "propanol"
+                type = Land_use
                 compartment = "eau"
                 reference_unit = kg
             }
@@ -406,6 +410,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
 """.trimIndent()
         )
     }
+
     @Test
     fun test_formattingBlockComments() {
         // There ise clear limitation at the moment: the formatter only realign COMMENT_BLOCK_START, not COMMENT_CONTENT or COMMENT_BLOCK_END
@@ -438,6 +443,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
                 k djf
                 */
                 name = "propanol"
+                type = Resource
                 compartment = "eau"
                 reference_unit = kg
             }
@@ -480,6 +486,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
                  k djf
                  */
                  name = "propanol"
+                 type = Resource
                  compartment = "eau"
                  reference_unit = kg
              }

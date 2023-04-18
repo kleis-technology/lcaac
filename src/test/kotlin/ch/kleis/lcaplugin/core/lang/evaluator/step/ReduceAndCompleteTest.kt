@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.step
 
-import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -90,6 +91,7 @@ class ReduceAndCompleteTest {
                     QuantityValueFixture.oneKilogram,
                     SubstanceValue(
                         "co2",
+                        type = SubstanceType.UNDEFINED,
                         "__unknown__",
                         null,
                         UnitValueFixture.kg,

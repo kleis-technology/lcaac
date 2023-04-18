@@ -97,6 +97,7 @@ class LcaLangAbstractParser(
         return ESubstance(
             psiSubstance.getSubstanceRef().name,
             psiSubstance.getNameField().getValue(),
+            SubstanceType.of(psiSubstance.getTypeField().getType()),
             psiSubstance.getCompartmentField().getValue(),
             psiSubstance.getSubcompartmentField()?.getValue(),
             unit(psiSubstance.getReferenceUnitField().getValue())

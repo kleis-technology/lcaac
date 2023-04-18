@@ -27,7 +27,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             .getSubstanceRef()
 
         // when
-        val actual = ref.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = SubstanceKeyIndex.findSubstances(project, "$pkgName.co2_air.co2_air").first()
@@ -44,9 +44,8 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
 
         // when
         val actual = ref.reference
-            ?.variants?.map { (it as LookupElementBuilder).lookupString }
-            ?.sorted()
-            ?: emptyList()
+            .variants.map { (it as LookupElementBuilder).lookupString }
+            .sorted()
 
         // then
         val expected = listOf("co2_air", "another_co2_air").sorted()

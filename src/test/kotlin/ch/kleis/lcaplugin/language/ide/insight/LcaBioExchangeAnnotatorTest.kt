@@ -17,7 +17,8 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -25,7 +26,8 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg co2
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()
@@ -45,7 +47,8 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -56,10 +59,12 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             
             substance co2 {
                 name = "co2"
+                type = Resource
                 compartment = "compartment"
                 reference_unit = kg
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()

@@ -6,7 +6,6 @@ import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
@@ -152,6 +151,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "hello", """
                 substance co2 {
                     name = "carbon dioxide"
+                    type = Resource
                     compartment = "air"
                     sub_compartment = "low pop"
                     reference_unit = kg
@@ -279,11 +279,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "hello", """
                 substance a {
                     name = "first"
+                    type = Resource
                     compartment = "first compartment"
                     reference_unit = kg
                 }
                 substance a {
                     name = "second"
+                    type = Resource
                     compartment = "second compartment"
                     reference_unit = l
                 }
@@ -376,6 +378,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "hello", """
             substance a {
                 name = "a"
+                type = Resource
                 compartment = "compartment"
                 reference_unit = x/y
             }
@@ -407,6 +410,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "hello", """
             substance a {
                 name = "a"
+                type = Resource
                 compartment = "compartment"
                 reference_unit = x*y
             }
@@ -543,6 +547,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             "substances", """
             substance phosphate {
                 name = "phosphate"
+                type = Resource
                 compartment = "phosphate compartment"
                 sub_compartment = "phosphate sub-compartment"
                 reference_unit = kg
@@ -578,7 +583,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testParse_productWithoutAllocation_should_return_100percent_allocation(){
+    fun testParse_productWithoutAllocation_should_return_100percent_allocation() {
         // given
         val file = parseFile(
             "carrot", """
@@ -605,7 +610,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testParse_productWithAllocation(){
+    fun testParse_productWithAllocation() {
         // given
         val file = parseFile(
             "carrot", """

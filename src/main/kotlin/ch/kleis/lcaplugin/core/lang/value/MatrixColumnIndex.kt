@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.lang.value
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 
 sealed interface MatrixColumnIndex : Value, HasUID {
     fun getDimension(): Dimension
@@ -41,6 +42,7 @@ data class ProductValue(val name: String, val referenceUnit: UnitValue, val cons
 @optics
 data class SubstanceValue(
     val name: String,
+    val type: SubstanceType,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitValue,
