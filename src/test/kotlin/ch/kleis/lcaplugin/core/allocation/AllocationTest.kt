@@ -389,4 +389,32 @@ class AllocationTest {
             Assert.fail("Should throw an error")
         }
     }
+    @Test
+    fun allocationUnitCheck_whenNonConsistentUnits_shouldThrowAnError(){
+        // given
+        val processValue = ProcessValue(
+            "carrot",
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot,
+                    QuantityValueFixture.eightyPercent
+                ),
+                TechnoExchangeValue(
+                    QuantityValueFixture.twoKilograms,
+                    ProductValueFixture.salad,
+                    QuantityValueFixture.twentyPiece
+                )
+            ),
+            listOf(),
+            listOf()
+        )
+        // when
+        try {
+            Allocation().allocationUnitCheck(processValue)
+            Assert.fail("Should throw an error")
+        } catch (e: EvaluatorException) {
+            Assert.assertEquals("Only percent is allowed for allocation unit (process: ${processValue.name})", e.message)
+        }
+    }
 }

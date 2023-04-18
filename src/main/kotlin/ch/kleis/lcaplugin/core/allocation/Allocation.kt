@@ -28,7 +28,7 @@ class Allocation {
     }
 
     fun allocationUnitCheck(processValue: ProcessValue) {
-        if (!processValue.products.map { it.allocation.unit.symbol }.contains("percent")) {
+        if (processValue.products.any { it.allocation.unit.symbol != "percent" }) {
             throw EvaluatorException("Only percent is allowed for allocation unit (process: ${processValue.name})")
         }
         if ((totalAllocationAmounts(processValue) - 100).absoluteValue > 10E-3) {
