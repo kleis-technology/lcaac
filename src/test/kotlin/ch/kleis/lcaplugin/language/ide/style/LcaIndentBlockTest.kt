@@ -237,9 +237,9 @@ class LcaIndentBlockTest : FormatterTestCase() {
     }
 
     products {
-        (  1  kg  +  p4  )    prod
-        (1kg+p2) co_prod
-        (1kg*p2) co_prod
+        (  1  kg  +  p4  )    prod allocate 50 percent
+        (1kg+p2) co_prod allocate 25 percent
+        (1kg*p2) co_prod allocate 25 percent
     }
 
     inputs {
@@ -276,9 +276,9 @@ class LcaIndentBlockTest : FormatterTestCase() {
                     }
                 
                     products {
-                        ( 1 kg + p4 ) prod
-                        ( 1 kg + p2 ) co_prod
-                        ( 1 kg * p2 ) co_prod
+                        ( 1 kg + p4 ) prod allocate 50 percent
+                        ( 1 kg + p2 ) co_prod allocate 25 percent
+                        ( 1 kg * p2 ) co_prod allocate 25 percent
                     }
                 
                     inputs {
