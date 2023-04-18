@@ -198,7 +198,14 @@ ${ModelWriter.block("resources {", resources)}
         product.name()?.let { additionalComments.add("// name: $it") }
         product.category()?.let { additionalComments.add("// category: $it") }
 
-        return render(product, additionalComments = additionalComments)
+        val comments = ModelWriter.asComment(product.comment())
+        val amountFormula = product.amount()
+        val amount = tryToCompute(amountFormula.toString())
+        val unit = product.unit()
+        val uid = ModelWriter.sanitizeAndCompact(product.uid())
+        val allocation = product.allocation()
+        return additionalComments.plus(comments)
+            .plus("$amount $unit $uid allocate $allocation percent // $amountFormula")
     }
 
     private fun renderWasteTreatment(exchange: WasteTreatmentRow): List<String> {

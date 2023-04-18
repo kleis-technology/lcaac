@@ -99,7 +99,7 @@ process acai_berry_at_farm_br8553_1886 {
         // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
         // The yield when productive is 9750 kg/ha-y .
         // The final yield corresponds to the average yield over the entire lifetime of the tree.
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u // 9750*10/13
+        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // 9750*10/13
     }
     
     products { // Avoid Products
