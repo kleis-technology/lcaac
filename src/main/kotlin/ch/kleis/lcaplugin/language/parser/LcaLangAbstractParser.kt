@@ -11,10 +11,7 @@ import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.*
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
@@ -125,7 +122,7 @@ class LcaLangAbstractParser(
         val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }
-        val products = psiProcess.getProducts().map { technoProductExchange(it) }
+        val products = generateProducts(psiProcess)
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
         val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
         val landUse = psiProcess.getLandUse().map { bioExchange(it, Polarity.POSITIVE) }
@@ -144,6 +141,12 @@ class LcaLangAbstractParser(
         )
     }
 
+    private fun generateProducts(psiProcess: PsiProcess): List<ETechnoExchange> {
+        val productsWithoutAllocation = psiProcess.getProducts().map { technoProductExchange(it) }
+        val productsWithAllocation = psiProcess.getProductsWithAllocation().map { technoProductExchangeWithAllocation(it) }
+        return productsWithAllocation.plus(productsWithoutAllocation)
+    }
+
     private fun productsOf(
         psiProcess: PsiProcess,
         globals: Map<String, QuantityExpression>,
@@ -155,11 +158,32 @@ class LcaLangAbstractParser(
             quantities = Register(globals.plus(params).plus(locals)),
             units = Register(units),
         )
+        return generateEProducts(psiProcess, symbolTable)
+    }
+
+    private fun generateEProducts(psiProcess: PsiProcess, symbolTable: SymbolTable): List<EProduct> {
+        val productsWithoutAllocation = generateEProductsWithoutAllocation(psiProcess, symbolTable)
+        val productsWithAllocation = generateEProductsWithAllocation(psiProcess, symbolTable)
+
+        return productsWithoutAllocation.plus(productsWithAllocation)
+    }
+
+    private fun generateEProductsWithoutAllocation(psiProcess: PsiProcess, symbolTable: SymbolTable): List<EProduct> {
         return psiProcess.getProducts()
             .map {
                 EProduct(
                     it.getProductRef().name,
                     EUnitClosure(symbolTable, EUnitOf(quantity(it.getQuantity())))
+                )
+            }
+    }
+
+    private fun generateEProductsWithAllocation(psiProcess: PsiProcess, symbolTable: SymbolTable): List<EProduct> {
+        return psiProcess.getProductsWithAllocation()
+            .map {
+                EProduct(
+                    it.getTechnoProductExchange().getProductRef().name,
+                    EUnitClosure(symbolTable, EUnitOf(quantity(it.getTechnoProductExchange().getQuantity())))
                 )
             }
     }
@@ -219,13 +243,16 @@ class LcaLangAbstractParser(
     private fun technoProductExchange(psiExchange: PsiTechnoProductExchange): ETechnoExchange {
         return ETechnoExchange(
             quantity(psiExchange.getQuantity()),
-            EConstrainedProduct(
-                productRef(psiExchange.getProductRef()),
-                None,
-            ),
-            psiExchange.getAllocateField()?.let { quantity(it.getValue()) } ?: run {
-                EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
-            }
+            EConstrainedProduct(productRef(psiExchange.getProductRef()), None),
+            EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+        )
+    }
+
+    private fun technoProductExchangeWithAllocation(psiExchange: PsiTechnoProductExchangeWithAllocateField): ETechnoExchange {
+        return ETechnoExchange(
+            quantity(psiExchange.getTechnoProductExchange().getQuantity()),
+            EConstrainedProduct(productRef(psiExchange.getTechnoProductExchange().getProductRef()), None),
+            quantity(psiExchange.getAllocateField().getValue())
         )
     }
 

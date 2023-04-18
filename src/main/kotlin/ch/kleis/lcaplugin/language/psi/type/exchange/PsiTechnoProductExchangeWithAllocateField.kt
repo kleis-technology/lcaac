@@ -7,29 +7,11 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 
-interface PsiTechnoProductExchange : PsiNameIdentifierOwner {
-    fun getProductRef(): PsiProductRef {
-        return node.findChildByType(LcaTypes.PRODUCT_REF)?.psi as PsiProductRef
+interface PsiTechnoProductExchangeWithAllocateField : PsiElement {
+    fun getTechnoProductExchange(): PsiTechnoProductExchange {
+        return node.findChildByType(LcaTypes.TECHNO_PRODUCT_EXCHANGE)?.psi as PsiTechnoProductExchange
     }
-
-    fun getQuantity(): PsiQuantity {
-        return node.findChildByType(LcaTypes.QUANTITY)?.psi as PsiQuantity
-    }
-
-    override fun getName(): String {
-        return getProductRef().name
-    }
-
-    override fun setName(name: String): PsiElement {
-        getProductRef().name = name
-        return this
-    }
-
-    override fun getNameIdentifier(): PsiElement? {
-        return getProductRef().nameIdentifier
-    }
-
-    fun getAllocateField(): PsiAllocateField? {
-        return node.findChildByType(LcaTypes.ALLOCATE_FIELD)?.psi as PsiAllocateField?
+    fun getAllocateField(): PsiAllocateField {
+        return node.findChildByType(LcaTypes.ALLOCATE_FIELD)?.psi as PsiAllocateField
     }
 }
