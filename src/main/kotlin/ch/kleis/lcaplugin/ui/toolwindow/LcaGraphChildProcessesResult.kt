@@ -1,13 +1,13 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.ProcessGraph
+import ch.kleis.lcaplugin.core.graph.Graph
 import com.intellij.ui.jcef.JBCefBrowser
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
-class LcaGraphChildProcessesResult(private val graphData: ProcessGraph): LcaToolWindowContent {
+class LcaGraphChildProcessesResult(private val graphData: Graph): LcaToolWindowContent {
     override fun getContent(): JPanel {
         val myPanel = JPanel(BorderLayout())
         val myBrowser = JBCefBrowser()
