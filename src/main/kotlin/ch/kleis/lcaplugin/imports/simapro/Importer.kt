@@ -35,7 +35,6 @@ class Importer(private val settings: LcaImportSettings) {
         }
     }
 
-    @SuppressWarnings("kotlin:S108", "Ignore empty block bellow")
     private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
         when {
             block.isProcessBlock && settings.importProcesses -> ProcessRenderer().render(block.asProcessBlock(), writer)
@@ -47,10 +46,17 @@ class Importer(private val settings: LcaImportSettings) {
 
             block.isInputParameterBlock -> InputParameterRenderer().render(block.asInputParameterBlock(), writer)
             block.isSystemDescriptionBlock -> renderMain(block.asSystemDescriptionBlock(), writer)
-            block.isQuantityBlock -> {} // Dimensions => no need
-            block.isCalculatedParameterBlock -> {} // Ecoinvent => empty
-            block.isProductStageBlock -> {} // Ecoinvent => empty
-            block.isImpactMethodBlock -> {} // Ecoinvent => empty
+            block.isQuantityBlock -> { /* Dimensions => no need */
+            }
+
+            block.isCalculatedParameterBlock -> {/* Ecoinvent => empty*/
+            }
+
+            block.isProductStageBlock -> { /* Ecoinvent => empty */
+            }
+
+            block.isImpactMethodBlock -> { /* Ecoinvent => empty */
+            }
 
             else -> LOG.warn("Missing case for ${block.javaClass}")
         }

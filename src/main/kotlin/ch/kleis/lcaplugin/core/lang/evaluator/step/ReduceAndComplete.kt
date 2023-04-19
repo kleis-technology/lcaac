@@ -84,6 +84,7 @@ class ReduceAndComplete(
                         ESubstance(
                             it.name,
                             it.name,
+                            SubstanceType.UNDEFINED,
                             "__unknown__",
                             null,
                             q.unit,

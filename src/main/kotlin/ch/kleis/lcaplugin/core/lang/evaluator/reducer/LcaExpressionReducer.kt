@@ -50,7 +50,12 @@ class LcaExpressionReducer(
                 reduceBioExchange(expression.referenceExchange),
                 expression.impacts.map { reduceImpact(it) },
             )
-            is ESubstanceCharacterizationRef -> substanceCharacterizationRegister[expression.name]?.let { reduceSubstanceCharacterization(it) }
+
+            is ESubstanceCharacterizationRef -> substanceCharacterizationRegister[expression.name]?.let {
+                reduceSubstanceCharacterization(
+                    it
+                )
+            }
                 ?: expression
         }
     }
@@ -107,6 +112,7 @@ class LcaExpressionReducer(
             is ESubstance -> ESubstance(
                 expression.name,
                 expression.displayName,
+                expression.type,
                 expression.compartment,
                 expression.subcompartment,
                 quantityExpressionReducer.reduceUnit(expression.referenceUnit),

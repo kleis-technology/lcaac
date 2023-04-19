@@ -7,7 +7,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
 
-class LcaUnitAnnotatorTest: BasePlatformTestCase() {
+class LcaUnitAnnotatorTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "testdata"
@@ -17,15 +17,18 @@ class LcaUnitAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
                 name = "s"
+                type = Resource
                 compartment = "c"
                 reference_unit = unknown
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
             .getReferenceUnitField().getValue()
             .getFactor()
@@ -48,15 +51,18 @@ class LcaUnitAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenFoundInPrelude_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
                 name = "s"
+                type = Resource
                 compartment = "c"
                 reference_unit = kg
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
             .getReferenceUnitField().getValue()
             .getFactor()
@@ -77,11 +83,13 @@ class LcaUnitAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
                 name = "s"
+                type = Resource
                 compartment = "c"
                 reference_unit = foo
             }
@@ -90,7 +98,8 @@ class LcaUnitAnnotatorTest: BasePlatformTestCase() {
                 symbol = "foo"
                 dimension = "foo"
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
             .getReferenceUnitField().getValue()
             .getFactor()

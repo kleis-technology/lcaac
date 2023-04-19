@@ -2,12 +2,14 @@ package language.psi.reference.subst.test_resolve.co2_air
 
 substance co2_air {
     name = "co2"
+    type = Resource
     compartment = "air"
     reference_unit = kg
 }
 
 substance another_co2_air {
     name = "co2"
+    type = Resource
     compartment = "air"
     sub_compartment = "another"
     reference_unit = kg

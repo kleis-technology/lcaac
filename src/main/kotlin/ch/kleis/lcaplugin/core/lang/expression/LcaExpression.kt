@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.prelude.Prelude
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
 sealed interface LcaExpression : Expression {
@@ -50,17 +50,38 @@ data class EProductRef(val name: String) : LcaUnconstrainedProductExpression, Re
 }
 
 
-
 // Substance
 @optics
 sealed interface LcaSubstanceExpression : LcaExpression {
     companion object
 }
 
+enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
+    EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use"), UNDEFINED("Undefined");
+
+    companion object {
+        fun of(name: String): SubstanceType {
+            return when (name) {
+                EMISSION.value -> EMISSION
+                RESOURCE.value -> RESOURCE
+                LAND_USE.value -> LAND_USE
+                else -> throw EvaluatorException("Invalid SubstanceType: $name")
+            }
+        }
+    }
+
+    override fun toString(): String {
+        return value
+    }
+
+
+}
+
 @optics
 data class ESubstance(
     val name: String,
     val displayName: String,
+    val type: SubstanceType,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitExpression,
@@ -113,9 +134,18 @@ sealed interface LcaExchangeExpression : LcaExpression {
 }
 
 @optics
-data class ETechnoExchange(val quantity: QuantityExpression, val product: LcaProductExpression, val allocation: QuantityExpression) :
+data class ETechnoExchange(
+    val quantity: QuantityExpression,
+    val product: LcaProductExpression,
+    val allocation: QuantityExpression
+) :
     LcaExchangeExpression {
-    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(quantity, product, EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None)))
+    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(
+        quantity,
+        product,
+        EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+    )
+
     companion object
 }
 

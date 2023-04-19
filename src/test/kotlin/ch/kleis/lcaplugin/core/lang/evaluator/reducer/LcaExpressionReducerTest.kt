@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
-import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
@@ -242,6 +241,7 @@ class LcaExpressionReducerTest {
         val expression = ESubstance(
             "propanol",
             "propanol",
+            type = SubstanceType.RESOURCE,
             "air",
             null,
             EUnitRef("kg"),
@@ -261,6 +261,7 @@ class LcaExpressionReducerTest {
         val expected = ESubstance(
             "propanol",
             "propanol",
+            type = SubstanceType.RESOURCE,
             "air",
             null,
             UnitFixture.kg,

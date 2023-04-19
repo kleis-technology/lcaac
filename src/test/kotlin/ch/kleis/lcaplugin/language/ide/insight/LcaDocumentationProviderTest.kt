@@ -21,6 +21,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             "testSubstance_ShouldRender_WithMinimumInfo.lca", """
             substance co2 {
                 name = "co2"
+                type = Resource
                 compartment = "compartment"
                 reference_unit = kg
             }
@@ -46,6 +47,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             <td valign='top'>co2</td>
             </tr>
             <tr>
+            <td valign='top' class='section'>Type</td>
+            <td valign='top'>Resource</td>
+            </tr>
+            <tr>
             <td valign='top' class='section'>Compartment</td>
             <td valign='top'>compartment</td>
             </tr>
@@ -67,6 +72,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             "testSubstance_ShouldRender_WithAllInfos.lca", """
             substance propanol_air {
                 name = "propanol"
+                type = Resource
                 compartment = "air"
                 sub_compartment = "high altitude"
                 reference_unit = kg
@@ -96,6 +102,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         <tr>
         <td valign='top' class='section'>Name</td>
         <td valign='top'>propanol</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>Type</td>
+        <td valign='top'>Resource</td>
         </tr>
         <tr>
         <td valign='top' class='section'>Compartment</td>
