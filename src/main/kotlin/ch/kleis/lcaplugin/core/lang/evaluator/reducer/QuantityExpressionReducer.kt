@@ -50,12 +50,7 @@ class QuantityExpressionReducer(
     }
 
     private fun reduceAlias(expression: EUnitAlias): UnitExpression {
-        infiniteLoopChecker.check(expression)
-        infiniteLoopChecker.traceAlias(expression)
-        val aliasForExpression = reduce(expression.aliasFor)
-        infiniteLoopChecker.clearTraceAlias()
-
-        return when (aliasForExpression) {
+        return when (val aliasForExpression = reduceAliasFor(expression)) {
             is EQuantityLiteral -> {
                 when (val unitAlias = reduceUnit(aliasForExpression.unit)){
                     is EUnitLiteral -> {
@@ -70,6 +65,14 @@ class QuantityExpressionReducer(
                 EUnitAlias(expression.symbol, aliasForExpression)
             }
         }
+    }
+
+    private fun reduceAliasFor(expression: EUnitAlias): QuantityExpression {
+        infiniteLoopChecker.check(expression)
+        val aliasForExpression = reduce(expression.aliasFor)
+        infiniteLoopChecker.clearTraceAlias()
+
+        return aliasForExpression
     }
 
     private fun reduceRef(expression: EQuantityRef) =
