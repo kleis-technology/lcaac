@@ -11,7 +11,7 @@ class QuantityExpressionReducer(
 ) : Reducer<QuantityExpression> {
     private val unitRegister = Register(unitRegister)
     private val quantityRegister = Register(quantityRegister)
-    private val unitAliasReducedRegister = arrayListOf<String>()
+    private val infiniteLoopChecker = InfiniteLoopChecker()
 
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
@@ -50,23 +50,26 @@ class QuantityExpressionReducer(
     }
 
     private fun reduceAlias(expression: EUnitAlias): UnitExpression {
-        checkUnitAliasInfiniteLoop(expression)
+        infiniteLoopChecker.check(expression)
+        infiniteLoopChecker.traceAlias(expression)
+        val aliasForExpression = reduce(expression.aliasFor)
+        infiniteLoopChecker.clearTraceAlias()
 
-        val qty = reduce(expression.aliasFor)
-        if (qty !is EQuantityLiteral) return EUnitAlias(expression.symbol, qty)
-
-        val amount = qty.amount
-        val unitAlias = reduceUnit(qty.unit)
-        if (unitAlias !is EUnitLiteral) return EUnitAlias(expression.symbol, qty)
-
-        return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
-    }
-
-    private fun checkUnitAliasInfiniteLoop(expression: EUnitAlias){
-        if (unitAliasReducedRegister.contains(expression.symbol)){
-            throw EvaluatorException("Recursive dependency for unit ${expression.symbol}");
+        return when (aliasForExpression) {
+            is EQuantityLiteral -> {
+                when (val unitAlias = reduceUnit(aliasForExpression.unit)){
+                    is EUnitLiteral -> {
+                        EUnitLiteral(expression.symbol, aliasForExpression.amount*unitAlias.scale, unitAlias.dimension)
+                    }
+                    !is EUnitLiteral -> {
+                        EUnitAlias(expression.symbol, aliasForExpression)
+                    }
+                }
+            }
+            !is EQuantityLiteral -> {
+                EUnitAlias(expression.symbol, aliasForExpression)
+            }
         }
-        unitAliasReducedRegister.add(expression.symbol)
     }
 
     private fun reduceRef(expression: EQuantityRef) =
