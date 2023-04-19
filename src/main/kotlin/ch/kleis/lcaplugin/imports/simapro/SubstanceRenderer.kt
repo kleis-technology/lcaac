@@ -24,6 +24,7 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
         writer.write(
             "substances/$compartiment",
             """
+
             substance $uid {
             
                 name = "${element.name()}"
@@ -37,7 +38,7 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
                 meta {
                     type = "emissions"
                     generator = "kleis-lca-generator"
-                    description = "${ModelWriter.padButFirst(description, 12)}"
+                    description = "${ModelWriter.padButFirst(description, 24)}"
                     casNumber = "${element.cas()}"
                     $optionalPlatform
                 }

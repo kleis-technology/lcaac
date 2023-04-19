@@ -3,9 +3,6 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaQuantityRef
-import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
-import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeImpl
-import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeWithAllocateFieldImpl
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.jetbrains.rd.util.first
@@ -623,11 +620,12 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val ref = file.getProcesses().first().getProductsWithAllocation().first().getTechnoProductExchange()
-        val sut = LcaBioExchangeDocumentationProvider()
+        val sut = LcaDocumentationProvider()
         // When
         val actual = sut.generateDoc(ref, ref)
         // Then
-        TestCase.assertEquals("""
+        TestCase.assertEquals(
+            """
             <div class='definition'><pre>
             <span style="color:#ffc800;font-style:italic;">Product</span> <span style="color:#0000ff;font-weight:bold;">glyphosate</span><span style="color:#ffc800;font-style:italic;"> from </span><span style="color:#0000ff;font-weight:bold;">glyphosate</span>
             </pre></div>
@@ -638,6 +636,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             <div class='definition'><pre>
             </pre></div>
             
-            """.trimIndent(), actual)
-        }
+            """.trimIndent(), actual
+        )
+    }
 }

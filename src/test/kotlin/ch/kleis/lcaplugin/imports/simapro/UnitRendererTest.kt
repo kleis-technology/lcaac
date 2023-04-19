@@ -40,23 +40,17 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_writeUnit_ShouldReturnEmptyWhenAlreadyExistWithCompatibleDimension() {
+    fun test_writeUnit_ShouldReturnWithoutWritingWhenAlreadyExistWithCompatibleDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
         val data = UnitRow().name("kg")
             .quantity("Mass")
             .conversionFactor(1.0)
             .referenceUnit("kg")
-
         // When
         sut.render(data, writer)
-
         // Then
-        // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("unit", pathSlot.captured)
-        Assert.assertEquals("", bodySlot.captured)
-        Assert.assertEquals(false, indexSlot.captured)
-
+        verify(exactly = 0) { writer.write(any(), any(), any()) }
     }
 
     @Test
@@ -99,6 +93,7 @@ class UnitRendererTest {
 
         // Then
         val expected = """
+
             unit me2 {
                 symbol = "me2"
                 alias_for = 1.0 m2
@@ -124,6 +119,7 @@ class UnitRendererTest {
 
         // Then
         val expected = """
+
             unit GJ {
                 symbol = "GJ"
                 alias_for = 1000.0 MJ
@@ -149,6 +145,7 @@ class UnitRendererTest {
 
         // Then
         val expected = """
+
             unit s_c {
                 symbol = "s€c"
                 alias_for = 2.0 S
@@ -174,9 +171,8 @@ class UnitRendererTest {
         sut.render(data, writer)
 
         // Then
-        verifyOrder {
+        verify(atMost = 1) {
             writer.write("unit", any(), false)
-            writer.write("unit", "", false)
         }
     }
 
