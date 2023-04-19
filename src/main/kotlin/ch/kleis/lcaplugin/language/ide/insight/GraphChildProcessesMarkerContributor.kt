@@ -20,7 +20,7 @@ class GraphChildProcessesMarkerProvider: LineMarkerProvider {
         if (!JBCefApp.isSupported()) return null
 
         return if (isProcess(element)) {
-            LineMarkerInfo<PsiElement>(
+            LineMarkerInfo(
                     element,
                     element.textRange,
                     AllIcons.Graph.Layout,

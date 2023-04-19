@@ -74,10 +74,6 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
         LcaGraphChildProcessesResult(graph).getContent(), "ProcessGraph for process $processName", false
     )
 
-    /**
-     * Obtain a handle on the project ToolWindow, set our content and open it.
-     * Will return with no action if the handle cannot be obtained.
-     */
     private fun fillAndShowToolWindow(project: Project, content: Content) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
         toolWindow.contentManager.addContent(content)
@@ -85,7 +81,6 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
         toolWindow.show()
     }
 
-    /** Get a name from a PsiElement known to be a PsiProcess */
     private fun getProcessName(elt: PsiProcess): String = elt.getProcessTemplateRef().getUID().name
 
     /* This is written under the understanding that a system built using an Evaluator and an entry point contains
