@@ -7,6 +7,8 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.xmlb.XmlSerializerUtil
 
+enum class ImportSubstanceMode { SIMAPRO, EF30, EF31 }
+
 @State(name = "LcaImportSettings", storages = [Storage("lcaImport.xml")], reportStatistic = false)
 class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
     companion object {
@@ -46,10 +48,10 @@ class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
         set(value) {
             state.IMPORT_PROCESSES = value
         }
-    var importSubstances: Boolean
-        get() = state.IMPORT_SUBSTANCES
+    var importSubstancesMode: ImportSubstanceMode
+        get() = state.IMPORT_SUBSTANCES_MODE
         set(value) {
-            state.IMPORT_SUBSTANCES = value
+            state.IMPORT_SUBSTANCES_MODE = value
         }
 
 
@@ -77,6 +79,6 @@ class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
         var IMPORT_PROCESSES: Boolean = true
 
         @JvmField
-        var IMPORT_SUBSTANCES: Boolean = true
+        var IMPORT_SUBSTANCES_MODE: ImportSubstanceMode = ImportSubstanceMode.SIMAPRO
     }
 }

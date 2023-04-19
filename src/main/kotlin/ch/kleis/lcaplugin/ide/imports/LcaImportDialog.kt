@@ -103,24 +103,33 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
                 MyBundle.message("lca.dialog.import.processes.desc")
             )
         )
-        builder.addComponent(
-            CheckBoxWithDescription(
-                JBCheckBox(
-                    BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
-                    settings.importSubstances
-                ).apply {
-                    addItemListener { e ->
-                        settings.importSubstances = e.stateChange == ItemEvent.SELECTED
-                    }
-                },
-                MyBundle.message("lca.dialog.import.substances.desc")
-            )
-        )
+        val substanceComp = createSubstanceCombo();
+        builder.addLabeledComponent(substanceComp.label, substanceComp.component)
         component.add(
             JPanel(VerticalFlowLayout())
                 .apply {
                     add(builder.panel)
                 })
+    }
+
+    private fun createSubstanceCombo(): LabeledComponent<ComboBox<String>> {
+//            CheckBoxWithDescription(
+//                JBCheckBox(
+//                    BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
+//                    settings.importSubstances
+//                ).apply {
+//                    addItemListener { e ->
+//                        settings.importSubstances = e.stateChange == ItemEvent.SELECTED
+//                    }
+//                },
+//                MyBundle.message("lca.dialog.import.substances.desc")
+//            )
+        val comboBox = ComboBox<String>(arrayOf("Choice 1", "Choice 2"))
+        return LabeledComponent.create(
+            comboBox,
+            BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
+            BorderLayout.WEST
+        )
     }
 
     private fun createPackageComponent(): LabeledComponent<JBTextField> {

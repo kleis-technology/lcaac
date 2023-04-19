@@ -1,12 +1,12 @@
 package ch.kleis.lcaplugin.imports.simapro
 
+import ch.kleis.lcaplugin.ide.imports.ImportSubstanceMode
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.Renderer
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
 
-class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
-    override fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
+class SubstanceRenderer {
+    fun render(block: ElementaryFlowBlock, mode: ImportSubstanceMode, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)
         block.flows().forEach { render(it, compartiment, writer) }

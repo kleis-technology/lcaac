@@ -38,8 +38,8 @@ class Importer(private val settings: LcaImportSettings) {
     private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
         when {
             block.isProcessBlock && settings.importProcesses -> ProcessRenderer().render(block.asProcessBlock(), writer)
-            block.isElementaryFlowBlock && settings.importSubstances ->
-                SubstanceRenderer().render(block.asElementaryFlowBlock(), writer)
+            block.isElementaryFlowBlock ->
+                SubstanceRenderer().render(block.asElementaryFlowBlock(), settings.importSubstancesMode, writer)
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
                 .forEach { unitRenderer.render(it, writer) }
