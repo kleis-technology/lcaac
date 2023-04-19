@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.EUnitAlias
 
 class InfiniteLoopChecker {
-    private val unitAliasRegister = arrayListOf<EUnitAlias>()
+    private val unitAliasRegister = mutableSetOf<EUnitAlias>()
 
     fun check(expression: EUnitAlias){
         if (unitAliasRegister.contains(expression)){
