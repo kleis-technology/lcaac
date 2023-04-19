@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.EUnitAlias
 
-class InfiniteLoopChecker {
+class InfiniteUnitLoopChecker {
     private val unitAliasRegister = mutableSetOf<EUnitAlias>()
 
     fun check(expression: EUnitAlias){

@@ -11,7 +11,7 @@ class QuantityExpressionReducer(
 ) : Reducer<QuantityExpression> {
     private val unitRegister = Register(unitRegister)
     private val quantityRegister = Register(quantityRegister)
-    private val infiniteLoopChecker = InfiniteLoopChecker()
+    private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker()
 
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
@@ -68,9 +68,9 @@ class QuantityExpressionReducer(
     }
 
     private fun reduceAliasFor(expression: EUnitAlias): QuantityExpression {
-        infiniteLoopChecker.check(expression)
+        infiniteUnitLoopChecker.check(expression)
         val aliasForExpression = reduce(expression.aliasFor)
-        infiniteLoopChecker.clearTraceAlias()
+        infiniteUnitLoopChecker.clearTraceAlias()
 
         return aliasForExpression
     }
