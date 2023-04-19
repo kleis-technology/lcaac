@@ -54,14 +54,14 @@ class QuantityExpressionReducer(
             is EQuantityLiteral -> {
                 when (val unitAlias = reduceUnit(aliasForExpression.unit)){
                     is EUnitLiteral -> {
-                        EUnitLiteral(expression.symbol, aliasForExpression.amount*unitAlias.scale, unitAlias.dimension)
+                        EUnitLiteral(expression.symbol, aliasForExpression.amount * unitAlias.scale, unitAlias.dimension)
                     }
-                    !is EUnitLiteral -> {
+                    else -> {
                         EUnitAlias(expression.symbol, aliasForExpression)
                     }
                 }
             }
-            !is EQuantityLiteral -> {
+            else -> {
                 EUnitAlias(expression.symbol, aliasForExpression)
             }
         }
