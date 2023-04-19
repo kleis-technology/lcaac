@@ -28,49 +28,72 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
 
     companion object {
         fun of(existingUnits: Map<String, UnitValue>): UnitRenderer {
-            return UnitRenderer(existingUnits.toMutableMap())
+            val newMap = existingUnits.entries.map { (k, v) -> k.lowercase() to v }.associate { it }
+            return UnitRenderer(newMap.toMutableMap())
         }
     }
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun render(unit: UnitRow, writer: ModelWriter) {
-
         val dimensionName = unit.quantity().lowercase()
         val dimension = Dimension.of(dimensionName)
-        val symbol = writer.sanitizeString(unit.name())
-        val existingUnits = knownUnits[symbol]
-        val block = if (existingUnits == null) {
-            if (isNewDimensionReference(unit)) {
-                knownUnits[symbol] = UnitValue(unit.name(), 1.0, dimension)
-                """
-                
-                unit $symbol {
-                    symbol = "${unit.name()}"
-                    dimension = "$dimensionName"
-                }
-            """.trimIndent()
-            } else {
-                knownUnits[symbol] = UnitValue(unit.name(), unit.conversionFactor(), dimension)
-                val refUnitSymbol = writer.sanitizeString(unit.referenceUnit())
-                if (refUnitSymbol == symbol) {
-                    throw ImportException("Unit $symbol is referencing itself in its own declaration")
-                }
-                """
-                
-                unit $symbol {
-                    symbol = "${unit.name()}"
-                    alias_for = ${unit.conversionFactor()} $refUnitSymbol
-                }
-            """.trimIndent()
+        val symbol = ModelWriter.sanitizeAndCompact(unit.name(), false)
+        val existingUnit = getUnit(symbol)
+
+        when {
+            existingUnit != null && areCompatible(existingUnit.dimension, dimension) -> { /* Nothing to do */
             }
-        } else {
-            if (areCompatible(existingUnits.dimension, dimension)) {
-                ""
-            } else {
-                throw ImportException("A Unit ${writer.sanitizeString(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnits.dimension}.")
+
+            existingUnit != null && !areCompatible(existingUnit.dimension, dimension) ->
+                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnit.dimension}.")
+
+            isNewDimensionReference(unit) -> {
+                addUnit(UnitValue(symbol, 1.0, dimension))
+                val block = generateUnitBlockWithNewDimension(symbol, unit.name(), dimensionName)
+                writer.write("unit", block, false)
+            }
+
+            else -> {
+                addUnit(UnitValue(symbol, unit.conversionFactor(), dimension))
+                val refUnitSymbol = ModelWriter.sanitizeAndCompact(unit.referenceUnit(), false)
+
+                val refUnit = getUnit(refUnitSymbol)
+                if (refUnitSymbol.lowercase() == symbol.lowercase()) {
+                    throw ImportException("Unit $symbol is referencing itself in its own declaration")
+                } else {
+                    val block =
+                        generateUnitAliasBlock(symbol, unit.name(), "${unit.conversionFactor()} ${refUnit?.symbol}")
+                    writer.write("unit", block, false)
+                }
             }
         }
-        writer.write("unit.lca", block)
+    }
+
+    private fun generateUnitBlockWithNewDimension(symbol: String, unitName: String, dimensionName: String): String {
+        return """
+
+        unit $symbol {
+            symbol = "$unitName"
+            dimension = "$dimensionName"
+        }
+        """.trimIndent()
+    }
+
+    private fun generateUnitAliasBlock(symbol: String, unitName: String, alias: String): String {
+        return """
+    
+        unit $symbol {
+            symbol = "$unitName"
+            alias_for = $alias
+        }""".trimIndent()
+    }
+
+    private fun getUnit(symbol: String): UnitValue? {
+        return knownUnits[symbol.lowercase()]
+    }
+
+    private fun addUnit(value: UnitValue) {
+        knownUnits[value.symbol.lowercase()] = value
     }
 
     private fun isNewDimensionReference(unit: UnitRow): Boolean {

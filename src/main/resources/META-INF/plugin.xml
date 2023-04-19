@@ -26,7 +26,6 @@
                 implementationClass="ch.kleis.lcaplugin.project.LcaModuleType"/>
 
         <applicationService serviceImplementation="ch.kleis.lcaplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="ch.kleis.lcaplugin.services.LcaProjectService"/>
         <fileType
                 name="LCA Definition File"
                 implementationClass="ch.kleis.lcaplugin.LcaFileType"
@@ -55,7 +54,7 @@
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaSyntaxHighlighterFactory"/>
         <lang.documentationProvider
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeDocumentationProvider"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaDocumentationProvider"/>
 
         <annotator
                 language="LCA"

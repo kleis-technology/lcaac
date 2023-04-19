@@ -5,12 +5,11 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
-import io.mockk.verifyOrder
+import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.fail
+import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.openlca.simapro.csv.refdata.UnitRow
@@ -19,34 +18,39 @@ class UnitRendererTest {
 
 
     private val writer = mockk<ModelWriter>()
+    private val pathSlot = slot<String>()
+    private val bodySlot = slot<String>()
+    private val indexSlot = slot<Boolean>()
 
     @Before
     fun before() {
-        every { writer.write(any(), any()) } returns Unit
-        every { writer.sanitizeString("k+g") } returns "k_g"
-        every { writer.sanitizeString("kg") } returns "kg"
-        every { writer.sanitizeString("s") } returns "s"
-        every { writer.sanitizeString("s€c") } returns "s_c"
-        every { writer.sanitizeString("me2") } returns "me2"
-        every { writer.sanitizeString("m2") } returns "m2"
+        every { writer.write(capture(pathSlot), capture(bodySlot), capture(indexSlot)) } returns Unit
+        mockkObject(ModelWriter.Companion)
+        every { ModelWriter.sanitizeAndCompact("k+g") } returns "k_g"
+        every { ModelWriter.sanitizeAndCompact("kg") } returns "kg"
+        every { ModelWriter.sanitizeAndCompact("s") } returns "s"
+        every { ModelWriter.sanitizeAndCompact("s€c") } returns "s_c"
+        every { ModelWriter.sanitizeAndCompact("me2") } returns "me2"
+        every { ModelWriter.sanitizeAndCompact("m2") } returns "m2"
+    }
+
+    @After
+    fun after() {
+        unmockkAll()
     }
 
     @Test
-    fun test_writeUnit_ShouldReturnEmptyWhenAlreadyExistWithCompatibleDimension() {
+    fun test_writeUnit_ShouldReturnWithoutWritingWhenAlreadyExistWithCompatibleDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
         val data = UnitRow().name("kg")
             .quantity("Mass")
             .conversionFactor(1.0)
             .referenceUnit("kg")
-
         // When
         sut.render(data, writer)
-
         // Then
-        verify {
-            writer.write("unit.lca", "")
-        }
+        verify(exactly = 0) { writer.write(any(), any(), any()) }
     }
 
     @Test
@@ -63,17 +67,16 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
+
             unit s_c {
                 symbol = "s€c"
                 dimension = "time"
             }
-""".trimIndent()
-        verify {
-            writer.write(
-                "unit.lca", expected
-            )
-        }
+            """.trimIndent()
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
@@ -90,23 +93,48 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
+
             unit me2 {
                 symbol = "me2"
                 alias_for = 1.0 m2
             }
-""".trimIndent()
-        verify {
-            writer.write(
-                "unit.lca", expected
-            )
-        }
+            """.trimIndent()
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
+    }
+
+    @Test
+    fun test_writeUnit_ShouldDeclareAliasWithTheRightCase() {
+        // Given
+        val sut = UnitRenderer.of(mapOf(Pair("MJ", UnitValue("MJ", 1.0, Prelude.length.pow(2.0)))))
+        val data = UnitRow().name("GJ")
+            .quantity("Energy")
+            .conversionFactor(1000.0)
+            .referenceUnit("mj")
+
+        // When
+        sut.render(data, writer)
+
+        // Then
+        val expected = """
+
+            unit GJ {
+                symbol = "GJ"
+                alias_for = 1000.0 MJ
+            }
+            """.trimIndent()
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
     fun test_writeUnit_ShouldDeclareAliasWhenItsNotTheReference() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("s", UnitValue("S", 1.0, Prelude.mass))))
         val data = UnitRow().name("s€c")
             .quantity("Time")
             .conversionFactor(2.0)
@@ -117,17 +145,16 @@ class UnitRendererTest {
 
         // Then
         val expected = """
-            
+
             unit s_c {
                 symbol = "s€c"
-                alias_for = 2.0 s
+                alias_for = 2.0 S
             }
 """.trimIndent()
-        verify {
-            writer.write(
-                "unit.lca", expected
-            )
-        }
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("unit", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(false, indexSlot.captured)
     }
 
     @Test
@@ -144,9 +171,8 @@ class UnitRendererTest {
         sut.render(data, writer)
 
         // Then
-        verifyOrder {
-            writer.write("unit.lca", any())
-            writer.write("unit.lca", "")
+        verify(atMost = 1) {
+            writer.write("unit", any(), false)
         }
     }
 
@@ -195,7 +221,7 @@ class UnitRendererTest {
     @Test
     fun test_areCompatible() {
         // Given
-        val input = listOf<Triple<Dimension, Dimension, Boolean>>(
+        val input = listOf(
             Triple(Prelude.length, Prelude.length, true),
             Triple(Dimension.of("volume"), Prelude.length.pow(3.0), true),
             Triple(Prelude.length.pow(3.0), Dimension.of("volume"), true),

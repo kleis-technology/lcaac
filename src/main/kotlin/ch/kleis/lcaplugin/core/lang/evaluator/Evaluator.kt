@@ -9,10 +9,15 @@ import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import com.intellij.openapi.diagnostic.Logger
 
 class Evaluator(
     private val symbolTable: SymbolTable,
 ) {
+    companion object {
+        private val LOG = Logger.getInstance(Evaluator::class.java)
+    }
+
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
     private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
@@ -27,7 +32,10 @@ class Evaluator(
             .compose(EBioExchange.substance.eSubstance)
 
     fun eval(expression: TemplateExpression): SystemValue {
-        return recursiveCompile(SystemValue.empty(), expression)
+        LOG.info("Start recursive Compile")
+        val result = recursiveCompile(SystemValue.empty(), expression)
+        LOG.info("End recursive Compile")
+        return result
     }
 
     private fun recursiveCompile(
