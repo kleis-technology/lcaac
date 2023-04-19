@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -22,9 +25,9 @@ class ImporterTest {
     private val rootFolder = Files.createTempDirectory("lca_test_").toString()
     private var settings = mockk<LcaImportSettings>()
 
-    private val output_unit_file = "$rootFolder${File.separatorChar}unit.lca"
-    private val output_process_file = "$rootFolder${File.separatorChar}process.lca"
-    private val output_substance_file = "$rootFolder${File.separatorChar}substance.lca"
+    private val outputUnitFile = "$rootFolder${File.separatorChar}unit.lca"
+    private val outputProcessFile = "$rootFolder${File.separatorChar}process.lca"
+    private val outputSubstanceFile = "$rootFolder${File.separatorChar}substance.lca"
 
     @Suppress("RemoveExplicitTypeArguments")
     @Before
@@ -57,13 +60,13 @@ class ImporterTest {
         // Given
         every { settings.importUnits } returns true
         every { settings.importProcesses } returns true
-        every { settings.importSubstances } returns true
+        every { settings.importSubstancesMode } returns SubstanceImportMode.SIMAPRO
 
         // When
         Importer(settings).import()
 
         // Then
-        assertTrue("Unit file should exists", Path.of(output_unit_file).exists())
+        assertTrue("Unit file should exists", Path.of(outputUnitFile).exists())
     }
 
     @Test
@@ -71,15 +74,17 @@ class ImporterTest {
         // Given
         every { settings.importUnits } returns false
         every { settings.importProcesses } returns false
-        every { settings.importSubstances } returns false
+        every { settings.importSubstancesMode } returns SubstanceImportMode.EF30
+        mockkObject(Ef3xDictionary.Companion)
+        every { Ef3xDictionary.fromClassPath(any()) } returns SimaproDictionary()
 
         // When
         Importer(settings).import()
 
         // Then
-        assertFalse("Unit file should not exists", Path.of(output_unit_file).exists())
-        assertFalse("Process file should not exists", Path.of(output_process_file).exists())
-        assertFalse("Substance file should not exists", Path.of(output_substance_file).exists())
+        assertFalse("Unit file should not exists", Path.of(outputUnitFile).exists())
+        assertFalse("Process file should not exists", Path.of(outputProcessFile).exists())
+        assertFalse("Substance file should not exists", Path.of(outputSubstanceFile).exists())
     }
 
 }

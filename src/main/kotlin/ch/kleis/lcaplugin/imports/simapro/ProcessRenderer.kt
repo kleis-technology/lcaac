@@ -1,14 +1,17 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import arrow.core.toNonEmptyListOrNull
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
+import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
 import io.ktor.utils.io.*
 import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
@@ -35,13 +38,13 @@ fun ProcessBlock.uid(): String {
     }
 }
 
-fun ExchangeRow.uid(): String {
+fun ProductOutputRow.uid(): String {
     return this.name()
 }
 
 private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-class ProcessRenderer : Renderer<ProcessBlock> {
+class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
     companion object {
         private val engine: ScriptEngine
         val formulaDetector = Regex(".*[a-zA-DF-Z()/+* ]+.*")
@@ -51,6 +54,12 @@ class ProcessRenderer : Renderer<ProcessBlock> {
             engine = mgr.getEngineByName("Groovy")
         }
 
+    }
+
+    private val substanceDict: Dictionary = when (mode) {
+        SubstanceImportMode.SIMAPRO -> SimaproDictionary()
+        SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
+        SubstanceImportMode.EF31 -> Ef3xDictionary.fromClassPath("emissions_factors3.1.jar")
     }
 
 
@@ -103,18 +112,19 @@ class ProcessRenderer : Renderer<ProcessBlock> {
         val inputsMatAndFuel = process.materialsAndFuels().map { render(it) }.flatten()
         val inputsElectricity = process.electricityAndHeat().map { render(it) }.flatten()
 
-        val emissionsToAir = process.emissionsToAir().map { render(it, "_air") }.flatten()
-        val emissionsToWater = process.emissionsToWater().map { render(it, "_water") }.flatten()
-        val emissionsToSoil = process.emissionsToSoil().map { render(it, "_soil") }.flatten()
-        val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }.flatten()
-        val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }.flatten()
-        val emissionsSocials = process.socialIssues().map { render(it, "_social") }.flatten()
+        val emissionsToAir = process.emissionsToAir().map { renderElementary(it, "Emission", "air") }.flatten()
+        val emissionsToWater = process.emissionsToWater().map { renderElementary(it, "Emission", "water") }.flatten()
+        val emissionsToSoil = process.emissionsToSoil().map { renderElementary(it, "Emission", "soil") }.flatten()
+        val emissionsNonMat =
+            process.nonMaterialEmissions().map { renderElementary(it, "Emission", "non_mat") }.flatten()
+        val emissionsEconomic = process.economicIssues().map { renderElementary(it, "Emission", "economic") }.flatten()
+        val emissionsSocials = process.socialIssues().map { renderElementary(it, "Emission", "social") }.flatten()
         val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it) }.flatten()
         val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it) }.flatten()
         val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
         val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
 
-        val resources = process.resources().map { render(it, "_raw") }.flatten()
+        val resources = process.resources().map { renderElementary(it, "Resource", "raw") }.flatten()
 
         writer.write(
             "processes/${process.category()}",
@@ -188,9 +198,23 @@ ${ModelWriter.block("resources {", resources)}
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
-        val uid = ModelWriter.sanitizeAndCompact(exchange.uid()) + suffix
+        val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
         return additionalComments.plus(comments)
             .plus("$amount $unit $uid // $amountFormula")
+    }
+
+    private fun renderElementary(
+        exchange: ElementaryExchangeRow,
+        type: String,
+        compartiment: String
+    ): List<String> {
+        val comments = ModelWriter.asComment(exchange.comment())
+        val amountFormula = exchange.amount()
+        val amount = tryToCompute(amountFormula.toString())
+        val unit = exchange.unit()
+        val uid =
+            substanceDict.realKeyForSubstance(exchange.name(), type, compartiment, exchange.subCompartment()).uid()
+        return comments.plus("$amount $unit $uid // $amountFormula")
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {

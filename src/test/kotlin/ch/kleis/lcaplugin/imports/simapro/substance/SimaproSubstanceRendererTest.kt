@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.simapro
+package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import io.mockk.*
@@ -10,13 +10,13 @@ import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
 
-class SubstanceRendererTest {
+class SimaproSubstanceRendererTest {
     private val writer = mockk<ModelWriter>()
 
     private val pathSlot = slot<String>()
     private val bodySlot = slot<String>()
     private val indexSlot = slot<Boolean>()
-    private val sut = SubstanceRenderer()
+    private val sut = SimaproSubstanceRenderer()
 
 
     @Before
@@ -54,6 +54,7 @@ class SubstanceRendererTest {
 substance aluminium_raw {
 
     name = "Aluminium"
+    type = Emission
     compartment = "raw"
     reference_unit = kg
 
@@ -62,7 +63,6 @@ substance aluminium_raw {
     }
 
     meta {
-        type = "emissions"
         generator = "kleis-lca-generator"
         description = "Formula: Al
             Al"
@@ -100,6 +100,7 @@ substance aluminium_raw {
 substance aluminium_raw {
 
     name = "Aluminium"
+    type = Emission
     compartment = "raw"
     reference_unit = kg
 
@@ -108,7 +109,6 @@ substance aluminium_raw {
     }
 
     meta {
-        type = "emissions"
         generator = "kleis-lca-generator"
         description = "Formula: Al
             Al"

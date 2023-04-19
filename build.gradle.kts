@@ -47,7 +47,6 @@ dependencies {
         builtBy("generateEmissionFactors30")
     })
     implementation("org.ojalgo:ojalgo:52.0.1")
-    testImplementation("io.mockk:mockk:1.13.4")
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.3"
@@ -56,6 +55,9 @@ dependencies {
     implementation("io.arrow-kt:arrow-optics")
     implementation("org.openlca:olca-simapro-csv:$olcaSimaproVersion")
     ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
+
+    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation(kotlin("test-junit"))
 }
 
 

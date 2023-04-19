@@ -47,7 +47,11 @@ data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var
     }
 }
 
-class ModelWriter(private val packageName: String, private val rootFolder: String) : Closeable {
+class ModelWriter(
+    private val packageName: String,
+    private val rootFolder: String,
+    private val imports: List<String> = listOf()
+) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
         private const val BASE_PAD = 4
@@ -167,6 +171,7 @@ class ModelWriter(private val packageName: String, private val rootFolder: Strin
         val new = FileWriterWithSize(path, currentIndex)
         openedFiles[relativePath] = new
         new.write("package $packageName\n")
+        imports.forEach { new.write("import $it\n") }
         return new
     }
 

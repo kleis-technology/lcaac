@@ -60,14 +60,9 @@ enum class SubstanceType(val value: String) { // TODO Undefined because of Reduc
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use"), UNDEFINED("Undefined");
 
     companion object {
-        fun of(name: String): SubstanceType {
-            return when (name) {
-                EMISSION.value -> EMISSION
-                RESOURCE.value -> RESOURCE
-                LAND_USE.value -> LAND_USE
-                else -> throw EvaluatorException("Invalid SubstanceType: $name")
-            }
-        }
+        private val map = SubstanceType.values().associateBy { it.value }
+        infix fun of(value: String): SubstanceType =
+            map[value] ?: throw EvaluatorException("Invalid SubstanceType: $value")
     }
 
     override fun toString(): String {

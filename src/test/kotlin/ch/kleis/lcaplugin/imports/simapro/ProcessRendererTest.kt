@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports.simapro
 
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
 import io.mockk.*
 import org.junit.After
@@ -24,7 +25,7 @@ class ProcessRendererTest {
     private val pathSlot = slot<String>()
     private val bodySlot = slot<String>()
     private val indexSlot = slot<Boolean>()
-    private val sut = ProcessRenderer()
+    private val sut = ProcessRenderer(SubstanceImportMode.SIMAPRO)
 
     @Before
     fun before() {
@@ -361,6 +362,140 @@ process wastescen6422_6422 {
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
     }
+
+    @Test
+    fun test_render_shouldRender_forClassicalProcessWithEf() {
+        // Given
+        val sample = initProcess()
+        val efSut = ProcessRenderer(SubstanceImportMode.SIMAPRO)
+
+        // When
+        efSut.render(sample, writer)
+
+        // Then
+        val expected = """
+
+QQQ
+process acai_berry_at_farm_br8553_1886 {
+
+    meta {
+        description = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
+            Allocation: No allocation
+            System boundaries: Cradle-to-gate. The inventory includes the processes of tree seedling production and planting, fertilisation (mineral and manure).
+            Geography: Brazil
+            Technology: Conventional production.
+            Time: 2000-2018
+            Data quality rating (DQR) = 1.8, Very good quality"
+        category = "material"
+        identifier = "LAUSMILA000241671000001"
+        comment = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
+            Allocation: No allocation
+            System boundaries: Cradle-to-gate. The inventory includes the processes of tree seedling production and planting, fertilisation (mineral and manure).
+            Geography: Brazil
+            Technology: Conventional production.
+            Time: 2000-2018
+            Data quality rating (DQR) = 1.8, Very good quality"
+        date = "2018-09-20"
+        generator = "Kleis,
+            Telephone: 0041 21 211 21 21; E-mail: lca@kleis.ch;"
+        collectionMethod = "Sampling procedure: Principles"
+        dataTreatment = "Data traitement"
+        verification = "Proof reading validation: Passed internally.
+            Validator: KleisAgro
+            E-mail: lca@agroscope.admin.ch; Company: Agroscope; Country: CH"
+        systemDescription = "name: Desc"
+        allocationRules = "allocationRules"
+        processType = "Unit process"
+        status = "To be reviewed"
+        infrastructure = "false"
+        record = "data entry by: Kerny@kleis.ch"
+        platformId = "platformId"
+        literatures = "
+            * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.
+            * Another Methodological."
+    }
+
+
+
+    products { // Product
+        // name: Acai berry, at farm (WFLDB 3.7)/BR U
+        // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
+        // The yield when productive is 9750 kg/ha-y .
+        // The final yield corresponds to the average yield over the entire lifetime of the tree.
+        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // 9750*10/13
+    }
+    
+    products { // Avoid Products
+    }
+    
+    inputs { // materialsAndFuels
+    }
+
+    inputs { // electricityAndHeat
+    }
+
+    emissions { // To Air
+    }
+
+    emissions { // To Water
+    }
+
+    emissions { // To Soil
+    }
+
+    emissions { // Economics
+    }
+
+    emissions { // Non Material
+    }
+
+    emissions { // Social
+    }
+
+    emissions { // Final Waste Flows
+    }
+
+    inputs { // Waste To Treatment
+    }
+
+    emissions { // Remaining Waste
+    }
+
+    emissions { // Separated Waste
+    }
+
+    resources {
+        // (2,2,1,1,1,na)
+        9752559010.236041 kg carbon_dioxide_in_air_raw // 145.56 * 67E6 / (1 -4E-6)
+        // (2,2,1,1,1,na)
+        20295.524449877732 MJ energy_gross_calorific_value_in_biomass_raw // 20295.524449877732
+        // (2,1,1,1,1,na)
+        501.95555914578216 m3 water_well_br_raw // 501.95555914578216
+        // (2,1,1,1,1,na)
+        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
+        // (2,1,1,1,1,na)
+        10000.0 m2a occupation_permanent_crop_irrigated_raw // 10000.0
+        // (2,1,1,1,1,na)
+        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
+        // (2,1,1,1,1,na)
+        10000.0 m2a occupation_permanent_crop_irrigated_raw // 10000.0
+        // (2,1,1,1,1,na)
+        2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw // 2170.792762893368
+        // (2,1,1,1,1,na)
+        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
+        // (2,1,1,1,1,na)
+        500.0 m2 transformation_to_permanent_crop_irrigated_raw // 500.0
+    }
+
+}
+
+""".trimIndent()
+        // Better way to view large diff than using mockk.verify
+        assertEquals("processes/material", pathSlot.captured)
+        assertEquals(expected, bodySlot.captured)
+        assertEquals(true, indexSlot.captured)
+    }
+
 
     private fun initProcess(): ProcessBlock {
         val sample = ProcessBlock().name("Acai berry, at farm/BR")

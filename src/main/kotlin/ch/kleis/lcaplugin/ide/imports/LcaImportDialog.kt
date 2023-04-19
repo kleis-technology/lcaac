@@ -121,45 +121,26 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
             BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.simapro"))
         val ef30Msg = BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.ef30"))
         val ef31Msg = BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.ef31"))
-//        val comboBox = ComboBox(
-//            arrayOf(
-//                simaproMsg,
-//                ef30Msg,
-//                ef31Msg
-//            ), 500
-//        )
-        val rSimapro = JBRadioButton(simaproMsg, settings.importSubstancesMode == ImportSubstanceMode.SIMAPRO)
-        val rEf30 = JBRadioButton(ef30Msg, settings.importSubstancesMode == ImportSubstanceMode.EF30)
-        val rEf31 = JBRadioButton(ef31Msg, settings.importSubstancesMode == ImportSubstanceMode.EF31)
+        val rSimapro = JBRadioButton(simaproMsg, settings.importSubstancesMode == SubstanceImportMode.SIMAPRO)
+        val rEf30 = JBRadioButton(ef30Msg, settings.importSubstancesMode == SubstanceImportMode.EF30)
+        val rEf31 = JBRadioButton(ef31Msg, settings.importSubstancesMode == SubstanceImportMode.EF31)
         val group = ButtonGroup()
         group.add(rSimapro)
         group.add(rEf30)
         group.add(rEf31)
         rSimapro.addActionListener {
-            settings.importSubstancesMode = ImportSubstanceMode.SIMAPRO
+            settings.importSubstancesMode = SubstanceImportMode.SIMAPRO
         }
         rEf30.addActionListener {
-            settings.importSubstancesMode = ImportSubstanceMode.EF30
+            settings.importSubstancesMode = SubstanceImportMode.EF30
         }
         rEf31.addActionListener {
-            settings.importSubstancesMode = ImportSubstanceMode.EF31
+            settings.importSubstancesMode = SubstanceImportMode.EF31
         }
         val panel = JPanel(VerticalFlowLayout())
             .apply { add(rSimapro) }
             .apply { add(rEf30) }
             .apply { add(rEf31) }
-
-//        comboBox.addItemListener {
-//            if (it.stateChange == ItemEvent.SELECTED) {
-//                when (it.item as String) {
-//                    simaproMsg -> settings.importSubstancesMode = ImportSubstanceMode.SIMAPRO
-//
-//                    ef30Msg -> settings.importSubstancesMode = ImportSubstanceMode.EF30
-//
-//                    else -> settings.importSubstancesMode = ImportSubstanceMode.EF31
-//                }
-//            }
-//        }
         return LabeledComponent.create(
             panel,
             BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
