@@ -54,8 +54,9 @@ class Importer(private val settings: LcaImportSettings) {
                 writer
             )
 
-            block.isElementaryFlowBlock && settings.importSubstancesMode == SubstanceImportMode.SIMAPRO ->
-                simaproSubstanceRenderer.render(block.asElementaryFlowBlock(), writer)
+            block.isElementaryFlowBlock ->
+                if (settings.importSubstancesMode == SubstanceImportMode.SIMAPRO)
+                    simaproSubstanceRenderer.render(block.asElementaryFlowBlock(), writer)
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
                 .forEach { unitRenderer.render(it, writer) }

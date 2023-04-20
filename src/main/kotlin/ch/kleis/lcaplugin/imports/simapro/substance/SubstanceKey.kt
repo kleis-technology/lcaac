@@ -5,6 +5,7 @@ import org.apache.commons.csv.CSVRecord
 
 data class SubstanceKey(
     var name: String,
+    var type: String,
     var compartment: String,
     var subCompartment: String? = null,
     val hasChanged: Boolean = false
@@ -18,20 +19,22 @@ data class SubstanceKey(
 
     constructor(record: CSVRecord) : this(
         record["Name"],
+        record["Type"],
         record["Compartment"],
         record["SubCompartment"].ifBlank { null }
     )
 
     fun withoutSub(): SubstanceKey {
-        return SubstanceKey(this.name, this.compartment, null, hasChanged = true)
+        return SubstanceKey(this.name, this.type, this.compartment, null, hasChanged = true)
     }
 
     fun sub(subCompartment: String): SubstanceKey {
-        return SubstanceKey(this.name, this.compartment, subCompartment, hasChanged = true)
+        return SubstanceKey(this.name, this.type, this.compartment, subCompartment, hasChanged = true)
     }
 
     fun removeFromName(toReplace: String): SubstanceKey {
-        return SubstanceKey(this.name.replace("_${toReplace}", ""), this.compartment, subCompartment, hasChanged = true)
+        val new_name = this.name.replace("_${toReplace}", "")
+        return SubstanceKey(new_name, this.type, this.compartment, subCompartment, hasChanged = true)
     }
 
     fun uid(): String {
@@ -47,6 +50,7 @@ data class SubstanceKey(
         other as SubstanceKey
 
         if (name != other.name) return false
+        if (type != other.type) return false
         if (compartment != other.compartment) return false
         if (subCompartment != other.subCompartment) return false
 
@@ -56,6 +60,7 @@ data class SubstanceKey(
     /* Need custom implementation to ignore hasChanged field */
     override fun hashCode(): Int {
         var result = name.hashCode()
+        result = 31 * result + type.hashCode()
         result = 31 * result + compartment.hashCode()
         result = 31 * result + (subCompartment?.hashCode() ?: 0)
         return result

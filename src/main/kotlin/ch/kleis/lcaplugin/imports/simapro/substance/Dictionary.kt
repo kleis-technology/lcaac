@@ -28,7 +28,7 @@ class SimaproDictionary : Dictionary {
         subCompartment: String?
     ): SubstanceKey {
         // Simapro Substance do not deal with type...
-        return SubstanceKey(name, compartment, "")
+        return SubstanceKey(name, type, compartment, "")
     }
 }
 
@@ -62,15 +62,15 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
 
     private val subCompartmentMapping = mapOf(
         "low. pop." to EfCategories.SubCompartiment.NON_URBAN_HIGH_STACK.value, // 771
-        "high. pop." to EfCategories.SubCompartiment.URBAN_AIR_CLOSE_TO_GROUND.value, // 771
+        "high. pop." to EfCategories.SubCompartiment.URBAN_AIR_CLOSE_TO_GROUND.value, // 540
+        "stratosphere + troposphere" to EfCategories.SubCompartiment.LOWER_STRATOSPHERE_AND_UPPER_TROPOSPHERE.value, // 519
+        "low. pop., long-term" to EfCategories.SubCompartiment.LONG_TERM.value, //
 //                groundwater
 //                biotic
 //                industrial
 //                agricultural
 //                ocean
-//                stratosphere + troposphere
 //                land
-//                low. pop., long-term
 //                river
 //                forestry
 //                low. pop.
@@ -93,16 +93,15 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
     ): SubstanceKey {
         val realComp: String
         val realSubComp: String?
-        return if (type == SubstanceType.RESOURCE.value) {
+        if (type == SubstanceType.RESOURCE.value) {
             realComp = resourceCompartmentMapping[subCompartment] ?: subCompartment ?: "null_sub_comp"
-            val key = SubstanceKey(name, realComp)
-            tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
+            realSubComp = null
         } else {
             realComp = compartment
             realSubComp = subCompartmentMapping[subCompartment] ?: subCompartment
-            val key = SubstanceKey(name, realComp, realSubComp)
-            get(key) ?: get(key.withoutSub()) ?: key
         }
+        val key = SubstanceKey(name, type, realComp, realSubComp)
+        return tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
     }
 
     private fun tryKeyAndVariation(key: SubstanceKey) =

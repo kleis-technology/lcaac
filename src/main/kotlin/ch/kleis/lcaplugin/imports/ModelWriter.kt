@@ -112,8 +112,9 @@ class ModelWriter(
             return text.map { "$sep$it" }
         }
 
-        fun asComment(str: String): ImmutableList<String> {
-            return str.split("\n")
+        fun asComment(str: String?): ImmutableList<String> {
+            return (str ?: "")
+                .split("\n")
                 .filter { it.isNotBlank() }
                 .map { "// $it" }
                 .toImmutableList()

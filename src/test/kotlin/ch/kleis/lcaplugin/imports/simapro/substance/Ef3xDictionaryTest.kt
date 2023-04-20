@@ -49,7 +49,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WhenSubCompartimentExist() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", "non-agricultural")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "soil", "non-agricultural")
 
         // When
         val result =
@@ -68,7 +68,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WhenSubCompartimentNotAskedButExists() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "soil", null)
 
         // When
         val result =
@@ -81,7 +81,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnWithoutSubComp_WhenSubCompartimentDoesntExist() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "water", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "water", null)
 
         // When
         val result =
@@ -100,7 +100,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnKey_WhenKeyDoesntExist() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "sky", "non-agricultural")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "sky", "non-agricultural")
 
         // When
         val result =
@@ -120,7 +120,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnKey_WhitInvalidSubstanceType() {
         // Given
-        val excepted = SubstanceKey("beta_BAD", "cloud", "non-agricultural")
+        val excepted = SubstanceKey("beta_BAD", "BAD", "cloud", "non-agricultural")
 
         // When
         val result =
@@ -133,7 +133,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldReturnRelevantCompartment_ForResource_ShouldBeGround() {
         // Given
-        val excepted = SubstanceKey("Aluminium", "ground", null)
+        val excepted = SubstanceKey("Aluminium", "Resource", "ground", null)
 
         // When
         val result =
@@ -146,7 +146,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldReturnRelevantCompartment_ForEmission_ShouldBeSoil() {
         // Given
-        val excepted = SubstanceKey("Aluminium", "soil", null)
+        val excepted = SubstanceKey("Aluminium", "Emission", "soil", null)
 
         // When
         val result =
@@ -159,7 +159,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldReturnTheRenewable_WhenThereIsNoDefaultAndARenewable() {
         // Given
-        val excepted = SubstanceKey("dinitrogen", "ground", RENEWABLE)
+        val excepted = SubstanceKey("dinitrogen", "Resource", "ground", RENEWABLE)
 
         // When
         val result =
@@ -172,7 +172,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldReturnTheNonRenewable_WhenThereIsNoDefaultAndNoRenewable() {
         // Given
-        val excepted = SubstanceKey("diatomite", "ground", NON_RENEWABLE)
+        val excepted = SubstanceKey("diatomite", "Resource", "ground", NON_RENEWABLE)
 
         // When
         val result =
@@ -185,7 +185,7 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldReturnTheRenewable_WithoutDefaultRenewableHasPriorityOnNonRenewable() {
         // Given
-        val excepted = SubstanceKey("dolomite", "ground", RENEWABLE)
+        val excepted = SubstanceKey("dolomite", "Resource", "ground", RENEWABLE)
 
         // When
         val result =
@@ -198,11 +198,24 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForResource_ShouldRemoveUnit_WhenNoKeyIsFound() {
         // Given
-        val excepted = SubstanceKey("argon_40", "air", RENEWABLE)
+        val excepted = SubstanceKey("argon_40", "Resource", "air", RENEWABLE)
 
         // When
         val result =
             sut.realKeyForSubstance("argon_40_kg", "Resource", "kg", "raw", "in air")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+    @Test
+    fun realKeyForEmission_ShouldRemoveUnit_WhenNoKeyIsFound() {
+        // Given
+        val excepted = SubstanceKey("argon_40", "Emission", "air")
+
+        // When
+        val result =
+            sut.realKeyForSubstance("argon_40_kg", "Emission", "kg", "air", "")
 
         // Then
         assertEquals(excepted, result)

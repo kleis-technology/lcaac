@@ -183,10 +183,11 @@ ${ModelWriter.block("resources {", resources)}
     private fun render(param: CalculatedParameterRow): List<String> {
         val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
         val amountFormula = param.expression()
-        val amount = tryToCompute(amountFormula)
+        val (amount, changed) = tryToCompute(amountFormula)
         val unit = "u"
         val uid = ModelWriter.sanitize(param.name())
-        return result.plus("$uid = $amount $unit // $amountFormula")
+        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+        return result.plus("$uid = $amount $unit$endingComment")
     }
 
     private fun render(
@@ -195,12 +196,13 @@ ${ModelWriter.block("resources {", resources)}
         additionalComments: List<String> = listOf()
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
-        val amountFormula = exchange.amount()
-        val amount = tryToCompute(amountFormula.toString())
+        val amountFormula = exchange.amount().toString()
+        val (amount, changed) = tryToCompute(amountFormula)
         val unit = exchange.unit()
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
+        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
-            .plus("$amount $unit $uid // $amountFormula")
+            .plus("$amount $unit $uid$endingComment")
     }
 
     private fun renderElementary(
@@ -209,18 +211,16 @@ ${ModelWriter.block("resources {", resources)}
         compartment: String
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
-        val amountFormula = exchange.amount()
-        val amount = tryToCompute(amountFormula.toString())
+        val amountFormula = exchange.amount().toString()
+        val (amount, changed) = tryToCompute(amountFormula)
         val unit = exchange.unit()
         val sub = exchange.subCompartment()
         val name = exchange.name()
         val realKey = substanceDict.realKeyForSubstance(name, type, unit, compartment, sub)
-        val info = if (realKey.hasChanged)
-            ", Fallback for ($name, $type, $compartment, ${sub})"
-        else
-            ""
+        val info = if (!realKey.hasChanged) "" else "Fallback for [$name, $type, $compartment, ${sub}]"
+        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else "", info))
         val uid = realKey.uid()
-        return comments.plus("$amount $unit $uid // $amountFormula$info")
+        return comments.plus("$amount $unit $uid$endingComment")
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {
@@ -229,13 +229,14 @@ ${ModelWriter.block("resources {", resources)}
         product.category()?.let { additionalComments.add("// category: $it") }
 
         val comments = ModelWriter.asComment(product.comment())
-        val amountFormula = product.amount()
-        val amount = tryToCompute(amountFormula.toString())
+        val amountFormula = product.amount().toString()
+        val (amount, changed) = tryToCompute(amountFormula)
         val unit = product.unit()
         val uid = ModelWriter.sanitizeAndCompact(product.uid())
         val allocation = product.allocation()
+        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
-            .plus("$amount $unit $uid allocate $allocation percent // $amountFormula")
+            .plus("$amount $unit $uid allocate $allocation percent$endingComment")
     }
 
     private fun renderWasteTreatment(exchange: WasteTreatmentRow): List<String> {
@@ -247,16 +248,25 @@ ${ModelWriter.block("resources {", resources)}
         return render(exchange, additionalComments = additionalComments)
     }
 
-    private fun tryToCompute(amountFormula: String): Any? {
+    private fun tryToCompute(amountFormula: String): Pair<String, Boolean> {
 
-        return try {
+        val compute = try {
             if (formulaDetector.matches(amountFormula)) {
-                engine.eval(amountFormula)
+                engine.eval(amountFormula).toString()
             } else {
                 amountFormula
             }
         } catch (e: ScriptException) {
             "// QQQ Invalid regex detector for $amountFormula"
         }
+        return Pair(compute, compute != amountFormula)
     }
+
+    private fun createComment(comments: List<String>): String {
+        val cleaned = comments.filter { it.isNotBlank() }
+
+        return if (cleaned.isEmpty()) ""
+        else cleaned.joinToString(", ", " // ")
+    }
+
 }

@@ -11,7 +11,7 @@ class SimaproDictionaryTest {
     fun realKeyForSubstance_ShouldReturnTruncatedKey_WithSubCompartiment() {
         // Simapro substance dont have subCompartment
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "soil")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "soil")
 
         // When
         val result =
@@ -30,7 +30,7 @@ class SimaproDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WithoutCompartment() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "soil", null)
 
         // When
         val result =
