@@ -8,13 +8,20 @@ class SimaproDictionaryTest {
     private val sut = SimaproDictionary()
 
     @Test
-    fun realKeyForSubstance_ShouldReturnExactKey_WithSubCompartiment() {
+    fun realKeyForSubstance_ShouldReturnTruncatedKey_WithSubCompartiment() {
+        // Simapro substance dont have subCompartment
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "", "soil", "non-agricultural")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "soil")
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", "non-agricultural")
+            sut.realKeyForSubstance(
+                "beta_chloronaphthalene",
+                SubstanceType.EMISSION.value,
+                "kg",
+                "soil",
+                "non-agricultural"
+            )
 
         // Then
         assertEquals(excepted, result)
@@ -23,11 +30,11 @@ class SimaproDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WithoutCompartment() {
         // Given
-        val excepted = SubstanceKey("beta_chloronaphthalene", "", "soil", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", null)
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", null)
+            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "kg", "soil", null)
 
         // Then
         assertEquals(excepted, result)

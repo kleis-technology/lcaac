@@ -7,7 +7,11 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
+/** The EcoInvent process EI3ARUNI000011519604128 is a very good candidate to find cases */
 class Ef3xDictionaryTest {
+    companion object {
+        val sut: Dictionary = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
+    }
 
     @Test
     fun fromClassPath_ShouldFoundFile_WithValidFilter() {
@@ -45,12 +49,17 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WhenSubCompartimentExist() {
         // Given
-        val sut = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
-        val excepted = SubstanceKey("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", "non-agricultural")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", "non-agricultural")
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", "non-agricultural")
+            sut.realKeyForSubstance(
+                "beta_chloronaphthalene",
+                SubstanceType.EMISSION.value,
+                "kg",
+                "soil",
+                "non-agricultural"
+            )
 
         // Then
         assertEquals(excepted, result)
@@ -59,12 +68,11 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnExactKey_WhenSubCompartimentNotAskedButExists() {
         // Given
-        val sut = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
-        val excepted = SubstanceKey("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "soil", null)
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "soil", null)
+            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "kg", "soil", null)
 
         // Then
         assertEquals(excepted, result)
@@ -73,12 +81,17 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnWithoutSubComp_WhenSubCompartimentDoesntExist() {
         // Given
-        val sut = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
-        val excepted = SubstanceKey("beta_chloronaphthalene", SubstanceType.EMISSION.value, "water", null)
+        val excepted = SubstanceKey("beta_chloronaphthalene", "water", null)
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "water", "non-agricultural")
+            sut.realKeyForSubstance(
+                "beta_chloronaphthalene",
+                SubstanceType.EMISSION.value,
+                "kg",
+                "water",
+                "non-agricultural"
+            )
 
         // Then
         assertEquals(excepted, result)
@@ -87,28 +100,113 @@ class Ef3xDictionaryTest {
     @Test
     fun realKeyForSubstance_ShouldReturnKey_WhenKeyDoesntExist() {
         // Given
-        val sut = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
-        val excepted = SubstanceKey("beta_chloronaphthalene", SubstanceType.EMISSION.value, "sky", "non-agricultural")
+        val excepted = SubstanceKey("beta_chloronaphthalene", "sky", "non-agricultural")
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", SubstanceType.EMISSION.value, "sky", "non-agricultural")
+            sut.realKeyForSubstance(
+                "beta_chloronaphthalene",
+                SubstanceType.EMISSION.value,
+                "kg",
+                "sky",
+                "non-agricultural"
+            )
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+
+    @Test
+    fun realKeyForSubstance_ShouldReturnKey_WhitInvalidSubstanceType() {
+        // Given
+        val excepted = SubstanceKey("beta_BAD", "cloud", "non-agricultural")
+
+        // When
+        val result =
+            sut.realKeyForSubstance("beta_BAD", "BAD", "kg", "cloud", "non-agricultural")
 
         // Then
         assertEquals(excepted, result)
     }
 
     @Test
-    fun realKeyForSubstance_ShouldReturnKey_WhitInvalidSubstanceType() {
+    fun realKeyForResource_ShouldReturnRelevantCompartment_ForResource_ShouldBeGround() {
         // Given
-        val sut = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
-        val excepted = SubstanceKey("beta_chloronaphthalene", "BAD", "water", "non-agricultural")
+        val excepted = SubstanceKey("Aluminium", "ground", null)
 
         // When
         val result =
-            sut.realKeyForSubstance("beta_chloronaphthalene", "BAD", "water", "non-agricultural")
+            sut.realKeyForSubstance("Aluminium", "Resource", "kg", "raw", "in ground")
 
         // Then
         assertEquals(excepted, result)
     }
+
+    @Test
+    fun realKeyForResource_ShouldReturnRelevantCompartment_ForEmission_ShouldBeSoil() {
+        // Given
+        val excepted = SubstanceKey("Aluminium", "soil", null)
+
+        // When
+        val result =
+            sut.realKeyForSubstance("Aluminium", "Emission", unit = "kg", "soil")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+    @Test
+    fun realKeyForResource_ShouldReturnTheRenewable_WhenThereIsNoDefaultAndARenewable() {
+        // Given
+        val excepted = SubstanceKey("dinitrogen", "ground", RENEWABLE)
+
+        // When
+        val result =
+            sut.realKeyForSubstance("dinitrogen", "Resource", "kg", "raw", "in ground")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+    @Test
+    fun realKeyForResource_ShouldReturnTheNonRenewable_WhenThereIsNoDefaultAndNoRenewable() {
+        // Given
+        val excepted = SubstanceKey("diatomite", "ground", NON_RENEWABLE)
+
+        // When
+        val result =
+            sut.realKeyForSubstance("Diatomite", "Resource", "kg", "raw", "in ground")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+    @Test
+    fun realKeyForResource_ShouldReturnTheRenewable_WithoutDefaultRenewableHasPriorityOnNonRenewable() {
+        // Given
+        val excepted = SubstanceKey("dolomite", "ground", RENEWABLE)
+
+        // When
+        val result =
+            sut.realKeyForSubstance("dolomite", "Resource", "kg", "raw", "in ground")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+    @Test
+    fun realKeyForResource_ShouldRemoveUnit_WhenNoKeyIsFound() {
+        // Given
+        val excepted = SubstanceKey("argon_40", "air", RENEWABLE)
+
+        // When
+        val result =
+            sut.realKeyForSubstance("argon_40_kg", "Resource", "kg", "raw", "in air")
+
+        // Then
+        assertEquals(excepted, result)
+    }
+
+
 }

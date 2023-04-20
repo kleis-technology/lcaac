@@ -206,15 +206,21 @@ ${ModelWriter.block("resources {", resources)}
     private fun renderElementary(
         exchange: ElementaryExchangeRow,
         type: String,
-        compartiment: String
+        compartment: String
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount()
         val amount = tryToCompute(amountFormula.toString())
         val unit = exchange.unit()
-        val uid =
-            substanceDict.realKeyForSubstance(exchange.name(), type, compartiment, exchange.subCompartment()).uid()
-        return comments.plus("$amount $unit $uid // $amountFormula")
+        val sub = exchange.subCompartment()
+        val name = exchange.name()
+        val realKey = substanceDict.realKeyForSubstance(name, type, unit, compartment, sub)
+        val info = if (realKey.hasChanged)
+            ", Fallback for ($name, $type, $compartment, ${sub})"
+        else
+            ""
+        val uid = realKey.uid()
+        return comments.plus("$amount $unit $uid // $amountFormula$info")
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {

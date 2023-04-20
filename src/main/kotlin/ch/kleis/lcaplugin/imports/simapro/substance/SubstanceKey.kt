@@ -3,26 +3,63 @@ package ch.kleis.lcaplugin.imports.simapro.substance
 import ch.kleis.lcaplugin.imports.ModelWriter
 import org.apache.commons.csv.CSVRecord
 
-// TODO Virer Type qui n'est pas dsnas la clé
 data class SubstanceKey(
-    val name: String,
-    val type: String, // Better to not use the enum type SubstanceType here in case type is not valid
-    val compartment: String,
-    val subCompartment: String?
+    var name: String,
+    var compartment: String,
+    var subCompartment: String? = null,
+    val hasChanged: Boolean = false
 ) {
-    fun withoutSubCompartment(): SubstanceKey {
-        return SubstanceKey(this.name, this.type, this.compartment, null)
+
+    init {
+        name = ModelWriter.sanitizeAndCompact(name)
+        compartment = compartment.lowercase()
+        subCompartment = subCompartment?.ifBlank { null }
     }
 
     constructor(record: CSVRecord) : this(
         record["Name"],
-        record["Type"],
         record["Compartment"],
         record["SubCompartment"].ifBlank { null }
     )
 
+    fun withoutSub(): SubstanceKey {
+        return SubstanceKey(this.name, this.compartment, null, hasChanged = true)
+    }
+
+    fun sub(subCompartment: String): SubstanceKey {
+        return SubstanceKey(this.name, this.compartment, subCompartment, hasChanged = true)
+    }
+
+    fun removeFromName(toReplace: String): SubstanceKey {
+        return SubstanceKey(this.name.replace("_${toReplace}", ""), this.compartment, subCompartment, hasChanged = true)
+    }
+
     fun uid(): String {
         val option = if (subCompartment.isNullOrBlank()) "" else "_$subCompartment"
-        return ModelWriter.sanitizeAndCompact("${name}_${type}_$compartment$option")
+        return ModelWriter.sanitizeAndCompact("${name}_$compartment$option")
     }
+
+    /* Need custom implementation to ignore hasChanged field */
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as SubstanceKey
+
+        if (name != other.name) return false
+        if (compartment != other.compartment) return false
+        if (subCompartment != other.subCompartment) return false
+
+        return true
+    }
+
+    /* Need custom implementation to ignore hasChanged field */
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + compartment.hashCode()
+        result = 31 * result + (subCompartment?.hashCode() ?: 0)
+        return result
+    }
+
+
 }

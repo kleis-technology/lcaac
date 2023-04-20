@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
+import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.MissingLibraryFileException
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.csv.CSVFormat
@@ -12,6 +13,7 @@ interface Dictionary {
     fun realKeyForSubstance(
         name: String,
         type: String,
+        unit: String,
         compartment: String,
         subCompartment: String? = null
     ): SubstanceKey
@@ -21,13 +23,17 @@ class SimaproDictionary : Dictionary {
     override fun realKeyForSubstance(
         name: String,
         type: String,
+        unit: String,
         compartment: String,
         subCompartment: String?
     ): SubstanceKey {
         // Simapro Substance do not deal with type...
-        return SubstanceKey(name, "", compartment, subCompartment)
+        return SubstanceKey(name, compartment, "")
     }
 }
+
+const val NON_RENEWABLE = "non-renewable"
+const val RENEWABLE = "renewable"
 
 class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictionary {
     companion object {
@@ -54,21 +60,57 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
         }
     }
 
-    private val subCompartmentMapping = mapOf<String, String>(
-        "low. pop." to EfCategories.SubCompartiment.NON_URBAN_HIGH_STACK.value
-    ).withDefault { k -> k }
+    private val subCompartmentMapping = mapOf(
+        "low. pop." to EfCategories.SubCompartiment.NON_URBAN_HIGH_STACK.value, // 771
+        "high. pop." to EfCategories.SubCompartiment.URBAN_AIR_CLOSE_TO_GROUND.value, // 771
+//                groundwater
+//                biotic
+//                industrial
+//                agricultural
+//                ocean
+//                stratosphere + troposphere
+//                land
+//                low. pop., long-term
+//                river
+//                forestry
+//                low. pop.
+//                groundwater, long-term
+    )
+
+    private val resourceCompartmentMapping = mapOf(
+        "in ground" to EfCategories.Compartiment.GROUND.value,
+        "in water" to EfCategories.Compartiment.WATER.value,
+        "in air" to EfCategories.Compartiment.AIR.value
+    )
 
 
     override fun realKeyForSubstance(
         name: String,
         type: String,
+        unit: String,
         compartment: String,
         subCompartment: String?
     ): SubstanceKey {
-        val realSubComp = subCompartmentMapping[subCompartment]
+        val realComp: String
+        val realSubComp: String?
+        return if (type == SubstanceType.RESOURCE.value) {
+            realComp = resourceCompartmentMapping[subCompartment] ?: subCompartment ?: "null_sub_comp"
+            val key = SubstanceKey(name, realComp)
+            tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
+        } else {
+            realComp = compartment
+            realSubComp = subCompartmentMapping[subCompartment] ?: subCompartment
+            val key = SubstanceKey(name, realComp, realSubComp)
+            get(key) ?: get(key.withoutSub()) ?: key
+        }
+    }
 
-        val key = SubstanceKey(name, "", compartment, realSubComp)
-        return dict[key] ?: dict[key.withoutSubCompartment()] ?: key
+    private fun tryKeyAndVariation(key: SubstanceKey) =
+        get(key) ?: get(key.withoutSub()) ?: get(key.sub(RENEWABLE)) ?: get(key.sub(NON_RENEWABLE))
+
+    /* Need to return param, because we need to have key.hasChanged, that may differ from the on in the dictionary */
+    private fun get(key: SubstanceKey): SubstanceKey? {
+        return if (dict[key] == null) null else key
     }
 }
 
