@@ -14,19 +14,17 @@ Note: Only one Run Line Action marker is taken into account in the plugin.xml, s
 interface, which makes some namings a bit weird, as it is expected to jump around in code rather than run stuff.
  */
 
-class GraphChildProcessesMarkerProvider: LineMarkerProvider {
+class GraphChildProcessesMarkerProvider : LineMarkerProvider {
     override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
         // Don't even print something if we cannot render the graph later on.
-        if (!JBCefApp.isSupported()) return null
-
-        return if (isProcess(element)) {
+        return if ((JBCefApp.isSupported()) && (isProcess(element))) {
             LineMarkerInfo(
-                    element,
-                    element.textRange,
-                    AllIcons.Graph.Layout,
-                    null,
-                    GraphChildProcessesAction(),
-                    GutterIconRenderer.Alignment.LEFT
+                element,
+                element.textRange,
+                AllIcons.Graph.Layout,
+                null,
+                GraphChildProcessesAction(),
+                GutterIconRenderer.Alignment.LEFT
             ) { "Show process child graph" }
         } else {
             null

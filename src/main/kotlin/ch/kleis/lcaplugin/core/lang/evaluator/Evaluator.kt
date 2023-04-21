@@ -31,7 +31,6 @@ class Evaluator(
             .compose(Every.list())
             .compose(EBioExchange.substance.eSubstance)
 
-    @Throws(EvaluatorException::class)
     fun eval(expression: TemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")
         val result = recursiveCompile(SystemValue.empty(), expression)
@@ -39,7 +38,6 @@ class Evaluator(
         return result
     }
 
-    @Throws(EvaluatorException::class)
     private fun recursiveCompile(
         accumulator: SystemValue,
         expression: TemplateExpression,
@@ -94,7 +92,6 @@ class Evaluator(
     }
 
 
-    @Throws(EvaluatorException::class)
     private fun resolveAndCheckCandidates(product: EConstrainedProduct): Pair<String, TemplateExpression>? {
         val eProduct =
             if (product.product is EProduct) product.product
