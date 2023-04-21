@@ -153,15 +153,18 @@ process acai_berry_at_farm_br8553_1886 {
         // (2,1,1,1,1,na)
         2170.792762893368 m3 water_river_br_raw
         // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw
-        // (2,1,1,1,1,na)
         2170.792762893368 m3 water_river_br_raw
-        // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw
         // (2,1,1,1,1,na)
         2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw
         // (2,1,1,1,1,na)
         2170.792762893368 m3 water_river_br_raw
+    }
+
+    land_use {
+        // (2,1,1,1,1,na)
+        10000.0 m2a occupation_permanent_crop_irrigated_raw
+        // (2,1,1,1,1,na)
+        10000.0 m2a occupation_permanent_crop_irrigated_raw
         // (2,1,1,1,1,na)
         500.0 m2 transformation_to_permanent_crop_irrigated_raw
     }
@@ -274,6 +277,9 @@ process waste6422_6422 {
         9752559010.236041 kg carbon_dioxide_in_air_raw // Formula=[145.56 * 67E6 / (1 -4E-6)]
     }
 
+    land_use {
+    }
+
 }
 
 """.trimIndent()
@@ -353,6 +359,9 @@ process wastescen6422_6422 {
     }
 
     resources {
+    }
+
+    land_use {
     }
 
 }
@@ -442,6 +451,11 @@ process acai_berry_at_farm_br8553_1886 {
         9752559010.236041 kg diethylene_glycol_air // Formula=[145.56 * 67E6 / (1 -4E-6)]
         // Formula & Resolution
         3.6 kg dolomite_ground_renewable // Formula=[1.2 * 3], Fallback for [Dolomite, Resource, raw, in ground]
+    }
+
+    land_use {
+        // (2,1,1,1,1,na)
+        10000.0 m2a permanent_crops_irrigated_land_occupation // Fallback for [Occupation, permanent crop, irrigated, Land_use, raw, land]
     }
 
 }
@@ -642,6 +656,15 @@ The final yield corresponds to the average yield over the entire lifetime of the
                 .amount(Numeric.of("145.56 * 67E6 / (1 -4E-6)"))
                 .uncertainty(UncertaintyRecord.logNormal(1.0744))
                 .comment("(2,2,1,1,1,na)\n")
+        )
+        sample.resources().add(
+            ElementaryExchangeRow()
+                .name("Occupation, permanent crop, irrigated")
+                .subCompartment("land")
+                .unit("m2a")
+                .amount(Numeric.of(10000.0))
+                .uncertainty(UncertaintyRecord.logNormal(1.1130))
+                .comment("(2,1,1,1,1,na)\n")
         )
         sample.products().add(
             ProductOutputRow().name("Acai berry, at farm (WFLDB 3.7)/BR U")

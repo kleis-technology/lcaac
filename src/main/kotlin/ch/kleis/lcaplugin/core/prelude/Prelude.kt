@@ -59,10 +59,12 @@ class Prelude {
             EUnitLiteral("MJ", 1.0e6 / 3600.0, energy),
             EUnitLiteral("W", 1.0, power),
             EUnitLiteral("m2a", 1.0, land_use),
+            EUnitLiteral("m3a", 1.0, land_use),
             EUnitLiteral("tkm", 1.0, transport),
             EUnitLiteral("my", 365 * 24 * 3600.0, length_time),
             EUnitLiteral("personkm", 1000.0, person_distance),
             EUnitLiteral("kgy", 365 * 24 * 3600.0, mass_time),
+            EUnitLiteral("kga", 365 * 24 * 3600.0, mass_time),
             EUnitLiteral("m3y", 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol }
 

@@ -124,7 +124,9 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
         val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
         val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
 
-        val resources = process.resources().map { renderElementary(it, "Resource", "raw") }.flatten()
+        val allRes = process.resources().groupBy { if (it.subCompartment() == "land") "land_use" else "resources" }
+        val resources = (allRes["resources"] ?: listOf()).map { renderElementary(it, "Resource", "raw") }.flatten()
+        val landUses = (allRes["land_use"] ?: listOf()).map { renderElementary(it, "Land_use", "raw") }.flatten()
 
         writer.write(
             "processes/${process.category()}",
@@ -165,6 +167,8 @@ ${ModelWriter.block("emissions { // Remaining Waste", emissionsRemainingWaste)}
 ${ModelWriter.block("emissions { // Separated Waste", emissionsSeparatedWaste)}
 
 ${ModelWriter.block("resources {", resources)}
+
+${ModelWriter.block("land_use {", landUses)}
 
 }
 """

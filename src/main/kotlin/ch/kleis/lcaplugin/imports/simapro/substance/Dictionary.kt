@@ -15,7 +15,7 @@ interface Dictionary {
         type: String,
         unit: String,
         compartment: String,
-        subCompartment: String? = null
+        sub: String? = null
     ): SubstanceKey
 }
 
@@ -25,12 +25,14 @@ class SimaproDictionary : Dictionary {
         type: String,
         unit: String,
         compartment: String,
-        subCompartment: String?
+        sub: String?
     ): SubstanceKey {
         // Simapro Substance do not deal with type...
         return SubstanceKey(name, type, compartment, "")
     }
 }
+
+enum class LandUseType(val value: String) { OCCUPATION("Land occupation"), TRANSFORMATION("Land transformation") }
 
 const val NON_RENEWABLE = "non-renewable"
 const val RENEWABLE = "renewable"
@@ -83,25 +85,82 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
         "in air" to EfCategories.Compartiment.AIR.value
     )
 
+    private val landUseSubCompReplacement = mapOf(
+        "annual crop" to "arable",
+        "arable land" to "arable",
+        "grassland, natural" to "grassland",
+        "pasture, man made" to "pasture/meadow",
+        "pasture, man made, extensive" to "pasture/meadow, extensive",
+        "pasture, man made, intensive" to "pasture/meadow, intensive",
+        "permanent crop" to "permanent crops",
+//                sea and ocean
+//                seabed, drilling and mining
+//                seabed, infrastructure
+        "shrub land, sclerophyllous" to "shrub land",
+        "urban/industrial fallow (non-use)" to "urban/industrial fallow",
+        "water bodies, artificial" to "water bodies",
+        "river" to "rivers",
+        "wetland" to "wetlands",
+        ", unspecified use" to "",
+        ", unspecified" to "",
+        "waterbody" to "water bodies",
+        "(non-use)" to "", // TODO Check : Good Idea or Bug
+    )
+    private val landUseSubCompCache = HashMap<String, SubstanceKey>()
 
     override fun realKeyForSubstance(
         name: String,
         type: String,
         unit: String,
         compartment: String,
-        subCompartment: String?
+        sub: String?
     ): SubstanceKey {
-        val realComp: String
-        val realSubComp: String?
-        if (type == SubstanceType.RESOURCE.value) {
-            realComp = resourceCompartmentMapping[subCompartment] ?: subCompartment ?: "null_sub_comp"
-            realSubComp = null
-        } else {
-            realComp = compartment
-            realSubComp = subCompartmentMapping[subCompartment] ?: subCompartment
+        return when (type) {
+            SubstanceType.LAND_USE.value -> {
+                keyForLandUse(name, type)
+            }
+
+            SubstanceType.RESOURCE.value -> {
+                val realComp = resourceCompartmentMapping[sub] ?: sub ?: "null_sub_comp"
+                val key = SubstanceKey(name, type, realComp, null)
+                return tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
+            }
+
+            SubstanceType.EMISSION.value -> {
+                val realSubComp = subCompartmentMapping[sub] ?: sub
+                val key = SubstanceKey(name, type, compartment, realSubComp)
+                return tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
+            }
+
+            else -> SubstanceKey(name, type, compartment, sub)
         }
-        val key = SubstanceKey(name, type, realComp, realSubComp)
-        return tryKeyAndVariation(key) ?: tryKeyAndVariation(key.removeFromName(unit)) ?: key
+    }
+
+    private fun keyForLandUse(name: String, type: String): SubstanceKey {
+        val existing = landUseSubCompCache[name]
+        return if (existing != null) {
+            existing
+        } else {
+            val (newName, realComp) = when {
+                name.startsWith("Occupation, ") ->
+                    name.substring("Occupation, ".length, name.length) to LandUseType.OCCUPATION.value
+
+                name.startsWith("Transformation, ") ->
+                    name.substring("Transformation, ".length, name.length) to LandUseType.TRANSFORMATION.value
+
+                else -> {
+                    LOG.warn("Unknown LandUseType for name = $name")
+                    name to "Unknown"
+                }
+            }
+            var realName = newName
+            if (realComp != "Unknown") {
+                landUseSubCompReplacement.entries.forEach { (from, to) -> realName = realName.replace(from, to) }
+            }
+            val result = SubstanceKey(realName, type, realComp, null, hasChanged = newName != realName)
+            landUseSubCompCache[name] = result
+            result
+        }
     }
 
     private fun tryKeyAndVariation(key: SubstanceKey) =
