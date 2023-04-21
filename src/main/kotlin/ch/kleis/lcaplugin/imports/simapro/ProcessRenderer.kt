@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import arrow.core.toNonEmptyListOrNull
 import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.FormulaConverter
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
 import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
@@ -12,9 +13,6 @@ import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
-import javax.script.ScriptException
 
 fun ProcessBlock.uid(): String {
     val mainProductName = if (this.products().isNullOrEmpty()) {
@@ -45,17 +43,6 @@ fun ProductOutputRow.uid(): String {
 private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
 class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
-    companion object {
-        private val engine: ScriptEngine
-        val formulaDetector = Regex(".*[a-zA-DF-Z()/+* ]+.*")
-
-        init {
-            val mgr = ScriptEngineManager()
-            engine = mgr.getEngineByName("Groovy")
-        }
-
-    }
-
     private val substanceDict: Dictionary = when (mode) {
         SubstanceImportMode.SIMAPRO -> SimaproDictionary()
         SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
@@ -187,7 +174,7 @@ ${ModelWriter.block("land_use {", landUses)}
     private fun render(param: CalculatedParameterRow): List<String> {
         val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
         val amountFormula = param.expression()
-        val (amount, changed) = tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
         val unit = "u"
         val uid = ModelWriter.sanitize(param.name())
         val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
@@ -201,7 +188,7 @@ ${ModelWriter.block("land_use {", landUses)}
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount().toString()
-        val (amount, changed) = tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
         val unit = exchange.unit()
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
         val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
@@ -216,7 +203,7 @@ ${ModelWriter.block("land_use {", landUses)}
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount().toString()
-        val (amount, changed) = tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
         val unit = exchange.unit()
         val sub = exchange.subCompartment()
         val name = exchange.name()
@@ -234,7 +221,7 @@ ${ModelWriter.block("land_use {", landUses)}
 
         val comments = ModelWriter.asComment(product.comment())
         val amountFormula = product.amount().toString()
-        val (amount, changed) = tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
         val unit = product.unit()
         val uid = ModelWriter.sanitizeAndCompact(product.uid())
         val allocation = product.allocation()
@@ -250,20 +237,6 @@ ${ModelWriter.block("land_use {", landUses)}
         exchange.wasteType()?.let { additionalComments.add("// wasteType: $it") }
 
         return render(exchange, additionalComments = additionalComments)
-    }
-
-    private fun tryToCompute(amountFormula: String): Pair<String, Boolean> {
-
-        val compute = try {
-            if (formulaDetector.matches(amountFormula)) {
-                engine.eval(amountFormula).toString()
-            } else {
-                amountFormula
-            }
-        } catch (e: ScriptException) {
-            "// QQQ Invalid regex detector for $amountFormula"
-        }
-        return Pair(compute, compute != amountFormula)
     }
 
     private fun createComment(comments: List<String>): String {
