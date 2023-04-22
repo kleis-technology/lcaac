@@ -26,6 +26,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
         AliasFor("mass.time", Prelude.mass_time),
         AliasFor("volume.time", Prelude.volume_time),
     ).associateBy { it.alias }
+    var nbUnit = 0
 
     companion object {
         fun of(existingUnits: Map<String, UnitValue>): UnitRenderer {
@@ -68,6 +69,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
                 }
             }
         }
+        nbUnit++
     }
 
     private fun generateUnitBlockWithNewDimension(symbol: String, unitName: String, dimensionName: String): String {

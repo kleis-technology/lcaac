@@ -48,6 +48,7 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
         SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
         SubstanceImportMode.EF31 -> Ef3xDictionary.fromClassPath("emissions_factors3.1.jar")
     }
+    var nbProcesses: Int = 0
 
 
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
@@ -160,6 +161,7 @@ ${ModelWriter.block("land_use {", landUses)}
 }
 """
         )
+        nbProcesses++
     }
 
     private fun renderLiterature(s: LiteratureRow): String {

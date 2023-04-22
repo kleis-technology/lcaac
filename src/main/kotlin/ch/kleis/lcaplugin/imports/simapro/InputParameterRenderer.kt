@@ -6,6 +6,7 @@ import org.openlca.simapro.csv.refdata.InputParameterBlock
 import org.openlca.simapro.csv.refdata.InputParameterRow
 
 class InputParameterRenderer : Renderer<InputParameterBlock> {
+    var nbParameters = 0
     override fun render(block: InputParameterBlock, writer: ModelWriter) {
         if (block.parameters().size > 0) {
             val vars = block.parameters().flatMap { render(it) }
@@ -18,6 +19,7 @@ class InputParameterRenderer : Renderer<InputParameterBlock> {
 
                     """.trimIndent(), false
             )
+            nbParameters += block.parameters().size
         }
     }
 

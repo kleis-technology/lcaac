@@ -4,15 +4,60 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
 import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.ImportInterruptedException
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import org.openlca.simapro.csv.CsvBlock
 import org.openlca.simapro.csv.SimaProCsv
 import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
 import java.nio.file.Path
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
-class Importer(private val settings: LcaImportSettings) {
+data class Imported(val qty: Int, val name: String)
+sealed class Summary(
+    val durationInSec: Long,
+    private val importedResources: List<Imported> = listOf()
+) {
+    fun getResourcesAsString(): String {
+        return importedResources.filter { it.qty > 0 }
+            .joinToString(", ") { "${it.qty} ${it.name}" }
+    }
+
+}
+
+class SummaryInSuccess(
+    durationInSec: Long,
+    importedResources: List<Imported>,
+) : Summary(durationInSec, importedResources) {
+
+}
+
+class SummaryInterrupted(
+    durationInSec: Long,
+    importedResources: List<Imported>,
+) : Summary(durationInSec, importedResources) {
+
+}
+
+class SummaryInError(
+    durationInSec: Long,
+    importedResources: List<Imported>,
+    val errorMessage: String
+) : Summary(durationInSec, importedResources) {
+
+}
+
+class Importer(
+    private val settings: LcaImportSettings,
+    private val watcher: AsynchronousWatcher,
+    private val controller: AsyncTaskController
+) {
+    private val begin = Instant.now()
+    private var currentValue = 0
+
     companion object {
         private val LOG = Logger.getInstance(Importer::class.java)
     }
@@ -20,24 +65,46 @@ class Importer(private val settings: LcaImportSettings) {
     private val processRenderer = ProcessRenderer(settings.importSubstancesMode)
     private val simaproSubstanceRenderer = SimaproSubstanceRenderer()
     private val inputParameterRenderer = InputParameterRenderer()
-
-
-    fun import() {
-        val path = Path.of(settings.libraryFile)
-        val predefined = Prelude.unitMap.values
+    private val unitRenderer = UnitRenderer.of(
+        Prelude.unitMap.values
             .map { UnitValue(ModelWriter.sanitize(it.symbol, false), it.scale, it.dimension) }
             .associateBy { it.symbol.lowercase() }
-        val unitRenderer = UnitRenderer.of(predefined)
-        val pkg = settings.rootPackage.ifBlank { "default" }
-        val fileHeaderImports = when (settings.importSubstancesMode) {
-            SubstanceImportMode.EF30 -> listOf("ef30")
-            SubstanceImportMode.EF31 -> listOf("ef31")
-            SubstanceImportMode.SIMAPRO -> listOf()
+    )
+
+    fun import(): Summary {
+        try {
+            val path = Path.of(settings.libraryFile)
+
+            val pkg = settings.rootPackage.ifBlank { "default" }
+            val fileHeaderImports = when (settings.importSubstancesMode) {
+                SubstanceImportMode.EF30 -> listOf("ef30")
+                SubstanceImportMode.EF31 -> listOf("ef31")
+                SubstanceImportMode.SIMAPRO -> listOf()
+            }
+            val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports)
+            writer.use {
+                importFile(path, it, unitRenderer)
+            }
+            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
+            return SummaryInSuccess(duration, collectProgress())
+        } catch (e: ImportInterruptedException) {
+            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
+            return SummaryInterrupted(duration, collectProgress())
+        } catch (e: Exception) {
+            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
+            return SummaryInError(duration, collectProgress(), e.message ?: "")
         }
-        val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports)
-        writer.use {
-            importFile(path, it, unitRenderer)
-        }
+    }
+
+    private fun collectProgress(): List<Imported> {
+        return listOf(
+            Imported(unitRenderer.nbUnit, "units"),
+            Imported(inputParameterRenderer.nbParameters, "parameters"),
+            Imported(processRenderer.nbProcesses, "processes"),
+            Imported(simaproSubstanceRenderer.nbSubstances, "substances")
+        )
+
+
     }
 
     private fun importFile(path: Path, writer: ModelWriter, unitRenderer: UnitRenderer) {
@@ -48,6 +115,10 @@ class Importer(private val settings: LcaImportSettings) {
 
 
     private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
+        currentValue++
+        watcher.notifyProgress(currentValue)
+
+        if (!controller.isActive()) throw ImportInterruptedException()
         when {
             block.isProcessBlock && settings.importProcesses -> processRenderer.render(
                 block.asProcessBlock(),
