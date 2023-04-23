@@ -48,7 +48,7 @@ dependencies {
     implementation(files(layout.buildDirectory.dir("stdlib/ef3.0")) {
         builtBy("generateEmissionFactors30")
     })
-    implementation("org.ojalgo:ojalgo:52.0.1")
+    implementation("org.ejml:ejml-simple:0.43")
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.5"

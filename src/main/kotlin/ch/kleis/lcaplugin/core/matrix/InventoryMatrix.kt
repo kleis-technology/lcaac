@@ -11,7 +11,7 @@ import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 class InventoryMatrix(
     val observablePorts: IndexedCollection<MatrixColumnIndex>,
     val controllablePorts: IndexedCollection<MatrixColumnIndex>,
-    private val data: Matrix
+    private val data: Matrix,
 ) {
     fun value(outputPort: MatrixColumnIndex, inputPort: MatrixColumnIndex): CharacterizationFactorValue {
         val outputUnit = outputPort.getDimension().getDefaultUnitValue()

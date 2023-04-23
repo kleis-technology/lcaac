@@ -9,7 +9,9 @@ class MatrixFixture {
             val a = MatrixFactory.INSTANCE.zero(rows, cols)
             for (row in 0 until rows) {
                 for (col in 0 until cols) {
-                    a.add(row, col, data[cols * row + col])
+                    if(data[cols * row + col] != 0.0) {
+                        a.add(row, col, data[cols * row + col])
+                    }
                 }
             }
             return a

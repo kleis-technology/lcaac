@@ -1,9 +1,10 @@
 package ch.kleis.lcaplugin.core.matrix.impl
 
 import ch.kleis.lcaplugin.core.matrix.MatrixFixture
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Test
+import java.lang.IllegalArgumentException
 
 class SolverTest {
     private val precision = 1e-6
@@ -36,7 +37,7 @@ class SolverTest {
         )
     }
 
-    @Test
+    @Test()
     fun solve_whenZeroCols() {
         // given
         val a = MatrixFactory.INSTANCE.zero(0, 3)

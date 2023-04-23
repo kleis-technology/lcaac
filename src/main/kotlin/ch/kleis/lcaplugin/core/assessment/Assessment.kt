@@ -61,7 +61,7 @@ class Assessment(
     fun inventory(): InventoryMatrix {
         val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate())
             ?: throw EvaluatorException("The system cannot be solved")
-        return InventoryMatrix(this.observablePorts, this.controllablePorts, data)
+        return InventoryMatrix(observablePorts, controllablePorts, data)
     }
 
 
