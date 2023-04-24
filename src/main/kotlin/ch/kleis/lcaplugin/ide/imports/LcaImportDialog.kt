@@ -107,7 +107,6 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
             )
         )
         val substanceComp = createSubstanceCombo()
-//        substanceField = substanceComp.component
         builder.addLabeledComponent(substanceComp.label, substanceComp.component)
         component.add(
             JPanel(VerticalFlowLayout())

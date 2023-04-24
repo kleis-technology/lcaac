@@ -37,7 +37,7 @@ class FormulaConverter {
         }
 
 
-        fun tryToCompute(amountFormula: String): Pair<String, Boolean> {
+        fun compute(amountFormula: String): Pair<String, Boolean> {
 
             val compute = try {
                 if (onlyScientific.matches(amountFormula)) {

@@ -27,7 +27,7 @@ class SimaproDictionary : Dictionary {
         compartment: String,
         sub: String?
     ): SubstanceKey {
-        // Simapro Substance do not deal with type...
+        // Simapro Substance don't know subCompartment
         return SubstanceKey(name, type, compartment, "")
     }
 }
@@ -85,7 +85,7 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
         "in air" to EfCategories.Compartiment.AIR.value
     )
 
-    private val landUseSubCompReplacement = mapOf(
+    private val landUseSubCompMapping = mapOf(
         "annual crop" to "arable",
         "arable land" to "arable",
         "grassland, natural" to "grassland",
@@ -104,7 +104,7 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
         ", unspecified use" to "",
         ", unspecified" to "",
         "waterbody" to "water bodies",
-        "(non-use)" to "", // TODO Check : Good Idea or Bug
+        "(non-use)" to "", // TODO Check : Good Idea or Bug ?
     )
     private val landUseSubCompCache = HashMap<String, SubstanceKey>()
 
@@ -155,7 +155,7 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
             }
             var realName = newName
             if (realComp != "Unknown") {
-                landUseSubCompReplacement.entries.forEach { (from, to) -> realName = realName.replace(from, to) }
+                landUseSubCompMapping.entries.forEach { (from, to) -> realName = realName.replace(from, to) }
             }
             val result = SubstanceKey(realName, type, realComp, null, hasChanged = newName != realName)
             landUseSubCompCache[name] = result
@@ -166,7 +166,10 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
     private fun tryKeyAndVariation(key: SubstanceKey) =
         get(key) ?: get(key.withoutSub()) ?: get(key.sub(RENEWABLE)) ?: get(key.sub(NON_RENEWABLE))
 
-    /* Need to return param, because we need to have key.hasChanged, that may differ from the on in the dictionary */
+    /* When the key exists in the dictionary, we have to return the one in parameter and not the one in the dict, because the equivalent
+     * one in the dictionary differs a bit: they probably not have the same value for the field key.hasChanged
+     * that is not part of equals/hashCode.
+     */
     private fun get(key: SubstanceKey): SubstanceKey? {
         return if (dict[key] == null) null else key
     }

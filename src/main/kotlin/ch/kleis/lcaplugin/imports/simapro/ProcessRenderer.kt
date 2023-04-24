@@ -174,10 +174,10 @@ ${ModelWriter.block("land_use {", landUses)}
     private fun render(param: CalculatedParameterRow): List<String> {
         val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
         val amountFormula = param.expression()
-        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = "u"
         val uid = ModelWriter.sanitize(param.name())
-        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return result.plus("$uid = $amount $unit$endingComment")
     }
 
@@ -188,10 +188,10 @@ ${ModelWriter.block("land_use {", landUses)}
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount().toString()
-        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = exchange.unit()
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
-        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
             .plus("$amount $unit $uid$endingComment")
     }
@@ -203,13 +203,13 @@ ${ModelWriter.block("land_use {", landUses)}
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
         val amountFormula = exchange.amount().toString()
-        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = exchange.unit()
         val sub = exchange.subCompartment()
         val name = exchange.name()
         val realKey = substanceDict.realKeyForSubstance(name, type, unit, compartment, sub)
         val info = if (!realKey.hasChanged) "" else "Fallback for [$name, $type, $compartment, ${sub}]"
-        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else "", info))
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else "", info))
         val uid = realKey.uid()
         return comments.plus("$amount $unit $uid$endingComment")
     }
@@ -221,11 +221,11 @@ ${ModelWriter.block("land_use {", landUses)}
 
         val comments = ModelWriter.asComment(product.comment())
         val amountFormula = product.amount().toString()
-        val (amount, changed) = FormulaConverter.tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = product.unit()
         val uid = ModelWriter.sanitizeAndCompact(product.uid())
         val allocation = product.allocation()
-        val endingComment = createComment(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
             .plus("$amount $unit $uid allocate $allocation percent$endingComment")
     }
@@ -239,7 +239,7 @@ ${ModelWriter.block("land_use {", landUses)}
         return render(exchange, additionalComments = additionalComments)
     }
 
-    private fun createComment(comments: List<String>): String {
+    private fun createCommentLine(comments: List<String>): String {
         val cleaned = comments.filter { it.isNotBlank() }
 
         return if (cleaned.isEmpty()) ""

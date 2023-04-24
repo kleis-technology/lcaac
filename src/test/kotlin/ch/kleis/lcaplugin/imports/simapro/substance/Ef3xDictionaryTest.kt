@@ -268,9 +268,6 @@ class Ef3xDictionaryTest {
             "Transformation, from arable land, unspecified use"
                     to SubstanceKey("from_arable", "Land_use", "Land transformation"),
         )
-//        Occupation, unspecified;land;m2a;0.00042064512;Undefined;0;0;0;
-//        Occupation, unspecified, natural (non-use);land;m2a;0.0002659917;Undefined;0;0;0;
-//        Transformation, from arable land, unspecified use;land;m2;4.2295926E-5;Undefined;0;0;0;
         data.forEach { (param, expected) ->
             // When
             val result = sut.realKeyForSubstance(param, "Land_use", "m2a", "raw", "land")

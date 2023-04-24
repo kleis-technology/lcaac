@@ -8,8 +8,7 @@ class SimaproDictionaryTest {
     private val sut = SimaproDictionary()
 
     @Test
-    fun realKeyForSubstance_ShouldReturnTruncatedKey_WithSubCompartiment() {
-        // Simapro substance dont have subCompartment
+    fun realKeyForSubstance_ShouldReturnTruncatedKeyWithoutSubCompartiment_WhatEverTheSubCompartmentIs() {
         // Given
         val excepted = SubstanceKey("beta_chloronaphthalene", "Emission", "soil")
 

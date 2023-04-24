@@ -11,7 +11,7 @@ class FormulaConverterTest {
     data class Par(val param: String, val expected: String, val hasBeenComputed: Boolean)
 
     @Test
-    fun tryToCompute_ShouldReturnLiteralNumbers() {
+    fun compute_ShouldReturnLiteralNumbers() {
         // Given
         val data = listOf(
             "12.34" to "12.34",
@@ -26,7 +26,7 @@ class FormulaConverterTest {
 
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.tryToCompute(param)
+            val (result, changed) = FormulaConverter.compute(param)
             // Then
             assertEquals(expected, result)
             assertFalse(changed)
@@ -34,17 +34,16 @@ class FormulaConverterTest {
     }
 
     @Test
-    fun tryToCompute_ShouldReturnComputedValue_WithoutVariables() {
+    fun compute_ShouldReturnComputedValue_WithoutVariables() {
         // Given
         val data = listOf(
             "11.11 *7" to "77.77",
             "12.3-4" to "8.3",
             "12.3+4" to "16.3",
         )
-// Quid "4-E"
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.tryToCompute(param)
+            val (result, changed) = FormulaConverter.compute(param)
             // Then
             assertEquals(expected, result)
             assertTrue(changed)
@@ -52,9 +51,7 @@ class FormulaConverterTest {
     }
 
     @Test
-    fun tryToCompute_ShouldReturnAFormulaWithQuantity_WhenFormula() {
-        // Given
-        val expected = "( 0.1486 u * LUC_crop_specific + 0.3654 u * ( 1 u - LUC_crop_specific ) ) * 1"
+    fun compute_ShouldReturnAFormulaWithQuantity_WhenFormula() {
         // Given
         val data = listOf(
             "4-E" to "( 4 u - E ) * 1",
@@ -65,7 +62,7 @@ class FormulaConverterTest {
         )
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.tryToCompute(param)
+            val (result, changed) = FormulaConverter.compute(param)
             // Then
             assertEquals(expected, result)
             assertTrue(changed)

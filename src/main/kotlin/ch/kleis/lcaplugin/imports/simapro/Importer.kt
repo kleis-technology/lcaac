@@ -29,12 +29,12 @@ class Importer(private val settings: LcaImportSettings) {
             .associateBy { it.symbol.lowercase() }
         val unitRenderer = UnitRenderer.of(predefined)
         val pkg = settings.rootPackage.ifBlank { "default" }
-        val import = when (settings.importSubstancesMode) {
+        val fileHeaderImports = when (settings.importSubstancesMode) {
             SubstanceImportMode.EF30 -> listOf("ef30")
             SubstanceImportMode.EF31 -> listOf("ef31")
             SubstanceImportMode.SIMAPRO -> listOf()
         }
-        val writer = ModelWriter(pkg, settings.rootFolder, import)
+        val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports)
         writer.use {
             importFile(path, it, unitRenderer)
         }
