@@ -79,7 +79,7 @@ class ImporterTest {
         // Then
         assertTrue("Unit file should exists", Path.of(outputUnitFile).exists())
         assertTrue(result is SummaryInSuccess)
-        assertEquals("88 units, 3 parameters, 10 processes, 5 substances", result.getResourcesAsString())
+        assertEquals("88 units, 3 parameters, 10 processes, 1353 substances", result.getResourcesAsString())
         assertTrue(result.durationInSec >= 0)
     }
 

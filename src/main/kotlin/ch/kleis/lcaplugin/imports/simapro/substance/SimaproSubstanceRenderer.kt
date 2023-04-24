@@ -12,7 +12,6 @@ class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)
         block.flows().forEach { render(it, compartiment, writer) }
-        nbSubstances++
     }
 
     private fun render(element: ElementaryFlowRow, compartiment: String, writer: ModelWriter) {
@@ -46,6 +45,7 @@ substance $uid {
     }
 }"""
         )
+        nbSubstances++
     }
 
 }

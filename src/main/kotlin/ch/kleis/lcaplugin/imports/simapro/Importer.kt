@@ -87,11 +87,12 @@ class Importer(
                 SubstanceImportMode.EF30 -> listOf("ef30")
                 SubstanceImportMode.EF31 -> listOf("ef31")
                 SubstanceImportMode.SIMAPRO -> listOf()
+                SubstanceImportMode.NOTHING -> listOf()
             }
-            val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
-            writer.use {
-                importFile(path, it, unitRenderer)
-            }
+            ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
+                .use { w ->
+                    importFile(path, w, unitRenderer)
+                }
             val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
             return SummaryInSuccess(duration, collectProgress())
         } catch (e: ImportInterruptedException) {

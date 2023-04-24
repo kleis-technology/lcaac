@@ -45,6 +45,7 @@ private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
     private val substanceDict: Dictionary = when (mode) {
         SubstanceImportMode.SIMAPRO -> SimaproDictionary()
+        SubstanceImportMode.NOTHING -> SimaproDictionary()
         SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
         SubstanceImportMode.EF31 -> Ef3xDictionary.fromClassPath("emissions_factors3.1.jar")
     }
