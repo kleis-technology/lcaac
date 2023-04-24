@@ -55,14 +55,14 @@ data class GraphNode(
 /**
  * A link between two LCA nodes, representing an exchange in the Technosphere xor an exchange in the Biosphere.
  *
- * @property from The key of the node from which this link originates
- * @property to The key of the node to which this link points
+ * @property source The key of the node from which this link originates
+ * @property target The key of the node to which this link points
  * @property type Exchange with the biosphere or with the technosphere
  * @property text A free text displayed on the list
  */
 @Serializable
 data class GraphLink(
-    val from: String, val to: String, val type: GraphLinkType, val text: String
+        val source: String, val target: String, val type: GraphLinkType, val text: String
 ) {
     constructor(isInput: Boolean, processKey: String, exchange: TechnoExchangeValue) : this(
         if (isInput) "PRODUCT_${exchange.product.name}" else processKey,
