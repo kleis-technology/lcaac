@@ -12,10 +12,13 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream
 import org.openlca.simapro.csv.CsvBlock
 import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.zip.GZIPInputStream
+import java.util.zip.ZipInputStream
 import kotlin.math.roundToInt
 
 data class Imported(val qty: Int, val name: String)
@@ -116,8 +119,17 @@ class Importer(
         totalValue = file.length()
         val input = file.inputStream()
         input.use {
-            counting = CountingInputStream(input)
-            val reader = InputStreamReader(counting)
+            val countingVal = CountingInputStream(input)
+            val realInput: InputStream = when {
+                file.path.endsWith(".gz") -> GZIPInputStream(countingVal)
+                file.path.endsWith(".zip") -> {
+                    val zip = ZipInputStream(countingVal);zip.nextEntry;zip
+                }
+
+                else -> countingVal
+            }
+            counting = countingVal
+            val reader = InputStreamReader(realInput)
             SimaproStreamCsvReader.read(reader, { block: CsvBlock ->
                 importBlock(block, writer, unitRenderer)
             })
