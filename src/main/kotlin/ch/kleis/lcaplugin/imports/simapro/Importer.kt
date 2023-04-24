@@ -9,12 +9,14 @@ import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.util.io.CountingInputStream
 import org.openlca.simapro.csv.CsvBlock
-import org.openlca.simapro.csv.SimaProCsv
 import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
+import java.io.InputStreamReader
 import java.nio.file.Path
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import kotlin.math.roundToInt
 
 data class Imported(val qty: Int, val name: String)
 sealed class Summary(
@@ -56,7 +58,8 @@ class Importer(
     private val controller: AsyncTaskController
 ) {
     private val begin = Instant.now()
-    private var currentValue = 0
+    private var currentValue = 0L
+    private var totalValue = 1L
 
     companion object {
         private val LOG = Logger.getInstance(Importer::class.java)
@@ -65,6 +68,7 @@ class Importer(
     private val processRenderer = ProcessRenderer(settings.importSubstancesMode)
     private val simaproSubstanceRenderer = SimaproSubstanceRenderer()
     private val inputParameterRenderer = InputParameterRenderer()
+    private var counting: CountingInputStream? = null
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap.values
             .map { UnitValue(ModelWriter.sanitize(it.symbol, false), it.scale, it.dimension) }
@@ -108,15 +112,22 @@ class Importer(
     }
 
     private fun importFile(path: Path, writer: ModelWriter, unitRenderer: UnitRenderer) {
-        SimaProCsv.read(path.toFile()) { block: CsvBlock ->
-            importBlock(block, writer, unitRenderer)
+        val file = path.toFile()
+        totalValue = file.length()
+        val input = file.inputStream()
+        input.use {
+            counting = CountingInputStream(input)
+            val reader = InputStreamReader(counting)
+            SimaproStreamCsvReader.read(reader, { block: CsvBlock ->
+                importBlock(block, writer, unitRenderer)
+            })
         }
     }
 
 
     private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
-        currentValue++
-        watcher.notifyProgress(currentValue)
+        val read = counting?.bytesRead ?: 0L
+        watcher.notifyProgress((100.0 * read / totalValue).roundToInt())
 
         if (!controller.isActive()) throw ImportInterruptedException()
         when {
