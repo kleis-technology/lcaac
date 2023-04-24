@@ -81,7 +81,7 @@ class Importer(
                 SubstanceImportMode.EF31 -> listOf("ef31")
                 SubstanceImportMode.SIMAPRO -> listOf()
             }
-            val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports)
+            val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
             writer.use {
                 importFile(path, it, unitRenderer)
             }

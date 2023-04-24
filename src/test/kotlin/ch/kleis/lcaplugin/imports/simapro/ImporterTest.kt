@@ -68,6 +68,7 @@ class ImporterTest {
         every { settings.importProcesses } returns true
         every { settings.importSubstancesMode } returns SubstanceImportMode.SIMAPRO
         justRun { watcher.notifyProgress(any()) }
+        justRun { watcher.notifyCurrentWork(any()) }
         every { controller.isActive() } returns true
 
         val sut = Importer(settings, watcher, controller)

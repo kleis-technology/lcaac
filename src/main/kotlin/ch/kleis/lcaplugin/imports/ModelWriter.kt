@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
+import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -50,7 +51,8 @@ data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var
 class ModelWriter(
     private val packageName: String,
     private val rootFolder: String,
-    private val imports: List<String> = listOf()
+    private val imports: List<String> = listOf(),
+    private val watcher: AsynchronousWatcher
 ) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
@@ -146,6 +148,7 @@ class ModelWriter(
 
     fun write(relativePath: String, block: CharSequence, index: Boolean = true) {
         if (block.isNotEmpty()) {
+            watcher.notifyCurrentWork(relativePath)
             val file = recreateIfNeeded(relativePath, index)
             file.write(block)
         }
