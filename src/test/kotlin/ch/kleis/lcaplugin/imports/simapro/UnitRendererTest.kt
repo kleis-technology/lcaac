@@ -268,7 +268,7 @@ class UnitRendererTest {
         val symbol = "kg"
         val sut = UnitRenderer.of(emptyMap())
         // when
-        val sanitizedSymbol = sut.sanitizeUnitSymbol(symbol)
+        val sanitizedSymbol = sut.sanitizeSymbol(symbol)
         // then
         assertEquals(symbol, sanitizedSymbol)
     }
@@ -279,9 +279,9 @@ class UnitRendererTest {
         val symbol = "unit"
         val sut = UnitRenderer.of(emptyMap())
         // when
-        val sanitizedSymbol = sut.sanitizeUnitSymbol(symbol)
+        val sanitizedSymbol = sut.sanitizeSymbol(symbol)
         // then
-        assertEquals("u", sanitizedSymbol)
+        assertEquals("_unit", sanitizedSymbol)
     }
 
     @Test
