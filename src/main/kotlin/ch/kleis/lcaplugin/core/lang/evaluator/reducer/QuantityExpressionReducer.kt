@@ -11,6 +11,7 @@ class QuantityExpressionReducer(
 ) : Reducer<QuantityExpression> {
     private val unitRegister = Register(unitRegister)
     private val quantityRegister = Register(quantityRegister)
+    private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker()
 
     override fun reduce(expression: QuantityExpression): QuantityExpression {
         return when (expression) {
@@ -49,14 +50,29 @@ class QuantityExpressionReducer(
     }
 
     private fun reduceAlias(expression: EUnitAlias): UnitExpression {
-        val qty = reduce(expression.aliasFor)
-        if (qty !is EQuantityLiteral) return EUnitAlias(expression.symbol, qty)
+        return when (val aliasForExpression = reduceAliasFor(expression)) {
+            is EQuantityLiteral -> {
+                when (val unitAlias = reduceUnit(aliasForExpression.unit)){
+                    is EUnitLiteral -> {
+                        EUnitLiteral(expression.symbol, aliasForExpression.amount * unitAlias.scale, unitAlias.dimension)
+                    }
+                    else -> {
+                        EUnitAlias(expression.symbol, aliasForExpression)
+                    }
+                }
+            }
+            else -> {
+                EUnitAlias(expression.symbol, aliasForExpression)
+            }
+        }
+    }
 
-        val amount = qty.amount
-        val unitAlias = reduceUnit(qty.unit)
-        if (unitAlias !is EUnitLiteral) return EUnitAlias(expression.symbol, qty)
+    private fun reduceAliasFor(expression: EUnitAlias): QuantityExpression {
+        infiniteUnitLoopChecker.check(expression)
+        val aliasForExpression = reduce(expression.aliasFor)
+        infiniteUnitLoopChecker.clearTraceAlias()
 
-        return EUnitLiteral(expression.symbol, amount*unitAlias.scale, unitAlias.dimension)
+        return aliasForExpression
     }
 
     private fun reduceRef(expression: EQuantityRef) =
