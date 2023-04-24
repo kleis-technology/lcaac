@@ -48,16 +48,11 @@ class Ef3xDictionary(private val dict: Map<SubstanceKey, SubstanceKey>) : Dictio
         ): Dictionary {
             val csvFormat = CSVFormat.Builder.create().setDelimiter(";").setHeader().build()
             val url = Companion::class.java.classLoader.getResources(dictFileName).asSequence()
-                .filter { it.path.contains(pathFilter) }
-                .firstOrNull()
+                .find { it.path.contains(pathFilter) }
                 ?: throw MissingLibraryFileException("Unable to load dictionary $dictFileName in library $pathFilter")
             val dict = CSVParser.parse(
                 url.openStream(), Charset.forName("UTF-8"), csvFormat
-            ).stream()
-                .asSequence()
-                .map { SubstanceKey(it) }
-                .map { it to it }
-                .toMap()
+            ).stream().asSequence().associate { SubstanceKey(it) to SubstanceKey(it) }
             return Ef3xDictionary(dict)
         }
     }

@@ -40,6 +40,7 @@ class FormulaConverterTest {
             "11.11 *7" to "77.77",
             "12.3-4" to "8.3",
             "12.3+4" to "16.3",
+            "12.3+\t4" to "16.3",
         )
         data.forEach { (param, expected) ->
             // When
@@ -58,7 +59,7 @@ class FormulaConverterTest {
             " 0.1486*LUC_crop_specific+0.3654*(1-LUC_crop_specific)" to "( 0.1486 u * LUC_crop_specific + 0.3654 u * ( 1 u - LUC_crop_specific ) ) * 1",
             "0.2345*LUC_crop_specific+0.1555*(1-LUC_crop_specific)" to "( 0.2345 u * LUC_crop_specific + 0.1555 u * ( 1 u - LUC_crop_specific ) ) * 1",
             "0.5476*LUC_crop_specific - 0.0037/(1 +LUC_crop_specific)" to "( 0.5476 u * LUC_crop_specific - 0.0037 u / ( 1 u + LUC_crop_specific ) ) * 1",
-            "0.547E6*LUC_crop_specific^2 - 0.003E-7^2/(1E+2 +LUC_crop_specific)" to "( 0.547E6 u * LUC_crop_specific^2 - 0.003E-7 u^2 / ( 1E+2 u + LUC_crop_specific ) ) * 1",
+            "0.547E6*LUC_crop_specific^2 -\t0.003E-7^2/(1E+2 +LUC_crop_specific)" to "( 0.547E6 u * LUC_crop_specific^2 - 0.003E-7 u^2 / ( 1E+2 u + LUC_crop_specific ) ) * 1",
         )
         data.forEach { (param, expected) ->
             // When

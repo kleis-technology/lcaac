@@ -26,9 +26,9 @@ class FormulaConverter {
         private val onlyScientific = Regex("^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$")
         private val scientificCapture = Regex("([-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?)")
         private val operatorsCapture = Regex("([()+\\-*/^=<>!&|])")
-        private val multipleSpacesCapture = Regex("(\\ +)")
-        private val exponentCapture = Regex("\\ *\\^\\ *([0-9]+\\.?[0-9]*)\\ *u")
-        private val power10WithSpaceCapture = Regex("([0-9]+)E\\ *([+\\-]*)\\ *")
+        private val multipleSpacesCapture = Regex("(\\s+)")
+        private val exponentCapture = Regex("\\s*\\^\\s*([0-9]+\\.?[0-9]*)\\s*u")
+        private val power10WithSpaceCapture = Regex("([0-9]+)E\\s*([+\\-]*)\\s*")
         private val engine: ScriptEngine
 
         init {
