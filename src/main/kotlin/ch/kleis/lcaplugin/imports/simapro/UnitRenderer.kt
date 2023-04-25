@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
+import ch.kleis.lcaplugin.language.reservedWords
 import org.openlca.simapro.csv.refdata.UnitRow
 
 class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Renderer<UnitRow> {
@@ -70,9 +71,11 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun generateUnitBlockWithNewDimension(symbol: String, unitName: String, dimensionName: String): String {
+        val sanitizedSymbol = sanitizeSymbol(symbol)
+        val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
         return """
 
-        unit $symbol {
+        unit $sanitizedSymbol {$sanitizedComment
             symbol = "$unitName"
             dimension = "$dimensionName"
         }
@@ -80,12 +83,30 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun generateUnitAliasBlock(symbol: String, unitName: String, alias: String): String {
+        val sanitizedSymbol = sanitizeSymbol(symbol)
+        val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
         return """
     
-        unit $symbol {
+        unit $sanitizedSymbol {$sanitizedComment
             symbol = "$unitName"
             alias_for = $alias
         }""".trimIndent()
+    }
+
+    fun sanitizeSymbol(symbol: String): String {
+        return if (symbol in reservedWords) {
+            "_$symbol"
+        } else {
+            symbol
+        }
+    }
+
+    fun getSanitizedSymbolComment(symbol: String, sanitizedSymbol: String): String {
+        return if (symbol == sanitizedSymbol) {
+            ""
+        } else {
+            " // $symbol"
+        }
     }
 
     private fun getUnit(symbol: String): UnitValue? {
