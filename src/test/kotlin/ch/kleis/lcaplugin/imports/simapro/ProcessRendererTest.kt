@@ -58,38 +58,38 @@ class ProcessRendererTest {
 process acai_berry_at_farm_br8553_1886 {
 
     meta {
-        description = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
+        "description" = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
             Allocation: No allocation
             System boundaries: Cradle-to-gate. The inventory includes the processes of tree seedling production and planting, fertilisation (mineral and manure).
             Geography: Brazil
             Technology: Conventional production.
             Time: 2000-2018
             Data quality rating (DQR) = 1.8, Very good quality"
-        category = "material"
-        identifier = "LAUSMILA000241671000001"
-        comment = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
+        "category" = "material"
+        "identifier" = "LAUSMILA000241671000001"
+        "comment" = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
             Allocation: No allocation
             System boundaries: Cradle-to-gate. The inventory includes the processes of tree seedling production and planting, fertilisation (mineral and manure).
             Geography: Brazil
             Technology: Conventional production.
             Time: 2000-2018
             Data quality rating (DQR) = 1.8, Very good quality"
-        date = "2018-09-20"
-        generator = "Kleis,
+        "date" = "2018-09-20"
+        "generator" = "Kleis,
             Telephone: 0041 21 211 21 21; E-mail: lca@kleis.ch;"
-        collectionMethod = "Sampling procedure: Principles"
-        dataTreatment = "Data traitement"
-        verification = "Proof reading validation: Passed internally.
+        "collectionMethod" = "Sampling procedure: Principles"
+        "dataTreatment" = "Data traitement"
+        "verification" = "Proof reading validation: Passed internally.
             Validator: KleisAgro
             E-mail: lca@agroscope.admin.ch; Company: Agroscope; Country: CH"
-        systemDescription = "name: Desc"
-        allocationRules = "allocationRules"
-        processType = "Unit process"
-        status = "To be reviewed"
-        infrastructure = "false"
-        record = "data entry by: Kerny@kleis.ch"
-        platformId = "platformId"
-        literatures = "
+        "systemDescription" = "name: Desc"
+        "allocationRules" = "allocationRules"
+        "processType" = "Unit process"
+        "status" = "To be reviewed"
+        "infrastructure" = "false"
+        "record" = "data entry by: Kerny@kleis.ch"
+        "platformId" = "platformId"
+        "literatures" = "
             * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.
             * Another Methodological."
     }
@@ -195,9 +195,9 @@ process acai_berry_at_farm_br8553_1886 {
 process waste6422_6422 {
 
     meta {
-        category = "processing"
-        identifier = "XYXYX"
-        processType = "System"
+        "category" = "processing"
+        "identifier" = "XYXYX"
+        "processType" = "System"
     }
 
 
@@ -304,9 +304,9 @@ process waste6422_6422 {
 process wastescen6422_6422 {
 
     meta {
-        category = "processing"
-        identifier = "XYXYX"
-        processType = "System"
+        "category" = "processing"
+        "identifier" = "XYXYX"
+        "processType" = "System"
     }
 
 
@@ -392,9 +392,9 @@ process wastescen6422_6422 {
 process acai_berry_at_farm_br8553_1886 {
 
     meta {
-        category = "material"
-        identifier = "LAUSMILA000241671000001"
-        platformId = "platformId"
+        "category" = "material"
+        "identifier" = "LAUSMILA000241671000001"
+        "platformId" = "platformId"
     }
 
 
