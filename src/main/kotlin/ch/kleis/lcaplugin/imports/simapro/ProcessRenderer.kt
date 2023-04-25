@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.imports.Renderer
 import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
-import io.ktor.utils.io.*
 import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
 import java.time.ZoneId
@@ -45,7 +44,7 @@ private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
     private val substanceDict: Dictionary = when (mode) {
         SubstanceImportMode.SIMAPRO -> SimaproDictionary()
-        SubstanceImportMode.NOTHING -> SimaproDictionary()
+        SubstanceImportMode.NOTHING -> SimaproDictionary() // We don't import substances, but exchanges are linked with simapro naming
         SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
         SubstanceImportMode.EF31 -> Ef3xDictionary.fromClassPath("emissions_factors3.1.jar")
     }

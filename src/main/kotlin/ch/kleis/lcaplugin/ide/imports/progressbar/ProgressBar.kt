@@ -19,7 +19,6 @@ class ProgressBar : JPanel(GridBagLayout()), AsynchronousWatcher {
     private val label = JLabel(MyBundle.message("lca.dialog.import.in_progress.label.init"))
 
     init {
-        var myCanceled = false
         val gridBag = GridBag().fillCellHorizontally()
         this.add(
             label,

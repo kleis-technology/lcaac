@@ -36,24 +36,18 @@ sealed class Summary(
 class SummaryInSuccess(
     durationInSec: Long,
     importedResources: List<Imported>,
-) : Summary(durationInSec, importedResources) {
-
-}
+) : Summary(durationInSec, importedResources)
 
 class SummaryInterrupted(
     durationInSec: Long,
     importedResources: List<Imported>,
-) : Summary(durationInSec, importedResources) {
-
-}
+) : Summary(durationInSec, importedResources)
 
 class SummaryInError(
     durationInSec: Long,
     importedResources: List<Imported>,
     val errorMessage: String
-) : Summary(durationInSec, importedResources) {
-
-}
+) : Summary(durationInSec, importedResources)
 
 class Importer(
     private val settings: LcaImportSettings,
@@ -61,7 +55,6 @@ class Importer(
     private val controller: AsyncTaskController
 ) {
     private val begin = Instant.now()
-    private var currentValue = 0L
     private var totalValue = 1L
 
     companion object {
@@ -86,8 +79,7 @@ class Importer(
             val fileHeaderImports = when (settings.importSubstancesMode) {
                 SubstanceImportMode.EF30 -> listOf("ef30")
                 SubstanceImportMode.EF31 -> listOf("ef31")
-                SubstanceImportMode.SIMAPRO -> listOf()
-                SubstanceImportMode.NOTHING -> listOf()
+                SubstanceImportMode.SIMAPRO, SubstanceImportMode.NOTHING -> listOf()
             }
             ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
                 .use { w ->
@@ -124,7 +116,7 @@ class Importer(
             val realInput: InputStream = when {
                 file.path.endsWith(".gz") -> GZIPInputStream(countingVal)
                 file.path.endsWith(".zip") -> {
-                    val zip = ZipInputStream(countingVal);zip.nextEntry;zip
+                    val zip = ZipInputStream(countingVal); zip.nextEntry; zip
                 }
 
                 else -> countingVal

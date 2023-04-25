@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.ide.imports
 
 import ch.kleis.lcaplugin.MyBundle
-import ch.kleis.lcaplugin.ide.imports.progressbar.AsynchronImportWorker
+import ch.kleis.lcaplugin.ide.imports.progressbar.AsynchronousImportWorker
 import ch.kleis.lcaplugin.ide.imports.progressbar.ProgressBar
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DefaultActionGroup
@@ -29,7 +29,7 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
 
     private var panelAndActions: Pair<JPanel, JBList<AnAction>>? = null
     private var settingsPanel: ImportSettingsPanel? = null
-    private var worker: AsynchronImportWorker? = null
+    private var worker: AsynchronousImportWorker? = null
 
     constructor() : this(LcaImportSettings.instance)
 
@@ -60,18 +60,8 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
             )
         }
         ActionGroupPanelWrapper.installQuickSearch(groupActions.second)
-//        val c = GridBagConstraints()
-//        c.insets = JBUI.insetsBottom(UIUtil.DEFAULT_VGAP);
         return component
     }
-
-
-//    override fun createSouthPanel(): JComponent {
-//        val southPanel = super.createSouthPanel()
-//        val progressBar = progressBar()
-//        southPanel.add(progressBar)
-//        return super.createSouthPanel()
-//    }
 
 
     override fun getPreferredFocusedComponent(): JComponent {
@@ -91,28 +81,14 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
 
     override fun doOKAction() {
         if (okAction.isEnabled) {
-//            try {
-//            getButton(myOKAction)?.isEnabled = false
-//            getButton(myCancelAction)?.isEnabled = false
             val progressBar = ProgressBar()
             val worker =
-                AsynchronImportWorker(settings, progressBar, { importOnSuccess() }, { importOnError(progressBar) })
+                AsynchronousImportWorker(settings, progressBar, { importOnSuccess() }, { importOnError(progressBar) })
             getButton(myOKAction)?.isEnabled = false
             getButton(myCancelAction)?.isEnabled = false
             settingsPanel?.add(progressBar)
-//            progressBar.repaint()
-//            settingsPanel?.parent?.repaint()
             pack()
-//                lockButtons()
-//                settingsPanel!!.add(progressBar)
-//
-//                settingsPanel!!.add(progressBar(settingsPanel!!))
             worker.start()
-
-//            } finally {
-//                getButton(myOKAction)?.isEnabled = true
-//                getButton(myCancelAction)?.isEnabled = true
-//            }
         }
     }
 

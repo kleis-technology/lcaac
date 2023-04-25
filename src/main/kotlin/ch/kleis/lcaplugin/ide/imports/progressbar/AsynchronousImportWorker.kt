@@ -10,7 +10,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.concurrency.SwingWorker
 
 
-class AsynchronImportWorker(
+class AsynchronousImportWorker(
     private val settings: LcaImportSettings,
     private val progressBar: ProgressBar,
     private val onSuccess: Runnable,
@@ -33,7 +33,7 @@ class AsynchronImportWorker(
         when (val result = get()) {
             is SummaryInSuccess -> {
                 NotificationGroupManager.getInstance()
-                    .getNotificationGroup("LcaNotificationError")
+                    .getNotificationGroup("LcaAsCode")
                     .createNotification(
                         MyBundle.message(
                             "lca.dialog.import.finished.success",
@@ -47,7 +47,7 @@ class AsynchronImportWorker(
 
             is SummaryInterrupted -> {
                 NotificationGroupManager.getInstance()
-                    .getNotificationGroup("LcaNotificationError")
+                    .getNotificationGroup("LcaAsCode")
                     .createNotification(
                         MyBundle.message(
                             "lca.dialog.import.finished.interrupted",
@@ -61,7 +61,7 @@ class AsynchronImportWorker(
 
             is SummaryInError -> {
                 NotificationGroupManager.getInstance()
-                    .getNotificationGroup("LcaNotificationError")
+                    .getNotificationGroup("LcaAsCode")
                     .createNotification(
                         MyBundle.message(
                             "lca.dialog.import.finished.error",
