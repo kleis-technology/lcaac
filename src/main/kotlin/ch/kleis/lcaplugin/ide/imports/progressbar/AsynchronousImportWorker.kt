@@ -7,7 +7,9 @@ import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.concurrency.SwingWorker
+import java.nio.file.Path
 
 
 class AsynchronousImportWorker(
@@ -42,6 +44,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.INFORMATION
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
                 onSuccess.run()
             }
 
@@ -56,6 +59,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.INFORMATION
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
                 onSuccess.run()
             }
 
@@ -70,6 +74,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.ERROR
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
                 onFailure.run()
             }
         }
