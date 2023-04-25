@@ -263,7 +263,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_sanitizeUnitSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol(){
+    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol(){
         // given
         val symbol = "kg"
         val sut = UnitRenderer.of(emptyMap())
@@ -274,7 +274,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_sanitizeUnitSymbol_whenUnitSymbol_shouldReturnU(){
+    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU(){
         // given
         val symbol = "unit"
         val sut = UnitRenderer.of(emptyMap())
@@ -285,7 +285,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_getSanitizedUnitComment_whenNoSanitizedUnit_shouldReturnAnEmptyString(){
+    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString(){
         // given
         val symbol = "kg"
         val sanitizedSymbol = "kg"
@@ -297,7 +297,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_getSanitizedUnitComment_whenSanitizedUnit_shouldReturnACommentExplainingTheSanitization(){
+    fun test_getSanitizedComment_whenSanitizedUnit_shouldReturnACommentExplainingTheSanitization(){
         // given
         val symbol = "unit"
         val sanitizedSymbol = "u"
