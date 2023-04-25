@@ -17,14 +17,15 @@ class OjalgoSolver : Solver {
         val b = rhs as OjalgoMatrix
         if (a.rowDim() == 0 || b.colDim() == 0) {
             val result = OjalgoMatrixFactory().zero(a.rowDim(), b.colDim())
-            LOG.info("End solving matrix")
+            LOG.info("End solving matrix with 0")
             return result
         }
         return try {
             val result = OjalgoMatrix(SolverTask.PRIMITIVE.solve(a.store, b.store))
-            LOG.info("End solving matrix")
+            LOG.info("End solving matrix with result ${result.rowDim()} rows and ${result.colDim()} cols")
             return result
         } catch (e: RecoverableCondition) {
+            LOG.info("End solving matrix with error ${e.message}")
             null
         }
     }

@@ -33,9 +33,15 @@ class Evaluator(
 
     fun eval(expression: TemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")
-        val result = recursiveCompile(SystemValue.empty(), expression)
         LOG.info("End recursive Compile")
-        return result
+        try {
+            val result = recursiveCompile(SystemValue.empty(), expression)
+            LOG.info("End recursive Compile, found ${result.processes.size} processes and ${result.substanceCharacterizations.size} substances")
+            return result
+        } catch (e: Exception) {
+            LOG.info("End recursive Compile with error $e")
+            throw e
+        }
     }
 
     private fun recursiveCompile(
@@ -103,6 +109,7 @@ class Evaluator(
                 return candidates
                     ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
             }
+
             None -> processResolver.resolveByProductName(eProduct.name)
         }
     }

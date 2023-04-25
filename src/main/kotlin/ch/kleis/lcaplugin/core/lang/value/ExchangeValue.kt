@@ -23,11 +23,17 @@ data class GenericExchangeValue(
 }
 
 @optics
-data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue, val allocation: QuantityValue) : ExchangeValue {
-    constructor(quantity: QuantityValue, product: ProductValue): this(quantity, product, QuantityValue(100.0, UnitValue("percent", 1E-2, Dimension.None)))
+data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue, val allocation: QuantityValue) :
+    ExchangeValue {
+    constructor(quantity: QuantityValue, product: ProductValue) : this(
+        quantity,
+        product,
+        QuantityValue(100.0, UnitValue("percent", 1E-2, Dimension.None))
+    )
+
     init {
         if (quantity.unit.dimension != product.referenceUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${product.referenceUnit.dimension}")
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${product.referenceUnit.dimension} for product ${product.name}")
         }
     }
 
@@ -42,7 +48,7 @@ data class TechnoExchangeValue(val quantity: QuantityValue, val product: Product
 data class BioExchangeValue(val quantity: QuantityValue, val substance: SubstanceValue) : ExchangeValue {
     init {
         if (quantity.unit.dimension != substance.referenceUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${substance.referenceUnit.dimension}")
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${substance.referenceUnit.dimension} for substance ${substance.name}, quantity=${quantity.amount}")
         }
     }
 
@@ -57,7 +63,7 @@ data class BioExchangeValue(val quantity: QuantityValue, val substance: Substanc
 data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValue) : ExchangeValue {
     init {
         if (quantity.unit.dimension != indicator.referenceUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${indicator.referenceUnit.dimension}")
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${indicator.referenceUnit.dimension}  for indicator ${indicator.name}, quantity=${quantity.amount}\")")
         }
     }
 

@@ -20,20 +20,32 @@ class LcaFileCollector(
     fun collect(file: LcaFile): List<LcaFile> { // TODO Collect Symbole instead of files ?
         val result = HashMap<String, LcaFile>()
         LOG.info("Start recursive collect")
-        recursiveCollect(result, file)
-        LOG.info("End recursive collect")
+        recursiveCollect(result, mutableMapOf(file.virtualFile.path to file))
+        LOG.info("End recursive collect, found ${result.size} entries")
         return result.values.toImmutableList()
     }
 
-    private fun recursiveCollect(accumulator: MutableMap<String, LcaFile>, file: LcaFile) {
+
+
+    private tailrec fun recursiveCollect(
+        accumulator: MutableMap<String, LcaFile>,
+        toVisit: MutableMap<String, LcaFile>
+    ) {
+        if (toVisit.isEmpty()) return
+        val path = toVisit.keys.first()
+        val file = toVisit.remove(path)!!
         val k = file.virtualFile.path
         val visited = accumulator[k]
         if (visited == null) {
             accumulator[k] = file
             val deps = dependenciesOf(file)
-            for (dep in deps) {
-                recursiveCollect(accumulator, dep)
-            }
+            val newDeps = deps.asSequence()
+                .map { it.virtualFile.path to it }
+                .filter { (p, _) -> !accumulator.containsKey(p) }
+                .associateTo(toVisit) { it }
+            recursiveCollect(accumulator, newDeps)
+        } else {
+            recursiveCollect(accumulator, toVisit)
         }
     }
 
@@ -42,13 +54,13 @@ class LcaFileCollector(
     }
 
     private fun allReferences(file: LcaFile): List<PsiElement> {
-        val substanceRefs = PsiTreeUtil.collectElementsOfType(file, PsiSubstanceRef::class.java)
-        val quantityRefs = PsiTreeUtil.collectElementsOfType(file, PsiQuantityRef::class.java)
-        val productsRefs = PsiTreeUtil.collectElementsOfType(file, PsiProductRef::class.java)
-        val processRefs = PsiTreeUtil.collectElementsOfType(file, PsiProcessTemplateRef::class.java)
-        val unitRefs = PsiTreeUtil.collectElementsOfType(file, PsiUnitRef::class.java)
-        return listOf(
-            processRefs, productsRefs, quantityRefs, substanceRefs, unitRefs
-        ).flatten()
+        return PsiTreeUtil.findChildrenOfAnyType(
+            file,
+            PsiSubstanceRef::class.java,
+            PsiQuantityRef::class.java,
+            PsiProductRef::class.java,
+            PsiProcessTemplateRef::class.java,
+            PsiUnitRef::class.java
+        ).toList()
     }
 }
