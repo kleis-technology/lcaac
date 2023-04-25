@@ -245,7 +245,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             checker.check(target)
             fail("should have thrown")
         } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs foo2_dim[1.0]", e.message)
+            TestCase.assertEquals("incompatible dimensions: foo_dim vs foo2_dim", e.message)
         }
     }
 
@@ -538,7 +538,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             checker.check(target)
             fail("should have thrown")
         } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs foo2_dim[1.0]", e.message)
+            TestCase.assertEquals("incompatible dimensions: foo_dim vs foo2_dim", e.message)
         }
     }
 
@@ -680,7 +680,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             checker.check(target)
             fail("should have thrown")
         } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim[1.0] vs mass[1.0]", e.message)
+            TestCase.assertEquals("incompatible dimensions: foo_dim vs mass", e.message)
         }
     }
 
@@ -727,7 +727,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             checker.check(target)
             fail("should have thrown")
         } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: expecting foo_dim[1.0], found mass[1.0]", e.message)
+            TestCase.assertEquals("incompatible dimensions: expecting foo_dim, found mass", e.message)
         }
     }
 

@@ -125,10 +125,7 @@ class QuantityExpressionReducerTest {
             reducer.reduce(EQuantityAdd(a, b))
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals(
-                "incompatible dimensions: mass[1.0] vs length[1.0] in left=2.0 kg and right=1000.0 m",
-                e.message
-            )
+            assertEquals("incompatible dimensions: mass vs length in left=2.0 kg and right=1000.0 m", e.message)
         }
     }
 
@@ -165,10 +162,7 @@ class QuantityExpressionReducerTest {
             reducer.reduce(EQuantitySub(a, b))
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals(
-                "incompatible dimensions: mass[1.0] vs length[1.0] in left=2.0 kg and right=1000.0 m",
-                e.message
-            )
+            assertEquals("incompatible dimensions: mass vs length in left=2.0 kg and right=1000.0 m", e.message)
         }
     }
 

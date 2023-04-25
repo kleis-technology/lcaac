@@ -191,7 +191,7 @@ class UnitRendererTest {
             fail("Should not pass !")
         } catch (e: ImportException) {
             assertEquals(
-                "A Unit kg for kg already exists with another dimension, time[1.0] is not compatible with mass[1.0].",
+                "A Unit kg for kg already exists with another dimension, time is not compatible with mass.",
                 e.message
             )
         }
@@ -263,7 +263,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol(){
+    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol() {
         // given
         val symbol = "kg"
         val sut = UnitRenderer.of(emptyMap())
@@ -274,7 +274,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU(){
+    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU() {
         // given
         val symbol = "unit"
         val sut = UnitRenderer.of(emptyMap())
@@ -285,7 +285,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString(){
+    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString() {
         // given
         val symbol = "kg"
         val sanitizedSymbol = "kg"
@@ -297,7 +297,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_getSanitizedComment_whenSanitizedUnit_shouldReturnACommentExplainingTheSanitization(){
+    fun test_getSanitizedComment_whenSanitizedUnit_shouldReturnACommentExplainingTheSanitization() {
         // given
         val symbol = "unit"
         val sanitizedSymbol = "u"

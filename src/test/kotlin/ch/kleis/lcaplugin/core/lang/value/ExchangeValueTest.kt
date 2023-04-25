@@ -21,7 +21,7 @@ class ExchangeValueTest {
             TechnoExchangeValue(quantity, product)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: mass[1.0] vs length[3.0] for product water", e.message)
+            assertEquals("incompatible dimensions: mass vs length³ for product water", e.message)
         }
     }
 
@@ -36,10 +36,7 @@ class ExchangeValueTest {
             BioExchangeValue(quantity, substance)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals(
-                "incompatible dimensions: length[3.0] vs mass[1.0] for substance propanol, quantity=1.0",
-                e.message
-            )
+            assertEquals("incompatible dimensions: length³ vs mass for substance propanol, quantity=1.0", e.message)
         }
     }
 
@@ -55,7 +52,7 @@ class ExchangeValueTest {
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             assertEquals(
-                "incompatible dimensions: length[3.0] vs mass[1.0] for indicator climate change, quantity=1.0",
+                "incompatible dimensions: length³ vs mass for indicator climate change, quantity=1.0",
                 e.message
             )
         }
