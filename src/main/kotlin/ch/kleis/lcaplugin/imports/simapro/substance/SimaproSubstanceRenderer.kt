@@ -20,7 +20,7 @@ class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
             ?.filter { it.isNotBlank() }
             ?: listOf("")
         val optionalPlatform =
-            if (element.platformId().isNullOrBlank()) "" else "platformId = \"${element.platformId()}\""
+            if (element.platformId().isNullOrBlank()) "" else "\"platformId\" = \"${element.platformId()}\""
         writer.write(
             "substances/$compartiment",
             """
@@ -36,9 +36,9 @@ substance $uid {
     }
 
     meta {
-        generator = "kleis-lca-generator"
-        description = "${ModelWriter.padButFirst(description, 12)}"
-        casNumber = "${element.cas()}"
+        "generator" = "kleis-lca-generator"
+        "description" = "${ModelWriter.padButFirst(description, 12)}"
+        "casNumber" = "${element.cas()}"
         $optionalPlatform
     }
 }"""

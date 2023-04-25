@@ -77,8 +77,8 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
                 sub_compartment = "high altitude"
                 reference_unit = kg
                 meta{
-                    author = "Alain Colas"
-                    description = "Propan-1-ol...
+                    "author" = "Alain Colas"
+                    "description" = "Propan-1-ol...
             with a return"
                 }
             }
@@ -551,8 +551,8 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             "testProcess_ShouldRenderWithProcessAndMeta.lca", """
             process b {
                 meta {
-                    author = "Alain Colas"
-                    description = "Propan-1-ol..."
+                    "author" = "Alain Colas"
+                    "description" = "Propan-1-ol..."
                 }
                 params {
                     p1 = 1 kg

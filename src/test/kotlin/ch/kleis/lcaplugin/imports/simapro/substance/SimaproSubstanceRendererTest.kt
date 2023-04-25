@@ -63,11 +63,11 @@ substance aluminium_raw {
     }
 
     meta {
-        generator = "kleis-lca-generator"
-        description = "Formula: Al
+        "generator" = "kleis-lca-generator"
+        "description" = "Formula: Al
             Al"
-        casNumber = "007429-90-5"
-        platformId = "platformId"
+        "casNumber" = "007429-90-5"
+        "platformId" = "platformId"
     }
 }
 """.trimIndent()
@@ -109,10 +109,10 @@ substance aluminium_raw {
     }
 
     meta {
-        generator = "kleis-lca-generator"
-        description = "Formula: Al
+        "generator" = "kleis-lca-generator"
+        "description" = "Formula: Al
             Al"
-        casNumber = "007429-90-5"
+        "casNumber" = "007429-90-5"
         
     }
 }

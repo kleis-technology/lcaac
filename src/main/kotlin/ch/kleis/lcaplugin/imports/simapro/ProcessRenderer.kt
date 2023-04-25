@@ -81,7 +81,7 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
                     it.map { s -> renderLiterature(s) }
                         .joinToString("\n", "\n")
             }
-        val metaBloc = metas.map { """${it.key} = "${it.value}"""" }
+        val metaBloc = metas.map { """"${it.key}" = "${it.value}"""" }
 
         val baseProducts = process.products().map { renderProduct(it) }
         val wasteTreatment =

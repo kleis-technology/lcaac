@@ -106,8 +106,8 @@ class LcaIndentBlockTest : FormatterTestCase() {
  
  
   meta    {
- description   =   "My Desc"
- author="me"
+ "description"   =   "My Desc"
+ "author"="me"
 }
 
     params {
@@ -152,8 +152,8 @@ class LcaIndentBlockTest : FormatterTestCase() {
                 process process_a {
                 
                     meta {
-                        description = "My Desc"
-                        author = "me"
+                        "description" = "My Desc"
+                        "author" = "me"
                     }
                 
                     params {

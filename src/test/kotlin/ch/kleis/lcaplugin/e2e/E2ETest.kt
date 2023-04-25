@@ -20,6 +20,30 @@ import org.junit.Test
 
 class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun test_meta_whenKeywordAsKey() {
+        // given
+        val file = parseFile(
+            "hello", """
+                process p {
+                    meta {
+                        "unit" = "a"
+                        "process" = "b"
+                    }
+                }
+            """.trimIndent()
+        ) as LcaFile
+
+        // when
+        val actual = file.getProcesses().first().getBlockMetaList().first().metaAssignmentList
+
+        // then
+        TestCase.assertEquals("unit", actual[0].name)
+        TestCase.assertEquals("a", actual[0].getValue())
+        TestCase.assertEquals("process", actual[1].name)
+        TestCase.assertEquals("b", actual[1].getValue())
+    }
+
+    @Test
     fun test_operationPriority() {
         // given
         val file = parseFile(
