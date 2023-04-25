@@ -215,7 +215,7 @@ assignment ::= quantityRef EQUAL quantity {
     Blocks
  */
 
-block_products ::= PRODUCTS_KEYWORD LBRACE (technoProductExchangeWithAllocateField+ | technoProductExchange) RBRACE {
+block_products ::= PRODUCTS_KEYWORD LBRACE (technoProductExchangeWithAllocateField+ | technoProductExchange?) RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
 }

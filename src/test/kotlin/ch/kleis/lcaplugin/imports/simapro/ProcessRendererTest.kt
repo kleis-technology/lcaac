@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.imports.simapro
 
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -18,13 +21,12 @@ import java.util.*
 
 
 class ProcessRendererTest {
-    private val defaultZoneId = ZoneId.systemDefault()
     private val writer = mockk<ModelWriter>()
 
     private val pathSlot = slot<String>()
     private val bodySlot = slot<String>()
     private val indexSlot = slot<Boolean>()
-    private val sut = ProcessRenderer()
+    private val sut = ProcessRenderer(SubstanceImportMode.SIMAPRO)
 
     @Before
     fun before() {
@@ -99,7 +101,7 @@ process acai_berry_at_farm_br8553_1886 {
         // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
         // The yield when productive is 9750 kg/ha-y .
         // The final yield corresponds to the average yield over the entire lifetime of the tree.
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // 9750*10/13
+        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // Formula=[9750*10/13]
     }
     
     products { // Avoid Products
@@ -143,25 +145,28 @@ process acai_berry_at_farm_br8553_1886 {
 
     resources {
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide_in_air_raw // 145.56 * 67E6 / (1 -4E-6)
+        9752559010.236041 kg carbon_dioxide_in_air_raw // Formula=[145.56 * 67E6 / (1 -4E-6)]
         // (2,2,1,1,1,na)
-        20295.524449877732 MJ energy_gross_calorific_value_in_biomass_raw // 20295.524449877732
+        20295.524449877732 MJ energy_gross_calorific_value_in_biomass_raw
         // (2,1,1,1,1,na)
-        501.95555914578216 m3 water_well_br_raw // 501.95555914578216
+        501.95555914578216 m3 water_well_br_raw
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
+        2170.792762893368 m3 water_river_br_raw
         // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw // 10000.0
+        2170.792762893368 m3 water_river_br_raw
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
+        2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw
+        // (2,1,1,1,1,na)
+        2170.792762893368 m3 water_river_br_raw
+    }
+
+    land_use {
+        // (2,1,1,1,1,na)
+        10000.0 m2a occupation_permanent_crop_irrigated_raw
         // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw // 10000.0
+        10000.0 m2a occupation_permanent_crop_irrigated_raw
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw // 2170.792762893368
-        // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw // 2170.792762893368
-        // (2,1,1,1,1,na)
-        500.0 m2 transformation_to_permanent_crop_irrigated_raw // 500.0
+        500.0 m2 transformation_to_permanent_crop_irrigated_raw
     }
 
 }
@@ -203,7 +208,7 @@ process waste6422_6422 {
         // wasteType: not defined
         // The yield when productive is 9750 kg/ha-y .
         // The final yield corresponds to the average yield over the entire lifetime of the tree.
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u // 9750*10/13
+        7500 kg acai_berry_at_farm_wfldb_3_7_br_u // Formula=[9750*10/13]
     }
     
     products { // Avoid Products
@@ -211,52 +216,52 @@ process waste6422_6422 {
     
     inputs { // materialsAndFuels
         // (2,2)
-        6 g carbon_dioxide21_in_final_waste_flow // 3 * 2
+        6 g carbon_dioxide21_in_final_waste_flow // Formula=[3 * 2]
     }
 
     inputs { // electricityAndHeat
         // (2,2)
-        6 g carbon_dioxide22_in_final_waste_flow // 3 * 2
+        6 g carbon_dioxide22_in_final_waste_flow // Formula=[3 * 2]
     }
 
     emissions { // To Air
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide2_in_air_air // 145.56 * 67E6 / (1 -4E-6)
+        9752559010.236041 kg carbon_dioxide2_in_air_air // Formula=[145.56 * 67E6 / (1 -4E-6)]
     }
 
     emissions { // To Water
         // (2,2)
-        6 g carbon_dioxide3_in_water_water // 3 * 2
+        6 g carbon_dioxide3_in_water_water // Formula=[3 * 2]
     }
 
     emissions { // To Soil
         // (2,2)
-        6 g carbon_dioxide4_in_soil_soil // 3 * 2
+        6 g carbon_dioxide4_in_soil_soil // Formula=[3 * 2]
     }
 
     emissions { // Economics
         // (2,2)
-        6 g carbon_dioxide5_in_economics_economic // 3 * 2
+        6 g carbon_dioxide5_in_economics_economic // Formula=[3 * 2]
     }
 
     emissions { // Non Material
         // (2,2)
-        6 g carbon_dioxide7_in_non_mat_non_mat // 3 * 2
+        6 g carbon_dioxide7_in_non_mat_non_mat // Formula=[3 * 2]
     }
 
     emissions { // Social
         // (2,2)
-        6 g carbon_dioxide6_in_social_social // 3 * 2
+        6 g carbon_dioxide6_in_social_social // Formula=[3 * 2]
     }
 
     emissions { // Final Waste Flows
         // (2,2)
-        6 g carbon_dioxide8_in_final_waste_flow // 3 * 2
+        6 g carbon_dioxide8_in_final_waste_flow // Formula=[3 * 2]
     }
 
     inputs { // Waste To Treatment
         // (2,2)
-        6 g carbon_dioxide20_in_final_waste_flow // 3 * 2
+        6 g carbon_dioxide20_in_final_waste_flow // Formula=[3 * 2]
     }
 
     emissions { // Remaining Waste
@@ -269,7 +274,10 @@ process waste6422_6422 {
 
     resources {
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide_in_air_raw // 145.56 * 67E6 / (1 -4E-6)
+        9752559010.236041 kg carbon_dioxide_in_air_raw // Formula=[145.56 * 67E6 / (1 -4E-6)]
+    }
+
+    land_use {
     }
 
 }
@@ -308,7 +316,7 @@ process wastescen6422_6422 {
         // category: Municipal
         // wasteType: All waste types
         // Cyprus
-        1.0 kg municipal_solid_waste_waste_scenario_cy_treatment_of_waste_cut_off_u // 1.0
+        1.0 kg municipal_solid_waste_waste_scenario_cy_treatment_of_waste_cut_off_u
     }
     
     products { // Avoid Products
@@ -353,6 +361,9 @@ process wastescen6422_6422 {
     resources {
     }
 
+    land_use {
+    }
+
 }
 
 """.trimIndent()
@@ -361,6 +372,101 @@ process wastescen6422_6422 {
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
     }
+
+    @Test
+    fun test_render_shouldRender_forClassicalProcessWithEf() {
+        // Given
+        val sample = initEfProduct()
+        val dict: Dictionary = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
+        mockkObject(Ef3xDictionary.Companion)
+        every { Ef3xDictionary.fromClassPath("emissions_factors3.0.jar") } returns dict
+        val efSut = ProcessRenderer(SubstanceImportMode.EF30)
+
+        // When
+        efSut.render(sample, writer)
+
+        // Then
+        val expected = """
+
+
+process acai_berry_at_farm_br8553_1886 {
+
+    meta {
+        category = "material"
+        identifier = "LAUSMILA000241671000001"
+        platformId = "platformId"
+    }
+
+
+
+    products { // Product
+        // name: Acai berry, at farm (WFLDB 3.7)/BR U
+        // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
+        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // Formula=[9750*10/13]
+    }
+    
+    products { // Avoid Products
+    }
+    
+    inputs { // materialsAndFuels
+    }
+
+    inputs { // electricityAndHeat
+    }
+
+    emissions { // To Air
+        // (2,2,1,1,1,na)
+        9752559010.236041 kBq argon_41_air_non_urban_high_stack // Formula=[145.56 * 67E6 / (1 -4E-6)]
+    }
+
+    emissions { // To Water
+    }
+
+    emissions { // To Soil
+    }
+
+    emissions { // Economics
+    }
+
+    emissions { // Non Material
+    }
+
+    emissions { // Social
+    }
+
+    emissions { // Final Waste Flows
+    }
+
+    inputs { // Waste To Treatment
+    }
+
+    emissions { // Remaining Waste
+    }
+
+    emissions { // Separated Waste
+    }
+
+    resources {
+        // Only Formula, full match
+        9752559010.236041 kg diethylene_glycol_air // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        // Formula & Resolution
+        3.6 kg dolomite_ground_renewable // Formula=[1.2 * 3], Fallback for [Dolomite, Resource, raw, in ground]
+    }
+
+    land_use {
+        // (2,1,1,1,1,na)
+        10000.0 m2a permanent_crops_irrigated_land_occupation // Fallback for [Occupation, permanent crop, irrigated, Land_use, raw, land]
+    }
+
+}
+
+""".trimIndent()
+        // Better way to view large diff than using mockk.verify
+        assertEquals("processes/material", pathSlot.captured)
+        assertEquals(expected, bodySlot.captured)
+        assertEquals(true, indexSlot.captured)
+    }
+
 
     private fun initProcess(): ProcessBlock {
         val sample = ProcessBlock().name("Acai berry, at farm/BR")
@@ -515,6 +621,58 @@ Data quality rating (DQR) = 1.8, Very good quality
                     """The yield when productive is 9750 kg/ha-y .
 The final yield corresponds to the average yield over the entire lifetime of the tree."""
                 )
+        )
+        sample.platformId("platformId")
+        return sample
+    }
+
+    private fun initEfProduct(): ProcessBlock {
+        val sample = ProcessBlock().name("Acai berry, at farm/BR")
+            .category(ProcessCategory.MATERIAL) //Category type
+            .identifier("LAUSMILA000241671000001")
+        sample.resources().add(
+            ElementaryExchangeRow()
+                .name("Diethylene glycol")
+                .subCompartment("in air")
+                .unit("kg")
+                .amount(Numeric.of("145.56 * 67E6 / (1 -4E-6)"))
+                .uncertainty(UncertaintyRecord.logNormal(1.0744))
+                .comment("Only Formula, full match")
+        )
+        sample.resources().add(
+            ElementaryExchangeRow()
+                .name("Dolomite")
+                .subCompartment("in ground")
+                .unit("kg")
+                .amount(Numeric.of("1.2 * 3"))
+                .uncertainty(UncertaintyRecord.logNormal(1.0744))
+                .comment("Formula & Resolution")
+        )
+        sample.emissionsToAir().add(
+            ElementaryExchangeRow()
+                .name("Argon-41")
+                .subCompartment("low. pop.")
+                .unit("kBq")
+                .amount(Numeric.of("145.56 * 67E6 / (1 -4E-6)"))
+                .uncertainty(UncertaintyRecord.logNormal(1.0744))
+                .comment("(2,2,1,1,1,na)\n")
+        )
+        sample.resources().add(
+            ElementaryExchangeRow()
+                .name("Occupation, permanent crop, irrigated")
+                .subCompartment("land")
+                .unit("m2a")
+                .amount(Numeric.of(10000.0))
+                .uncertainty(UncertaintyRecord.logNormal(1.1130))
+                .comment("(2,1,1,1,1,na)\n")
+        )
+        sample.products().add(
+            ProductOutputRow().name("Acai berry, at farm (WFLDB 3.7)/BR U")
+                .unit("kg")
+                .amount(Numeric.of("9750*10/13"))
+                .allocation(Numeric.of("100"))
+                .wasteType("not defined")
+                .category("_WFLDB 3.7 (Phase 2)\\Plant products\\Perennials\\Acai berry")
         )
         sample.platformId("platformId")
         return sample

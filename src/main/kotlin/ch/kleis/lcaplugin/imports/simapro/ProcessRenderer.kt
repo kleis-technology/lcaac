@@ -1,17 +1,18 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import arrow.core.toNonEmptyListOrNull
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.FormulaConverter
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
+import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
+import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
 import io.ktor.utils.io.*
 import org.openlca.simapro.csv.process.*
 import org.openlca.simapro.csv.refdata.CalculatedParameterRow
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
-import javax.script.ScriptException
 
 fun ProcessBlock.uid(): String {
     val mainProductName = if (this.products().isNullOrEmpty()) {
@@ -35,22 +36,17 @@ fun ProcessBlock.uid(): String {
     }
 }
 
-fun ExchangeRow.uid(): String {
+fun ProductOutputRow.uid(): String {
     return this.name()
 }
 
 private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-class ProcessRenderer : Renderer<ProcessBlock> {
-    companion object {
-        private val engine: ScriptEngine
-        val formulaDetector = Regex(".*[a-zA-DF-Z()/+* ]+.*")
-
-        init {
-            val mgr = ScriptEngineManager()
-            engine = mgr.getEngineByName("Groovy")
-        }
-
+class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
+    private val substanceDict: Dictionary = when (mode) {
+        SubstanceImportMode.SIMAPRO -> SimaproDictionary()
+        SubstanceImportMode.EF30 -> Ef3xDictionary.fromClassPath("emissions_factors3.0.jar")
+        SubstanceImportMode.EF31 -> Ef3xDictionary.fromClassPath("emissions_factors3.1.jar")
     }
 
 
@@ -103,18 +99,21 @@ class ProcessRenderer : Renderer<ProcessBlock> {
         val inputsMatAndFuel = process.materialsAndFuels().map { render(it) }.flatten()
         val inputsElectricity = process.electricityAndHeat().map { render(it) }.flatten()
 
-        val emissionsToAir = process.emissionsToAir().map { render(it, "_air") }.flatten()
-        val emissionsToWater = process.emissionsToWater().map { render(it, "_water") }.flatten()
-        val emissionsToSoil = process.emissionsToSoil().map { render(it, "_soil") }.flatten()
-        val emissionsNonMat = process.nonMaterialEmissions().map { render(it, "_non_mat") }.flatten()
-        val emissionsEconomic = process.economicIssues().map { render(it, "_economic") }.flatten()
-        val emissionsSocials = process.socialIssues().map { render(it, "_social") }.flatten()
+        val emissionsToAir = process.emissionsToAir().map { renderElementary(it, "Emission", "air") }.flatten()
+        val emissionsToWater = process.emissionsToWater().map { renderElementary(it, "Emission", "water") }.flatten()
+        val emissionsToSoil = process.emissionsToSoil().map { renderElementary(it, "Emission", "soil") }.flatten()
+        val emissionsNonMat =
+            process.nonMaterialEmissions().map { renderElementary(it, "Emission", "non_mat") }.flatten()
+        val emissionsEconomic = process.economicIssues().map { renderElementary(it, "Emission", "economic") }.flatten()
+        val emissionsSocials = process.socialIssues().map { renderElementary(it, "Emission", "social") }.flatten()
         val emissionsFinalWasteFlows = process.finalWasteFlows().map { render(it) }.flatten()
         val emissionsWasteToTreatment = process.wasteToTreatment().map { render(it) }.flatten()
         val emissionsRemainingWaste = process.remainingWaste().map { "// QQQ ${it.wasteTreatment()}" }
         val emissionsSeparatedWaste = process.separatedWaste().map { "// QQQ ${it.wasteTreatment()}" }
 
-        val resources = process.resources().map { render(it, "_raw") }.flatten()
+        val allRes = process.resources().groupBy { if (it.subCompartment() == "land") "land_use" else "resources" }
+        val resources = (allRes["resources"] ?: listOf()).map { renderElementary(it, "Resource", "raw") }.flatten()
+        val landUses = (allRes["land_use"] ?: listOf()).map { renderElementary(it, "Land_use", "raw") }.flatten()
 
         writer.write(
             "processes/${process.category()}",
@@ -156,6 +155,8 @@ ${ModelWriter.block("emissions { // Separated Waste", emissionsSeparatedWaste)}
 
 ${ModelWriter.block("resources {", resources)}
 
+${ModelWriter.block("land_use {", landUses)}
+
 }
 """
         )
@@ -173,10 +174,11 @@ ${ModelWriter.block("resources {", resources)}
     private fun render(param: CalculatedParameterRow): List<String> {
         val result = if (param.comment().isNullOrBlank()) emptyList<String>() else listOf(param.comment())
         val amountFormula = param.expression()
-        val amount = tryToCompute(amountFormula)
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = "u"
         val uid = ModelWriter.sanitize(param.name())
-        return result.plus("$uid = $amount $unit // $amountFormula")
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+        return result.plus("$uid = $amount $unit$endingComment")
     }
 
     private fun render(
@@ -185,12 +187,31 @@ ${ModelWriter.block("resources {", resources)}
         additionalComments: List<String> = listOf()
     ): List<String> {
         val comments = ModelWriter.asComment(exchange.comment())
-        val amountFormula = exchange.amount()
-        val amount = tryToCompute(amountFormula.toString())
+        val amountFormula = exchange.amount().toString()
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = exchange.unit()
-        val uid = ModelWriter.sanitizeAndCompact(exchange.uid()) + suffix
+        val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
-            .plus("$amount $unit $uid // $amountFormula")
+            .plus("$amount $unit $uid$endingComment")
+    }
+
+    private fun renderElementary(
+        exchange: ElementaryExchangeRow,
+        type: String,
+        compartment: String
+    ): List<String> {
+        val comments = ModelWriter.asComment(exchange.comment())
+        val amountFormula = exchange.amount().toString()
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
+        val unit = exchange.unit()
+        val sub = exchange.subCompartment()
+        val name = exchange.name()
+        val realKey = substanceDict.realKeyForSubstance(name, type, unit, compartment, sub)
+        val info = if (!realKey.hasChanged) "" else "Fallback for [$name, $type, $compartment, ${sub}]"
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else "", info))
+        val uid = realKey.uid()
+        return comments.plus("$amount $unit $uid$endingComment")
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {
@@ -199,13 +220,14 @@ ${ModelWriter.block("resources {", resources)}
         product.category()?.let { additionalComments.add("// category: $it") }
 
         val comments = ModelWriter.asComment(product.comment())
-        val amountFormula = product.amount()
-        val amount = tryToCompute(amountFormula.toString())
+        val amountFormula = product.amount().toString()
+        val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = product.unit()
         val uid = ModelWriter.sanitizeAndCompact(product.uid())
         val allocation = product.allocation()
+        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)
-            .plus("$amount $unit $uid allocate $allocation percent // $amountFormula")
+            .plus("$amount $unit $uid allocate $allocation percent$endingComment")
     }
 
     private fun renderWasteTreatment(exchange: WasteTreatmentRow): List<String> {
@@ -217,16 +239,11 @@ ${ModelWriter.block("resources {", resources)}
         return render(exchange, additionalComments = additionalComments)
     }
 
-    private fun tryToCompute(amountFormula: String): Any? {
+    private fun createCommentLine(comments: List<String>): String {
+        val cleaned = comments.filter { it.isNotBlank() }
 
-        return try {
-            if (formulaDetector.matches(amountFormula)) {
-                engine.eval(amountFormula)
-            } else {
-                amountFormula
-            }
-        } catch (e: ScriptException) {
-            "// QQQ Invalid regex detector for $amountFormula"
-        }
+        return if (cleaned.isEmpty()) ""
+        else cleaned.joinToString(", ", " // ")
     }
+
 }

@@ -19,6 +19,7 @@ import com.intellij.openapi.wm.impl.welcomeScreen.FlatWelcomeFrame
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBList
+import com.intellij.ui.components.JBRadioButton
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.ui.FormBuilder
@@ -29,10 +30,12 @@ import java.awt.event.FocusAdapter
 import java.awt.event.FocusEvent
 import java.awt.event.ItemEvent
 import java.nio.file.Path
+import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
+
 
 class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectManager.getInstance().defaultProject) {
 
@@ -103,24 +106,45 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
                 MyBundle.message("lca.dialog.import.processes.desc")
             )
         )
-        builder.addComponent(
-            CheckBoxWithDescription(
-                JBCheckBox(
-                    BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
-                    settings.importSubstances
-                ).apply {
-                    addItemListener { e ->
-                        settings.importSubstances = e.stateChange == ItemEvent.SELECTED
-                    }
-                },
-                MyBundle.message("lca.dialog.import.substances.desc")
-            )
-        )
+        val substanceComp = createSubstanceCombo()
+        builder.addLabeledComponent(substanceComp.label, substanceComp.component)
         component.add(
             JPanel(VerticalFlowLayout())
                 .apply {
                     add(builder.panel)
                 })
+    }
+
+    private fun createSubstanceCombo(): LabeledComponent<JPanel> {
+        val simaproMsg =
+            BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.simapro"))
+        val ef30Msg = BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.ef30"))
+        val ef31Msg = BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.ef31"))
+        val rSimapro = JBRadioButton(simaproMsg, settings.importSubstancesMode == SubstanceImportMode.SIMAPRO)
+        val rEf30 = JBRadioButton(ef30Msg, settings.importSubstancesMode == SubstanceImportMode.EF30)
+        val rEf31 = JBRadioButton(ef31Msg, settings.importSubstancesMode == SubstanceImportMode.EF31)
+        val group = ButtonGroup()
+        group.add(rSimapro)
+        group.add(rEf30)
+        group.add(rEf31)
+        rSimapro.addActionListener {
+            settings.importSubstancesMode = SubstanceImportMode.SIMAPRO
+        }
+        rEf30.addActionListener {
+            settings.importSubstancesMode = SubstanceImportMode.EF30
+        }
+        rEf31.addActionListener {
+            settings.importSubstancesMode = SubstanceImportMode.EF31
+        }
+        val panel = JPanel(VerticalFlowLayout())
+            .apply { add(rSimapro) }
+            .apply { add(rEf30) }
+            .apply { add(rEf31) }
+        return LabeledComponent.create(
+            panel,
+            BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.label")),
+            BorderLayout.WEST
+        )
     }
 
     private fun createPackageComponent(): LabeledComponent<JBTextField> {
@@ -163,7 +187,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
             }
         })
 
-        return LabeledComponent.create<TextFieldWithBrowseButton>(
+        return LabeledComponent.create(
             myLocationField,
             BundleBase.replaceMnemonicAmpersand(IdeBundle.message("directory.project.location.label")),
             BorderLayout.WEST
@@ -186,7 +210,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
             }
         })
 
-        return LabeledComponent.create<TextFieldWithBrowseButton>(
+        return LabeledComponent.create(
             myLocationField,
             BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.library.file.label")),
             BorderLayout.WEST
@@ -194,7 +218,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
     }
 
 
-    override fun getPreferredFocusedComponent(): JComponent? {
+    override fun getPreferredFocusedComponent(): JComponent {
         return FlatWelcomeFrame.getPreferredFocusedComponent(myPair!!)
     }
 
@@ -207,7 +231,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
                 NotificationGroupManager.getInstance()
                     .getNotificationGroup("LcaNotificationError")
                     .createNotification("Unable to import your library: ${e.message}", NotificationType.ERROR)
-                    .notify(ProjectManager.getInstance().openProjects.firstOrNull());
+                    .notify(ProjectManager.getInstance().openProjects.firstOrNull())
             }
         }
     }
@@ -217,7 +241,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
         if (!libPath.exists() || !libPath.isRegularFile()) {
             return ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), libField)
         }
-        if (!Regex("[a-zA-z0-9]*").matches(settings.rootPackage)
+        if (!Regex("[a-zA-Z0-9]*").matches(settings.rootPackage)
             || Regex("^[0-9]").matches(settings.rootPackage)
         ) {
             return ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), packageField)
@@ -234,7 +258,7 @@ class LcaImportDialog(val settings: LcaImportSettings) : DialogWrapper(ProjectMa
         return LcaImportStep()
     }
 
-    override fun getHelpId(): String? {
+    override fun getHelpId(): String {
         return "concepts.project"
     }
 }

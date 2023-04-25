@@ -1,11 +1,11 @@
-package ch.kleis.lcaplugin.imports.simapro
+package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
 
-class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
+class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
     override fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)
@@ -24,25 +24,24 @@ class SubstanceRenderer : Renderer<ElementaryFlowBlock> {
         writer.write(
             "substances/$compartiment",
             """
+substance $uid {
 
-            substance $uid {
-            
-                name = "${element.name()}"
-                compartment = "$compartiment"
-                reference_unit = ${element.unit()}
-            
-                impacts {
-                    1 ${element.unit()} $uid
-                }
-            
-                meta {
-                    type = "emissions"
-                    generator = "kleis-lca-generator"
-                    description = "${ModelWriter.padButFirst(description, 24)}"
-                    casNumber = "${element.cas()}"
-                    $optionalPlatform
-                }
-            }""".trimIndent()
+    name = "${element.name()}"
+    type = Emission
+    compartment = "$compartiment"
+    reference_unit = ${element.unit()}
+
+    impacts {
+        1 ${element.unit()} $uid
+    }
+
+    meta {
+        generator = "kleis-lca-generator"
+        description = "${ModelWriter.padButFirst(description, 12)}"
+        casNumber = "${element.cas()}"
+        $optionalPlatform
+    }
+}"""
         )
     }
 

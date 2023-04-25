@@ -4,7 +4,9 @@ import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.EProcess
+import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
@@ -279,7 +281,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     }
 
     @Test
-    fun test_allocate_whenOneProduct_allocateIsOptional(){
+    fun test_allocate_whenOneProduct_allocateIsOptional() {
         // given
         val file = parseFile(
             "hello", """
@@ -293,13 +295,37 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val parser = LcaLangAbstractParser(listOf(file))
         // when
         val symbolTable = parser.load()
-        val actual = (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+        val actual =
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
         // then
         TestCase.assertEquals(100.0, actual)
     }
 
     @Test
-    fun test_allocate_whenTwoProducts_shouldReturnWeigtedResult(){
+    fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
+        // given
+        val file = parseFile(
+            "hello", """
+            process p {
+                products {
+                    1 kg out
+                }
+                products {
+                }
+            }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(listOf(file))
+        // when
+        val symbolTable = parser.load()
+        val actual =
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+        // then
+        TestCase.assertEquals(100.0, actual)
+    }
+
+    @Test
+    fun test_allocate_whenTwoProducts_shouldReturnWeigtedResult() {
         // given
         val file = parseFile(
             "hello", """
@@ -332,8 +358,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val cf2 = result.value(output2, input)
 
                 val delta = 1E-9
-                val expected1 = 1.0*20/100
-                val expected2 = 1.0*80/100
+                val expected1 = 1.0 * 20 / 100
+                val expected2 = 1.0 * 80 / 100
                 TestCase.assertEquals(expected1, cf1.input.quantity().amount, delta)
                 TestCase.assertEquals(expected2, cf2.input.quantity().amount, delta)
             }
@@ -341,7 +367,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     }
 
     @Test
-    fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError(){
+    fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
         // given
         val file = parseFile(
             "hello", """
@@ -364,13 +390,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         try {
             Evaluator(symbolTable).eval(entryPoint)
             Assert.fail("Should fail")
-        } catch (e: EvaluatorException){
+        } catch (e: EvaluatorException) {
             Assert.assertEquals("Recursive dependency for unit foo", e.message)
         }
     }
 
     @Test
-    fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError(){
+    fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
         val file = parseFile(
             "hello", """
@@ -398,13 +424,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         try {
             Evaluator(symbolTable).eval(entryPoint)
             Assert.fail("Should fail")
-        } catch (e: EvaluatorException){
+        } catch (e: EvaluatorException) {
             Assert.assertEquals("Recursive dependency for unit foo", e.message)
         }
     }
 
     @Test
-    fun test_unitAlias_shouldNotThrowAnError(){
+    fun test_unitAlias_shouldNotThrowAnError() {
         // given
         val file = parseFile(
             "hello", """
@@ -431,13 +457,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         // when
         try {
             Evaluator(symbolTable).eval(entryPoint)
-        } catch (e: EvaluatorException){
+        } catch (e: EvaluatorException) {
             Assert.fail("Should fail")
         }
     }
 
     @Test
-    fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError(){
+    fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
         val file = parseFile(
             "hello", """
@@ -464,7 +490,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         // when
         try {
             Evaluator(symbolTable).eval(entryPoint)
-        } catch (e: EvaluatorException){
+        } catch (e: EvaluatorException) {
             Assert.fail("Should fail")
         }
     }

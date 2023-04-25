@@ -1,0 +1,12 @@
+Name;Type;Compartment;SubCompartment
+beta_chloronaphthalene;Emission;water;
+beta_chloronaphthalene;Emission;soil;
+beta_chloronaphthalene;Emission;soil;non-agricultural
+diatomite;Resource;ground;non-renewable
+dinitrogen;Resource;ground;renewable
+dolomite;Resource;ground;non-renewable
+dolomite;Resource;ground;renewable
+Argon_40;Resource;air;renewable
+Argon_40;Emission;air;
+diethylene_glycol;Resource;air;
+argon_41;Emission;air;non-urban-high-stack

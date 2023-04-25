@@ -3,7 +3,9 @@ package ch.kleis.lcaplugin.imports.simapro
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
+import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import org.openlca.simapro.csv.CsvBlock
 import org.openlca.simapro.csv.SimaProCsv
@@ -15,6 +17,10 @@ class Importer(private val settings: LcaImportSettings) {
         private val LOG = Logger.getInstance(Importer::class.java)
     }
 
+    private val processRenderer = ProcessRenderer(settings.importSubstancesMode)
+    private val simaproSubstanceRenderer = SimaproSubstanceRenderer()
+    private val inputParameterRenderer = InputParameterRenderer()
+
 
     fun import() {
         val path = Path.of(settings.libraryFile)
@@ -23,7 +29,12 @@ class Importer(private val settings: LcaImportSettings) {
             .associateBy { it.symbol.lowercase() }
         val unitRenderer = UnitRenderer.of(predefined)
         val pkg = settings.rootPackage.ifBlank { "default" }
-        val writer = ModelWriter(pkg, settings.rootFolder)
+        val fileHeaderImports = when (settings.importSubstancesMode) {
+            SubstanceImportMode.EF30 -> listOf("ef30")
+            SubstanceImportMode.EF31 -> listOf("ef31")
+            SubstanceImportMode.SIMAPRO -> listOf()
+        }
+        val writer = ModelWriter(pkg, settings.rootFolder, fileHeaderImports)
         writer.use {
             importFile(path, it, unitRenderer)
         }
@@ -35,16 +46,22 @@ class Importer(private val settings: LcaImportSettings) {
         }
     }
 
+
     private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
         when {
-            block.isProcessBlock && settings.importProcesses -> ProcessRenderer().render(block.asProcessBlock(), writer)
-            block.isElementaryFlowBlock && settings.importSubstances ->
-                SubstanceRenderer().render(block.asElementaryFlowBlock(), writer)
+            block.isProcessBlock && settings.importProcesses -> processRenderer.render(
+                block.asProcessBlock(),
+                writer
+            )
+
+            block.isElementaryFlowBlock ->
+                if (settings.importSubstancesMode == SubstanceImportMode.SIMAPRO)
+                    simaproSubstanceRenderer.render(block.asElementaryFlowBlock(), writer)
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
                 .forEach { unitRenderer.render(it, writer) }
 
-            block.isInputParameterBlock -> InputParameterRenderer().render(block.asInputParameterBlock(), writer)
+            block.isInputParameterBlock -> inputParameterRenderer.render(block.asInputParameterBlock(), writer)
             block.isSystemDescriptionBlock -> renderMain(block.asSystemDescriptionBlock(), writer)
             block.isQuantityBlock -> { /* Dimensions => no need */
             }
