@@ -92,7 +92,7 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
             val processNode = GraphNode(processValue.name)
 
             val productsGraph = processValue.products.fold(Graph.empty()) { g, xchange ->
-                g.addNode(GraphNode(xchange)).addLink(GraphLink(true, processKey, xchange))
+                g.addNode(GraphNode(xchange)).addLink(GraphLink(false, processKey, xchange))
             }
 
             val inputsGraph = processValue.inputs.fold(Graph.empty()) { g, xchange ->
