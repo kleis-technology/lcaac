@@ -1,12 +1,18 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
-import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import ch.kleis.lcaplugin.psi.LcaTypes
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.TokenSet
 
-interface PsiMetaAssignment : PsiUIDOwner {
+interface PsiMetaAssignment : PsiElement {
+    val name: String
+        get() = getKey()
+
+    fun getKey(): String {
+        return node.getChildren(TokenSet.create(LcaTypes.STRING_LITERAL))[0].text.trim('"')
+    }
+
     fun getValue(): String {
-        return node.findChildByType(LcaTypes.STRING_LITERAL)?.psi?.text?.trim('"')
-            ?: ""
+        return node.getChildren(TokenSet.create(LcaTypes.STRING_LITERAL))[1].text.trim('"')
     }
 }

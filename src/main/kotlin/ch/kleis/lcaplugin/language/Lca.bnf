@@ -140,7 +140,7 @@ block_meta ::= META_KEYWORD LBRACE meta_assignment* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockMetaMixin"
 }
 
-meta_assignment ::= uid EQUAL STRING_LITERAL {
+meta_assignment ::= STRING_LITERAL EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiMetaAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiMetaAssignmentMixin"
 }
