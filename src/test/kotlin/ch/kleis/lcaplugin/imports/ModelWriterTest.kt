@@ -1,18 +1,59 @@
 package ch.kleis.lcaplugin.imports
 
+import ch.kleis.lcaplugin.TestUtils
+import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
+import io.mockk.*
 import junit.framework.TestCase
+import org.junit.After
 import org.junit.Test
+import java.io.File
+import kotlin.test.assertTrue
 
 class ModelWriterTest {
 
+    @After
+    fun after() {
+        unmockkAll()
+    }
+
     @Test
     fun write() {
-        // TODO
+        // Given
+        val watcher = mockk<AsynchronousWatcher>()
+        justRun { watcher.notifyCurrentWork("relative_file") }
+        val sut = ModelWriter("test", System.getProperty("java.io.tmpdir"), listOf("custom.import"), watcher)
+
+
+        // When
+        sut.write("relative_file", "Content", false)
+
+        // Then
+        verify { watcher.notifyCurrentWork("relative_file") }
+        assertTrue(File(System.getProperty("java.io.tmpdir") + File.separator + "relative_file.lca").exists())
     }
 
     @Test
     fun close() {
-        // TODO
+        // Given
+        val watcher = mockk<AsynchronousWatcher>()
+        val sut = ModelWriter("test", System.getProperty("java.io.tmpdir"), listOf("custom.import"), watcher)
+        val existingWriter = mockk<FileWriterWithSize>()
+        justRun { existingWriter.close() }
+        val opened = mutableMapOf("relative_file.lca" to existingWriter)
+        TestUtils.setField(sut, "openedFiles", opened)
+        mockkStatic(LocalFileSystem::class)
+        val fileSys = mockk<LocalFileSystem>()
+        every { LocalFileSystem.getInstance() } returns fileSys
+        val vFile = mockk<VirtualFile>()
+        every { fileSys.findFileByPath(any()) } returns null
+
+        // When
+        sut.close()
+
+        // Then
+        verify { existingWriter.close() }
     }
 
     private data class Input(val raw: String, val expected: String)

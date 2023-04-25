@@ -6,6 +6,8 @@ import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
 
 class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
+    var nbSubstances = 0
+
     override fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)
@@ -43,6 +45,7 @@ substance $uid {
     }
 }"""
         )
+        nbSubstances++
     }
 
 }

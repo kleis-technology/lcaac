@@ -121,5 +121,6 @@ substance aluminium_raw {
         Assert.assertEquals("substances/raw", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
+        Assert.assertEquals(1, sut.nbSubstances)
     }
 }
