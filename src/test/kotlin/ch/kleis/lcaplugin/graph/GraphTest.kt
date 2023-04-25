@@ -76,16 +76,16 @@ class GraphTest {
         val drinkingG = GraphNode("drinking", GraphNodeType.PROCESS, "drinking")
         val ginDrinking = GraphLink("gin", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1cL")
 
-        val ginGraph = Graph(setOf(gin, drinkingG), setOf(ginDrinking))
+        val sut = Graph(setOf(gin, drinkingG), setOf(ginDrinking))
         val beerGraph = Graph(setOf(beer, drinkingB), setOf(beerDrinking))
 
         // When
-        val sut = ginGraph.merge(beerGraph)
+        val resultingGraph = sut.merge(beerGraph)
 
         // Then
         assertEquals(
             Graph(setOf(beer, gin, drinkingG), setOf(beerDrinking, ginDrinking)),
-            sut
+            resultingGraph
         )
     }
 
@@ -108,17 +108,18 @@ class GraphTest {
         val graphAspirin = Graph(setOf(aspirin, eating), setOf(eatingAspirin))
 
         // When
-        val sut = Graph.empty().merge(graphGin, graphBeer, graphAspirin)
+        val sut = Graph.empty()
+        val result = sut.merge(graphGin, graphBeer, graphAspirin)
 
         // Then
         assertEquals(
             Graph(setOf(beer, gin, aspirin, drinkingG, eating), setOf(beerDrinking, ginDrinking, eatingAspirin)),
-            sut
+            result
         )
 
         assertEquals(
             Graph.empty().merge(graphBeer).merge(graphGin).merge(graphAspirin),
-            sut
+            result
         )
     }
 
