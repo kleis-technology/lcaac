@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
+import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ModelWriter
 import io.mockk.*
 import org.junit.After
@@ -9,6 +10,7 @@ import org.junit.Test
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
+import kotlin.test.assertEquals
 
 class SimaproSubstanceRendererTest {
     private val writer = mockk<ModelWriter>()
@@ -29,6 +31,26 @@ class SimaproSubstanceRendererTest {
     @After
     fun after() {
         unmockkAll()
+    }
+
+    @Test
+    fun resolveSimaproType_ShouldReturnTheType() {
+        // Given
+        val data = listOf(
+            (ElementaryFlowType.RESOURCES to "Occupation,") to SubstanceType.LAND_USE,
+            (ElementaryFlowType.RESOURCES to "Transformation,") to SubstanceType.LAND_USE,
+            (ElementaryFlowType.RESOURCES to "other") to SubstanceType.RESOURCE,
+            (ElementaryFlowType.SOCIAL_ISSUES to "lksjda") to SubstanceType.EMISSION,
+            (ElementaryFlowType.EMISSIONS_TO_WATER to "33") to SubstanceType.EMISSION,
+        )
+
+        data.forEach { (param, expected) ->
+            // When
+            val result = SimaproSubstanceRenderer.resolveSimaproType(param.first, param.second)
+            // Then
+            assertEquals(expected, result)
+        }
+
     }
 
     @Test
@@ -54,7 +76,7 @@ class SimaproSubstanceRendererTest {
 substance aluminium_raw {
 
     name = "Aluminium"
-    type = Emission
+    type = Resource
     compartment = "raw"
     reference_unit = kg
 
@@ -100,7 +122,7 @@ substance aluminium_raw {
 substance aluminium_raw {
 
     name = "Aluminium"
-    type = Emission
+    type = Resource
     compartment = "raw"
     reference_unit = kg
 
