@@ -10,7 +10,7 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.kotlin.jvm") version "1.8.10"
     // Gradle IntelliJ Plugin
     id("org.jetbrains.intellij") version "1.12.0"
     // Gradle Changelog Plugin
@@ -22,7 +22,7 @@ plugins {
     // Arrow optics auto-generation Plugin
     id("com.google.devtools.ksp") version "1.8.10-1.0.9"
     // JSON serialization tools for graph visualization
-    kotlin("plugin.serialization") version "1.8.0"
+    kotlin("plugin.serialization") version "1.8.10"
 }
 
 group = properties("pluginGroup")
@@ -53,13 +53,11 @@ dependencies {
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.3"
-    val kotlinxHtmlVersion = "0.8.0"
     val kotlinxSerializationJSONVersion = "1.5.0"
     implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-optics")
     implementation("org.openlca:olca-simapro-csv:$olcaSimaproVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-html:$kotlinxHtmlVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSONVersion")
     ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
 
