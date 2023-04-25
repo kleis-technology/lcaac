@@ -8,7 +8,7 @@ class Allocation {
     fun apply(system: SystemValue): SystemValue {
         val processes = system.processes.flatMap { processValue ->
             processValue.products.map { allocateProduct(it, processValue) }
-        }.toSet()
+        }.toMutableSet()
         return SystemValue(processes, system.substanceCharacterizations)
     }
 
@@ -36,7 +36,7 @@ class Allocation {
         }
     }
 
-    private fun totalAllocationAmounts(processValue: ProcessValue): Double{
+    private fun totalAllocationAmounts(processValue: ProcessValue): Double {
         return processValue.products.map { it.allocation.amount }.sum();
     }
 

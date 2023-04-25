@@ -6,12 +6,12 @@ import ch.kleis.lcaplugin.core.HasUID
 
 @optics
 data class SystemValue(
-    val processes: Set<ProcessValue>,
-    val substanceCharacterizations: Set<SubstanceCharacterizationValue>,
+    val processes: MutableSet<ProcessValue>,
+    val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue>,
 ) : Value, HasUID {
     companion object {
         fun empty(): SystemValue {
-            return SystemValue(emptySet(), emptySet())
+            return SystemValue(HashSet(), HashSet())
         }
     }
 
@@ -20,24 +20,19 @@ data class SystemValue(
     }
 
     fun plus(process: ProcessValue): SystemValue {
-        return SystemValue(
-            processes.plus(process),
-            substanceCharacterizations,
-        )
+        processes.add(process)
+        return this
     }
 
     fun plus(substanceCharacterization: SubstanceCharacterizationValue): SystemValue {
-        return SystemValue(
-            processes,
-            substanceCharacterizations.plus(substanceCharacterization),
-        )
+        substanceCharacterizations.add(substanceCharacterization)
+        return this
     }
 
     fun plus(unlinkedSystem: SystemValue): SystemValue {
-        return SystemValue(
-            processes.plus(unlinkedSystem.processes),
-            substanceCharacterizations.plus(unlinkedSystem.substanceCharacterizations),
-        )
+        unlinkedSystem.processes.forEach { processes.add(it) }
+        unlinkedSystem.substanceCharacterizations.forEach { substanceCharacterizations.add(it) }
+        return this
     }
 }
 

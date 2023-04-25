@@ -35,7 +35,8 @@ class Evaluator(
         LOG.info("Start recursive Compile")
         LOG.info("End recursive Compile")
         try {
-            val result = recursiveCompile(SystemValue.empty(), expression)
+            val result = SystemValue.empty()
+            recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
             LOG.info("End recursive Compile, found ${result.processes.size} processes and ${result.substanceCharacterizations.size} substances")
             return result
         } catch (e: Exception) {
@@ -44,11 +45,18 @@ class Evaluator(
         }
     }
 
-    private fun recursiveCompile(
+    private tailrec fun recursiveCompile(
         accumulator: SystemValue,
-        expression: TemplateExpression,
-    ): SystemValue {
+        visited: HashSet<TemplateExpression>,
+        toProcess: HashSet<TemplateExpression>,
+    ) {
+        if (toProcess.isEmpty()) return
         // eval
+        val expression = toProcess.first()
+        toProcess.remove(expression)
+        if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
+        visited.add(expression)
+
         val completed = completeDefaultArguments.apply(expression)
         val reduced = reduceAndComplete.apply(completed)
         val nextInstances = HashSet<EInstance>()
@@ -74,27 +82,28 @@ class Evaluator(
 
         // termination condition
         if (accumulator.containsProcess(v)) {
-            return accumulator
-        }
+            LOG.warn("This expression should not be present in accumulator $expression and $v")
+            recursiveCompile(accumulator, visited, toProcess)
+        } else {
 
-        // add evaluated process
-        var result = accumulator.plus(v)
+            // add evaluated process
+            var result = accumulator.plus(v)
 
-        // add substance characterizations
-        val everySubstance =
-            everySubstance
-        everySubstance.getAll(reduced).forEach { substance ->
-            symbolTable.getSubstanceCharacterization(substance.name)?.let {
-                val scv = reduceAndComplete.apply(it).toValue()
-                result = result.plus(scv)
+            // add substance characterizations
+            val everySubstance =
+                everySubstance
+            everySubstance.getAll(reduced).forEach { substance ->
+                symbolTable.getSubstanceCharacterization(substance.name)?.let {
+                    val scv = reduceAndComplete.apply(it).toValue()
+                    result = result.plus(scv)
+                }
             }
-        }
 
-        // recursively visit process template instances
-        nextInstances.forEach {
-            result = recursiveCompile(result, it)
+            // recursively visit process template instances
+            nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }
+
+            recursiveCompile(result, visited, toProcess)
         }
-        return result
     }
 
 

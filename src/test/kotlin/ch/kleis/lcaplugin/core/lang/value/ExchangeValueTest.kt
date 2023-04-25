@@ -5,9 +5,6 @@ import ch.kleis.lcaplugin.core.lang.fixture.IndicatorValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
-import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
-import ch.kleis.lcaplugin.core.lang.value.ImpactValue
-import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -24,7 +21,7 @@ class ExchangeValueTest {
             TechnoExchangeValue(quantity, product)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: mass[1.0] vs length[3.0]", e.message)
+            assertEquals("incompatible dimensions: mass[1.0] vs length[3.0] for product water", e.message)
         }
     }
 
@@ -39,7 +36,10 @@ class ExchangeValueTest {
             BioExchangeValue(quantity, substance)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: length[3.0] vs mass[1.0]", e.message)
+            assertEquals(
+                "incompatible dimensions: length[3.0] vs mass[1.0] for substance propanol, quantity=1.0",
+                e.message
+            )
         }
     }
 
@@ -54,7 +54,10 @@ class ExchangeValueTest {
             ImpactValue(quantity, indicator)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: length[3.0] vs mass[1.0]", e.message)
+            assertEquals(
+                "incompatible dimensions: length[3.0] vs mass[1.0] for indicator climate change, quantity=1.0",
+                e.message
+            )
         }
     }
 }

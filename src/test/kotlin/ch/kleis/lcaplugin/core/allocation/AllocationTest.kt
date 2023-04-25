@@ -6,27 +6,30 @@ import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixture.Companion.propanolCharacterization
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SystemValueFixture
-import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
+import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import org.junit.Assert
 import org.junit.Test
 
 class AllocationTest {
     @Test
-    fun apply_when_no_allocation_should_change_nothing(){
+    fun apply_when_no_allocation_should_change_nothing() {
         // Given
-        val system = SystemValueFixture.carrotSystem
+        val system = SystemValueFixture.carrotSystem()
         val allocation = Allocation()
         // When
-        val actual = allocation.apply(SystemValueFixture.carrotSystem)
+        val actual = allocation.apply(SystemValueFixture.carrotSystem())
         // Then
         Assert.assertEquals(system, actual)
     }
 
     @Test
-    fun apply_when_coProducts_should_duplicate_process(){
+    fun apply_when_coProducts_should_duplicate_process() {
         // Given
         val system = SystemValue(
-            setOf(
+            mutableSetOf(
                 ProcessValue(
                     "carrot",
                     listOf(
@@ -45,7 +48,7 @@ class AllocationTest {
                     listOf()
                 )
             ),
-            setOf()
+            mutableSetOf()
         )
         val allocation = Allocation()
         // When
@@ -55,10 +58,10 @@ class AllocationTest {
     }
 
     @Test
-    fun apply_when_coProducts_should_keep_only_one_product_per_process(){
+    fun apply_when_coProducts_should_keep_only_one_product_per_process() {
         // Given
         val system = SystemValue(
-            setOf(
+            mutableSetOf(
                 ProcessValue(
                     "carrot",
                     listOf(
@@ -77,7 +80,7 @@ class AllocationTest {
                     listOf()
                 )
             ),
-            setOf()
+            mutableSetOf()
         )
         val allocation = Allocation()
         // When
@@ -87,10 +90,10 @@ class AllocationTest {
     }
 
     @Test
-    fun apply_when_allocation_should_divide_inputs_quantities(){
+    fun apply_when_allocation_should_divide_inputs_quantities() {
         // Given
         val system = SystemValue(
-            setOf(
+            mutableSetOf(
                 ProcessValue(
                     "carrot",
                     listOf(
@@ -114,7 +117,7 @@ class AllocationTest {
                     listOf()
                 )
             ),
-            setOf()
+            mutableSetOf()
         )
         val allocation = Allocation()
         // When
@@ -125,10 +128,10 @@ class AllocationTest {
     }
 
     @Test
-    fun apply_when_allocation_should_divide_biosphere_quantities(){
+    fun apply_when_allocation_should_divide_biosphere_quantities() {
         // given
         val system = SystemValue(
-            setOf(
+            mutableSetOf(
                 ProcessValue(
                     "carrot",
                     listOf(
@@ -152,7 +155,7 @@ class AllocationTest {
                     )
                 )
             ),
-            setOf()
+            mutableSetOf()
         )
         val allocation = Allocation()
         // when
@@ -163,7 +166,7 @@ class AllocationTest {
     }
 
     @Test
-    fun totalAmount_whenOneProduct_shouldReturnOne(){
+    fun totalAmount_whenOneProduct_shouldReturnOne() {
         // given
         val allocation = Allocation()
         val processValue = ProcessValue(
@@ -185,7 +188,7 @@ class AllocationTest {
     }
 
     @Test
-    fun totalAmount_whenTwoProduct_shouldSumAllocation(){
+    fun totalAmount_whenTwoProduct_shouldSumAllocation() {
         // given
         val allocation = Allocation()
         val processValue = ProcessValue(
@@ -213,7 +216,7 @@ class AllocationTest {
     }
 
     @Test
-    fun allocationUnitCheck_whenConsistentUnits_shouldNotThrowAnError(){
+    fun allocationUnitCheck_whenConsistentUnits_shouldNotThrowAnError() {
         // given
         val allocation = Allocation()
         val processValue = ProcessValue(
@@ -242,11 +245,11 @@ class AllocationTest {
     }
 
     @Test
-    fun applyAllocation_whenTwoProduct_shouldWeightAllocations(){
+    fun applyAllocation_whenTwoProduct_shouldWeightAllocations() {
         // given
         val allocation = Allocation()
         val system = SystemValue(
-            setOf(
+            mutableSetOf(
                 ProcessValue(
                     "carrot",
                     listOf(
@@ -270,7 +273,7 @@ class AllocationTest {
                     listOf()
                 ),
             ),
-            setOf()
+            mutableSetOf()
         )
         // when
         val actual = allocation.apply(system).processes.first().inputs.first().quantity.amount
@@ -278,24 +281,26 @@ class AllocationTest {
         // then
         val delta = 1E-9
         val totalAllocation = QuantityValueFixture.twentyPercent.amount + QuantityValueFixture.eightyPercent.amount
-        val expected = QuantityValueFixture.twoLitres.amount* QuantityValueFixture.twentyPercent.amount/totalAllocation
+        val expected =
+            QuantityValueFixture.twoLitres.amount * QuantityValueFixture.twentyPercent.amount / totalAllocation
         Assert.assertEquals(expected, actual, delta)
     }
 
     @Test
-    fun apply_shouldKeepAllocation(){
+    fun apply_shouldKeepAllocation() {
         // given
         val system = SystemValue(
-            setOf(ProcessValue("", listOf(), listOf(), listOf())),
-            setOf(propanolCharacterization)
+            mutableSetOf(ProcessValue("", listOf(), listOf(), listOf())),
+            mutableSetOf(propanolCharacterization)
         )
         // when
         val actual = Allocation().apply(system).substanceCharacterizations
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
     }
+
     @Test
-    fun allocationUnitCheck_whenAllocationUnitIsNotPercentage_shouldThrowAnError(){
+    fun allocationUnitCheck_whenAllocationUnitIsNotPercentage_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
             "carrot",
@@ -314,11 +319,15 @@ class AllocationTest {
             Allocation().allocationUnitCheck(processValue)
             Assert.fail("Should throw an error")
         } catch (e: EvaluatorException) {
-            Assert.assertEquals("Only percent is allowed for allocation unit (process: ${processValue.name})", e.message)
+            Assert.assertEquals(
+                "Only percent is allowed for allocation unit (process: ${processValue.name})",
+                e.message
+            )
         }
     }
+
     @Test
-    fun allocationUnitCheck_whenAllocationUnitIsPercentage_shouldNotThrowAnError(){
+    fun allocationUnitCheck_whenAllocationUnitIsPercentage_shouldNotThrowAnError() {
         // given
         val processValue = ProcessValue(
             "carrot",
@@ -339,8 +348,9 @@ class AllocationTest {
             Assert.fail("Should throw an error")
         }
     }
+
     @Test
-    fun allocationUnitCheck_whenSumOfAllocationAreNotHundredPercent_shouldThrowAnError(){
+    fun allocationUnitCheck_whenSumOfAllocationAreNotHundredPercent_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
             "carrot",
@@ -359,11 +369,15 @@ class AllocationTest {
             Allocation().allocationUnitCheck(processValue)
             Assert.fail("Should throw an error")
         } catch (e: EvaluatorException) {
-            Assert.assertEquals("The sum of the allocations should be hundred percent (process: ${processValue.name})", e.message)
+            Assert.assertEquals(
+                "The sum of the allocations should be hundred percent (process: ${processValue.name})",
+                e.message
+            )
         }
     }
+
     @Test
-    fun allocationUnitCheck_whenSumOfAllocationAreHundredPercent_shouldNotThrowAnError(){
+    fun allocationUnitCheck_whenSumOfAllocationAreHundredPercent_shouldNotThrowAnError() {
         // given
         val processValue = ProcessValue(
             "carrot",
@@ -389,8 +403,9 @@ class AllocationTest {
             Assert.fail("Should throw an error")
         }
     }
+
     @Test
-    fun allocationUnitCheck_whenNonConsistentUnits_shouldThrowAnError(){
+    fun allocationUnitCheck_whenNonConsistentUnits_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
             "carrot",
@@ -414,7 +429,10 @@ class AllocationTest {
             Allocation().allocationUnitCheck(processValue)
             Assert.fail("Should throw an error")
         } catch (e: EvaluatorException) {
-            Assert.assertEquals("Only percent is allowed for allocation unit (process: ${processValue.name})", e.message)
+            Assert.assertEquals(
+                "Only percent is allowed for allocation unit (process: ${processValue.name})",
+                e.message
+            )
         }
     }
 }

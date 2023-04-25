@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.lang.value.SystemValue
 
 class SystemValueFixture {
     companion object {
-        val carrotSystem = SystemValue(setOf(carrotProcessValue), setOf())
-        val carrotSystemWithAllocation = SystemValue(setOf(carrotProcessValueWithAllocation), setOf())
+        fun carrotSystem() = SystemValue(mutableSetOf(carrotProcessValue), mutableSetOf())
+        fun carrotSystemWithAllocation() = SystemValue(mutableSetOf(carrotProcessValueWithAllocation), mutableSetOf())
     }
 }

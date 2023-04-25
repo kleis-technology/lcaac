@@ -63,7 +63,7 @@ data class BioExchangeValue(val quantity: QuantityValue, val substance: Substanc
 data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValue) : ExchangeValue {
     init {
         if (quantity.unit.dimension != indicator.referenceUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${indicator.referenceUnit.dimension}  for indicator ${indicator.name}, quantity=${quantity.amount}\")")
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${indicator.referenceUnit.dimension} for indicator ${indicator.name}, quantity=${quantity.amount}")
         }
     }
 
