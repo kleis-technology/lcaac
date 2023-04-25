@@ -7,17 +7,17 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
+import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
 import java.awt.BorderLayout
 import java.awt.datatransfer.Transferable
 import javax.swing.*
 import javax.swing.plaf.UIResource
-import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
 
 /*
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaResult(result: InventoryResult) {
+class LcaProcessAssessResult(result: InventoryResult): LcaToolWindowContent {
     private val content: JPanel
 
     init {
@@ -42,7 +42,7 @@ class LcaResult(result: InventoryResult) {
         }
     }
 
-    fun getContent(): JPanel {
+    override fun getContent(): JPanel {
         return content
     }
 

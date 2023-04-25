@@ -1,3 +1,4 @@
+import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import task.GenerateEmissionFactorsTask30
@@ -9,7 +10,7 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.kotlin.jvm") version "1.8.10"
     // Gradle IntelliJ Plugin
     id("org.jetbrains.intellij") version "1.12.0"
     // Gradle Changelog Plugin
@@ -20,6 +21,8 @@ plugins {
     id("org.jetbrains.grammarkit") version "2021.2.2"
     // Arrow optics auto-generation Plugin
     id("com.google.devtools.ksp") version "1.8.10-1.0.9"
+    // JSON serialization tools for graph visualization
+    kotlin("plugin.serialization") version "1.8.10"
 }
 
 group = properties("pluginGroup")
@@ -50,10 +53,12 @@ dependencies {
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.3"
+    val kotlinxSerializationJSONVersion = "1.5.0"
     implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-optics")
     implementation("org.openlca:olca-simapro-csv:$olcaSimaproVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSONVersion")
     ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
 
     testImplementation("io.mockk:mockk:1.13.4")
@@ -147,9 +152,9 @@ tasks {
 
         // Get the latest available change notes from the changelog file
         changeNotes.set(provider {
-            changelog.run {
+            changelog.renderItem(changelog.run {
                 getOrNull(properties("pluginVersion")) ?: getLatest()
-            }.toHTML()
+            }, Changelog.OutputType.HTML)
         })
     }
 

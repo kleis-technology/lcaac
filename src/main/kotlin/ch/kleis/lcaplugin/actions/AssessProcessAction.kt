@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.matrix.InventoryResult
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.ui.toolwindow.LcaResult
+import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
@@ -43,8 +43,8 @@ class AssessProcessAction(private val processName: String) : AnAction() {
 
     private fun displayToolWindow(project: Project, result: InventoryResult) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-        val lcaResult = LcaResult(result)
-        val content = ContentFactory.getInstance().createContent(lcaResult.getContent(), project.name, false)
+        val lcaProcessAssessResult = LcaProcessAssessResult(result)
+        val content = ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()

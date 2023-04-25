@@ -1,12 +1,11 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.AssessProcessAction
+import ch.kleis.lcaplugin.language.psi.isProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
-import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.elementType
 
 /*
     https://github.com/JetBrains/intellij-plugins/blob/master/makefile/resources/META-INF/plugin.xml
@@ -14,7 +13,7 @@ import com.intellij.psi.util.elementType
 
 class AssessProcessMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
-        if (isTarget(element)) {
+        if (isProcess(element)) {
             val process = element.parent as PsiProcess
             val target = process.getProcessTemplateRef().getUID().name
             val action = AssessProcessAction(target)
@@ -23,12 +22,5 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
             }, action)
         }
         return null
-    }
-
-    private fun isTarget(element: PsiElement): Boolean {
-        if (element.elementType != LcaTypes.PROCESS_KEYWORD || element.parent !is PsiProcess) {
-            return false
-        }
-        return true
     }
 }
