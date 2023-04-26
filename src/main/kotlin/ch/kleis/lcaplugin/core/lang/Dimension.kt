@@ -1,8 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
-
-class InvalidPowerException : Throwable("", null, false, false)
+import kotlin.math.round
 
 class Dimension(elements: Map<String, Double>) {
     private val elements: Map<String, Double>
@@ -17,27 +16,29 @@ class Dimension(elements: Map<String, Double>) {
         return if (basic.value == 1.0) {
             basic.key
         } else {
-            val power = try {
-                if (basic.value == (basic.value.toLong()).toDouble()) {
+            val power =
+                if (basic.value == round(basic.value)) {
                     toPower(String.format("%d", basic.value.toLong()))
                 } else {
                     "^[${basic.value}]"
                 }
-            } catch (e: InvalidPowerException) {
-                "^[${basic.value}]"
-            }
             "${basic.key}$power"
         }
     }
 
-    private fun toPower(f: String): String {
-        return f.map { c ->
-            convert(c)
-        }.joinToString("")
+    private fun toPower(f: String): String? {
+        return f.map { convert(it) }
+            .reduce { strAcc, char ->
+                strAcc?.let { str ->
+                    char?.let { c ->
+                        str.plus(c)
+                    }
+                }
+            }
     }
 
-    private fun convert(c: Char): String {
-        val result: Int = when (c) {
+    private fun convert(c: Char): String? {
+        val result: Int? = when (c) {
             '0' -> 0x2070
             '1' -> 0x00B9
             '2' -> 0x00B2
@@ -45,11 +46,10 @@ class Dimension(elements: Map<String, Double>) {
             in '4'..'9' -> 0x2070 + (c.code - 48)
             '.' -> 0x02D9
             '-' -> 0x207B
-            else -> throw InvalidPowerException()
+            else -> null
         }
-        return Character.toChars(result).joinToString("")
+        return result?.let { Character.toString(it) }
     }
-
 
     init {
         this.elements = elements.filter { it.value != 0.0 }
