@@ -56,7 +56,7 @@ class LcaExpressionReducerTest {
             ),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q_carrot", QuantityFixture.oneKilogram),
                     Pair("q_water", QuantityFixture.oneLitre),
@@ -101,12 +101,12 @@ class LcaExpressionReducerTest {
             EIndicatorRef("cc")
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
-            indicatorRegister = Register(
+            indicatorRegister = Register.from(
                 hashMapOf(
                     Pair("cc", IndicatorFixture.climateChange)
                 )
@@ -135,12 +135,12 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            productRegister = Register(
+            productRegister = Register.from(
                 hashMapOf(
                     Pair("carrot", UnconstrainedProductFixture.carrot)
                 )
             ),
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -166,12 +166,12 @@ class LcaExpressionReducerTest {
             ESubstanceRef("propanol"),
         )
         val reducer = LcaExpressionReducer(
-            substanceRegister = Register(
+            substanceRegister = Register.from(
                 hashMapOf(
                     Pair("propanol", SubstanceFixture.propanol),
                 )
             ),
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -197,7 +197,7 @@ class LcaExpressionReducerTest {
             EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -220,7 +220,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EIndicatorRef("cc")
         val reducer = LcaExpressionReducer(
-            indicatorRegister = Register(
+            indicatorRegister = Register.from(
                 hashMapOf(
                     Pair("cc", IndicatorFixture.climateChange)
                 )
@@ -247,7 +247,7 @@ class LcaExpressionReducerTest {
             EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -274,7 +274,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = ESubstanceRef("propanol")
         val reducer = LcaExpressionReducer(
-            substanceRegister = Register(
+            substanceRegister = Register.from(
                 hashMapOf(
                     Pair("propanol", SubstanceFixture.propanol),
                 )
@@ -300,7 +300,7 @@ class LcaExpressionReducerTest {
             None,
         )
         val reducer = LcaExpressionReducer(
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -333,12 +333,12 @@ class LcaExpressionReducerTest {
             None,
         )
         val reducer = LcaExpressionReducer(
-            productRegister = Register(
+            productRegister = Register.from(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -368,12 +368,12 @@ class LcaExpressionReducerTest {
         )
         val expression = EConstrainedProduct(EProductRef("carrot"), None)
         val reducer = LcaExpressionReducer(
-            productRegister = Register(
+            productRegister = Register.from(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -410,17 +410,17 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            productRegister = Register(
+            productRegister = Register.from(
                 hashMapOf(
                     Pair("carrot", carrot)
                 )
             ),
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", EQuantityLiteral(3.0, EUnitRef("kg")))
                 )
             ),
-            unitRegister = Register(
+            unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -462,7 +462,7 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register(
+            quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q_propanol", QuantityFixture.oneKilogram),
                     Pair("q_cc", QuantityFixture.oneKilogram),

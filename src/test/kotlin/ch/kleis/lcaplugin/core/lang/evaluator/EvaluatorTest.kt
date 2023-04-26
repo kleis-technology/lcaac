@@ -1,8 +1,10 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.*
+import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
+import ch.kleis.lcaplugin.core.lang.fixture.IndexFixture.Companion.indexTemplate
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
@@ -33,12 +35,14 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to TemplateFixture.carrotProduction
-                )
+        val processTemplates : Register<TemplateExpression> = Register.from(
+            mapOf(
+                "carrot_production" to TemplateFixture.carrotProduction
             )
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = processTemplates,
+            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -125,113 +129,16 @@ class EvaluatorTest {
     }
 
     @Test
-    fun eval_withImplicitProcessResolution_whenMoreThanOneProcess_shouldThrow() {
-        // given
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to TemplateFixture.carrotProduction,
-                    "carrot_production_bis" to TemplateFixture.carrotProduction,
-                )
-            ),
-        )
-        val expression = EProcessTemplate(
-            emptyMap(),
-            emptyMap(),
-            EProcess(
-                name = "carrot_production",
-                products = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
-                    )
-                ),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
-                            None,
-                        )
-                    )
-                ),
-                biosphere = emptyList()
-            )
-        )
-        val recursiveEvaluator = Evaluator(symbolTable)
-
-        // when/then
-        try {
-            recursiveEvaluator.eval(expression)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals(
-                "more than one process produces 'carrot' : [carrot_production, carrot_production_bis]",
-                e.message
-            )
-        }
-    }
-
-    @Test
-    fun eval_withExplicitProcessResolution_whenMoreThanOneProcess_shouldThrow() {
-        // given
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to TemplateFixture.carrotProduction,
-                    "carrot_production_bis" to TemplateFixture.carrotProduction,
-                )
-            )
-        )
-        val expression = EProcessTemplate(
-            emptyMap(),
-            emptyMap(),
-            EProcess(
-                name = "carrot_production",
-                products = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
-                    )
-                ),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
-                            FromProcessRef(
-                                "carrot_production",
-                                emptyMap(),
-                            ),
-                        )
-                    )
-                ),
-                biosphere = emptyList()
-            )
-        )
-        val recursiveEvaluator = Evaluator(symbolTable)
-
-        // when/then
-        try {
-            recursiveEvaluator.eval(expression).processes.toSet()
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals(
-                "more than one process produces 'carrot' : [carrot_production, carrot_production_bis]",
-                e.message
-            )
-        }
-    }
-
-    @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to TemplateFixture.carrotProduction
-                )
+        val processTemplates : Register<TemplateExpression> = Register.from(
+            mapOf(
+                "carrot_production" to TemplateFixture.carrotProduction
             )
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = processTemplates,
+            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -324,7 +231,7 @@ class EvaluatorTest {
     fun eval_whenProductDoesNotMatchProcess_shouldThrow() {
         // given
         val symbolTable = SymbolTable(
-            processTemplates = Register(
+            processTemplates = Register.from(
                 mapOf(
                     "carrot_production" to TemplateFixture.carrotProduction
                 )
@@ -371,12 +278,12 @@ class EvaluatorTest {
     fun eval_whenNonEmptyBiosphere_thenIncludeSubstanceCharacterization() {
         // given
         val symbolTable = SymbolTable(
-            substanceCharacterizations = Register(
+            substanceCharacterizations = Register.from(
                 mapOf(
                     "propanol" to SubstanceCharacterizationFixture.propanolCharacterization,
                 )
             ),
-            substances = Register(
+            substances = Register.from(
                 mapOf(
                     "propanol" to SubstanceFixture.propanol,
                 )

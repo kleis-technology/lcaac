@@ -12,18 +12,22 @@ import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 
 class AssessProcessAction(private val processName: String) : AnAction() {
+    companion object {
+        private val LOG = Logger.getInstance(AssessProcessAction::class.java)
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
+
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         val collector = LcaFileCollector()
-        val parser = LcaLangAbstractParser(
-            collector.collect(file)
-        )
+        val parser = LcaLangAbstractParser(collector.collect(file))
 
         try {
             val symbolTable = parser.load()
@@ -35,9 +39,11 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         } catch (e: EvaluatorException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
+            LOG.error("Unable to process computation", e)
         } catch (e: NoSuchElementException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
+            LOG.error("Unable to process computation", e)
         }
     }
 

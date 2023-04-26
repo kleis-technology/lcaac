@@ -9,6 +9,7 @@ data class SymbolTable(
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
     val processTemplates: Register<TemplateExpression> = Register.empty(),
+    private val templatesIndexedByProduct: Index<TemplateExpression> = Index.empty(),
     val substanceCharacterizations: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
 ) {
     companion object {
@@ -35,16 +36,9 @@ data class SymbolTable(
             quantities.plus(map),
             units,
             processTemplates,
+            templatesIndexedByProduct,
             substanceCharacterizations,
         )
-    }
-
-    fun getProduct(name: String): LcaUnconstrainedProductExpression? {
-        return products[name]
-    }
-
-    fun getIndicator(name: String): LcaIndicatorExpression? {
-        return indicators[name]
     }
 
     fun getSubstanceCharacterization(name: String): LcaSubstanceCharacterizationExpression? {
@@ -53,6 +47,10 @@ data class SymbolTable(
 
     fun getSubstance(name: String): LcaSubstanceExpression? {
         return substances[name]
+    }
+
+    fun getTemplateFromProductName(name: String): TemplateExpression? {
+        return templatesIndexedByProduct[name]
     }
 
     override fun toString(): String {

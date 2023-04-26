@@ -28,7 +28,7 @@ class QuantityExpressionReducer(
     }
 
     fun reduceUnit(expression: UnitExpression): UnitExpression {
-        return when(expression) {
+        return when (expression) {
             is EUnitClosure -> {
                 val reducer = QuantityExpressionReducer(
                     expression.symbolTable.quantities,
@@ -36,6 +36,7 @@ class QuantityExpressionReducer(
                 )
                 return reducer.reduceUnit(expression.expression)
             }
+
             is EUnitDiv -> reduceDiv(expression)
             is EUnitLiteral -> reduceLiteral(expression)
             is EUnitMul -> reduceMul(expression)
@@ -43,6 +44,7 @@ class QuantityExpressionReducer(
                 is EQuantityLiteral -> q.unit
                 else -> EUnitOf(q)
             }
+
             is EUnitPow -> reducePow(expression)
             is EUnitRef -> reduceRef(expression)
             is EUnitAlias -> reduceAlias(expression)
@@ -52,15 +54,21 @@ class QuantityExpressionReducer(
     private fun reduceAlias(expression: EUnitAlias): UnitExpression {
         return when (val aliasForExpression = reduceAliasFor(expression)) {
             is EQuantityLiteral -> {
-                when (val unitAlias = reduceUnit(aliasForExpression.unit)){
+                when (val unitAlias = reduceUnit(aliasForExpression.unit)) {
                     is EUnitLiteral -> {
-                        EUnitLiteral(expression.symbol, aliasForExpression.amount * unitAlias.scale, unitAlias.dimension)
+                        EUnitLiteral(
+                            expression.symbol,
+                            aliasForExpression.amount * unitAlias.scale,
+                            unitAlias.dimension
+                        )
                     }
+
                     else -> {
                         EUnitAlias(expression.symbol, aliasForExpression)
                     }
                 }
             }
+
             else -> {
                 EUnitAlias(expression.symbol, aliasForExpression)
             }
@@ -183,7 +191,7 @@ class QuantityExpressionReducer(
         }
 
         if (leftUnit.dimension != rightUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${leftUnit.dimension} vs ${rightUnit.dimension}")
+            throw EvaluatorException("incompatible dimensions: ${leftUnit.dimension} vs ${rightUnit.dimension} in left=$left and right=$right")
         }
 
         val resultUnit = if (leftUnit.scale > rightUnit.scale) leftUnit else rightUnit
@@ -213,7 +221,7 @@ class QuantityExpressionReducer(
         }
 
         if (leftUnit.dimension != rightUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${leftUnit.dimension} vs ${rightUnit.dimension}")
+            throw EvaluatorException("incompatible dimensions: ${leftUnit.dimension} vs ${rightUnit.dimension} in left=$left and right=$right")
         }
 
         val resultUnit = if (leftUnit.scale > rightUnit.scale) leftUnit else rightUnit

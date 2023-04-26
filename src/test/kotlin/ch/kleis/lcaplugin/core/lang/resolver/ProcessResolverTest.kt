@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.lang.resolver
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.IndexFixture.Companion.indexTemplate
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import org.junit.Assert.assertEquals
@@ -45,13 +46,15 @@ class ProcessResolverTest {
                 biosphere = emptyList(),
             )
         )
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to carrotProduction,
-                    "salad_production" to saladProduction,
-                )
+        val processTemplates: Register<TemplateExpression> = Register.from(
+            mapOf(
+                "carrot_production" to carrotProduction,
+                "salad_production" to saladProduction,
             )
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = processTemplates,
+            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val resolver = ProcessResolver(symbolTable)
 
@@ -59,7 +62,7 @@ class ProcessResolverTest {
         val actual = resolver.resolveByProductName("carrot")
 
         // then
-        assertEquals(setOf("carrot_production" to carrotProduction), actual)
+        assertEquals(carrotProduction, actual)
     }
 
     @Test
@@ -102,13 +105,15 @@ class ProcessResolverTest {
                 biosphere = emptyList(),
             )
         )
-        val symbolTable = SymbolTable(
-            processTemplates = Register(
-                mapOf(
-                    "carrot_production" to carrotProduction,
-                    "salad_production" to saladProduction,
-                )
+        val processTemplates : Register<TemplateExpression> = Register.from(
+            mapOf(
+                "carrot_production" to carrotProduction,
+                "salad_production" to saladProduction,
             )
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = processTemplates,
+            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val resolver = ProcessResolver(symbolTable)
 
@@ -116,6 +121,6 @@ class ProcessResolverTest {
         val actual = resolver.resolveByProductName("carrot")
 
         // then
-        assertEquals(setOf("carrot_production" to carrotProduction), actual)
+        assertEquals(carrotProduction, actual)
     }
 }

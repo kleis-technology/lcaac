@@ -1,9 +1,13 @@
 package ch.kleis.lcaplugin.language.parser
 
+import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.Index
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
+import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemplateExpression
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
@@ -20,7 +24,7 @@ class LcaLangAbstractParser(
     private val files: List<LcaFile>,
 ) {
     fun load(): SymbolTable {
-        val globals = Register(Prelude.unitQuantities)
+        val globals : Register<QuantityExpression> = Register(Prelude.unitQuantities)
             .plus(
                 files
                     .flatMap { it.getUnitDefinitions() }
@@ -68,6 +72,22 @@ class LcaLangAbstractParser(
                     .map { Pair(it.name, it) }
             )
 
+        val templatesIndexedByProduct = Index(templates, Merge(
+            listOf(
+                everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
+                TemplateExpression.eProcessFinal.expression,
+            )
+        ) compose
+                LcaProcessExpression.eProcess.products compose
+                Every.list() compose
+                ETechnoExchange.product.eConstrainedProduct.product compose
+                Merge(
+                    listOf(
+                        LcaUnconstrainedProductExpression.eProduct.name,
+                        LcaUnconstrainedProductExpression.eProductRef.name,
+                    )
+                ))
+
         val substances = Register.empty<LcaSubstanceExpression>()
             .plus(
                 files
@@ -87,6 +107,7 @@ class LcaLangAbstractParser(
             quantities = globals,
             products = products,
             processTemplates = templates,
+            templatesIndexedByProduct = templatesIndexedByProduct,
             units = units,
             substances = substances,
             substanceCharacterizations = substanceCharacterizations,
@@ -150,8 +171,8 @@ class LcaLangAbstractParser(
 
     private fun productsOf(
         psiProcess: PsiProcess,
-        globals: Map<String, QuantityExpression>,
-        units: Map<String, UnitExpression>
+        globals: Register<QuantityExpression>,
+        units: Register<UnitExpression>
     ): List<EProduct> {
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }

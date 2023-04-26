@@ -191,3 +191,7 @@ tasks {
         delete("${rootDir}/src/main/gen")
     }
 }
+
+afterEvaluate {
+    tasks.findByName("kspKotlin")?.mustRunAfter(tasks.generateLexer, tasks.generateParser)
+}
