@@ -33,7 +33,6 @@ class Evaluator(
 
     fun eval(expression: TemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")
-        LOG.info("End recursive Compile")
         try {
             val result = SystemValue.empty()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
@@ -90,8 +89,6 @@ class Evaluator(
             var result = accumulator.plus(v)
 
             // add substance characterizations
-            val everySubstance =
-                everySubstance
             everySubstance.getAll(reduced).forEach { substance ->
                 symbolTable.getSubstanceCharacterization(substance.name)?.let {
                     val scv = reduceAndComplete.apply(it).toValue()
