@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ide.imports
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.imports.progressbar.AsynchronousImportWorker
 import ch.kleis.lcaplugin.ide.imports.progressbar.ProgressBar
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.ProjectManager
@@ -119,9 +120,22 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
         return LcaImportStep()
     }
 
+    override fun createSouthPanel(): JComponent {
+        val result = super.createSouthPanel()
+        helpAction.isEnabled = true
+        return result
+    }
+
+    //
     override fun getHelpId(): String {
-        // TODO Change behaviour
-        return "concepts.project"
+        return "not null"
+    }
+
+    override fun doHelpAction() {
+        if (myHelpAction.isEnabled) {
+            val helpUrl = MyBundle.message("lca.dialog.import.help.url")
+            BrowserUtil.browse(helpUrl)
+        }
     }
 }
 
