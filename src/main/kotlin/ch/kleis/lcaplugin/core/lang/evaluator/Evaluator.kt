@@ -86,20 +86,20 @@ class Evaluator(
         } else {
 
             // add evaluated process
-            var result = accumulator.plus(v)
+            accumulator.plus(v)
 
             // add substance characterizations
             everySubstance.getAll(reduced).forEach { substance ->
                 symbolTable.getSubstanceCharacterization(substance.name)?.let {
                     val scv = reduceAndComplete.apply(it).toValue()
-                    result = result.plus(scv)
+                    accumulator.plus(scv)
                 }
             }
 
             // recursively visit process template instances
             nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }
 
-            recursiveCompile(result, visited, toProcess)
+            recursiveCompile(accumulator, visited, toProcess)
         }
     }
 
