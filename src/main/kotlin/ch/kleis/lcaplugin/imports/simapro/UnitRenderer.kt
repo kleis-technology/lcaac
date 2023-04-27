@@ -73,7 +73,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun generateUnitBlockWithNewDimension(symbol: String, unitName: String, dimensionName: String): String {
-        val sanitizedSymbol = sanitizeSymbol(symbol)
+        val sanitizedSymbol = sanitizeUnit(symbol)
         val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
         return """
 
@@ -85,7 +85,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun generateUnitAliasBlock(symbol: String, unitName: String, alias: String): String {
-        val sanitizedSymbol = sanitizeSymbol(symbol)
+        val sanitizedSymbol = sanitizeUnit(symbol)
         val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
         return """
     
@@ -93,14 +93,6 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
             symbol = "$unitName"
             alias_for = $alias
         }""".trimIndent()
-    }
-
-    fun sanitizeSymbol(symbol: String): String {
-        return if (symbol in reservedWords) {
-            "_$symbol"
-        } else {
-            symbol
-        }
     }
 
     fun getSanitizedSymbolComment(symbol: String, sanitizedSymbol: String): String {
