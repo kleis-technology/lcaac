@@ -5,7 +5,6 @@ import ch.kleis.lcaplugin.language.psi.type.ref.*
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import kotlinx.collections.immutable.toImmutableList
 
 class LcaFileCollector(
     private val refFileResolver: (PsiElement) -> LcaFile? = { ref ->
@@ -17,12 +16,12 @@ class LcaFileCollector(
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
 
-    fun collect(file: LcaFile): List<LcaFile> { // TODO Collect Symbole instead of files ?
+    fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files ?
         val result = HashMap<String, LcaFile>()
         LOG.info("Start recursive collect")
         recursiveCollect(result, mutableMapOf(file.virtualFile.path to file))
         LOG.info("End recursive collect, found ${result.size} entries")
-        return result.values.toImmutableList()
+        return result.values.asSequence()
     }
 
 
@@ -34,16 +33,15 @@ class LcaFileCollector(
         if (toVisit.isEmpty()) return
         val path = toVisit.keys.first()
         val file = toVisit.remove(path)!!
-        val k = file.virtualFile.path
-        val visited = accumulator[k]
-        if (visited == null) {
-            accumulator[k] = file
-            val deps = dependenciesOf(file)
-            val newDeps = deps.asSequence()
+        val maybeVisited = accumulator[path]
+        if (maybeVisited == null) {
+            accumulator[path] = file
+            val dependencies = dependenciesOf(file)
+            val newDependencies = dependencies.asSequence()
                 .map { it.virtualFile.path to it }
                 .filter { (p, _) -> !accumulator.containsKey(p) }
                 .associateTo(toVisit) { it }
-            recursiveCollect(accumulator, newDeps)
+            recursiveCollect(accumulator, newDependencies)
         } else {
             recursiveCollect(accumulator, toVisit)
         }

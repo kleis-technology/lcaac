@@ -61,7 +61,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -118,7 +118,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -175,7 +175,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -238,7 +238,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -280,7 +280,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -316,7 +316,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val actual =
@@ -339,7 +339,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val actual =
@@ -364,7 +364,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
@@ -407,7 +407,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
@@ -441,7 +441,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
@@ -475,7 +475,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
@@ -508,7 +508,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when

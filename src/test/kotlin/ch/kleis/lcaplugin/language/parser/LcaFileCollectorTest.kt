@@ -40,7 +40,7 @@ class LcaFileCollectorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
 
         // when
-        val actual = collector.collect(fa)
+        val actual = collector.collect(fa).toList()
 
         // then
         assertEquals(listOf(fa, fb), actual)

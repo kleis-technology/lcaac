@@ -25,7 +25,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
         // when
         val symbolTable = parser.load()
@@ -43,7 +43,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -61,7 +61,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -83,7 +83,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
         val symbolTable = parser.load()
 
@@ -131,7 +131,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
         val symbolTable = parser.load()
 
@@ -158,7 +158,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
 
         // when
@@ -184,7 +184,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when/then
@@ -217,7 +217,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when/then
@@ -260,7 +260,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when/then
@@ -292,7 +292,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when/then
@@ -340,7 +340,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -385,7 +385,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -417,7 +417,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -448,7 +448,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -480,7 +480,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -515,7 +515,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -559,7 +559,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
 
         // when
@@ -595,7 +595,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
         // when
         val symbolTable = parser.load()
@@ -622,7 +622,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            listOf(file)
+            sequenceOf(file)
         )
         // when
         val symbolTable = parser.load()

@@ -2,9 +2,9 @@ package ch.kleis.lcaplugin.language.parser
 
 import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.Index
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
-import ch.kleis.lcaplugin.core.lang.Index
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemplateExpression
@@ -21,55 +21,59 @@ import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.unit.*
 
 class LcaLangAbstractParser(
-    private val files: List<LcaFile>,
+    private val files: Sequence<LcaFile>,
 ) {
     fun load(): SymbolTable {
-        val globals : Register<QuantityExpression> = Register(Prelude.unitQuantities)
+        val unitDefinitions = files.flatMap { it.getUnitDefinitions() }
+        val processDefinitions = files.flatMap { it.getProcesses() }
+        val substanceDefinitions = files.flatMap { it.getSubstances() }
+        val globals: Register<QuantityExpression> = Register(Prelude.unitQuantities)
             .plus(
-                files
-                    .flatMap { it.getUnitDefinitions() }
+                unitDefinitions
                     .filter { it.getType() == UnitDefinitionType.LITERAL }
                     .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+                    .asIterable()
             )
             .plus(
-                files
-                    .flatMap { it.getUnitDefinitions() }
+                unitDefinitions
                     .filter { it.getType() == UnitDefinitionType.ALIAS }
                     .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
+                    .asIterable()
             )
             .plus(
                 files
                     .flatMap { it.getGlobalAssignments() }
                     .map { it.first to quantity(it.second) }
+                    .asIterable()
             )
 
         val units = Register(Prelude.units)
             .plus(
-                files
-                    .flatMap { it.getUnitDefinitions() }
+                unitDefinitions
                     .filter { it.getType() == UnitDefinitionType.LITERAL }
                     .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
+                    .asIterable()
             )
             .plus(
-                files
-                    .flatMap { it.getUnitDefinitions() }
+                unitDefinitions
                     .filter { it.getType() == UnitDefinitionType.ALIAS }
                     .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
+                    .asIterable()
             )
 
         val processTemplates = Register.empty<ProcessTemplateExpression>()
             .plus(
-                files
-                    .flatMap { it.getProcesses() }
+                processDefinitions
                     .map { Pair(it.getProcessTemplateRef().getUID().name, process(it)) }
+                    .asIterable()
             )
 
         val products = Register.empty<LcaUnconstrainedProductExpression>()
             .plus(
-                files
-                    .flatMap { it.getProcesses() }
+                processDefinitions
                     .flatMap { productsOf(it, globals, units) }
                     .map { Pair(it.name, it) }
+                    .asIterable()
             )
 
         val processTemplatesIndexedByProduct = Index(processTemplates, Merge(
@@ -90,17 +94,17 @@ class LcaLangAbstractParser(
 
         val substances = Register.empty<LcaSubstanceExpression>()
             .plus(
-                files
-                    .flatMap { it.getSubstances() }
+                substanceDefinitions
                     .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
+                    .asIterable()
             )
 
         val substanceCharacterizations = Register.empty<LcaSubstanceCharacterizationExpression>()
             .plus(
-                files
-                    .flatMap { it.getSubstances() }
+                substanceDefinitions
                     .filter { it.hasImpacts() }
                     .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
+                    .asIterable()
             )
 
         return SymbolTable(
