@@ -17,7 +17,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -25,7 +26,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -46,7 +48,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenFound_wrongDim_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenFound_wrongDim_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -60,7 +63,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -71,7 +75,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "incompatible dimensions: length[3.0] vs mass[1.0]") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "incompatible dimensions: length³ vs mass") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -81,7 +85,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_withFromProcess_wrongDim_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_withFromProcess_wrongDim_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -98,7 +103,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -109,7 +115,12 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "incompatible dimensions: expecting mass[1.0], found length[3.0]") }
+        verify {
+            mock.holder.newAnnotation(
+                HighlightSeverity.ERROR,
+                "incompatible dimensions: expecting mass, found length³"
+            )
+        }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -119,7 +130,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_withFromProcess_unknownParameter_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_withFromProcess_unknownParameter_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -136,7 +148,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -156,7 +169,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenFound_shouldDoNothing() {
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -170,7 +184,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
