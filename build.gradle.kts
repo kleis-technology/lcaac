@@ -51,7 +51,7 @@ dependencies {
     implementation("org.ojalgo:ojalgo:52.0.1")
 
     val arrowVersion = "1.1.5"
-    val olcaSimaproVersion = "3.0.3"
+    val olcaSimaproVersion = "3.0.5"
     val kotlinxSerializationJSONVersion = "1.5.0"
     implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
     implementation("io.arrow-kt:arrow-core")
