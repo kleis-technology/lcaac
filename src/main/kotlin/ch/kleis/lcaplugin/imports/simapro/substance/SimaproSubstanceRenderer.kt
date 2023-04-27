@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.imports.simapro.substance
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
+import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
@@ -56,10 +57,10 @@ substance $uid {
     name = "${element.name()}"
     type = $subType
     compartment = "$compartiment"
-    reference_unit = ${element.unit()}
+    reference_unit = ${sanitizeUnit(element.unit())}
 
     impacts {
-        1 ${element.unit()} $uid
+        1 ${sanitizeUnit(element.unit())} $uid
     }
 
     meta {
