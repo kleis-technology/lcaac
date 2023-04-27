@@ -30,7 +30,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
         // when
-        val actual = quantityRef.reference?.resolve()
+        val actual = quantityRef.reference.resolve()
 
         // then
         TestCase.assertEquals(assignment, actual)
@@ -59,7 +59,7 @@ class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefini
             .getQuantity().getTerm().getFactor().getPrimitive().getRef()
 
         // when
-        val actual = quantityRef.reference?.resolve()
+        val actual = quantityRef.reference.resolve()
 
         // then
         TestCase.assertEquals(assignment, actual)

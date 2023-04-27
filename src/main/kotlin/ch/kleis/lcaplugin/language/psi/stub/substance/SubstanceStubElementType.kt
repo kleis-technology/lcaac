@@ -13,6 +13,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
         PsiSubstance>(debugName, LcaLanguage.INSTANCE) {
     override fun getExternalId(): String = "lca.${super.toString()}"
 
+    @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): SubstanceStub {
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, dataStream.readNameString()!!)
     }
@@ -21,6 +22,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
         throw UnsupportedOperationException("cannot create substance stub from lighter ast node")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: PsiSubstance, parentStub: StubElement<out PsiElement>?): SubstanceStub {
         val fqn = psi.getSubstanceRef().getFullyQualifiedName()
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, fqn)

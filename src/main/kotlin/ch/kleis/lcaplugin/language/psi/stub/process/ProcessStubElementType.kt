@@ -15,6 +15,7 @@ class ProcessStubElementType(debugName: String) :
         return "lca.${super.toString()}"
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): ProcessStub {
         return ProcessStubImpl(parentStub as StubElement<PsiProcess>, dataStream.readNameString()!!)
     }
@@ -23,6 +24,7 @@ class ProcessStubElementType(debugName: String) :
         throw UnsupportedOperationException("cannot create process stub from lighter ast node")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: PsiProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
         val fqn = psi.getProcessTemplateRef().getFullyQualifiedName()
         return ProcessStubImpl(parentStub as StubElement<PsiProcess>, fqn)

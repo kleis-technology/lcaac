@@ -30,7 +30,7 @@ class UnitReferenceTest : BasePlatformTestCase() {
             .getRef()
 
         // when
-        val actual = ref.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = UnitKeyIndex.findUnits(project, "$pkgName.my_units.foo").first()
@@ -49,13 +49,12 @@ class UnitReferenceTest : BasePlatformTestCase() {
             .getRef()
 
         // when
-        val actual = ref.reference
-            ?.variants?.map { (it as LookupElementBuilder).lookupString }
-            ?.sorted()
-            ?: emptyList()
+        val actual = ref.reference.variants
+            .map { (it as LookupElementBuilder).lookupString }
+            .sorted()
 
         // then
-        val expected = listOf("foo", "bar" ).sorted()
+        val expected = listOf("foo", "bar").sorted()
         TestCase.assertEquals(expected, actual)
     }
 }

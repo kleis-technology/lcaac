@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.imports
 import ch.kleis.lcaplugin.TestUtils
 import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
 import io.mockk.*
 import junit.framework.TestCase
 import org.junit.After
@@ -46,7 +45,6 @@ class ModelWriterTest {
         mockkStatic(LocalFileSystem::class)
         val fileSys = mockk<LocalFileSystem>()
         every { LocalFileSystem.getInstance() } returns fileSys
-        val vFile = mockk<VirtualFile>()
         every { fileSys.findFileByPath(any()) } returns null
 
         // When
