@@ -839,5 +839,107 @@ The final yield corresponds to the average yield over the entire lifetime of the
         return waste
     }
 
+    private fun initProcessWithUnitCollidingWithReservedKeyword(): ProcessBlock {
+        val p = ProcessBlock().name("p")
+            .category(ProcessCategory.PROCESSING) //Category type
+            .identifier("XYXYX")
+            .processType(ProcessType.SYSTEM)
+        p.wasteScenario(
+            WasteTreatmentRow()
+                .name("Municipal solid waste (waste scenario) {CY}| Treatment of waste | Cut-off, U")
+                .unit("process") // process is a reserved keyword
+                .amount(Numeric.of("1.0"))
+                .wasteType("All waste types")
+                .category("Municipal")
+                .comment("Cyprus")
+                .platformId("plateformId")
+
+        )
+        return p
+    }
+
+    @Test
+    fun test_render_shouldRenderWithUnitSanitized() {
+        // Given
+        val p = initProcessWithUnitCollidingWithReservedKeyword()
+
+        // When
+        sut.render(p, writer)
+
+        // Then
+        val expected = """
+
+
+process p6422_6422 {
+
+    meta {
+        "category" = "processing"
+        "identifier" = "XYXYX"
+        "processType" = "System"
+    }
+
+
+
+    products { // Product
+        // name: Municipal solid waste (waste scenario) {CY}| Treatment of waste | Cut-off, U
+        // category: Municipal
+        // wasteType: All waste types
+        // Cyprus
+        1.0 _process municipal_solid_waste_waste_scenario_cy_treatment_of_waste_cut_off_u
+    }
+    
+    products { // Avoid Products
+    }
+    
+    inputs { // materialsAndFuels
+    }
+
+    inputs { // electricityAndHeat
+    }
+
+    emissions { // To Air
+    }
+
+    emissions { // To Water
+    }
+
+    emissions { // To Soil
+    }
+
+    emissions { // Economics
+    }
+
+    emissions { // Non Material
+    }
+
+    emissions { // Social
+    }
+
+    emissions { // Final Waste Flows
+    }
+
+    inputs { // Waste To Treatment
+    }
+
+    emissions { // Remaining Waste
+    }
+
+    emissions { // Separated Waste
+    }
+
+    resources {
+    }
+
+    land_use {
+    }
+
+}
+
+""".trimIndent()
+        // Better way to view large diff than using mockk.verify
+        assertEquals("processes/processing", pathSlot.captured)
+        assertEquals(expected, bodySlot.captured)
+        assertEquals(true, indexSlot.captured)
+    }
 
 }
