@@ -17,8 +17,8 @@ class EvaluatorTest {
     fun eval_whenTwoInstancesOfSameTemplate_thenDifferentProduct() {
         // given
         val template = TemplateFixture.carrotProduction
-        val i1 = EInstance(template, mapOf("q_water" to QuantityFixture.oneLitre))
-        val i2 = EInstance(template, mapOf("q_water" to QuantityFixture.twoLitres))
+        val i1 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.oneLitre))
+        val i2 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.twoLitres))
         val symbolTable = SymbolTable.empty()
         val recursiveEvaluator = Evaluator(symbolTable)
 
@@ -35,7 +35,7 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val processTemplates : Register<TemplateExpression> = Register.from(
+        val processTemplates : Register<ProcessTemplateExpression> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -131,7 +131,7 @@ class EvaluatorTest {
     @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val processTemplates : Register<TemplateExpression> = Register.from(
+        val processTemplates : Register<ProcessTemplateExpression> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )

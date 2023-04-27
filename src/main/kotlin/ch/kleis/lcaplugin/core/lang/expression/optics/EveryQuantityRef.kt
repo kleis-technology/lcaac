@@ -161,7 +161,7 @@ private val everyQuantityRefInLcaExpression: PEvery<LcaExpression, LcaExpression
         )
     )
 
-private val everyQuantityRefInTemplateExpression: PEvery<TemplateExpression, TemplateExpression, EQuantityRef, QuantityExpression> =
+private val everyQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EQuantityRef, QuantityExpression> =
     Merge(
         listOf(
             everyProcessTemplateInTemplateExpression compose Merge(
@@ -171,7 +171,7 @@ private val everyQuantityRefInTemplateExpression: PEvery<TemplateExpression, Tem
                     EProcessTemplate.body compose everyQuantityRefInProcessExpression,
                 )
             ),
-            TemplateExpression.eProcessFinal.expression compose everyQuantityRefInProcessExpression,
+            ProcessTemplateExpression.eProcessFinal.expression compose everyQuantityRefInProcessExpression,
         ),
     )
 
@@ -208,15 +208,15 @@ val everyUnboundedQuantityRefInProcessTemplate =
         }
     }
 
-val everyUnboundedQuantityRefInTemplateExpression : PEvery<TemplateExpression, TemplateExpression, EQuantityRef, QuantityExpression > =
-    TemplateExpression.eProcessTemplate compose everyUnboundedQuantityRefInProcessTemplate
+val everyUnboundedQuantityRefInTemplateExpression : PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EQuantityRef, QuantityExpression > =
+    ProcessTemplateExpression.eProcessTemplate compose everyUnboundedQuantityRefInProcessTemplate
 
 val everyQuantityRef: Every<Expression, EQuantityRef> =
     Merge(
         listOf(
             Expression.quantityExpression compose everyQuantityRefInQuantityExpression,
             Expression.lcaExpression compose everyQuantityRefInLcaExpression,
-            Expression.templateExpression compose everyQuantityRefInTemplateExpression,
+            Expression.processTemplateExpression compose everyQuantityRefInTemplateExpression,
             Expression.systemExpression compose everyQuantityRefInSystemExpression,
         )
     )

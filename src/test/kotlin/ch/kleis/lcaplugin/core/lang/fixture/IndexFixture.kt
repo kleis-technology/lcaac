@@ -9,11 +9,11 @@ import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemp
 
 class IndexFixture {
     companion object {
-        fun indexTemplate(register: Register<TemplateExpression>): Index<TemplateExpression> {
+        fun indexTemplate(register: Register<ProcessTemplateExpression>): Index<ProcessTemplateExpression> {
             return Index(register, Merge(
                 listOf(
                     everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
-                    TemplateExpression.eProcessFinal.expression,
+                    ProcessTemplateExpression.eProcessFinal.expression,
                 )
             ) compose
                     LcaProcessExpression.eProcess.products compose

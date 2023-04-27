@@ -8,15 +8,15 @@ data class SymbolTable(
     val indicators: Register<LcaIndicatorExpression> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
-    val processTemplates: Register<TemplateExpression> = Register.empty(),
-    private val templatesIndexedByProduct: Index<TemplateExpression> = Index.empty(),
+    val processTemplates: Register<ProcessTemplateExpression> = Register.empty(),
+    private val templatesIndexedByProduct: Index<ProcessTemplateExpression> = Index.empty(),
     val substanceCharacterizations: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
 ) {
     companion object {
         fun empty() = SymbolTable()
     }
 
-    fun getTemplate(name: String): TemplateExpression? {
+    fun getTemplate(name: String): ProcessTemplateExpression? {
         return processTemplates[name]
     }
 
@@ -49,7 +49,7 @@ data class SymbolTable(
         return substances[name]
     }
 
-    fun getTemplateFromProductName(name: String): TemplateExpression? {
+    fun getTemplateFromProductName(name: String): ProcessTemplateExpression? {
         return templatesIndexedByProduct[name]
     }
 

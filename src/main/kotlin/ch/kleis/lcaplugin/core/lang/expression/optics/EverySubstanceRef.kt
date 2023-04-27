@@ -59,7 +59,7 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
                 .eSubstanceCharacterization
                 .referenceExchange
                 .substance compose substanceRefInLcaSubstanceExpression,
-            Expression.templateExpression compose
+            Expression.processTemplateExpression compose
                     everyProcessTemplateInTemplateExpression compose
                     EProcessTemplate.body compose everySubstanceRefInProcessExpression,
             Expression.systemExpression compose everySubstanceRefInSystemExpression,

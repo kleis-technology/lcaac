@@ -170,7 +170,7 @@ val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, 
         )
     )
 
-val everyUnitRefInTemplateExpression: PEvery<TemplateExpression, TemplateExpression, EUnitRef, UnitExpression> =
+val everyUnitRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             everyProcessTemplateInTemplateExpression compose Merge(
@@ -180,7 +180,7 @@ val everyUnitRefInTemplateExpression: PEvery<TemplateExpression, TemplateExpress
                     EProcessTemplate.body compose everyUnitRefInProcessExpression,
                 )
             ),
-            TemplateExpression.eProcessFinal.expression compose everyUnitRefInProcessExpression,
+            ProcessTemplateExpression.eProcessFinal.expression compose everyUnitRefInProcessExpression,
         )
     )
 
@@ -190,7 +190,7 @@ val everyUnitRef: Every<Expression, EUnitRef> =
             Expression.unitExpression compose everyUnitRefInUnitExpression,
             Expression.quantityExpression compose everyUnitRefInQuantityExpression,
             Expression.lcaExpression compose everyUnitRefInLcaExpression,
-            Expression.templateExpression compose everyUnitRefInTemplateExpression,
+            Expression.processTemplateExpression compose everyUnitRefInTemplateExpression,
             Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcessExpression,
         )
     )

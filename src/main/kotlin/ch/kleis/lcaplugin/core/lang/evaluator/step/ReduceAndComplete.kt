@@ -32,13 +32,13 @@ class ReduceAndComplete(
         processTemplates,
     )
 
-    fun apply(expression: TemplateExpression): TemplateExpression {
+    fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         val reduced = when (expression) {
-            is EInstance -> templateReducer.reduce(expression)
+            is EProcessTemplateApplication -> templateReducer.reduce(expression)
             is EProcessFinal -> expression
-            is EProcessTemplate -> templateReducer.reduce(EInstance(expression, emptyMap()))
-            is ETemplateRef -> processTemplates[expression.name]?.let {
-                templateReducer.reduce(EInstance(expression, emptyMap()))
+            is EProcessTemplate -> templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
+            is EProcessTemplateRef -> processTemplates[expression.name]?.let {
+                templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
             } ?: expression
         }
         val unboundedReferences = Helper().allRequiredRefs(reduced)
@@ -58,8 +58,8 @@ class ReduceAndComplete(
     }
 
 
-    private fun completeInputs(reduced: TemplateExpression): TemplateExpression {
-        return (TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list())
+    private fun completeInputs(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
+        return (ProcessTemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {
@@ -72,8 +72,8 @@ class ReduceAndComplete(
             }
     }
 
-    private fun completeSubstances(reduced: TemplateExpression): TemplateExpression {
-        return (TemplateExpression.eProcessFinal.expression.eProcess.biosphere compose Every.list())
+    private fun completeSubstances(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
+        return (ProcessTemplateExpression.eProcessFinal.expression.eProcess.biosphere compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {

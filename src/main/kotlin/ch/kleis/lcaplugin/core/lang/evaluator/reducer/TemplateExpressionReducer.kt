@@ -12,8 +12,8 @@ class TemplateExpressionReducer(
     indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
-    templateRegister: Register<TemplateExpression> = Register.empty(),
-) : Reducer<TemplateExpression> {
+    templateRegister: Register<ProcessTemplateExpression> = Register.empty(),
+) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
     private val productRegister = Register(productRegister)
     private val substanceRegister = Register(substanceRegister)
@@ -25,9 +25,9 @@ class TemplateExpressionReducer(
             Every.list() compose
             ETechnoExchange.product.eConstrainedProduct.constraint
 
-    override fun reduce(expression: TemplateExpression): TemplateExpression {
+    override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {
-            is EInstance -> {
+            is EProcessTemplateApplication -> {
                 val template = reduce(expression.template) as EProcessTemplate
 
                 val unknownParameters = expression.arguments.keys
@@ -65,7 +65,7 @@ class TemplateExpressionReducer(
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
-            is ETemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
+            is EProcessTemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
         }
     }
 

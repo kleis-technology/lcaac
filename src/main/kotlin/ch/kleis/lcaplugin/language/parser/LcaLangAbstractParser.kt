@@ -57,7 +57,7 @@ class LcaLangAbstractParser(
                     .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
             )
 
-        val templates = Register.empty<TemplateExpression>()
+        val processTemplates = Register.empty<ProcessTemplateExpression>()
             .plus(
                 files
                     .flatMap { it.getProcesses() }
@@ -72,21 +72,21 @@ class LcaLangAbstractParser(
                     .map { Pair(it.name, it) }
             )
 
-        val templatesIndexedByProduct = Index(templates, Merge(
+        val processTemplatesIndexedByProduct = Index(processTemplates, Merge(
             listOf(
                 everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
-                TemplateExpression.eProcessFinal.expression,
+                ProcessTemplateExpression.eProcessFinal.expression,
             )
         ) compose
-                LcaProcessExpression.eProcess.products compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct.product compose
-                Merge(
-                    listOf(
-                        LcaUnconstrainedProductExpression.eProduct.name,
-                        LcaUnconstrainedProductExpression.eProductRef.name,
-                    )
-                ))
+            LcaProcessExpression.eProcess.products compose
+            Every.list() compose
+            ETechnoExchange.product.eConstrainedProduct.product compose
+            Merge(
+                listOf(
+                    LcaUnconstrainedProductExpression.eProduct.name,
+                    LcaUnconstrainedProductExpression.eProductRef.name,
+                )
+            ))
 
         val substances = Register.empty<LcaSubstanceExpression>()
             .plus(
@@ -106,8 +106,8 @@ class LcaLangAbstractParser(
         return SymbolTable(
             quantities = globals,
             products = products,
-            processTemplates = templates,
-            templatesIndexedByProduct = templatesIndexedByProduct,
+            processTemplates = processTemplates,
+            templatesIndexedByProduct = processTemplatesIndexedByProduct,
             units = units,
             substances = substances,
             substanceCharacterizations = substanceCharacterizations,
@@ -140,7 +140,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun process(psiProcess: PsiProcess): TemplateExpression {
+    private fun process(psiProcess: PsiProcess): ProcessTemplateExpression {
         val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }

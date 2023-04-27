@@ -15,7 +15,7 @@ class Helper {
         val allRefs : Every<Expression, String> = Merge(listOf(
             everyRequiredProductRef compose EProductRef.name,
             everyQuantityRef compose EQuantityRef.name,
-            everyTemplateRef compose ETemplateRef.name,
+            everyTemplateRef compose EProcessTemplateRef.name,
             everyUnitRef compose EUnitRef.name
         ))
         return allRefs.getAll(expression).toSet()

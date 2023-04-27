@@ -57,7 +57,7 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
                 ETechnoExchange.product.eConstrainedProduct
 
@@ -114,7 +114,7 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
                 ETechnoExchange.product.eConstrainedProduct
 
@@ -168,7 +168,7 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
                 ETechnoExchange.product.eConstrainedProduct
 

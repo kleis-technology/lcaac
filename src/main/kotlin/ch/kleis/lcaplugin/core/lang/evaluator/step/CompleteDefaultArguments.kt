@@ -8,11 +8,11 @@ import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 class CompleteDefaultArguments(
     private val processResolver: ProcessResolver
 ) {
-    private val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+    private val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
             Every.list() compose
             ETechnoExchange.product.eConstrainedProduct
 
-    fun apply(expression: TemplateExpression): TemplateExpression {
+    fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return everyInputProduct.modify(expression) {
             when (it.constraint) {
                 is FromProcessRef -> {

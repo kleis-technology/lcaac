@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.value.*
 
-fun TemplateExpression.toValue(): ProcessValue {
+fun ProcessTemplateExpression.toValue(): ProcessValue {
     return when (this) {
         is EProcessFinal -> this.expression.toValue()
         else -> throw EvaluatorException("$this is not this")

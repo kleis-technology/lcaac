@@ -18,7 +18,7 @@ class ReduceAndCompleteTest {
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
         // given
         val template = TemplateFixture.carrotProduction
-        val instance = EInstance(
+        val instance = EProcessTemplateApplication(
             template, mapOf(
                 Pair(
                     "q_water", EQuantityAdd(
@@ -73,7 +73,7 @@ class ReduceAndCompleteTest {
                 ),
             )
         )
-        val instance = EInstance(
+        val instance = EProcessTemplateApplication(
             template, emptyMap()
         )
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
@@ -139,7 +139,7 @@ class ReduceAndCompleteTest {
     @Test
     fun eval_whenTemplateRef_shouldReadEnv() {
         // given
-        val templateRef = ETemplateRef("p")
+        val templateRef = EProcessTemplateRef("p")
         val reduceAndComplete = ReduceAndComplete(
             SymbolTable(
                 processTemplates = Register.from(
