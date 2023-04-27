@@ -117,8 +117,9 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
         val resources = (allRes["resources"] ?: listOf()).map { renderElementary(it, "Resource", "raw") }.flatten()
         val landUses = (allRes["land_use"] ?: listOf()).map { renderElementary(it, "Land_use", "raw") }.flatten()
 
+        val subFolder = if (process.category() == null) "" else "${process.category()}${File.separatorChar}"
         writer.write(
-            "processes${File.separatorChar}${process.category()}${File.separatorChar}$pUid.lca",
+            "processes${File.separatorChar}$subFolder$pUid.lca",
             """
 
 process $pUid {
