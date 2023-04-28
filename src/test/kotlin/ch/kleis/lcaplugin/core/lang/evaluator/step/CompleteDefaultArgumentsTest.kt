@@ -4,10 +4,10 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.ProcessFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnconstrainedProductFixture
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
-import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 
@@ -27,7 +27,7 @@ class CompleteDefaultArgumentsTest {
                         "carrot_production" to EProcessTemplate(
                             params = params,
                             locals = emptyMap(),
-                            body = mockk(),
+                            body = ProcessFixture.carrotProduction,
                         )
                     )
                 )
@@ -86,7 +86,7 @@ class CompleteDefaultArgumentsTest {
                         "carrot_production" to EProcessTemplate(
                             params = params,
                             locals = emptyMap(),
-                            body = mockk(),
+                            body = ProcessFixture.carrotProduction,
                         )
                     )
                 )
@@ -143,7 +143,7 @@ class CompleteDefaultArgumentsTest {
                         "carrot_production" to EProcessTemplate(
                             params = params,
                             locals = emptyMap(),
-                            body = mockk(),
+                            body = ProcessFixture.carrotProduction,
                         )
                     )
                 )

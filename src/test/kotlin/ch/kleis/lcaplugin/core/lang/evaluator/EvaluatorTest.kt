@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
-import ch.kleis.lcaplugin.core.lang.fixture.IndexFixture.Companion.indexTemplate
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
@@ -42,7 +41,6 @@ class EvaluatorTest {
         )
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
-            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -138,7 +136,6 @@ class EvaluatorTest {
         )
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
-            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),

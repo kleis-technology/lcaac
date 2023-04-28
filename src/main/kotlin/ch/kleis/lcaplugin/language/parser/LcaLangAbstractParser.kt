@@ -1,13 +1,9 @@
 package ch.kleis.lcaplugin.language.parser
 
-import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.Index
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
-import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemplateExpression
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
@@ -76,22 +72,6 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val processTemplatesIndexedByProduct = Index(processTemplates, Merge(
-            listOf(
-                everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
-                ProcessTemplateExpression.eProcessFinal.expression,
-            )
-        ) compose
-            EProcess.products compose
-            Every.list() compose
-            ETechnoExchange.product.product compose
-            Merge(
-                listOf(
-                    LcaUnconstrainedProductExpression.eProduct.name,
-                    LcaUnconstrainedProductExpression.eProductRef.name,
-                )
-            ))
-
         val substances = Register.empty<LcaSubstanceExpression>()
             .plus(
                 substanceDefinitions
@@ -111,7 +91,6 @@ class LcaLangAbstractParser(
             quantities = globals,
             products = products,
             processTemplates = processTemplates,
-            templatesIndexedByProduct = processTemplatesIndexedByProduct,
             units = units,
             substances = substances,
             substanceCharacterizations = substanceCharacterizations,
