@@ -21,7 +21,6 @@ class ReduceAndComplete(
         symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
-        symbolTable.substanceCharacterizations
     )
     private val templateReducer = TemplateExpressionReducer(
         symbolTable.products,
@@ -48,7 +47,7 @@ class ReduceAndComplete(
         return completeSubstances(completeInputs(reduced))
     }
 
-    fun apply(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+    fun apply(expression: ESubstanceCharacterization): ESubstanceCharacterization {
         val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
         val unboundedReferences = Helper().allRequiredRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
@@ -93,8 +92,8 @@ class ReduceAndComplete(
             }
     }
 
-    private fun completeIndicators(reduced: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
-        return (LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose Every.list())
+    private fun completeIndicators(reduced: ESubstanceCharacterization): ESubstanceCharacterization {
+        return (ESubstanceCharacterization.impacts compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {

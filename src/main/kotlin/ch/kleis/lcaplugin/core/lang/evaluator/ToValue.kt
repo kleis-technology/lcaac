@@ -10,13 +10,11 @@ fun ProcessTemplateExpression.toValue(): ProcessValue {
     }
 }
 
-fun LcaSubstanceCharacterizationExpression.toValue(): SubstanceCharacterizationValue {
-    return when (this) {
-        is ESubstanceCharacterization -> SubstanceCharacterizationValue(
-            referenceExchange = this.referenceExchange.toValue(),
-            impacts = this.impacts.map { it.toValue() },
-        )
-    }
+fun ESubstanceCharacterization.toValue(): SubstanceCharacterizationValue {
+    return SubstanceCharacterizationValue(
+        referenceExchange = this.referenceExchange.toValue(),
+        impacts = this.impacts.map { it.toValue() },
+    )
 }
 
 fun EImpact.toValue(): ImpactValue {

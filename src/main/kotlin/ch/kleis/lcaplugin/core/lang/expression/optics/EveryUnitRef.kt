@@ -141,13 +141,6 @@ val everyUnitRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, 
         )
     )
 
-val everyUnitRefInSubstanceCharacterizationExpression: PEvery<LcaSubstanceCharacterizationExpression, LcaSubstanceCharacterizationExpression, EUnitRef, UnitExpression> =
-    LcaSubstanceCharacterizationExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization
-
-val everyUnitRefInSystemExpression: PEvery<SystemExpression, SystemExpression, EUnitRef, UnitExpression> =
-    SystemExpression.eSystem.processes compose
-            Every.list() compose
-            everyUnitRefInProcess
 
 val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, UnitExpression> =
     Merge(
@@ -159,7 +152,7 @@ val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, 
             LcaExpression.eConstrainedProduct compose everyUnitRefInConstrainedProduct,
             LcaExpression.lcaIndicatorExpression compose everyUnitRefInIndicatorExpression,
             LcaExpression.lcaSubstanceExpression compose everyUnitRefInSubstanceExpression,
-            LcaExpression.lcaSubstanceCharacterizationExpression compose everyUnitRefInSubstanceCharacterizationExpression,
+            LcaExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization,
         )
     )
 

@@ -99,7 +99,7 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val substanceCharacterizations = Register.empty<LcaSubstanceCharacterizationExpression>()
+        val substanceCharacterizations = Register.empty<ESubstanceCharacterization>()
             .plus(
                 substanceDefinitions
                     .filter { it.hasImpacts() }

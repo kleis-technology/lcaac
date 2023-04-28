@@ -128,9 +128,6 @@ private val everyQuantityRefInSubstanceCharacterization: PEvery<ESubstanceCharac
         )
     )
 
-private val everyQuantityRefInSubstanceCharacterizationExpression: PEvery<LcaSubstanceCharacterizationExpression, LcaSubstanceCharacterizationExpression, EQuantityRef, QuantityExpression> =
-    LcaSubstanceCharacterizationExpression.eSubstanceCharacterization compose
-            everyQuantityRefInSubstanceCharacterization
 
 private val everyQuantityRefInSystemExpression: PEvery<SystemExpression, SystemExpression, EQuantityRef, QuantityExpression> =
     Merge(
@@ -140,7 +137,7 @@ private val everyQuantityRefInSystemExpression: PEvery<SystemExpression, SystemE
                     everyQuantityRefInProcess,
             SystemExpression.eSystem.substanceCharacterizations compose
                     Every.list() compose
-                    everyQuantityRefInSubstanceCharacterizationExpression,
+                    everyQuantityRefInSubstanceCharacterization,
         )
     )
 

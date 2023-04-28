@@ -10,7 +10,7 @@ data class SymbolTable(
     val units: Register<UnitExpression> = Register.empty(),
     val processTemplates: Register<ProcessTemplateExpression> = Register.empty(),
     private val templatesIndexedByProduct: Index<ProcessTemplateExpression> = Index.empty(),
-    val substanceCharacterizations: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
+    val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
     companion object {
         fun empty() = SymbolTable()
@@ -41,7 +41,7 @@ data class SymbolTable(
         )
     }
 
-    fun getSubstanceCharacterization(name: String): LcaSubstanceCharacterizationExpression? {
+    fun getSubstanceCharacterization(name: String): ESubstanceCharacterization? {
         return substanceCharacterizations[name]
     }
 

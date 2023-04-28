@@ -163,15 +163,10 @@ data class EProcess(
 
 // Substance Characterization
 @optics
-sealed interface LcaSubstanceCharacterizationExpression : LcaExpression {
-    companion object
-}
-
-@optics
 data class ESubstanceCharacterization(
     val referenceExchange: EBioExchange,
     val impacts: List<EImpact>
-) : LcaSubstanceCharacterizationExpression {
+) : LcaExpression {
     companion object
 }
 

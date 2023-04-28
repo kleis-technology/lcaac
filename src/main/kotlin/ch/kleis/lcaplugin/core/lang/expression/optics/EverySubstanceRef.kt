@@ -28,8 +28,8 @@ private val everySubstanceRefInProcess: PEvery<EProcess, EProcess, ESubstanceRef
             EBioExchange.substance compose
             substanceRefInLcaSubstanceExpression
 
-private val everySubstanceRefInSubstanceCharacterizationExpression =
-    LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.referenceExchange.substance compose
+private val everySubstanceRefInSubstanceCharacterization =
+    ESubstanceCharacterization.referenceExchange.substance compose
             substanceRefInLcaSubstanceExpression
 
 private val everySubstanceRefInSystemExpression : PEvery<SystemExpression, SystemExpression, ESubstanceRef, LcaSubstanceExpression> =
@@ -40,7 +40,7 @@ private val everySubstanceRefInSystemExpression : PEvery<SystemExpression, Syste
                     everySubstanceRefInProcess,
             SystemExpression.eSystem.substanceCharacterizations compose
                     Every.list() compose
-                    everySubstanceRefInSubstanceCharacterizationExpression
+                    everySubstanceRefInSubstanceCharacterization
         )
     )
 
@@ -52,7 +52,6 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
             Expression.lcaExpression.eProcess.biosphere compose
                     Every.list() compose EBioExchange.substance compose substanceRefInLcaSubstanceExpression,
             Expression.lcaExpression
-                .lcaSubstanceCharacterizationExpression
                 .eSubstanceCharacterization
                 .referenceExchange
                 .substance compose substanceRefInLcaSubstanceExpression,

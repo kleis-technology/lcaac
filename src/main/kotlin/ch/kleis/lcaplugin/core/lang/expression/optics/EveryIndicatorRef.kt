@@ -26,10 +26,10 @@ val everyIndicatorRef: Every<Expression, EIndicatorRef> =
         listOf(
             Expression.lcaExpression.lcaIndicatorExpression compose indicatorRefInIndicatorExpression,
             Expression.lcaExpression.lcaExchangeExpression.eImpact.indicator compose indicatorRefInIndicatorExpression,
-            Expression.lcaExpression.lcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose
+            Expression.lcaExpression.eSubstanceCharacterization.impacts compose
                     Every.list() compose EImpact.indicator compose indicatorRefInIndicatorExpression,
             Expression.systemExpression.eSystem.substanceCharacterizations compose
-                    Every.list() compose LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose
+                    Every.list() compose ESubstanceCharacterization.impacts compose
                     Every.list() compose EImpact.indicator compose indicatorRefInIndicatorExpression,
         )
     )
