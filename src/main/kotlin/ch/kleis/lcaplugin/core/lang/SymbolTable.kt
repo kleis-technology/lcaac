@@ -3,39 +3,34 @@ package ch.kleis.lcaplugin.core.lang
 import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
-import ch.kleis.lcaplugin.core.lang.expression.optics.everyProcessTemplateInTemplateExpression
 
 data class SymbolTable(
-    val products: Register<LcaUnconstrainedProductExpression> = Register.empty(),
-    val substances: Register<LcaSubstanceExpression> = Register.empty(),
-    val indicators: Register<LcaIndicatorExpression> = Register.empty(),
+    val products: Register<EProduct> = Register.empty(),
+    val substances: Register<ESubstance> = Register.empty(),
+    val indicators: Register<EIndicator> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
-    val processTemplates: Register<ProcessTemplateExpression> = Register.empty(),
+    val processTemplates: Register<EProcessTemplate> = Register.empty(),
     val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
-    private val templatesIndexedByProductName: Index<ProcessTemplateExpression> = Index(processTemplates, Merge(
-            listOf(
-                everyProcessTemplateInTemplateExpression compose EProcessTemplate.body,
-                ProcessTemplateExpression.eProcessFinal.expression,
-            )
-        ) compose
-            EProcess.products compose
-            Every.list() compose
-            ETechnoExchange.product.product compose
-            Merge(
-                listOf(
-                    LcaUnconstrainedProductExpression.eProduct.name,
-                    LcaUnconstrainedProductExpression.eProductRef.name,
+    private val templatesIndexedByProductName: Index<EProcessTemplate> = Index(
+        processTemplates,
+        EProcessTemplate.body.products compose
+                Every.list() compose
+                ETechnoExchange.product.product compose
+                Merge(
+                    listOf(
+                        LcaUnconstrainedProductExpression.eProduct.name,
+                        LcaUnconstrainedProductExpression.eProductRef.name,
+                    )
                 )
-            )
     )
 
     companion object {
         fun empty() = SymbolTable()
     }
 
-    fun getTemplate(name: String): ProcessTemplateExpression? {
+    fun getTemplate(name: String): EProcessTemplate? {
         return processTemplates[name]
     }
 
@@ -55,7 +50,7 @@ data class SymbolTable(
         return substances[name]
     }
 
-    fun getTemplateFromProductName(name: String): ProcessTemplateExpression? {
+    fun getTemplateFromProductName(name: String): EProcessTemplate? {
         return templatesIndexedByProductName[name]
     }
 

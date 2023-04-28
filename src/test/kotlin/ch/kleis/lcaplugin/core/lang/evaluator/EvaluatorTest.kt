@@ -34,7 +34,7 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val processTemplates : Register<ProcessTemplateExpression> = Register.from(
+        val processTemplates : Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -129,7 +129,7 @@ class EvaluatorTest {
     @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val processTemplates : Register<ProcessTemplateExpression> = Register.from(
+        val processTemplates : Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )

@@ -7,12 +7,12 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    productRegister: Register<LcaUnconstrainedProductExpression> = Register.empty(),
-    substanceRegister: Register<LcaSubstanceExpression> = Register.empty(),
-    indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
+    productRegister: Register<EProduct> = Register.empty(),
+    substanceRegister: Register<ESubstance> = Register.empty(),
+    indicatorRegister: Register<EIndicator> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
-    templateRegister: Register<ProcessTemplateExpression> = Register.empty(),
+    templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
     private val productRegister = Register(productRegister)

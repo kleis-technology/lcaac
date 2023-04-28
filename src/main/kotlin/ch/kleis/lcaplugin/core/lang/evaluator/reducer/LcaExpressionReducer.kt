@@ -4,9 +4,9 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    productRegister: Register<LcaUnconstrainedProductExpression> = Register.empty(),
-    substanceRegister: Register<LcaSubstanceExpression> = Register.empty(),
-    indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
+    productRegister: Register<EProduct> = Register.empty(),
+    substanceRegister: Register<ESubstance> = Register.empty(),
+    indicatorRegister: Register<EIndicator> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {

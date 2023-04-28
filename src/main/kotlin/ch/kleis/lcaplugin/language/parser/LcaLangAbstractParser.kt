@@ -57,14 +57,14 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val processTemplates = Register.empty<ProcessTemplateExpression>()
+        val processTemplates = Register.empty<EProcessTemplate>()
             .plus(
                 processDefinitions
                     .map { Pair(it.getProcessTemplateRef().getUID().name, process(it)) }
                     .asIterable()
             )
 
-        val products = Register.empty<LcaUnconstrainedProductExpression>()
+        val products = Register.empty<EProduct>()
             .plus(
                 processDefinitions
                     .flatMap { productsOf(it, globals, units) }
@@ -72,7 +72,7 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val substances = Register.empty<LcaSubstanceExpression>()
+        val substances = Register.empty<ESubstance>()
             .plus(
                 substanceDefinitions
                     .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
@@ -97,7 +97,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun substance(psiSubstance: PsiSubstance): LcaSubstanceExpression {
+    private fun substance(psiSubstance: PsiSubstance): ESubstance {
         return ESubstance(
             psiSubstance.getSubstanceRef().name,
             psiSubstance.getNameField().getValue(),
@@ -123,7 +123,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun process(psiProcess: PsiProcess): ProcessTemplateExpression {
+    private fun process(psiProcess: PsiProcess): EProcessTemplate {
         val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
         val params = psiProcess.getParameters().mapValues { quantity(it.value) }

@@ -45,7 +45,7 @@ class ProcessResolverTest {
                 biosphere = emptyList(),
             )
         )
-        val processTemplates: Register<ProcessTemplateExpression> = Register.from(
+        val processTemplates: Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to carrotProduction,
                 "salad_production" to saladProduction,
@@ -103,7 +103,7 @@ class ProcessResolverTest {
                 biosphere = emptyList(),
             )
         )
-        val processTemplates : Register<ProcessTemplateExpression> = Register.from(
+        val processTemplates : Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to carrotProduction,
                 "salad_production" to saladProduction,
