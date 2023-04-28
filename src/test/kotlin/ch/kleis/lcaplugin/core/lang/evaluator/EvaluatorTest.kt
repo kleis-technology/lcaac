@@ -50,15 +50,14 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
-                            None,
+                        EProductSpec(
+                            "carrot",
                         )
                     )
                 ),
@@ -77,7 +76,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
                                 mapOf(
@@ -100,7 +99,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.salad.withConstraint(
+                        ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
@@ -111,7 +110,7 @@ class EvaluatorTest {
                 inputs = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production", mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
@@ -145,18 +144,19 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
-                            )
+                            ),
                         )
                     )
                 ),
@@ -175,7 +175,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.salad.withConstraint(
+                        ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
@@ -186,7 +186,7 @@ class EvaluatorTest {
                 inputs = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production", mapOf(
                                     "q_water" to QuantityValueFixture.twoLitres
@@ -202,7 +202,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
                                 mapOf(
@@ -242,18 +242,19 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("irrelevant_product"),
+                        EProductSpec(
+                            "irrelevant_product",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
-                            )
+                            ),
                         )
                     )
                 ),
@@ -294,7 +295,7 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = emptyList(),

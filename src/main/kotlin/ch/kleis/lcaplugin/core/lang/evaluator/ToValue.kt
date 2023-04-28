@@ -73,25 +73,18 @@ fun LcaSubstanceExpression.toValue(): SubstanceValue {
     }
 }
 
-fun EConstrainedProduct.toValue(): ProductValue {
-    val actualProduct = this.product
-    if (actualProduct !is EProduct) {
-        throw EvaluatorException("$actualProduct is not reduced")
-    }
+fun EProductSpec.toValue(): ProductValue {
+    val name = this.name
+    val referenceUnitValue = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val fromProcessRefValue = this.fromProcessRef?.toValue()
     return ProductValue(
-        actualProduct.name,
-        actualProduct.referenceUnit.toValue(),
-        this.constraint.toValue(),
+        name,
+        referenceUnitValue,
+        fromProcessRefValue,
     )
 }
 
-private fun Constraint.toValue(): ConstraintValue {
-    if (this == None) {
-        return NoneValue
-    }
-    if (this !is FromProcessRef) {
-        throw EvaluatorException("unknown constraint")
-    }
+private fun FromProcessRef.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
         this.ref,
         this.arguments.mapValues { it.value.toValue() },

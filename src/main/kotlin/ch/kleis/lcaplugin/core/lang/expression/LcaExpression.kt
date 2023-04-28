@@ -11,39 +11,29 @@ sealed interface LcaExpression : Expression {
 
 // Product
 @optics
-data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
-    LcaExpression {
-    companion object
-
-    fun withConstraint(constraint: Constraint): EConstrainedProduct {
-        return EConstrainedProduct(product, constraint)
-    }
-}
-
-@optics
-sealed interface LcaUnconstrainedProductExpression {
-    companion object
-}
-
-@optics
-data class EProduct(
+data class EProductSpec(
     val name: String,
-    val referenceUnit: UnitExpression,
-) : LcaUnconstrainedProductExpression {
+    val referenceUnit: UnitExpression? = null,
+    val fromProcessRef: FromProcessRef? = null,
+) : LcaExpression {
     companion object
-}
 
-@optics
-data class EProductRef(val name: String) : LcaUnconstrainedProductExpression, RefExpression {
-    override fun name(): String {
-        return name
+    fun withReferenceUnit(referenceUnit: UnitExpression): EProductSpec {
+        return EProductSpec(
+            name,
+            referenceUnit,
+            fromProcessRef,
+        )
     }
 
-    override fun toString(): String = name
-
-    companion object
+    fun withFromProcessRef(fromProcessRef: FromProcessRef): EProductSpec {
+        return EProductSpec(
+            name,
+            referenceUnit,
+            fromProcessRef,
+        )
+    }
 }
-
 
 // Substance
 @optics
@@ -126,11 +116,11 @@ sealed interface LcaExchangeExpression : LcaExpression {
 @optics
 data class ETechnoExchange(
     val quantity: QuantityExpression,
-    val product: EConstrainedProduct,
+    val product: EProductSpec,
     val allocation: QuantityExpression
 ) :
     LcaExchangeExpression {
-    constructor(quantity: QuantityExpression, product: EConstrainedProduct) : this(
+    constructor(quantity: QuantityExpression, product: EProductSpec) : this(
         quantity,
         product,
         EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))

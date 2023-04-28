@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
-import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
 import ch.kleis.lcaplugin.core.lang.expression.optics.substanceRefInLcaSubstanceExpression
 
 class ReduceAndComplete(
@@ -16,14 +15,12 @@ class ReduceAndComplete(
 ) {
     private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
-        symbolTable.products,
         symbolTable.substances,
         symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.products,
         symbolTable.substances,
         symbolTable.indicators,
         symbolTable.quantities,
@@ -64,9 +61,9 @@ class ReduceAndComplete(
                 if (q !is EQuantityLiteral) {
                     throw EvaluatorException("quantity $q is not reduced")
                 }
-                (ETechnoExchange.product compose productRefInProductExpression)
+                ETechnoExchange.product
                     .modify(exchange) {
-                        EProduct(it.name, q.unit)
+                        it.withReferenceUnit(q.unit)
                     }
             }
     }

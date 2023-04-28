@@ -1,31 +1,20 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.expression.EConstrainedProduct
-import ch.kleis.lcaplugin.core.lang.expression.EProduct
-import ch.kleis.lcaplugin.core.lang.expression.None
+import ch.kleis.lcaplugin.core.lang.expression.EProductSpec
 
 class ProductFixture {
     companion object {
-        val carrot = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                UnitFixture.kg,
-            ),
-            None,
+        val carrot = EProductSpec(
+            "carrot",
+            UnitFixture.kg,
         )
-        val salad = EConstrainedProduct(
-            EProduct(
-                "salad",
-                UnitFixture.kg,
-            ),
-            None,
+        val salad = EProductSpec(
+            "salad",
+            UnitFixture.kg,
         )
-        val water = EConstrainedProduct(
-            EProduct(
-                "water",
-                UnitFixture.l,
-            ),
-            None,
+        val water = EProductSpec(
+            "water",
+            UnitFixture.l,
         )
     }
 }

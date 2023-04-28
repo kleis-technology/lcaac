@@ -6,10 +6,11 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProcessFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnconstrainedProductFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
+import kotlin.test.assertNull
 
 
 class CompleteDefaultArgumentsTest {
@@ -43,8 +44,9 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf(
@@ -62,7 +64,7 @@ class CompleteDefaultArgumentsTest {
                 ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
         val expected = FromProcessRef(
@@ -102,8 +104,9 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 emptyMap(),
@@ -119,7 +122,7 @@ class CompleteDefaultArgumentsTest {
                 ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
         val expected = FromProcessRef(
@@ -159,9 +162,9 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
-                            None,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                         )
                     )
                 ),
@@ -173,9 +176,9 @@ class CompleteDefaultArgumentsTest {
                 ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
-        assertEquals(None, actual)
+        assertNull(actual)
     }
 }

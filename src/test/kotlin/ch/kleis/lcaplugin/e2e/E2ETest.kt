@@ -482,7 +482,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         try {
             Evaluator(symbolTable).eval(entryPoint)
         } catch (e: EvaluatorException) {
-            Assert.fail("Should fail")
+            Assert.fail("Should not fail")
         }
     }
 
@@ -511,12 +511,9 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
-        // when
-        try {
-            Evaluator(symbolTable).eval(entryPoint)
-        } catch (e: EvaluatorException) {
-            Assert.fail("Should fail")
-        }
+
+        // when/then
+        Evaluator(symbolTable).eval(entryPoint)
     }
 
     override fun getTestDataPath(): String {

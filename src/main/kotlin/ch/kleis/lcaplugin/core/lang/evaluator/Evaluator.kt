@@ -59,23 +59,20 @@ class Evaluator(
         val completed = completeDefaultArguments.apply(expression)
         val reduced = reduceAndComplete.apply(completed)
         val nextInstances = HashSet<EProcessTemplateApplication>()
-        val e = everyInputProduct.modify(reduced) {
-            maybeResolveProcessTemplateFromProduct(it)?.let { candidate ->
+        val e = everyInputProduct.modify(reduced) { spec ->
+            maybeResolveProcessTemplateFromProduct(spec)?.let { candidate ->
                 val template = candidate as EProcessTemplate
                 val body = template.body
-                val arguments = when (it.constraint) {
-                    is FromProcessRef -> it.constraint.arguments
-                    None -> template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
-                }
+                val arguments = spec.fromProcessRef?.arguments
+                    ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
-                EConstrainedProduct(
-                    it.product,
+                spec.withFromProcessRef(
                     FromProcessRef(
                         body.name,
                         arguments,
                     )
                 )
-            } ?: it
+            } ?: spec
         }
         val v = e.toValue()
 
@@ -103,21 +100,11 @@ class Evaluator(
         }
     }
 
-
-    private fun maybeResolveProcessTemplateFromProduct(product: EConstrainedProduct): ProcessTemplateExpression? {
-        val eProduct =
-            if (product.product is EProduct) product.product
-            else throw EvaluatorException("unbound product ${product.product}")
-        return when (product.constraint) {
-            is FromProcessRef -> {
-                val processRef = product.constraint.ref
-                val candidate = processResolver.resolveByProductName(eProduct.name)
-                return candidate
-                    ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
-            }
-
-            None -> processResolver.resolveByProductName(eProduct.name)
-        }
+    private fun maybeResolveProcessTemplateFromProduct(spec: EProductSpec): ProcessTemplateExpression? {
+        return spec.fromProcessRef?.ref?.let { processName ->
+            val candidate = processResolver.resolveByProductName(spec.name)
+            return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")
+        } ?: processResolver.resolveByProductName(spec.name)
     }
 
 }

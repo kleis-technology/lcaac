@@ -15,15 +15,15 @@ sealed interface MatrixColumnIndex : Value, HasUID {
 }
 
 @optics
-data class ProductValue(val name: String, val referenceUnit: UnitValue, val constraint: ConstraintValue = NoneValue) :
+data class ProductValue(val name: String, val referenceUnit: UnitValue, val fromProcessRef: FromProcessRefValue? = null) :
     Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
 
     override fun name(): String {
-        if (constraint is FromProcessRefValue) {
-            return "$name from ${constraint.name}${constraint.arguments}"
+        if (fromProcessRef is FromProcessRefValue) {
+            return "$name from ${fromProcessRef.name}${fromProcessRef.arguments}"
         }
         return name
     }
@@ -32,8 +32,8 @@ data class ProductValue(val name: String, val referenceUnit: UnitValue, val cons
         return referenceUnit
     }
 
-    fun withConstraint(constraint: ConstraintValue): ProductValue {
-        return ProductValue(name, referenceUnit, constraint)
+    fun withFromProcessRef(fromProcessRef: FromProcessRefValue): ProductValue {
+        return ProductValue(name, referenceUnit, fromProcessRef)
     }
 
     companion object

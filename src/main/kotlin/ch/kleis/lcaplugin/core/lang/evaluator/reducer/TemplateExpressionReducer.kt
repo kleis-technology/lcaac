@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    productRegister: Register<EProduct> = Register.empty(),
     substanceRegister: Register<ESubstance> = Register.empty(),
     indicatorRegister: Register<EIndicator> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
@@ -15,15 +14,11 @@ class TemplateExpressionReducer(
     templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
-    private val productRegister = Register(productRegister)
     private val substanceRegister = Register(substanceRegister)
     private val indicatorRegister = Register(indicatorRegister)
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
     private val helper = Helper()
-    private val everyConstraintInProducts = EProcess.products compose
-            Every.list() compose
-            ETechnoExchange.product.constraint
 
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {
@@ -44,7 +39,6 @@ class TemplateExpressionReducer(
                     .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(
-                    productRegister,
                     substanceRegister,
                     indicatorRegister,
                     localRegister,
@@ -59,7 +53,7 @@ class TemplateExpressionReducer(
                     result = helper.substitute(it.key, it.value, result)
                 }
                 result = reducer.reduce(result) as EProcess
-                result = constrainProducts(result as EProcess, actualArguments, quantityReducer)
+                result = concretizeProducts(result, actualArguments, quantityReducer)
                 return EProcessFinal(result)
             }
 
@@ -69,15 +63,19 @@ class TemplateExpressionReducer(
         }
     }
 
-    private fun constrainProducts(
+    private fun concretizeProducts(
         result: EProcess,
         actualArguments: Map<String, QuantityExpression>,
         quantityReducer: QuantityExpressionReducer
-    ) = everyConstraintInProducts.modify(result) {
-        val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-        FromProcessRef(
-            result.name,
-            reducedActualArguments,
-        )
-    }
+    ) = (EProcess.products
+        .compose(Every.list())
+        .compose(ETechnoExchange.product)).modify(result) {
+            val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
+            it.withFromProcessRef(
+                FromProcessRef(
+                    result.name,
+                    reducedActualArguments,
+                )
+            )
+        }
 }

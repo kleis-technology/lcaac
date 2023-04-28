@@ -16,11 +16,9 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer()
         val exchange = ETechnoExchange(
             quantity,
-            EConstrainedProduct(
-                EProduct(
-                    "carrot",
-                    unit
-                ), None
+            EProductSpec(
+                "carrot",
+                unit,
             )
         )
 
@@ -30,11 +28,9 @@ class LcaExpressionReducerTest {
         // then
         val expected = ETechnoExchange(
             EQuantityLiteral(1.0, UnitFixture.kg),
-            EConstrainedProduct(
-                EProduct(
-                    "carrot",
-                    UnitFixture.kg,
-                ), None
+            EProductSpec(
+                "carrot",
+                UnitFixture.kg,
             ),
         )
         assertEquals(expected, actual)
@@ -125,21 +121,13 @@ class LcaExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenTechnoExchange_shouldReduceQuantityAndProduct() {
+    fun reduce_whenTechnoExchange_shouldReduceQuantity() {
         // given
         val expression = ETechnoExchange(
             EQuantityRef("q"),
-            EConstrainedProduct(
-                EProductRef("carrot"),
-                None,
-            )
+            EProductSpec("carrot"),
         )
         val reducer = LcaExpressionReducer(
-            productRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot", UnconstrainedProductFixture.carrot)
-                )
-            ),
             quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
@@ -153,7 +141,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = ETechnoExchange(
             QuantityFixture.oneKilogram,
-            ProductFixture.carrot,
+            EProductSpec("carrot"),
         )
         assertEquals(expected, actual)
     }
@@ -292,12 +280,9 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenProduct_shouldReduceUnit() {
         // given
-        val expression = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                EUnitRef("kg"),
-            ),
-            None,
+        val expression = EProductSpec(
+            "carrot",
+            EUnitRef("kg"),
         )
         val reducer = LcaExpressionReducer(
             unitRegister = Register.from(
@@ -311,33 +296,21 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                UnitFixture.kg,
-            ),
-            None,
+        val expected = EProductSpec(
+            "carrot",
+            UnitFixture.kg,
         )
         assertEquals(expected, actual)
     }
 
     @Test
-    fun reduce_whenProductRef_shouldReadEnv() {
+    fun reduce_withoutFromProcessRef_shouldReduceProduct() {
         // given
-        val carrot = EProduct(
+        val expression = EProductSpec(
             "carrot",
             EUnitRef("kg"),
         )
-        val expression = EConstrainedProduct(
-            EProductRef("carrot"),
-            None,
-        )
         val reducer = LcaExpressionReducer(
-            productRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot", carrot)
-                )
-            ),
             unitRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
@@ -349,46 +322,9 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                UnitFixture.kg,
-            ),
-            None,
-        )
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun reduce_withConstraintNone_shouldReduceProduct() {
-        // given
-        val carrot = EProduct(
+        val expected = EProductSpec(
             "carrot",
-            EUnitRef("kg"),
-        )
-        val expression = EConstrainedProduct(EProductRef("carrot"), None)
-        val reducer = LcaExpressionReducer(
-            productRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot", carrot)
-                )
-            ),
-            unitRegister = Register.from(
-                hashMapOf(
-                    Pair("kg", UnitFixture.kg)
-                )
-            ),
-        )
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        val expected = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                UnitFixture.kg,
-            ), None
+            UnitFixture.kg,
         )
         assertEquals(expected, actual)
     }
@@ -396,12 +332,13 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_withConstraintFromProcess_shouldReduceProductAndArguments() {
         // given
-        val carrot = EProduct(
+        val carrot = EProductSpec(
             "carrot",
             EUnitRef("kg"),
         )
-        val expression = EConstrainedProduct(
-            EProductRef("carrot"),
+        val expression = EProductSpec(
+            "carrot",
+            UnitFixture.kg,
             FromProcessRef(
                 "p",
                 mapOf(
@@ -410,11 +347,6 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            productRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot", carrot)
-                )
-            ),
             quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", EQuantityLiteral(3.0, EUnitRef("kg")))
@@ -431,11 +363,9 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EConstrainedProduct(
-            EProduct(
-                "carrot",
-                UnitFixture.kg,
-            ),
+        val expected = EProductSpec(
+            "carrot",
+            UnitFixture.kg,
             FromProcessRef(
                 "p",
                 mapOf(

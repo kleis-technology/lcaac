@@ -53,7 +53,7 @@ class ProcessTemplateExpressionReducerTest {
                 products = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(3.0, UnitFixture.kg),
-                        ProductFixture.carrot.withConstraint(
+                        ProductFixture.carrot.withFromProcessRef(
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf(

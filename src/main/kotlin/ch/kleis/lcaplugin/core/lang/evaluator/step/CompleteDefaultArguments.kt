@@ -14,25 +14,19 @@ class CompleteDefaultArguments(
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return everyInputProduct.modify(expression) {
-            when (it.constraint) {
-                is FromProcessRef -> {
-                    val process = processResolver.resolve(it.constraint.ref)
-                        ?: throw EvaluatorException("unknown process ${it.constraint.ref}")
-                    if (process !is EProcessTemplate) {
-                        throw EvaluatorException("${it.constraint.ref} cannot be invoked")
-                    }
-                    val actualArguments = process.params.plus(it.constraint.arguments)
-                    EConstrainedProduct(
-                        it.product,
-                        FromProcessRef(
-                            it.constraint.ref,
-                            actualArguments,
-                        )
+            it.fromProcessRef?.let { ref ->
+                val process = processResolver.resolve(ref.ref)
+                    ?: throw EvaluatorException("unknown process ${ref.ref}")
+                val actualArguments = process.params.plus(ref.arguments)
+                EProductSpec(
+                    it.name,
+                    it.referenceUnit,
+                    FromProcessRef(
+                        ref.ref,
+                        actualArguments,
                     )
-                }
-
-                None -> it
-            }
+                )
+            } ?: it
         }
     }
 }

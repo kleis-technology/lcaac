@@ -77,9 +77,8 @@ class ProcessResolverTest {
                 name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
-                        EQuantityRef("q_carrot"), EConstrainedProduct(
-                            EProductRef("carrot"),
-                            None,
+                        EQuantityRef("q_carrot"), EProductSpec(
+                            "carrot",
                         )
                     ),
                 ),
@@ -103,7 +102,7 @@ class ProcessResolverTest {
                 biosphere = emptyList(),
             )
         )
-        val processTemplates : Register<EProcessTemplate> = Register.from(
+        val processTemplates: Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to carrotProduction,
                 "salad_production" to saladProduction,

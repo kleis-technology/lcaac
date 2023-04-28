@@ -4,8 +4,11 @@ import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
@@ -226,7 +229,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "[x] are already bound",
+                "x is already bound",
                 e.message
             )
         }
@@ -348,6 +351,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = symbolTable.getTemplate("a")!!
 
         // then
+        val preludeSymbolTable = SymbolTable(
+            units = Prelude.units,
+            quantities = Prelude.unitQuantities,
+        )
         val expected = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -356,13 +363,20 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(1.0, EQuantityRef("kg")),
-                        EConstrainedProduct(EProductRef("carrot"), None),
+                        EProductSpec(
+                            "carrot",
+                            EUnitClosure(
+                                preludeSymbolTable, EUnitOf(
+                                    EQuantityScale(1.0, EQuantityRef("kg")),
+                                )
+                            )
+                        ),
                     ),
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         EQuantityScale(10.0, EQuantityRef("l")),
-                        EConstrainedProduct(EProductRef("water"), None)
+                        EProductSpec("water"),
                     ),
                 ),
                 biosphere = emptyList(),
@@ -528,9 +542,9 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val expected = listOf(
             ETechnoExchange(
                 EQuantityScale(10.0, EQuantityRef("l")),
-                EConstrainedProduct(
-                    EProductRef("water"),
-                    FromProcessRef(
+                EProductSpec(
+                    "water",
+                    fromProcessRef = FromProcessRef(
                         "water_proc",
                         mapOf("x" to EQuantityScale(3.0, EQuantityRef("l"))),
                     ),
@@ -601,9 +615,16 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         // then
         val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val preludeSymbolTable = SymbolTable(
+            units = Prelude.units,
+            quantities = Prelude.unitQuantities,
+        )
         val expect = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
-            EConstrainedProduct(EProductRef("carrot"), None),
+            EProductSpec(
+                "carrot",
+                EUnitClosure(preludeSymbolTable, EUnitOf(EQuantityScale(1.0, EQuantityRef("kg"))))
+            ),
             EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
         assertEquals(expect, actual)
@@ -628,9 +649,16 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         // then
         val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val preludeSymbolTable = SymbolTable(
+            units = Prelude.units,
+            quantities = Prelude.unitQuantities,
+        )
         val expect = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
-            EConstrainedProduct(EProductRef("carrot"), None),
+            EProductSpec(
+                "carrot",
+                EUnitClosure(preludeSymbolTable, EUnitOf(EQuantityScale(1.0, EQuantityRef("kg"))))
+            ),
             EQuantityScale(10.0, EQuantityRef("percent"))
         )
         assertEquals(expect, actual)

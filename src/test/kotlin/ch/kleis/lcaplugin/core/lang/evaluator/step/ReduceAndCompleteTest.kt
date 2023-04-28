@@ -39,7 +39,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.twoLitres),
@@ -117,7 +117,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
@@ -159,7 +159,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),

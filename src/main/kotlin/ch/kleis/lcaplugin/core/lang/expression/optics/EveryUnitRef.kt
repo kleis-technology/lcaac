@@ -72,30 +72,24 @@ val everyUnitRefInQuantityExpression: PEvery<QuantityExpression, QuantityExpress
             EQuantityLiteral.unit compose
             everyUnitRefInUnitExpression
 
-val everyUnitRefInProduct: PEvery<EProduct, EProduct, EUnitRef, UnitExpression> =
-    EProduct.referenceUnit compose everyUnitRefInUnitExpression
 
-val everyUnitRefInUnconstrainedProductExpression: PEvery<LcaUnconstrainedProductExpression, LcaUnconstrainedProductExpression, EUnitRef, UnitExpression> =
-    LcaUnconstrainedProductExpression.eProduct compose everyUnitRefInProduct
-
-val everyUnitRefInConstraint: PEvery<Constraint, Constraint, EUnitRef, UnitExpression> =
-    Constraint.fromProcessRef.arguments compose
+val everyUnitRefInFromProcessRef: PEvery<FromProcessRef, FromProcessRef, EUnitRef, UnitExpression> =
+    FromProcessRef.arguments compose
             Every.map() compose
             everyUnitRefInQuantityExpression
 
-val everyUnitRefInConstrainedProduct =
-    Merge(
-        listOf(
-            EConstrainedProduct.product compose everyUnitRefInUnconstrainedProductExpression,
-            EConstrainedProduct.constraint compose everyUnitRefInConstraint,
-        )
-    )
+val everyUnitRefInProductSpec: PEvery<EProductSpec, EProductSpec, EUnitRef, UnitExpression> =
+    Merge(listOf(
+        EProductSpec.referenceUnit compose everyUnitRefInUnitExpression,
+        EProductSpec.fromProcessRef compose everyUnitRefInFromProcessRef,
+    ))
+
 
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             ETechnoExchange.quantity compose everyUnitRefInQuantityExpression,
-            ETechnoExchange.product compose everyUnitRefInConstrainedProduct,
+            ETechnoExchange.product compose everyUnitRefInProductSpec,
         )
     )
 
@@ -149,7 +143,7 @@ val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, 
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose everyUnitRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose everyUnitRefInEBioExchange,
             LcaExpression.lcaExchangeExpression.eImpact compose everyUnitRefInEImpact,
-            LcaExpression.eConstrainedProduct compose everyUnitRefInConstrainedProduct,
+            LcaExpression.eProductSpec compose everyUnitRefInProductSpec,
             LcaExpression.lcaIndicatorExpression compose everyUnitRefInIndicatorExpression,
             LcaExpression.lcaSubstanceExpression compose everyUnitRefInSubstanceExpression,
             LcaExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization,

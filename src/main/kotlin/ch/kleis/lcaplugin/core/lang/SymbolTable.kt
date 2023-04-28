@@ -2,10 +2,8 @@ package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.expression.optics.Merge
 
 data class SymbolTable(
-    val products: Register<EProduct> = Register.empty(),
     val substances: Register<ESubstance> = Register.empty(),
     val indicators: Register<EIndicator> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
@@ -17,13 +15,8 @@ data class SymbolTable(
         processTemplates,
         EProcessTemplate.body.products compose
                 Every.list() compose
-                ETechnoExchange.product.product compose
-                Merge(
-                    listOf(
-                        LcaUnconstrainedProductExpression.eProduct.name,
-                        LcaUnconstrainedProductExpression.eProductRef.name,
-                    )
-                )
+                ETechnoExchange.product compose
+                EProductSpec.name
     )
 
     companion object {

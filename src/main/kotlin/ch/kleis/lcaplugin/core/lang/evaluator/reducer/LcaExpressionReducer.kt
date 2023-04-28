@@ -4,13 +4,11 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    productRegister: Register<EProduct> = Register.empty(),
     substanceRegister: Register<ESubstance> = Register.empty(),
     indicatorRegister: Register<EIndicator> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val productRegister = Register(productRegister)
     private val substanceRegister = Register(substanceRegister)
     private val indicatorRegister = Register(indicatorRegister)
 
@@ -31,10 +29,7 @@ class LcaExpressionReducer(
             is ESubstance -> reduceSubstanceExpression(expression)
             is ESubstanceRef -> reduceSubstanceExpression(expression)
 
-            is EConstrainedProduct -> EConstrainedProduct(
-                reduceUnconstrainedProductExpression(expression.product),
-                expression.constraint.reduceWith(quantityExpressionReducer),
-            )
+            is EProductSpec -> reduceProductSpec(expression)
 
             is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
         }
@@ -70,23 +65,16 @@ class LcaExpressionReducer(
     private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
         return ETechnoExchange(
             quantityExpressionReducer.reduce(expression.quantity),
-            reduceConstrainedProduct(expression.product),
+            reduceProductSpec(expression.product),
             quantityExpressionReducer.reduce(expression.allocation)
         )
     }
 
-    private fun reduceUnconstrainedProductExpression(expression: LcaUnconstrainedProductExpression): LcaUnconstrainedProductExpression {
-        return when (expression) {
-            is EProduct -> EProduct(expression.name, quantityExpressionReducer.reduceUnit(expression.referenceUnit))
-            is EProductRef -> productRegister[expression.name]?.let { reduceUnconstrainedProductExpression(it) }
-                ?: expression
-        }
-    }
-
-    private fun reduceConstrainedProduct(expression: EConstrainedProduct): EConstrainedProduct {
-        return EConstrainedProduct(
-            reduceUnconstrainedProductExpression(expression.product),
-            expression.constraint.reduceWith(quantityExpressionReducer),
+    private fun reduceProductSpec(expression: EProductSpec): EProductSpec {
+        return EProductSpec(
+            expression.name,
+            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+            expression.fromProcessRef?.reduceWith(quantityExpressionReducer),
         )
     }
 
