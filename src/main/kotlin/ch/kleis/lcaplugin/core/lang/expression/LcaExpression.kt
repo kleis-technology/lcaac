@@ -70,28 +70,10 @@ data class ESubstanceSpec(
 
 // Indicator
 @optics
-sealed interface LcaIndicatorExpression : LcaExpression {
-    companion object
-}
-
-@optics
-data class EIndicator(
+data class EIndicatorSpec(
     val name: String,
-    val referenceUnit: UnitExpression,
-) : LcaIndicatorExpression {
-    companion object
-}
-
-@optics
-data class EIndicatorRef(
-    val name: String,
-) : LcaIndicatorExpression, RefExpression {
-    override fun name(): String {
-        return name
-    }
-
-    override fun toString(): String = name
-
+    val referenceUnit: UnitExpression? = null,
+) : LcaExpression {
     companion object
 }
 
@@ -124,7 +106,7 @@ data class EBioExchange(val quantity: QuantityExpression, val substance: ESubsta
 }
 
 @optics
-data class EImpact(val quantity: QuantityExpression, val indicator: LcaIndicatorExpression) : LcaExchangeExpression {
+data class EImpact(val quantity: QuantityExpression, val indicator: EIndicatorSpec) : LcaExchangeExpression {
     companion object
 }
 

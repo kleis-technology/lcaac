@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    indicatorRegister: Register<EIndicator> = Register.empty(),
+    indicatorRegister: Register<EIndicatorSpec> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
@@ -14,20 +14,15 @@ class LcaExpressionReducer(
     override fun reduce(expression: LcaExpression): LcaExpression {
         return when (expression) {
             is EProcess -> reduceProcess(expression)
+            is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
 
             is EImpact -> reduceImpact(expression)
-
             is ETechnoExchange -> reduceTechnoExchange(expression)
             is EBioExchange -> reduceBioExchange(expression)
 
-            is EIndicator -> reduceIndicatorExpression(expression)
-            is EIndicatorRef -> reduceIndicatorExpression(expression)
-
+            is EIndicatorSpec -> reduceIndicatorSpec(expression)
             is ESubstanceSpec -> reduceSubstanceSpec(expression)
-
             is EProductSpec -> reduceProductSpec(expression)
-
-            is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
         }
     }
 
@@ -50,7 +45,7 @@ class LcaExpressionReducer(
 
     private fun reduceImpact(expression: EImpact) = EImpact(
         quantityExpressionReducer.reduce(expression.quantity),
-        reduceIndicatorExpression(expression.indicator),
+        reduceIndicatorSpec(expression.indicator),
     )
 
     private fun reduceBioExchange(expression: EBioExchange) = EBioExchange(
@@ -85,15 +80,10 @@ class LcaExpressionReducer(
         )
     }
 
-    private fun reduceIndicatorExpression(expression: LcaIndicatorExpression): LcaIndicatorExpression {
-        return when (expression) {
-            is EIndicator -> EIndicator(
-                expression.name,
-                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
-            )
-
-            is EIndicatorRef -> indicatorRegister[expression.name]?.let { reduceIndicatorExpression(it) }
-                ?: expression
-        }
+    private fun reduceIndicatorSpec(expression: EIndicatorSpec): EIndicatorSpec {
+        return EIndicatorSpec(
+            expression.name,
+            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+        )
     }
 }

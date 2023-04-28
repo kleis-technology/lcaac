@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 
 data class SymbolTable(
     val substances: Register<ESubstanceSpec> = Register.empty(),
-    val indicators: Register<EIndicator> = Register.empty(),
+    val indicators: Register<EIndicatorSpec> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
     val processTemplates: Register<EProcessTemplate> = Register.empty(),

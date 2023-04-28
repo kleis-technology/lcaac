@@ -105,14 +105,14 @@ val everyUnitRefInEBioExchange: PEvery<EBioExchange, EBioExchange, EUnitRef, Uni
         )
     )
 
-val everyUnitRefInIndicatorExpression: PEvery<LcaIndicatorExpression, LcaIndicatorExpression, EUnitRef, UnitExpression> =
-    LcaIndicatorExpression.eIndicator.referenceUnit compose everyUnitRefInUnitExpression
+val everyUnitRefInIndicatorSpec: PEvery<EIndicatorSpec, EIndicatorSpec, EUnitRef, UnitExpression> =
+    EIndicatorSpec.referenceUnit compose everyUnitRefInUnitExpression
 
 val everyUnitRefInEImpact: PEvery<EImpact, EImpact, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             EImpact.quantity compose everyUnitRefInQuantityExpression,
-            EImpact.indicator compose everyUnitRefInIndicatorExpression,
+            EImpact.indicator compose everyUnitRefInIndicatorSpec,
         )
     )
 
@@ -144,7 +144,7 @@ val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, 
             LcaExpression.lcaExchangeExpression.eBioExchange compose everyUnitRefInEBioExchange,
             LcaExpression.lcaExchangeExpression.eImpact compose everyUnitRefInEImpact,
             LcaExpression.eProductSpec compose everyUnitRefInProductSpec,
-            LcaExpression.lcaIndicatorExpression compose everyUnitRefInIndicatorExpression,
+            LcaExpression.eIndicatorSpec compose everyUnitRefInIndicatorSpec,
             LcaExpression.eSubstanceSpec compose everyUnitRefInSubstanceSpec,
             LcaExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization,
         )

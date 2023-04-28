@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
 
 class ReduceAndComplete(
     symbolTable: SymbolTable,
@@ -89,9 +88,9 @@ class ReduceAndComplete(
                 if (q !is EQuantityLiteral) {
                     throw EvaluatorException("quantity $q is not reduced")
                 }
-                (EImpact.indicator compose indicatorRefInIndicatorExpression)
+                EImpact.indicator
                     .modify(exchange) {
-                        EIndicator(it.name, q.unit)
+                        EIndicatorSpec(it.name, q.unit)
                     }
             }
     }

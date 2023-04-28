@@ -135,7 +135,7 @@ class HelperTest {
                             EQuantityAdd(
                                 EQuantityScale(3.0, EQuantityRef("qa")),
                                 EQuantityRef("qb")
-                            ), EIndicatorRef("indicator")
+                            ), EIndicatorSpec("indicator")
                         )
                     ),
                 )

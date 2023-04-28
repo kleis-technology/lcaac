@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
     substanceRegister: Register<ESubstanceSpec> = Register.empty(),
-    indicatorRegister: Register<EIndicator> = Register.empty(),
+    indicatorRegister: Register<EIndicatorSpec> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
     templateRegister: Register<EProcessTemplate> = Register.empty(),

@@ -24,15 +24,12 @@ fun EImpact.toValue(): ImpactValue {
     )
 }
 
-private fun LcaIndicatorExpression.toValue(): IndicatorValue {
-    return when (this) {
-        is EIndicator -> IndicatorValue(
-            this.name,
-            this.referenceUnit.toValue(),
-        )
-
-        is EIndicatorRef -> throw EvaluatorException("$this is not reduced")
-    }
+private fun EIndicatorSpec.toValue(): IndicatorValue {
+    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    return IndicatorValue(
+        this.name,
+        referenceUnit,
+    )
 }
 
 fun EProcess.toValue(): ProcessValue {

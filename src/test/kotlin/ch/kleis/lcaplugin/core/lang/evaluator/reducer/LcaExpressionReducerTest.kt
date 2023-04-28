@@ -94,7 +94,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EImpact(
             EQuantityRef("q"),
-            EIndicatorRef("cc")
+            EIndicatorSpec("cc")
         )
         val reducer = LcaExpressionReducer(
             quantityRegister = Register.from(
@@ -115,7 +115,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EImpact(
             QuantityFixture.oneKilogram,
-            IndicatorFixture.climateChange,
+            EIndicatorSpec("cc"),
         )
         assertEquals(expected, actual)
     }
@@ -175,7 +175,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenIndicator_shouldReduceUnit() {
         // given
-        val expression = EIndicator(
+        val expression = EIndicatorSpec(
             "cc",
             EUnitRef("kg"),
         )
@@ -191,30 +191,10 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EIndicator(
+        val expected = EIndicatorSpec(
             "cc",
             UnitFixture.kg,
         )
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun reduce_whenIndicatorRef_shouldReadEnv() {
-        // given
-        val expression = EIndicatorRef("cc")
-        val reducer = LcaExpressionReducer(
-            indicatorRegister = Register.from(
-                hashMapOf(
-                    Pair("cc", IndicatorFixture.climateChange)
-                )
-            )
-        )
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        val expected = IndicatorFixture.climateChange
         assertEquals(expected, actual)
     }
 

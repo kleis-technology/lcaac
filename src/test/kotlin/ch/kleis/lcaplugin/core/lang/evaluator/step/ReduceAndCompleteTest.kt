@@ -199,7 +199,7 @@ class ReduceAndCompleteTest {
         val expression = ESubstanceCharacterization(
             EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             listOf(
-                EImpact(QuantityFixture.oneKilogram, EIndicatorRef("cc"))
+                EImpact(QuantityFixture.oneKilogram, EIndicatorSpec("cc"))
             )
         )
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())

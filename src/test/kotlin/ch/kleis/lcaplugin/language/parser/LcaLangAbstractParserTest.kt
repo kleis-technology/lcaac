@@ -589,7 +589,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             impacts = listOf(
                 EImpact(
                     EQuantityScale(1.0, EQuantityRef("kg")),
-                    EIndicatorRef("climate_change"),
+                    EIndicatorSpec("climate_change"),
                 )
             )
         )

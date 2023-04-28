@@ -181,12 +181,14 @@ class LcaLangAbstractParser(
     private fun impact(exchange: PsiImpactExchange): EImpact {
         return EImpact(
             quantity(exchange.getQuantity()),
-            indicatorRef(exchange.getIndicatorRef()),
+            indicatorSpec(exchange.getIndicatorRef()),
         )
     }
 
-    private fun indicatorRef(variable: PsiIndicatorRef): LcaIndicatorExpression {
-        return EIndicatorRef(variable.name)
+    private fun indicatorSpec(variable: PsiIndicatorRef): EIndicatorSpec {
+        return EIndicatorSpec(
+            variable.name
+        )
     }
 
     private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
