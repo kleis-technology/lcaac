@@ -9,7 +9,7 @@ sealed interface SystemExpression : Expression {
 
 @optics
 data class ESystem(
-    val processes: List<LcaProcessExpression>,
+    val processes: List<EProcess>,
     val substanceCharacterizations: List<LcaSubstanceCharacterizationExpression>,
 ) : SystemExpression {
     companion object

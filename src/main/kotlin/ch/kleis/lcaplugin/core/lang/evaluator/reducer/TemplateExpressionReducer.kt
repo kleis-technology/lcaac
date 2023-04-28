@@ -21,7 +21,7 @@ class TemplateExpressionReducer(
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
     private val helper = Helper()
-    private val everyConstraintInProducts = LcaProcessExpression.eProcess.products compose
+    private val everyConstraintInProducts = EProcess.products compose
             Every.list() compose
             ETechnoExchange.product.constraint
 

@@ -23,11 +23,11 @@ class Evaluator(
     private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
     private val completeDefaultArguments = CompleteDefaultArguments(processResolver)
     private val everyInputProduct =
-        ProcessTemplateExpression.eProcessFinal.expression.eProcess.inputs
+        ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
             .compose(ETechnoExchange.product)
     private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstance, ESubstance> =
-        ProcessTemplateExpression.eProcessFinal.expression.eProcess.biosphere
+        ProcessTemplateExpression.eProcessFinal.expression.biosphere
             .compose(Every.list())
             .compose(EBioExchange.substance.eSubstance)
 
@@ -62,7 +62,7 @@ class Evaluator(
         val e = everyInputProduct.modify(reduced) {
             maybeResolveProcessTemplateFromProduct(it)?.let { candidate ->
                 val template = candidate as EProcessTemplate
-                val body = template.body as EProcess
+                val body = template.body
                 val arguments = when (it.constraint) {
                     is FromProcessRef -> it.constraint.arguments
                     None -> template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }

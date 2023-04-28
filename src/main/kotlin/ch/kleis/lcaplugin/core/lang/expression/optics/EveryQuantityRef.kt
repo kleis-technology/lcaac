@@ -111,7 +111,7 @@ private val everyQuantityRefInEBioExchange: PEvery<EBioExchange, EBioExchange, E
 private val everyQuantityRefInEImpact: PEvery<EImpact, EImpact, EQuantityRef, QuantityExpression> =
     EImpact.quantity compose everyQuantityRefInQuantityExpression
 
-private val everyQuantityRefInProcess: PEvery<EProcess, EProcess, EQuantityRef, QuantityExpression> =
+val everyQuantityRefInProcess: PEvery<EProcess, EProcess, EQuantityRef, QuantityExpression> =
     Merge(
         listOf(
             EProcess.products compose Every.list() compose everyQuantityRefInETechnoExchange,
@@ -119,9 +119,6 @@ private val everyQuantityRefInProcess: PEvery<EProcess, EProcess, EQuantityRef, 
             EProcess.biosphere compose Every.list() compose everyQuantityRefInEBioExchange,
         )
     )
-
-val everyQuantityRefInProcessExpression: PEvery<LcaProcessExpression, LcaProcessExpression, EQuantityRef, QuantityExpression> =
-    LcaProcessExpression.eProcess compose everyQuantityRefInProcess
 
 private val everyQuantityRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, ESubstanceCharacterization, EQuantityRef, QuantityExpression> =
     Merge(
@@ -140,7 +137,7 @@ private val everyQuantityRefInSystemExpression: PEvery<SystemExpression, SystemE
         listOf(
             SystemExpression.eSystem.processes compose
                     Every.list() compose
-                    everyQuantityRefInProcessExpression,
+                    everyQuantityRefInProcess,
             SystemExpression.eSystem.substanceCharacterizations compose
                     Every.list() compose
                     everyQuantityRefInSubstanceCharacterizationExpression,
@@ -150,8 +147,8 @@ private val everyQuantityRefInSystemExpression: PEvery<SystemExpression, SystemE
 private val everyQuantityRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EQuantityRef, QuantityExpression> =
     Merge(
         listOf(
-            LcaExpression.lcaProcessExpression compose
-                    everyQuantityRefInProcessExpression,
+            LcaExpression.eProcess compose
+                    everyQuantityRefInProcess,
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose
                     everyQuantityRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose
@@ -168,10 +165,10 @@ private val everyQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpressi
                 listOf(
                     EProcessTemplate.params compose Every.map() compose everyQuantityRefInQuantityExpression,
                     EProcessTemplate.locals compose Every.map() compose everyQuantityRefInQuantityExpression,
-                    EProcessTemplate.body compose everyQuantityRefInProcessExpression,
+                    EProcessTemplate.body compose everyQuantityRefInProcess,
                 )
             ),
-            ProcessTemplateExpression.eProcessFinal.expression compose everyQuantityRefInProcessExpression,
+            ProcessTemplateExpression.eProcessFinal.expression compose everyQuantityRefInProcess,
         ),
     )
 
@@ -200,7 +197,7 @@ val everyUnboundedQuantityRefInProcessTemplate =
             return EProcessTemplate(
                 source.params,
                 source.locals,
-                everyQuantityRefInProcessExpression.modify(source.body) {
+                everyQuantityRefInProcess.modify(source.body) {
                     if (boundedRefs.contains(it)) it
                     else map(it)
                 }

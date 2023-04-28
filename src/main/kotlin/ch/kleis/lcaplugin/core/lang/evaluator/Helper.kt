@@ -5,8 +5,8 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.expression.optics.*
 
 class Helper {
-    fun substitute(binder: String, value: QuantityExpression, body: LcaProcessExpression): LcaProcessExpression {
-        return everyQuantityRefInProcessExpression.modify(body) {
+    fun substitute(binder: String, value: QuantityExpression, body: EProcess): EProcess {
+        return everyQuantityRefInProcess.modify(body) {
             if (it.name == binder) value else it
         }
     }

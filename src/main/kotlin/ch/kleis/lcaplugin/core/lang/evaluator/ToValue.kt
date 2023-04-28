@@ -39,10 +39,7 @@ private fun LcaIndicatorExpression.toValue(): IndicatorValue {
     }
 }
 
-fun LcaProcessExpression.toValue(): ProcessValue {
-    if (this !is EProcess) {
-        throw EvaluatorException("$this is not reduced")
-    }
+fun EProcess.toValue(): ProcessValue {
     return ProcessValue(
         this.name,
         this.products.map { it.toValue() },

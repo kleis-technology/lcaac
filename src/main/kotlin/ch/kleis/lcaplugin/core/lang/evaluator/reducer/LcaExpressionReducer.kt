@@ -20,7 +20,7 @@ class LcaExpressionReducer(
 
     override fun reduce(expression: LcaExpression): LcaExpression {
         return when (expression) {
-            is EProcess -> reduceLcaProcessExpression(expression)
+            is EProcess -> reduceProcess(expression)
 
             is EImpact -> reduceImpact(expression)
 
@@ -61,15 +61,13 @@ class LcaExpressionReducer(
     }
 
 
-    private fun reduceLcaProcessExpression(expression: LcaProcessExpression): LcaProcessExpression {
-        return when (expression) {
-            is EProcess -> EProcess(
-                expression.name,
-                expression.products.map { reduceTechnoExchange(it) },
-                expression.inputs.map { reduceTechnoExchange(it) },
-                expression.biosphere.map { reduceBioExchange(it) },
-            )
-        }
+    private fun reduceProcess(expression: EProcess): EProcess {
+        return EProcess(
+            expression.name,
+            expression.products.map { reduceTechnoExchange(it) },
+            expression.inputs.map { reduceTechnoExchange(it) },
+            expression.biosphere.map { reduceBioExchange(it) },
+        )
     }
 
     private fun reduceImpact(expression: EImpact) = EImpact(

@@ -16,7 +16,7 @@ class IndexFixture {
                     ProcessTemplateExpression.eProcessFinal.expression,
                 )
             ) compose
-                    LcaProcessExpression.eProcess.products compose
+                    EProcess.products compose
                     Every.list() compose
                     ETechnoExchange.product.product compose
                     Merge(

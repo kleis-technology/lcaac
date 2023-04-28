@@ -59,7 +59,7 @@ class ReduceAndComplete(
 
 
     private fun completeInputs(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
-        return (ProcessTemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list())
+        return (ProcessTemplateExpression.eProcessFinal.expression.inputs compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {
@@ -73,7 +73,7 @@ class ReduceAndComplete(
     }
 
     private fun completeSubstances(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
-        return (ProcessTemplateExpression.eProcessFinal.expression.eProcess.biosphere compose Every.list())
+        return (ProcessTemplateExpression.eProcessFinal.expression.biosphere compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {

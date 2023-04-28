@@ -152,17 +152,12 @@ data class EImpact(val quantity: QuantityExpression, val indicator: LcaIndicator
 
 // Process
 @optics
-sealed interface LcaProcessExpression : LcaExpression {
-    companion object
-}
-
-@optics
 data class EProcess(
     val name: String,
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,
-) : LcaProcessExpression {
+) : LcaExpression {
     companion object
 }
 

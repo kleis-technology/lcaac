@@ -132,9 +132,6 @@ val everyUnitRefInProcess: PEvery<EProcess, EProcess, EUnitRef, UnitExpression> 
         )
     )
 
-val everyUnitRefInProcessExpression: PEvery<LcaProcessExpression, LcaProcessExpression, EUnitRef, UnitExpression> =
-    LcaProcessExpression.eProcess compose everyUnitRefInProcess
-
 
 val everyUnitRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, ESubstanceCharacterization, EUnitRef, UnitExpression> =
     Merge(
@@ -150,12 +147,12 @@ val everyUnitRefInSubstanceCharacterizationExpression: PEvery<LcaSubstanceCharac
 val everyUnitRefInSystemExpression: PEvery<SystemExpression, SystemExpression, EUnitRef, UnitExpression> =
     SystemExpression.eSystem.processes compose
             Every.list() compose
-            everyUnitRefInProcessExpression
+            everyUnitRefInProcess
 
 val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, UnitExpression> =
     Merge(
         listOf(
-            LcaExpression.lcaProcessExpression compose everyUnitRefInProcessExpression,
+            LcaExpression.eProcess compose everyUnitRefInProcess,
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose everyUnitRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose everyUnitRefInEBioExchange,
             LcaExpression.lcaExchangeExpression.eImpact compose everyUnitRefInEImpact,
@@ -173,10 +170,10 @@ val everyUnitRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessT
                 listOf(
                     EProcessTemplate.params compose Every.map() compose everyUnitRefInQuantityExpression,
                     EProcessTemplate.locals compose Every.map() compose everyUnitRefInQuantityExpression,
-                    EProcessTemplate.body compose everyUnitRefInProcessExpression,
+                    EProcessTemplate.body compose everyUnitRefInProcess,
                 )
             ),
-            ProcessTemplateExpression.eProcessFinal.expression compose everyUnitRefInProcessExpression,
+            ProcessTemplateExpression.eProcessFinal.expression compose everyUnitRefInProcess,
         )
     )
 
@@ -187,6 +184,6 @@ val everyUnitRef: Every<Expression, EUnitRef> =
             Expression.quantityExpression compose everyUnitRefInQuantityExpression,
             Expression.lcaExpression compose everyUnitRefInLcaExpression,
             Expression.processTemplateExpression compose everyUnitRefInTemplateExpression,
-            Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcessExpression,
+            Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcess,
         )
     )

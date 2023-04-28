@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 class CompleteDefaultArguments(
     private val processResolver: ProcessResolver
 ) {
-    private val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+    private val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
             Every.list() compose
             ETechnoExchange.product
 

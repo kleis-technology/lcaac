@@ -11,7 +11,7 @@ sealed interface ProcessTemplateExpression : Expression {
 data class EProcessTemplate(
     val params: Map<String, QuantityExpression>,
     val locals: Map<String, QuantityExpression>,
-    val body: LcaProcessExpression,
+    val body: EProcess,
 ) : ProcessTemplateExpression {
     companion object
 }
@@ -34,7 +34,7 @@ data class EProcessTemplateRef(val name: String) : ProcessTemplateExpression, Re
 }
 
 @optics
-data class EProcessFinal(val expression: LcaProcessExpression) : ProcessTemplateExpression {
+data class EProcessFinal(val expression: EProcess) : ProcessTemplateExpression {
     companion object
 }
 

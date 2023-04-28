@@ -30,7 +30,7 @@ val everyRequiredProductRef: Every<Expression, EProductRef> =
         listOf(
             Expression.lcaExpression.eConstrainedProduct compose productRefInProductExpression,
             Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product compose productRefInProductExpression,
-            Expression.lcaExpression.lcaProcessExpression.eProcess.products compose Every.list() compose
+            Expression.lcaExpression.eProcess.products compose Every.list() compose
                     ETechnoExchange.product compose productRefInProductExpression,
         )
     )

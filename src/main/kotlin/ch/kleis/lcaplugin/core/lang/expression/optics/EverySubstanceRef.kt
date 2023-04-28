@@ -28,9 +28,6 @@ private val everySubstanceRefInProcess: PEvery<EProcess, EProcess, ESubstanceRef
             EBioExchange.substance compose
             substanceRefInLcaSubstanceExpression
 
-val everySubstanceRefInProcessExpression =
-    LcaProcessExpression.eProcess compose everySubstanceRefInProcess
-
 private val everySubstanceRefInSubstanceCharacterizationExpression =
     LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.referenceExchange.substance compose
             substanceRefInLcaSubstanceExpression
@@ -40,7 +37,7 @@ private val everySubstanceRefInSystemExpression : PEvery<SystemExpression, Syste
         listOf(
             SystemExpression.eSystem.processes compose
                     Every.list() compose
-                    everySubstanceRefInProcessExpression,
+                    everySubstanceRefInProcess,
             SystemExpression.eSystem.substanceCharacterizations compose
                     Every.list() compose
                     everySubstanceRefInSubstanceCharacterizationExpression
@@ -52,7 +49,7 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
         listOf(
             Expression.lcaExpression.lcaSubstanceExpression compose substanceRefInLcaSubstanceExpression,
             Expression.lcaExpression.lcaExchangeExpression.eBioExchange.substance compose substanceRefInLcaSubstanceExpression,
-            Expression.lcaExpression.lcaProcessExpression.eProcess.biosphere compose
+            Expression.lcaExpression.eProcess.biosphere compose
                     Every.list() compose EBioExchange.substance compose substanceRefInLcaSubstanceExpression,
             Expression.lcaExpression
                 .lcaSubstanceCharacterizationExpression
@@ -61,7 +58,7 @@ val everySubstanceRef: Every<Expression, ESubstanceRef> =
                 .substance compose substanceRefInLcaSubstanceExpression,
             Expression.processTemplateExpression compose
                     everyProcessTemplateInTemplateExpression compose
-                    EProcessTemplate.body compose everySubstanceRefInProcessExpression,
+                    EProcessTemplate.body compose everySubstanceRefInProcess,
             Expression.systemExpression compose everySubstanceRefInSystemExpression,
         )
     )

@@ -138,7 +138,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val template = symbolTable.processTemplates["a"] as ProcessTemplateExpression
         val actual =
-            (ProcessTemplateExpression.eProcessTemplate.body.eProcess.biosphere compose
+            (ProcessTemplateExpression.eProcessTemplate.body.biosphere compose
                     Every.list() compose EBioExchange.substance.eSubstanceRef).firstOrNull(template)
 
         // then
@@ -455,7 +455,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         val template = symbolTable.getTemplate("a")!!
         val actual = (
-                ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
                         ETechnoExchange.quantity
                 ).getOrNull(template)!!
 
@@ -487,7 +487,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         val template = symbolTable.getTemplate("a")!!
         val actual = (
-                ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs.index(Index.list(), 0) compose
+                ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
                         ETechnoExchange.quantity
                 ).getOrNull(template)!!
 
@@ -522,7 +522,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         val expression = symbolTable.getTemplate("a")!!
         val actual =
-            ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs.getAll(expression).flatten()
+            ProcessTemplateExpression.eProcessTemplate.body.inputs.getAll(expression).flatten()
 
         // then
         val expected = listOf(
