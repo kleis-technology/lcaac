@@ -80,20 +80,16 @@ fun LcaSubstanceExpression.toValue(): SubstanceValue {
     }
 }
 
-fun LcaProductExpression.toValue(): ProductValue {
-    return when (this) {
-        is EConstrainedProduct -> {
-            val actualProduct = this.product
-            if (actualProduct !is EProduct) {
-                throw EvaluatorException("$actualProduct is not reduced")
-            }
-            ProductValue(
-                actualProduct.name,
-                actualProduct.referenceUnit.toValue(),
-                this.constraint.toValue(),
-            )
-        }
+fun EConstrainedProduct.toValue(): ProductValue {
+    val actualProduct = this.product
+    if (actualProduct !is EProduct) {
+        throw EvaluatorException("$actualProduct is not reduced")
     }
+    return ProductValue(
+        actualProduct.name,
+        actualProduct.referenceUnit.toValue(),
+        this.constraint.toValue(),
+    )
 }
 
 private fun Constraint.toValue(): ConstraintValue {

@@ -94,8 +94,8 @@ private val everyQuantityRefInConstraint: PEvery<Constraint, Constraint, EQuanti
             Every.map() compose
             everyQuantityRefInQuantityExpression
 
-private val everyQuantityRefInProductExpression: PEvery<LcaProductExpression, LcaProductExpression, EQuantityRef, QuantityExpression> =
-    LcaProductExpression.eConstrainedProduct.constraint compose everyQuantityRefInConstraint
+private val everyQuantityRefInProductExpression: PEvery<EConstrainedProduct, EConstrainedProduct, EQuantityRef, QuantityExpression> =
+    EConstrainedProduct.constraint compose everyQuantityRefInConstraint
 
 private val everyQuantityRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EQuantityRef, QuantityExpression> =
     Merge(
@@ -156,7 +156,7 @@ private val everyQuantityRefInLcaExpression: PEvery<LcaExpression, LcaExpression
                     everyQuantityRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose
                     everyQuantityRefInEBioExchange,
-            LcaExpression.lcaProductExpression.eConstrainedProduct.constraint.fromProcessRef.arguments compose
+            LcaExpression.eConstrainedProduct.constraint.fromProcessRef.arguments compose
                     Every.map() compose everyQuantityRefInQuantityExpression
         )
     )

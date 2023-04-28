@@ -59,7 +59,7 @@ class CompleteDefaultArgumentsTest {
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
@@ -116,7 +116,7 @@ class CompleteDefaultArgumentsTest {
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
@@ -170,7 +170,7 @@ class CompleteDefaultArgumentsTest {
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
                 Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint

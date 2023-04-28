@@ -33,8 +33,8 @@ val everyTemplateRefInTemplateExpression =
 val everyTemplateRefInProcess: Every<EProcess, EProcessTemplateRef> =
     Merge(
         listOf(
-            EProcess.products compose Every.list() compose ETechnoExchange.product.eConstrainedProduct.constraint,
-            EProcess.inputs compose Every.list() compose ETechnoExchange.product.eConstrainedProduct.constraint,
+            EProcess.products compose Every.list() compose ETechnoExchange.product.constraint,
+            EProcess.inputs compose Every.list() compose ETechnoExchange.product.constraint,
         )
     ) compose Constraint.fromProcessRef.ref compose EProcessTemplateRef.iso.reverse()
 
@@ -45,7 +45,7 @@ val everyTemplateRef: Every<Expression, EProcessTemplateRef> =
     Merge(
         listOf(
             Expression.processTemplateExpression compose everyTemplateRefInTemplateExpression,
-            Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product.eConstrainedProduct.constraint.fromProcessRef.ref compose
+            Expression.lcaExpression.lcaExchangeExpression.eTechnoExchange.product.constraint.fromProcessRef.ref compose
                     EProcessTemplateRef.iso.reverse(),
             Expression.lcaExpression.lcaProcessExpression compose everyTemplateRefInProcessExpression,
             Expression.systemExpression.eSystem.processes compose Every.list() compose everyTemplateRefInProcessExpression,

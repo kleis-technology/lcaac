@@ -83,7 +83,7 @@ val everyUnitRefInConstraint: PEvery<Constraint, Constraint, EUnitRef, UnitExpre
             Every.map() compose
             everyUnitRefInQuantityExpression
 
-val everyUnitRefInEConstrainedProduct =
+val everyUnitRefInConstrainedProduct =
     Merge(
         listOf(
             EConstrainedProduct.product compose everyUnitRefInUnconstrainedProductExpression,
@@ -91,15 +91,11 @@ val everyUnitRefInEConstrainedProduct =
         )
     )
 
-val everyUnitRefInProductExpression: PEvery<LcaProductExpression, LcaProductExpression, EUnitRef, UnitExpression> =
-    LcaProductExpression.eConstrainedProduct compose
-            everyUnitRefInEConstrainedProduct
-
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             ETechnoExchange.quantity compose everyUnitRefInQuantityExpression,
-            ETechnoExchange.product compose everyUnitRefInProductExpression,
+            ETechnoExchange.product compose everyUnitRefInConstrainedProduct,
         )
     )
 
@@ -163,7 +159,7 @@ val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, 
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose everyUnitRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose everyUnitRefInEBioExchange,
             LcaExpression.lcaExchangeExpression.eImpact compose everyUnitRefInEImpact,
-            LcaExpression.lcaProductExpression compose everyUnitRefInProductExpression,
+            LcaExpression.eConstrainedProduct compose everyUnitRefInConstrainedProduct,
             LcaExpression.lcaIndicatorExpression compose everyUnitRefInIndicatorExpression,
             LcaExpression.lcaSubstanceExpression compose everyUnitRefInSubstanceExpression,
             LcaExpression.lcaSubstanceCharacterizationExpression compose everyUnitRefInSubstanceCharacterizationExpression,

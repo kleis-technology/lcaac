@@ -11,13 +11,8 @@ sealed interface LcaExpression : Expression {
 
 // Product
 @optics
-sealed interface LcaProductExpression : LcaExpression {
-    companion object
-}
-
-@optics
 data class EConstrainedProduct(val product: LcaUnconstrainedProductExpression, val constraint: Constraint) :
-    LcaProductExpression {
+    LcaExpression {
     companion object
 
     fun withConstraint(constraint: Constraint): EConstrainedProduct {
@@ -131,11 +126,11 @@ sealed interface LcaExchangeExpression : LcaExpression {
 @optics
 data class ETechnoExchange(
     val quantity: QuantityExpression,
-    val product: LcaProductExpression,
+    val product: EConstrainedProduct,
     val allocation: QuantityExpression
 ) :
     LcaExchangeExpression {
-    constructor(quantity: QuantityExpression, product: LcaProductExpression) : this(
+    constructor(quantity: QuantityExpression, product: EConstrainedProduct) : this(
         quantity,
         product,
         EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))

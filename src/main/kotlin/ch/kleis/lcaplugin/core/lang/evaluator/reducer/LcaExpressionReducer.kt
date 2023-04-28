@@ -85,7 +85,7 @@ class LcaExpressionReducer(
     private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
         return ETechnoExchange(
             quantityExpressionReducer.reduce(expression.quantity),
-            reduceProductExpression(expression.product),
+            reduceConstrainedProduct(expression.product),
             quantityExpressionReducer.reduce(expression.allocation)
         )
     }
@@ -98,13 +98,11 @@ class LcaExpressionReducer(
         }
     }
 
-    private fun reduceProductExpression(expression: LcaProductExpression): LcaProductExpression {
-        return when (expression) {
-            is EConstrainedProduct -> EConstrainedProduct(
-                reduceUnconstrainedProductExpression(expression.product),
-                expression.constraint.reduceWith(quantityExpressionReducer),
-            )
-        }
+    private fun reduceConstrainedProduct(expression: EConstrainedProduct): EConstrainedProduct {
+        return EConstrainedProduct(
+            reduceUnconstrainedProductExpression(expression.product),
+            expression.constraint.reduceWith(quantityExpressionReducer),
+        )
     }
 
     private fun reduceSubstanceExpression(expression: LcaSubstanceExpression): LcaSubstanceExpression {

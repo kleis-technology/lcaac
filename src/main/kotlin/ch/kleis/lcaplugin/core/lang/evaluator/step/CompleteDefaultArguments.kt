@@ -10,7 +10,7 @@ class CompleteDefaultArguments(
 ) {
     private val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.eProcess.inputs compose
             Every.list() compose
-            ETechnoExchange.product.eConstrainedProduct
+            ETechnoExchange.product
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return everyInputProduct.modify(expression) {

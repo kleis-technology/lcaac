@@ -23,7 +23,7 @@ class TemplateExpressionReducer(
     private val helper = Helper()
     private val everyConstraintInProducts = LcaProcessExpression.eProcess.products compose
             Every.list() compose
-            ETechnoExchange.product.eConstrainedProduct.constraint
+            ETechnoExchange.product.constraint
 
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {

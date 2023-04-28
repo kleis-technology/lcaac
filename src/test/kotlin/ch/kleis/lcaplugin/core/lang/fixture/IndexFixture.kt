@@ -18,7 +18,7 @@ class IndexFixture {
             ) compose
                     LcaProcessExpression.eProcess.products compose
                     Every.list() compose
-                    ETechnoExchange.product.eConstrainedProduct.product compose
+                    ETechnoExchange.product.product compose
                     Merge(
                         listOf(
                             LcaUnconstrainedProductExpression.eProduct.name,

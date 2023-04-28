@@ -25,7 +25,7 @@ class Evaluator(
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.eProcess.inputs
             .compose(Every.list())
-            .compose(ETechnoExchange.product.eConstrainedProduct)
+            .compose(ETechnoExchange.product)
     private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstance, ESubstance> =
         ProcessTemplateExpression.eProcessFinal.expression.eProcess.biosphere
             .compose(Every.list())
