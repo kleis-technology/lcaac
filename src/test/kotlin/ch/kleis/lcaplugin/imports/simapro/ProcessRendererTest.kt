@@ -26,11 +26,19 @@ class ProcessRendererTest {
     private val pathSlot = slot<String>()
     private val bodySlot = slot<String>()
     private val indexSlot = slot<Boolean>()
+    private val closeSlot = slot<Boolean>()
     private val sut = ProcessRenderer(SubstanceImportMode.SIMAPRO)
 
     @Before
     fun before() {
-        every { writer.write(capture(pathSlot), capture(bodySlot), capture(indexSlot)) } returns Unit
+        every {
+            writer.write(
+                capture(pathSlot),
+                capture(bodySlot),
+                capture(indexSlot),
+                capture(closeSlot)
+            )
+        } returns Unit
         mockkObject(ModelWriter)
         every { ModelWriter.sanitizeAndCompact("kg") } returns "kg"
         every { ModelWriter.sanitizeAndCompact("MJ") } returns "MJ"
@@ -173,9 +181,10 @@ process acai_berry_at_farm_br8553_1886 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/material", pathSlot.captured)
+        assertEquals("processes/material/acai_berry_at_farm_br8553_1886.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
+        assertEquals(true, closeSlot.captured)
     }
 
 
@@ -284,9 +293,10 @@ process waste6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing", pathSlot.captured)
+        assertEquals("processes/processing/waste6422_6422.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
+        assertEquals(true, closeSlot.captured)
     }
 
     @Test
@@ -368,15 +378,17 @@ process wastescen6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing", pathSlot.captured)
+        assertEquals("processes/processing/wastescen6422_6422.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
+        assertEquals(true, closeSlot.captured)
     }
 
     @Test
     fun test_render_shouldRender_forClassicalProcessWithEf() {
         // Given
         val sample = initEfProduct()
+        sample.category(null)
         val dict: Dictionary = Ef3xDictionary.fromClassPath("", "import/META-INF/dictionary.csv")
         mockkObject(Ef3xDictionary.Companion)
         every { Ef3xDictionary.fromClassPath("emissions_factors3.0.jar") } returns dict
@@ -392,7 +404,6 @@ process wastescen6422_6422 {
 process acai_berry_at_farm_br8553_1886 {
 
     meta {
-        "category" = "material"
         "identifier" = "LAUSMILA000241671000001"
         "platformId" = "platformId"
     }
@@ -462,9 +473,10 @@ process acai_berry_at_farm_br8553_1886 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/material", pathSlot.captured)
+        assertEquals("processes/acai_berry_at_farm_br8553_1886.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
+        assertEquals(true, closeSlot.captured)
     }
 
 

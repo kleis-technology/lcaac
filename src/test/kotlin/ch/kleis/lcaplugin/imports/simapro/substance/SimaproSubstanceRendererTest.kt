@@ -94,7 +94,7 @@ substance aluminium_raw {
 }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("substances/raw", pathSlot.captured)
+        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
     }
@@ -140,7 +140,7 @@ substance aluminium_raw {
 }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("substances/raw", pathSlot.captured)
+        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
         Assert.assertEquals(1, sut.nbSubstances)
