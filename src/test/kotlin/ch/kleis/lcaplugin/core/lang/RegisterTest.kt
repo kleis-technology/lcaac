@@ -1,9 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityRef
-import ch.kleis.lcaplugin.core.lang.expression.Expression
-import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
+import ch.kleis.lcaplugin.core.lang.expression.*
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -85,5 +83,43 @@ class RegisterTest {
 
         // then
         assertNotEquals(r1, r2)
+    }
+
+    @Test
+    fun getEntries_ShouldReturnIndex() {
+        // Given
+        val key = "abc.x"
+        val a = EQuantityRef("a")
+
+        val key2 = "abc.y"
+        val b = EQuantityRef("b")
+        val sut = Register.empty<EQuantityRef>().plus(listOf(key to a, key2 to b))
+
+        // When
+        val entries = sut.getEntries(EQuantityRef.name)
+
+        // Then
+        assertEquals(a, entries["a"])
+    }
+
+    @Test
+    fun getEntries_ShouldReturnAnError_WhenContainsDuplicates() {
+        // Given
+        val keyA = "abc.a"
+        val keyB = "abc.b"
+        val kg = EQuantityRef("kg")
+        val a = EUnitAlias("a", kg)
+        val b = EUnitAlias("b", kg)
+        val sut = Register.empty<EUnitAlias>()
+            .plus(listOf(keyA to a, keyB to b))
+
+        // When
+        try {
+            Index(sut, EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name)
+            fail("should have thrown EvaluatorException")
+        } catch (e: EvaluatorException) {
+            // Then
+            assertEquals("kg is already bound", e.message)
+        }
     }
 }

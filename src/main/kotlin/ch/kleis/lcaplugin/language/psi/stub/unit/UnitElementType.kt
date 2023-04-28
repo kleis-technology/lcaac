@@ -9,10 +9,10 @@ import com.intellij.lang.LighterASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.*
 
-class UnitElementType(debugName: String): ILightStubElementType<
+class UnitElementType(debugName: String) : ILightStubElementType<
         UnitStub,
         PsiUnitDefinition
->(
+        >(
     debugName,
     LcaLanguage.INSTANCE
 ) {
@@ -20,6 +20,7 @@ class UnitElementType(debugName: String): ILightStubElementType<
         return "lca.${super.toString()}"
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): UnitStub {
         return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, dataStream.readNameString()!!)
     }
@@ -28,6 +29,7 @@ class UnitElementType(debugName: String): ILightStubElementType<
         throw UnsupportedOperationException("cannot create unit stub from lighter ast node")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: PsiUnitDefinition, parentStub: StubElement<out PsiElement>?): UnitStub {
         val fqn = psi.getUnitRef().getFullyQualifiedName()
         return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, fqn)

@@ -1,19 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiReference
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import junit.framework.TestCase
 import org.junit.Test
 
@@ -32,7 +21,7 @@ class ProcessReferenceTest : BasePlatformTestCase() {
             .getProcessTemplateRef()
 
         // when
-        val actual = ref.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = ProcessStubKeyIndex
@@ -52,10 +41,9 @@ class ProcessReferenceTest : BasePlatformTestCase() {
         // when
         val actual =
             ref.reference
-                ?.variants
-                ?.map { (it as LookupElementBuilder).lookupString }
-                ?.sorted()
-                ?: emptyList()
+                .variants
+                .map { (it as LookupElementBuilder).lookupString }
+                .sorted()
 
 
         // then

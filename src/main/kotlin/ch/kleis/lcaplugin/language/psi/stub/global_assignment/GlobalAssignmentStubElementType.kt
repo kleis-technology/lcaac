@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.language.psi.stub.global_assignment
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
-import ch.kleis.lcaplugin.psi.LcaGlobalAssignment
 import ch.kleis.lcaplugin.psi.impl.LcaGlobalAssignmentImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
@@ -16,6 +15,7 @@ class GlobalAssignmentStubElementType(debugName: String) :
         return "lca.${super.toString()}"
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): GlobalAssignmentStub {
         return GlobalAssignmentStubImpl(parentStub as StubElement<PsiGlobalAssignment>, dataStream.readNameString()!!)
     }
@@ -24,6 +24,7 @@ class GlobalAssignmentStubElementType(debugName: String) :
         throw UnsupportedOperationException("cannot create process stub from lighter ast node")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: PsiGlobalAssignment, parentStub: StubElement<out PsiElement>?): GlobalAssignmentStub {
         val fqn = psi.getQuantityRef().getFullyQualifiedName()
         return GlobalAssignmentStubImpl(parentStub as StubElement<PsiGlobalAssignment>, fqn)

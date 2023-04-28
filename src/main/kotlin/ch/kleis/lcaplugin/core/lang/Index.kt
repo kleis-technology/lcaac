@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.PEvery
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 class Index<E> private constructor(
     private val indexType: String,
@@ -10,11 +9,7 @@ class Index<E> private constructor(
     constructor(
         register: Register<E>,
         optics: PEvery<E, E, String, String>
-    ) : this(register.registerType, register.entries.asSequence()
-        .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
-        // ensure no duplicate by calling reduce as soon as there is a second element in a group
-        .groupingBy { it.first }.reduce {key, _, _ -> throw EvaluatorException("$key is already bound") }
-        .asSequence().map { it }.associate { it.key to it.value.second })
+    ) : this(register.registerType, register.getEntries(optics))
 
     companion object {
         internal inline fun <reified E> empty(): Index<E> {
@@ -25,6 +20,7 @@ class Index<E> private constructor(
     operator fun get(key: String): E? {
         return cachedEntries[key]
     }
+
     override fun toString(): String {
         return "[index<${indexType}>]"
     }

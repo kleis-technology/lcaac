@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.lang
 
+import arrow.optics.PEvery
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 
@@ -19,9 +20,13 @@ class Register<E> private constructor(
         }
     }
 
-    @Deprecated(message = "should not be opened to other class")
-    val entries: Set<Map.Entry<String, E>>
-        get() = data.entries
+    fun getEntries(optics: PEvery<E, E, String, String>): Map<String, E> {
+        return data.entries.asSequence()
+            .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
+            // ensure no duplicate by calling reduce as soon as there is a second element in a group
+            .groupingBy { it.first }.reduce { key, _, _ -> throw EvaluatorException("$key is already bound") }
+            .asSequence().map { it }.associate { it.key to it.value.second }
+    }
 
     operator fun get(key: String): E? {
         return data[key]
@@ -61,7 +66,8 @@ class Register<E> private constructor(
         if (conflicts.isNotEmpty()) {
             throw EvaluatorException("$conflicts are already bound")
         }
-        return Register(registerType,
+        return Register(
+            registerType,
             data.plus(pairs)
         )
     }

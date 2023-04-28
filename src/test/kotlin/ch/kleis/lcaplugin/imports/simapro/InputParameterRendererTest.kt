@@ -53,7 +53,7 @@ class InputParameterRendererTest {
         )
 
         // When
-        val actual = sut.render(block, writer)
+        sut.render(block, writer)
 
         // Then
         val expected = """

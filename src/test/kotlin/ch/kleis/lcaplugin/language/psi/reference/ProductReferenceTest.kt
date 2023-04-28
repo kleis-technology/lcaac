@@ -1,19 +1,10 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiReference
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import junit.framework.TestCase
 import org.junit.Test
@@ -38,7 +29,7 @@ class ProductReferenceTest : BasePlatformTestCase() {
             .getProductRef()
 
         // when
-        val actual = ref.reference?.resolve()
+        val actual = ref.reference.resolve()
 
         // then
         val expected = TechnoProductExchangeKeyIndex.findTechnoProductExchanges(project, "$pkgName.water.water").first()
@@ -54,10 +45,9 @@ class ProductReferenceTest : BasePlatformTestCase() {
             .getProductRef()
 
         // when
-        val actual = ref.reference
-            ?.variants?.map { (it as LookupElementBuilder).lookupString }
-            ?.sorted()
-            ?: emptyList()
+        val actual = ref.reference.variants
+            .map { (it as LookupElementBuilder).lookupString }
+            .sorted()
 
         // then
         val expected = listOf("carrot", "water")

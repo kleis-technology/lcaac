@@ -17,8 +17,12 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
 ) {
     override fun getExternalId(): String = "lca.${super.toString()}"
 
+    @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): TechnoProductExchangeStub {
-        return TechnoProductExchangeStubImpl(parentStub as StubElement<PsiTechnoProductExchange>, dataStream.readNameString()!!)
+        return TechnoProductExchangeStubImpl(
+            parentStub as StubElement<PsiTechnoProductExchange>,
+            dataStream.readNameString()!!
+        )
     }
 
     override fun createStub(
@@ -29,6 +33,7 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
         throw UnsupportedOperationException("cannot create techno product exchange stub from lighter ast node")
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun createStub(
         psi: PsiTechnoProductExchange,
         parentStub: StubElement<out PsiElement>?
