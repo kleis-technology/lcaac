@@ -163,7 +163,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // when
-        val actual = symbolTable.substances["co2"] as ESubstanceSpec
+        val actual = symbolTable.getSubstanceCharacterization("co2")!!
+            .referenceExchange.substance
 
         // then
         TestCase.assertEquals("co2", actual.name)
@@ -402,7 +403,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val symbolTable = parser.load()
-        val substance = symbolTable.getSubstance("a")!!
+        val substance = symbolTable.getSubstanceCharacterization("a")!!.referenceExchange.substance
         val actual = substance.referenceUnit!!
 
         // then
@@ -432,7 +433,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val symbolTable = parser.load()
-        val substance = symbolTable.getSubstance("a")!!
+        val substance = symbolTable.getSubstanceCharacterization("a")!!.referenceExchange.substance
         val actual = substance.referenceUnit!!
 
         // then

@@ -4,8 +4,6 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 data class SymbolTable(
-    val substances: Register<ESubstanceSpec> = Register.empty(),
-    val indicators: Register<EIndicatorSpec> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
     val processTemplates: Register<EProcessTemplate> = Register.empty(),
@@ -17,6 +15,10 @@ data class SymbolTable(
                 Every.list() compose
                 ETechnoExchange.product compose
                 EProductSpec.name
+    )
+    private val substanceCharacterizationsIndexedBySubstanceName: Index<ESubstanceCharacterization> = Index(
+        substanceCharacterizations,
+        ESubstanceCharacterization.referenceExchange.substance.name,
     )
 
     companion object {
@@ -39,8 +41,8 @@ data class SymbolTable(
         return substanceCharacterizations[name]
     }
 
-    fun getSubstance(name: String): ESubstanceSpec? {
-        return substances[name]
+    fun getSubstanceCharacterizationFromSubstanceName(name: String): ESubstanceCharacterization? {
+        return substanceCharacterizationsIndexedBySubstanceName[name]
     }
 
     fun getTemplateFromProductName(name: String): EProcessTemplate? {

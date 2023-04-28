@@ -56,12 +56,10 @@ class Evaluator(
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
-        val completed = completeDefaultArguments.apply(expression)
-        val reduced = reduceAndComplete.apply(completed)
+        val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
         val nextInstances = HashSet<EProcessTemplateApplication>()
-        val e = everyInputProduct.modify(reduced) { spec ->
-            maybeResolveProcessTemplateFromProduct(spec)?.let { candidate ->
-                val template = candidate as EProcessTemplate
+        val inputProductsModified = everyInputProduct.modify(reduced) { spec ->
+            resolveProcessTemplateFromProduct(spec)?.let { template ->
                 val body = template.body
                 val arguments = spec.fromProcessRef?.arguments
                     ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
@@ -74,7 +72,14 @@ class Evaluator(
                 )
             } ?: spec
         }
-        val v = e.toValue()
+        val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
+            resolveSubstanceCharacterizationBySubstance(spec)?.let { it ->
+                val substanceCharacterization = reduceAndComplete.apply(it)
+                accumulator.plus(substanceCharacterization.toValue())
+                substanceCharacterization.referenceExchange.substance
+            } ?: spec
+        }
+        val v = substancesModified.toValue()
 
         // termination condition
         if (accumulator.containsProcess(v)) {
@@ -85,14 +90,6 @@ class Evaluator(
             // add evaluated process
             accumulator.plus(v)
 
-            // add substance characterizations
-            everySubstance.getAll(reduced).forEach { substance ->
-                symbolTable.getSubstanceCharacterization(substance.name)?.let {
-                    val scv = reduceAndComplete.apply(it).toValue()
-                    accumulator.plus(scv)
-                }
-            }
-
             // recursively visit process template instances
             nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }
 
@@ -100,7 +97,11 @@ class Evaluator(
         }
     }
 
-    private fun maybeResolveProcessTemplateFromProduct(spec: EProductSpec): ProcessTemplateExpression? {
+    private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
+        return symbolTable.getSubstanceCharacterizationFromSubstanceName(spec.name)?.takeUnless { !it.hasImpacts() }
+    }
+
+    private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
         return spec.fromProcessRef?.ref?.let { processName ->
             val candidate = processResolver.resolveByProductName(spec.name)
             return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")

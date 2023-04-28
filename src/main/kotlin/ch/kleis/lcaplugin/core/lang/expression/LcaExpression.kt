@@ -127,6 +127,10 @@ data class ESubstanceCharacterization(
     val referenceExchange: EBioExchange,
     val impacts: List<EImpact>
 ) : LcaExpression {
+    fun hasImpacts(): Boolean {
+        return impacts.isNotEmpty()
+    }
+
     companion object
 }
 

@@ -13,13 +13,10 @@ class ReduceAndComplete(
 ) {
     private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
-        symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.substances,
-        symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
         processTemplates,

@@ -102,11 +102,6 @@ class LcaExpressionReducerTest {
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
-            indicatorRegister = Register.from(
-                hashMapOf(
-                    Pair("cc", IndicatorFixture.climateChange)
-                )
-            )
         )
 
         // when

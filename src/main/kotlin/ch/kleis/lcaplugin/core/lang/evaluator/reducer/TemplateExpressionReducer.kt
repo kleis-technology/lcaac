@@ -7,15 +7,11 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    substanceRegister: Register<ESubstanceSpec> = Register.empty(),
-    indicatorRegister: Register<EIndicatorSpec> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
     templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
-    private val substanceRegister = Register(substanceRegister)
-    private val indicatorRegister = Register(indicatorRegister)
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
     private val helper = Helper()
@@ -39,7 +35,6 @@ class TemplateExpressionReducer(
                     .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(
-                    indicatorRegister,
                     localRegister,
                     unitRegister
                 )

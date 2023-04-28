@@ -64,17 +64,9 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val substances = Register.empty<ESubstanceSpec>()
-            .plus(
-                substanceDefinitions
-                    .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
-                    .asIterable()
-            )
-
         val substanceCharacterizations = Register.empty<ESubstanceCharacterization>()
             .plus(
                 substanceDefinitions
-                    .filter { it.hasImpacts() }
                     .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
                     .asIterable()
             )
@@ -83,7 +75,6 @@ class LcaLangAbstractParser(
             quantities = globals,
             processTemplates = processTemplates,
             units = units,
-            substances = substances,
             substanceCharacterizations = substanceCharacterizations,
         )
     }

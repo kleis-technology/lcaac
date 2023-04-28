@@ -4,11 +4,9 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    indicatorRegister: Register<EIndicatorSpec> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val indicatorRegister = Register(indicatorRegister)
     private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {

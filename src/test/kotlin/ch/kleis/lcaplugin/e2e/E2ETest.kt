@@ -20,6 +20,57 @@ import org.junit.Test
 
 class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun test_substanceResolution() {
+        val file = parseFile(
+            "hello", """
+                process p {
+                    products {
+                        1 kg a
+                    }
+                    emissions {
+                        1 kg b
+                    }
+                }
+                
+                substance b {
+                    name = "b"
+                    type = Emission
+                    compartment = "compartment"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+
+        // when
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        val system = Evaluator(symbolTable).eval(entryPoint)
+        val assessment = Assessment(system)
+        when (val result = assessment.inventory()) {
+            // then
+            is InventoryError -> fail("$result")
+            is InventoryMatrix -> {
+                val output = result.observablePorts.getElements().first()
+                val input = result.controllablePorts.getElements().first()
+                val cf = result.value(output, input)
+
+                TestCase.assertEquals("a from p{}", output.name())
+                TestCase.assertEquals(1.0, cf.output.quantity().amount)
+                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+
+                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals(1.0, cf.input.quantity().amount)
+                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+            }
+        }
+    }
+
+    @Test
     fun test_meta_whenKeywordAsKey() {
         // given
         val file = parseFile(

@@ -281,11 +281,6 @@ class EvaluatorTest {
                     "propanol" to SubstanceCharacterizationFixture.propanolCharacterization,
                 )
             ),
-            substances = Register.from(
-                mapOf(
-                    "propanol" to SubstanceFixture.propanol,
-                )
-            )
         )
         val expression = EProcessTemplate(
             emptyMap(),
