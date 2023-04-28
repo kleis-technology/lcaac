@@ -175,15 +175,3 @@ data class ESubstanceCharacterization(
     companion object
 }
 
-@optics
-data class ESubstanceCharacterizationRef(
-    val name: String
-) : LcaSubstanceCharacterizationExpression, RefExpression {
-    override fun name(): String {
-        return name
-    }
-
-    override fun toString(): String = name
-
-    companion object
-}

@@ -16,8 +16,6 @@ fun LcaSubstanceCharacterizationExpression.toValue(): SubstanceCharacterizationV
             referenceExchange = this.referenceExchange.toValue(),
             impacts = this.impacts.map { it.toValue() },
         )
-
-        is ESubstanceCharacterizationRef -> throw EvaluatorException("$this is not reduced")
     }
 }
 
