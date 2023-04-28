@@ -36,11 +36,6 @@ data class EProductSpec(
 }
 
 // Substance
-@optics
-sealed interface LcaSubstanceExpression : LcaExpression {
-    companion object
-}
-
 enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use"), UNDEFINED("Undefined");
 
@@ -58,26 +53,19 @@ enum class SubstanceType(val value: String) { // TODO Undefined because of Reduc
 }
 
 @optics
-data class ESubstance(
+data class ESubstanceSpec(
     val name: String,
-    val displayName: String,
-    val type: SubstanceType,
-    val compartment: String,
-    val subcompartment: String?,
-    val referenceUnit: UnitExpression,
-) : LcaSubstanceExpression {
+    val displayName: String = name,
+    val type: SubstanceType? = null,
+    val compartment: String? = null,
+    val subcompartment: String? = null,
+    val referenceUnit: UnitExpression? = null,
+) : LcaExpression {
     companion object
-}
 
-@optics
-data class ESubstanceRef(val name: String) : LcaSubstanceExpression, RefExpression {
-    override fun name(): String {
-        return name
+    fun withReferenceUnit(unitExpression: UnitExpression): ESubstanceSpec {
+        return this.copy(referenceUnit = unitExpression)
     }
-
-    override fun toString(): String = name
-
-    companion object
 }
 
 // Indicator
@@ -130,7 +118,7 @@ data class ETechnoExchange(
 }
 
 @optics
-data class EBioExchange(val quantity: QuantityExpression, val substance: LcaSubstanceExpression) :
+data class EBioExchange(val quantity: QuantityExpression, val substance: ESubstanceSpec) :
     LcaExchangeExpression {
     companion object
 }

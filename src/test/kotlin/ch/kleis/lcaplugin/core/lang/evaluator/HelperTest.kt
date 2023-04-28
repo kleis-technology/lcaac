@@ -129,7 +129,7 @@ class HelperTest {
             ),
             listOf(
                 ESubstanceCharacterization(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("substance")),
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("substance")),
                     listOf(
                         EImpact(
                             EQuantityAdd(

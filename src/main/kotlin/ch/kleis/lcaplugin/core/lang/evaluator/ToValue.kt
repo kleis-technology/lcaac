@@ -59,18 +59,17 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
     )
 }
 
-fun LcaSubstanceExpression.toValue(): SubstanceValue {
-    return when (this) {
-        is ESubstance -> SubstanceValue(
-            this.name,
-            this.type,
-            this.compartment,
-            this.subcompartment,
-            this.referenceUnit.toValue(),
-        )
-
-        is ESubstanceRef -> throw EvaluatorException("$this is not reduced")
-    }
+fun ESubstanceSpec.toValue(): SubstanceValue {
+    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val type = this.type ?: SubstanceType.UNDEFINED
+    val compartment = this.compartment ?: "__unknown__"
+    return SubstanceValue(
+        this.name,
+        type,
+        compartment,
+        this.subcompartment,
+        referenceUnit,
+    )
 }
 
 fun EProductSpec.toValue(): ProductValue {

@@ -151,14 +151,9 @@ class LcaExpressionReducerTest {
         // given
         val expression = EBioExchange(
             EQuantityRef("q"),
-            ESubstanceRef("propanol"),
+            ESubstanceSpec("propanol"),
         )
         val reducer = LcaExpressionReducer(
-            substanceRegister = Register.from(
-                hashMapOf(
-                    Pair("propanol", SubstanceFixture.propanol),
-                )
-            ),
             quantityRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
@@ -172,7 +167,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EBioExchange(
             QuantityFixture.oneKilogram,
-            SubstanceFixture.propanol,
+            ESubstanceSpec("propanol"),
         )
         assertEquals(expected, actual)
     }
@@ -226,7 +221,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenSubstance_shouldReduceUnit() {
         // given
-        val expression = ESubstance(
+        val expression = ESubstanceSpec(
             "propanol",
             "propanol",
             type = SubstanceType.RESOURCE,
@@ -246,7 +241,7 @@ class LcaExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = ESubstance(
+        val expected = ESubstanceSpec(
             "propanol",
             "propanol",
             type = SubstanceType.RESOURCE,
@@ -254,26 +249,6 @@ class LcaExpressionReducerTest {
             null,
             UnitFixture.kg,
         )
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun reduce_whenSubstanceRef_shouldReadEnv() {
-        // given
-        val expression = ESubstanceRef("propanol")
-        val reducer = LcaExpressionReducer(
-            substanceRegister = Register.from(
-                hashMapOf(
-                    Pair("propanol", SubstanceFixture.propanol),
-                )
-            )
-        )
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        val expected = SubstanceFixture.propanol
         assertEquals(expected, actual)
     }
 

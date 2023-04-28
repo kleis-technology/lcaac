@@ -69,7 +69,7 @@ class ReduceAndCompleteTest {
                 products = emptyList(),
                 inputs = emptyList(),
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("co2"))
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
                 ),
             )
         )

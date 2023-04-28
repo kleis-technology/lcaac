@@ -7,8 +7,6 @@ import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
@@ -142,7 +140,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val template = symbolTable.processTemplates["a"] as ProcessTemplateExpression
         val actual =
             (ProcessTemplateExpression.eProcessTemplate.body.biosphere compose
-                    Every.list() compose EBioExchange.substance.eSubstanceRef).firstOrNull(template)
+                    Every.list() compose EBioExchange.substance).firstOrNull(template)
 
         // then
         TestCase.assertEquals("lu", actual?.name)
@@ -165,7 +163,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // when
-        val actual = symbolTable.substances["co2"] as ESubstance
+        val actual = symbolTable.substances["co2"] as ESubstanceSpec
 
         // then
         TestCase.assertEquals("co2", actual.name)
@@ -405,9 +403,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         val substance = symbolTable.getSubstance("a")!!
-        val actual = (
-                LcaSubstanceExpression.eSubstance.referenceUnit
-                ).getOrNull(substance)!!
+        val actual = substance.referenceUnit!!
 
         // then
         val expected = EUnitDiv(
@@ -437,9 +433,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         val substance = symbolTable.getSubstance("a")!!
-        val actual = (
-                LcaSubstanceExpression.eSubstance.referenceUnit
-                ).getOrNull(substance)!!
+        val actual = substance.referenceUnit!!
 
         // then
         val expected = EUnitMul(
@@ -584,7 +578,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val expected = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
                 EQuantityLiteral(1.0, EUnitRef("kg")),
-                ESubstanceRef("phosphate"),
+                ESubstanceSpec(
+                    name = "phosphate",
+                    type = SubstanceType.RESOURCE,
+                    compartment = "phosphate compartment",
+                    subcompartment = "phosphate sub-compartment",
+                    referenceUnit = EUnitRef("kg"),
+                ),
             ),
             impacts = listOf(
                 EImpact(

@@ -64,7 +64,7 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
-        val substances = Register.empty<ESubstance>()
+        val substances = Register.empty<ESubstanceSpec>()
             .plus(
                 substanceDefinitions
                     .map { Pair(it.getSubstanceRef().getUID().name, substance(it)) }
@@ -88,8 +88,8 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun substance(psiSubstance: PsiSubstance): ESubstance {
-        return ESubstance(
+    private fun substance(psiSubstance: PsiSubstance): ESubstanceSpec {
+        return ESubstanceSpec(
             psiSubstance.getSubstanceRef().name,
             psiSubstance.getNameField().getValue(),
             SubstanceType.of(psiSubstance.getTypeField().getType()),
@@ -156,14 +156,25 @@ class LcaLangAbstractParser(
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
-        val substanceRef = substanceRef(psiSubstance.getSubstanceRef().getUID().name)
+        val substanceSpec = substanceSpec(psiSubstance)
         val quantity = EQuantityLiteral(1.0, unit(psiSubstance.getReferenceUnitField().getValue()))
-        val referenceExchange = EBioExchange(quantity, substanceRef)
+        val referenceExchange = EBioExchange(quantity, substanceSpec)
         val impacts = psiSubstance.getImpactExchanges().map { impact(it) }
 
         return ESubstanceCharacterization(
             referenceExchange,
             impacts,
+        )
+    }
+
+    private fun substanceSpec(psiSubstance: PsiSubstance): ESubstanceSpec {
+        return ESubstanceSpec(
+            name = psiSubstance.getSubstanceRef().name,
+            displayName = psiSubstance.getNameField().getValue(),
+            type = SubstanceType.of(psiSubstance.getTypeField().getType()),
+            compartment = psiSubstance.getCompartmentField().getValue(),
+            subcompartment = psiSubstance.getSubcompartmentField()?.getValue(),
+            referenceUnit = unit(psiSubstance.getReferenceUnitField().getValue()),
         )
     }
 
@@ -232,23 +243,37 @@ class LcaLangAbstractParser(
         return when (polarity) {
             Polarity.POSITIVE -> EBioExchange(
                 quantity(psiExchange.getQuantity()),
-                substanceRef(psiExchange.getSubstanceRef()),
+                substanceSpec(psiExchange.getSubstanceRef()),
             )
 
             Polarity.NEGATIVE -> EBioExchange(
                 EQuantityNeg(quantity(psiExchange.getQuantity())),
-                substanceRef(psiExchange.getSubstanceRef()),
+                substanceSpec(psiExchange.getSubstanceRef()),
             )
         }
     }
 
 
-    private fun substanceRef(substance: PsiSubstanceRef): LcaSubstanceExpression {
-        return ESubstanceRef(substance.name)
+    private fun substanceSpec(substance: PsiSubstanceRef): ESubstanceSpec {
+        return ESubstanceSpec(
+            name = substance.name,
+            displayName = substance.name,
+            compartment = null,
+            subcompartment = null,
+            type = null,
+            referenceUnit = null,
+        )
     }
 
-    private fun substanceRef(name: String): LcaSubstanceExpression {
-        return ESubstanceRef(name)
+    private fun substanceSpec(name: String): ESubstanceSpec {
+        return ESubstanceSpec(
+            name = name,
+            displayName = name,
+            compartment = null,
+            subcompartment = null,
+            type = null,
+            referenceUnit = null,
+        )
     }
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {

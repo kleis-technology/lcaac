@@ -300,7 +300,7 @@ class EvaluatorTest {
                 ),
                 inputs = emptyList(),
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("propanol"))
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("propanol"))
                 )
             )
         )

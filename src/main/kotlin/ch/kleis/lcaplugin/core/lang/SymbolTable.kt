@@ -4,7 +4,7 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 data class SymbolTable(
-    val substances: Register<ESubstance> = Register.empty(),
+    val substances: Register<ESubstanceSpec> = Register.empty(),
     val indicators: Register<EIndicator> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
@@ -39,7 +39,7 @@ data class SymbolTable(
         return substanceCharacterizations[name]
     }
 
-    fun getSubstance(name: String): LcaSubstanceExpression? {
+    fun getSubstance(name: String): ESubstanceSpec? {
         return substances[name]
     }
 

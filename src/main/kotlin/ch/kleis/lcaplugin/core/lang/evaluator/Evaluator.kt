@@ -26,10 +26,10 @@ class Evaluator(
         ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
             .compose(ETechnoExchange.product)
-    private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstance, ESubstance> =
+    private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstanceSpec, ESubstanceSpec> =
         ProcessTemplateExpression.eProcessFinal.expression.biosphere
             .compose(Every.list())
-            .compose(EBioExchange.substance.eSubstance)
+            .compose(EBioExchange.substance)
 
     fun eval(expression: ProcessTemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")

@@ -4,14 +4,11 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    substanceRegister: Register<ESubstance> = Register.empty(),
     indicatorRegister: Register<EIndicator> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val substanceRegister = Register(substanceRegister)
     private val indicatorRegister = Register(indicatorRegister)
-
     private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
@@ -26,8 +23,7 @@ class LcaExpressionReducer(
             is EIndicator -> reduceIndicatorExpression(expression)
             is EIndicatorRef -> reduceIndicatorExpression(expression)
 
-            is ESubstance -> reduceSubstanceExpression(expression)
-            is ESubstanceRef -> reduceSubstanceExpression(expression)
+            is ESubstanceSpec -> reduceSubstanceSpec(expression)
 
             is EProductSpec -> reduceProductSpec(expression)
 
@@ -59,7 +55,7 @@ class LcaExpressionReducer(
 
     private fun reduceBioExchange(expression: EBioExchange) = EBioExchange(
         quantityExpressionReducer.reduce(expression.quantity),
-        reduceSubstanceExpression(expression.substance),
+        reduceSubstanceSpec(expression.substance),
     )
 
     private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
@@ -78,20 +74,15 @@ class LcaExpressionReducer(
         )
     }
 
-    private fun reduceSubstanceExpression(expression: LcaSubstanceExpression): LcaSubstanceExpression {
-        return when (expression) {
-            is ESubstance -> ESubstance(
-                expression.name,
-                expression.displayName,
-                expression.type,
-                expression.compartment,
-                expression.subcompartment,
-                quantityExpressionReducer.reduceUnit(expression.referenceUnit),
-            )
-
-            is ESubstanceRef -> substanceRegister[expression.name]?.let { reduceSubstanceExpression(it) }
-                ?: expression
-        }
+    private fun reduceSubstanceSpec(expression: ESubstanceSpec): ESubstanceSpec {
+        return ESubstanceSpec(
+            expression.name,
+            expression.displayName,
+            expression.type,
+            expression.compartment,
+            expression.subcompartment,
+            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+        )
     }
 
     private fun reduceIndicatorExpression(expression: LcaIndicatorExpression): LcaIndicatorExpression {
