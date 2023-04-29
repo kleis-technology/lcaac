@@ -57,7 +57,7 @@ class ProcessResolverTest {
         val resolver = ProcessResolver(symbolTable)
 
         // when
-        val actual = resolver.resolveByProductName("carrot")
+        val actual = resolver.resolve("carrot")
 
         // then
         assertEquals(carrotProduction, actual)
@@ -114,7 +114,7 @@ class ProcessResolverTest {
         val resolver = ProcessResolver(symbolTable)
 
         // when
-        val actual = resolver.resolveByProductName("carrot")
+        val actual = resolver.resolve("carrot")
 
         // then
         assertEquals(carrotProduction, actual)

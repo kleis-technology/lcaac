@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
 import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
+import ch.kleis.lcaplugin.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import com.intellij.openapi.diagnostic.Logger
 
@@ -20,8 +21,9 @@ class Evaluator(
 
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
+    private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
     private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
-    private val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
@@ -49,10 +51,11 @@ class Evaluator(
         visited: HashSet<ProcessTemplateExpression>,
         toProcess: HashSet<ProcessTemplateExpression>,
     ) {
+        // termination condition
         if (toProcess.isEmpty()) return
+
         // eval
-        val expression = toProcess.first()
-        toProcess.remove(expression)
+        val expression = toProcess.first(); toProcess.remove(expression);
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
@@ -81,7 +84,6 @@ class Evaluator(
         }
         val v = substancesModified.toValue()
 
-        // termination condition
         if (accumulator.containsProcess(v)) {
             LOG.warn("This expression should not be present in accumulator $expression and $v")
             recursiveCompile(accumulator, visited, toProcess)
@@ -98,15 +100,14 @@ class Evaluator(
     }
 
     private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
-        return symbolTable.getSubstanceCharacterizationFromSubstanceName(spec.name)?.takeUnless { !it.hasImpacts() }
+        return substanceCharacterizationResolver.resolve(spec)?.takeUnless { !it.hasImpacts() }
     }
 
     private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
         return spec.fromProcessRef?.ref?.let { processName ->
-            val candidate = processResolver.resolveByProductName(spec.name)
+            val candidate = processResolver.resolve(spec)
             return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")
-        } ?: processResolver.resolveByProductName(spec.name)
+        } ?: processResolver.resolve(spec)
     }
-
 }
 
