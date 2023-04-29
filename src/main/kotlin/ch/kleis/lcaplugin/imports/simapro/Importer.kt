@@ -11,6 +11,7 @@ import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream
 import org.openlca.simapro.csv.CsvBlock
+import org.openlca.simapro.csv.SimaProCsv
 import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -123,9 +124,9 @@ class Importer(
             }
             counting = countingVal
             val reader = InputStreamReader(realInput)
-            SimaproStreamCsvReader.read(reader, { block: CsvBlock ->
+            SimaProCsv.read(reader) { block: CsvBlock ->
                 importBlock(block, writer, unitRenderer)
-            })
+            }
         }
     }
 
