@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports.simapro
 
-import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
+import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary

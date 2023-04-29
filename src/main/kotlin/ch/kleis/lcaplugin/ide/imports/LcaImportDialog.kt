@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.ide.component.ProgressBar
 import ch.kleis.lcaplugin.ide.imports.progressbar.AsynchronousImportWorker
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.DialogWrapper
@@ -18,21 +19,16 @@ import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBList
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.update.UiNotifyConnector
-import java.nio.file.Path
 import javax.swing.JComponent
 import javax.swing.JPanel
-import kotlin.io.path.exists
-import kotlin.io.path.isRegularFile
 
 
-class LcaImportDialog(private val settings: LcaImportSettings) :
-    DialogWrapper(ProjectManager.getInstance().defaultProject) {
+class LcaImportDialog<P>(private val panel: P) :
+    DialogWrapper(ProjectManager.getInstance().defaultProject) where P : ImportHandler, P : JPanel {
 
     private var panelAndActions: Pair<JPanel, JBList<AnAction>>? = null
-    private var settingsPanel: ImportSettingsPanel? = null
-    private var worker: AsynchronousImportWorker? = null
 
-    constructor() : this(LcaImportSettings.instance)
+    private var worker: AsynchronousImportWorker? = null
 
     init {
         super.init()
@@ -47,13 +43,16 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
 
     override fun createCenterPanel(): JComponent? {
         title = MyBundle.message("lca.dialog.import.title")
+        val action = object : AnAction() {
+            override fun actionPerformed(e: AnActionEvent) {// Nothing
+            }
+        }
+        val root = DefaultActionGroup(action)
 
-        val root: DefaultActionGroup = createRootStep()
         Disposer.register(disposable) { root.removeAll() }
         val groupActions = ActionGroupPanelWrapper.createActionGroupPanel(root, null, disposable)
         val component = groupActions.first
-        settingsPanel = ImportSettingsPanel(settings)
-        component.add(settingsPanel)
+        component.add(panel)
         panelAndActions = groupActions
         UiNotifyConnector.doWhenFirstShown(panelAndActions!!.second) {
             ScrollingUtil.ensureSelectionExists(
@@ -74,20 +73,22 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
     }
 
     private fun importOnError(progressBar: ProgressBar) {
-        settingsPanel?.remove(progressBar)
-        settingsPanel?.repaint()
+        panel.remove(progressBar)
+        panel.repaint()
         getButton(myOKAction)?.isEnabled = true
         getButton(myCancelAction)?.isEnabled = true
     }
 
     override fun doOKAction() {
         if (okAction.isEnabled) {
+
             val progressBar = ProgressBar()
+            val importer = panel.importer()
             val worker =
-                AsynchronousImportWorker(settings, progressBar, { importOnSuccess() }, { importOnError(progressBar) })
+                AsynchronousImportWorker(importer, this::importOnSuccess, { importOnError(progressBar) }, progressBar)
             getButton(myOKAction)?.isEnabled = false
             getButton(myCancelAction)?.isEnabled = false
-            settingsPanel?.add(progressBar)
+            panel.add(progressBar)
             pack()
             worker.start()
         }
@@ -99,16 +100,7 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
     }
 
     public override fun doValidate(): ValidationInfo? {
-        val libPath = Path.of(settings.libraryFile)
-        if (!libPath.exists() || !libPath.isRegularFile()) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), settingsPanel!!.libField)
-        }
-        if (!Regex("[a-zA-Z0-9]*").matches(settings.rootPackage)
-            || Regex("^[0-9]").matches(settings.rootPackage)
-        ) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), settingsPanel!!.packageField)
-        }
-        return null
+        return panel.doValidate()
     }
 
 
@@ -116,9 +108,6 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
         return DialogStyle.COMPACT
     }
 
-    private fun createRootStep(): LcaImportStep {
-        return LcaImportStep()
-    }
 
     override fun createSouthPanel(): JComponent {
         val result = super.createSouthPanel()
@@ -126,7 +115,6 @@ class LcaImportDialog(private val settings: LcaImportSettings) :
         return result
     }
 
-    //
     override fun getHelpId(): String {
         return "not null"
     }

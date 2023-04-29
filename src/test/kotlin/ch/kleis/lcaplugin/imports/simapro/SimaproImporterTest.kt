@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.imports.simapro
 
-import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
-import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
-import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
+import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
+import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.*
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
 import com.intellij.openapi.application.ModalityState
@@ -23,11 +23,11 @@ import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
 
-class ImporterTest {
+class SimaproImporterTest {
     private val file = this.javaClass.classLoader.getResource("sample_wfldb_370.csv")!!.file
 
     private val rootFolder = Files.createTempDirectory("lca_test_").toString()
-    private var settings = mockk<LcaImportSettings>()
+    private var settings = mockk<SimaproImportSettings>()
     private var watcher = mockk<AsynchronousWatcher>()
     private var controller = mockk<AsyncTaskController>()
 
@@ -38,7 +38,7 @@ class ImporterTest {
     @Suppress("RemoveExplicitTypeArguments")
     @Before
     fun init() {
-        settings = mockk<LcaImportSettings>()
+        settings = mockk<SimaproImportSettings>()
         every { settings.libraryFile } returns file
         every { settings.rootPackage } returns "ecoinvent"
         every { settings.rootFolder } returns rootFolder
@@ -71,10 +71,10 @@ class ImporterTest {
         justRun { watcher.notifyCurrentWork(any()) }
         every { controller.isActive() } returns true
 
-        val sut = Importer(settings, watcher, controller)
+        val sut = SimaproImporter(settings)
 
         // When
-        val result = sut.import()
+        val result = sut.import(controller, watcher)
 
         // Then
         assertTrue("Unit file should exists", Path.of(outputUnitFile).exists())
@@ -91,10 +91,10 @@ class ImporterTest {
         every { settings.importSubstancesMode } returns SubstanceImportMode.EF30
         mockkObject(Ef3xDictionary.Companion)
         every { Ef3xDictionary.fromClassPath(any()) } returns SimaproDictionary()
-        val sut = Importer(settings, watcher, controller)
+        val sut = SimaproImporter(settings)
 
         // When
-        sut.import()
+        sut.import(controller, watcher)
 
         // Then
         assertFalse("Unit file should not exists", Path.of(outputUnitFile).exists())
@@ -110,10 +110,10 @@ class ImporterTest {
         every { settings.importSubstancesMode } returns SubstanceImportMode.SIMAPRO
         every { watcher.notifyProgress(any()) } throws Exception("Unexpected")
 
-        val sut = Importer(settings, watcher, controller)
+        val sut = SimaproImporter(settings)
 
         // When
-        val result = sut.import()
+        val result = sut.import(controller, watcher)
 
         // Then
         assertTrue(result is SummaryInError)
@@ -131,10 +131,10 @@ class ImporterTest {
         justRun { watcher.notifyProgress(any()) }
         every { controller.isActive() } returns false
 
-        val sut = Importer(settings, watcher, controller)
+        val sut = SimaproImporter(settings)
 
         // When
-        val result = sut.import()
+        val result = sut.import(controller, watcher)
 
         // Then
         assertTrue(result is SummaryInterrupted)

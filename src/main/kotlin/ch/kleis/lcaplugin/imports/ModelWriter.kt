@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem

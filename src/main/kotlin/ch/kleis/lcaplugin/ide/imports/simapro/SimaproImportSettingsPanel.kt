@@ -1,12 +1,13 @@
-package ch.kleis.lcaplugin.ide.imports
+package ch.kleis.lcaplugin.ide.imports.simapro
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createTextComponent
+import ch.kleis.lcaplugin.ide.imports.ImportHandler
+import ch.kleis.lcaplugin.imports.Importer
+import ch.kleis.lcaplugin.imports.simapro.SimaproImporter
 import com.intellij.BundleBase
-import com.intellij.openapi.ui.CheckBoxWithDescription
-import com.intellij.openapi.ui.LabeledComponent
-import com.intellij.openapi.ui.VerticalFlowLayout
+import com.intellij.openapi.ui.*
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.util.ui.FormBuilder
@@ -16,10 +17,11 @@ import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(VerticalFlowLayout()) {
+class SimaproImportSettingsPanel(private val settings: SimaproImportSettings) : JPanel(VerticalFlowLayout()),
+    ImportHandler {
 
-    val libField: JComponent
-    val packageField: JComponent
+    private val libField: JComponent
+    private val packageField: JComponent
 
     init {
         val builder = FormBuilder()
@@ -70,6 +72,7 @@ class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(Vert
         this.add(builder.panel)
     }
 
+
     private fun createSubstanceCombo(): LabeledComponent<JPanel> {
         val simaproMsg =
             BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.substances.desc.simapro"))
@@ -110,5 +113,22 @@ class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(Vert
         )
     }
 
+
+    override fun importer(): Importer {
+        return SimaproImporter(settings)
+    }
+
+    override fun doValidate(): ValidationInfo? {
+        val libPath = Path.of(settings.libraryFile)
+        if (!libPath.exists() || !libPath.isRegularFile()) {
+            return ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), libField)
+        }
+        if (!Regex("[a-zA-Z0-9]*").matches(settings.rootPackage)
+            || Regex("^[0-9]").matches(settings.rootPackage)
+        ) {
+            return ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), packageField)
+        }
+        return null
+    }
 
 }
