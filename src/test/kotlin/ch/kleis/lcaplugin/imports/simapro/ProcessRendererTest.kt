@@ -937,7 +937,7 @@ process p6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing", pathSlot.captured)
+        assertEquals("processes/processing/p6422_6422.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
     }
