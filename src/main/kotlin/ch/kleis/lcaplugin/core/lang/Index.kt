@@ -2,22 +2,22 @@ package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.PEvery
 
-class Index<E> private constructor(
+class Index<K, E> private constructor(
     private val indexType: String,
-    private val cachedEntries: Map<String, E>
+    private val cachedEntries: Map<K, E>
 ) {
     constructor(
         register: Register<E>,
-        optics: PEvery<E, E, String, String>
+        optics: PEvery<E, E, K, K>
     ) : this(register.registerType, register.getEntries(optics))
 
     companion object {
-        internal inline fun <reified E> empty(): Index<E> {
+        internal inline fun <K, reified E> empty(): Index<K, E> {
             return Index(E::class.java.simpleName, emptyMap())
         }
     }
 
-    operator fun get(key: String): E? {
+    operator fun get(key: K): E? {
         return cachedEntries[key]
     }
 

@@ -8,6 +8,12 @@ class SubstanceCharacterizationResolver(
     private val symbolTable: SymbolTable,
 ) {
     fun resolve(spec: ESubstanceSpec): ESubstanceCharacterization? {
-        return symbolTable.getSubstanceCharacterizationFromSubstanceName(spec.name)
+        val name = spec.name
+        val type = spec.type ?: return null
+        val compartment = spec.compartment ?: return null
+
+        return spec.subcompartment?.let { subCompartment ->
+            symbolTable.getSubstanceCharacterization(name, type, compartment, subCompartment)
+        } ?: symbolTable.getSubstanceCharacterization(name, type, compartment)
     }
 }

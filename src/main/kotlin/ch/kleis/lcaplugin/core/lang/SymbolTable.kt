@@ -9,16 +9,12 @@ data class SymbolTable(
     val processTemplates: Register<EProcessTemplate> = Register.empty(),
     val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
-    private val templatesIndexedByProductName: Index<EProcessTemplate> = Index(
+    private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
         processTemplates,
         EProcessTemplate.body.products compose
-                Every.list() compose
-                ETechnoExchange.product compose
-                EProductSpec.name
-    )
-    private val substanceCharacterizationsIndexedBySubstanceName: Index<ESubstanceCharacterization> = Index(
-        substanceCharacterizations,
-        ESubstanceCharacterization.referenceExchange.substance.name,
+            Every.list() compose
+            ETechnoExchange.product compose
+            EProductSpec.name
     )
 
     companion object {
@@ -41,8 +37,20 @@ data class SymbolTable(
         return substanceCharacterizations[name]
     }
 
-    fun getSubstanceCharacterizationFromSubstanceName(name: String): ESubstanceCharacterization? {
-        return substanceCharacterizationsIndexedBySubstanceName[name]
+    fun getSubstanceCharacterization(name: String, type: SubstanceType, compartment: String): ESubstanceCharacterization? {
+        return substanceCharacterizations.getValues().firstOrNull { sc ->
+            sc.referenceExchange.substance.let {
+                it.name == name && it.type == type && it.compartment == compartment
+            }
+        }
+    }
+
+    fun getSubstanceCharacterization(name: String, type: SubstanceType, compartment: String, subCompartment: String): ESubstanceCharacterization? {
+        return substanceCharacterizations.getValues().firstOrNull { sc ->
+            sc.referenceExchange.substance.let {
+                it.name == name && it.type == type && it.compartment == compartment && it.subcompartment == subCompartment
+            }
+        }
     }
 
     fun getTemplateFromProductName(name: String): EProcessTemplate? {
