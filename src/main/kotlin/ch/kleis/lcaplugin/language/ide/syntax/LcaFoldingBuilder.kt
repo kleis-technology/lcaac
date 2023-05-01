@@ -16,6 +16,7 @@ class LcaFoldingBuilder : FoldingBuilderEx(), DumbAware {
         val descriptors = ArrayList<FoldingDescriptor>()
         val blocks = PsiTreeUtil.findChildrenOfAnyType(
             root,
+            LcaBlockMeta::class.java,
             LcaProcess::class.java,
             LcaParams::class.java,
             LcaVariables::class.java,

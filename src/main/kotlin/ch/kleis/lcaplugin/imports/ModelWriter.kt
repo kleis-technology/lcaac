@@ -19,11 +19,9 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 
 
-interface Renderer<T> {
-    fun render(block: T, writer: ModelWriter)
-}
-
 private const val MAX_FILE_SIZE = 2000000
+typealias Line = CharSequence
+typealias Text = List<CharSequence>
 
 data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) :
     Closeable {
@@ -84,12 +82,14 @@ class ModelWriter(
                 .trimEnd('_')
         }
 
-        fun compactText(s: String): String {
+        fun compactText(s: CharSequence): String {
             if (s.isBlank()) {
-                return s
+                return ""
             }
-            return s.replace("\"", "'")
-                .trimEnd('\n').trimEnd()
+            return s.toString()
+                .replace("\"", "'")
+                .trimEnd('\n')
+                .trimEnd()
         }
 
         fun pad(text: List<CharSequence>, number: Int = BASE_PAD): CharSequence {
@@ -97,7 +97,7 @@ class ModelWriter(
             return text.joinToString("\n") { "$sep$it" }
         }
 
-        fun compactAndPad(s: String, number: Int = BASE_PAD): String {
+        fun compactAndPad(s: CharSequence, number: Int = BASE_PAD): String {
             val text = s.split("\n")
                 .map { compactText(it) }
                 .filter { it.isNotBlank() }
@@ -122,7 +122,7 @@ class ModelWriter(
                 .toImmutableList()
         }
 
-        fun optionalBlock(title: String, blockLines: List<String>, pad: Int = BASE_PAD): CharSequence {
+        fun optionalBlock(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
             return if (blockLines.isNotEmpty()) {
                 val lines: MutableList<CharSequence> = mutableListOf(title)
                 val elements = padList(blockLines, pad)
@@ -134,13 +134,30 @@ class ModelWriter(
             }
         }
 
-        fun block(title: String, blockLines: List<String>, pad: Int = BASE_PAD): CharSequence {
+        fun block(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
             val lines: MutableList<CharSequence> = mutableListOf(title)
             val elements = padList(blockLines, pad)
             lines.addAll(elements)
             lines.add("}")
             return pad(lines, pad)
         }
+
+        fun blockText(title: CharSequence, blockLines: List<Text>, pad: Int = BASE_PAD): CharSequence {
+            val lines: MutableList<CharSequence> = mutableListOf(title)
+            val asLines = blockLines.flatten()
+            val elements = padList(asLines, pad)
+            lines.addAll(elements)
+            lines.add("}")
+            return pad(lines, pad)
+        }
+
+        fun createCommentLine(comments: List<String>): String {
+            val cleaned = comments.filter { it.isNotBlank() }
+
+            return if (cleaned.isEmpty()) ""
+            else cleaned.joinToString(", ", " // ")
+        }
+
 
     }
 

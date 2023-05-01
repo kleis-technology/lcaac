@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.simapro
+package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
@@ -6,10 +6,9 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.Renderer
-import org.openlca.simapro.csv.refdata.UnitRow
+import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
 
-class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Renderer<UnitRow> {
+class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
     data class AliasFor(val alias: Dimension, val aliasFor: Dimension) {
         constructor(alias: String, aliasFor: Dimension) : this(Dimension.of(alias), aliasFor)
     }
@@ -30,41 +29,46 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
 
     companion object {
         fun of(existingUnits: Map<String, UnitValue>): UnitRenderer {
-            val newMap = existingUnits.entries.map { (k, v) -> k.lowercase() to v }.associate { it }
+            val newMap = existingUnits.entries.map { (k, v) -> k to v }.associate { it }
             return UnitRenderer(newMap.toMutableMap())
         }
     }
 
-    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun render(unit: UnitRow, writer: ModelWriter) {
-        val dimensionName = unit.quantity().lowercase()
+    data class ParsedUnit(
+        val dimension: String,
+        val name: String,
+        val scaleFactor: Double,
+        val refUnitName: String
+    )
+
+    fun render(unit: ParsedUnit, writer: ModelWriter) {
+        val dimensionName = unit.dimension.lowercase()
         val dimension = Dimension.of(dimensionName)
-        val symbol = ModelWriter.sanitizeAndCompact(unit.name(), false)
-        val existingUnit = getUnit(symbol)
+        val symbol = ModelWriter.sanitizeAndCompact(unit.name, false)
+        val existingUnit = getUnit(unit.name)
 
         when {
             existingUnit != null && areCompatible(existingUnit.dimension, dimension) -> { /* Nothing to do */
             }
 
             existingUnit != null && !areCompatible(existingUnit.dimension, dimension) ->
-                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnit.dimension}.")
+                throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name)} for ${unit.name} already exists with another dimension, $dimension is not compatible with ${existingUnit.dimension}.")
 
-            isNewDimensionReference(unit) -> {
+            isNewDimensionReference(dimension, unit.scaleFactor) -> {
                 addUnit(UnitValue(UnitSymbol.of(symbol), 1.0, dimension))
-                val block = generateUnitBlockWithNewDimension(symbol, unit.name(), dimensionName)
+                val block = generateUnitBlockWithNewDimension(symbol, unit.name, dimensionName)
                 writer.write("unit", block, false)
             }
 
             else -> {
-                addUnit(UnitValue(UnitSymbol.of(symbol), unit.conversionFactor(), dimension))
-                val refUnitSymbol = ModelWriter.sanitizeAndCompact(unit.referenceUnit(), false)
+                addUnit(UnitValue(UnitSymbol.of(symbol), unit.scaleFactor, dimension))
+                val refUnitSymbol = unit.refUnitName // ModelWriter.sanitizeAndCompact(unit.refUnitName, false)
 
-                val refUnit = getUnit(refUnitSymbol)
-                if (refUnitSymbol.lowercase() == symbol.lowercase()) {
+                if (refUnitSymbol == symbol) {
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 } else {
                     val block =
-                        generateUnitAliasBlock(symbol, unit.name(), "${unit.conversionFactor()} ${refUnit?.symbol}")
+                        generateUnitAliasBlock(symbol, unit.name, "${unit.scaleFactor} $refUnitSymbol")
                     writer.write("unit", block, false)
                 }
             }
@@ -103,23 +107,23 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
         }
     }
 
-    private fun getUnit(symbol: String): UnitValue? {
-        return knownUnits[symbol.lowercase()]
+    private fun getUnit(symbolName: String): UnitValue? {
+        val symbol = ModelWriter.sanitizeAndCompact(symbolName, false)
+        return knownUnits[symbol]
     }
 
     private fun addUnit(value: UnitValue) {
         knownUnits[value.symbol.toString().lowercase()] = value
     }
 
-    private fun isNewDimensionReference(unit: UnitRow): Boolean {
-        val unitDim = Dimension.of(unit.quantity().lowercase())
+    private fun isNewDimensionReference(dimension: Dimension, scaleFactor: Double): Boolean {
         val allDimWithReference = knownUnits.values
             .filter { it.scale == 1.0 }
             .map { it.dimension }
         val isCompatibleWithNoOne = allDimWithReference
-            .map { areCompatible(unitDim, it) }
+            .map { areCompatible(dimension, it) }
             .none { it }
-        return unit.conversionFactor() == 1.0 && isCompatibleWithNoOne
+        return scaleFactor == 1.0 && isCompatibleWithNoOne
     }
 
     fun areCompatible(dim1: Dimension, dim2: Dimension): Boolean {

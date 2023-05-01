@@ -23,7 +23,7 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 
 
-class LcaImportDialog<P>(private val panel: P) :
+class LcaImportDialog<P>(private val panel: P, title: String) :
     DialogWrapper(ProjectManager.getInstance().defaultProject) where P : ImportHandler, P : JPanel {
 
     private var panelAndActions: Pair<JPanel, JBList<AnAction>>? = null
@@ -32,6 +32,7 @@ class LcaImportDialog<P>(private val panel: P) :
 
     init {
         super.init()
+        this.title = title
         val peer: DialogWrapperPeer = peer
         val pane = peer.rootPane
         if (pane != null) {
@@ -42,7 +43,6 @@ class LcaImportDialog<P>(private val panel: P) :
     }
 
     override fun createCenterPanel(): JComponent? {
-        title = MyBundle.message("lca.dialog.import.title")
         val action = object : AnAction() {
             override fun actionPerformed(e: AnActionEvent) {// Nothing
             }

@@ -5,6 +5,8 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.shared.UnitRenderer
+import ch.kleis.lcaplugin.imports.shared.UnitRenderer.ParsedUnit
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream
@@ -35,7 +37,7 @@ class SimaproImporter(
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap.values
             .map { it.toUnitValue() }
-            .associateBy { it.symbol.toString().lowercase() }
+            .associateBy { it.symbol.toString() }
     )
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
@@ -49,7 +51,7 @@ class SimaproImporter(
         }
         ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
             .use { w ->
-                importFile(path, w, unitRenderer, controller, watcher)
+                importFile(path, w, controller, watcher)
             }
     }
 
@@ -69,7 +71,6 @@ class SimaproImporter(
     private fun importFile(
         path: Path,
         writer: ModelWriter,
-        unitRenderer: UnitRenderer,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
     ) {
@@ -89,7 +90,7 @@ class SimaproImporter(
             counting = countingVal
             val reader = InputStreamReader(realInput)
             SimaProCsv.read(reader) { block: CsvBlock ->
-                importBlock(block, writer, unitRenderer, controller, watcher)
+                importBlock(block, writer, controller, watcher)
             }
         }
     }
@@ -98,7 +99,6 @@ class SimaproImporter(
     private fun importBlock(
         block: CsvBlock,
         writer: ModelWriter,
-        unitRenderer: UnitRenderer,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
     ) {
@@ -117,6 +117,9 @@ class SimaproImporter(
                     simaproSubstanceRenderer.render(block.asElementaryFlowBlock(), writer)
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
+                .map {
+                    ParsedUnit(it.quantity().lowercase(), it.name(), it.conversionFactor(), it.referenceUnit())
+                }
                 .forEach { unitRenderer.render(it, writer) }
 
             block.isInputParameterBlock -> inputParameterRenderer.render(block.asInputParameterBlock(), writer)

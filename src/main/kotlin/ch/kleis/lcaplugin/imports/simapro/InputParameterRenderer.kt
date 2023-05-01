@@ -1,13 +1,12 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.Renderer
 import org.openlca.simapro.csv.refdata.InputParameterBlock
 import org.openlca.simapro.csv.refdata.InputParameterRow
 
-class InputParameterRenderer : Renderer<InputParameterBlock> {
+class InputParameterRenderer {
     var nbParameters = 0
-    override fun render(block: InputParameterBlock, writer: ModelWriter) {
+    fun render(block: InputParameterBlock, writer: ModelWriter) {
         if (block.parameters().size > 0) {
             val vars = block.parameters().flatMap { render(it) }
             writer.write(

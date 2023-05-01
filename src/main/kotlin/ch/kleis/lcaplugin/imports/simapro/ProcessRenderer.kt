@@ -4,7 +4,7 @@ import arrow.core.toNonEmptyListOrNull
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.FormulaConverter
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.Renderer
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.createCommentLine
 import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
@@ -44,7 +44,7 @@ fun ProductOutputRow.uid(): String {
 
 private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
+class ProcessRenderer(mode: SubstanceImportMode) {
     private val substanceDict: Dictionary = when (mode) {
         SubstanceImportMode.SIMAPRO -> SimaproDictionary()
         SubstanceImportMode.NOTHING -> SimaproDictionary() // We don't import substances, but exchanges are linked with simapro naming
@@ -54,8 +54,7 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
     var nbProcesses: Int = 0
 
 
-    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-    override fun render(process: ProcessBlock, writer: ModelWriter) {
+    fun render(process: ProcessBlock, writer: ModelWriter) {
 
         val pUid = process.uid()
         val metas = mutableMapOf<String, String>()
@@ -250,11 +249,5 @@ ${ModelWriter.block("land_use {", landUses)}
         return render(exchange, additionalComments = additionalComments)
     }
 
-    private fun createCommentLine(comments: List<String>): String {
-        val cleaned = comments.filter { it.isNotBlank() }
-
-        return if (cleaned.isEmpty()) ""
-        else cleaned.joinToString(", ", " // ")
-    }
 
 }
