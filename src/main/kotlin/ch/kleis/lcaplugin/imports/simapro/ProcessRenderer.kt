@@ -15,29 +15,31 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 fun ProcessBlock.uid(): String {
-    val mainProductName = if (this.products().isNullOrEmpty()) {
-        ModelWriter.sanitizeAndCompact(this.identifier())
+    val mainProductNameRaw = if (this.products().isNullOrEmpty()) {
+        this.identifier()
     } else {
-        ModelWriter.sanitizeAndCompact(this.products()[0].uid())
+        this.products()[0].uid()
     }
-    val identifier = if (this.identifier().isNullOrEmpty()) {
+    val mainProductName = ModelWriter.sanitizeAndCompact(mainProductNameRaw)
+    val identifierRaw = if (this.identifier().isNullOrEmpty()) {
         "unknown"
     } else {
-        ModelWriter.sanitizeAndCompact(this.identifier())
+        this.identifier()
     }
-    return if (this.name().isNullOrBlank()) {
+    val uidRaw = if (this.name().isNullOrBlank()) {
         mainProductName
     } else {
         // Create unique name in case of coproduct with multiple processes
         // Same process name with 2 case :
         // * same process name and same product name with different identifier : 2 different locations
         // * same process name and diff product name with same identifier : 2 coproducts
-        this.name() + (mainProductName.hashCode() % 10000) + "_" + (identifier.hashCode() % 10000)
+        this.name() + "_" + (mainProductNameRaw.hashCode() % 10000) + "_" + (identifierRaw.hashCode() % 10000)
     }
+    return ModelWriter.sanitizeAndCompact(uidRaw)
 }
 
 fun ProductOutputRow.uid(): String {
-    return this.name()
+    return ModelWriter.sanitizeAndCompact(this.name())
 }
 
 private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
@@ -55,7 +57,7 @@ class ProcessRenderer(mode: SubstanceImportMode) : Renderer<ProcessBlock> {
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun render(process: ProcessBlock, writer: ModelWriter) {
 
-        val pUid = ModelWriter.sanitizeAndCompact(process.uid())
+        val pUid = process.uid()
         val metas = mutableMapOf<String, String>()
         process.comment()?.let { metas["description"] = ModelWriter.compactAndPad(it, 12) }
         process.category()?.let { metas["category"] = ModelWriter.compactText(it.toString()) }
@@ -232,7 +234,7 @@ ${ModelWriter.block("land_use {", landUses)}
         val amountFormula = product.amount().toString()
         val (amount, changed) = FormulaConverter.compute(amountFormula)
         val unit = sanitizeUnit(product.unit())
-        val uid = ModelWriter.sanitizeAndCompact(product.uid())
+        val uid = product.uid()
         val allocation = product.allocation()
         val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return additionalComments.plus(comments)

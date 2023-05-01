@@ -63,7 +63,7 @@ class ProcessRendererTest {
         val expected = """
 
 
-process acai_berry_at_farm_br8553_1886 {
+process acai_berry_at_farm_sl_br_6343_4814 {
 
     meta {
         "description" = "'Reference flow: The functional unit is the production of 1 kg of Acai berry at the farm, (total  amount of water 1862 m3/ha).
@@ -109,7 +109,7 @@ process acai_berry_at_farm_br8553_1886 {
         // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
         // The yield when productive is 9750 kg/ha-y .
         // The final yield corresponds to the average yield over the entire lifetime of the tree.
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // Formula=[9750*10/13]
+        7500 kg acai_berry_at_farm_wfldb_3_7_sl_br_u allocate 100 percent // Formula=[9750*10/13]
     }
     
     products { // Avoid Products
@@ -181,7 +181,7 @@ process acai_berry_at_farm_br8553_1886 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/material/acai_berry_at_farm_br8553_1886.lca", pathSlot.captured)
+        assertEquals("processes/material/acai_berry_at_farm_sl_br_6343_4814.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
         assertEquals(true, closeSlot.captured)
@@ -201,7 +201,7 @@ process acai_berry_at_farm_br8553_1886 {
         val expected = """
 
 
-process waste6422_6422 {
+process waste_8662_8662 {
 
     meta {
         "category" = "processing"
@@ -217,7 +217,7 @@ process waste6422_6422 {
         // wasteType: not defined
         // The yield when productive is 9750 kg/ha-y .
         // The final yield corresponds to the average yield over the entire lifetime of the tree.
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u // Formula=[9750*10/13]
+        7500 kg acai_berry_at_farm_wfldb_3_7_sl_br_u // Formula=[9750*10/13]
     }
     
     products { // Avoid Products
@@ -293,7 +293,7 @@ process waste6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing/waste6422_6422.lca", pathSlot.captured)
+        assertEquals("processes/processing/waste_8662_8662.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
         assertEquals(true, closeSlot.captured)
@@ -311,7 +311,7 @@ process waste6422_6422 {
         val expected = """
 
 
-process wastescen6422_6422 {
+process wastescen_8662_8662 {
 
     meta {
         "category" = "processing"
@@ -378,7 +378,7 @@ process wastescen6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing/wastescen6422_6422.lca", pathSlot.captured)
+        assertEquals("processes/processing/wastescen_8662_8662.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
         assertEquals(true, closeSlot.captured)
@@ -401,7 +401,7 @@ process wastescen6422_6422 {
         val expected = """
 
 
-process acai_berry_at_farm_br8553_1886 {
+process acai_berry_at_farm_sl_br_6343_4814 {
 
     meta {
         "identifier" = "LAUSMILA000241671000001"
@@ -413,7 +413,7 @@ process acai_berry_at_farm_br8553_1886 {
     products { // Product
         // name: Acai berry, at farm (WFLDB 3.7)/BR U
         // category: _WFLDB 3.7 (Phase 2)\Plant products\Perennials\Acai berry
-        7500 kg acai_berry_at_farm_wfldb_3_7_br_u allocate 100 percent // Formula=[9750*10/13]
+        7500 kg acai_berry_at_farm_wfldb_3_7_sl_br_u allocate 100 percent // Formula=[9750*10/13]
     }
     
     products { // Avoid Products
@@ -473,7 +473,7 @@ process acai_berry_at_farm_br8553_1886 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/acai_berry_at_farm_br8553_1886.lca", pathSlot.captured)
+        assertEquals("processes/acai_berry_at_farm_sl_br_6343_4814.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
         assertEquals(true, closeSlot.captured)
@@ -870,7 +870,7 @@ The final yield corresponds to the average yield over the entire lifetime of the
         val expected = """
 
 
-process p6422_6422 {
+process p_8662_8662 {
 
     meta {
         "category" = "processing"
@@ -937,7 +937,7 @@ process p6422_6422 {
 
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        assertEquals("processes/processing/p6422_6422.lca", pathSlot.captured)
+        assertEquals("processes/processing/p_8662_8662.lca", pathSlot.captured)
         assertEquals(expected, bodySlot.captured)
         assertEquals(true, indexSlot.captured)
     }

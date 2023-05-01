@@ -77,8 +77,9 @@ class ModelWriter(
                 .replace("*", "_m_")
                 .replace("+", "_p_")
                 .replace("&", "_a_")
-                .replace(">", "_more_")
-                .replace("<", "_less_")
+                .replace(">", "_gt_")
+                .replace("<", "_lt_")
+                .replace("/", "_sl_")
                 .replace(nonAlphaNumeric, "_")
                 .trimEnd('_')
         }
