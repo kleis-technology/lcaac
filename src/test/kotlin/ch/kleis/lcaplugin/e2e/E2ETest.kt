@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.EProcess
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
@@ -371,7 +370,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         TestCase.assertEquals(100.0, actual)
     }
@@ -394,7 +393,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         TestCase.assertEquals(100.0, actual)
     }
