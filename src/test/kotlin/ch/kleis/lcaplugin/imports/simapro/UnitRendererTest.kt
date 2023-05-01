@@ -263,29 +263,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol() {
-        // given
-        val symbol = "kg"
-        val sut = UnitRenderer.of(emptyMap())
-        // when
-        val sanitizedSymbol = sut.sanitizeSymbol(symbol)
-        // then
-        assertEquals(symbol, sanitizedSymbol)
-    }
-
-    @Test
-    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU() {
-        // given
-        val symbol = "unit"
-        val sut = UnitRenderer.of(emptyMap())
-        // when
-        val sanitizedSymbol = sut.sanitizeSymbol(symbol)
-        // then
-        assertEquals("_unit", sanitizedSymbol)
-    }
-
-    @Test
-    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString() {
+    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString(){
         // given
         val symbol = "kg"
         val sanitizedSymbol = "kg"

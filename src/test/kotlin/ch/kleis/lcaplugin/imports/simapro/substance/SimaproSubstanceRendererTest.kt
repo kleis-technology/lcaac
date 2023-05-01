@@ -145,4 +145,50 @@ substance aluminium_raw {
         Assert.assertEquals(true, indexSlot.captured)
         Assert.assertEquals(1, sut.nbSubstances)
     }
+
+    @Test
+    fun render_whenUnitNameIsAReservedKeyword_shouldRenameItWithAnUnderscore() {
+        // Given
+        val block = ElementaryFlowBlock.of(ElementaryFlowType.RESOURCES)
+        block.flows().add(
+            ElementaryFlowRow()
+                .name("Aluminium")
+                .unit("unit") // this unit name is a reserved keyword
+                .cas("007429-90-5")
+                .comment("Formula: Al\nAl\n")
+                .platformId("platformId")
+        )
+
+
+        // When
+        sut.render(block, writer)
+
+        // Then
+        val expected = """
+
+substance aluminium_raw {
+
+    name = "Aluminium"
+    type = Resource
+    compartment = "raw"
+    reference_unit = _unit
+
+    impacts {
+        1 _unit aluminium_raw
+    }
+
+    meta {
+        "generator" = "kleis-lca-generator"
+        "description" = "Formula: Al
+            Al"
+        "casNumber" = "007429-90-5"
+        "platformId" = "platformId"
+    }
+}
+""".trimIndent()
+        // Better way to view large diff than using mockk.verify
+        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
+        Assert.assertEquals(expected, bodySlot.captured)
+        Assert.assertEquals(true, indexSlot.captured)
+    }
 }
