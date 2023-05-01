@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProcessFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
-import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import kotlin.test.assertNull
@@ -21,20 +20,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = ProcessFixture.carrotProduction,
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -60,8 +57,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -81,20 +78,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = ProcessFixture.carrotProduction,
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -118,8 +113,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -139,20 +134,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = ProcessFixture.carrotProduction,
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -172,8 +165,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
