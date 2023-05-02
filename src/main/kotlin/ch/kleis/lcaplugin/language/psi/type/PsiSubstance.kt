@@ -19,6 +19,15 @@ interface PsiSubstance : BlockMetaOwner, PsiNameIdentifierOwner, StubBasedPsiEle
         return node.findChildByType(LcaTypes.SUBSTANCE_REF)?.psi as PsiSubstanceRef
     }
 
+    fun buildUniqueKey(): String {
+        return listOfNotNull(
+            this.name,
+            getCompartmentField().getValue(),
+            getSubcompartmentField()?.getValue(),
+            getTypeField().getValue(),
+        ).joinToString("_")
+    }
+
     override fun getName(): String {
         return getSubstanceRef().name
     }

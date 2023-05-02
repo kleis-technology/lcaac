@@ -34,7 +34,7 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val processTemplates : Register<EProcessTemplate> = Register.from(
+        val processTemplates: Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -112,7 +112,8 @@ class EvaluatorTest {
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
-                                "carrot_production", mapOf(
+                                "carrot_production",
+                                mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
                                 ),
                             )
@@ -128,7 +129,7 @@ class EvaluatorTest {
     @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val processTemplates : Register<EProcessTemplate> = Register.from(
+        val processTemplates: Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -295,7 +296,13 @@ class EvaluatorTest {
                 ),
                 inputs = emptyList(),
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("propanol"))
+                    EBioExchange(
+                        QuantityFixture.oneKilogram, ESubstanceSpec(
+                            "propanol",
+                            compartment = "air",
+                            type = SubstanceType.RESOURCE,
+                        )
+                    )
                 )
             )
         )

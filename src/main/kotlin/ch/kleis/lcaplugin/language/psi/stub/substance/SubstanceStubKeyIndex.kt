@@ -17,8 +17,17 @@ class SubstanceKeyIndex : StringStubIndexExtension<PsiSubstance>() {
         fun findSubstances(
             project: Project,
             fqn: String,
+            type: String,
+            compartment: String,
+            subCompartment: String? = null,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiSubstance> =
-            StubIndex.getElements(LcaStubIndexKeys.SUBSTANCES, fqn, project, scope, PsiSubstance::class.java)
+            StubIndex.getElements(
+                LcaStubIndexKeys.SUBSTANCES,
+                substanceKey(fqn, type, compartment, subCompartment),
+                project,
+                scope,
+                PsiSubstance::class.java
+            )
     }
 }

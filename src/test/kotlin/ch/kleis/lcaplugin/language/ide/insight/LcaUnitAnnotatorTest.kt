@@ -29,7 +29,10 @@ class LcaUnitAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+        val element = SubstanceKeyIndex.findSubstances(
+            project,
+            "$pkgName.s", "Resource", "c"
+        ).first()
             .getReferenceUnitField().getValue()
             .getFactor()
             .getPrimitive()
@@ -63,7 +66,10 @@ class LcaUnitAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+        val element = SubstanceKeyIndex.findSubstances(
+            project,
+            "$pkgName.s", "Resource", "c"
+        ).first()
             .getReferenceUnitField().getValue()
             .getFactor()
             .getPrimitive()
@@ -100,7 +106,10 @@ class LcaUnitAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        val element = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+        val element = SubstanceKeyIndex.findSubstances(
+            project,
+            "$pkgName.s", "Resource", "c",
+        ).first()
             .getReferenceUnitField().getValue()
             .getFactor()
             .getPrimitive()

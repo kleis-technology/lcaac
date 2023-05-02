@@ -22,7 +22,11 @@ class UnitReferenceTest : BasePlatformTestCase() {
     fun test_resolve() {
         // given
         val pkgName = "language.psi.reference.units.test_resolve"
-        val ref = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+        val ref = SubstanceKeyIndex.findSubstances(project,
+            "$pkgName.s",
+            "Resource",
+            "c"
+            ).first()
             .getReferenceUnitField()
             .getValue()
             .getFactor()
@@ -41,7 +45,11 @@ class UnitReferenceTest : BasePlatformTestCase() {
     fun test_getVariants() {
         // given
         val pkgName = "language.psi.reference.units.test_resolve"
-        val ref = SubstanceKeyIndex.findSubstances(project, "$pkgName.s").first()
+        val ref = SubstanceKeyIndex.findSubstances(project,
+            "$pkgName.s",
+            "Resource",
+            "c"
+        ).first()
             .getReferenceUnitField()
             .getValue()
             .getFactor()

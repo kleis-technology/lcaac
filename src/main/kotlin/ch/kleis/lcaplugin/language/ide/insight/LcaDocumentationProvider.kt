@@ -175,7 +175,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Name", element.getNameField().getValue(), sb)
-        addKeyValueSection("Type", element.getTypeField().getType(), sb)
+        addKeyValueSection("Type", element.getTypeField().getValue(), sb)
         addKeyValueSection("Compartment", element.getCompartmentField().getValue(), sb)
         addKeyValueSection("Sub-Compartment", element.getSubcompartmentField()?.getValue(), sb)
         addKeyValueSection("Reference Unit", element.getReferenceUnitField().getValue().text, sb)

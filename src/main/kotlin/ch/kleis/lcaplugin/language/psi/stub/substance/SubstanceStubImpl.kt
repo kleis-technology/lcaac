@@ -8,7 +8,7 @@ import com.intellij.psi.stubs.StubElement
 
 class SubstanceStubImpl(
     parent: StubElement<PsiSubstance>,
-    override val fqn: String
+    override val key: String
 ) :
     StubBase<PsiSubstance>(parent, LcaTypes.SUBSTANCE as IStubElementType<*, *>),
     SubstanceStub

@@ -260,7 +260,7 @@ fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_argum
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFromProcessConstraintMixin"
 }
 
-private comma_sep_arguments ::= argument (COMA argument)* COMA?
+private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
 argument ::= parameterRef EQUAL quantity {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
@@ -283,7 +283,7 @@ technoProductExchangeWithAllocateField ::= technoProductExchange allocateField {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeWithAllocateFieldMixin"
 }
 
-bioExchange ::= quantity substanceRef (LPAREN compartmentField RPAREN | LPAREN compartmentField COMMA subCompartmentField RPAREN)? {
+bioExchange ::= quantity substanceSpec {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiBioExchangeMixin"
 }
@@ -385,6 +385,14 @@ parameterRef ::= uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiParameterRefMixin"
 }
 
+/*
+   Spec
+ */
+
+substanceSpec ::= substanceRef (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiSubstanceSpecMixin"
+}
 /*
     Identifier
  */
