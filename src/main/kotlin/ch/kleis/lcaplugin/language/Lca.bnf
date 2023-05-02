@@ -49,7 +49,7 @@
       RPAREN = 'right-paren'
       LBRACE = 'left-bracket'
       RBRACE = 'right-bracket'
-      COMA = 'coma'
+      COMMA = 'comma'
       STRING_LITERAL = 'string-literal'
       SPACE = "regexp:\s+"
       COMMENT_BLOCK_START = 'comment-block-start'
@@ -71,7 +71,7 @@
     LCA File
  */
 
-lcaFile ::= package?  import* (process | unitDefinition | substance | globalVariables )*
+lcaFile ::= package? import* (process | unitDefinition | substance | globalVariables )*
 
 /*
     Package
@@ -283,7 +283,7 @@ technoProductExchangeWithAllocateField ::= technoProductExchange allocateField {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeWithAllocateFieldMixin"
 }
 
-bioExchange ::= quantity substanceRef {
+bioExchange ::= quantity substanceRef (LPAREN compartmentField RPAREN | LPAREN compartmentField COMMA subCompartmentField RPAREN)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiBioExchangeMixin"
 }
