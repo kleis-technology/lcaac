@@ -15,10 +15,8 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Assert
-import org.junit.Test
 
 class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
-    @Test
     fun test_substanceResolution() {
         val file = parseFile(
             "hello", """
@@ -27,7 +25,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                         1 kg a
                     }
                     emissions {
-                        1 kg b(compartment="compartment")
+                        1 kg b (compartment="compartment")
                     }
                 }
                 
@@ -69,7 +67,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_meta_whenKeywordAsKey() {
         // given
         val file = parseFile(
@@ -93,7 +90,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals("b", actual[1].getValue())
     }
 
-    @Test
     fun test_operationPriority() {
         // given
         val file = parseFile(
@@ -137,7 +133,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_twoInstancesSameTemplate_whenOneImplicit() {
         // given
         val file = parseFile(
@@ -194,7 +189,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_twoInstancesSameTemplate_whenExplicit() {
         // given
         val file = parseFile(
@@ -251,7 +245,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_manyInstancesSameTemplate() {
         // given
         val file = parseFile(
@@ -314,7 +307,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_allocate() {
         // given
         val file = parseFile(
@@ -354,7 +346,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_allocate_whenOneProduct_allocateIsOptional() {
         // given
         val file = parseFile(
@@ -375,7 +366,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals(100.0, actual)
     }
 
-    @Test
     fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
         // given
         val file = parseFile(
@@ -398,8 +388,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals(100.0, actual)
     }
 
-    @Test
-    fun test_allocate_whenTwoProducts_shouldReturnWeigtedResult() {
+    fun test_allocate_whenTwoProducts_shouldReturnWeightedResult() {
         // given
         val file = parseFile(
             "hello", """
@@ -440,7 +429,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
         // given
         val file = parseFile(
@@ -469,7 +457,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
         val file = parseFile(
@@ -503,7 +490,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_shouldNotThrowAnError() {
         // given
         val file = parseFile(
@@ -536,7 +522,6 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
         val file = parseFile(

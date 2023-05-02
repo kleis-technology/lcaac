@@ -76,7 +76,7 @@ class Evaluator(
             } ?: spec
         }
         val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
-            resolveSubstanceCharacterizationBySubstance(spec)?.let { it ->
+            resolveSubstanceCharacterizationBySubstance(spec)?.let {
                 val substanceCharacterization = reduceAndComplete.apply(it)
                 accumulator.plus(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
@@ -100,7 +100,7 @@ class Evaluator(
     }
 
     private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
-        return substanceCharacterizationResolver.resolve(spec)?.takeUnless { !it.hasImpacts() }
+        return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
     }
 
     private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
