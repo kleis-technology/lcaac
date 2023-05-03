@@ -80,6 +80,8 @@
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProductRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiSubstanceSpecManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiTechnoProductExchangeManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment"

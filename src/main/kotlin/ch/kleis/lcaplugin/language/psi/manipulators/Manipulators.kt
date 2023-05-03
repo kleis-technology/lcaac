@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.*
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
@@ -21,6 +22,17 @@ class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiProcessTemplateRefManipulator() : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
 class PsiUnitRefManipulator(): PsiUIDOwnerManipulator<PsiUnitRef>()
 class PsiParameterRefManipulator(): PsiUIDOwnerManipulator<PsiParameterRef>()
+
+class PsiSubstanceSpecManipulator() : AbstractElementManipulator<PsiSubstanceSpec>() {
+    override fun handleContentChange(
+        element: PsiSubstanceSpec,
+        range: TextRange,
+        newContent: String?
+    ): PsiSubstanceSpec? {
+        newContent?.let { element.getSubstanceRef().setName(it) }
+        return element
+    }
+}
 
 class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
     override fun handleContentChange(
