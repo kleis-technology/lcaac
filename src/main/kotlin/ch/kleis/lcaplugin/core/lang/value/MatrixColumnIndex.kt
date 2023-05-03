@@ -15,7 +15,11 @@ sealed interface MatrixColumnIndex : Value, HasUID {
 }
 
 @optics
-data class ProductValue(val name: String, val referenceUnit: UnitValue, val fromProcessRef: FromProcessRefValue? = null) :
+data class ProductValue(
+    val name: String,
+    val referenceUnit: UnitValue,
+    val fromProcessRef: FromProcessRefValue? = null
+) :
     Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
@@ -52,7 +56,11 @@ data class SubstanceValue(
     }
 
     override fun name(): String {
-        return name
+        val args = listOfNotNull(
+            compartment,
+            subcompartment
+        ).joinToString()
+        return """[${type.value}] $name($args)"""
     }
 
     override fun referenceUnit(): UnitValue {

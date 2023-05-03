@@ -17,11 +17,11 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
 
     override fun getColumnName(columnIndex: Int): String {
         if (columnIndex == 0) {
-            return "product"
+            return "item"
         }
 
         if (columnIndex == 1) {
-            return "unit"
+            return "quantity"
         }
 
         val product = matrix.controllablePorts[columnIndex - 2]
@@ -48,7 +48,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         }
 
         if (columnIndex == 1) {
-            return outputProduct.referenceUnit().symbol
+            return "1 ${outputProduct.referenceUnit().symbol}"
         }
 
         val inputProduct = matrix.controllablePorts[columnIndex - 2]
