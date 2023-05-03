@@ -72,57 +72,47 @@ val everyUnitRefInQuantityExpression: PEvery<QuantityExpression, QuantityExpress
             EQuantityLiteral.unit compose
             everyUnitRefInUnitExpression
 
-val everyUnitRefInProduct: PEvery<EProduct, EProduct, EUnitRef, UnitExpression> =
-    EProduct.referenceUnit compose everyUnitRefInUnitExpression
 
-val everyUnitRefInUnconstrainedProductExpression: PEvery<LcaUnconstrainedProductExpression, LcaUnconstrainedProductExpression, EUnitRef, UnitExpression> =
-    LcaUnconstrainedProductExpression.eProduct compose everyUnitRefInProduct
-
-val everyUnitRefInConstraint: PEvery<Constraint, Constraint, EUnitRef, UnitExpression> =
-    Constraint.fromProcessRef.arguments compose
+val everyUnitRefInFromProcessRef: PEvery<FromProcessRef, FromProcessRef, EUnitRef, UnitExpression> =
+    FromProcessRef.arguments compose
             Every.map() compose
             everyUnitRefInQuantityExpression
 
-val everyUnitRefInEConstrainedProduct =
-    Merge(
-        listOf(
-            EConstrainedProduct.product compose everyUnitRefInUnconstrainedProductExpression,
-            EConstrainedProduct.constraint compose everyUnitRefInConstraint,
-        )
-    )
+val everyUnitRefInProductSpec: PEvery<EProductSpec, EProductSpec, EUnitRef, UnitExpression> =
+    Merge(listOf(
+        EProductSpec.referenceUnit compose everyUnitRefInUnitExpression,
+        EProductSpec.fromProcessRef compose everyUnitRefInFromProcessRef,
+    ))
 
-val everyUnitRefInProductExpression: PEvery<LcaProductExpression, LcaProductExpression, EUnitRef, UnitExpression> =
-    LcaProductExpression.eConstrainedProduct compose
-            everyUnitRefInEConstrainedProduct
 
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             ETechnoExchange.quantity compose everyUnitRefInQuantityExpression,
-            ETechnoExchange.product compose everyUnitRefInProductExpression,
+            ETechnoExchange.product compose everyUnitRefInProductSpec,
         )
     )
 
 
-val everyUnitRefInSubstanceExpression: PEvery<LcaSubstanceExpression, LcaSubstanceExpression, EUnitRef, UnitExpression> =
-    LcaSubstanceExpression.eSubstance.referenceUnit compose everyUnitRefInUnitExpression
+val everyUnitRefInSubstanceSpec: PEvery<ESubstanceSpec, ESubstanceSpec, EUnitRef, UnitExpression> =
+    ESubstanceSpec.referenceUnit compose everyUnitRefInUnitExpression
 
 val everyUnitRefInEBioExchange: PEvery<EBioExchange, EBioExchange, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             EBioExchange.quantity compose everyUnitRefInQuantityExpression,
-            EBioExchange.substance compose everyUnitRefInSubstanceExpression,
+            EBioExchange.substance compose everyUnitRefInSubstanceSpec,
         )
     )
 
-val everyUnitRefInIndicatorExpression: PEvery<LcaIndicatorExpression, LcaIndicatorExpression, EUnitRef, UnitExpression> =
-    LcaIndicatorExpression.eIndicator.referenceUnit compose everyUnitRefInUnitExpression
+val everyUnitRefInIndicatorSpec: PEvery<EIndicatorSpec, EIndicatorSpec, EUnitRef, UnitExpression> =
+    EIndicatorSpec.referenceUnit compose everyUnitRefInUnitExpression
 
 val everyUnitRefInEImpact: PEvery<EImpact, EImpact, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             EImpact.quantity compose everyUnitRefInQuantityExpression,
-            EImpact.indicator compose everyUnitRefInIndicatorExpression,
+            EImpact.indicator compose everyUnitRefInIndicatorSpec,
         )
     )
 
@@ -136,9 +126,6 @@ val everyUnitRefInProcess: PEvery<EProcess, EProcess, EUnitRef, UnitExpression> 
         )
     )
 
-val everyUnitRefInProcessExpression: PEvery<LcaProcessExpression, LcaProcessExpression, EUnitRef, UnitExpression> =
-    LcaProcessExpression.eProcess compose everyUnitRefInProcess
-
 
 val everyUnitRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, ESubstanceCharacterization, EUnitRef, UnitExpression> =
     Merge(
@@ -148,39 +135,32 @@ val everyUnitRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, 
         )
     )
 
-val everyUnitRefInSubstanceCharacterizationExpression: PEvery<LcaSubstanceCharacterizationExpression, LcaSubstanceCharacterizationExpression, EUnitRef, UnitExpression> =
-    LcaSubstanceCharacterizationExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization
-
-val everyUnitRefInSystemExpression: PEvery<SystemExpression, SystemExpression, EUnitRef, UnitExpression> =
-    SystemExpression.eSystem.processes compose
-            Every.list() compose
-            everyUnitRefInProcessExpression
 
 val everyUnitRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EUnitRef, UnitExpression> =
     Merge(
         listOf(
-            LcaExpression.lcaProcessExpression compose everyUnitRefInProcessExpression,
+            LcaExpression.eProcess compose everyUnitRefInProcess,
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose everyUnitRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose everyUnitRefInEBioExchange,
             LcaExpression.lcaExchangeExpression.eImpact compose everyUnitRefInEImpact,
-            LcaExpression.lcaProductExpression compose everyUnitRefInProductExpression,
-            LcaExpression.lcaIndicatorExpression compose everyUnitRefInIndicatorExpression,
-            LcaExpression.lcaSubstanceExpression compose everyUnitRefInSubstanceExpression,
-            LcaExpression.lcaSubstanceCharacterizationExpression compose everyUnitRefInSubstanceCharacterizationExpression,
+            LcaExpression.eProductSpec compose everyUnitRefInProductSpec,
+            LcaExpression.eIndicatorSpec compose everyUnitRefInIndicatorSpec,
+            LcaExpression.eSubstanceSpec compose everyUnitRefInSubstanceSpec,
+            LcaExpression.eSubstanceCharacterization compose everyUnitRefInSubstanceCharacterization,
         )
     )
 
-val everyUnitRefInTemplateExpression: PEvery<TemplateExpression, TemplateExpression, EUnitRef, UnitExpression> =
+val everyUnitRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EUnitRef, UnitExpression> =
     Merge(
         listOf(
             everyProcessTemplateInTemplateExpression compose Merge(
                 listOf(
                     EProcessTemplate.params compose Every.map() compose everyUnitRefInQuantityExpression,
                     EProcessTemplate.locals compose Every.map() compose everyUnitRefInQuantityExpression,
-                    EProcessTemplate.body compose everyUnitRefInProcessExpression,
+                    EProcessTemplate.body compose everyUnitRefInProcess,
                 )
             ),
-            TemplateExpression.eProcessFinal.expression compose everyUnitRefInProcessExpression,
+            ProcessTemplateExpression.eProcessFinal.expression compose everyUnitRefInProcess,
         )
     )
 
@@ -190,7 +170,7 @@ val everyUnitRef: Every<Expression, EUnitRef> =
             Expression.unitExpression compose everyUnitRefInUnitExpression,
             Expression.quantityExpression compose everyUnitRefInQuantityExpression,
             Expression.lcaExpression compose everyUnitRefInLcaExpression,
-            Expression.templateExpression compose everyUnitRefInTemplateExpression,
-            Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcessExpression,
+            Expression.processTemplateExpression compose everyUnitRefInTemplateExpression,
+            Expression.systemExpression.eSystem.processes compose Every.list() compose everyUnitRefInProcess,
         )
     )

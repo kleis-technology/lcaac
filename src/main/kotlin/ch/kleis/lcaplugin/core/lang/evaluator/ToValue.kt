@@ -3,22 +3,18 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.value.*
 
-fun TemplateExpression.toValue(): ProcessValue {
+fun ProcessTemplateExpression.toValue(): ProcessValue {
     return when (this) {
         is EProcessFinal -> this.expression.toValue()
         else -> throw EvaluatorException("$this is not this")
     }
 }
 
-fun LcaSubstanceCharacterizationExpression.toValue(): SubstanceCharacterizationValue {
-    return when (this) {
-        is ESubstanceCharacterization -> SubstanceCharacterizationValue(
-            referenceExchange = this.referenceExchange.toValue(),
-            impacts = this.impacts.map { it.toValue() },
-        )
-
-        is ESubstanceCharacterizationRef -> throw EvaluatorException("$this is not reduced")
-    }
+fun ESubstanceCharacterization.toValue(): SubstanceCharacterizationValue {
+    return SubstanceCharacterizationValue(
+        referenceExchange = this.referenceExchange.toValue(),
+        impacts = this.impacts.map { it.toValue() },
+    )
 }
 
 fun EImpact.toValue(): ImpactValue {
@@ -28,21 +24,15 @@ fun EImpact.toValue(): ImpactValue {
     )
 }
 
-private fun LcaIndicatorExpression.toValue(): IndicatorValue {
-    return when (this) {
-        is EIndicator -> IndicatorValue(
-            this.name,
-            this.referenceUnit.toValue(),
-        )
-
-        is EIndicatorRef -> throw EvaluatorException("$this is not reduced")
-    }
+private fun EIndicatorSpec.toValue(): IndicatorValue {
+    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    return IndicatorValue(
+        this.name,
+        referenceUnit,
+    )
 }
 
-fun LcaProcessExpression.toValue(): ProcessValue {
-    if (this !is EProcess) {
-        throw EvaluatorException("$this is not reduced")
-    }
+fun EProcess.toValue(): ProcessValue {
     return ProcessValue(
         this.name,
         this.products.map { it.toValue() },
@@ -66,43 +56,31 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
     )
 }
 
-fun LcaSubstanceExpression.toValue(): SubstanceValue {
-    return when (this) {
-        is ESubstance -> SubstanceValue(
-            this.name,
-            this.type,
-            this.compartment,
-            this.subcompartment,
-            this.referenceUnit.toValue(),
-        )
-
-        is ESubstanceRef -> throw EvaluatorException("$this is not reduced")
-    }
+fun ESubstanceSpec.toValue(): SubstanceValue {
+    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val type = this.type ?: SubstanceType.UNDEFINED
+    val compartment = this.compartment ?: "__unknown__"
+    return SubstanceValue(
+        this.name,
+        type,
+        compartment,
+        this.subcompartment,
+        referenceUnit,
+    )
 }
 
-fun LcaProductExpression.toValue(): ProductValue {
-    return when (this) {
-        is EConstrainedProduct -> {
-            val actualProduct = this.product
-            if (actualProduct !is EProduct) {
-                throw EvaluatorException("$actualProduct is not reduced")
-            }
-            ProductValue(
-                actualProduct.name,
-                actualProduct.referenceUnit.toValue(),
-                this.constraint.toValue(),
-            )
-        }
-    }
+fun EProductSpec.toValue(): ProductValue {
+    val name = this.name
+    val referenceUnitValue = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val fromProcessRefValue = this.fromProcessRef?.toValue()
+    return ProductValue(
+        name,
+        referenceUnitValue,
+        fromProcessRefValue,
+    )
 }
 
-private fun Constraint.toValue(): ConstraintValue {
-    if (this == None) {
-        return NoneValue
-    }
-    if (this !is FromProcessRef) {
-        throw EvaluatorException("unknown constraint")
-    }
+private fun FromProcessRef.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
         this.ref,
         this.arguments.mapValues { it.value.toValue() },

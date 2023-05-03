@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.expression.EIndicator
+import ch.kleis.lcaplugin.core.lang.expression.EIndicatorSpec
 
 class IndicatorFixture {
     companion object {
-        val climateChange = EIndicator(
+        val climateChange = EIndicatorSpec(
             "climate change",
             UnitFixture.kg,
         )

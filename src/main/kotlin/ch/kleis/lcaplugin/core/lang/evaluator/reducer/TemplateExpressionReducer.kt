@@ -7,27 +7,18 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    productRegister: Register<LcaUnconstrainedProductExpression> = Register.empty(),
-    substanceRegister: Register<LcaSubstanceExpression> = Register.empty(),
-    indicatorRegister: Register<LcaIndicatorExpression> = Register.empty(),
     quantityRegister: Register<QuantityExpression> = Register.empty(),
     unitRegister: Register<UnitExpression> = Register.empty(),
-    templateRegister: Register<TemplateExpression> = Register.empty(),
-) : Reducer<TemplateExpression> {
+    templateRegister: Register<EProcessTemplate> = Register.empty(),
+) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
-    private val productRegister = Register(productRegister)
-    private val substanceRegister = Register(substanceRegister)
-    private val indicatorRegister = Register(indicatorRegister)
     private val quantityRegister = Register(quantityRegister)
     private val unitRegister = Register(unitRegister)
     private val helper = Helper()
-    private val everyConstraintInProducts = LcaProcessExpression.eProcess.products compose
-            Every.list() compose
-            ETechnoExchange.product.eConstrainedProduct.constraint
 
-    override fun reduce(expression: TemplateExpression): TemplateExpression {
+    override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {
-            is EInstance -> {
+            is EProcessTemplateApplication -> {
                 val template = reduce(expression.template) as EProcessTemplate
 
                 val unknownParameters = expression.arguments.keys
@@ -44,9 +35,6 @@ class TemplateExpressionReducer(
                     .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(
-                    productRegister,
-                    substanceRegister,
-                    indicatorRegister,
                     localRegister,
                     unitRegister
                 )
@@ -59,25 +47,29 @@ class TemplateExpressionReducer(
                     result = helper.substitute(it.key, it.value, result)
                 }
                 result = reducer.reduce(result) as EProcess
-                result = constrainProducts(result as EProcess, actualArguments, quantityReducer)
+                result = concretizeProducts(result, actualArguments, quantityReducer)
                 return EProcessFinal(result)
             }
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
-            is ETemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
+            is EProcessTemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
         }
     }
 
-    private fun constrainProducts(
+    private fun concretizeProducts(
         result: EProcess,
         actualArguments: Map<String, QuantityExpression>,
         quantityReducer: QuantityExpressionReducer
-    ) = everyConstraintInProducts.modify(result) {
-        val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-        FromProcessRef(
-            result.name,
-            reducedActualArguments,
-        )
-    }
+    ) = (EProcess.products
+        .compose(Every.list())
+        .compose(ETechnoExchange.product)).modify(result) {
+            val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
+            it.withFromProcessRef(
+                FromProcessRef(
+                    result.name,
+                    reducedActualArguments,
+                )
+            )
+        }
 }

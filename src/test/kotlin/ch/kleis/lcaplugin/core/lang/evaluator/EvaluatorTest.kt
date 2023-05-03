@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
-import ch.kleis.lcaplugin.core.lang.fixture.IndexFixture.Companion.indexTemplate
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
@@ -17,8 +16,8 @@ class EvaluatorTest {
     fun eval_whenTwoInstancesOfSameTemplate_thenDifferentProduct() {
         // given
         val template = TemplateFixture.carrotProduction
-        val i1 = EInstance(template, mapOf("q_water" to QuantityFixture.oneLitre))
-        val i2 = EInstance(template, mapOf("q_water" to QuantityFixture.twoLitres))
+        val i1 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.oneLitre))
+        val i2 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.twoLitres))
         val symbolTable = SymbolTable.empty()
         val recursiveEvaluator = Evaluator(symbolTable)
 
@@ -35,14 +34,13 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val processTemplates : Register<TemplateExpression> = Register.from(
+        val processTemplates : Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
         )
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
-            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -52,15 +50,14 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
-                            None,
+                        EProductSpec(
+                            "carrot",
                         )
                     )
                 ),
@@ -79,7 +76,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
                                 mapOf(
@@ -102,7 +99,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.salad.withConstraint(
+                        ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
@@ -113,7 +110,7 @@ class EvaluatorTest {
                 inputs = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production", mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
@@ -131,14 +128,13 @@ class EvaluatorTest {
     @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val processTemplates : Register<TemplateExpression> = Register.from(
+        val processTemplates : Register<EProcessTemplate> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
         )
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
-            templatesIndexedByProduct = indexTemplate(processTemplates)
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -148,18 +144,19 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("carrot"),
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
-                            )
+                            ),
                         )
                     )
                 ),
@@ -178,7 +175,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.salad.withConstraint(
+                        ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
                                 emptyMap(),
@@ -189,7 +186,7 @@ class EvaluatorTest {
                 inputs = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production", mapOf(
                                     "q_water" to QuantityValueFixture.twoLitres
@@ -205,7 +202,7 @@ class EvaluatorTest {
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
-                        ProductValueFixture.carrot.withConstraint(
+                        ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
                                 mapOf(
@@ -245,18 +242,19 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            EProductRef("irrelevant_product"),
+                        EProductSpec(
+                            "irrelevant_product",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
-                            )
+                            ),
                         )
                     )
                 ),
@@ -283,11 +281,6 @@ class EvaluatorTest {
                     "propanol" to SubstanceCharacterizationFixture.propanolCharacterization,
                 )
             ),
-            substances = Register.from(
-                mapOf(
-                    "propanol" to SubstanceFixture.propanol,
-                )
-            )
         )
         val expression = EProcessTemplate(
             emptyMap(),
@@ -297,12 +290,12 @@ class EvaluatorTest {
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(UnconstrainedProductFixture.salad, None),
+                        ProductFixture.salad,
                     )
                 ),
                 inputs = emptyList(),
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("propanol"))
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("propanol"))
                 )
             )
         )

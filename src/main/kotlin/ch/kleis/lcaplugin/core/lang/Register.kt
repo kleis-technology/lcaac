@@ -37,14 +37,7 @@ class Register<E> private constructor(
     }
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Register<*>
-
-        if (data != other.data) return false
-
-        return true
+        return (this === other) or ((javaClass == other?.javaClass) and (data == (other as Register<*>).data))
     }
 
     override fun hashCode(): Int {

@@ -69,8 +69,9 @@ class Prelude {
         ).associateBy { it.symbol }
 
         val units: Register<UnitExpression> = Register.from(unitMap)
-        val unitQuantities : Register<QuantityExpression> = Register.from(
+        val unitQuantities: Register<QuantityExpression> = Register.from(
             unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
         )
+
     }
 }

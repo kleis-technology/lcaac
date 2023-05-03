@@ -1,22 +1,31 @@
 package ch.kleis.lcaplugin.core.lang
 
+import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 data class SymbolTable(
-    val products: Register<LcaUnconstrainedProductExpression> = Register.empty(),
-    val substances: Register<LcaSubstanceExpression> = Register.empty(),
-    val indicators: Register<LcaIndicatorExpression> = Register.empty(),
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
-    val processTemplates: Register<TemplateExpression> = Register.empty(),
-    private val templatesIndexedByProduct: Index<TemplateExpression> = Index.empty(),
-    val substanceCharacterizations: Register<LcaSubstanceCharacterizationExpression> = Register.empty(),
+    val processTemplates: Register<EProcessTemplate> = Register.empty(),
+    val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
+    private val templatesIndexedByProductName: Index<EProcessTemplate> = Index(
+        processTemplates,
+        EProcessTemplate.body.products compose
+                Every.list() compose
+                ETechnoExchange.product compose
+                EProductSpec.name
+    )
+    private val substanceCharacterizationsIndexedBySubstanceName: Index<ESubstanceCharacterization> = Index(
+        substanceCharacterizations,
+        ESubstanceCharacterization.referenceExchange.substance.name,
+    )
+
     companion object {
         fun empty() = SymbolTable()
     }
 
-    fun getTemplate(name: String): TemplateExpression? {
+    fun getTemplate(name: String): EProcessTemplate? {
         return processTemplates[name]
     }
 
@@ -28,29 +37,16 @@ data class SymbolTable(
         return quantities[name]
     }
 
-    fun plus(map: Map<String, QuantityExpression>): SymbolTable {
-        return SymbolTable(
-            products,
-            substances,
-            indicators,
-            quantities.plus(map),
-            units,
-            processTemplates,
-            templatesIndexedByProduct,
-            substanceCharacterizations,
-        )
-    }
-
-    fun getSubstanceCharacterization(name: String): LcaSubstanceCharacterizationExpression? {
+    fun getSubstanceCharacterization(name: String): ESubstanceCharacterization? {
         return substanceCharacterizations[name]
     }
 
-    fun getSubstance(name: String): LcaSubstanceExpression? {
-        return substances[name]
+    fun getSubstanceCharacterizationFromSubstanceName(name: String): ESubstanceCharacterization? {
+        return substanceCharacterizationsIndexedBySubstanceName[name]
     }
 
-    fun getTemplateFromProductName(name: String): TemplateExpression? {
-        return templatesIndexedByProduct[name]
+    fun getTemplateFromProductName(name: String): EProcessTemplate? {
+        return templatesIndexedByProductName[name]
     }
 
     override fun toString(): String {

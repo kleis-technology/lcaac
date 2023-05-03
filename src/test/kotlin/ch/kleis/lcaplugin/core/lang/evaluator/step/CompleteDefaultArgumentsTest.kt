@@ -4,12 +4,12 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.fixture.ProcessFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnconstrainedProductFixture
-import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
-import io.mockk.mockk
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
+import kotlin.test.assertNull
 
 
 class CompleteDefaultArgumentsTest {
@@ -20,20 +20,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = mockk(),
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -43,8 +41,9 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf(
@@ -57,12 +56,12 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
         val expected = FromProcessRef(
@@ -79,20 +78,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = mockk(),
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -102,8 +99,9 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                             FromProcessRef(
                                 "carrot_production",
                                 emptyMap(),
@@ -114,12 +112,12 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
         val expected = FromProcessRef(
@@ -136,20 +134,18 @@ class CompleteDefaultArgumentsTest {
             "q_water" to QuantityFixture.oneLitre,
             "q_pesticide" to QuantityFixture.oneKilogram,
         )
-        val processResolver = ProcessResolver(
-            SymbolTable(
-                processTemplates = Register.from(
-                    mapOf(
-                        "carrot_production" to EProcessTemplate(
-                            params = params,
-                            locals = emptyMap(),
-                            body = mockk(),
-                        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
                     )
                 )
             )
         )
-        val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
@@ -159,23 +155,23 @@ class CompleteDefaultArgumentsTest {
                 inputs = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
-                        EConstrainedProduct(
-                            UnconstrainedProductFixture.carrot,
-                            None,
+                        EProductSpec(
+                            "carrot",
+                            UnitFixture.kg,
                         )
                     )
                 ),
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
-                Every.list() compose
-                ETechnoExchange.product.eConstrainedProduct
+        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
+            Every.list() compose
+            ETechnoExchange.product
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.constraint
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
-        assertEquals(None, actual)
+        assertNull(actual)
     }
 }

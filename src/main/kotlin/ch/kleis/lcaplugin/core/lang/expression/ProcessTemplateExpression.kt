@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
-import arrow.optics.*
+import arrow.optics.optics
 
 @optics
-sealed interface TemplateExpression : Expression {
+sealed interface ProcessTemplateExpression : Expression {
     companion object
 }
 
@@ -11,21 +11,21 @@ sealed interface TemplateExpression : Expression {
 data class EProcessTemplate(
     val params: Map<String, QuantityExpression>,
     val locals: Map<String, QuantityExpression>,
-    val body: LcaProcessExpression,
-) : TemplateExpression {
+    val body: EProcess,
+) : ProcessTemplateExpression {
     companion object
 }
 
 @optics
-data class EInstance(
-    val template: TemplateExpression,
+data class EProcessTemplateApplication(
+    val template: ProcessTemplateExpression,
     val arguments: Map<String, QuantityExpression>
-) : TemplateExpression {
+) : ProcessTemplateExpression {
     companion object
 }
 
 @optics
-data class ETemplateRef(val name: String) : TemplateExpression, RefExpression {
+data class EProcessTemplateRef(val name: String) : ProcessTemplateExpression, RefExpression {
     override fun name(): String {
         return name
     }
@@ -34,7 +34,7 @@ data class ETemplateRef(val name: String) : TemplateExpression, RefExpression {
 }
 
 @optics
-data class EProcessFinal(val expression: LcaProcessExpression) : TemplateExpression {
+data class EProcessFinal(val expression: EProcess) : ProcessTemplateExpression {
     companion object
 }
 

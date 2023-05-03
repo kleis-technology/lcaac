@@ -7,38 +7,28 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.expression.optics.indicatorRefInIndicatorExpression
-import ch.kleis.lcaplugin.core.lang.expression.optics.productRefInProductExpression
-import ch.kleis.lcaplugin.core.lang.expression.optics.substanceRefInLcaSubstanceExpression
 
 class ReduceAndComplete(
     symbolTable: SymbolTable,
 ) {
     private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
-        symbolTable.products,
-        symbolTable.substances,
-        symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
-        symbolTable.substanceCharacterizations
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.products,
-        symbolTable.substances,
-        symbolTable.indicators,
         symbolTable.quantities,
         symbolTable.units,
         processTemplates,
     )
 
-    fun apply(expression: TemplateExpression): TemplateExpression {
+    fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         val reduced = when (expression) {
-            is EInstance -> templateReducer.reduce(expression)
+            is EProcessTemplateApplication -> templateReducer.reduce(expression)
             is EProcessFinal -> expression
-            is EProcessTemplate -> templateReducer.reduce(EInstance(expression, emptyMap()))
-            is ETemplateRef -> processTemplates[expression.name]?.let {
-                templateReducer.reduce(EInstance(expression, emptyMap()))
+            is EProcessTemplate -> templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
+            is EProcessTemplateRef -> processTemplates[expression.name]?.let {
+                templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
             } ?: expression
         }
         val unboundedReferences = Helper().allRequiredRefs(reduced)
@@ -48,7 +38,7 @@ class ReduceAndComplete(
         return completeSubstances(completeInputs(reduced))
     }
 
-    fun apply(expression: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
+    fun apply(expression: ESubstanceCharacterization): ESubstanceCharacterization {
         val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
         val unboundedReferences = Helper().allRequiredRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {
@@ -58,51 +48,46 @@ class ReduceAndComplete(
     }
 
 
-    private fun completeInputs(reduced: TemplateExpression): TemplateExpression {
-        return (TemplateExpression.eProcessFinal.expression.eProcess.inputs compose Every.list())
+    private fun completeInputs(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
+        return (ProcessTemplateExpression.eProcessFinal.expression.inputs compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {
                     throw EvaluatorException("quantity $q is not reduced")
                 }
-                (ETechnoExchange.product compose productRefInProductExpression)
+                ETechnoExchange.product
                     .modify(exchange) {
-                        EProduct(it.name, q.unit)
+                        it.withReferenceUnit(q.unit)
                     }
             }
     }
 
-    private fun completeSubstances(reduced: TemplateExpression): TemplateExpression {
-        return (TemplateExpression.eProcessFinal.expression.eProcess.biosphere compose Every.list())
+    private fun completeSubstances(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
+        return (ProcessTemplateExpression.eProcessFinal.expression.biosphere compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {
                     throw EvaluatorException("quantity $q is not reduced")
                 }
-                (EBioExchange.substance compose substanceRefInLcaSubstanceExpression)
+                EBioExchange.substance
                     .modify(exchange) {
-                        ESubstance(
-                            it.name,
-                            it.name,
-                            SubstanceType.UNDEFINED,
-                            "__unknown__",
-                            null,
-                            q.unit,
-                        )
+                        if (it.referenceUnit == null) {
+                            it.withReferenceUnit(q.unit)
+                        } else it
                     }
             }
     }
 
-    private fun completeIndicators(reduced: LcaSubstanceCharacterizationExpression): LcaSubstanceCharacterizationExpression {
-        return (LcaSubstanceCharacterizationExpression.eSubstanceCharacterization.impacts compose Every.list())
+    private fun completeIndicators(reduced: ESubstanceCharacterization): ESubstanceCharacterization {
+        return (ESubstanceCharacterization.impacts compose Every.list())
             .modify(reduced) { exchange ->
                 val q = exchange.quantity
                 if (q !is EQuantityLiteral) {
                     throw EvaluatorException("quantity $q is not reduced")
                 }
-                (EImpact.indicator compose indicatorRefInIndicatorExpression)
+                EImpact.indicator
                     .modify(exchange) {
-                        EIndicator(it.name, q.unit)
+                        EIndicatorSpec(it.name, q.unit)
                     }
             }
     }

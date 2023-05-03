@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.EProcess
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
@@ -19,6 +18,57 @@ import org.junit.Assert
 import org.junit.Test
 
 class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun test_substanceResolution() {
+        val file = parseFile(
+            "hello", """
+                process p {
+                    products {
+                        1 kg a
+                    }
+                    emissions {
+                        1 kg b
+                    }
+                }
+                
+                substance b {
+                    name = "b"
+                    type = Emission
+                    compartment = "compartment"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+
+        // when
+        val symbolTable = parser.load()
+        val entryPoint = symbolTable.processTemplates["p"]!!
+        val system = Evaluator(symbolTable).eval(entryPoint)
+        val assessment = Assessment(system)
+        when (val result = assessment.inventory()) {
+            // then
+            is InventoryError -> fail("$result")
+            is InventoryMatrix -> {
+                val output = result.observablePorts.getElements().first()
+                val input = result.controllablePorts.getElements().first()
+                val cf = result.value(output, input)
+
+                TestCase.assertEquals("a from p{}", output.name())
+                TestCase.assertEquals(1.0, cf.output.quantity().amount)
+                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+
+                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals(1.0, cf.input.quantity().amount)
+                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+            }
+        }
+    }
+
     @Test
     fun test_meta_whenKeywordAsKey() {
         // given
@@ -61,7 +111,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -118,7 +168,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -175,7 +225,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -238,7 +288,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -280,7 +330,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
         val symbolTable = parser.load()
@@ -316,11 +366,11 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         TestCase.assertEquals(100.0, actual)
     }
@@ -339,11 +389,11 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body as EProcess).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         TestCase.assertEquals(100.0, actual)
     }
@@ -364,7 +414,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
@@ -407,7 +457,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
@@ -441,7 +491,7 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
@@ -475,14 +525,14 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         // when
         try {
             Evaluator(symbolTable).eval(entryPoint)
         } catch (e: EvaluatorException) {
-            Assert.fail("Should fail")
+            Assert.fail("Should not fail")
         }
     }
 
@@ -508,15 +558,12 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
             }
         """.trimIndent()
         ) as LcaFile
-        val parser = LcaLangAbstractParser(listOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
-        // when
-        try {
-            Evaluator(symbolTable).eval(entryPoint)
-        } catch (e: EvaluatorException) {
-            Assert.fail("Should fail")
-        }
+
+        // when/then
+        Evaluator(symbolTable).eval(entryPoint)
     }
 
     override fun getTestDataPath(): String {

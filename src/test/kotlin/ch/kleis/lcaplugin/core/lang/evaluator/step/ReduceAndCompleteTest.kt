@@ -18,7 +18,7 @@ class ReduceAndCompleteTest {
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
         // given
         val template = TemplateFixture.carrotProduction
-        val instance = EInstance(
+        val instance = EProcessTemplateApplication(
             template, mapOf(
                 Pair(
                     "q_water", EQuantityAdd(
@@ -39,7 +39,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.twoLitres),
@@ -69,11 +69,11 @@ class ReduceAndCompleteTest {
                 products = emptyList(),
                 inputs = emptyList(),
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("co2"))
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
                 ),
             )
         )
-        val instance = EInstance(
+        val instance = EProcessTemplateApplication(
             template, emptyMap()
         )
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
@@ -117,7 +117,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
@@ -139,7 +139,7 @@ class ReduceAndCompleteTest {
     @Test
     fun eval_whenTemplateRef_shouldReadEnv() {
         // given
-        val templateRef = ETemplateRef("p")
+        val templateRef = EProcessTemplateRef("p")
         val reduceAndComplete = ReduceAndComplete(
             SymbolTable(
                 processTemplates = Register.from(
@@ -159,7 +159,7 @@ class ReduceAndCompleteTest {
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withConstraint(
+                    ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
@@ -199,7 +199,7 @@ class ReduceAndCompleteTest {
         val expression = ESubstanceCharacterization(
             EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             listOf(
-                EImpact(QuantityFixture.oneKilogram, EIndicatorRef("cc"))
+                EImpact(QuantityFixture.oneKilogram, EIndicatorSpec("cc"))
             )
         )
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())

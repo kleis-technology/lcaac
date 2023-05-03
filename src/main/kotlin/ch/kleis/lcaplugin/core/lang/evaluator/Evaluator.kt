@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
 import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
+import ch.kleis.lcaplugin.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import com.intellij.openapi.diagnostic.Logger
 
@@ -20,18 +21,19 @@ class Evaluator(
 
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
+    private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
     private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
-    private val completeDefaultArguments = CompleteDefaultArguments(processResolver)
+    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
-        TemplateExpression.eProcessFinal.expression.eProcess.inputs
+        ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
-            .compose(ETechnoExchange.product.eConstrainedProduct)
-    private val everySubstance: PEvery<TemplateExpression, TemplateExpression, ESubstance, ESubstance> =
-        TemplateExpression.eProcessFinal.expression.eProcess.biosphere
+            .compose(ETechnoExchange.product)
+    private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstanceSpec, ESubstanceSpec> =
+        ProcessTemplateExpression.eProcessFinal.expression.biosphere
             .compose(Every.list())
-            .compose(EBioExchange.substance.eSubstance)
+            .compose(EBioExchange.substance)
 
-    fun eval(expression: TemplateExpression): SystemValue {
+    fun eval(expression: ProcessTemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")
         try {
             val result = SystemValue.empty()
@@ -46,79 +48,66 @@ class Evaluator(
 
     private tailrec fun recursiveCompile(
         accumulator: SystemValue,
-        visited: HashSet<TemplateExpression>,
-        toProcess: HashSet<TemplateExpression>,
+        visited: HashSet<ProcessTemplateExpression>,
+        toProcess: HashSet<ProcessTemplateExpression>,
     ) {
+        // termination condition
         if (toProcess.isEmpty()) return
+
         // eval
-        val expression = toProcess.first()
-        toProcess.remove(expression)
+        val expression = toProcess.first(); toProcess.remove(expression);
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
-        val completed = completeDefaultArguments.apply(expression)
-        val reduced = reduceAndComplete.apply(completed)
-        val nextInstances = HashSet<EInstance>()
-        val e = everyInputProduct.modify(reduced) {
-            resolveAndCheckCandidates(it)?.let { candidate ->
-                val template = candidate as EProcessTemplate
-                val body = template.body as EProcess
-                val arguments = when (it.constraint) {
-                    is FromProcessRef -> it.constraint.arguments
-                    None -> template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
-                }
-                nextInstances.add(EInstance(template, arguments))
-                EConstrainedProduct(
-                    it.product,
+        val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
+        val nextInstances = HashSet<EProcessTemplateApplication>()
+        val inputProductsModified = everyInputProduct.modify(reduced) { spec ->
+            resolveProcessTemplateFromProduct(spec)?.let { template ->
+                val body = template.body
+                val arguments = spec.fromProcessRef?.arguments
+                    ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
+                nextInstances.add(EProcessTemplateApplication(template, arguments))
+                spec.withFromProcessRef(
                     FromProcessRef(
                         body.name,
                         arguments,
                     )
                 )
-            } ?: it
+            } ?: spec
         }
-        val v = e.toValue()
+        val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
+            resolveSubstanceCharacterizationBySubstance(spec)?.let { it ->
+                val substanceCharacterization = reduceAndComplete.apply(it)
+                accumulator.plus(substanceCharacterization.toValue())
+                substanceCharacterization.referenceExchange.substance
+            } ?: spec
+        }
+        val v = substancesModified.toValue()
 
-        // termination condition
         if (accumulator.containsProcess(v)) {
             LOG.warn("This expression should not be present in accumulator $expression and $v")
             recursiveCompile(accumulator, visited, toProcess)
         } else {
 
             // add evaluated process
-            var result = accumulator.plus(v)
-
-            // add substance characterizations
-            everySubstance.getAll(reduced).forEach { substance ->
-                symbolTable.getSubstanceCharacterization(substance.name)?.let {
-                    val scv = reduceAndComplete.apply(it).toValue()
-                    result = result.plus(scv)
-                }
-            }
+            accumulator.plus(v)
 
             // recursively visit process template instances
             nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }
 
-            recursiveCompile(result, visited, toProcess)
+            recursiveCompile(accumulator, visited, toProcess)
         }
     }
 
-
-    private fun resolveAndCheckCandidates(product: EConstrainedProduct): TemplateExpression? {
-        val eProduct =
-            if (product.product is EProduct) product.product
-            else throw EvaluatorException("unbound product ${product.product}")
-        return when (product.constraint) {
-            is FromProcessRef -> {
-                val processRef = product.constraint.ref
-                val candidates = processResolver.resolveByProductName(eProduct.name)
-                return candidates
-                    ?: throw EvaluatorException("no process '$processRef' providing '${eProduct.name}' found")
-            }
-
-            None -> processResolver.resolveByProductName(eProduct.name)
-        }
+    private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
+        return substanceCharacterizationResolver.resolve(spec)?.takeUnless { !it.hasImpacts() }
     }
 
+    private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
+        return spec.fromProcessRef?.ref?.let { processName ->
+            val candidate = processResolver.resolve(spec)
+            return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")
+        } ?: processResolver.resolve(spec)
+    }
 }
 

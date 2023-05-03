@@ -8,7 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 
-class TemplateExpressionReducerTest {
+class ProcessTemplateExpressionReducerTest {
 
     @Test
     fun reduce_whenInstance_shouldReduce() {
@@ -40,7 +40,7 @@ class TemplateExpressionReducerTest {
         val arguments = mapOf(
             Pair("q_carrot", QuantityFixture.twoKilograms),
         )
-        val expression = EInstance(template, arguments)
+        val expression = EProcessTemplateApplication(template, arguments)
         val reducer = TemplateExpressionReducer()
 
         // when
@@ -53,7 +53,7 @@ class TemplateExpressionReducerTest {
                 products = listOf(
                     ETechnoExchange(
                         EQuantityLiteral(3.0, UnitFixture.kg),
-                        ProductFixture.carrot.withConstraint(
+                        ProductFixture.carrot.withFromProcessRef(
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf(
@@ -106,7 +106,7 @@ class TemplateExpressionReducerTest {
         val arguments = mapOf(
             Pair("foo", QuantityFixture.twoKilograms),
         )
-        val expression = EInstance(template, arguments)
+        val expression = EProcessTemplateApplication(template, arguments)
         val reducer = TemplateExpressionReducer()
 
         // when/then
@@ -122,7 +122,7 @@ class TemplateExpressionReducerTest {
     fun reduce_whenTemplateRef_shouldReadEnv() {
         // given
         val template = TemplateFixture.carrotProduction
-        val expression = ETemplateRef("carrot_production")
+        val expression = EProcessTemplateRef("carrot_production")
         val reducer = TemplateExpressionReducer(
             templateRegister = Register.from(
                 hashMapOf(

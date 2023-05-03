@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnconstrainedProductFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -55,8 +55,9 @@ class HelperTest {
             products = listOf(
                 ETechnoExchange(
                     ref,
-                    EConstrainedProduct(
-                        UnconstrainedProductFixture.carrot,
+                    EProductSpec(
+                        "carrot",
+                        UnitFixture.kg,
                         FromProcessRef(
                             "carrot_production",
                             mapOf(
@@ -80,8 +81,9 @@ class HelperTest {
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
-                    EConstrainedProduct(
-                        UnconstrainedProductFixture.carrot,
+                    EProductSpec(
+                        "carrot",
+                        UnitFixture.kg,
                         FromProcessRef(
                             "carrot_production",
                             mapOf(
@@ -110,14 +112,14 @@ class HelperTest {
                             EQuantityLiteral(
                                 1.0,
                                 EUnitMul(EUnitRef("ua"), EUnitRef("ub"))
-                            ), EConstrainedProduct(
-                                EProductRef("product"),
-                                None,
+                            ), EProductSpec(
+                                "product",
                             )
                         ),
                         ETechnoExchange(
-                            QuantityFixture.oneLitre, EConstrainedProduct(
-                                UnconstrainedProductFixture.water,
+                            QuantityFixture.oneLitre, EProductSpec(
+                                "water",
+                                UnitFixture.l,
                                 FromProcessRef("template", emptyMap())
                             )
                         ),
@@ -127,13 +129,13 @@ class HelperTest {
             ),
             listOf(
                 ESubstanceCharacterization(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceRef("substance")),
+                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("substance")),
                     listOf(
                         EImpact(
                             EQuantityAdd(
                                 EQuantityScale(3.0, EQuantityRef("qa")),
                                 EQuantityRef("qb")
-                            ), EIndicatorRef("indicator")
+                            ), EIndicatorSpec("indicator")
                         )
                     ),
                 )

@@ -1,38 +1,32 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.step
 
 import arrow.optics.Every
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 
 class CompleteDefaultArguments(
-    private val processResolver: ProcessResolver
+    private val symbolTable: SymbolTable,
 ) {
-    private val everyInputProduct = TemplateExpression.eProcessTemplate.body.eProcess.inputs compose
+    private val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
             Every.list() compose
-            ETechnoExchange.product.eConstrainedProduct
+            ETechnoExchange.product
 
-    fun apply(expression: TemplateExpression): TemplateExpression {
+    fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return everyInputProduct.modify(expression) {
-            when (it.constraint) {
-                is FromProcessRef -> {
-                    val process = processResolver.resolve(it.constraint.ref)
-                        ?: throw EvaluatorException("unknown process ${it.constraint.ref}")
-                    if (process !is EProcessTemplate) {
-                        throw EvaluatorException("${it.constraint.ref} cannot be invoked")
-                    }
-                    val actualArguments = process.params.plus(it.constraint.arguments)
-                    EConstrainedProduct(
-                        it.product,
-                        FromProcessRef(
-                            it.constraint.ref,
-                            actualArguments,
-                        )
+            it.fromProcessRef?.let { ref ->
+                val process = symbolTable.getTemplate(ref.ref)
+                    ?: throw EvaluatorException("unknown process ${ref.ref}")
+                val actualArguments = process.params.plus(ref.arguments)
+                EProductSpec(
+                    it.name,
+                    it.referenceUnit,
+                    FromProcessRef(
+                        ref.ref,
+                        actualArguments,
                     )
-                }
-
-                None -> it
-            }
+                )
+            } ?: it
         }
     }
 }
