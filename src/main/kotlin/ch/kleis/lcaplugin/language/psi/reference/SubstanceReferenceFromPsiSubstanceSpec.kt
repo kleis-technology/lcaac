@@ -9,8 +9,8 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
-class SubstanceReference(
-        element: PsiSubstanceSpec
+class SubstanceReferenceFromPsiSubstanceSpec(
+    element: PsiSubstanceSpec
 ) : PsiReferenceBase<PsiSubstanceSpec>(element), PsiPolyVariantReference {
     private val project = element.project
     private val file = element.containingFile as LcaFile
@@ -28,22 +28,22 @@ class SubstanceReference(
         val compartment = element.getCompartmentField()?.getValue() ?: return emptyArray()
 
         val candidateFqns = allPkgNames.map {
-            "$it.${element.getSubstanceRef().name}"
+            "$it.${element.name}"
         }
 
         val subCompartment = element.getSubCompartmentField()?.getValue()
 
         fun findSubstances(subCompartment: String?): (String) -> Collection<PsiSubstance> = { fqn: String ->
             SubstanceKeyIndex.findSubstances(
-                    project,
-                    fqn, type, compartment, subCompartment,
+                project,
+                fqn, type, compartment, subCompartment,
             )
         }
 
         return if (subCompartment != null) {
             candidateFqns
-                    .flatMap(findSubstances(subCompartment))
-                    .ifEmpty { candidateFqns.flatMap(findSubstances(null)) }
+                .flatMap(findSubstances(subCompartment))
+                .ifEmpty { candidateFqns.flatMap(findSubstances(null)) }
         } else {
             candidateFqns.flatMap(findSubstances(null))
         }.map(::PsiElementResolveResult).toTypedArray()
@@ -53,18 +53,18 @@ class SubstanceReference(
     override fun getVariants(): Array<Any> {
         val allKeys = StubIndex.getInstance().getAllKeys(LcaStubIndexKeys.SUBSTANCES, project)
         val filter = allKeys
-                .filter { key ->
-                    allPkgNames.any {
-                        val parts = key.split(".")
-                        val prefix = parts.take(parts.size - 1).joinToString(".")
-                        prefix.startsWith(it)
-                    }
+            .filter { key ->
+                allPkgNames.any {
+                    val parts = key.split(".")
+                    val prefix = parts.take(parts.size - 1).joinToString(".")
+                    prefix.startsWith(it)
                 }
+            }
         val map = filter
-                .map { it.split(".").last() }
+            .map { it.split(".").last() }
         val map1 = map
-                .map { LookupElementBuilder.create(it) }
+            .map { LookupElementBuilder.create(it) }
         return map1
-                .toTypedArray()
+            .toTypedArray()
     }
 }

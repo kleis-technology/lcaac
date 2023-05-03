@@ -7,7 +7,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
 
-class SubstanceReferenceTest : BasePlatformTestCase() {
+class SubstanceReferenceFromPsiSubstanceSpecTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "testdata"
@@ -16,9 +16,10 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
     @Test
     fun test_resolve_whenNoSubCompartment_shouldDefaultToMatchingCompartment() {
         // given
-        val pkgName = "language.psi.reference.subst.test_resolve_whenNoSubCompartment_shouldDefaultToMatchingCompartment"
+        val pkgName =
+            "language.psi.reference.subst.test_resolve_whenNoSubCompartment_shouldDefaultToMatchingCompartment"
         myFixture.createFile(
-                "$pkgName.co2_air.lca", """
+            "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
                
                 substance co2 {
@@ -38,7 +39,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
 
                 import $pkgName.co2_air
@@ -54,18 +55,18 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val substanceSpec = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-                .getEmissions().first()
-                .getSubstanceSpec()
+            .getEmissions().first()
+            .getSubstanceSpec()
 
         // when
         val actual = substanceSpec.reference.resolve()
 
         // then
         val expected = SubstanceKeyIndex.findSubstances(
-                project,
-                "$pkgName.co2_air.co2",
-                "Emission",
-                "air"
+            project,
+            "$pkgName.co2_air.co2",
+            "Emission",
+            "air"
         ).first()
         TestCase.assertEquals(expected, actual)
     }
@@ -75,7 +76,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
         // given
         val pkgName = "language.psi.reference.subst.test_resolve_whenIncompatibleTypes_ShouldNotResolve"
         myFixture.createFile(
-                "$pkgName.co2_air.lca", """
+            "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
                
                 substance co2 {
@@ -95,7 +96,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
 
                 import $pkgName.co2_air
@@ -111,8 +112,8 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val substanceSpec = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-                .getResources().first()
-                .getSubstanceSpec()
+            .getResources().first()
+            .getSubstanceSpec()
 
         // when
         val actual = substanceSpec.reference.resolve()
@@ -126,7 +127,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
         // given
         val pkgName = "language.psi.reference.subst.test_resolve__whenExact"
         myFixture.createFile(
-                "$pkgName.co2_air.lca", """
+            "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
                
                 substance co2 {
@@ -146,7 +147,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
 
                 import $pkgName.co2_air
@@ -162,18 +163,18 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val substanceSpec = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-                .getEmissions().first()
-                .getSubstanceSpec()
+            .getEmissions().first()
+            .getSubstanceSpec()
 
         // when
         val actual = substanceSpec.reference.resolve()
 
         // then
         val expected = SubstanceKeyIndex.findSubstances(
-                project,
-                "$pkgName.co2_air.co2",
-                "Emission",
-                "air"
+            project,
+            "$pkgName.co2_air.co2",
+            "Emission",
+            "air"
         ).first()
         TestCase.assertEquals(expected, actual)
     }
@@ -183,7 +184,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
         // given
         val pkgName = "language.psi.reference.subst.test_getVariants"
         myFixture.createFile(
-                "$pkgName.co2_air.lca", """
+            "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
                
                 substance co2_air {
@@ -203,7 +204,7 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
 
                 import $pkgName.co2_air
@@ -219,18 +220,18 @@ class SubstanceReferenceTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val spec = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-                .getEmissions().first()
-                .getSubstanceSpec()
+            .getEmissions().first()
+            .getSubstanceSpec()
 
         // when
         val actual = spec.reference
-                .variants.map { (it as LookupElementBuilder).lookupString }
-                .sorted()
+            .variants.map { (it as LookupElementBuilder).lookupString }
+            .sorted()
 
         // then
         val expected = listOf(
-                """co2_air(type="Emission", compartment="air")""",
-                """another_co2_air(type="Emission", compartment="air", sub_compartment="another")""",
+            """co2_air(type="Emission", compartment="air")""",
+            """another_co2_air(type="Emission", compartment="air", sub_compartment="another")""",
         ).sorted()
         TestCase.assertEquals(expected, actual)
     }

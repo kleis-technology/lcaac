@@ -175,7 +175,7 @@ class LcaLangAbstractParser(
 
     private fun substanceSpec(substanceSpec: PsiSubstanceSpec, quantity: QuantityExpression, symbolTable: SymbolTable): ESubstanceSpec =
             ESubstanceSpec(
-                    name = substanceSpec.getSubstanceRef().name,
+                    name = substanceSpec.name,
                     compartment = substanceSpec.getCompartmentField()?.getValue(),
                     subCompartment = substanceSpec.getSubCompartmentField()?.getValue(),
                     type = substanceSpec.getType(),

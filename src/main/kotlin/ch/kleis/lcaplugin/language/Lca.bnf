@@ -389,7 +389,7 @@ parameterRef ::= uid {
    Spec
  */
 
-substanceSpec ::= substanceRef (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
+substanceSpec ::= uid (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiSubstanceSpecMixin"
 }

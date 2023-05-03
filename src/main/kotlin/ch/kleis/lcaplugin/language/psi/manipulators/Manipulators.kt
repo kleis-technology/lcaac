@@ -28,7 +28,7 @@ class PsiSubstanceSpecManipulator() : AbstractElementManipulator<PsiSubstanceSpe
         range: TextRange,
         newContent: String?
     ): PsiSubstanceSpec? {
-        newContent?.let { element.getSubstanceRef().setName(it) }
+        newContent?.let { element.setName(it) }
         return element
     }
 }
