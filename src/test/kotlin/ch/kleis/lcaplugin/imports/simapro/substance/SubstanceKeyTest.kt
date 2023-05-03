@@ -12,7 +12,7 @@ class SubstanceKeyTest {
         val result = SubstanceKey("_nAme_", "Emission", "_coMp_", "_Sub_").uid()
 
         // Then
-        assertEquals("_name_comp_sub", result)
+        assertEquals("_name", result)
     }
 
     @Test
@@ -21,7 +21,7 @@ class SubstanceKeyTest {
         val result = SubstanceKey("_nAme_", "Emission", "_coMp_", null).uid()
 
         // Then
-        assertEquals("_name_comp", result)
+        assertEquals("_name", result)
     }
 
     @Test
@@ -30,7 +30,7 @@ class SubstanceKeyTest {
         val result = SubstanceKey("_nAme_", "Emission", "_coMp_", null, false)
 
         // Then
-        assertEquals("_name_comp", result.uid())
+        assertEquals("_name", result.uid())
     }
 
     @Test
@@ -79,7 +79,7 @@ class SubstanceKeyTest {
 
         // Then
         assertEquals(SubstanceKey("_nAme_hoho", "Emission", "_coMp_", "sub", true), result)
-        assertEquals("_name_hoho_comp_sub", result.uid())
+        assertEquals("_name_hoho", result.uid())
     }
 
     @Test
