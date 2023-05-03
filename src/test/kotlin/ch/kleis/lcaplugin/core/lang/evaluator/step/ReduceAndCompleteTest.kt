@@ -92,7 +92,7 @@ class ReduceAndCompleteTest {
                     SubstanceValue(
                         "co2",
                         type = SubstanceType.UNDEFINED,
-                        "__unknown__",
+                        "",
                         null,
                         UnitValueFixture.kg,
                     )

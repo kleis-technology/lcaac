@@ -25,7 +25,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         }
 
         val product = matrix.controllablePorts[columnIndex - 2]
-        return "${product.name()} [${product.referenceUnit().symbol}]"
+        return "${product.getDisplayName()} [${product.referenceUnit().symbol}]"
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
@@ -44,7 +44,7 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         val outputProduct = matrix.observablePorts[rowIndex]
 
         if (columnIndex == 0) {
-            return outputProduct.name()
+            return outputProduct.getDisplayName()
         }
 
         if (columnIndex == 1) {

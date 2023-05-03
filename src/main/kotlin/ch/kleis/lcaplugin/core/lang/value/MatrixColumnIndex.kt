@@ -7,10 +7,10 @@ import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 
 sealed interface MatrixColumnIndex : Value, HasUID {
     fun getDimension(): Dimension
-    fun name(): String
+    fun getDisplayName(): String
     fun referenceUnit(): UnitValue
     override fun getUID(): String {
-        return name()
+        return getDisplayName()
     }
 }
 
@@ -25,7 +25,7 @@ data class ProductValue(
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
+    override fun getDisplayName(): String {
         if (fromProcessRef is FromProcessRefValue) {
             return "$name from ${fromProcessRef.name}${fromProcessRef.arguments}"
         }
@@ -55,7 +55,11 @@ data class SubstanceValue(
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
+    override fun getDisplayName(): String {
+        if (compartment.isBlank()) {
+            return """[${type.value}] $name"""
+        }
+
         val args = listOfNotNull(
             compartment,
             subcompartment
@@ -75,7 +79,7 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
+    override fun getDisplayName(): String {
         return name
     }
 

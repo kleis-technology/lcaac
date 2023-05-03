@@ -38,8 +38,7 @@ data class SubstanceKey(
     }
 
     fun uid(): String {
-        val option = if (subCompartment.isNullOrBlank()) "" else "_$subCompartment"
-        return ModelWriter.sanitizeAndCompact("${name}_$compartment$option")
+        return ModelWriter.sanitizeAndCompact(name)
     }
 
     /* Need custom implementation to ignore hasChanged field */
