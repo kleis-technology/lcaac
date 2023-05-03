@@ -16,18 +16,19 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
     }
 }
 
-class PsiQuantityRefManipulator() : PsiUIDOwnerManipulator<PsiQuantityRef>()
-class PsiProductRefManipulator() : PsiUIDOwnerManipulator<PsiProductRef>()
-class PsiProcessTemplateRefManipulator() : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
-class PsiUnitRefManipulator(): PsiUIDOwnerManipulator<PsiUnitRef>()
-class PsiParameterRefManipulator(): PsiUIDOwnerManipulator<PsiParameterRef>()
+class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiQuantityRef>()
+class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
+class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
+class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
+class PsiUnitRefManipulator: PsiUIDOwnerManipulator<PsiUnitRef>()
+class PsiParameterRefManipulator: PsiUIDOwnerManipulator<PsiParameterRef>()
 
-class PsiSubstanceSpecManipulator() : AbstractElementManipulator<PsiSubstanceSpec>() {
+class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>() {
     override fun handleContentChange(
         element: PsiSubstanceSpec,
         range: TextRange,
         newContent: String?
-    ): PsiSubstanceSpec? {
+    ): PsiSubstanceSpec {
         newContent?.let { element.setName(it) }
         return element
     }
@@ -38,7 +39,7 @@ class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTech
         element: PsiTechnoProductExchange,
         range: TextRange,
         newContent: String?
-    ): PsiTechnoProductExchange? {
+    ): PsiTechnoProductExchange {
         newContent?.let { element.getProductRef().setName(it) }
         return element
     }
@@ -49,7 +50,7 @@ class PsiGlobalAssignmentManipulator() : AbstractElementManipulator<PsiGlobalAss
         element: PsiGlobalAssignment,
         range: TextRange,
         newContent: String?
-    ): PsiGlobalAssignment? {
+    ): PsiGlobalAssignment {
         newContent?.let { element.getQuantityRef().setName(it) }
         return element
     }
@@ -60,7 +61,7 @@ class PsiAssignmentManipulator() : AbstractElementManipulator<PsiAssignment>() {
         element: PsiAssignment,
         range: TextRange,
         newContent: String?
-    ): PsiAssignment? {
+    ): PsiAssignment {
         newContent?.let { element.getQuantityRef().setName(it) }
         return element
     }
