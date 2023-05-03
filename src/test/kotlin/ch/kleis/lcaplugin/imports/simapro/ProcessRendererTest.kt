@@ -153,28 +153,28 @@ process acai_berry_at_farm_br8553_1886 {
 
     resources {
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide_in_air_raw // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        9752559010.236041 kg carbon_dioxide_in_air_raw(compartment = "raw", sub_compartment = "in air" )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
         // (2,2,1,1,1,na)
-        20295.524449877732 MJ energy_gross_calorific_value_in_biomass_raw
+        20295.524449877732 MJ energy_gross_calorific_value_in_biomass_raw(compartment = "raw", sub_compartment = "" ) 
         // (2,1,1,1,1,na)
-        501.95555914578216 m3 water_well_br_raw
+        501.95555914578216 m3 water_well_br_raw(compartment = "raw", sub_compartment = "in water" ) 
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw
+        2170.792762893368 m3 water_river_br_raw(compartment = "raw", sub_compartment = "in water" ) 
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw
+        2170.792762893368 m3 water_river_br_raw(compartment = "raw", sub_compartment = "in water" ) 
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw
+        2170.792762893368 m3 transformation_from_permanent_crop_irrigated_raw(compartment = "raw", sub_compartment = "in water" ) 
         // (2,1,1,1,1,na)
-        2170.792762893368 m3 water_river_br_raw
+        2170.792762893368 m3 water_river_br_raw(compartment = "raw", sub_compartment = "in water" ) 
     }
 
     land_use {
         // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw
+        10000.0 m2a occupation_permanent_crop_irrigated_raw(compartment = "raw", sub_compartment = "land" ) 
         // (2,1,1,1,1,na)
-        10000.0 m2a occupation_permanent_crop_irrigated_raw
+        10000.0 m2a occupation_permanent_crop_irrigated_raw(compartment = "raw", sub_compartment = "land" ) 
         // (2,1,1,1,1,na)
-        500.0 m2 transformation_to_permanent_crop_irrigated_raw
+        500.0 m2 transformation_to_permanent_crop_irrigated_raw(compartment = "raw", sub_compartment = "land" ) 
     }
 
 }
@@ -235,32 +235,32 @@ process waste6422_6422 {
 
     emissions { // To Air
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide2_in_air_air // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        9752559010.236041 kg carbon_dioxide2_in_air_air(compartment = "air", sub_compartment = "in air" )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
     }
 
     emissions { // To Water
         // (2,2)
-        6 g carbon_dioxide3_in_water_water // Formula=[3 * 2]
+        6 g carbon_dioxide3_in_water_water(compartment = "water", sub_compartment = "in water" )  // Formula=[3 * 2]
     }
 
     emissions { // To Soil
         // (2,2)
-        6 g carbon_dioxide4_in_soil_soil // Formula=[3 * 2]
+        6 g carbon_dioxide4_in_soil_soil(compartment = "soil", sub_compartment = "in soil" )  // Formula=[3 * 2]
     }
 
     emissions { // Economics
         // (2,2)
-        6 g carbon_dioxide5_in_economics_economic // Formula=[3 * 2]
+        6 g carbon_dioxide5_in_economics_economic(compartment = "economic", sub_compartment = "in economics" )  // Formula=[3 * 2]
     }
 
     emissions { // Non Material
         // (2,2)
-        6 g carbon_dioxide7_in_non_mat_non_mat // Formula=[3 * 2]
+        6 g carbon_dioxide7_in_non_mat_non_mat(compartment = "non_mat", sub_compartment = "in non mat" )  // Formula=[3 * 2]
     }
 
     emissions { // Social
         // (2,2)
-        6 g carbon_dioxide6_in_social_social // Formula=[3 * 2]
+        6 g carbon_dioxide6_in_social_social(compartment = "social", sub_compartment = "in social" )  // Formula=[3 * 2]
     }
 
     emissions { // Final Waste Flows
@@ -283,7 +283,7 @@ process waste6422_6422 {
 
     resources {
         // (2,2,1,1,1,na)
-        9752559010.236041 kg carbon_dioxide_in_air_raw // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        9752559010.236041 kg carbon_dioxide_in_air_raw(compartment = "raw", sub_compartment = "in air" )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
     }
 
     land_use {
@@ -427,7 +427,7 @@ process acai_berry_at_farm_br8553_1886 {
 
     emissions { // To Air
         // (2,2,1,1,1,na)
-        9752559010.236041 kBq argon_41_air_non_urban_high_stack // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        9752559010.236041 kBq argon_41_air_non_urban_high_stack(compartment = "air", sub_compartment = "low. pop." )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
     }
 
     emissions { // To Water
@@ -459,14 +459,14 @@ process acai_berry_at_farm_br8553_1886 {
 
     resources {
         // Only Formula, full match
-        9752559010.236041 kg diethylene_glycol_air // Formula=[145.56 * 67E6 / (1 -4E-6)]
+        9752559010.236041 kg diethylene_glycol_air(compartment = "raw", sub_compartment = "in air" )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
         // Formula & Resolution
-        3.6 kg dolomite_ground_renewable // Formula=[1.2 * 3], Fallback for [Dolomite, Resource, raw, in ground]
+        3.6 kg dolomite_ground_renewable(compartment = "raw", sub_compartment = "in ground" )  // Formula=[1.2 * 3], Fallback for [Dolomite, Resource, raw, in ground]
     }
 
     land_use {
         // (2,1,1,1,1,na)
-        10000.0 m2a permanent_crops_irrigated_land_occupation // Fallback for [Occupation, permanent crop, irrigated, Land_use, raw, land]
+        10000.0 m2a permanent_crops_irrigated_land_occupation(compartment = "raw", sub_compartment = "land" )  // Fallback for [Occupation, permanent crop, irrigated, Land_use, raw, land]
     }
 
 }
