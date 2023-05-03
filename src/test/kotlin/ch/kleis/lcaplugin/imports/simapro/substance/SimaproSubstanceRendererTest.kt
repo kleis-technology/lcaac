@@ -73,7 +73,7 @@ class SimaproSubstanceRendererTest {
         // Then
         val expected = """
 
-substance aluminium_raw {
+substance aluminium {
 
     name = "Aluminium"
     type = Resource
@@ -81,7 +81,7 @@ substance aluminium_raw {
     reference_unit = kg
 
     impacts {
-        1 kg aluminium_raw
+        1 kg aluminium
     }
 
     meta {
@@ -94,7 +94,7 @@ substance aluminium_raw {
 }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
+        Assert.assertEquals("substances/raw/aluminium.lca", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
     }
@@ -119,7 +119,7 @@ substance aluminium_raw {
         // Then
         val expected = """
 
-substance aluminium_raw {
+substance aluminium {
 
     name = "Aluminium"
     type = Resource
@@ -127,7 +127,7 @@ substance aluminium_raw {
     reference_unit = kg
 
     impacts {
-        1 kg aluminium_raw
+        1 kg aluminium
     }
 
     meta {
@@ -140,7 +140,7 @@ substance aluminium_raw {
 }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
+        Assert.assertEquals("substances/raw/aluminium.lca", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
         Assert.assertEquals(1, sut.nbSubstances)
@@ -166,7 +166,7 @@ substance aluminium_raw {
         // Then
         val expected = """
 
-substance aluminium_raw {
+substance aluminium {
 
     name = "Aluminium"
     type = Resource
@@ -174,7 +174,7 @@ substance aluminium_raw {
     reference_unit = _unit
 
     impacts {
-        1 _unit aluminium_raw
+        1 _unit aluminium
     }
 
     meta {
@@ -187,7 +187,7 @@ substance aluminium_raw {
 }
 """.trimIndent()
         // Better way to view large diff than using mockk.verify
-        Assert.assertEquals("substances/raw/aluminium_raw.lca", pathSlot.captured)
+        Assert.assertEquals("substances/raw/aluminium.lca", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(true, indexSlot.captured)
     }

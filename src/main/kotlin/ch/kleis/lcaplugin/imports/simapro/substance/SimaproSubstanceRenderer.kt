@@ -40,7 +40,7 @@ class SimaproSubstanceRenderer : Renderer<ElementaryFlowBlock> {
         compartiment: String,
         writer: ModelWriter
     ) {
-        val uid = ModelWriter.sanitizeAndCompact("${element.name()}-$compartiment")
+        val uid = ModelWriter.sanitizeAndCompact(element.name())
         val description = element.comment()
             ?.split("\n")
             ?.map { ModelWriter.compactText(it) }
