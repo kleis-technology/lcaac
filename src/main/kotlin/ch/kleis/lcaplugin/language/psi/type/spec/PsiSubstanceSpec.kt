@@ -16,6 +16,9 @@ interface PsiSubstanceSpec : PsiElement {
         return SubstanceReference(this)
     }
 
+    val name : String
+        get() = getSubstanceRef().name
+
     fun getSubstanceRef(): PsiSubstanceRef {
         return node.findChildByType(LcaTypes.SUBSTANCE_REF)?.psi as PsiSubstanceRef
     }
