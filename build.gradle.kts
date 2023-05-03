@@ -62,6 +62,8 @@ dependencies {
 
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation(kotlin("test-junit"))
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 }
 
 

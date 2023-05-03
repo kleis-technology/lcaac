@@ -51,20 +51,16 @@ class SubstanceReferenceFromPsiSubstanceSpec(
     }
 
     override fun getVariants(): Array<Any> {
+        val type = element.getType()?.value ?: return emptyArray()
         val allKeys = StubIndex.getInstance().getAllKeys(LcaStubIndexKeys.SUBSTANCES, project)
-        val filter = allKeys
+        return allKeys
             .filter { key ->
-                allPkgNames.any {
-                    val parts = key.split(".")
-                    val prefix = parts.take(parts.size - 1).joinToString(".")
-                    prefix.startsWith(it)
+                key.type == type
+                        && allPkgNames.any {
+                    key.getPackageName().startsWith(it)
                 }
             }
-        val map = filter
-            .map { it.split(".").last() }
-        val map1 = map
-            .map { LookupElementBuilder.create(it) }
-        return map1
+            .map { LookupElementBuilder.create(it.getDisplayName()) }
             .toTypedArray()
     }
 }

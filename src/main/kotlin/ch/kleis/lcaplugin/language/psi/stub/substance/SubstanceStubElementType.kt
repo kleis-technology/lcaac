@@ -15,7 +15,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): SubstanceStub {
-        val key = dataStream.readNameString()!!
+        val key = SubstanceKeyDescriptor.INSTANCE.read(dataStream)
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, key)
     }
 
@@ -29,7 +29,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
         val type = psi.getTypeField().getValue()
         val compartment = psi.getCompartmentField().getValue()
         val subCompartment = psi.getSubcompartmentField()?.getValue()
-        val key = substanceKey(fqn, type, compartment, subCompartment)
+        val key = SubstanceKey(fqn, type, compartment, subCompartment)
         return SubstanceStubImpl(parentStub as StubElement<PsiSubstance>, key)
     }
 
@@ -42,6 +42,6 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.key);
+        SubstanceKeyDescriptor.INSTANCE.save(dataStream, stub.key)
     }
 }

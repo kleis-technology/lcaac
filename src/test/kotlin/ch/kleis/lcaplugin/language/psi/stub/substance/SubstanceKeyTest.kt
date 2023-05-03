@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.psi.stub.substance
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class KeyBuilderKtTest {
+class SubstanceKeyTest {
     @Test
     fun test_substanceKey() {
         // given
@@ -13,10 +13,10 @@ class KeyBuilderKtTest {
         val subCompartment = "low pop"
 
         // when
-        val actual = substanceKey(fqn, type, compartment, subCompartment)
+        val actual = SubstanceKey(fqn, type, compartment, subCompartment).getDisplayName()
 
         // then
-        val expected = """abc.xyz.co2(type="Emission", compartment="air", sub_compartment="low pop")"""
+        val expected = """co2(compartment="air", sub_compartment="low pop")"""
         assertEquals(expected, actual)
     }
 
@@ -28,10 +28,10 @@ class KeyBuilderKtTest {
         val compartment = "air"
 
         // when
-        val actual = substanceKey(fqn, type, compartment, null)
+        val actual = SubstanceKey(fqn, type, compartment, null).getDisplayName()
 
         // then
-        val expected = """abc.xyz.co2(type="Emission", compartment="air")"""
+        val expected = """co2(compartment="air")"""
         assertEquals(expected, actual)
     }
 }

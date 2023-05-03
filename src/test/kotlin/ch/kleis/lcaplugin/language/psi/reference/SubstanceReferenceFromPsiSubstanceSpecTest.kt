@@ -230,8 +230,8 @@ class SubstanceReferenceFromPsiSubstanceSpecTest : BasePlatformTestCase() {
 
         // then
         val expected = listOf(
-            """co2_air(type="Emission", compartment="air")""",
-            """another_co2_air(type="Emission", compartment="air", sub_compartment="another")""",
+            """co2_air(compartment="air")""",
+            """another_co2_air(compartment="air", sub_compartment="another")""",
         ).sorted()
         TestCase.assertEquals(expected, actual)
     }
