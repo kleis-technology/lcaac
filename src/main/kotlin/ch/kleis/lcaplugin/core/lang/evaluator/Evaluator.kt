@@ -13,7 +13,7 @@ import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import com.intellij.openapi.diagnostic.Logger
 
 class Evaluator(
-    private val symbolTable: SymbolTable,
+        private val symbolTable: SymbolTable,
 ) {
     companion object {
         private val LOG = Logger.getInstance(Evaluator::class.java)
@@ -25,13 +25,13 @@ class Evaluator(
     private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
-        ProcessTemplateExpression.eProcessFinal.expression.inputs
-            .compose(Every.list())
-            .compose(ETechnoExchange.product)
+            ProcessTemplateExpression.eProcessFinal.expression.inputs
+                    .compose(Every.list())
+                    .compose(ETechnoExchange.product)
     private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstanceSpec, ESubstanceSpec> =
-        ProcessTemplateExpression.eProcessFinal.expression.biosphere
-            .compose(Every.list())
-            .compose(EBioExchange.substance)
+            ProcessTemplateExpression.eProcessFinal.expression.biosphere
+                    .compose(Every.list())
+                    .compose(EBioExchange.substance)
 
     fun eval(expression: ProcessTemplateExpression): SystemValue {
         LOG.info("Start recursive Compile")
@@ -47,9 +47,9 @@ class Evaluator(
     }
 
     private tailrec fun recursiveCompile(
-        accumulator: SystemValue,
-        visited: HashSet<ProcessTemplateExpression>,
-        toProcess: HashSet<ProcessTemplateExpression>,
+            accumulator: SystemValue,
+            visited: HashSet<ProcessTemplateExpression>,
+            toProcess: HashSet<ProcessTemplateExpression>,
     ) {
         // termination condition
         if (toProcess.isEmpty()) return
@@ -65,13 +65,13 @@ class Evaluator(
             resolveProcessTemplateFromProduct(spec)?.let { template ->
                 val body = template.body
                 val arguments = spec.fromProcessRef?.arguments
-                    ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
+                        ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
-                spec.withFromProcessRef(
-                    FromProcessRef(
+                spec.copy(fromProcessRef =
+                FromProcessRef(
                         body.name,
                         arguments,
-                    )
+                )
                 )
             } ?: spec
         }

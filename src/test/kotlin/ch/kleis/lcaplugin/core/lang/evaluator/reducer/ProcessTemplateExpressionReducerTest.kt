@@ -14,31 +14,31 @@ class ProcessTemplateExpressionReducerTest {
     fun reduce_whenInstance_shouldReduce() {
         // given
         val template = EProcessTemplate(
-            params = mapOf(
-                Pair("q_carrot", QuantityFixture.oneKilogram),
-                Pair("q_water", QuantityFixture.oneLitre)
-            ),
-            locals = mapOf(
-                Pair("x", QuantityFixture.oneKilogram)
-            ),
-            body = EProcess(
-                name = "carrot_production",
-                products = listOf(
-                    ETechnoExchange(
-                        EQuantityAdd(
-                            EQuantityRef("q_carrot"),
-                            EQuantityRef("x"),
-                        ), ProductFixture.carrot
-                    ),
+                params = mapOf(
+                        Pair("q_carrot", QuantityFixture.oneKilogram),
+                        Pair("q_water", QuantityFixture.oneLitre)
                 ),
-                inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                locals = mapOf(
+                        Pair("x", QuantityFixture.oneKilogram)
                 ),
-                biosphere = emptyList(),
-            )
+                body = EProcess(
+                        name = "carrot_production",
+                        products = listOf(
+                                ETechnoExchange(
+                                        EQuantityAdd(
+                                                EQuantityRef("q_carrot"),
+                                                EQuantityRef("x"),
+                                        ), ProductFixture.carrot
+                                ),
+                        ),
+                        inputs = listOf(
+                                ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                        ),
+                        biosphere = emptyList(),
+                )
         )
         val arguments = mapOf(
-            Pair("q_carrot", QuantityFixture.twoKilograms),
+                Pair("q_carrot", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
         val reducer = TemplateExpressionReducer()
@@ -48,30 +48,30 @@ class ProcessTemplateExpressionReducerTest {
 
         // then
         val expected = EProcessFinal(
-            EProcess(
-                name = "carrot_production",
-                products = listOf(
-                    ETechnoExchange(
-                        EQuantityLiteral(3.0, UnitFixture.kg),
-                        ProductFixture.carrot.withFromProcessRef(
-                            FromProcessRef(
-                                "carrot_production",
-                                mapOf(
-                                    "q_carrot" to QuantityFixture.twoKilograms,
-                                    "q_water" to QuantityFixture.oneLitre,
-                                )
-                            )
-                        )
-                    ),
-                ),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneLitre,
-                        ProductFixture.water
-                    ),
-                ),
-                biosphere = emptyList(),
-            )
+                EProcess(
+                        name = "carrot_production",
+                        products = listOf(
+                                ETechnoExchange(
+                                        EQuantityLiteral(3.0, UnitFixture.kg),
+                                        ProductFixture.carrot.copy(fromProcessRef =
+                                        FromProcessRef(
+                                                "carrot_production",
+                                                mapOf(
+                                                        "q_carrot" to QuantityFixture.twoKilograms,
+                                                        "q_water" to QuantityFixture.oneLitre,
+                                                )
+                                        )
+                                        )
+                                ),
+                        ),
+                        inputs = listOf(
+                                ETechnoExchange(
+                                        QuantityFixture.oneLitre,
+                                        ProductFixture.water
+                                ),
+                        ),
+                        biosphere = emptyList(),
+                )
         )
         assertEquals(expected, actual)
     }
@@ -80,31 +80,31 @@ class ProcessTemplateExpressionReducerTest {
     fun reduce_whenArgumentDoesNotMatchAnyParam_shouldThrow() {
         // given
         val template = EProcessTemplate(
-            params = mapOf(
-                Pair("q_carrot", QuantityFixture.oneKilogram),
-                Pair("q_water", QuantityFixture.oneLitre)
-            ),
-            locals = mapOf(
-                Pair("x", QuantityFixture.oneKilogram)
-            ),
-            body = EProcess(
-                name = "carrot_production",
-                products = listOf(
-                    ETechnoExchange(
-                        EQuantityAdd(
-                            EQuantityRef("q_carrot"),
-                            EQuantityRef("x"),
-                        ), ProductFixture.carrot
-                    ),
+                params = mapOf(
+                        Pair("q_carrot", QuantityFixture.oneKilogram),
+                        Pair("q_water", QuantityFixture.oneLitre)
                 ),
-                inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                locals = mapOf(
+                        Pair("x", QuantityFixture.oneKilogram)
                 ),
-                biosphere = emptyList(),
-            )
+                body = EProcess(
+                        name = "carrot_production",
+                        products = listOf(
+                                ETechnoExchange(
+                                        EQuantityAdd(
+                                                EQuantityRef("q_carrot"),
+                                                EQuantityRef("x"),
+                                        ), ProductFixture.carrot
+                                ),
+                        ),
+                        inputs = listOf(
+                                ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                        ),
+                        biosphere = emptyList(),
+                )
         )
         val arguments = mapOf(
-            Pair("foo", QuantityFixture.twoKilograms),
+                Pair("foo", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
         val reducer = TemplateExpressionReducer()
@@ -124,11 +124,11 @@ class ProcessTemplateExpressionReducerTest {
         val template = TemplateFixture.carrotProduction
         val expression = EProcessTemplateRef("carrot_production")
         val reducer = TemplateExpressionReducer(
-            templateRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot_production", template)
+                templateRegister = Register.from(
+                        hashMapOf(
+                                Pair("carrot_production", template)
+                        )
                 )
-            )
         )
 
         // when

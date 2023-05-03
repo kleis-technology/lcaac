@@ -170,7 +170,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals("co2", actual.name)
         TestCase.assertEquals("carbon dioxide", actual.displayName)
         TestCase.assertEquals("air", actual.compartment)
-        TestCase.assertEquals("low pop", actual.subcompartment)
+        TestCase.assertEquals("low pop", actual.subCompartment)
         TestCase.assertEquals(EUnitRef("kg"), actual.referenceUnit)
     }
 
@@ -624,7 +624,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                                 name = "phosphate",
                                 type = SubstanceType.RESOURCE,
                                 compartment = "phosphate compartment",
-                                subcompartment = "phosphate sub-compartment",
+                                subCompartment = "phosphate sub-compartment",
                                 referenceUnit = EUnitRef("kg"),
                         ),
                 ),

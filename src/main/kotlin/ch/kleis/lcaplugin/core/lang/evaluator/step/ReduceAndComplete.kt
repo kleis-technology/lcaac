@@ -9,17 +9,17 @@ import ch.kleis.lcaplugin.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class ReduceAndComplete(
-    symbolTable: SymbolTable,
+        symbolTable: SymbolTable,
 ) {
     private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
-        symbolTable.quantities,
-        symbolTable.units,
+            symbolTable.quantities,
+            symbolTable.units,
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.quantities,
-        symbolTable.units,
-        processTemplates,
+            symbolTable.quantities,
+            symbolTable.units,
+            processTemplates,
     )
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
@@ -50,45 +50,45 @@ class ReduceAndComplete(
 
     private fun completeInputs(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
         return (ProcessTemplateExpression.eProcessFinal.expression.inputs compose Every.list())
-            .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
-                }
-                ETechnoExchange.product
-                    .modify(exchange) {
-                        it.withReferenceUnit(q.unit)
+                .modify(reduced) { exchange ->
+                    val q = exchange.quantity
+                    if (q !is EQuantityLiteral) {
+                        throw EvaluatorException("quantity $q is not reduced")
                     }
-            }
+                    ETechnoExchange.product
+                            .modify(exchange) {
+                                it.copy(referenceUnit = q.unit)
+                            }
+                }
     }
 
     private fun completeSubstances(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
         return (ProcessTemplateExpression.eProcessFinal.expression.biosphere compose Every.list())
-            .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
-                }
-                EBioExchange.substance
-                    .modify(exchange) {
-                        if (it.referenceUnit == null) {
-                            it.withReferenceUnit(q.unit)
-                        } else it
+                .modify(reduced) { exchange ->
+                    val q = exchange.quantity
+                    if (q !is EQuantityLiteral) {
+                        throw EvaluatorException("quantity $q is not reduced")
                     }
-            }
+                    EBioExchange.substance
+                            .modify(exchange) {
+                                if (it.referenceUnit == null) {
+                                    it.copy(referenceUnit = q.unit)
+                                } else it
+                            }
+                }
     }
 
     private fun completeIndicators(reduced: ESubstanceCharacterization): ESubstanceCharacterization {
         return (ESubstanceCharacterization.impacts compose Every.list())
-            .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
-                }
-                EImpact.indicator
-                    .modify(exchange) {
-                        EIndicatorSpec(it.name, q.unit)
+                .modify(reduced) { exchange ->
+                    val q = exchange.quantity
+                    if (q !is EQuantityLiteral) {
+                        throw EvaluatorException("quantity $q is not reduced")
                     }
-            }
+                    EImpact.indicator
+                            .modify(exchange) {
+                                EIndicatorSpec(it.name, q.unit)
+                            }
+                }
     }
 }

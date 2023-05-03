@@ -4,17 +4,17 @@ import arrow.optics.Every
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 data class SymbolTable(
-    val quantities: Register<QuantityExpression> = Register.empty(),
-    val units: Register<UnitExpression> = Register.empty(),
-    val processTemplates: Register<EProcessTemplate> = Register.empty(),
-    val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
+        val quantities: Register<QuantityExpression> = Register.empty(),
+        val units: Register<UnitExpression> = Register.empty(),
+        val processTemplates: Register<EProcessTemplate> = Register.empty(),
+        val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
     private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
-        processTemplates,
-        EProcessTemplate.body.products compose
-            Every.list() compose
-            ETechnoExchange.product compose
-            EProductSpec.name
+            processTemplates,
+            EProcessTemplate.body.products compose
+                    Every.list() compose
+                    ETechnoExchange.product compose
+                    EProductSpec.name
     )
 
     companion object {
@@ -49,7 +49,7 @@ data class SymbolTable(
     fun getSubstanceCharacterization(name: String, type: SubstanceType, compartment: String, subCompartment: String): ESubstanceCharacterization? {
         return substanceCharacterizations.getValues().firstOrNull { sc ->
             sc.referenceExchange.substance.let {
-                it.name == name && it.type == type && it.compartment == compartment && it.subcompartment == subCompartment
+                it.name == name && it.type == type && it.compartment == compartment && it.subCompartment == subCompartment
             }
         }
     }
