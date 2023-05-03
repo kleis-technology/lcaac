@@ -33,12 +33,11 @@ data class SymbolTable(
         return quantities[name]
     }
 
-    @Deprecated("Use version with name, type, compartment, subCompartment? instead", ReplaceWith("getSubstanceCharacterization(name: String, type: SubstanceType, compartment: String)"))
-    fun getSubstanceCharacterization(name: String): ESubstanceCharacterization? {
-        return substanceCharacterizations[name]
-    }
-
-    fun getSubstanceCharacterization(name: String, type: SubstanceType, compartment: String): ESubstanceCharacterization? {
+    fun getSubstanceCharacterization(
+        name: String,
+        type: SubstanceType,
+        compartment: String
+    ): ESubstanceCharacterization? {
         return substanceCharacterizations.getValues().firstOrNull { sc ->
             sc.referenceExchange.substance.let {
                 it.name == name && it.type == type && it.compartment == compartment
