@@ -41,11 +41,11 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         } catch (e: EvaluatorException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
-            LOG.error("Unable to process computation", e)
+            LOG.warn("Unable to process computation", e)
         } catch (e: NoSuchElementException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
-            LOG.error("Unable to process computation", e)
+            LOG.warn("Unable to process computation", e)
         }
     }
 
