@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.actions
 
+import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
@@ -12,13 +13,18 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.ui.toolwindow.LcaGraphChildProcessesResult
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
 import java.awt.event.MouseEvent
 import javax.swing.JTextArea
+import kotlin.math.min
 
 /**
  * Callback handler for when the graph gutter icon is clicked.
@@ -27,6 +33,10 @@ import javax.swing.JTextArea
  * interface, which makes some namings a bit weird, as it is expected to jump around in code rather than run stuff.
  */
 class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
+    companion object {
+        private val LOG = Logger.getInstance(GraphChildProcessesAction::class.java)
+    }
+
     /**
      * Inherited method that will be called by the framework when button is clicked.
      */
@@ -37,10 +47,7 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
             val content = try {
                 buildContent(processName, buildSystemProcessGraph(buildSystem(processName, element)))
             } catch (e: Exception) {
-                when (e.message) {
-                    null -> buildErrorContent(processName, "An unknown error has occurred.")
-                    else -> buildErrorContent(processName, e.message!!)
-                }
+                buildErrorContent(processName, e)
             }
             fillAndShowToolWindow(element.project, content)
         }
@@ -62,10 +69,19 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
     /**
      * Format an error in Content form for consumption by the IntelliJ ToolWindow API.
      */
-    private fun buildErrorContent(processName: String, error: String): Content =
-        ContentFactory.getInstance().createContent(
-            JTextArea(error), "Error loading graph for process $processName", false
+    @Suppress("DialogTitleCapitalization")
+    private fun buildErrorContent(processName: String, error: Exception): Content {
+        val title = MyBundle.message("lca.dialog.graph.error", processName)
+        val msg = error.message ?: "An unknown error has occurred."
+        NotificationGroupManager.getInstance()
+            .getNotificationGroup("LcaAsCode")
+            .createNotification(title, msg, NotificationType.WARNING)
+            .notify(ProjectManager.getInstance().openProjects.firstOrNull())
+        LOG.warn(title, error)
+        return ContentFactory.getInstance().createContent(
+            JTextArea(msg.substring(0, min(msg.length, 400))), title, false
         )
+    }
 
     /**
      * Format the data in Content form for consumption by the IntelliJ ToolWindow API.

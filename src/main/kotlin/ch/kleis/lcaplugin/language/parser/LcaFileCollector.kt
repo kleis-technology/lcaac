@@ -8,11 +8,13 @@ import com.intellij.psi.util.PsiTreeUtil
 
 class LcaFileCollector(
     private val refFileResolver: (PsiElement) -> LcaFile? = { ref ->
+        nb++
         ref.reference?.resolve()?.containingFile as LcaFile?
     },
 ) {
 
     companion object {
+        var nb = 0
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
 

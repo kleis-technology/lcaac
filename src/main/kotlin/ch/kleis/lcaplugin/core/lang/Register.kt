@@ -57,7 +57,7 @@ class Register<E> private constructor(
             .map { it.key }
             .toSet()
         if (conflicts.isNotEmpty()) {
-            throw EvaluatorException("$conflicts are already bound")
+            throw EvaluatorException("${conflicts.take(20)} are already bound")
         }
         return Register(
             registerType,

@@ -27,7 +27,9 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         val collector = LcaFileCollector()
+        LcaFileCollector.nb = 0
         val parser = LcaLangAbstractParser(collector.collect(file))
+        LOG.info("Need a resolv of ${LcaFileCollector.nb}")
 
         try {
             val symbolTable = parser.load()
@@ -50,7 +52,8 @@ class AssessProcessAction(private val processName: String) : AnAction() {
     private fun displayToolWindow(project: Project, result: InventoryResult) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
         val lcaProcessAssessResult = LcaProcessAssessResult(result)
-        val content = ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
+        val content =
+            ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()
