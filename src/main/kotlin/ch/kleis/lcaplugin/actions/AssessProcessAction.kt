@@ -27,9 +27,7 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         val collector = LcaFileCollector()
-        LcaFileCollector.nb = 0
         val parser = LcaLangAbstractParser(collector.collect(file))
-        LOG.info("Need a resolv of ${LcaFileCollector.nb}")
 
         try {
             val symbolTable = parser.load()

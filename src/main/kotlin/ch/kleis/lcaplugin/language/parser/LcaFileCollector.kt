@@ -2,21 +2,22 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.*
+import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 
 class LcaFileCollector(
     private val refFileResolver: (PsiElement) -> LcaFile? = { ref ->
-        nb++
         ref.reference?.resolve()?.containingFile as LcaFile?
     },
 ) {
 
     companion object {
-        var nb = 0
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
+
+    private val guard = CacheGuard()
 
     fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files ?
         val result = HashMap<String, LcaFile>()
@@ -48,7 +49,11 @@ class LcaFileCollector(
     }
 
     private fun dependenciesOf(file: LcaFile): Sequence<LcaFile> {
-        return allReferences(file).mapNotNull { refFileResolver(it) }
+        return allReferences(file).mapNotNull { resolve(it) }
+    }
+
+    private fun resolve(element: PsiElement): LcaFile? {
+        return guard.guard { el: PsiElement -> refFileResolver(el) }(element)
     }
 
     private fun allReferences(file: LcaFile): Sequence<PsiElement> {
@@ -60,5 +65,24 @@ class LcaFileCollector(
             PsiProcessTemplateRef::class.java,
             PsiUnitRef::class.java
         ).asSequence()
+    }
+}
+
+private class CacheGuard {
+    private val visited = HashSet<String>()
+
+    fun <E : PsiElement, R> guard(fn: (E) -> R?): (E) -> R? {
+        return { element ->
+            val key = when (element) {
+                is PsiUIDOwner -> element.getFullyQualifiedName()
+                else -> element.toString()
+            }
+            if (!visited.contains(key)) {
+                visited.add(key)
+                fn(element)
+            } else {
+                null
+            }
+        }
     }
 }
