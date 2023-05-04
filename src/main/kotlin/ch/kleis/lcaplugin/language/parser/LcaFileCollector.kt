@@ -25,7 +25,6 @@ class LcaFileCollector(
     }
 
 
-
     private tailrec fun recursiveCollect(
         accumulator: MutableMap<String, LcaFile>,
         toVisit: MutableMap<String, LcaFile>
@@ -36,22 +35,21 @@ class LcaFileCollector(
         val maybeVisited = accumulator[path]
         if (maybeVisited == null) {
             accumulator[path] = file
-            val dependencies = dependenciesOf(file)
-            val newDependencies = dependencies.asSequence()
+            val newDeps = dependenciesOf(file)
                 .map { it.virtualFile.path to it }
                 .filter { (p, _) -> !accumulator.containsKey(p) }
                 .associateTo(toVisit) { it }
-            recursiveCollect(accumulator, newDependencies)
+            recursiveCollect(accumulator, newDeps)
         } else {
             recursiveCollect(accumulator, toVisit)
         }
     }
 
-    private fun dependenciesOf(file: LcaFile): Set<LcaFile> {
-        return allReferences(file).mapNotNull { refFileResolver(it) }.toSet()
+    private fun dependenciesOf(file: LcaFile): Sequence<LcaFile> {
+        return allReferences(file).mapNotNull { refFileResolver(it) }
     }
 
-    private fun allReferences(file: LcaFile): List<PsiElement> {
+    private fun allReferences(file: LcaFile): Sequence<PsiElement> {
         return PsiTreeUtil.findChildrenOfAnyType(
             file,
             PsiSubstanceRef::class.java,
@@ -59,6 +57,6 @@ class LcaFileCollector(
             PsiProductRef::class.java,
             PsiProcessTemplateRef::class.java,
             PsiUnitRef::class.java
-        ).toList()
+        ).asSequence()
     }
 }
