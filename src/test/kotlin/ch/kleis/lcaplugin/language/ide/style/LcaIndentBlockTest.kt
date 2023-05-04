@@ -129,7 +129,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
         }
         
         
-  inputs {    1 kg carrot
+  inputs {    1 kg carrot     from     farm
                 2 kg co2
 }
 
@@ -147,7 +147,16 @@ class LcaIndentBlockTest : FormatterTestCase() {
                         land_use{
         2ha lu
                   }
-}""",
+}
+
+
+                    process farm {
+                    
+                        products {
+                            1 kg carrot
+                        }
+                    }
+""",
             """
                 process process_a {
                 
@@ -171,7 +180,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
                     }
                 
                     inputs {
-                        1 kg carrot
+                        1 kg carrot from farm
                         2 kg co2
                     }
                 
@@ -187,6 +196,14 @@ class LcaIndentBlockTest : FormatterTestCase() {
                         2 ha lu
                     }
                 }
+                
+                process farm {
+                
+                    products {
+                        1 kg carrot
+                    }
+                }
+                
                 """.trimIndent()
         )
     }
@@ -217,7 +234,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
     }
 
     @Test
-    fun test_formattingProcessShouldFormatFormula() {
+    fun test_formattingProcessShouldFormatFormulaAndAllocate() {
         doTextTest(
             """process process_a {
 
@@ -237,7 +254,7 @@ class LcaIndentBlockTest : FormatterTestCase() {
     }
 
     products {
-        (  1  kg  +  p4  )    prod allocate 50 percent
+        (  1  kg  +  p4  )    prod      allocate     50 percent
         (1kg+p2) co_prod allocate 25 percent
         (1kg*p2) co_prod allocate 25 percent
     }
