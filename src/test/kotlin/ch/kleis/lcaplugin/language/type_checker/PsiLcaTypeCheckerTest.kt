@@ -19,6 +19,40 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException() {
+        // given
+        val pkgName = """test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException"""
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                unit foo {
+                    symbol = "foo"
+                    alias_for = 1 bar
+                }
+                
+                unit bar {
+                    symbol = "bar"
+                    alias_for = 1 foo
+                }
+            """.trimIndent()
+        )
+        val target = UnitKeyIndex.findUnits(project, "$pkgName.foo").first()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        try {
+            checker.check(target)
+            fail("should have thrown")
+        } catch (e: PsiTypeCheckException) {
+            TestCase.assertEquals(
+                """circular dependencies: "1 bar ...", "1 bar ...", "1 bar ...", "1 bar ...", "1 foo ...", "1 foo ...", "1""",
+                e.message
+            )
+        }
+    }
+
+    @Test
     fun test_whenUnitLiteral() {
         // given
         val pkgName = """test_whenUnitLiteral"""
