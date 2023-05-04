@@ -4,7 +4,6 @@ import arrow.optics.Every
 import arrow.typeclasses.Monoid
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -16,39 +15,26 @@ private data class SubstanceKey(
     val subCompartment: String?,
 )
 
-private interface IndexKeyDescriptors {
-    companion object {
-        val StringDescriptor = object : IndexKeyDescriptor<String> {
-            override fun serialize(key: String): String {
-                return key
-            }
-
-            override fun deserialize(s: String): String {
-                return s
-            }
-        }
-
-        val SubstanceKeyDescriptor = object : IndexKeyDescriptor<SubstanceKey> {
-            override fun serialize(key: SubstanceKey): String {
-                return Json.encodeToString(key)
-            }
-
-            override fun deserialize(s: String): SubstanceKey {
-                return Json.decodeFromString(s)
-            }
-        }
-    }
-}
-
 data class SymbolTable(
     val quantities: Register<QuantityExpression> = Register.empty(),
     val units: Register<UnitExpression> = Register.empty(),
     val processTemplates: Register<EProcessTemplate> = Register.empty(),
     val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
+    private val stringDescriptor = object : IndexKeyDescriptor<String> {
+        override fun serialize(key: String): String {
+            return key
+        }
+    }
+
+    private val substanceKeyDescriptor = object : IndexKeyDescriptor<SubstanceKey> {
+        override fun serialize(key: SubstanceKey): String {
+            return Json.encodeToString(key)
+        }
+    }
     private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
         processTemplates,
-        IndexKeyDescriptors.StringDescriptor,
+        stringDescriptor,
         EProcessTemplate.body.products compose
                 Every.list() compose
                 ETechnoExchange.product compose
@@ -87,7 +73,7 @@ data class SymbolTable(
     private val substanceCharacterizationsIndexedBySubstanceKey: Index<SubstanceKey, ESubstanceCharacterization> =
         Index(
             substanceCharacterizations,
-            IndexKeyDescriptors.SubstanceKeyDescriptor,
+            substanceKeyDescriptor,
             ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
         )
 

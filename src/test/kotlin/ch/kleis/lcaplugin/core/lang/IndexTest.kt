@@ -19,7 +19,6 @@ class IndexTest {
             register,
             object : IndexKeyDescriptor<String> {
                 override fun serialize(key: String): String = key
-                override fun deserialize(s: String): String = s
             },
             EQuantityRef.name,
         )

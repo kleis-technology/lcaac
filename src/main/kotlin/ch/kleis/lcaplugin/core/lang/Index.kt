@@ -4,7 +4,6 @@ import arrow.optics.PEvery
 
 interface IndexKeyDescriptor<K> {
     fun serialize(key: K): String
-    fun deserialize(s: String): K
 }
 
 class Index<K, E> private constructor(

@@ -119,7 +119,6 @@ class RegisterTest {
                 sut,
                 object : IndexKeyDescriptor<String> {
                     override fun serialize(key: String): String = key
-                    override fun deserialize(s: String): String = s
                 },
                 EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name
             )
