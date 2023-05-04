@@ -17,7 +17,7 @@ import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import com.intellij.psi.PsiElement
 
 private class RecursiveGuard {
-    private val visited = ArrayList<PsiElement>()
+    private val visited = HashSet<PsiElement>()
 
     fun <E : PsiElement, R> guard(fn: (E) -> R): (E) -> R {
         return { element ->
@@ -29,7 +29,7 @@ private class RecursiveGuard {
                             .replace("\\s+".toRegex(), " ")
                             .take(20)
                     } ...""""
-                }.joinToString().take(80)
+                }.sorted().joinToString().take(80)
                 throw PsiTypeCheckException("circular dependencies: $names")
             }
             visited.add(element)
