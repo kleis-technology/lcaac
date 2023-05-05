@@ -15,7 +15,7 @@ data class EUnitOf(val quantity: QuantityExpression) : UnitExpression {
 }
 
 @optics
-data class EUnitClosure(val symbolTable: SymbolTable, val expression: UnitExpression): UnitExpression {
+data class EUnitClosure(val symbolTable: SymbolTable, val expression: UnitExpression) : UnitExpression {
     companion object
 }
 
@@ -24,6 +24,7 @@ data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Di
     override fun toString(): String {
         return symbol
     }
+
     companion object
 }
 
@@ -36,14 +37,17 @@ data class EUnitAlias(val symbol: String, val aliasFor: QuantityExpression) : Un
 data class EUnitMul(val left: UnitExpression, val right: UnitExpression) : UnitExpression {
     companion object
 }
+
 @optics
 data class EUnitDiv(val left: UnitExpression, val right: UnitExpression) : UnitExpression {
     companion object
 }
+
 @optics
 data class EUnitPow(val unit: UnitExpression, val exponent: Double) : UnitExpression {
     companion object
 }
+
 @optics
 data class EUnitRef(val name: String) : UnitExpression, RefExpression {
     override fun name(): String {

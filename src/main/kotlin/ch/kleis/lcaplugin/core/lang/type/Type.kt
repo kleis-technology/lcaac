@@ -40,7 +40,7 @@ data class TTechnoExchange(
 ) : TypeLcaExpression
 
 data class TProcess(
-    val name : String,
+    val name: String,
     val products: Set<TProduct>,
     val inputs: Set<TProduct>,
     val biosphere: Set<TSubstance>,

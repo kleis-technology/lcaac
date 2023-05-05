@@ -6,14 +6,14 @@ import ch.kleis.lcaplugin.core.lang.expression.EUnitAlias
 class InfiniteUnitLoopChecker {
     private val unitAliasRegister = mutableSetOf<EUnitAlias>()
 
-    fun check(expression: EUnitAlias){
-        if (unitAliasRegister.contains(expression)){
-            throw EvaluatorException("Recursive dependency for unit ${expression.symbol}");
+    fun check(expression: EUnitAlias) {
+        if (unitAliasRegister.contains(expression)) {
+            throw EvaluatorException("Recursive dependency for unit ${expression.symbol}")
         }
         unitAliasRegister.add(expression)
     }
 
-    fun clearTraceAlias(){
+    fun clearTraceAlias() {
         unitAliasRegister.clear()
     }
 }

@@ -1,4 +1,3 @@
 package ch.kleis.lcaplugin.imports
 
-class MissingLibraryFileException(msg: String) : Exception(msg) {
-}
+class MissingLibraryFileException(msg: String) : Exception(msg)

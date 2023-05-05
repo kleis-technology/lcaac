@@ -12,8 +12,10 @@ class ObservableMatrix(
     observableProducts: Collection<ProductValue>,
     observableSubstances: Collection<SubstanceValue>,
 ) {
-    private val connections: IndexedCollection<MatrixRowIndex> = IndexedCollection(processes.plus(substanceCharacterizations))
-    private val ports: IndexedCollection<MatrixColumnIndex> = IndexedCollection(observableProducts.plus(observableSubstances))
+    private val connections: IndexedCollection<MatrixRowIndex> =
+        IndexedCollection(processes.plus(substanceCharacterizations))
+    private val ports: IndexedCollection<MatrixColumnIndex> =
+        IndexedCollection(observableProducts.plus(observableSubstances))
     val matrix: Matrix = MatrixFactory.INSTANCE.zero(connections.size(), ports.size())
 
     init {

@@ -36,7 +36,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
 
         // then
         val expected = GlobalAssigmentStubKeyIndex
-            .findGlobalAssignments(project,"$pkgName.x").first()
+            .findGlobalAssignments(project, "$pkgName.x").first()
         TestCase.assertEquals(expected, actual)
     }
 

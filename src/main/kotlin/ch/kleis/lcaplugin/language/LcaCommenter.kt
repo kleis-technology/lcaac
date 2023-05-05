@@ -3,15 +3,15 @@ package ch.kleis.lcaplugin.language
 import com.intellij.lang.Commenter
 
 class LcaCommenter : Commenter {
-    override fun getLineCommentPrefix(): String? {
+    override fun getLineCommentPrefix(): String {
         return "//"
     }
 
-    override fun getBlockCommentPrefix(): String? {
+    override fun getBlockCommentPrefix(): String {
         return "/*"
     }
 
-    override fun getBlockCommentSuffix(): String? {
+    override fun getBlockCommentSuffix(): String {
         return "*/"
     }
 

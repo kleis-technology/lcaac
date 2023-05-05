@@ -19,7 +19,8 @@ class ToValueTest {
         val actual = expression.toValue()
         // then
         val allocationValue = QuantityValue(10.0, UnitValueFixture.percent)
-        val expected = TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.carrot, allocationValue)
+        val expected =
+            TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.carrot, allocationValue)
 
         assertEquals(expected, actual)
     }

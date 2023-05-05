@@ -263,7 +263,7 @@ class UnitRendererTest {
     }
 
     @Test
-    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString(){
+    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString() {
         // given
         val symbol = "kg"
         val sanitizedSymbol = "kg"

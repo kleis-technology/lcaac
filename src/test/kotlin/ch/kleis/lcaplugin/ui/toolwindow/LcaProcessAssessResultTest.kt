@@ -16,7 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
-class LcaProcessAssessResultTest() {
+class LcaProcessAssessResultTest {
 
     @Test
     fun test_getContent_WhenAnErrorHappened() {

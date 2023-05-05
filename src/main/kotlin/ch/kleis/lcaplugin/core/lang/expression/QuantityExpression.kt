@@ -12,12 +12,13 @@ data class EQuantityLiteral(val amount: Double, val unit: UnitExpression) : Quan
     override fun toString(): String {
         return "$amount $unit"
     }
+
     companion object
 
 }
 
 @optics
-data class EQuantityScale(val scale: Double, val quantity: QuantityExpression): QuantityExpression {
+data class EQuantityScale(val scale: Double, val quantity: QuantityExpression) : QuantityExpression {
     companion object
 }
 

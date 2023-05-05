@@ -57,8 +57,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-            Every.list() compose
-            ETechnoExchange.product
+                Every.list() compose
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -113,8 +113,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-            Every.list() compose
-            ETechnoExchange.product
+                Every.list() compose
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -165,8 +165,8 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-            Every.list() compose
-            ETechnoExchange.product
+                Every.list() compose
+                ETechnoExchange.product
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef

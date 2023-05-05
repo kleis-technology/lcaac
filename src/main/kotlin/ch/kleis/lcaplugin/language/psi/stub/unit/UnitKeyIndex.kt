@@ -18,7 +18,7 @@ class UnitKeyIndex : StringStubIndexExtension<PsiUnitDefinition>() {
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-        ) : Collection<PsiUnitDefinition> =
+        ): Collection<PsiUnitDefinition> =
             StubIndex.getElements(LcaStubIndexKeys.UNITS, fqn, project, scope, PsiUnitDefinition::class.java)
     }
 }

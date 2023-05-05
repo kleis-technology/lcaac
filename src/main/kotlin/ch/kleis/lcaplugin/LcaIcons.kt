@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin
 
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.util.IconLoader
 
 object LcaIcons {

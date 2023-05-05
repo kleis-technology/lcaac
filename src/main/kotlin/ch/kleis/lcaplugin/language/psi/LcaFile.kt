@@ -66,7 +66,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         place: PsiElement
     ): Boolean {
         for (block in getPsiGlobalVariablesBlocks()) {
-            if (!processor.execute(block, state)){
+            if (!processor.execute(block, state)) {
                 return false
             }
         }

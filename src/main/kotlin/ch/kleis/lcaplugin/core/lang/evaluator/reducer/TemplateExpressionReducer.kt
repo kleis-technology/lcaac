@@ -7,9 +7,9 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-        quantityRegister: Register<QuantityExpression> = Register.empty(),
-        unitRegister: Register<UnitExpression> = Register.empty(),
-        templateRegister: Register<EProcessTemplate> = Register.empty(),
+    quantityRegister: Register<QuantityExpression> = Register.empty(),
+    unitRegister: Register<UnitExpression> = Register.empty(),
+    templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
     private val quantityRegister = Register(quantityRegister)
@@ -22,24 +22,24 @@ class TemplateExpressionReducer(
                 val template = reduce(expression.template) as EProcessTemplate
 
                 val unknownParameters = expression.arguments.keys
-                        .minus(template.params.keys)
+                    .minus(template.params.keys)
                 if (unknownParameters.isNotEmpty()) {
                     throw EvaluatorException("unknown parameters: $unknownParameters")
                 }
 
                 val actualArguments = template.params
-                        .plus(expression.arguments)
+                    .plus(expression.arguments)
 
                 val localRegister = Register(quantityRegister)
-                        .plus(actualArguments)
-                        .plus(template.locals)
+                    .plus(actualArguments)
+                    .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(
-                        localRegister,
-                        unitRegister
+                    localRegister,
+                    unitRegister
                 )
                 val quantityReducer = QuantityExpressionReducer(
-                        localRegister, unitRegister,
+                    localRegister, unitRegister,
                 )
 
                 var result = template.body
@@ -58,18 +58,19 @@ class TemplateExpressionReducer(
     }
 
     private fun concretizeProducts(
-            result: EProcess,
-            actualArguments: Map<String, QuantityExpression>,
-            quantityReducer: QuantityExpressionReducer
+        result: EProcess,
+        actualArguments: Map<String, QuantityExpression>,
+        quantityReducer: QuantityExpressionReducer
     ) = (EProcess.products
-            .compose(Every.list())
-            .compose(ETechnoExchange.product)).modify(result) {
-                val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-                it.copy(fromProcessRef =
+        .compose(Every.list())
+        .compose(ETechnoExchange.product)).modify(result) {
+            val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
+            it.copy(
+                fromProcessRef =
                 FromProcessRef(
-                        result.name,
-                        reducedActualArguments,
+                    result.name,
+                    reducedActualArguments,
                 )
-                )
-            }
+            )
+        }
 }

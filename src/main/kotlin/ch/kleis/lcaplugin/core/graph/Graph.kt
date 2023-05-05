@@ -62,7 +62,7 @@ data class GraphNode(
  */
 @Serializable
 data class GraphLink(
-        val source: String, val target: String, val type: GraphLinkType, val text: String
+    val source: String, val target: String, val type: GraphLinkType, val text: String
 ) {
     constructor(isInput: Boolean, processKey: String, exchange: TechnoExchangeValue) : this(
         if (isInput) "PRODUCT_${exchange.product.name}" else processKey,

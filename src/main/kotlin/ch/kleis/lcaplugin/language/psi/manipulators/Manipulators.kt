@@ -20,8 +20,8 @@ class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiQuantityRef>()
 class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
-class PsiUnitRefManipulator: PsiUIDOwnerManipulator<PsiUnitRef>()
-class PsiParameterRefManipulator: PsiUIDOwnerManipulator<PsiParameterRef>()
+class PsiUnitRefManipulator : PsiUIDOwnerManipulator<PsiUnitRef>()
+class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 
 class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>() {
     override fun handleContentChange(
@@ -34,7 +34,7 @@ class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>
     }
 }
 
-class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTechnoProductExchange>() {
+class PsiTechnoProductExchangeManipulator : AbstractElementManipulator<PsiTechnoProductExchange>() {
     override fun handleContentChange(
         element: PsiTechnoProductExchange,
         range: TextRange,
@@ -45,7 +45,7 @@ class PsiTechnoProductExchangeManipulator() : AbstractElementManipulator<PsiTech
     }
 }
 
-class PsiGlobalAssignmentManipulator() : AbstractElementManipulator<PsiGlobalAssignment>() {
+class PsiGlobalAssignmentManipulator : AbstractElementManipulator<PsiGlobalAssignment>() {
     override fun handleContentChange(
         element: PsiGlobalAssignment,
         range: TextRange,
@@ -56,7 +56,7 @@ class PsiGlobalAssignmentManipulator() : AbstractElementManipulator<PsiGlobalAss
     }
 }
 
-class PsiAssignmentManipulator() : AbstractElementManipulator<PsiAssignment>() {
+class PsiAssignmentManipulator : AbstractElementManipulator<PsiAssignment>() {
     override fun handleContentChange(
         element: PsiAssignment,
         range: TextRange,

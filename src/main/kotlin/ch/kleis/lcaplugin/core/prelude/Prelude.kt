@@ -21,10 +21,10 @@ class Prelude {
         val power = energy.divide(time)
         val none = Dimension.None
         val radioactivity = Dimension.of("radioactivity")
-        val length_time = Prelude.length.multiply(Prelude.time)
-        val person_distance = Prelude.none.multiply(Prelude.length)
-        val mass_time = Prelude.mass.multiply(Prelude.time)
-        val volume_time = Prelude.volume.multiply(Prelude.time)
+        val length_time = length.multiply(time)
+        val person_distance = none.multiply(length)
+        val mass_time = mass.multiply(time)
+        val volume_time = volume.multiply(time)
         val unitMap = listOf(
             EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),

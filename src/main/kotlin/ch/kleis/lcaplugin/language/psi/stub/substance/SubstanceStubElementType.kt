@@ -38,7 +38,7 @@ class SubstanceStubElementType(debugName: String) : ILightStubElementType<Substa
     }
 
     override fun indexStub(stub: SubstanceStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.key);
+        sink.occurrence(LcaStubIndexKeys.SUBSTANCES, stub.key)
     }
 
     override fun serialize(stub: SubstanceStub, dataStream: StubOutputStream) {

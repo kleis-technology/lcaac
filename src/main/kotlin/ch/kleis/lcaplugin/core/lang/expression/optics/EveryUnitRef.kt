@@ -59,6 +59,7 @@ val everyUnitRefInUnitExpression = object : PEvery<UnitExpression, UnitExpressio
                 source.symbolTable,
                 modify(source.expression, map),
             )
+
             is EUnitAlias -> EUnitAlias(
                 source.symbol,
                 everyUnitRefInQuantityExpression.modify(source.aliasFor, map)
@@ -79,10 +80,12 @@ val everyUnitRefInFromProcessRef: PEvery<FromProcessRef, FromProcessRef, EUnitRe
             everyUnitRefInQuantityExpression
 
 val everyUnitRefInProductSpec: PEvery<EProductSpec, EProductSpec, EUnitRef, UnitExpression> =
-    Merge(listOf(
-        EProductSpec.referenceUnit compose everyUnitRefInUnitExpression,
-        EProductSpec.fromProcessRef compose everyUnitRefInFromProcessRef,
-    ))
+    Merge(
+        listOf(
+            EProductSpec.referenceUnit compose everyUnitRefInUnitExpression,
+            EProductSpec.fromProcessRef compose everyUnitRefInFromProcessRef,
+        )
+    )
 
 
 val everyUnitRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EUnitRef, UnitExpression> =

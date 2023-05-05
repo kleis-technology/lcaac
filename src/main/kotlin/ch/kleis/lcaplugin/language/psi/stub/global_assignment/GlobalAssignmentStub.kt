@@ -4,5 +4,5 @@ import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import com.intellij.psi.stubs.StubElement
 
 interface GlobalAssignmentStub : StubElement<PsiGlobalAssignment> {
-    val fqn : String
+    val fqn: String
 }

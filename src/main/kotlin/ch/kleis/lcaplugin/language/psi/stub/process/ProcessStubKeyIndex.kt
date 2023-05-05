@@ -18,7 +18,7 @@ class ProcessStubKeyIndex : StringStubIndexExtension<PsiProcess>() {
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project),
-        ) : Collection<PsiProcess> =
+        ): Collection<PsiProcess> =
             StubIndex.getElements(LcaStubIndexKeys.PROCESSES, fqn, project, scope, PsiProcess::class.java)
     }
 }

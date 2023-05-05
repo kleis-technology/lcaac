@@ -35,10 +35,10 @@ class ProcessStubElementType(debugName: String) :
     }
 
     override fun indexStub(stub: ProcessStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.fqn);
+        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.fqn)
     }
 
     override fun serialize(stub: ProcessStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.fqn);
+        dataStream.writeName(stub.fqn)
     }
 }

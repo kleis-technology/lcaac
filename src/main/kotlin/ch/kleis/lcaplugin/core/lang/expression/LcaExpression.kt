@@ -12,9 +12,9 @@ sealed interface LcaExpression : Expression {
 // Product
 @optics
 data class EProductSpec(
-        val name: String,
-        val referenceUnit: UnitExpression? = null,
-        val fromProcessRef: FromProcessRef? = null,
+    val name: String,
+    val referenceUnit: UnitExpression? = null,
+    val fromProcessRef: FromProcessRef? = null,
 ) : LcaExpression {
     companion object
 }
@@ -26,7 +26,7 @@ enum class SubstanceType(val value: String) { // TODO Undefined because of Reduc
     companion object {
         private val map = SubstanceType.values().associateBy { it.value }
         infix fun of(value: String): SubstanceType =
-                map[value] ?: throw EvaluatorException("Invalid SubstanceType: $value")
+            map[value] ?: throw EvaluatorException("Invalid SubstanceType: $value")
     }
 
     override fun toString(): String {
@@ -38,12 +38,12 @@ enum class SubstanceType(val value: String) { // TODO Undefined because of Reduc
 
 @optics
 data class ESubstanceSpec(
-        val name: String,
-        val displayName: String = name,
-        val type: SubstanceType? = null,
-        val compartment: String? = null,
-        val subCompartment: String? = null,
-        val referenceUnit: UnitExpression? = null,
+    val name: String,
+    val displayName: String = name,
+    val type: SubstanceType? = null,
+    val compartment: String? = null,
+    val subCompartment: String? = null,
+    val referenceUnit: UnitExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -51,8 +51,8 @@ data class ESubstanceSpec(
 // Indicator
 @optics
 data class EIndicatorSpec(
-        val name: String,
-        val referenceUnit: UnitExpression? = null,
+    val name: String,
+    val referenceUnit: UnitExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -65,15 +65,15 @@ sealed interface LcaExchangeExpression : LcaExpression {
 
 @optics
 data class ETechnoExchange(
-        val quantity: QuantityExpression,
-        val product: EProductSpec,
-        val allocation: QuantityExpression
+    val quantity: QuantityExpression,
+    val product: EProductSpec,
+    val allocation: QuantityExpression
 ) :
-        LcaExchangeExpression {
+    LcaExchangeExpression {
     constructor(quantity: QuantityExpression, product: EProductSpec) : this(
-            quantity,
-            product,
-            EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+        quantity,
+        product,
+        EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
     )
 
     companion object
@@ -81,7 +81,7 @@ data class ETechnoExchange(
 
 @optics
 data class EBioExchange(val quantity: QuantityExpression, val substance: ESubstanceSpec) :
-        LcaExchangeExpression {
+    LcaExchangeExpression {
     companion object
 }
 
@@ -93,10 +93,10 @@ data class EImpact(val quantity: QuantityExpression, val indicator: EIndicatorSp
 // Process
 @optics
 data class EProcess(
-        val name: String,
-        val products: List<ETechnoExchange>,
-        val inputs: List<ETechnoExchange>,
-        val biosphere: List<EBioExchange>,
+    val name: String,
+    val products: List<ETechnoExchange>,
+    val inputs: List<ETechnoExchange>,
+    val biosphere: List<EBioExchange>,
 ) : LcaExpression {
     companion object
 }
@@ -104,8 +104,8 @@ data class EProcess(
 // Substance Characterization
 @optics
 data class ESubstanceCharacterization(
-        val referenceExchange: EBioExchange,
-        val impacts: List<EImpact>
+    val referenceExchange: EBioExchange,
+    val impacts: List<EImpact>
 ) : LcaExpression {
     fun hasImpacts(): Boolean {
         return impacts.isNotEmpty()

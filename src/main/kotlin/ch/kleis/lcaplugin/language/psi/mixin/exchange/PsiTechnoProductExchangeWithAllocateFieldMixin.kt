@@ -4,4 +4,5 @@ import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchangeWit
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 
-abstract class PsiTechnoProductExchangeWithAllocateFieldMixin (node: ASTNode) : ASTWrapperPsiElement(node), PsiTechnoProductExchangeWithAllocateField
+abstract class PsiTechnoProductExchangeWithAllocateFieldMixin(node: ASTNode) : ASTWrapperPsiElement(node),
+    PsiTechnoProductExchangeWithAllocateField

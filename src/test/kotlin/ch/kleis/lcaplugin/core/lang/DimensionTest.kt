@@ -132,5 +132,5 @@ class DimensionTest {
         // Then
         assertEquals("m.s⁻²", result)
     }
-    
+
 }

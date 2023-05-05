@@ -5,7 +5,6 @@ import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.*
-import com.intellij.util.containers.tail
 
 open class GlobalUIDOwnerReference<R : PsiUIDOwner, T : PsiElement>(
     element: R,

@@ -65,7 +65,7 @@ class QuantityReference(
 
     private fun tryGlobalAssignments(): Set<PsiElement> {
         return globalAssignmentRef.multiResolve(false)
-                .mapNotNull { it.element }
+            .mapNotNull { it.element }
             .toSet()
     }
 

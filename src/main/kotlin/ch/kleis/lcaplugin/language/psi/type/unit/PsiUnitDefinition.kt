@@ -2,9 +2,7 @@ package ch.kleis.lcaplugin.language.psi.type.unit
 
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStub
 import ch.kleis.lcaplugin.language.psi.type.field.PsiAliasForField
-import ch.kleis.lcaplugin.language.psi.type.field.PsiNumberField
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
-import ch.kleis.lcaplugin.language.psi.type.quantity.QuantityPrimitiveType
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement

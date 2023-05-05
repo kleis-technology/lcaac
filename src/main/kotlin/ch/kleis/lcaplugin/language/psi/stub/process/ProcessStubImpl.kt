@@ -10,5 +10,5 @@ class ProcessStubImpl(
     parent: StubElement<PsiProcess>,
     override val fqn: String,
 ) :
-        StubBase<PsiProcess>(parent, LcaTypes.PROCESS as IStubElementType<out StubElement<*>, *>),
-        ProcessStub
+    StubBase<PsiProcess>(parent, LcaTypes.PROCESS as IStubElementType<out StubElement<*>, *>),
+    ProcessStub

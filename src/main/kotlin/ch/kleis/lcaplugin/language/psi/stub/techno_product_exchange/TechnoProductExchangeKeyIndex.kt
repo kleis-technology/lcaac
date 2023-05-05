@@ -19,6 +19,12 @@ class TechnoProductExchangeKeyIndex : StringStubIndexExtension<PsiTechnoProductE
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiTechnoProductExchange> =
-            StubIndex.getElements(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, fqn, project, scope, PsiTechnoProductExchange::class.java)
+            StubIndex.getElements(
+                LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES,
+                fqn,
+                project,
+                scope,
+                PsiTechnoProductExchange::class.java
+            )
     }
 }

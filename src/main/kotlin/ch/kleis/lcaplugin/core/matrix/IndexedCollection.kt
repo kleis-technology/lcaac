@@ -12,7 +12,7 @@ class IndexedCollection<V : HasUID>(elements: Collection<V>) {
         val unique = elements.stream()
             .distinct()
             .collect(Collectors.toList())
-        for (i : Int in 0 until unique.size) {
+        for (i: Int in 0 until unique.size) {
             val element = unique[i]
             this.byEntity[element] = i
             this.byUniqueId[element.getUID()] = i

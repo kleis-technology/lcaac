@@ -6,7 +6,6 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.Renderer
-import ch.kleis.lcaplugin.language.reservedWords
 import org.openlca.simapro.csv.refdata.UnitRow
 
 class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Renderer<UnitRow> {

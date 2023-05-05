@@ -9,18 +9,18 @@ import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.psi.stubs.StubIndexKey
 
 object LcaStubIndexKeys {
-    val SUBSTANCES : StubIndexKey<SubstanceKey, PsiSubstance> =
+    val SUBSTANCES: StubIndexKey<SubstanceKey, PsiSubstance> =
         StubIndexKey.createIndexKey("lca.substances")
 
-    val TECHNO_PRODUCT_EXCHANGES : StubIndexKey<String, PsiTechnoProductExchange> =
+    val TECHNO_PRODUCT_EXCHANGES: StubIndexKey<String, PsiTechnoProductExchange> =
         StubIndexKey.createIndexKey("lca.technoProductExchanges")
 
-    val PROCESSES : StubIndexKey<String, PsiProcess> =
+    val PROCESSES: StubIndexKey<String, PsiProcess> =
         StubIndexKey.createIndexKey("lca.processes")
 
-    val UNITS : StubIndexKey<String, PsiUnitDefinition> =
+    val UNITS: StubIndexKey<String, PsiUnitDefinition> =
         StubIndexKey.createIndexKey("lca.units")
 
-    val GLOBAL_ASSIGNMENTS : StubIndexKey<String, PsiGlobalAssignment> =
+    val GLOBAL_ASSIGNMENTS: StubIndexKey<String, PsiGlobalAssignment> =
         StubIndexKey.createIndexKey("lca.globalAssignments")
 }
