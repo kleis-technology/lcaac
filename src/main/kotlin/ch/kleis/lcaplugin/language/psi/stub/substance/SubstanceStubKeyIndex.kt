@@ -11,7 +11,7 @@ import com.intellij.util.io.KeyDescriptor
 
 class SubstanceKeyIndex : AbstractStubIndex<SubstanceKey, PsiSubstance>() {
     override fun getKey(): StubIndexKey<SubstanceKey, PsiSubstance> =
-        LcaStubIndexKeys.SUBSTANCES
+            LcaStubIndexKeys.SUBSTANCES
 
     override fun getVersion(): Int {
         return 1 // TODO: Automate increment on every index schema update
@@ -24,19 +24,19 @@ class SubstanceKeyIndex : AbstractStubIndex<SubstanceKey, PsiSubstance>() {
     companion object {
 
         fun findSubstances(
-            project: Project,
-            fqn: String,
-            type: String,
-            compartment: String,
-            subCompartment: String? = null,
-            scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
+                project: Project,
+                fqn: String,
+                type: String,
+                compartment: String,
+                subCompartment: String? = null,
+                scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiSubstance> =
-            StubIndex.getElements(
-                LcaStubIndexKeys.SUBSTANCES,
-                SubstanceKey(fqn, type, compartment, subCompartment),
-                project,
-                scope,
-                PsiSubstance::class.java
-            )
+                StubIndex.getElements(
+                        LcaStubIndexKeys.SUBSTANCES,
+                        SubstanceKey(fqn, type, compartment, subCompartment),
+                        project,
+                        scope,
+                        PsiSubstance::class.java
+                )
     }
 }

@@ -1,14 +1,13 @@
 package ch.kleis.lcaplugin.language.psi.stub.substance
 
-import kotlinx.serialization.Serializable
+import java.io.Serializable
 
-@Serializable
 data class SubstanceKey(
-    val fqn: String,
-    val type: String,
-    val compartment: String,
-    val subCompartment: String?,
-) {
+        val fqn: String,
+        val type: String,
+        val compartment: String,
+        val subCompartment: String?,
+) : Serializable {
     private val localName = fqn.split(".").last()
 
     fun getPackageName(): String {
@@ -18,8 +17,8 @@ data class SubstanceKey(
 
     fun getDisplayName(): String {
         val args = listOfNotNull(
-            """compartment="$compartment"""",
-            subCompartment?.let { """sub_compartment="$it"""" }
+                """compartment="$compartment"""",
+                subCompartment?.let { """sub_compartment="$it"""" }
         ).joinToString()
         return "$localName($args)"
     }
