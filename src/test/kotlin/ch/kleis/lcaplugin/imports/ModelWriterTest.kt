@@ -34,7 +34,7 @@ class ModelWriterTest {
     }
 
     @Test
-    fun close() {
+    fun close_ShouldCloseSubResources() {
         // Given
         val watcher = mockk<AsynchronousWatcher>()
         val sut = ModelWriter("test", System.getProperty("java.io.tmpdir"), listOf("custom.import"), watcher)

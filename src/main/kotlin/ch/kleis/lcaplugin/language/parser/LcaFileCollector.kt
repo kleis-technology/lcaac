@@ -17,7 +17,7 @@ class LcaFileCollector(
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
 
-    private val guard = CacheGuard()
+    private val guard = CacheGuard { el: PsiElement -> refFileResolver(el) }
 
     fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files ?
         val result = HashMap<String, LcaFile>()
@@ -53,7 +53,7 @@ class LcaFileCollector(
     }
 
     private fun resolve(element: PsiElement): LcaFile? {
-        return guard.guard { el: PsiElement -> refFileResolver(el) }(element)
+        return guard.guarded(element)
     }
 
     private fun allReferences(file: LcaFile): Sequence<PsiElement> {
@@ -68,21 +68,20 @@ class LcaFileCollector(
     }
 }
 
-private class CacheGuard {
+private class CacheGuard<E, R>(private val fnToGuard: (E) -> R?) where E : PsiElement {
     private val visited = HashSet<String>()
 
-    fun <E : PsiElement, R> guard(fn: (E) -> R?): (E) -> R? {
-        return { element ->
-            val key = when (element) {
-                is PsiUIDOwner -> element.getFullyQualifiedName()
-                else -> element.toString()
-            }
-            if (!visited.contains(key)) {
-                visited.add(key)
-                fn(element)
-            } else {
-                null
-            }
+    val guarded: (E) -> R? = { element ->
+        val key = when (element) {
+            is PsiUIDOwner -> element.getFullyQualifiedName()
+            else -> element.toString()
+        }
+        if (!visited.contains(key)) {
+            visited.add(key)
+            fnToGuard(element)
+        } else {
+            null
         }
     }
+
 }
