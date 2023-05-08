@@ -2,27 +2,27 @@ package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.Fold
 
-interface IndexKeyDescriptor<K> {
+interface IndexKeySerializer<K> {
     fun serialize(key: K): String
 }
 
 class Index<K, E> private constructor(
         private val indexType: String,
-        private val indexKeyDescriptor: IndexKeyDescriptor<K>,
+        private val indexKeySerializer: IndexKeySerializer<K>,
         private val cachedEntries: Map<String, E>
 ) {
     constructor(
             register: Register<E>,
-            indexKeyDescriptor: IndexKeyDescriptor<K>,
+            indexKeySerializer: IndexKeySerializer<K>,
             optics: Fold<E, K>
     ) : this(
             register.registerType,
-            indexKeyDescriptor,
-            register.getEntries(optics).mapKeys { indexKeyDescriptor.serialize(it.key) },
+            indexKeySerializer,
+            register.getEntries(optics).mapKeys { indexKeySerializer.serialize(it.key) },
     )
 
     operator fun get(key: K): E? {
-        return cachedEntries[indexKeyDescriptor.serialize(key)]
+        return cachedEntries[indexKeySerializer.serialize(key)]
     }
 
     override fun toString(): String {

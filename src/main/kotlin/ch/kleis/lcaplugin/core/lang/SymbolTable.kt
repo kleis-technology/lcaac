@@ -22,13 +22,13 @@ data class SymbolTable(
         val processTemplates: Register<EProcessTemplate> = Register.empty(),
         val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
-    private val stringDescriptor = object : IndexKeyDescriptor<String> {
+    private val stringDescriptor = object : IndexKeySerializer<String> {
         override fun serialize(key: String): String {
             return key
         }
     }
 
-    private val substanceKeyDescriptor = object : IndexKeyDescriptor<SubstanceKey> {
+    private val substanceKeyDescriptor = object : IndexKeySerializer<SubstanceKey> {
         override fun serialize(key: SubstanceKey): String {
             return Json.encodeToString(key)
         }
