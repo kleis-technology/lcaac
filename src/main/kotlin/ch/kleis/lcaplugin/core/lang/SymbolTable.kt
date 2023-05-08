@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.Every
+import arrow.optics.Fold
 import arrow.typeclasses.Monoid
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlinx.serialization.Serializable
@@ -9,17 +10,17 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 private data class SubstanceKey(
-    val name: String,
-    val type: String?,
-    val compartment: String?,
-    val subCompartment: String?,
+        val name: String,
+        val type: String?,
+        val compartment: String?,
+        val subCompartment: String?,
 )
 
 data class SymbolTable(
-    val quantities: Register<QuantityExpression> = Register.empty(),
-    val units: Register<UnitExpression> = Register.empty(),
-    val processTemplates: Register<EProcessTemplate> = Register.empty(),
-    val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
+        val quantities: Register<QuantityExpression> = Register.empty(),
+        val units: Register<UnitExpression> = Register.empty(),
+        val processTemplates: Register<EProcessTemplate> = Register.empty(),
+        val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
     private val stringDescriptor = object : IndexKeyDescriptor<String> {
         override fun serialize(key: String): String {
@@ -33,49 +34,31 @@ data class SymbolTable(
         }
     }
     private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
-        processTemplates,
-        stringDescriptor,
-        EProcessTemplate.body.products compose
-                Every.list() compose
-                ETechnoExchange.product compose
-                EProductSpec.name
+            processTemplates,
+            stringDescriptor,
+            EProcessTemplate.body.products compose
+                    Every.list() compose
+                    ETechnoExchange.product compose
+                    EProductSpec.name
     )
-    private val substanceKeyOptics = object : Every<ESubstanceSpec, SubstanceKey> {
+    private val substanceKeyOptics = object : Fold<ESubstanceSpec, SubstanceKey> {
         override fun <R> foldMap(M: Monoid<R>, source: ESubstanceSpec, map: (focus: SubstanceKey) -> R): R {
             return map(
-                SubstanceKey(
-                    source.name,
-                    source.type?.value,
-                    source.compartment,
-                    source.subCompartment,
-                )
-            )
-        }
-
-        override fun modify(source: ESubstanceSpec, map: (focus: SubstanceKey) -> SubstanceKey): ESubstanceSpec {
-            val srcKey = SubstanceKey(
-                source.name,
-                source.type?.value,
-                source.compartment,
-                source.subCompartment,
-            )
-            val dstKey = map(srcKey)
-            return ESubstanceSpec(
-                dstKey.name,
-                source.displayName,
-                dstKey.type?.let(SubstanceType::of),
-                dstKey.compartment,
-                dstKey.subCompartment,
-                source.referenceUnit,
+                    SubstanceKey(
+                            source.name,
+                            source.type?.value,
+                            source.compartment,
+                            source.subCompartment,
+                    )
             )
         }
     }
     private val substanceCharacterizationsIndexedBySubstanceKey: Index<SubstanceKey, ESubstanceCharacterization> =
-        Index(
-            substanceCharacterizations,
-            substanceKeyDescriptor,
-            ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
-        )
+            Index(
+                    substanceCharacterizations,
+                    substanceKeyDescriptor,
+                    ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
+            )
 
     companion object {
         fun empty() = SymbolTable()
@@ -94,29 +77,29 @@ data class SymbolTable(
     }
 
     fun getSubstanceCharacterization(
-        name: String,
-        type: SubstanceType,
-        compartment: String
+            name: String,
+            type: SubstanceType,
+            compartment: String
     ): ESubstanceCharacterization? {
         return substanceCharacterizationsIndexedBySubstanceKey[SubstanceKey(
-            name,
-            type.value,
-            compartment,
-            null,
+                name,
+                type.value,
+                compartment,
+                null,
         )]
     }
 
     fun getSubstanceCharacterization(
-        name: String,
-        type: SubstanceType,
-        compartment: String,
-        subCompartment: String
+            name: String,
+            type: SubstanceType,
+            compartment: String,
+            subCompartment: String
     ): ESubstanceCharacterization? {
         return substanceCharacterizationsIndexedBySubstanceKey[SubstanceKey(
-            name,
-            type.value,
-            compartment,
-            subCompartment,
+                name,
+                type.value,
+                compartment,
+                subCompartment,
         )]
     }
 
