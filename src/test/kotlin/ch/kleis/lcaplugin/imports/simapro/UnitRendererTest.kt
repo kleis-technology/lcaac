@@ -7,12 +7,13 @@ import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
 import io.mockk.*
 import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.fail
 import org.junit.After
+
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.openlca.simapro.csv.refdata.UnitRow
+import kotlin.test.assertFailsWith
 
 class UnitRendererTest {
 
@@ -184,17 +185,10 @@ class UnitRendererTest {
             .quantity("Time")
             .conversionFactor(1.0)
             .referenceUnit("kg")
+        val message = "A Unit kg for kg already exists with another dimension, time is not compatible with mass."
 
         // When + Then
-        try {
-            sut.render(data, writer)
-            fail("Should not pass !")
-        } catch (e: ImportException) {
-            assertEquals(
-                "A Unit kg for kg already exists with another dimension, time is not compatible with mass.",
-                e.message
-            )
-        }
+        assertFailsWith(ImportException::class, message) { sut.render(data, writer) }
     }
 
     @Test
@@ -205,17 +199,10 @@ class UnitRendererTest {
             .quantity("mass")
             .conversionFactor(1.0)
             .referenceUnit("kg")
+        val message = "Unit kg is referencing itself in its own declaration"
 
         // When + Then
-        try {
-            sut.render(data, writer)
-            fail("Should not pass !")
-        } catch (e: ImportException) {
-            assertEquals(
-                "Unit kg is referencing itself in its own declaration",
-                e.message
-            )
-        }
+        assertFailsWith(ImportException::class, message) { sut.render(data, writer) }
     }
 
     @Test

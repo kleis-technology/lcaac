@@ -2,8 +2,8 @@ package ch.kleis.lcaplugin.core.lang.expression
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
+import kotlin.test.assertFailsWith
 
 class LcaExpressionTest {
     @Test
@@ -23,14 +23,8 @@ class LcaExpressionTest {
         // Given
         val name = "Bad"
 
-        // When
-        try {
-            SubstanceType.of(name)
-            fail("Should not pass")
-        } catch (e: EvaluatorException) {
-            // Then
-            assertEquals("Invalid SubstanceType: Bad", e.message)
-        }
+        // When / then
+        assertFailsWith(EvaluatorException::class, "Invalid SubstanceType: Bad") { SubstanceType.of(name) }
     }
 
 }

@@ -2,8 +2,10 @@ package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import org.junit.Assert.*
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
 
 class RegisterTest {
     @Test
@@ -27,14 +29,14 @@ class RegisterTest {
         val a = EQuantityRef("a")
         val b = EQuantityRef("b")
         val register = Register.empty<QuantityExpression>()
+        val duplicateKeys = listOf(
+                key to a,
+                key to b
+        )
 
-        // when
-        try {
-            register.plus(listOf(key to a, key to b))
-            fail("should have thrown EvaluatorException")
-        } catch (e: EvaluatorException) {
-            assertEquals("[abc.x] are already bound", e.message)
-        }
+
+        // When + Then
+        assertFailsWith(EvaluatorException::class, "[abc.x] are already bound", { register.plus(duplicateKeys) })
     }
 
     @Test
@@ -43,16 +45,12 @@ class RegisterTest {
         val key = "abc.x"
         val a = EQuantityRef("a")
         val b = EQuantityRef("b")
-        val register = Register.empty<QuantityExpression>()
+        val register = Register.empty<QuantityExpression>().plus(listOf(key to a))
+        val message = "[$key] are already bound"
+        val duplicateKey = listOf(key to b)
 
-        // when
-        try {
-            val r = register.plus(listOf(key to a))
-            r.plus(listOf(key to b))
-            fail("should have thrown EvaluatorException")
-        } catch (e: EvaluatorException) {
-            assertEquals("[$key] are already bound", e.message)
-        }
+        // When + Then
+        assertFailsWith(EvaluatorException::class, message, { register.plus(duplicateKey) })
     }
 
     @Test
@@ -110,22 +108,12 @@ class RegisterTest {
         val kg = EQuantityRef("kg")
         val a = EUnitAlias("a", kg)
         val b = EUnitAlias("b", kg)
-        val sut = Register.empty<EUnitAlias>()
+        val optics = EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name
+        val register = Register.empty<EUnitAlias>()
                 .plus(listOf(keyA to a, keyB to b))
 
-        // When
-        try {
-            Index(
-                    sut,
-                    object : IndexKeySerializer<String> {
-                        override fun serialize(key: String): String = key
-                    },
-                    EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name
-            )
-            fail("should have thrown EvaluatorException")
-        } catch (e: EvaluatorException) {
-            // Then
-            assertEquals("kg is already bound", e.message)
-        }
+
+        // When + Then
+        assertFailsWith(EvaluatorException::class, "kg is already bound", { register.getEntries(optics) })
     }
 }

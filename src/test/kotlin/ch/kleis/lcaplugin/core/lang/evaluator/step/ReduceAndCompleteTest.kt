@@ -8,8 +8,8 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.*
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
+import kotlin.test.assertFailsWith
 
 
 class ReduceAndCompleteTest {
@@ -182,12 +182,10 @@ class ReduceAndCompleteTest {
         val reduceAndComplete = ReduceAndComplete(SymbolTable.empty())
 
         // when/then
-        try {
-            reduceAndComplete.apply(template)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals("unbounded references: [q_carrot, q_water]", e.message)
-        }
+        assertFailsWith(
+            EvaluatorException::class,
+            "unbounded references: [q_carrot, q_water]"
+        ) { reduceAndComplete.apply(template) }
     }
 
     @Test

@@ -5,8 +5,8 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
+import kotlin.test.assertFailsWith
 
 class ProcessTemplateExpressionReducerTest {
 
@@ -111,12 +111,7 @@ class ProcessTemplateExpressionReducerTest {
         val reducer = TemplateExpressionReducer()
 
         // when/then
-        try {
-            reducer.reduce(expression)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals("unknown parameters: [foo]", e.message)
-        }
+        assertFailsWith(EvaluatorException::class, "unknown parameters: [foo]") { reducer.reduce(expression) }
     }
 
     @Test
