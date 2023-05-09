@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.global_assignment
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,6 +12,10 @@ import com.intellij.psi.stubs.StubIndexKey
 class GlobalAssigmentStubKeyIndex : StringStubIndexExtension<PsiGlobalAssignment>() {
     override fun getKey(): StubIndexKey<String, PsiGlobalAssignment> {
         return LcaStubIndexKeys.GLOBAL_ASSIGNMENTS
+    }
+
+    override fun getVersion(): Int {
+        return stubIndexVersion
     }
 
     companion object {

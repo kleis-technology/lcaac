@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,6 +12,10 @@ import com.intellij.psi.stubs.StubIndexKey
 class TechnoProductExchangeKeyIndex : StringStubIndexExtension<PsiTechnoProductExchange>() {
     override fun getKey(): StubIndexKey<String, PsiTechnoProductExchange> {
         return LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES
+    }
+
+    override fun getVersion(): Int {
+        return stubIndexVersion
     }
 
     companion object {

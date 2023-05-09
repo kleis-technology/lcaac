@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.unit
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -11,6 +12,10 @@ import com.intellij.psi.stubs.StubIndexKey
 class UnitKeyIndex : StringStubIndexExtension<PsiUnitDefinition>() {
     override fun getKey(): StubIndexKey<String, PsiUnitDefinition> {
         return LcaStubIndexKeys.UNITS
+    }
+
+    override fun getVersion(): Int {
+        return stubIndexVersion
     }
 
     companion object {

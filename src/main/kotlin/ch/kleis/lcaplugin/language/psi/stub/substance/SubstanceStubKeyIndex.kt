@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.substance
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -14,7 +15,7 @@ class SubstanceKeyIndex : AbstractStubIndex<SubstanceKey, PsiSubstance>() {
         LcaStubIndexKeys.SUBSTANCES
 
     override fun getVersion(): Int {
-        return System.getProperty("pluginVersion", "-1").hashCode()
+        return stubIndexVersion
     }
 
     override fun getKeyDescriptor(): KeyDescriptor<SubstanceKey> {
@@ -22,7 +23,6 @@ class SubstanceKeyIndex : AbstractStubIndex<SubstanceKey, PsiSubstance>() {
     }
 
     companion object {
-
         fun findSubstances(
             project: Project,
             fqn: String,
