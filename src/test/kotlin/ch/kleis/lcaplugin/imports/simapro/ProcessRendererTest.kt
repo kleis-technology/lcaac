@@ -155,7 +155,7 @@ process acai_berry_at_farm_br8553_1886 {
         // (2,2,1,1,1,na)
         9752559010.236041 kg carbon_dioxide_in_air(compartment = "raw", sub_compartment = "in air" )  // Formula=[145.56 * 67E6 / (1 -4E-6)]
         // (2,2,1,1,1,na)
-        20295.524449877732 MJ energy_gross_calorific_value_in_biomass(compartment = "raw", sub_compartment = "" ) 
+        20295.524449877732 MJ energy_gross_calorific_value_in_biomass(compartment = "raw") 
         // (2,1,1,1,1,na)
         501.95555914578216 m3 water_well_br(compartment = "raw", sub_compartment = "in water" ) 
         // (2,1,1,1,1,na)

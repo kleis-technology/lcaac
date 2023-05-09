@@ -217,7 +217,7 @@ ${ModelWriter.block("land_use {", landUses)}
         val uid = realKey.uid()
         val args = listOfNotNull(
             """compartment = "$compartment"""",
-            """sub_compartment = "$sub" """,
+            if (!sub.isNullOrBlank()) """sub_compartment = "$sub" """ else null,
         ).joinToString()
         val spec = "$uid($args)"
         return comments.plus("$amount $unit $spec $endingComment")
