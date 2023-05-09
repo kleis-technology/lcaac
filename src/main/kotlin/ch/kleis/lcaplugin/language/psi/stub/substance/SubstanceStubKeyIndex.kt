@@ -14,7 +14,7 @@ class SubstanceKeyIndex : AbstractStubIndex<SubstanceKey, PsiSubstance>() {
         LcaStubIndexKeys.SUBSTANCES
 
     override fun getVersion(): Int {
-        return System.getProperty("pluginVersion").hashCode()
+        return System.getProperty("pluginVersion", "-1").hashCode()
     }
 
     override fun getKeyDescriptor(): KeyDescriptor<SubstanceKey> {
