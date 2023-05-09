@@ -39,18 +39,19 @@ class AssessProcessAction(private val processName: String) : AnAction() {
         } catch (e: EvaluatorException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
-            LOG.error("Unable to process computation", e)
+            LOG.warn("Unable to process computation", e)
         } catch (e: NoSuchElementException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
             displayToolWindow(project, result)
-            LOG.error("Unable to process computation", e)
+            LOG.warn("Unable to process computation", e)
         }
     }
 
     private fun displayToolWindow(project: Project, result: InventoryResult) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
         val lcaProcessAssessResult = LcaProcessAssessResult(result)
-        val content = ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
+        val content =
+            ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()

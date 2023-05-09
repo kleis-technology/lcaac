@@ -52,12 +52,13 @@ class Register<E> private constructor(
         val keys = data.keys.toList()
             .plus(pairs.map { it.first })
 
-        val conflicts = keys.groupingBy { it }.eachCount()
+        val firstConflicts = keys.groupingBy { it }.eachCount()
             .filter { it.value > 1 }
             .map { it.key }
+            .take(20)
             .toSet()
-        if (conflicts.isNotEmpty()) {
-            throw EvaluatorException("$conflicts are already bound")
+        if (firstConflicts.isNotEmpty()) {
+            throw EvaluatorException("$firstConflicts are already bound")
         }
         return Register(
             registerType,

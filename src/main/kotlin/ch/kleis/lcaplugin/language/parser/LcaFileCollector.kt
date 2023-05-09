@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.*
+import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
@@ -16,6 +17,8 @@ class LcaFileCollector(
         private val LOG = Logger.getInstance(LcaFileCollector::class.java)
     }
 
+    private val guard = CacheGuard { el: PsiElement -> refFileResolver(el) }
+
     fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files ?
         val result = HashMap<String, LcaFile>()
         LOG.info("Start recursive collect")
@@ -23,7 +26,6 @@ class LcaFileCollector(
         LOG.info("End recursive collect, found ${result.size} entries")
         return result.values.asSequence()
     }
-
 
 
     private tailrec fun recursiveCollect(
@@ -36,22 +38,25 @@ class LcaFileCollector(
         val maybeVisited = accumulator[path]
         if (maybeVisited == null) {
             accumulator[path] = file
-            val dependencies = dependenciesOf(file)
-            val newDependencies = dependencies.asSequence()
+            val newDeps = dependenciesOf(file)
                 .map { it.virtualFile.path to it }
                 .filter { (p, _) -> !accumulator.containsKey(p) }
                 .associateTo(toVisit) { it }
-            recursiveCollect(accumulator, newDependencies)
+            recursiveCollect(accumulator, newDeps)
         } else {
             recursiveCollect(accumulator, toVisit)
         }
     }
 
-    private fun dependenciesOf(file: LcaFile): Set<LcaFile> {
-        return allReferences(file).mapNotNull { refFileResolver(it) }.toSet()
+    private fun dependenciesOf(file: LcaFile): Sequence<LcaFile> {
+        return allReferences(file).mapNotNull { resolve(it) }
     }
 
-    private fun allReferences(file: LcaFile): List<PsiElement> {
+    private fun resolve(element: PsiElement): LcaFile? {
+        return guard.guarded(element)
+    }
+
+    private fun allReferences(file: LcaFile): Sequence<PsiElement> {
         return PsiTreeUtil.findChildrenOfAnyType(
             file,
             PsiSubstanceRef::class.java,
@@ -59,6 +64,24 @@ class LcaFileCollector(
             PsiProductRef::class.java,
             PsiProcessTemplateRef::class.java,
             PsiUnitRef::class.java
-        ).toList()
+        ).asSequence()
     }
+}
+
+private class CacheGuard<E, R>(private val fnToGuard: (E) -> R?) where E : PsiElement {
+    private val visited = HashSet<String>()
+
+    val guarded: (E) -> R? = { element ->
+        val key = when (element) {
+            is PsiUIDOwner -> element.getFullyQualifiedName()
+            else -> element.toString()
+        }
+        if (!visited.contains(key)) {
+            visited.add(key)
+            fnToGuard(element)
+        } else {
+            null
+        }
+    }
+
 }
