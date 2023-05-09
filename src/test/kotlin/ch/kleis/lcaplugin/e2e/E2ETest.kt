@@ -196,14 +196,14 @@ class E2ETest : BasePlatformTestCase() {
             is InventoryError -> fail("$result")
             is InventoryMatrix -> {
                 val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("[Emission] co2")
+                val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
                 TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("[Emission] co2", input.getDisplayName())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(3.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
@@ -256,14 +256,14 @@ class E2ETest : BasePlatformTestCase() {
             is InventoryError -> fail("$result")
             is InventoryMatrix -> {
                 val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("[Emission] co2")
+                val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
                 TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("[Emission] co2", input.getDisplayName())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(3.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
@@ -322,14 +322,14 @@ class E2ETest : BasePlatformTestCase() {
             is InventoryError -> fail("$result")
             is InventoryMatrix -> {
                 val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("[Emission] co2")
+                val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
                 TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("[Emission] co2", input.getDisplayName())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(13.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }

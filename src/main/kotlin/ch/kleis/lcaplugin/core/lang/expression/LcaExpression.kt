@@ -21,7 +21,7 @@ data class EProductSpec(
 
 // Substance
 enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
-    EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use"), UNDEFINED("Undefined");
+    EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
         private val map = SubstanceType.values().associateBy { it.value }

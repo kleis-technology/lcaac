@@ -47,8 +47,8 @@ data class TechnoExchangeValue(val quantity: QuantityValue, val product: Product
 @optics
 data class BioExchangeValue(val quantity: QuantityValue, val substance: SubstanceValue) : ExchangeValue {
     init {
-        if (quantity.unit.dimension != substance.referenceUnit.dimension) {
-            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${substance.referenceUnit.dimension} for substance ${substance.name}, quantity=${quantity.amount}")
+        if (quantity.unit.dimension != substance.getDimension()) {
+            throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${substance.getDimension()} for substance ${substance.getDisplayName()}, quantity=${quantity.amount}")
         }
     }
 

@@ -48,7 +48,7 @@ data class GraphNode(
     )
 
     constructor(exchange: BioExchangeValue) : this(
-        "SUBSTANCE_${exchange.substance.name}", SUBSTANCE, exchange.substance.name
+        "SUBSTANCE_${exchange.substance.getDisplayName()}", SUBSTANCE, exchange.substance.getDisplayName()
     )
 }
 
@@ -72,7 +72,7 @@ data class GraphLink(
     )
 
     constructor(processKey: String, exchange: BioExchangeValue) : this(
-        processKey, "SUBSTANCE_${exchange.substance.name}", BIOSPHERE_EXCHANGE, exchange.quantity.toString()
+        processKey, "SUBSTANCE_${exchange.substance.getDisplayName()}", BIOSPHERE_EXCHANGE, exchange.quantity.toString()
     )
 }
 

@@ -89,11 +89,8 @@ class ReduceAndCompleteTest {
             listOf(
                 BioExchangeValue(
                     QuantityValueFixture.oneKilogram,
-                    SubstanceValue(
+                    PartiallyQualifiedSubstanceValue(
                         "co2",
-                        type = SubstanceType.UNDEFINED,
-                        "",
-                        null,
                         UnitValueFixture.kg,
                     )
                 )

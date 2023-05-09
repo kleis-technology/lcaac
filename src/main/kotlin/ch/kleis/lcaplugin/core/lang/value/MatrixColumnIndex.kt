@@ -44,13 +44,38 @@ data class ProductValue(
 }
 
 @optics
-data class SubstanceValue(
+sealed interface SubstanceValue : Value, MatrixColumnIndex {
+    companion object
+}
+
+@optics
+data class PartiallyQualifiedSubstanceValue(
+    val name: String,
+    val referenceUnit: UnitValue,
+) : SubstanceValue {
+    override fun getDimension(): Dimension {
+        return referenceUnit.dimension
+    }
+
+    override fun getDisplayName(): String {
+        return name
+    }
+
+    override fun referenceUnit(): UnitValue {
+        return referenceUnit
+    }
+
+    companion object
+}
+
+@optics
+data class FullyQualifiedSubstanceValue(
     val name: String,
     val type: SubstanceType,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitValue,
-) : Value, MatrixColumnIndex {
+) : SubstanceValue {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
