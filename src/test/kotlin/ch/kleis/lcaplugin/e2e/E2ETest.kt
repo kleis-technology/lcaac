@@ -10,24 +10,30 @@ import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
-import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import com.intellij.testFramework.ParsingTestCase
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Assert
-import org.junit.Test
 
-class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
-    @Test
+class E2ETest : BasePlatformTestCase() {
+
+    override fun getTestDataPath(): String {
+        return "testdata"
+    }
+
     fun test_substanceResolution() {
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_substanceResolution"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
                 process p {
                     products {
                         1 kg a
                     }
                     emissions {
-                        1 kg b
+                        1 kg b(compartment="compartment")
                     }
                 }
                 
@@ -42,7 +48,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                     }
                 }
             """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -58,22 +65,24 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val input = result.controllablePorts.getElements().first()
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("a from p{}", output.name())
+                TestCase.assertEquals("a from p{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(1.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
 
-    @Test
     fun test_meta_whenKeywordAsKey() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_meta_whenKeywordAsKey"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
                 process p {
                     meta {
                         "unit" = "a"
@@ -81,7 +90,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                     }
                 }
             """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
 
         // when
         val actual = file.getProcesses().first().getBlockMetaList().first().metaAssignmentList
@@ -93,11 +103,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals("b", actual[1].getValue())
     }
 
-    @Test
     fun test_operationPriority() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_operationPriority"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process p {
                 variables {
                     q = 2 m/kg
@@ -110,7 +122,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -126,22 +139,24 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val input = result.controllablePorts.getElements().first()
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("out from p{}", output.name())
+                TestCase.assertEquals("out from p{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("in", input.name())
+                TestCase.assertEquals("in", input.getDisplayName())
                 TestCase.assertEquals(6.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
 
-    @Test
     fun test_twoInstancesSameTemplate_whenOneImplicit() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_twoInstancesSameTemplate_whenOneImplicit"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process office {
                 products {
                     1 piece office
@@ -167,7 +182,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -183,22 +199,24 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.name())
+                TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(3.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
 
-    @Test
     fun test_twoInstancesSameTemplate_whenExplicit() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_twoInstancesSameTemplate_whenExplicit"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process office {
                 products {
                     1 piece office
@@ -224,7 +242,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -240,22 +259,24 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.name())
+                TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(3.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
 
-    @Test
     fun test_manyInstancesSameTemplate() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_manyInstancesSameTemplate"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process office {
                 products {
                     1 piece office
@@ -287,7 +308,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -303,22 +325,24 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.name())
+                TestCase.assertEquals("office from office{}", output.getDisplayName())
                 TestCase.assertEquals(1.0, cf.output.quantity().amount)
                 TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.name())
+                TestCase.assertEquals("co2", input.getDisplayName())
                 TestCase.assertEquals(13.0, cf.input.quantity().amount)
                 TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
 
-    @Test
     fun test_allocate() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_allocate"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process p {
                 products {
                     1 kg out1 allocate 90 percent
@@ -329,7 +353,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
 
         // when
@@ -354,18 +379,21 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_allocate_whenOneProduct_allocateIsOptional() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_allocate_whenOneProduct_allocateIsOptional"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process p {
                 products {
                     1 kg out
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
@@ -375,11 +403,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals(100.0, actual)
     }
 
-    @Test
     fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process p {
                 products {
                     1 kg out
@@ -388,7 +418,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
@@ -398,11 +429,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         TestCase.assertEquals(100.0, actual)
     }
 
-    @Test
-    fun test_allocate_whenTwoProducts_shouldReturnWeigtedResult() {
+    fun test_allocate_whenTwoProducts_shouldReturnWeightedResult() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_allocate_whenTwoProducts_shouldReturnWeightedResult"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             process p {
                 products {
                     1 kg out allocate 20 percent
@@ -413,7 +446,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         // when
         val symbolTable = parser.load()
@@ -440,11 +474,12 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_unitAlias_whenInfiniteLoop_shouldThrowAnError"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
             unit foo {
                 symbol = "foo"
                 alias_for = 1 foo
@@ -456,7 +491,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
@@ -469,11 +505,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             unit bar {
                 symbol = "bar"
                 alias_for = 1 foo
@@ -490,7 +528,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
@@ -503,11 +542,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_shouldNotThrowAnError() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_unitAlias_shouldNotThrowAnError"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             unit bar {
                 symbol = "bar"
                 alias_for = 1 kg
@@ -524,7 +565,8 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
@@ -536,11 +578,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
         }
     }
 
-    @Test
     fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
-        val file = parseFile(
-            "hello", """
+        val pkgName = "e2e.test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
             unit bar {
                 symbol = "bar"
                 alias_for = 1 kg
@@ -557,16 +601,13 @@ class E2ETest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                 }
             }
         """.trimIndent()
-        ) as LcaFile
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
 
         // when/then
         Evaluator(symbolTable).eval(entryPoint)
-    }
-
-    override fun getTestDataPath(): String {
-        return ""
     }
 }

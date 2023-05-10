@@ -111,11 +111,17 @@ class RegisterTest {
         val a = EUnitAlias("a", kg)
         val b = EUnitAlias("b", kg)
         val sut = Register.empty<EUnitAlias>()
-            .plus(listOf(keyA to a, keyB to b))
+                .plus(listOf(keyA to a, keyB to b))
 
         // When
         try {
-            Index(sut, EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name)
+            Index(
+                    sut,
+                    object : IndexKeySerializer<String> {
+                        override fun serialize(key: String): String = key
+                    },
+                    EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name
+            )
             fail("should have thrown EvaluatorException")
         } catch (e: EvaluatorException) {
             // Then

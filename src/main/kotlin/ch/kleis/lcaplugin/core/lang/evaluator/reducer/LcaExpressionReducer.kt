@@ -73,7 +73,7 @@ class LcaExpressionReducer(
             expression.displayName,
             expression.type,
             expression.compartment,
-            expression.subcompartment,
+            expression.subCompartment,
             expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
         )
     }

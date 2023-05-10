@@ -5,7 +5,7 @@ import org.junit.Test
 
 class UnitSanitizerKtTest {
     @Test
-    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol(){
+    fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol() {
         // given
         val symbol = "kg"
         // when
@@ -15,7 +15,7 @@ class UnitSanitizerKtTest {
     }
 
     @Test
-    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU(){
+    fun test_sanitizeSymbol_whenUnitSymbol_shouldReturnU() {
         // given
         val symbol = "unit"
         // when

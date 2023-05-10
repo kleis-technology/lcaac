@@ -65,7 +65,8 @@ class TemplateExpressionReducer(
         .compose(Every.list())
         .compose(ETechnoExchange.product)).modify(result) {
             val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-            it.withFromProcessRef(
+            it.copy(
+                fromProcessRef =
                 FromProcessRef(
                     result.name,
                     reducedActualArguments,

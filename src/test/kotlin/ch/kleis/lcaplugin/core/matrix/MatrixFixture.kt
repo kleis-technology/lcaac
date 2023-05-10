@@ -2,9 +2,6 @@ package ch.kleis.lcaplugin.core.matrix
 
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 import ch.kleis.lcaplugin.core.matrix.impl.MatrixFactory
-import ch.kleis.lcaplugin.core.matrix.impl.ojalgo.OjalgoMatrix
-import ch.kleis.lcaplugin.core.matrix.impl.ojalgo.OjalgoMatrixFactory
-import org.ojalgo.matrix.store.Primitive64Store
 
 class MatrixFixture {
     companion object {

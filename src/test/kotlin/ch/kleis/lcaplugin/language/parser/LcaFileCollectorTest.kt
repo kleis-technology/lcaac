@@ -1,15 +1,22 @@
 package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import com.intellij.testFramework.ParsingTestCase
+import com.intellij.openapi.ui.naturalSorted
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Test
 
-class LcaFileCollectorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class LcaFileCollectorTest : BasePlatformTestCase() {
+
+    override fun getTestDataPath(): String {
+        return "testdata"
+    }
+
     @Test
     fun testCollect_shouldCollectAllFilesResolved() {
         // given
-        val fa = parseFile(
-            "fa", """
+        val vfa = myFixture.createFile(
+            "fa.lca", """
             package ch.kleis.pkg_a
             
             import ch.kleis.pkg_b
@@ -19,34 +26,36 @@ class LcaFileCollectorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
                     1 kg a
                 }
                 emissions {
-                    1 kg b
+                    1 kg b(compartment = "compartment")
                 }
             }
         """.trimIndent()
-        ) as LcaFile
-        val fb = parseFile(
-            "fb", """
+        )
+        val fa = PsiManager.getInstance(project).findFile(vfa) as LcaFile
+        val vfb = myFixture.createFile(
+            "fb.lca", """
             package ch.kleis.pkg_b
             
             substance b {
                 name = "b"
+                type = Emission
                 compartment = "compartment"
                 reference_unit = kg
             }
         """.trimIndent()
-        ) as LcaFile
-        val collector = LcaFileCollector {
-            fb
-        }
+        )
+        val fb = PsiManager.getInstance(project).findFile(vfb) as LcaFile
+        val collector = LcaFileCollector()
 
         // when
-        val actual = collector.collect(fa).toList()
+        val actual = collector.collect(fa)
+            .map { it.virtualFile.path }
+            .toList().naturalSorted()
 
         // then
-        assertEquals(listOf(fa, fb), actual)
-    }
-
-    override fun getTestDataPath(): String {
-        return ""
+        val expected = listOf(fa, fb)
+            .map { it.virtualFile.path }
+            .naturalSorted()
+        assertEquals(expected, actual)
     }
 }

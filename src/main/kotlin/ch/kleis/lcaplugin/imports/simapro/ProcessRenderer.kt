@@ -215,7 +215,12 @@ ${ModelWriter.block("land_use {", landUses)}
         val info = if (!realKey.hasChanged) "" else "Fallback for [$name, $type, $compartment, ${sub}]"
         val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else "", info))
         val uid = realKey.uid()
-        return comments.plus("$amount $unit $uid$endingComment")
+        val args = listOfNotNull(
+            """compartment = "$compartment"""",
+            if (!sub.isNullOrBlank()) """sub_compartment = "$sub" """ else null,
+        ).joinToString()
+        val spec = "$uid($args)"
+        return comments.plus("$amount $unit $spec $endingComment")
     }
 
     private fun renderProduct(product: ProductOutputRow): List<String> {

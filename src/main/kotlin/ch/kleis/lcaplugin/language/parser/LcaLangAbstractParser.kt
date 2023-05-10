@@ -13,7 +13,11 @@ import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.*
 import ch.kleis.lcaplugin.language.psi.type.quantity.*
-import ch.kleis.lcaplugin.language.psi.type.ref.*
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.unit.*
 
 class LcaLangAbstractParser(
@@ -67,7 +71,7 @@ class LcaLangAbstractParser(
         val substanceCharacterizations = Register.empty<ESubstanceCharacterization>()
             .plus(
                 substanceDefinitions
-                    .map { Pair(it.getSubstanceRef().getUID().name, substanceCharacterization(it)) }
+                    .map { Pair(it.buildUniqueKey(), substanceCharacterization(it)) }
                     .asIterable()
             )
 
@@ -83,7 +87,7 @@ class LcaLangAbstractParser(
         return ESubstanceSpec(
             psiSubstance.getSubstanceRef().name,
             psiSubstance.getNameField().getValue(),
-            SubstanceType.of(psiSubstance.getTypeField().getType()),
+            SubstanceType.of(psiSubstance.getTypeField().getValue()),
             psiSubstance.getCompartmentField().getValue(),
             psiSubstance.getSubcompartmentField()?.getValue(),
             unit(psiSubstance.getReferenceUnitField().getValue())
@@ -119,9 +123,9 @@ class LcaLangAbstractParser(
         )
         val products = generateTechnoProductExchanges(psiProcess, symbolTable)
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
-        val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE) }
-        val landUse = psiProcess.getLandUse().map { bioExchange(it, Polarity.POSITIVE) }
-        val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE) }
+        val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE, symbolTable) }
+        val landUse = psiProcess.getLandUse().map { bioExchange(it, Polarity.POSITIVE, symbolTable) }
+        val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE, symbolTable) }
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
             name = name,
@@ -162,12 +166,26 @@ class LcaLangAbstractParser(
         return ESubstanceSpec(
             name = psiSubstance.getSubstanceRef().name,
             displayName = psiSubstance.getNameField().getValue(),
-            type = SubstanceType.of(psiSubstance.getTypeField().getType()),
+            type = SubstanceType.of(psiSubstance.getTypeField().getValue()),
             compartment = psiSubstance.getCompartmentField().getValue(),
-            subcompartment = psiSubstance.getSubcompartmentField()?.getValue(),
+            subCompartment = psiSubstance.getSubcompartmentField()?.getValue(),
             referenceUnit = unit(psiSubstance.getReferenceUnitField().getValue()),
         )
     }
+
+    private fun substanceSpec(
+        substanceSpec: PsiSubstanceSpec,
+        quantity: QuantityExpression,
+        symbolTable: SymbolTable
+    ): ESubstanceSpec =
+        ESubstanceSpec(
+            name = substanceSpec.name,
+            compartment = substanceSpec.getCompartmentField()?.getValue(),
+            subCompartment = substanceSpec.getSubCompartmentField()?.getValue(),
+            type = substanceSpec.getType(),
+            referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantity))
+        )
+
 
     private fun impact(exchange: PsiImpactExchange): EImpact {
         return EImpact(
@@ -211,62 +229,48 @@ class LcaLangAbstractParser(
     private fun technoProductExchange(
         psiExchange: PsiTechnoProductExchange,
         symbolTable: SymbolTable
-    ): ETechnoExchange {
-        return ETechnoExchange(
+    ): ETechnoExchange =
+        ETechnoExchange(
             quantity(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
-                .withReferenceUnit(EUnitClosure(symbolTable, EUnitOf(quantity(psiExchange.getQuantity())))),
+                .copy(referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantity(psiExchange.getQuantity())))),
             EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
-    }
 
     private fun technoProductExchangeWithAllocation(
         psiExchange: PsiTechnoProductExchangeWithAllocateField,
         symbolTable: SymbolTable
-    ): ETechnoExchange {
-        return ETechnoExchange(
+    ): ETechnoExchange =
+        ETechnoExchange(
             quantity(psiExchange.getTechnoProductExchange().getQuantity()),
             productSpec(psiExchange.getTechnoProductExchange().getProductRef())
-                .withReferenceUnit(EUnitClosure(symbolTable, EUnitOf(quantity(psiExchange.getTechnoProductExchange().getQuantity())))),
+                .copy(
+                    referenceUnit = EUnitClosure(
+                        symbolTable,
+                        EUnitOf(quantity(psiExchange.getTechnoProductExchange().getQuantity()))
+                    )
+                ),
             quantity(psiExchange.getAllocateField().getValue())
         )
-    }
 
-    private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity): EBioExchange {
+    private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
         return when (polarity) {
-            Polarity.POSITIVE -> EBioExchange(
-                quantity(psiExchange.getQuantity()),
-                substanceSpec(psiExchange.getSubstanceRef()),
-            )
+            Polarity.POSITIVE -> {
+                val quantity = quantity(psiExchange.getQuantity())
+                EBioExchange(
+                    quantity,
+                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                )
+            }
 
-            Polarity.NEGATIVE -> EBioExchange(
-                EQuantityNeg(quantity(psiExchange.getQuantity())),
-                substanceSpec(psiExchange.getSubstanceRef()),
-            )
+            Polarity.NEGATIVE -> {
+                val quantity = EQuantityNeg(quantity(psiExchange.getQuantity()))
+                EBioExchange(
+                    quantity,
+                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                )
+            }
         }
-    }
-
-
-    private fun substanceSpec(substance: PsiSubstanceRef): ESubstanceSpec {
-        return ESubstanceSpec(
-            name = substance.name,
-            displayName = substance.name,
-            compartment = null,
-            subcompartment = null,
-            type = null,
-            referenceUnit = null,
-        )
-    }
-
-    private fun substanceSpec(name: String): ESubstanceSpec {
-        return ESubstanceSpec(
-            name = name,
-            displayName = name,
-            compartment = null,
-            subcompartment = null,
-            type = null,
-            referenceUnit = null,
-        )
     }
 
     private fun quantity(quantity: PsiQuantity): QuantityExpression {

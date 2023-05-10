@@ -104,7 +104,7 @@ CommentContent = .*
 <YYINITIAL> "}"                      { return LcaTypes.RBRACE; }
 <YYINITIAL> "("                      { return LcaTypes.LPAREN; }
 <YYINITIAL> ")"                      { return LcaTypes.RPAREN; }
-<YYINITIAL> ","                      { return LcaTypes.COMA; }
+<YYINITIAL> ","                      { return LcaTypes.COMMA; }
 <YYINITIAL> "."                      { return LcaTypes.DOT; }
 <YYINITIAL> "+"                      { return LcaTypes.PLUS; }
 <YYINITIAL> "-"                      { return LcaTypes.MINUS; }

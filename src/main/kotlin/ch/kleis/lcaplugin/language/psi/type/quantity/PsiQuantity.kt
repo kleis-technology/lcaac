@@ -10,7 +10,7 @@ interface PsiQuantity : PsiElement {
     }
 
     fun getOperationType(): AdditiveOperationType? {
-        return node.findChildByType(LcaTypes.PLUS)?.let { AdditiveOperationType.ADD}
+        return node.findChildByType(LcaTypes.PLUS)?.let { AdditiveOperationType.ADD }
             ?: node.findChildByType(LcaTypes.MINUS)?.let { AdditiveOperationType.SUB }
     }
 

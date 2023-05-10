@@ -17,7 +17,7 @@ import javax.swing.plaf.UIResource
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaProcessAssessResult(result: InventoryResult): LcaToolWindowContent {
+class LcaProcessAssessResult(result: InventoryResult) : LcaToolWindowContent {
     private val content: JPanel
 
     init {
@@ -56,7 +56,7 @@ class LcaProcessAssessResult(result: InventoryResult): LcaToolWindowContent {
          * multiple components.
          * @return  The representation of the data to be transfered.
          */
-        public override  fun createTransferable(c: JComponent?): Transferable? {
+        public override fun createTransferable(c: JComponent?): Transferable? {
             if (c is JTable) {
                 val table = c
                 val rows: IntArray?
@@ -119,7 +119,7 @@ class LcaProcessAssessResult(result: InventoryResult): LcaToolWindowContent {
         }
 
         override fun getSourceActions(c: JComponent?): Int {
-            return TransferHandler.COPY
+            return COPY
         }
     }
 }

@@ -11,6 +11,7 @@ interface PsiBlockProducts : PsiElement {
         return node.getChildren(TokenSet.create(LcaTypes.TECHNO_PRODUCT_EXCHANGE))
             .map { it.psi as PsiTechnoProductExchange }
     }
+
     fun getExchangesWithAllocateField(): Collection<PsiTechnoProductExchangeWithAllocateField> {
         return node.getChildren(TokenSet.create(LcaTypes.TECHNO_PRODUCT_EXCHANGE_WITH_ALLOCATE_FIELD))
             .map { it.psi as PsiTechnoProductExchangeWithAllocateField }

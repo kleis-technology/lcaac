@@ -175,7 +175,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_START).append("\n")
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         addKeyValueSection("Name", element.getNameField().getValue(), sb)
-        addKeyValueSection("Type", element.getTypeField().getType(), sb)
+        addKeyValueSection("Type", element.getTypeField().getValue(), sb)
         addKeyValueSection("Compartment", element.getCompartmentField().getValue(), sb)
         addKeyValueSection("Sub-Compartment", element.getSubcompartmentField()?.getValue(), sb)
         addKeyValueSection("Reference Unit", element.getReferenceUnitField().getValue().text, sb)
@@ -228,8 +228,8 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }
 
-    private fun getProcessProducer(element: PsiElement): LcaProcess?{
-        if (element.parent is LcaTechnoProductExchangeWithAllocateFieldImpl){
+    private fun getProcessProducer(element: PsiElement): LcaProcess? {
+        if (element.parent is LcaTechnoProductExchangeWithAllocateFieldImpl) {
             return element.parent.parent?.parent as LcaProcess?
         }
         return element.parent?.parent as LcaProcess?

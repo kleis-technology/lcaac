@@ -17,27 +17,11 @@ data class EProductSpec(
     val fromProcessRef: FromProcessRef? = null,
 ) : LcaExpression {
     companion object
-
-    fun withReferenceUnit(referenceUnit: UnitExpression): EProductSpec {
-        return EProductSpec(
-            name,
-            referenceUnit,
-            fromProcessRef,
-        )
-    }
-
-    fun withFromProcessRef(fromProcessRef: FromProcessRef): EProductSpec {
-        return EProductSpec(
-            name,
-            referenceUnit,
-            fromProcessRef,
-        )
-    }
 }
 
 // Substance
 enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
-    EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use"), UNDEFINED("Undefined");
+    EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
         private val map = SubstanceType.values().associateBy { it.value }
@@ -58,14 +42,10 @@ data class ESubstanceSpec(
     val displayName: String = name,
     val type: SubstanceType? = null,
     val compartment: String? = null,
-    val subcompartment: String? = null,
+    val subCompartment: String? = null,
     val referenceUnit: UnitExpression? = null,
 ) : LcaExpression {
     companion object
-
-    fun withReferenceUnit(unitExpression: UnitExpression): ESubstanceSpec {
-        return this.copy(referenceUnit = unitExpression)
-    }
 }
 
 // Indicator

@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.matrix.*
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -16,7 +16,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
-class LcaProcessAssessResultTest() {
+class LcaProcessAssessResultTest {
 
     @Test
     fun test_getContent_WhenAnErrorHappened() {
@@ -40,30 +40,31 @@ class LcaProcessAssessResultTest() {
         val substance = SubstanceFixture.propanol.toValue()
         val product = ProductFixture.water.toValue()
 
-        val data = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0,1.0, 10.0))
+        val data = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
         val inv: InventoryResult = InventoryMatrix(
-            IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data)
+            IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
+        )
 
-        val lcaProcessAssessResult = LcaProcessAssessResult (inv)
+        val lcaProcessAssessResult = LcaProcessAssessResult(inv)
         val panel = lcaProcessAssessResult.getContent()
         val scrollPanel = panel.getComponent(0) as JBScrollPane
-        val viewPort = scrollPanel.getComponent(0)    as JBViewport
-        val table = viewPort.getComponent(0)    as JBTable
-        table.setRowSelectionInterval(0,0)
+        val viewPort = scrollPanel.getComponent(0) as JBViewport
+        val table = viewPort.getComponent(0) as JBTable
+        table.setRowSelectionInterval(0, 0)
 
         val sut = table.transferHandler as LcaProcessAssessResult.WithHeaderTransferableHandler
 
         // When
-       val result = sut.createTransferable(table) as BasicTransferable
+        val result = sut.createTransferable(table) as BasicTransferable
 
         // Then
         val html = result.getTransferData(DataFlavor("text/html;class=java.lang.String")) as String
-        assertTrue(html.contains("<th>product</th>"))
-        assertTrue(html.contains("<th>propanol [kg]</th>"))
+        assertTrue(html.contains("<th>item</th>"))
+        assertTrue(html.contains("<th>[Resource] propanol(air) [kg]</th>"))
         assertTrue(html.contains("<td>carrot</td>"))
         val text = result.getTransferData(DataFlavor("text/plain;class=java.lang.String")) as String
-        assertTrue(text.contains("product\tunit\tpropanol [kg]"))
-        assertTrue(text.contains("\ncarrot\tg\t0.001\t"))
+        assertTrue(text.contains("item\tquantity\t[Resource] propanol(air) [kg]"))
+        assertTrue(text.contains("\ncarrot\t1 g\t0.001\t"))
     }
 
 }

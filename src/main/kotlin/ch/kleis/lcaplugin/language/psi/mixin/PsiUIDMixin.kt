@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.language.psi.mixin
 import ch.kleis.lcaplugin.language.psi.type.PsiUID
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 
 abstract class PsiUIDMixin(node: ASTNode) : ASTWrapperPsiElement(node), PsiUID {
     override fun getName(): String {

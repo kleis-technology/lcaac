@@ -36,7 +36,7 @@ class ExchangeValueTest {
             BioExchangeValue(quantity, substance)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: length³ vs mass for substance propanol, quantity=1.0", e.message)
+            assertEquals("incompatible dimensions: length³ vs mass for substance [Resource] propanol(air), quantity=1.0", e.message)
         }
     }
 

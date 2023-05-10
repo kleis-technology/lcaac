@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
 import org.junit.Test
 
-class LcaUIDFactoryTest : ParsingTestCase("", "lca", LcaParserDefinition()){
+class LcaUIDFactoryTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
 
     @Test
     fun test_createUid() {

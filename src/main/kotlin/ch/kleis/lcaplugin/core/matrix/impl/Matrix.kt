@@ -9,6 +9,7 @@ interface Matrix {
     fun sub(other: Matrix): Matrix {
         return add(other.negate())
     }
+
     fun multiply(other: Matrix): Matrix
     fun transpose(): Matrix
 

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -13,12 +14,22 @@ class TechnoProductExchangeKeyIndex : StringStubIndexExtension<PsiTechnoProductE
         return LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES
     }
 
+    override fun getVersion(): Int {
+        return stubIndexVersion
+    }
+
     companion object {
         fun findTechnoProductExchanges(
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
         ): Collection<PsiTechnoProductExchange> =
-            StubIndex.getElements(LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES, fqn, project, scope, PsiTechnoProductExchange::class.java)
+            StubIndex.getElements(
+                LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES,
+                fqn,
+                project,
+                scope,
+                PsiTechnoProductExchange::class.java
+            )
     }
 }

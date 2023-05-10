@@ -1,12 +1,12 @@
 package ch.kleis.lcaplugin.core.lang
 
-import arrow.optics.PEvery
+import arrow.optics.Fold
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 
 class Register<E> private constructor(
-    internal val registerType: String,
-    private val data: Map<String, E> = HashMap()
+        internal val registerType: String,
+        private val data: Map<String, E> = HashMap()
 ) {
     constructor(register: Register<E>) : this(register.registerType, register.data)
 
@@ -20,17 +20,19 @@ class Register<E> private constructor(
         }
     }
 
-    fun getEntries(optics: PEvery<E, E, String, String>): Map<String, E> {
+    fun <K> getEntries(optics: Fold<E, K>): Map<K, E> {
         return data.entries.asSequence()
-            .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
-            // ensure no duplicate by calling reduce as soon as there is a second element in a group
-            .groupingBy { it.first }.reduce { key, _, _ -> throw EvaluatorException("$key is already bound") }
-            .asSequence().map { it }.associate { it.key to it.value.second }
+                .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
+                // ensure no duplicate by calling reduce as soon as there is a second element in a group
+                .groupingBy { it.first }.reduce { key, _, _ -> throw EvaluatorException("$key is already bound") }
+                .asSequence().map { it }.associate { it.key to it.value.second }
     }
 
     operator fun get(key: String): E? {
         return data[key]
     }
+
+    fun getValues(): Sequence<E> = data.values.asSequence()
 
     override fun toString(): String {
         return "[register<${registerType}>]"
@@ -50,19 +52,19 @@ class Register<E> private constructor(
 
     fun plus(pairs: Iterable<Pair<String, E>>): Register<E> {
         val keys = data.keys.toList()
-            .plus(pairs.map { it.first })
+                .plus(pairs.map { it.first })
 
         val firstConflicts = keys.groupingBy { it }.eachCount()
-            .filter { it.value > 1 }
-            .map { it.key }
-            .take(20)
+                .filter { it.value > 1 }
+                .map { it.key }
+                .take(20)
             .toSet()
         if (firstConflicts.isNotEmpty()) {
             throw EvaluatorException("$firstConflicts are already bound")
         }
         return Register(
-            registerType,
-            data.plus(pairs)
+                registerType,
+                data.plus(pairs)
         )
     }
 }

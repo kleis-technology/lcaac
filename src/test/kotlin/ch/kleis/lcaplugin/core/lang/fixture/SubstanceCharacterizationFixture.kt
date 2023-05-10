@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.lang.fixture
 import ch.kleis.lcaplugin.core.lang.expression.EBioExchange
 import ch.kleis.lcaplugin.core.lang.expression.EImpact
 import ch.kleis.lcaplugin.core.lang.expression.ESubstanceCharacterization
+import ch.kleis.lcaplugin.core.lang.expression.ESubstanceSpec
 
 class SubstanceCharacterizationFixture {
     companion object {
@@ -12,5 +13,13 @@ class SubstanceCharacterizationFixture {
                 EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange),
             ),
         )
+
+        fun substanceCharacterizationFor(substance: ESubstanceSpec): ESubstanceCharacterization =
+            ESubstanceCharacterization(
+                referenceExchange = EBioExchange(QuantityFixture.oneKilogram, substance),
+                impacts = listOf(
+                    EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange)
+                )
+            )
     }
 }

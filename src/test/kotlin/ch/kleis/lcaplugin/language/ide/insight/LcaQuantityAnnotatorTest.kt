@@ -7,7 +7,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
 
-class LcaQuantityAnnotatorTest: BasePlatformTestCase() {
+class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
     }
@@ -16,13 +16,15 @@ class LcaQuantityAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
                 x = q
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
             .getTerm()
@@ -46,14 +48,16 @@ class LcaQuantityAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
                 q = 1 kg
                 x = q
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
             .getTerm()
@@ -75,13 +79,15 @@ class LcaQuantityAnnotatorTest: BasePlatformTestCase() {
     fun testAnnotate_whenFoundInPrelude_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
                 x = 3 kg
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
             .getTerm()

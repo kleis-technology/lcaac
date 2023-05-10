@@ -12,6 +12,7 @@ interface PsiGlobalAssignment : StubBasedPsiElement<GlobalAssignmentStub>, PsiNa
     fun getQuantityRef(): PsiQuantityRef {
         return node.findChildByType(LcaTypes.QUANTITY_REF)?.psi as PsiQuantityRef
     }
+
     fun getValue(): PsiQuantity {
         return node.findChildByType(LcaTypes.QUANTITY)?.psi as PsiQuantity
     }

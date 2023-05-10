@@ -11,4 +11,4 @@ import com.intellij.psi.util.elementType
  * Checks if a PsiElement is an LCA process.
  */
 fun isProcess(element: PsiElement): Boolean =
-        element.elementType == LcaTypes.PROCESS_KEYWORD && element.parent is PsiProcess
+    element.elementType == LcaTypes.PROCESS_KEYWORD && element.parent is PsiProcess

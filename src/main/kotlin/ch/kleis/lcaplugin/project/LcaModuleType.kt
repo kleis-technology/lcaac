@@ -9,7 +9,7 @@ import javax.swing.Icon
 class LcaModuleType : ModuleType<LcaModuleBuilder>(ID) {
 
     companion object {
-        val ID = "LCA_MODULE_TYPE";
+        val ID = "LCA_MODULE_TYPE"
 
         fun getInstance(): LcaModuleType {
             return ModuleTypeManager.getInstance().findByID(ID) as LcaModuleType
@@ -21,7 +21,7 @@ class LcaModuleType : ModuleType<LcaModuleBuilder>(ID) {
     }
 
     override fun getName(): String {
-        return "LCA Module Type";
+        return "LCA Module Type"
     }
 
     override fun getDescription(): String {
@@ -29,7 +29,7 @@ class LcaModuleType : ModuleType<LcaModuleBuilder>(ID) {
     }
 
     override fun getNodeIcon(isOpened: Boolean): Icon {
-        return LcaIcons.PROJECT;
+        return LcaIcons.PROJECT
     }
 
 }

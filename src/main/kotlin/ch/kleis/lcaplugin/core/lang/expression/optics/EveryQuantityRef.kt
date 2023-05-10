@@ -202,7 +202,7 @@ val everyUnboundedQuantityRefInProcessTemplate =
         }
     }
 
-val everyUnboundedQuantityRefInTemplateExpression : PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EQuantityRef, QuantityExpression > =
+val everyUnboundedQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EQuantityRef, QuantityExpression> =
     ProcessTemplateExpression.eProcessTemplate compose everyUnboundedQuantityRefInProcessTemplate
 
 val everyQuantityRef: Every<Expression, EQuantityRef> =

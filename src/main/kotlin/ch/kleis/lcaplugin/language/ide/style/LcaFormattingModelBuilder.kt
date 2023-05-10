@@ -82,7 +82,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .around(ALLOCATE_FIELD).spaces(1)
                 .before(PRODUCT_REF)
                 .spaces(1)
-                .before(SUBSTANCE_REF)
+                .before(SUBSTANCE_SPEC)
                 .spaces(1)
                 // Substances
                 .before(INDICATOR_REF)

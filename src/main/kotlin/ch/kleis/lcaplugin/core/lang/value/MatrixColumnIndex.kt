@@ -7,21 +7,25 @@ import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 
 sealed interface MatrixColumnIndex : Value, HasUID {
     fun getDimension(): Dimension
-    fun name(): String
+    fun getDisplayName(): String
     fun referenceUnit(): UnitValue
     override fun getUID(): String {
-        return name()
+        return getDisplayName()
     }
 }
 
 @optics
-data class ProductValue(val name: String, val referenceUnit: UnitValue, val fromProcessRef: FromProcessRefValue? = null) :
+data class ProductValue(
+    val name: String,
+    val referenceUnit: UnitValue,
+    val fromProcessRef: FromProcessRefValue? = null
+) :
     Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
+    override fun getDisplayName(): String {
         if (fromProcessRef is FromProcessRefValue) {
             return "$name from ${fromProcessRef.name}${fromProcessRef.arguments}"
         }
@@ -40,19 +44,52 @@ data class ProductValue(val name: String, val referenceUnit: UnitValue, val from
 }
 
 @optics
-data class SubstanceValue(
+sealed interface SubstanceValue : Value, MatrixColumnIndex {
+    companion object
+}
+
+@optics
+data class PartiallyQualifiedSubstanceValue(
+    val name: String,
+    val referenceUnit: UnitValue,
+) : SubstanceValue {
+    override fun getDimension(): Dimension {
+        return referenceUnit.dimension
+    }
+
+    override fun getDisplayName(): String {
+        return name
+    }
+
+    override fun referenceUnit(): UnitValue {
+        return referenceUnit
+    }
+
+    companion object
+}
+
+@optics
+data class FullyQualifiedSubstanceValue(
     val name: String,
     val type: SubstanceType,
     val compartment: String,
     val subcompartment: String?,
     val referenceUnit: UnitValue,
-) : Value, MatrixColumnIndex {
+) : SubstanceValue {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
-        return name
+    override fun getDisplayName(): String {
+        if (compartment.isBlank()) {
+            return """[${type.value}] $name"""
+        }
+
+        val args = listOfNotNull(
+            compartment,
+            subcompartment
+        ).joinToString()
+        return """[${type.value}] $name($args)"""
     }
 
     override fun referenceUnit(): UnitValue {
@@ -67,7 +104,7 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         return referenceUnit.dimension
     }
 
-    override fun name(): String {
+    override fun getDisplayName(): String {
         return name
     }
 

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub.process
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
+import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -13,12 +14,16 @@ class ProcessStubKeyIndex : StringStubIndexExtension<PsiProcess>() {
         return LcaStubIndexKeys.PROCESSES
     }
 
+    override fun getVersion(): Int {
+        return stubIndexVersion
+    }
+
     companion object {
         fun findProcesses(
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project),
-        ) : Collection<PsiProcess> =
+        ): Collection<PsiProcess> =
             StubIndex.getElements(LcaStubIndexKeys.PROCESSES, fqn, project, scope, PsiProcess::class.java)
     }
 }

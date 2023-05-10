@@ -6,8 +6,13 @@ import arrow.typeclasses.Monoid
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 val everyTemplateRefInTemplateExpression =
-    object : PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EProcessTemplateRef, ProcessTemplateExpression> {
-        override fun <R> foldMap(M: Monoid<R>, source: ProcessTemplateExpression, map: (focus: EProcessTemplateRef) -> R): R {
+    object :
+        PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EProcessTemplateRef, ProcessTemplateExpression> {
+        override fun <R> foldMap(
+            M: Monoid<R>,
+            source: ProcessTemplateExpression,
+            map: (focus: EProcessTemplateRef) -> R
+        ): R {
             return when (source) {
                 is EProcessTemplateApplication -> foldMap(M, source.template, map)
                 is EProcessFinal -> M.empty()

@@ -58,13 +58,13 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
 
 fun ESubstanceSpec.toValue(): SubstanceValue {
     val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
-    val type = this.type ?: SubstanceType.UNDEFINED
-    val compartment = this.compartment ?: "__unknown__"
-    return SubstanceValue(
+    val type = this.type ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
+    val compartment = this.compartment ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
+    return FullyQualifiedSubstanceValue(
         this.name,
         type,
         compartment,
-        this.subcompartment,
+        this.subCompartment,
         referenceUnit,
     )
 }

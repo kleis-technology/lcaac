@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 
 interface PsiSubstanceTypeField : PsiElement {
-    fun getType(): String {
+    fun getValue(): String {
         return listOfNotNull(
             node.findChildByType(LcaTypes.TYPE_EMISSION_KEYWORD),
             node.findChildByType(LcaTypes.TYPE_RESOURCE_KEYWORD),

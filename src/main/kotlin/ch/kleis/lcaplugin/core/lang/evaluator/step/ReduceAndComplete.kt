@@ -57,7 +57,7 @@ class ReduceAndComplete(
                 }
                 ETechnoExchange.product
                     .modify(exchange) {
-                        it.withReferenceUnit(q.unit)
+                        it.copy(referenceUnit = q.unit)
                     }
             }
     }
@@ -72,7 +72,7 @@ class ReduceAndComplete(
                 EBioExchange.substance
                     .modify(exchange) {
                         if (it.referenceUnit == null) {
-                            it.withReferenceUnit(q.unit)
+                            it.copy(referenceUnit = q.unit)
                         } else it
                     }
             }

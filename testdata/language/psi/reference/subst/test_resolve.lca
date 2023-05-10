@@ -7,6 +7,6 @@ process p {
         1 kg a
     }
     emissions {
-        1 kg co2_air
+        1 kg co2_air(compartment="air")
     }
 }

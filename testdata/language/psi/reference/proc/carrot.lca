@@ -1,8 +1,10 @@
 package language.psi.reference.proc.test_resolve.carrot
 
-
 process carrot_production {
     products {
         1 kg carrot
+    }
+    emissions {
+        1 kg climate_change
     }
 }

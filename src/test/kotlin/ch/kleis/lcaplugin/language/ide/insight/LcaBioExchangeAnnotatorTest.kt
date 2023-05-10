@@ -23,7 +23,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             
             process p {
                 emissions {
-                    1 kg co2
+                    1 kg co2(compartment = "air")
                 }
             }
         """.trimIndent()
@@ -37,8 +37,13 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved substance co2") }
-        verify { mock.builder.range(element.getSubstanceRef()) }
+        verify {
+            mock.holder.newAnnotation(
+                HighlightSeverity.WARNING,
+                """unresolved substance co2(compartment="air")"""
+            )
+        }
+        verify { mock.builder.range(element.getSubstanceSpec()) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
     }
@@ -53,13 +58,13 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             
             process p {
                 emissions {
-                    1 kg co2
+                    1 kg co2(compartment="compartment")
                 }
             }
             
             substance co2 {
                 name = "co2"
-                type = Resource
+                type = Emission
                 compartment = "compartment"
                 reference_unit = kg
             }

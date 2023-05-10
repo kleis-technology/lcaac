@@ -11,10 +11,8 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
-import org.junit.Test
 
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
-    @Test
     fun testParse_shouldLoadUnitAlias() {
         // given
         val file = parseFile(
@@ -36,7 +34,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         assertEquals(expect, actual)
     }
 
-    @Test
     fun testParse_shouldLoadPreludeUnits() {
         // given
         val file = parseFile(
@@ -54,7 +51,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(Prelude.units, symbolTable.units)
     }
 
-    @Test
     fun testParse_shouldLoadPreludeUnitQuantities() {
         // given
         val file = parseFile(
@@ -72,7 +68,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(Prelude.unitQuantities, symbolTable.quantities)
     }
 
-    @Test
     fun testParse_blockUnit_shouldDeclareUnitRefAndQuantityRef() {
         // given
         val file = parseFile(
@@ -97,7 +92,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(quantity.amount, 1.0)
     }
 
-    @Test
     fun testParse_referenceStartingWithUnderscore_shouldParse() {
         // given
         val file = parseFile(
@@ -117,7 +111,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual.name)
     }
 
-    @Test
     fun testParse_processWithLandUse_shouldParse() {
         val file = parseFile(
             "hello", """
@@ -146,15 +139,18 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals("lu", actual?.name)
     }
 
-    @Test
     fun testParse_substance_shouldParseFields() {
+        val subName = "co2"
+        val type = SubstanceType.RESOURCE
+        val compartment = "air"
+        val subCompartment = "low pop"
         val file = parseFile(
             "hello", """
-                substance co2 {
+                substance $subName {
                     name = "carbon dioxide"
-                    type = Resource
-                    compartment = "air"
-                    sub_compartment = "low pop"
+                    type = $type
+                    compartment = "$compartment"
+                    sub_compartment = "$subCompartment"
                     reference_unit = kg
                 }
         """.trimIndent()
@@ -163,18 +159,21 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // when
-        val actual = symbolTable.getSubstanceCharacterization("co2")!!
-            .referenceExchange.substance
+        val actual = symbolTable.getSubstanceCharacterization(
+            name = subName,
+            type = type,
+            compartment = compartment,
+            subCompartment = subCompartment,
+        )!!.referenceExchange.substance
 
         // then
         TestCase.assertEquals("co2", actual.name)
         TestCase.assertEquals("carbon dioxide", actual.displayName)
         TestCase.assertEquals("air", actual.compartment)
-        TestCase.assertEquals("low pop", actual.subcompartment)
+        TestCase.assertEquals("low pop", actual.subCompartment)
         TestCase.assertEquals(EUnitRef("kg"), actual.referenceUnit)
     }
 
-    @Test
     fun testParse_whenDefineProcessTwice_shouldThrow() {
         // given
         val file = parseFile(
@@ -201,7 +200,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         }
     }
 
-    @Test
     fun testParse_whenDefineProductTwice_shouldThrow() {
         // given
         val file = parseFile(
@@ -234,7 +232,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         }
     }
 
-    @Test
     fun testParse_withoutPackage_thenDefaultPackageName() {
         // given
         val file = parseFile(
@@ -250,7 +247,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_whenDefineGlobalVariableTwice_shouldThrow() {
         // given
         val file = parseFile(
@@ -274,22 +270,21 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         }
     }
 
-    @Test
-    fun testParse_whenDefineSubstanceTwice_shouldThrow() {
+    fun testParse_whenDefineSameSubstanceTwice_shouldThrow() {
         // given
         val file = parseFile(
             "hello", """
                 substance a {
                     name = "first"
                     type = Resource
-                    compartment = "first compartment"
+                    compartment = "compartment"
                     reference_unit = kg
                 }
                 substance a {
                     name = "second"
                     type = Resource
-                    compartment = "second compartment"
-                    reference_unit = l
+                    compartment = "compartment"
+                    reference_unit = kg 
                 }
         """.trimIndent()
         ) as LcaFile
@@ -303,13 +298,43 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             fail("should have thrown")
         } catch (e: EvaluatorException) {
             TestCase.assertEquals(
-                "[a] are already bound",
+                "[a_compartment_Resource] are already bound",
                 e.message
             )
         }
     }
 
-    @Test
+    fun testParse_whenDefineSameSubstanceDifferentSubCompartments_shouldNotThrow() {
+        // given
+        val file = parseFile(
+            "hello", """
+                substance a {
+                    name = "first"
+                    type = Resource
+                    compartment = "compartment"
+                    sub_compartment = "subCompartment"
+                    reference_unit = kg
+                }
+                substance a {
+                    name = "second"
+                    type = Resource
+                    compartment = "compartment"
+                    reference_unit = kg 
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+
+        // when/then
+        try {
+            parser.load()
+        } catch (e: EvaluatorException) {
+            fail("Threw: $e")
+        }
+    }
+
     fun testParse_withPackage_shouldReturnGivenPackageName() {
         // given
         val file = parseFile(
@@ -326,7 +351,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_simpleProcess() {
         // given
         val file = parseFile(
@@ -384,15 +408,17 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_unitExpression_div() {
         // given
+        val subName = "a"
+        val type = SubstanceType.RESOURCE
+        val compartment = "compartment"
         val file = parseFile(
             "hello", """
-            substance a {
+            substance $subName {
                 name = "a"
-                type = Resource
-                compartment = "compartment"
+                type = $type
+                compartment = "$compartment"
                 reference_unit = x/y
             }
         """.trimIndent()
@@ -403,7 +429,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val symbolTable = parser.load()
-        val substance = symbolTable.getSubstanceCharacterization("a")!!.referenceExchange.substance
+        val substance = symbolTable.getSubstanceCharacterization(
+            name = subName,
+            type = type,
+            compartment = compartment,
+        )!!.referenceExchange.substance
         val actual = substance.referenceUnit!!
 
         // then
@@ -414,15 +444,17 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_unitExpression_mul() {
         // given
+        val subName = "a"
+        val type = SubstanceType.RESOURCE
+        val compartment = "compartment"
         val file = parseFile(
             "hello", """
-            substance a {
+            substance $subName {
                 name = "a"
-                type = Resource
-                compartment = "compartment"
+                type = $type
+                compartment = "$compartment"
                 reference_unit = x*y
             }
         """.trimIndent()
@@ -433,7 +465,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val symbolTable = parser.load()
-        val substance = symbolTable.getSubstanceCharacterization("a")!!.referenceExchange.substance
+        val substance = symbolTable.getSubstanceCharacterization(
+            name = subName,
+            type = type,
+            compartment = compartment,
+        )!!.referenceExchange.substance
         val actual = substance.referenceUnit!!
 
         // then
@@ -444,7 +480,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_quantityExpression_div() {
         // given
         val file = parseFile(
@@ -476,7 +511,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_quantityExpression_mul() {
         // given
         val file = parseFile(
@@ -508,7 +542,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_withConstrainedProduct() {
         // given
         val file = parseFile(
@@ -549,16 +582,19 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_substanceWithImpacts_shouldReturnASubstanceCharacterization() {
         // given
+        val name = "phosphate"
+        val type = SubstanceType.RESOURCE
+        val compartment = "phosphate compartment"
+        val subCompartment = "phosphate sub-compartment"
         val file = parseFile(
             "substances", """
-            substance phosphate {
+            substance $name {
                 name = "phosphate"
-                type = Resource
-                compartment = "phosphate compartment"
-                sub_compartment = "phosphate sub-compartment"
+                type = $type
+                compartment = "$compartment"
+                sub_compartment = "$subCompartment"
                 reference_unit = kg
                 
                 impacts {
@@ -573,7 +609,12 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when
         val symbolTable = parser.load()
-        val actual = symbolTable.getSubstanceCharacterization("phosphate")
+        val actual = symbolTable.getSubstanceCharacterization(
+            name = name,
+            type = type,
+            compartment = compartment,
+            subCompartment = subCompartment
+        )
 
         // then
         val expected = ESubstanceCharacterization(
@@ -583,7 +624,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                     name = "phosphate",
                     type = SubstanceType.RESOURCE,
                     compartment = "phosphate compartment",
-                    subcompartment = "phosphate sub-compartment",
+                    subCompartment = "phosphate sub-compartment",
                     referenceUnit = EUnitRef("kg"),
                 ),
             ),
@@ -597,7 +638,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         TestCase.assertEquals(expected, actual)
     }
 
-    @Test
     fun testParse_productWithoutAllocation_should_return_100percent_allocation() {
         // given
         val file = parseFile(
@@ -615,7 +655,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         // then
-        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
             units = Prelude.units,
             quantities = Prelude.unitQuantities,
@@ -631,7 +671,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         assertEquals(expect, actual)
     }
 
-    @Test
     fun testParse_productWithAllocation() {
         // given
         val file = parseFile(
@@ -649,7 +688,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         // then
-        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body as EProcess).products[0]
+        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
             units = Prelude.units,
             quantities = Prelude.unitQuantities,

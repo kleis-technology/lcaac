@@ -17,7 +17,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -25,7 +26,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
                     1 kg carrot from carrot_prod()
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .getFromProcessConstraint()!!
@@ -47,7 +49,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
-        myFixture.createFile("$pkgName.lca", """
+        myFixture.createFile(
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -61,7 +64,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
                    1 kg carrot
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .getFromProcessConstraint()!!

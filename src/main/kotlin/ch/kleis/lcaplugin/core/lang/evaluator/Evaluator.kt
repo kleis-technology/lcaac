@@ -55,7 +55,7 @@ class Evaluator(
         if (toProcess.isEmpty()) return
 
         // eval
-        val expression = toProcess.first(); toProcess.remove(expression);
+        val expression = toProcess.first(); toProcess.remove(expression)
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
@@ -67,7 +67,8 @@ class Evaluator(
                 val arguments = spec.fromProcessRef?.arguments
                     ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
-                spec.withFromProcessRef(
+                spec.copy(
+                    fromProcessRef =
                     FromProcessRef(
                         body.name,
                         arguments,
@@ -76,7 +77,7 @@ class Evaluator(
             } ?: spec
         }
         val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
-            resolveSubstanceCharacterizationBySubstance(spec)?.let { it ->
+            resolveSubstanceCharacterizationBySubstance(spec)?.let {
                 val substanceCharacterization = reduceAndComplete.apply(it)
                 accumulator.plus(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
@@ -100,7 +101,7 @@ class Evaluator(
     }
 
     private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
-        return substanceCharacterizationResolver.resolve(spec)?.takeUnless { !it.hasImpacts() }
+        return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
     }
 
     private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {

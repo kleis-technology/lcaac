@@ -12,11 +12,13 @@ class Helper {
     }
 
     fun allRequiredRefs(expression: Expression): Set<String> {
-        val allRefs : Every<Expression, String> = Merge(listOf(
-            everyQuantityRef compose EQuantityRef.name,
-            everyTemplateRef compose EProcessTemplateRef.name,
-            everyUnitRef compose EUnitRef.name
-        ))
+        val allRefs: Every<Expression, String> = Merge(
+            listOf(
+                everyQuantityRef compose EQuantityRef.name,
+                everyTemplateRef compose EProcessTemplateRef.name,
+                everyUnitRef compose EUnitRef.name
+            )
+        )
         return allRefs.getAll(expression).toSet()
     }
 }
