@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
@@ -37,7 +38,9 @@ class QuantityReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        val localMatches = tryLocally()
+        val localMatches = tryLocally(
+            QuantityRefExactNameMatcherScopeProcessor(element)
+        )
         if (localMatches.isNotEmpty()) {
             return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
         }
@@ -47,8 +50,23 @@ class QuantityReference(
             .toTypedArray()
     }
 
-    private fun tryLocally(): Set<PsiElement> {
-        val resolver = QuantityRefScopeProcessor(element)
+    override fun getVariants(): Array<Any> {
+        val localDefns: List<Any> = tryLocally(
+            QuantityRefCollectorScopeProcessor()
+        )
+            .mapNotNull { psi ->
+                psi.name?.let {
+                    LookupElementBuilder.create(it)
+                }
+            }
+        val globalDefns = globalAssignmentRef.variants.toList()
+        val unitDefns = unitRef.variants.toList()
+        return localDefns.plus(globalDefns).plus(unitDefns).toTypedArray()
+    }
+
+    private fun tryLocally(
+        resolver: QuantityRefScopeProcessor
+    ): Set<PsiNameIdentifierOwner> {
         var lastParent: PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {
             it is LcaFile
