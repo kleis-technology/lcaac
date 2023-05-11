@@ -21,8 +21,9 @@ class SubstanceKeyDescriptor : KeyDescriptor<SubstanceKey> {
      * ByteArrayOutputStream with an ObjectOutputStream and then copy the bytes to the storage - slow, and rather
      * unreadable. See also the read method.
      */
-    override fun save(storage: DataOutput, value: SubstanceKey) =
-            ObjectOutputStream(storage as OutputStream).use { it.writeObject(value) }
+    override fun save(storage: DataOutput, value: SubstanceKey) {
+        ObjectOutputStream(storage as OutputStream).writeObject(value)
+    }
 
     /* Closing the streams manipulated here causes failures in the intellij stub tree manipulation further down,
      * hence the absence of try-with-resources.
@@ -32,5 +33,5 @@ class SubstanceKeyDescriptor : KeyDescriptor<SubstanceKey> {
      * buffers/XXXInputStreams. @jde, @pbl and @pke agreed this was a better solution - talk with them if need be.
      */
     override fun read(storage: DataInput): SubstanceKey =
-            ObjectInputStream(storage as InputStream).readObject() as SubstanceKey
+        ObjectInputStream(storage as InputStream).readObject() as SubstanceKey
 }
