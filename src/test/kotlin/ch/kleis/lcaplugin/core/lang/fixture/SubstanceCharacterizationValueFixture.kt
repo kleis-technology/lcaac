@@ -7,7 +7,10 @@ import ch.kleis.lcaplugin.core.lang.value.SubstanceCharacterizationValue
 class SubstanceCharacterizationValueFixture {
     companion object {
         val propanolCharacterization = SubstanceCharacterizationValue(
-            referenceExchange = BioExchangeValue(QuantityValueFixture.oneKilogram, SubstanceValueFixture.propanol),
+            referenceExchange = BioExchangeValue(
+                QuantityValueFixture.oneKilogram,
+                FullyQualifiedSubstanceValueFixture.propanol
+            ),
             impacts = listOf(
                 ImpactValue(QuantityValueFixture.oneKilogram, IndicatorValueFixture.climateChange),
             ),
