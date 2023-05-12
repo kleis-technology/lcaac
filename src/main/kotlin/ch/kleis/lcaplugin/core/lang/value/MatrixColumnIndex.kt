@@ -40,7 +40,27 @@ data class ProductValue(
         return ProductValue(name, referenceUnit, fromProcessRef)
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ProductValue
+
+        if (name != other.name) return false
+        if (referenceUnit.dimension != other.referenceUnit.dimension) return false
+        return fromProcessRef == other.fromProcessRef
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + referenceUnit.dimension.hashCode()
+        result = 31 * result + (fromProcessRef?.hashCode() ?: 0)
+        return result
+    }
+
+
     companion object
+
 }
 
 @optics
@@ -64,6 +84,23 @@ data class PartiallyQualifiedSubstanceValue(
     override fun referenceUnit(): UnitValue {
         return referenceUnit
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PartiallyQualifiedSubstanceValue
+
+        if (name != other.name) return false
+        return referenceUnit.dimension == other.referenceUnit.dimension
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + referenceUnit.dimension.hashCode()
+        return result
+    }
+
 
     companion object
 }
@@ -96,6 +133,28 @@ data class FullyQualifiedSubstanceValue(
         return referenceUnit
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FullyQualifiedSubstanceValue
+
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (compartment != other.compartment) return false
+        if (subcompartment != other.subcompartment) return false
+        return referenceUnit.dimension == other.referenceUnit.dimension
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + compartment.hashCode()
+        result = 31 * result + (subcompartment?.hashCode() ?: 0)
+        result = 31 * result + referenceUnit.dimension.hashCode()
+        return result
+    }
+
     companion object
 }
 
@@ -112,5 +171,21 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         return referenceUnit
     }
 
-    companion object
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as IndicatorValue
+
+        if (name != other.name) return false
+        return referenceUnit.dimension == other.referenceUnit.dimension
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + referenceUnit.dimension.hashCode()
+        return result
+    }
+
+
 }

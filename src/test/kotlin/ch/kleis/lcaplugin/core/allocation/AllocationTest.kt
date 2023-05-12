@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.core.allocation
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.fixture.FullyQualifiedSubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixture.Companion.propanolCharacterization
-import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SystemValueFixture
 import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
@@ -150,7 +150,7 @@ class AllocationTest {
                     listOf(
                         BioExchangeValue(
                             QuantityValueFixture.twoKilograms,
-                            SubstanceValueFixture.propanol
+                            FullyQualifiedSubstanceValueFixture.propanol
                         )
                     )
                 )

@@ -6,7 +6,7 @@ class BioExchangeValueFixture {
     companion object {
         val propanolBioExchange = BioExchangeValue(
             QuantityValueFixture.oneKilogram,
-            SubstanceValueFixture.propanol
+            FullyQualifiedSubstanceValueFixture.propanol
         )
     }
 }

@@ -1,10 +1,10 @@
 package ch.kleis.lcaplugin.core.lang.value
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.fixture.FullyQualifiedSubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.IndicatorValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaplugin.core.lang.fixture.SubstanceValueFixture
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
@@ -29,14 +29,17 @@ class ExchangeValueTest {
     fun bioExchange_whenDimensionsDontMatch_thenThrows() {
         // given
         val quantity = QuantityValueFixture.oneLitre
-        val substance = SubstanceValueFixture.propanol
+        val substance = FullyQualifiedSubstanceValueFixture.propanol
 
         // when/then
         try {
             BioExchangeValue(quantity, substance)
             fail("should have thrown")
         } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: length³ vs mass for substance [Resource] propanol(air), quantity=1.0", e.message)
+            assertEquals(
+                "incompatible dimensions: length³ vs mass for substance [Resource] propanol(air), quantity=1.0",
+                e.message
+            )
         }
     }
 

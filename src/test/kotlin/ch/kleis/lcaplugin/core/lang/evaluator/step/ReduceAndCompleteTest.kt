@@ -206,7 +206,7 @@ class ReduceAndCompleteTest {
 
         // then
         val expected = SubstanceCharacterizationValue(
-            BioExchangeValue(QuantityValueFixture.oneKilogram, SubstanceValueFixture.propanol),
+            BioExchangeValue(QuantityValueFixture.oneKilogram, FullyQualifiedSubstanceValueFixture.propanol),
             listOf(
                 ImpactValue(
                     QuantityValueFixture.oneKilogram,
