@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
@@ -37,18 +38,35 @@ class QuantityReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        val localMatches = tryLocally()
+        val localMatches = resolveElementLocally(
+            QuantityRefExactNameMatcherScopeProcessor(element)
+        )
         if (localMatches.isNotEmpty()) {
             return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
         }
-        return tryGlobalAssignments()
-            .plus(tryUnits())
+        return resolveElementInGlobalAssignments()
+            .plus(resolveElementInUnitDefinitions())
             .map { PsiElementResolveResult(it) }
             .toTypedArray()
     }
 
-    private fun tryLocally(): Set<PsiElement> {
-        val resolver = QuantityRefScopeProcessor(element)
+    override fun getVariants(): Array<Any> {
+        val localDefns: List<Any> = resolveElementLocally(
+            QuantityRefCollectorScopeProcessor()
+        )
+            .mapNotNull { psi ->
+                psi.name?.let {
+                    LookupElementBuilder.create(it)
+                }
+            }
+        val globalDefns = globalAssignmentRef.variants.toList()
+        val unitDefns = unitRef.variants.toList()
+        return localDefns.plus(globalDefns).plus(unitDefns).toTypedArray()
+    }
+
+    private fun resolveElementLocally(
+        resolver: QuantityRefScopeProcessor
+    ): Set<PsiNameIdentifierOwner> {
         var lastParent: PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {
             it is LcaFile
@@ -63,13 +81,13 @@ class QuantityReference(
         return resolver.getResults()
     }
 
-    private fun tryGlobalAssignments(): Set<PsiElement> {
+    private fun resolveElementInGlobalAssignments(): Set<PsiElement> {
         return globalAssignmentRef.multiResolve(false)
             .mapNotNull { it.element }
             .toSet()
     }
 
-    private fun tryUnits(): Set<PsiElement> {
+    private fun resolveElementInUnitDefinitions(): Set<PsiElement> {
         return unitRef.multiResolve(false)
             .mapNotNull { it.element }
             .toSet()

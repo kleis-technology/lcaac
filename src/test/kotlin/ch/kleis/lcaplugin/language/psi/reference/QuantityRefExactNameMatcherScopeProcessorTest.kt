@@ -6,7 +6,7 @@ import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test
 
-class QuantityRefScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun test_whenLocalParam_thenCorrect() {
         // given
