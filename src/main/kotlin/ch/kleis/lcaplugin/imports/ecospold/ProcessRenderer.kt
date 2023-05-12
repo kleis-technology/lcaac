@@ -1,10 +1,7 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
-import ch.kleis.lcaplugin.imports.FormulaConverter
-import ch.kleis.lcaplugin.imports.Line
-import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.*
 import ch.kleis.lcaplugin.imports.ModelWriter.Companion.createCommentLine
-import ch.kleis.lcaplugin.imports.Text
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.ProcessDictRecord
 import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
@@ -23,6 +20,7 @@ class ProcessRenderer {
     var nbProcesses: Int = 0
         private set
     var processDict: Map<String, ProcessDictRecord>? = null
+    val metaRenderer = MetaRenderer()
 
     fun render(data: DataSet, writer: ModelWriter, processComment: String?) {
         nbProcesses++
@@ -44,6 +42,13 @@ class ProcessRenderer {
             description.geography?.shortName?.let { metas["geography-shortname"] = ModelWriter.compactText(it) }
             description.geography?.comment?.let { metas["geography-comment"] = ModelWriter.compactText(toStr(it)) }
         }
+//        data.validation
+//        data.adminInfo?.let { info ->
+//            info.dataEntry?.let { }
+//        }
+//        metaRenderer.render(data.adminInfo, "", metas)
+//        metaRenderer.render(data.validation, "", metas)
+
         val geo = ""
 //            if (data.description?.geography?.shortName == "GLO") ""
 //            else data.description?.geography?.shortName ?: ""

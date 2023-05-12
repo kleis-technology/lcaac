@@ -109,10 +109,11 @@ class ModelWriter(
             return text.joinToString("\n$sep")
         }
 
-        private fun padList(text: List<CharSequence>, number: Int): List<CharSequence> {
-            val sep = " ".repeat(number)
+        fun padList(text: List<CharSequence>, pad: Int): List<CharSequence> {
+            val sep = " ".repeat(pad)
             return text.map { "$sep$it" }
         }
+
 
         fun asComment(str: String?): ImmutableList<String> {
             return (str ?: "")
@@ -151,6 +152,25 @@ class ModelWriter(
             return pad(lines, pad)
         }
 
+        fun blockKeyValue(metas: MutableSet<MutableMap.MutableEntry<String, String?>>, pad: Int): CharSequence {
+            val builder = StringBuilder()
+            metas.forEach { (k, v) ->
+                val split = v
+                    ?.split("\n")
+                    ?.map { compactText(it) }
+                    ?.filter { it.isNotBlank() }
+                if (!split.isNullOrEmpty()) {
+                    val sep = " ".repeat(pad)
+                    builder.append(
+                        """$sep"$k" = "${padButFirst(split, pad + 4)}"
+"""
+                    )
+                }
+            }
+            return builder.dropLast(1)
+        }
+
+
         fun createCommentLine(comments: List<String>): String {
             val cleaned = comments.filter { it.isNotBlank() }
 
@@ -164,7 +184,7 @@ class ModelWriter(
     private val openedFiles: MutableMap<String, FileWriterWithSize> = mutableMapOf()
 
     fun write(relativePath: String, block: CharSequence, index: Boolean = true, closeAfterWrite: Boolean = false) {
-        if (block.isNotEmpty()) {
+        if (block.isNotBlank()) {
             watcher.notifyCurrentWork(relativePath)
             val file = recreateIfNeeded(relativePath, index)
             file.write(block)
@@ -194,8 +214,8 @@ class ModelWriter(
         Files.createDirectories(path.parent)
         val new = FileWriterWithSize(path, currentIndex)
         openedFiles[relativePath] = new
-        new.write("package $packageName\n")
-        imports.forEach { new.write("import $it\n") }
+        new.write("package $packageName")
+        imports.forEach { new.write("import $it") }
         return new
     }
 

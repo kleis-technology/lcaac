@@ -4,8 +4,8 @@ import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.model.UnitImported
 import ch.kleis.lcaplugin.imports.shared.UnitRenderer
-import ch.kleis.lcaplugin.imports.shared.UnitRenderer.ParsedUnit
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
@@ -67,7 +67,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         watcher: AsynchronousWatcher
     ) {
         val entries = f.entries.toList()
-        totalValue = entries.size // TODO Real value including Units and oather files
+        totalValue = entries.size
 
         processRenderer.processDict = readProcessDict(f, entries)
 
@@ -80,7 +80,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             }
             unitConvs.conversions
                 .asSequence()
-                .map { ParsedUnit(qty(it), it.fromUnit, it.factor, unitToStr(it.toUnit)) }
+                .map { UnitImported(qty(it), it.fromUnit, it.factor, unitToStr(it.toUnit)) }
                 .filter { it.name != "foot-candle" }
                 .forEach { unitRenderer.render(it, writer) }
         }
@@ -144,7 +144,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         watcher: AsynchronousWatcher,
         path: String
     ) {
-        LOG.info("Read impactMethod from $path")
+        LOG.info("Read impactMethod ${method.name} from $path")
 
     }
 
@@ -155,7 +155,6 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         path: String
     ) {
         LOG.info("Read $type dataset from $path")
-//        if (dataSet.description?.activity?.name?.startsWith("market") == true) return
         processRenderer.render(dataSet, w, "$type from $path")
     }
 }

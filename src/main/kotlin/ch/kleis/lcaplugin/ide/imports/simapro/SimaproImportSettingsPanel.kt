@@ -4,10 +4,14 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createTextComponent
 import ch.kleis.lcaplugin.ide.imports.ImportHandler
+import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.simapro.SimaproImporter
 import com.intellij.BundleBase
-import com.intellij.openapi.ui.*
+import com.intellij.openapi.ui.CheckBoxWithDescription
+import com.intellij.openapi.ui.LabeledComponent
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBRadioButton
 import com.intellij.util.ui.FormBuilder
@@ -119,16 +123,10 @@ class SimaproImportSettingsPanel(private val settings: SimaproImportSettings) : 
     }
 
     override fun doValidate(): ValidationInfo? {
-        val libPath = Path.of(settings.libraryFile)
-        if (!libPath.exists() || !libPath.isRegularFile()) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), libField)
-        }
-        if (!Regex("[a-zA-Z0-9]*").matches(settings.rootPackage)
-            || Regex("^[0-9]").matches(settings.rootPackage)
-        ) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), packageField)
-        }
-        return null
+        return listOf(
+            { -> LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { -> LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+            .firstNotNullOfOrNull { it.invoke() }
     }
 
 }

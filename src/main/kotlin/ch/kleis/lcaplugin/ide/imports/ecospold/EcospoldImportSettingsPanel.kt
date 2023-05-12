@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.ide.imports.ecospold
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.imports.ImportHandler
+import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
 import com.intellij.BundleBase
@@ -143,16 +144,10 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
     }
 
     override fun doValidate(): ValidationInfo? {
-        val libPath = Path.of(settings.libraryFile)
-        if (!libPath.exists() || !libPath.isRegularFile()) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), libField)
-        }
-        if (!Regex("[a-zA-Z0-9]*").matches(settings.rootPackage)
-            || Regex("^[0-9]").matches(settings.rootPackage)
-        ) {
-            return ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), packageField)
-        }
-        return null
+        return listOf(
+            { -> LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { -> LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+            .firstNotNullOfOrNull { it.invoke() }
     }
 
 }

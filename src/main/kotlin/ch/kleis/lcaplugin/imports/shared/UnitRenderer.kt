@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.model.UnitImported
 import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
 
 class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
@@ -34,14 +35,8 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
         }
     }
 
-    data class ParsedUnit(
-        val dimension: String,
-        val name: String,
-        val scaleFactor: Double,
-        val refUnitName: String
-    )
 
-    fun render(unit: ParsedUnit, writer: ModelWriter) {
+    fun render(unit: UnitImported, writer: ModelWriter) {
         val dimensionName = unit.dimension.lowercase()
         val dimension = Dimension.of(dimensionName)
         val symbol = ModelWriter.sanitizeAndCompact(unit.name, false)

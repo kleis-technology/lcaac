@@ -17,10 +17,13 @@ import com.intellij.openapi.wm.impl.welcomeScreen.ActionGroupPanelWrapper
 import com.intellij.openapi.wm.impl.welcomeScreen.FlatWelcomeFrame
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBList
+import com.intellij.util.io.exists
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.update.UiNotifyConnector
+import java.nio.file.Path
 import javax.swing.JComponent
 import javax.swing.JPanel
+import kotlin.io.path.isRegularFile
 
 
 class LcaImportDialog<P>(private val panel: P, title: String) :
@@ -29,6 +32,27 @@ class LcaImportDialog<P>(private val panel: P, title: String) :
     private var panelAndActions: Pair<JPanel, JBList<AnAction>>? = null
 
     private var worker: AsynchronousImportWorker? = null
+
+    companion object {
+        fun validateRegularFile(value: String, component: JComponent): ValidationInfo? {
+            val libPath = Path.of(value)
+            return if (!libPath.exists() || !libPath.isRegularFile()) {
+                ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), component)
+            } else {
+                null
+            }
+        }
+
+        fun validatePackageIsValid(value: String, component: JComponent): ValidationInfo? {
+            return if (!Regex("[a-zA-Z0-9]*").matches(value)
+                || Regex("^[0-9]").matches(value)
+            ) {
+                ValidationInfo(MyBundle.message("lca.dialog.import.package.error"), component)
+            } else {
+                null
+            }
+        }
+    }
 
     init {
         super.init()
