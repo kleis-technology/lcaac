@@ -38,20 +38,20 @@ class QuantityReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        val localMatches = tryLocally(
+        val localMatches = resolveElementLocally(
             QuantityRefExactNameMatcherScopeProcessor(element)
         )
         if (localMatches.isNotEmpty()) {
             return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
         }
-        return tryGlobalAssignments()
-            .plus(tryUnits())
+        return resolveElementInGlobalAssignments()
+            .plus(resolveElementInUnitDefinitions())
             .map { PsiElementResolveResult(it) }
             .toTypedArray()
     }
 
     override fun getVariants(): Array<Any> {
-        val localDefns: List<Any> = tryLocally(
+        val localDefns: List<Any> = resolveElementLocally(
             QuantityRefCollectorScopeProcessor()
         )
             .mapNotNull { psi ->
@@ -64,7 +64,7 @@ class QuantityReference(
         return localDefns.plus(globalDefns).plus(unitDefns).toTypedArray()
     }
 
-    private fun tryLocally(
+    private fun resolveElementLocally(
         resolver: QuantityRefScopeProcessor
     ): Set<PsiNameIdentifierOwner> {
         var lastParent: PsiElement? = null
@@ -81,13 +81,13 @@ class QuantityReference(
         return resolver.getResults()
     }
 
-    private fun tryGlobalAssignments(): Set<PsiElement> {
+    private fun resolveElementInGlobalAssignments(): Set<PsiElement> {
         return globalAssignmentRef.multiResolve(false)
             .mapNotNull { it.element }
             .toSet()
     }
 
-    private fun tryUnits(): Set<PsiElement> {
+    private fun resolveElementInUnitDefinitions(): Set<PsiElement> {
         return unitRef.multiResolve(false)
             .mapNotNull { it.element }
             .toSet()

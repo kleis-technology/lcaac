@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiParameters
 import ch.kleis.lcaplugin.language.psi.type.PsiVariables
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
@@ -17,18 +16,14 @@ class QuantityRefCollectorScopeProcessor : QuantityRefScopeProcessor {
     private var results: MutableSet<PsiNameIdentifierOwner> = mutableSetOf()
     override fun execute(element: PsiElement, state: ResolveState): Boolean {
         if (element is PsiVariables) {
-            recordDefinitions(element.getAssignments())
+            results.addAll(element.getAssignments())
         }
 
         if (element is PsiParameters) {
-            recordDefinitions(element.getAssignments())
+            results.addAll(element.getAssignments())
         }
 
         return true
-    }
-
-    private fun recordDefinitions(assignments: Collection<PsiAssignment>) {
-        results.addAll(assignments)
     }
 
     override fun getResults(): Set<PsiNameIdentifierOwner> {
@@ -55,10 +50,7 @@ class QuantityRefExactNameMatcherScopeProcessor(
 
     private fun checkDecl(entries: Collection<PsiNameIdentifierOwner>): Boolean {
         results = entries.filter { it.name == quantityRef.name }.toSet()
-        if (results.isNotEmpty()) {
-            return false
-        }
-        return true
+        return results.isEmpty()
     }
 
     override fun getResults(): Set<PsiNameIdentifierOwner> {
