@@ -307,12 +307,14 @@ quantityTerm ::= quantityFactor ((STAR | SLASH) quantityTerm)? {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityTermMixin"
 }
 
-quantityFactor ::= quantityPrimitive (HAT NUMBER)? {
+quantityFactor ::= quantityFactorScale? quantityPrimitive (HAT quantityFactorExponent)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityFactor"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityFactorMixin"
 }
+quantityFactorScale ::= NUMBER
+quantityFactorExponent ::= NUMBER
 
-quantityPrimitive ::= NUMBER quantityRef | LPAREN quantity RPAREN | quantityRef {
+quantityPrimitive ::= LPAREN quantity RPAREN | quantityRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantityPrimitive"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.quantity.PsiQuantityPrimitiveMixin"
 }

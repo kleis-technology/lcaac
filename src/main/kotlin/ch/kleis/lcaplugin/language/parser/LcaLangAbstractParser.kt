@@ -83,17 +83,6 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun substance(psiSubstance: PsiSubstance): ESubstanceSpec {
-        return ESubstanceSpec(
-            psiSubstance.getSubstanceRef().name,
-            psiSubstance.getNameField().getValue(),
-            SubstanceType.of(psiSubstance.getTypeField().getValue()),
-            psiSubstance.getCompartmentField().getValue(),
-            psiSubstance.getSubcompartmentField()?.getValue(),
-            unit(psiSubstance.getReferenceUnitField().getValue())
-        )
-    }
-
     private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): UnitExpression {
         return EUnitLiteral(
             psiUnitDefinition.getSymbolField().getValue(),
@@ -305,17 +294,15 @@ class LcaLangAbstractParser(
 
     private fun qFactor(factor: PsiQuantityFactor): QuantityExpression {
         val primitive = qPrimitive(factor.getPrimitive())
-        return factor.getExponent()?.let { EQuantityPow(primitive, it) }
+        val withExponent = factor.getExponent()?.let { EQuantityPow(primitive, it) }
             ?: primitive
+        val scale = factor.getScale()
+        return scale?.let { EQuantityScale(it, withExponent) }
+            ?: withExponent
     }
 
     private fun qPrimitive(primitive: PsiQuantityPrimitive): QuantityExpression {
         return when (primitive.getType()) {
-            QuantityPrimitiveType.LITERAL -> EQuantityScale(
-                primitive.getAmount(),
-                quantityRef(primitive.getRef())
-            )
-
             QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen())
             QuantityPrimitiveType.QUANTITY_REF -> quantityRef(primitive.getRef())
         }

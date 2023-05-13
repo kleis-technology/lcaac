@@ -183,11 +183,6 @@ class PsiLcaTypeChecker {
     private fun checkQuantityPrimitive(element: PsiQuantityPrimitive): TQuantity {
         return rec.guard { el: PsiQuantityPrimitive ->
             when (el.getType()) {
-                QuantityPrimitiveType.LITERAL -> {
-                    val dim = checkDimensionOf(el.getRef())
-                    TQuantity(dim)
-                }
-
                 QuantityPrimitiveType.QUANTITY_REF -> {
                     val dim = checkDimensionOf(el.getRef())
                     TQuantity(dim)
