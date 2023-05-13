@@ -5,6 +5,8 @@ import ch.kleis.lcaplugin.language.psi.type.PsiParameters
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 
 class ParameterReference(
@@ -16,26 +18,39 @@ class ParameterReference(
     }
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
-        val argument = element.parent
-        if (argument !is PsiArgument) {
-            return emptyArray()
-        }
-        val fromProcessConstraint = argument.parent
-        if (fromProcessConstraint !is PsiFromProcessConstraint) {
-            return emptyArray()
-        }
-        return fromProcessConstraint.getProcessTemplateRef().reference.multiResolve(false)
-            .mapNotNull { it.element }
-            .filterIsInstance<PsiProcess>()
-            .flatMap { process -> findAssignments(process) }
-            .toTypedArray()
+        return resolveProcess()
+            ?.let { process -> findParameters(process) }
+            ?.toTypedArray()
+            ?: emptyArray()
     }
 
-    private fun findAssignments(psiElement: PsiElement): List<PsiElementResolveResult> {
-        if (psiElement !is PsiProcess) {
-            return emptyList()
+    private fun findContainingArgument(): PsiArgument? {
+        val argument = element.parent
+        if (argument !is PsiArgument) {
+            return null
         }
-        return psiElement.getPsiParametersBlocks()
+        return argument
+    }
+
+    private fun findContainingFromProcessConstraint(): PsiFromProcessConstraint? {
+        val argument = findContainingArgument() ?: return null
+        val fromProcessConstraint = argument.parent
+        if (fromProcessConstraint !is PsiFromProcessConstraint) {
+            return null
+        }
+        return fromProcessConstraint
+    }
+
+    private fun findTemplateRef(): PsiProcessTemplateRef? {
+        return findContainingFromProcessConstraint()?.getProcessTemplateRef()
+    }
+
+    private fun resolveProcess(): PsiProcess? {
+        return findTemplateRef()?.reference?.resolve() as PsiProcess?
+    }
+
+    private fun findParameters(psiProcess: PsiProcess): List<PsiElementResolveResult> {
+        return psiProcess.getPsiParametersBlocks()
             .flatMap { filterAndMap(it) }
     }
 
@@ -46,5 +61,14 @@ class ParameterReference(
                     .takeIf { it.getQuantityRef().name == element.name }
                     ?.let { PsiElementResolveResult(it) }
             }
+    }
+
+    override fun getVariants(): Array<Any> {
+        return resolveProcess()
+            ?.getParameters()
+            ?.keys
+            ?.map { LookupElementBuilder.create(it) }
+            ?.toTypedArray()
+            ?: emptyArray()
     }
 }
