@@ -10,6 +10,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
 
     companion object {
 
+        // TODO: fix with new expressions.
         private fun createSpaceBuilder(settings: CodeStyleSettings): SpacingBuilder {
             return SpacingBuilder(settings, INSTANCE)
                 // Before Block
@@ -68,6 +69,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .before(COMMENT_BLOCK_END)
                 .spaces(0)
                 // Formula
+                .around(NUMBER).spaces(1)
                 .around(PLUS).spaces(1)
                 .around(MINUS).spaces(1)
                 .around(SLASH).spaces(1)
@@ -75,8 +77,6 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .around(EQUAL).spaces(1)
                 .after(LPAREN).spaces(1)
                 .before(RPAREN).spaces(1)
-                .around(QUANTITY_FACTOR_SCALE).spaces(1)
-                .around(QUANTITY_FACTOR_EXPONENT).spaces(1)
                 .around(FROM_PROCESS_CONSTRAINT).spaces(1)
                 .around(FROM_KEYWORD).spaces(1)
                 .around(ALLOCATE_KEYWORD).spaces(1)

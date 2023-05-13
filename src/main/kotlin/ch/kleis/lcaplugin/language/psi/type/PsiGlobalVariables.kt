@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
+import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
@@ -11,7 +11,7 @@ interface PsiGlobalVariables : PsiElement {
             .map { it.psi as PsiGlobalAssignment }
     }
 
-    fun getEntries(): Collection<Pair<String, PsiQuantity>> {
+    fun getEntries(): Collection<Pair<String, LcaQuantityExpression>> {
         return getGlobalAssignments()
             .map { Pair(it.getQuantityRef().name, it.getValue()) }
     }

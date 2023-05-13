@@ -6,9 +6,9 @@ import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchangeWithAllocateField
-import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
+import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
@@ -35,7 +35,7 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         return getProcessTemplateRef().nameIdentifier
     }
 
-    fun getParameters(): Map<String, PsiQuantity> {
+    fun getParameters(): Map<String, LcaQuantityExpression> {
         return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
             .map { it.psi as PsiParameters }
             .flatMap { it.getEntries() }
@@ -78,7 +78,7 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.getExchanges() }
     }
 
-    fun getVariables(): Map<String, PsiQuantity> {
+    fun getVariables(): Map<String, LcaQuantityExpression> {
         return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
             .map { it.psi as PsiVariables }
             .flatMap { it.getEntries() }

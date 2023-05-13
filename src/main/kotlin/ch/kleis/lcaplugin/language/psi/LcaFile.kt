@@ -3,8 +3,8 @@ package ch.kleis.lcaplugin.language.psi
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.*
-import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -43,7 +43,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiSubstance }
     }
 
-    fun getGlobalAssignments(): Collection<Pair<String, PsiQuantity>> {
+    fun getGlobalAssignments(): Collection<Pair<String, LcaQuantityExpression>> {
         return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
             .map { it.psi as PsiGlobalVariables }
             .flatMap { it.getEntries() }

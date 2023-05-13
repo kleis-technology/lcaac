@@ -2,10 +2,14 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.psi.LcaQuantityRef
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
     fun test_whenLocalParam_thenCorrect() {
@@ -27,7 +31,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getPsiParametersBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
-            .getQuantity().getTerm().getFactor().getPrimitive().getRef()
+            .getQuantity() as LcaQuantityRef
 
         // when
         val actual = quantityRef.reference.resolve()
@@ -56,7 +60,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getPsiVariablesBlocks().first().getAssignments().first()
         val quantityRef = process.getProducts().first()
-            .getQuantity().getTerm().getFactor().getPrimitive().getRef()
+            .getQuantity() as LcaQuantityRef
 
         // when
         val actual = quantityRef.reference.resolve()

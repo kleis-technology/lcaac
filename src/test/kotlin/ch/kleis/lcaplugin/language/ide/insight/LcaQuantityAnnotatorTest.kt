@@ -6,7 +6,10 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
@@ -27,10 +30,6 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaQuantityAnnotator()
 
@@ -38,7 +37,7 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity q") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved quantity q") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
@@ -60,10 +59,6 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaQuantityAnnotator()
 
@@ -88,12 +83,9 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
+        val element = GlobalAssigmentStubKeyIndex
+            .findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaQuantityAnnotator()
 

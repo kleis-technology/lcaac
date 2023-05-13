@@ -3,22 +3,21 @@ package ch.kleis.lcaplugin.language.parser
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.enums.AdditiveOperationType
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.*
-import ch.kleis.lcaplugin.language.psi.type.quantity.*
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.unit.*
+import ch.kleis.lcaplugin.psi.*
 
 class LcaLangAbstractParser(
     private val files: Sequence<LcaFile>,
@@ -43,7 +42,7 @@ class LcaLangAbstractParser(
             .plus(
                 files
                     .flatMap { it.getGlobalAssignments() }
-                    .map { it.first to quantity(it.second) }
+                    .map { it.first to quantityExpression(it.second) }
                     .asIterable()
             )
 
@@ -94,7 +93,7 @@ class LcaLangAbstractParser(
     private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
-            quantity(psiUnitAlias.getAliasForField().getValue())
+            quantityExpression(psiUnitAlias.getAliasForField().getValue())
         )
     }
 
@@ -104,8 +103,8 @@ class LcaLangAbstractParser(
         units: Register<UnitExpression>
     ): EProcessTemplate {
         val name = psiProcess.name
-        val locals = psiProcess.getVariables().mapValues { quantity(it.value) }
-        val params = psiProcess.getParameters().mapValues { quantity(it.value) }
+        val locals = psiProcess.getVariables().mapValues { quantityExpression(it.value) }
+        val params = psiProcess.getParameters().mapValues { quantityExpression(it.value) }
         val symbolTable = SymbolTable(
             quantities = Register(globals.plus(params).plus(locals)),
             units = Register(units),
@@ -178,7 +177,7 @@ class LcaLangAbstractParser(
 
     private fun impact(exchange: PsiImpactExchange): EImpact {
         return EImpact(
-            quantity(exchange.getQuantity()),
+            quantityExpression(exchange.getQuantity()),
             indicatorSpec(exchange.getIndicatorRef()),
         )
     }
@@ -191,7 +190,7 @@ class LcaLangAbstractParser(
 
     private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
-            quantity(psiExchange.getQuantity()),
+            quantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef(), psiExchange.getFromProcessConstraint()),
         )
     }
@@ -210,7 +209,7 @@ class LcaLangAbstractParser(
         return psiFromProcessConstraint?.let {
             FromProcessRef(
                 ref = it.getProcessTemplateRef().name,
-                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantity(q.value) },
+                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantityExpression(q.value) },
             )
         }
     }
@@ -220,9 +219,9 @@ class LcaLangAbstractParser(
         symbolTable: SymbolTable
     ): ETechnoExchange =
         ETechnoExchange(
-            quantity(psiExchange.getQuantity()),
+            quantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
-                .copy(referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantity(psiExchange.getQuantity())))),
+                .copy(referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantityExpression(psiExchange.getQuantity())))),
             EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
 
@@ -231,21 +230,21 @@ class LcaLangAbstractParser(
         symbolTable: SymbolTable
     ): ETechnoExchange =
         ETechnoExchange(
-            quantity(psiExchange.getTechnoProductExchange().getQuantity()),
+            quantityExpression(psiExchange.getTechnoProductExchange().getQuantity()),
             productSpec(psiExchange.getTechnoProductExchange().getProductRef())
                 .copy(
                     referenceUnit = EUnitClosure(
                         symbolTable,
-                        EUnitOf(quantity(psiExchange.getTechnoProductExchange().getQuantity()))
+                        EUnitOf(quantityExpression(psiExchange.getTechnoProductExchange().getQuantity()))
                     )
                 ),
-            quantity(psiExchange.getAllocateField().getValue())
+            quantityExpression(psiExchange.getAllocateField().getValue())
         )
 
     private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
         return when (polarity) {
             Polarity.POSITIVE -> {
-                val quantity = quantity(psiExchange.getQuantity())
+                val quantity = quantityExpression(psiExchange.getQuantity())
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
@@ -253,7 +252,7 @@ class LcaLangAbstractParser(
             }
 
             Polarity.NEGATIVE -> {
-                val quantity = EQuantityNeg(quantity(psiExchange.getQuantity()))
+                val quantity = EQuantityNeg(quantityExpression(psiExchange.getQuantity()))
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
@@ -262,54 +261,46 @@ class LcaLangAbstractParser(
         }
     }
 
-    private fun quantity(quantity: PsiQuantity): QuantityExpression {
-        val term = qTerm(quantity.getTerm())
-        return when (quantity.getOperationType()) {
-            AdditiveOperationType.ADD -> EQuantityAdd(
-                term, quantity(quantity.getNext()!!)
+    // Note: We do not guard against recursion here because our generated Parser is LR, contrary to the rest of the lang.
+    private fun quantityExpression(lcaQuantityExpression: LcaQuantityExpression): QuantityExpression {
+        fun getBinaryBranches(expr: LcaBinaryOperatorExpression) = Pair(
+            quantityExpression(expr.left),
+            quantityExpression(expr.right!!)
+        )
+
+        return when (lcaQuantityExpression) {
+            is LcaQuantityRef -> EQuantityRef(lcaQuantityExpression.name)
+
+            is LcaScaleQuantityExpression -> EQuantityScale(
+                lcaQuantityExpression.scale.text.toDouble(),
+                quantityExpression(lcaQuantityExpression.quantityExpression!!)
             )
 
-            AdditiveOperationType.SUB -> EQuantitySub(
-                term, quantity(quantity.getNext()!!)
+            is LcaParenQuantityExpression -> quantityExpression(lcaQuantityExpression.quantityExpression!!)
+
+            is LcaExponentialQuantityExpression -> EQuantityPow(
+                quantityExpression(lcaQuantityExpression.quantityExpression),
+                lcaQuantityExpression.exponent.text.toDouble()
             )
 
-            null -> term
+            is LcaDivQuantityExpression -> getBinaryBranches(lcaQuantityExpression).let { (left, right) ->
+                EQuantityDiv(left, right)
+            }
+
+            is LcaMulQuantityExpression -> getBinaryBranches(lcaQuantityExpression).let { (left, right) ->
+                EQuantityMul(left, right)
+            }
+
+            is LcaAddQuantityExpression -> getBinaryBranches(lcaQuantityExpression).let { (left, right) ->
+                EQuantityAdd(left, right)
+            }
+
+            is LcaSubQuantityExpression -> getBinaryBranches(lcaQuantityExpression).let { (left, right) ->
+                EQuantitySub(left, right)
+            }
+
+            else -> throw EvaluatorException("Unknown quantity expression: $lcaQuantityExpression")
         }
-    }
-
-    private fun qTerm(term: PsiQuantityTerm): QuantityExpression {
-        val factor = qFactor(term.getFactor())
-        return when (term.getOperationType()) {
-            MultiplicativeOperationType.MUL -> EQuantityMul(
-                factor, qTerm(term.getNext()!!)
-            )
-
-            MultiplicativeOperationType.DIV -> EQuantityDiv(
-                factor, qTerm(term.getNext()!!)
-            )
-
-            null -> factor
-        }
-    }
-
-    private fun qFactor(factor: PsiQuantityFactor): QuantityExpression {
-        val primitive = qPrimitive(factor.getPrimitive())
-        val withExponent = factor.getExponent()?.let { EQuantityPow(primitive, it) }
-            ?: primitive
-        val scale = factor.getScale()
-        return scale?.let { EQuantityScale(it, withExponent) }
-            ?: withExponent
-    }
-
-    private fun qPrimitive(primitive: PsiQuantityPrimitive): QuantityExpression {
-        return when (primitive.getType()) {
-            QuantityPrimitiveType.PAREN -> quantity(primitive.getQuantityInParen())
-            QuantityPrimitiveType.QUANTITY_REF -> quantityRef(primitive.getRef())
-        }
-    }
-
-    private fun quantityRef(variable: PsiQuantityRef): QuantityExpression {
-        return EQuantityRef(variable.name)
     }
 
     private fun unit(unit: PsiUnit): UnitExpression {
