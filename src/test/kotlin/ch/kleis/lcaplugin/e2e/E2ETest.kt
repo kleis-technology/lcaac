@@ -4,11 +4,14 @@ import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.psi.PsiManager
@@ -20,6 +23,35 @@ class E2ETest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
     }
+
+    fun test_exponentiationPriority() {
+        // given
+        val pkgName = "test_exponentiationPriority"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                variables {
+                    x = 10 m^2
+                }
+            """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+
+        // when
+        val symbolTable = parser.load()
+        val x = symbolTable.quantities["x"]!!
+        val reducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
+
+        // when
+        val actual = reducer.reduce(x)
+
+        // then
+        val expected = EQuantityLiteral(10.0, EUnitLiteral("m^(2.0)", 1.0, Prelude.area))
+        TestCase.assertEquals(expected, actual)
+    }
+
 
     fun test_substanceResolution() {
         val pkgName = "e2e.test_substanceResolution"
