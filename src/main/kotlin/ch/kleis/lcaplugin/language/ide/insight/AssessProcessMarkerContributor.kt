@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.AssessProcessAction
+import ch.kleis.lcaplugin.actions.AssessProcessWithExternalDataAction
 import ch.kleis.lcaplugin.actions.GraphChildProcessesAction
 import ch.kleis.lcaplugin.language.psi.isProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
@@ -18,10 +19,11 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
             val process = element.parent as PsiProcess
             val target = process.getProcessTemplateRef().getUID().name
             val assessProcessAction = AssessProcessAction(target)
+            val assessProcessWithExternalDataAction = AssessProcessWithExternalDataAction(target)
             val graphChildProcessesAction = GraphChildProcessesAction(target)
             return Info(AllIcons.Actions.Execute, {
                 "Run $target"
-            }, assessProcessAction, graphChildProcessesAction)
+            }, assessProcessAction, assessProcessWithExternalDataAction, graphChildProcessesAction)
         }
         return null
     }
