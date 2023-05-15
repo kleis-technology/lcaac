@@ -5,59 +5,52 @@ import ch.kleis.lcaplugin.core.lang.fixture.FullyQualifiedSubstanceValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.IndicatorValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
+import kotlin.test.assertFailsWith
 
 class ExchangeValueTest {
     @Test
-    fun technoExchange_whenDimensionsDontMatch_thenThrows() {
+    fun technoExchange_whenDimensionsDoNotMatch_thenThrows() {
         // given
         val quantity = QuantityValueFixture.oneKilogram
         val product = ProductValueFixture.water
 
         // when/then
-        try {
-            TechnoExchangeValue(quantity, product)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals("incompatible dimensions: mass vs length³ for product water", e.message)
-        }
+        assertFailsWith(
+                EvaluatorException::class,
+                "incompatible dimensions: mass vs length³ for product water"
+        ) { TechnoExchangeValue(quantity, product) }
     }
 
     @Test
-    fun bioExchange_whenDimensionsDontMatch_thenThrows() {
+    fun bioExchange_whenDimensionsDoNotMatch_thenThrows() {
         // given
         val quantity = QuantityValueFixture.oneLitre
         val substance = FullyQualifiedSubstanceValueFixture.propanol
 
-        // when/then
-        try {
-            BioExchangeValue(quantity, substance)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals(
+        // when
+        val sut: () -> Unit = { BioExchangeValue(quantity, substance) }
+        assertFailsWith(
+                EvaluatorException::class,
                 "incompatible dimensions: length³ vs mass for substance [Resource] propanol(air), quantity=1.0",
-                e.message
-            )
-        }
+                sut
+        )
     }
 
     @Test
-    fun impact_whenDimensionsDontMatch_thenThrows() {
+    fun impact_whenDimensionsDoNotMatch_thenThrows() {
         // given
         val quantity = QuantityValueFixture.oneLitre
         val indicator = IndicatorValueFixture.climateChange
 
+        // When
+        val sut: () -> Unit = { ImpactValue(quantity, indicator) }
+
         // when/then
-        try {
-            ImpactValue(quantity, indicator)
-            fail("should have thrown")
-        } catch (e: EvaluatorException) {
-            assertEquals(
+        assertFailsWith(
+                EvaluatorException::class,
                 "incompatible dimensions: length³ vs mass for indicator climate change, quantity=1.0",
-                e.message
-            )
-        }
+                sut
+        )
     }
 }

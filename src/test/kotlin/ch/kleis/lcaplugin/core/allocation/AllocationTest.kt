@@ -12,6 +12,7 @@ import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import org.junit.Assert
 import org.junit.Test
+import kotlin.test.assertFailsWith
 
 class AllocationTest {
     @Test
@@ -236,12 +237,10 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when + then
-        try {
-            allocation.allocationUnitCheck(processValue)
-        } catch (e: AssertionError) {
-            Assert.fail("Should not fail")
-        }
+        // when
+        allocation.allocationUnitCheck(processValue)
+
+        // then should not throw.
     }
 
     @Test
@@ -314,16 +313,11 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when
-        try {
-            Allocation().allocationUnitCheck(processValue)
-            Assert.fail("Should throw an error")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals(
-                "Only percent is allowed for allocation unit (process: ${processValue.name})",
-                e.message
-            )
-        }
+        // when + then
+        assertFailsWith(
+            EvaluatorException::class,
+            "Only percent is allowed for allocation unit (process: ${processValue.name})"
+        ) { Allocation().allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -341,12 +335,8 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when
-        try {
-            Allocation().allocationUnitCheck(processValue)
-        } catch (e: EvaluatorException) {
-            Assert.fail("Should throw an error")
-        }
+        // when, then should not throw
+        Allocation().allocationUnitCheck(processValue)
     }
 
     @Test
@@ -364,16 +354,11 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when
-        try {
-            Allocation().allocationUnitCheck(processValue)
-            Assert.fail("Should throw an error")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals(
-                "The sum of the allocations should be hundred percent (process: ${processValue.name})",
-                e.message
-            )
-        }
+        // when + then
+        assertFailsWith(
+            EvaluatorException::class,
+            "The sum of the allocations should be hundred percent (process: ${processValue.name})"
+        ) { Allocation().allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -396,12 +381,8 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when
-        try {
-            Allocation().allocationUnitCheck(processValue)
-        } catch (e: EvaluatorException) {
-            Assert.fail("Should throw an error")
-        }
+        // when V then should not throw.
+        Allocation().allocationUnitCheck(processValue)
     }
 
     @Test
@@ -424,15 +405,10 @@ class AllocationTest {
             listOf(),
             listOf()
         )
-        // when
-        try {
-            Allocation().allocationUnitCheck(processValue)
-            Assert.fail("Should throw an error")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals(
-                "Only percent is allowed for allocation unit (process: ${processValue.name})",
-                e.message
-            )
-        }
+        // when + then
+        assertFailsWith(
+            EvaluatorException::class,
+            "Only percent is allowed for allocation unit (process: ${processValue.name})"
+        ) { Allocation().allocationUnitCheck(processValue) }
     }
 }

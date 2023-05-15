@@ -12,9 +12,14 @@ import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import kotlin.test.assertFailsWith
 
+@RunWith(JUnit4::class)
 class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
-    override fun getTestDataPath(): String {
+    override
+    fun getTestDataPath(): String {
         return "testdata"
     }
 
@@ -23,7 +28,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -41,15 +46,10 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         val checker = PsiLcaTypeChecker()
 
         // when/then
-        try {
-            checker.check(target)
-            fail("should have thrown")
-        } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals(
-                """circular dependencies: "1 bar ...", "1 bar ...", "1 bar ...", "1 bar ...", "1 foo ...", "1 foo ...", "1""",
-                e.message
-            )
-        }
+        assertFailsWith(
+                PsiTypeCheckException::class,
+                """circular dependencies: "1 bar ...", "1 bar ...", "1 bar ...", "1 bar ...", "1 foo ...", "1 foo ...", "1"""
+        ) { checker.check(target) }
     }
 
     @Test
@@ -57,7 +57,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitLiteral"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -82,7 +82,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -112,7 +112,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_div"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -147,7 +147,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_mul"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -182,7 +182,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_addition_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -217,7 +217,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_subtraction_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -252,7 +252,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_addition_differentDim_shouldThrow"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -275,11 +275,8 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         val checker = PsiLcaTypeChecker()
 
         // when/then
-        try {
+        assertFailsWith(PsiTypeCheckException::class, "incompatible dimensions: foo_dim vs foo2_dim") {
             checker.check(target)
-            fail("should have thrown")
-        } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim vs foo2_dim", e.message)
         }
     }
 
@@ -288,7 +285,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_withParenthesis"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -323,7 +320,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_refToGlobalAssignment"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -357,7 +354,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_directRef"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -391,7 +388,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenUnitAlias_directRef"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -420,7 +417,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -449,7 +446,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -478,7 +475,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -512,7 +509,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -546,7 +543,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenGlobalAssignment_addition_differentDim"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -568,11 +565,10 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         val checker = PsiLcaTypeChecker()
 
         // when/then
-        try {
-            checker.check(target)
-            fail("should have thrown")
-        } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim vs foo2_dim", e.message)
+        assertFailsWith(PsiTypeCheckException::class, "incompatible dimensions: foo_dim vs foo2_dim") {
+            checker.check(
+                    target
+            )
         }
     }
 
@@ -581,7 +577,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenLocalAssignment"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -597,8 +593,8 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getPsiVariablesBlocks().first()
-            .getAssignments().first()
+                .getPsiVariablesBlocks().first()
+                .getAssignments().first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -614,7 +610,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenLocalAssignment"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -630,8 +626,8 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getPsiParametersBlocks().first()
-            .getAssignments().first()
+                .getPsiParametersBlocks().first()
+                .getAssignments().first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -647,7 +643,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenLocalAssignment"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -663,7 +659,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getInputs().first()
+                .getInputs().first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -679,7 +675,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenLocalAssignment"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -706,16 +702,14 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getInputs().first()
+                .getInputs().first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
-        try {
-            checker.check(target)
-            fail("should have thrown")
-        } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: foo_dim vs mass", e.message)
-        }
+        assertFailsWith(
+                PsiTypeCheckException::class,
+                "incompatible dimensions: foo_dim vs mass"
+        ) { checker.check(target) }
     }
 
     @Test
@@ -723,7 +717,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 unit foo {
@@ -753,16 +747,14 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getInputs().first()
+                .getInputs().first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
-        try {
-            checker.check(target)
-            fail("should have thrown")
-        } catch (e: PsiTypeCheckException) {
-            TestCase.assertEquals("incompatible dimensions: expecting foo_dim, found mass", e.message)
-        }
+        assertFailsWith(
+                PsiTypeCheckException::class,
+                "incompatible dimensions: expecting foo_dim, found mass"
+        ) { checker.check(target) }
     }
 
     @Test
@@ -770,7 +762,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         // given
         val pkgName = """test_whenPreludeUnit"""
         myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 process p {
@@ -781,7 +773,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getInputs().first()
+                .getInputs().first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -789,7 +781,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
 
         // then
         val expected = TTechnoExchange(
-            TProduct("foo_product", Prelude.mass)
+                TProduct("foo_product", Prelude.mass)
         )
         TestCase.assertEquals(expected, actual)
     }

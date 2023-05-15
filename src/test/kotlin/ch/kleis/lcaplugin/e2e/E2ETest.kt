@@ -13,8 +13,7 @@ import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import junit.framework.TestCase
-import org.junit.Assert
+import kotlin.test.assertFailsWith
 
 class E2ETest : BasePlatformTestCase() {
 
@@ -25,7 +24,7 @@ class E2ETest : BasePlatformTestCase() {
     fun test_substanceResolution() {
         val pkgName = "e2e.test_substanceResolution"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 process p {
@@ -65,13 +64,13 @@ class E2ETest : BasePlatformTestCase() {
                 val input = result.controllablePorts.getElements().first()
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("a from p{}", output.getDisplayName())
-                TestCase.assertEquals(1.0, cf.output.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+                assertEquals("a from p{}", output.getDisplayName())
+                assertEquals(1.0, cf.output.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.getDisplayName())
-                TestCase.assertEquals(1.0, cf.input.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+                assertEquals("co2", input.getDisplayName())
+                assertEquals(1.0, cf.input.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
@@ -80,7 +79,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_meta_whenKeywordAsKey"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
                 package $pkgName
                 
                 process p {
@@ -97,17 +96,17 @@ class E2ETest : BasePlatformTestCase() {
         val actual = file.getProcesses().first().getBlockMetaList().first().metaAssignmentList
 
         // then
-        TestCase.assertEquals("unit", actual[0].name)
-        TestCase.assertEquals("a", actual[0].getValue())
-        TestCase.assertEquals("process", actual[1].name)
-        TestCase.assertEquals("b", actual[1].getValue())
+        assertEquals("unit", actual[0].name)
+        assertEquals("a", actual[0].getValue())
+        assertEquals("process", actual[1].name)
+        assertEquals("b", actual[1].getValue())
     }
 
     fun test_operationPriority() {
         // given
         val pkgName = "e2e.test_operationPriority"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -139,13 +138,13 @@ class E2ETest : BasePlatformTestCase() {
                 val input = result.controllablePorts.getElements().first()
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("out from p{}", output.getDisplayName())
-                TestCase.assertEquals(1.0, cf.output.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+                assertEquals("out from p{}", output.getDisplayName())
+                assertEquals(1.0, cf.output.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("in", input.getDisplayName())
-                TestCase.assertEquals(6.0, cf.input.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
+                assertEquals("in", input.getDisplayName())
+                assertEquals(6.0, cf.input.quantity().amount)
+                assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
@@ -154,7 +153,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenOneImplicit"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -199,13 +198,13 @@ class E2ETest : BasePlatformTestCase() {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.getDisplayName())
-                TestCase.assertEquals(1.0, cf.output.quantity().amount)
-                TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+                assertEquals("office from office{}", output.getDisplayName())
+                assertEquals(1.0, cf.output.quantity().amount)
+                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.getDisplayName())
-                TestCase.assertEquals(3.0, cf.input.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+                assertEquals("co2", input.getDisplayName())
+                assertEquals(3.0, cf.input.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
@@ -214,7 +213,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenExplicit"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -259,13 +258,13 @@ class E2ETest : BasePlatformTestCase() {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.getDisplayName())
-                TestCase.assertEquals(1.0, cf.output.quantity().amount)
-                TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+                assertEquals("office from office{}", output.getDisplayName())
+                assertEquals(1.0, cf.output.quantity().amount)
+                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.getDisplayName())
-                TestCase.assertEquals(3.0, cf.input.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+                assertEquals("co2", input.getDisplayName())
+                assertEquals(3.0, cf.input.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
@@ -274,7 +273,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_manyInstancesSameTemplate"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -325,13 +324,13 @@ class E2ETest : BasePlatformTestCase() {
                 val input = result.controllablePorts.get("co2")
                 val cf = result.value(output, input)
 
-                TestCase.assertEquals("office from office{}", output.getDisplayName())
-                TestCase.assertEquals(1.0, cf.output.quantity().amount)
-                TestCase.assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+                assertEquals("office from office{}", output.getDisplayName())
+                assertEquals(1.0, cf.output.quantity().amount)
+                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                TestCase.assertEquals("co2", input.getDisplayName())
-                TestCase.assertEquals(13.0, cf.input.quantity().amount)
-                TestCase.assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+                assertEquals("co2", input.getDisplayName())
+                assertEquals(13.0, cf.input.quantity().amount)
+                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
             }
         }
     }
@@ -340,7 +339,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -373,8 +372,8 @@ class E2ETest : BasePlatformTestCase() {
                 val cf2 = result.value(output2, input)
 
                 val delta = 1E-9
-                TestCase.assertEquals(0.9, cf1.input.quantity().amount, delta)
-                TestCase.assertEquals(0.1, cf2.input.quantity().amount, delta)
+                assertEquals(0.9, cf1.input.quantity().amount, delta)
+                assertEquals(0.1, cf2.input.quantity().amount, delta)
             }
         }
     }
@@ -383,7 +382,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate_whenOneProduct_allocateIsOptional"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -398,16 +397,16 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+                (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
-        TestCase.assertEquals(100.0, actual)
+        assertEquals(100.0, actual)
     }
 
     fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
         // given
         val pkgName = "e2e.test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -424,16 +423,16 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+                (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
-        TestCase.assertEquals(100.0, actual)
+        assertEquals(100.0, actual)
     }
 
     fun test_allocate_whenTwoProducts_shouldReturnWeightedResult() {
         // given
         val pkgName = "e2e.test_allocate_whenTwoProducts_shouldReturnWeightedResult"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -468,8 +467,8 @@ class E2ETest : BasePlatformTestCase() {
                 val delta = 1E-9
                 val expected1 = 1.0 * 20 / 100
                 val expected2 = 1.0 * 80 / 100
-                TestCase.assertEquals(expected1, cf1.input.quantity().amount, delta)
-                TestCase.assertEquals(expected2, cf2.input.quantity().amount, delta)
+                assertEquals(expected1, cf1.input.quantity().amount, delta)
+                assertEquals(expected2, cf2.input.quantity().amount, delta)
             }
         }
     }
@@ -478,7 +477,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_unitAlias_whenInfiniteLoop_shouldThrowAnError"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             unit foo {
                 symbol = "foo"
@@ -496,20 +495,17 @@ class E2ETest : BasePlatformTestCase() {
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
-        // when
-        try {
-            Evaluator(symbolTable).eval(entryPoint)
-            Assert.fail("Should fail")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals("Recursive dependency for unit foo", e.message)
-        }
+        val evaluator = Evaluator(symbolTable)
+
+        // when + then
+        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo", { evaluator.eval(entryPoint) })
     }
 
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             unit bar {
@@ -533,20 +529,17 @@ class E2ETest : BasePlatformTestCase() {
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
-        // when
-        try {
-            Evaluator(symbolTable).eval(entryPoint)
-            Assert.fail("Should fail")
-        } catch (e: EvaluatorException) {
-            Assert.assertEquals("Recursive dependency for unit foo", e.message)
-        }
+        val evaluator = Evaluator(symbolTable)
+
+        // when + then
+        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo", { evaluator.eval(entryPoint) })
     }
 
     fun test_unitAlias_shouldNotThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_shouldNotThrowAnError"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             unit bar {
@@ -570,19 +563,17 @@ class E2ETest : BasePlatformTestCase() {
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
-        // when
-        try {
-            Evaluator(symbolTable).eval(entryPoint)
-        } catch (e: EvaluatorException) {
-            Assert.fail("Should not fail")
-        }
+        val evaluator = Evaluator(symbolTable)
+
+        // when, then does not throw
+        evaluator.eval(entryPoint)
     }
 
     fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError"
         val vf = myFixture.createFile(
-            "$pkgName.lca", """
+                "$pkgName.lca", """
             package $pkgName
             
             unit bar {
