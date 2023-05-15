@@ -6,18 +6,13 @@ import com.intellij.psi.PsiElement
 import java.lang.Double.parseDouble
 
 enum class QuantityPrimitiveType {
-    LITERAL, PAREN, QUANTITY_REF
+    PAREN, QUANTITY_REF
 }
 
 interface PsiQuantityPrimitive : PsiElement {
     fun getType(): QuantityPrimitiveType {
-        return node.findChildByType(LcaTypes.NUMBER)?.let { QuantityPrimitiveType.LITERAL }
-            ?: node.findChildByType(LcaTypes.QUANTITY)?.let { QuantityPrimitiveType.PAREN }
+        return node.findChildByType(LcaTypes.QUANTITY)?.let { QuantityPrimitiveType.PAREN }
             ?: QuantityPrimitiveType.QUANTITY_REF
-    }
-
-    fun getAmount(): Double {
-        return node.findChildByType(LcaTypes.NUMBER)?.psi?.text?.let { parseDouble(it) }!!
     }
 
     fun getQuantityInParen(): PsiQuantity {
