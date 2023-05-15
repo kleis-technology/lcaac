@@ -9,6 +9,7 @@ import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
@@ -17,7 +18,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
 
-class AssessProcessAction(private val processName: String) : AnAction() {
+class AssessProcessAction(private val processName: String) : AnAction(
+    "Run with default parameters",
+    "Run with default parameters",
+    AllIcons.Actions.Execute,
+) {
     companion object {
         private val LOG = Logger.getInstance(AssessProcessAction::class.java)
     }
@@ -35,26 +40,16 @@ class AssessProcessAction(private val processName: String) : AnAction() {
             val system = Evaluator(symbolTable).eval(entryPoint)
             val assessment = Assessment(system)
             val result = assessment.inventory()
-            displayToolWindow(project, result)
+            DisplayInventoryResult(project, result).show()
         } catch (e: EvaluatorException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
-            displayToolWindow(project, result)
+            DisplayInventoryResult(project, result).show()
             LOG.warn("Unable to process computation", e)
         } catch (e: NoSuchElementException) {
             val result = InventoryError(e.message ?: "evaluator: unknown error")
-            displayToolWindow(project, result)
+            DisplayInventoryResult(project, result).show()
             LOG.warn("Unable to process computation", e)
         }
-    }
-
-    private fun displayToolWindow(project: Project, result: InventoryResult) {
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-        val lcaProcessAssessResult = LcaProcessAssessResult(result)
-        val content =
-            ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
-        toolWindow.contentManager.addContent(content)
-        toolWindow.contentManager.setSelectedContent(content)
-        toolWindow.show()
     }
 }
 

@@ -10,19 +10,19 @@ import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.ui.toolwindow.LcaGraphChildProcessesResult
-import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
+import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.AnAction
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.wm.ToolWindowManager
-import com.intellij.psi.PsiElement
 import com.intellij.ui.content.Content
 import com.intellij.ui.content.ContentFactory
-import java.awt.event.MouseEvent
 import javax.swing.JTextArea
 import kotlin.math.min
 
@@ -32,39 +32,32 @@ import kotlin.math.min
  * Note: Only one Run Line Action marker is taken into account in the plugin.xml, so we have to rely on the Line Marker
  * interface, which makes some namings a bit weird, as it is expected to jump around in code rather than run stuff.
  */
-class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
+class GraphChildProcessesAction(private val processName: String) : AnAction(
+    "Generate graph",
+    "Generate graph",
+    AllIcons.Graph.Layout,
+) {
     companion object {
         private val LOG = Logger.getInstance(GraphChildProcessesAction::class.java)
     }
 
-    /**
-     * Inherited method that will be called by the framework when button is clicked.
-     */
-    override fun navigate(e: MouseEvent?, mElement: PsiElement?) {
-        mElement?.let { element ->
-            val processName = getProcessName(element.parent as PsiProcess)
-
-            val content = try {
-                buildContent(processName, buildSystemProcessGraph(buildSystem(processName, element)))
-            } catch (e: Exception) {
-                buildErrorContent(processName, e)
-            }
-            fillAndShowToolWindow(element.project, content)
+    override fun actionPerformed(e: AnActionEvent) {
+        val project = e.project ?: return
+        val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
+        val symbolTable = buildSymbolTable(file)
+        val entryPoint = symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
+        val systemValue = Evaluator(symbolTable).eval(entryPoint)
+        val graph = buildSystemProcessGraph(systemValue)
+        val content = try {
+            buildContent(processName, graph)
+        } catch (e: Exception) {
+            buildErrorContent(processName, e)
         }
+        fillAndShowToolWindow(project, content)
     }
 
     private fun buildSymbolTable(file: LcaFile): SymbolTable =
         LcaLangAbstractParser(LcaFileCollector().collect(file)).load()
-
-    /**
-     * Build a coherent process/product/substance system using the core language evaluator.
-     */
-    private fun buildSystem(processName: String, elt: PsiElement): SystemValue {
-        val file = elt.containingFile!! as LcaFile // We are called from a file, so it must exist
-        val symbolTable = buildSymbolTable(file)
-        val entryPoint = symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
-        return Evaluator(symbolTable).eval(entryPoint)
-    }
 
     /**
      * Format an error in Content form for consumption by the IntelliJ ToolWindow API.
@@ -97,8 +90,6 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
         toolWindow.show()
     }
 
-    private fun getProcessName(elt: PsiProcess): String = elt.getProcessTemplateRef().getUID().name
-
     /* This is written under the understanding that a system built using an Evaluator and an entry point contains
      * completely and exclusively the processes related to that entry point.
      */
@@ -122,4 +113,5 @@ class GraphChildProcessesAction : GutterIconNavigationHandler<PsiElement> {
             graph.addNode(processNode).merge(productsGraph, inputsGraph, biosphereGraph)
         }
     }
+
 }
