@@ -13,6 +13,7 @@ class LcaBraceMatcher : PairedBraceMatcher {
             BracePair(LcaTypes.LBRACE, LcaTypes.RBRACE, true),
             BracePair(LcaTypes.LSQBRACE, LcaTypes.RSQBRACE, true),
             BracePair(LcaTypes.LPAREN, LcaTypes.RPAREN, true),
+            BracePair(LcaTypes.DOUBLE_QUOTE, LcaTypes.DOUBLE_QUOTE, true)
         )
     }
 
