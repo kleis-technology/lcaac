@@ -49,14 +49,14 @@ class E2ETest : BasePlatformTestCase() {
 
         // then
         val expected = EQuantityLiteral(10.0, EUnitLiteral("m^(2.0)", 1.0, Prelude.area))
-        TestCase.assertEquals(expected, actual)
+        assertEquals(expected, actual)
     }
 
 
     fun test_substanceResolution() {
         val pkgName = "e2e.test_substanceResolution"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
                 
                 process p {
@@ -111,7 +111,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_meta_whenKeywordAsKey"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
                 package $pkgName
                 
                 process p {
@@ -138,7 +138,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_operationPriority"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -185,7 +185,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenOneImplicit"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -245,7 +245,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenExplicit"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -305,7 +305,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_manyInstancesSameTemplate"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process office {
@@ -371,7 +371,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -414,7 +414,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate_whenOneProduct_allocateIsOptional"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -429,7 +429,7 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-                (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         assertEquals(100.0, actual)
     }
@@ -438,7 +438,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -455,7 +455,7 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-                (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
         // then
         assertEquals(100.0, actual)
     }
@@ -464,7 +464,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_allocate_whenTwoProducts_shouldReturnWeightedResult"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -509,7 +509,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_unitAlias_whenInfiniteLoop_shouldThrowAnError"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             unit foo {
                 symbol = "foo"
@@ -537,7 +537,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             unit bar {
@@ -571,7 +571,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_unitAlias_shouldNotThrowAnError"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             unit bar {
@@ -605,7 +605,7 @@ class E2ETest : BasePlatformTestCase() {
         // given
         val pkgName = "e2e.test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError"
         val vf = myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             unit bar {
