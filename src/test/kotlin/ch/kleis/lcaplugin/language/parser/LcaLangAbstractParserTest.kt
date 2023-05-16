@@ -783,7 +783,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val file = parseFile(
             "maths", """
                 package testParse_whenDimensionPow_thenScaleUntouched
-                
+
                 variables {
                     r = 10 m^2
                 }
@@ -798,6 +798,37 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 EQuantityRef("m"),
                 2.0
             )
+        )
+
+        // when
+        val symbolTable = parser.load()
+
+        // then
+        val actual = symbolTable.quantities["r"]!!
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_whenQuantityExpressionPow_thenScaleIsTouched() {
+        // given
+        val file = parseFile(
+            "maths", """
+                package testParse_whenDimensionPow_thenScaleUntouched
+
+                variables {
+                    r = (10 m)^2
+                }
+            """.trimIndent()
+        ) as LcaFile
+
+        val expected: QuantityExpression = EQuantityPow(
+            EQuantityScale(
+                10.0,
+                EQuantityRef("m")),
+            2.0
+        )
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
         )
 
         // when
