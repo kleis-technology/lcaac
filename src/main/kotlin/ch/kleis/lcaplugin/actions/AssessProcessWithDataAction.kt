@@ -36,7 +36,7 @@ class AssessProcessWithDataAction(
         try {
             // read
             val csvFile = Path(containingDirectory.virtualFile.path, "$processName.csv").toFile()
-            val requestReader = CsvRequestReader(processName, csvFile)
+            val requestReader = CsvRequestReader(processName, csvFile.inputStream())
             val requests = requestReader.read()
 
             // process
@@ -50,7 +50,7 @@ class AssessProcessWithDataAction(
 
             // write
             val csvResultFile = Path(containingDirectory.virtualFile.path, "$processName.results.csv").toFile()
-            val resultWriter = CsvResultWriter(csvResultFile)
+            val resultWriter = CsvResultWriter(csvResultFile.outputStream())
             resultWriter.write(results)
             resultWriter.flush()
 

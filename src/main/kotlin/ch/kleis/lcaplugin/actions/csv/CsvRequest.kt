@@ -1,11 +1,9 @@
 package ch.kleis.lcaplugin.actions.csv
 
-import org.apache.commons.csv.CSVRecord
-
 class CsvRequest(
     val processName: String,
     private val header: Map<String, Int>,
-    private val record: CSVRecord,
+    private val record: List<String>,
 ) {
     fun columns(): List<String> {
         return header.toList().map { it.first }

@@ -1,5 +1,7 @@
 package ch.kleis.lcaplugin.e2e
 
+import ch.kleis.lcaplugin.actions.csv.CsvProcessor
+import ch.kleis.lcaplugin.actions.csv.CsvRequest
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
@@ -9,6 +11,10 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
+import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.QuantityValue
+import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.matrix.InventoryError
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -17,7 +23,6 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertFailsWith
@@ -29,7 +34,62 @@ class E2ETest : BasePlatformTestCase() {
         return "testdata"
     }
 
-    @Test
+    fun test_csvProcessor() {
+        // given
+        val pkgName = "test_exponentiationPriority"
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process p {
+                    params {
+                        a = 0 kg
+                        b = 0 kg
+                    }
+                    products {
+                        1 kg out
+                    }
+                    inputs {
+                        a + b in
+                    }
+                }
+            """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val symbolTable = parser.load()
+        val csvProcessor = CsvProcessor(symbolTable)
+        val request = CsvRequest(
+            "p",
+            mapOf("geo" to 0, "id" to 1, "a" to 2, "b" to 2),
+            listOf("UK", "s00", "1.0", "1.0"),
+        )
+
+        // when
+        val actual = csvProcessor.process(request)
+
+        // then
+        val kg = UnitValue("kg", 1.0, Dimension.of("mass"))
+        assertEquals(request, actual.request)
+        val out = ProductValue(
+            "out", kg,
+            FromProcessRefValue(
+                "p", mapOf(
+                    "a" to QuantityValue(1.0, kg), "b" to QuantityValue(1.0, kg)
+                )
+            )
+        )
+        assertEquals(
+            out, actual.output
+        )
+        val key = ProductValue(
+            "in", kg,
+        )
+        assertEquals(
+            QuantityValue(2.0, kg), actual.impacts[key]
+        )
+    }
+
     fun test_exponentiationPriority() {
         // given
         val pkgName = "test_exponentiationPriority"
