@@ -303,16 +303,16 @@ impactExchange ::= quantityExpression indicatorRef {
     extends(".*QuantityExpression")=quantityExpression
 }
 
-quantityExpression ::= add_group
-           | mul_group
+quantityExpression ::= addGroup
+           | mulGroup
            | exponentialQuantityExpression
-           | primary_group
+           | baseGroup
 
-private add_group ::= addQuantityExpression | subQuantityExpression
-private mul_group ::= scaleQuantityExpression | mulQuantityExpression | divQuantityExpression
-private primary_group ::=  parenQuantityExpression | quantityRef
+private addGroup ::= addQuantityExpression | subQuantityExpression
+private mulGroup ::= scaleQuantityExpression | mulQuantityExpression | divQuantityExpression
+private baseGroup ::=  parenQuantityExpression | quantityRef
 
-fake binaryOperatorExpression ::= quantityExpression+ {
+fake binaryOperatorExpression ::= quantityExpression quantityExpression {
     extends=quantityExpression
     methods=[
         left="/quantityExpression[0]"

@@ -261,7 +261,6 @@ class LcaLangAbstractParser(
         }
     }
 
-    // Note: We do not guard against recursion here because our generated Parser is LR, contrary to the rest of the lang.
     private fun quantityExpression(lcaQuantityExpression: LcaQuantityExpression): QuantityExpression {
         fun getBinaryBranches(expr: LcaBinaryOperatorExpression) = Pair(
             quantityExpression(expr.left),
