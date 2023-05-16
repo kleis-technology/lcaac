@@ -14,6 +14,71 @@ import kotlin.test.assertNull
 
 class CompleteDefaultArgumentsTest {
     @Test
+    fun apply_whenEProcessTemplateApplication() {
+        // given
+        val params = mapOf(
+            "q_water" to QuantityFixture.oneLitre,
+            "q_pesticide" to QuantityFixture.oneKilogram,
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to EProcessTemplate(
+                        params = params,
+                        locals = emptyMap(),
+                        body = ProcessFixture.carrotProduction,
+                    )
+                )
+            )
+        )
+        val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
+        val expression = EProcessTemplateApplication(
+            EProcessTemplate(
+                params = emptyMap(),
+                locals = emptyMap(),
+                body = EProcess(
+                    "salad_production",
+                    products = emptyList(),
+                    inputs = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                                FromProcessRef(
+                                    "carrot_production",
+                                    mapOf(
+                                        "q_water" to QuantityFixture.twoLitres,
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    biosphere = emptyList(),
+                )
+            ), emptyMap()
+        )
+        val everyInputProduct = ProcessTemplateExpression
+            .eProcessTemplateApplication
+            .template
+            .eProcessTemplate
+            .body
+            .inputs
+            .compose(Every.list())
+            .compose(ETechnoExchange.product)
+
+        // when
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
+
+        // then
+        val expected = FromProcessRef(
+            "carrot_production",
+            params.plus("q_water" to QuantityFixture.twoLitres)
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun apply_whenMissingArgument_shouldCompleteArgumentsWithDefaultValues() {
         // given
         val params = mapOf(
@@ -56,9 +121,14 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+        val everyInputProduct = ProcessTemplateExpression
+            .eProcessTemplateApplication
+            .template
+            .eProcessTemplate
+            .body
+            .inputs
+            .compose(Every.list())
+            .compose(ETechnoExchange.product)
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -112,9 +182,14 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+        val everyInputProduct = ProcessTemplateExpression
+            .eProcessTemplateApplication
+            .template
+            .eProcessTemplate
+            .body
+            .inputs
+            .compose(Every.list())
+            .compose(ETechnoExchange.product)
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
@@ -164,9 +239,14 @@ class CompleteDefaultArgumentsTest {
                 biosphere = emptyList(),
             )
         )
-        val everyInputProduct = ProcessTemplateExpression.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+        val everyInputProduct = ProcessTemplateExpression
+            .eProcessTemplateApplication
+            .template
+            .eProcessTemplate
+            .body
+            .inputs
+            .compose(Every.list())
+            .compose(ETechnoExchange.product)
 
         // when
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
