@@ -45,12 +45,13 @@ class E2ETest : BasePlatformTestCase() {
                     params {
                         a = 0 kg
                         b = 0 kg
+                        c = 1 kg
                     }
                     products {
                         1 kg out
                     }
                     inputs {
-                        a + b in
+                        a + b + c in
                     }
                 }
             """.trimIndent()
@@ -75,7 +76,9 @@ class E2ETest : BasePlatformTestCase() {
             "out", kg,
             FromProcessRefValue(
                 "p", mapOf(
-                    "a" to QuantityValue(1.0, kg), "b" to QuantityValue(1.0, kg)
+                    "a" to QuantityValue(1.0, kg),
+                    "b" to QuantityValue(1.0, kg),
+                    "c" to QuantityValue(1.0, kg),
                 )
             )
         )
@@ -86,7 +89,7 @@ class E2ETest : BasePlatformTestCase() {
             "in", kg,
         )
         assertEquals(
-            QuantityValue(2.0, kg), actual.impacts[key]
+            QuantityValue(3.0, kg), actual.impacts[key]
         )
     }
 

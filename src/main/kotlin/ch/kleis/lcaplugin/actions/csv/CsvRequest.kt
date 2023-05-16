@@ -13,9 +13,8 @@ class CsvRequest(
         return header.toList().map { record[it.second] }
     }
 
-    operator fun get(name: String): String {
+    operator fun get(name: String): String? {
         return header[name]
             ?.let { record[it] }
-            ?: throw NoSuchElementException(name)
     }
 }

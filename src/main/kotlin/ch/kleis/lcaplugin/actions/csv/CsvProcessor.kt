@@ -19,10 +19,14 @@ class CsvProcessor(
     fun process(request: CsvRequest): CsvResult {
         val processName = request.processName
         val template = symbolTable.getTemplate(processName)!!
-        val arguments = template.params.mapValues { entry ->
-            val amount = parseDouble(request[entry.key])
-            EQuantityLiteral(amount, EUnitOf(entry.value))
-        }
+        val arguments = template.params
+            .mapValues { entry ->
+                request[entry.key]
+                    ?.let {
+                        val amount = parseDouble(it)
+                        EQuantityLiteral(amount, EUnitOf(entry.value))
+                    } ?: entry.value
+            }
         val systemValue = evaluator.eval(EProcessTemplateApplication(template, arguments))
         val assessment = Assessment(systemValue)
         val inventory = assessment.inventory() as InventoryMatrix // TODO: error case
