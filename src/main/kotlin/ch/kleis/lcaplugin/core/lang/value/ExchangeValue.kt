@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 @optics
 sealed interface ExchangeValue : Value {
     fun quantity(): QuantityValue
+    fun port(): MatrixColumnIndex
 
     companion object
 }
@@ -17,6 +18,10 @@ data class GenericExchangeValue(
 ) : ExchangeValue {
     override fun quantity(): QuantityValue {
         return quantity
+    }
+
+    override fun port(): MatrixColumnIndex {
+        return port
     }
 
     companion object
@@ -41,6 +46,10 @@ data class TechnoExchangeValue(val quantity: QuantityValue, val product: Product
         return quantity
     }
 
+    override fun port(): MatrixColumnIndex {
+        return product
+    }
+
     companion object
 }
 
@@ -56,6 +65,10 @@ data class BioExchangeValue(val quantity: QuantityValue, val substance: Substanc
         return quantity
     }
 
+    override fun port(): MatrixColumnIndex {
+        return substance
+    }
+
     companion object
 }
 
@@ -69,6 +82,10 @@ data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValu
 
     override fun quantity(): QuantityValue {
         return quantity
+    }
+
+    override fun port(): MatrixColumnIndex {
+        return indicator
     }
 
     companion object

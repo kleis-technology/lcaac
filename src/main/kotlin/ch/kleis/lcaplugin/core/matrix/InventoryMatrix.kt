@@ -34,4 +34,10 @@ class InventoryMatrix(
 
         return CharacterizationFactorValue(output, input)
     }
+
+    fun row(outputPort: MatrixColumnIndex): List<CharacterizationFactorValue> {
+        return controllablePorts.getElements().map {
+            this.value(outputPort, it)
+        }
+    }
 }
