@@ -24,8 +24,4 @@ class CsvResultWriter(
             writer.appendLine(line)
         }
     }
-
-    fun flush() {
-        writer.flush()
-    }
 }

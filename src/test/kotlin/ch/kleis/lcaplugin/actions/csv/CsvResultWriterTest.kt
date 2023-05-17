@@ -51,19 +51,4 @@ class CsvResultWriterTest {
         """.trimIndent()
         assertEquals(expected, actual)
     }
-
-    @Test
-    fun flush() {
-        // given
-        val outputStream = mockk<OutputStream>()
-        val innerWriter = mockk<Writer>()
-        every { innerWriter.flush() } returns Unit
-        val writer = CsvResultWriter(outputStream, innerWriter)
-
-        // when
-        writer.flush()
-
-        // then
-        verify { innerWriter.flush() }
-    }
 }

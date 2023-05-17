@@ -18,6 +18,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
+import java.io.FileNotFoundException
 import kotlin.io.path.Path
 
 class AssessProcessWithDataAction(
@@ -43,8 +44,10 @@ class AssessProcessWithDataAction(
                     indicator.fraction = 0.0
                     indicator.text = "Reading $processName.csv"
                     val csvFile = Path(containingDirectory.virtualFile.path, "$processName.csv").toFile()
-                    val requestReader = CsvRequestReader(processName, csvFile.inputStream())
-                    val requests = requestReader.read()
+                    val requests = csvFile.inputStream().use {
+                        val requestReader = CsvRequestReader(processName, it)
+                        requestReader.read()
+                    }
 
                     // process
                     val symbolTable = runReadAction {
@@ -64,9 +67,10 @@ class AssessProcessWithDataAction(
                     indicator.text = "Writing to $processName.results.csv"
                     indicator.fraction = 1.0
                     val csvResultFile = Path(containingDirectory.virtualFile.path, "$processName.results.csv").toFile()
-                    val resultWriter = CsvResultWriter(csvResultFile.outputStream())
-                    resultWriter.write(results)
-                    resultWriter.flush()
+                    csvResultFile.outputStream().use {
+                        val resultWriter = CsvResultWriter(it)
+                        resultWriter.write(results)
+                    }
 
                     // done
                     indicator.text = "Written to $processName.results.csv"
@@ -91,6 +95,12 @@ class AssessProcessWithDataAction(
                         .createNotification(title, e.message ?: "unknown error", NotificationType.ERROR)
                         .notify(project)
                     LOG.warn("Unable to process computation", e)
+                } catch (e: FileNotFoundException) {
+                    val title = "Error while assessing $processName"
+                    NotificationGroupManager.getInstance()
+                        .getNotificationGroup("LcaAsCode")
+                        .createNotification(title, e.message ?: "unknown error", NotificationType.ERROR)
+                        .notify(project)
                 }
             }
         })
