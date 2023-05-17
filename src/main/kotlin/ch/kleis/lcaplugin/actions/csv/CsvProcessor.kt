@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitOf
 import ch.kleis.lcaplugin.core.lang.value.*
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import java.lang.Double.parseDouble
 
 class CsvProcessor(
@@ -29,7 +28,7 @@ class CsvProcessor(
             }
         val systemValue = evaluator.eval(EProcessTemplateApplication(template, arguments))
         val assessment = Assessment(systemValue)
-        val inventory = assessment.inventory() as InventoryMatrix // TODO: error case
+        val inventory = assessment.inventory()
         val outputPort =
             systemValue.firstProductOf(processName) ?: throw EvaluatorException("$processName has no products")
         val impacts = inventory.row(outputPort)

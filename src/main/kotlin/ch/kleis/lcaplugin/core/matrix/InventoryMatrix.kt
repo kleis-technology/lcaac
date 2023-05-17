@@ -7,14 +7,12 @@ import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 
-sealed interface InventoryResult
 
-class InventoryError(val message: String) : InventoryResult
 class InventoryMatrix(
     val observablePorts: IndexedCollection<MatrixColumnIndex>,
     val controllablePorts: IndexedCollection<MatrixColumnIndex>,
     private val data: Matrix
-) : InventoryResult {
+) {
     fun value(outputPort: MatrixColumnIndex, inputPort: MatrixColumnIndex): CharacterizationFactorValue {
         val outputUnit = outputPort.getDimension().getDefaultUnitValue()
         val output = GenericExchangeValue(

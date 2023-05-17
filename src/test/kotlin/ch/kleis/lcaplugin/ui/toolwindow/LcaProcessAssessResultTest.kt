@@ -5,32 +5,18 @@ import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import ch.kleis.lcaplugin.core.matrix.*
-import com.intellij.ui.components.JBLabel
+import ch.kleis.lcaplugin.core.matrix.IndexedCollection
+import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.MatrixFixture
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
 import com.intellij.ui.table.JBTable
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
 class LcaProcessAssessResultTest {
-
-    @Test
-    fun test_getContent_WhenAnErrorHappened() {
-        // Given
-        val inv: InventoryResult = InventoryError("An error")
-
-        // When
-        val sut = LcaProcessAssessResult(inv)
-
-        // Then
-        val panel = sut.getContent()
-        val label: JBLabel = panel.getComponent(0) as JBLabel
-        assertEquals("An error", label.text)
-    }
 
     @Test
     fun test_getContent_AndPaste() {
@@ -41,7 +27,7 @@ class LcaProcessAssessResultTest {
         val product = ProductFixture.water.toValue()
 
         val data = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
-        val inv: InventoryResult = InventoryMatrix(
+        val inv = InventoryMatrix(
             IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
         )
 

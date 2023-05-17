@@ -15,8 +15,6 @@ import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
-import ch.kleis.lcaplugin.core.matrix.InventoryError
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -166,23 +164,18 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["p"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output = result.observablePorts.getElements().first()
-                val input = result.controllablePorts.getElements().first()
-                val cf = result.value(output, input)
+        val result = assessment.inventory()
+        val output = result.observablePorts.getElements().first()
+        val input = result.controllablePorts.getElements().first()
+        val cf = result.value(output, input)
 
-                assertEquals("a from p{}", output.getDisplayName())
-                assertEquals(1.0, cf.output.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals("a from p{}", output.getDisplayName())
+        assertEquals(1.0, cf.output.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                assertEquals("co2", input.getDisplayName())
-                assertEquals(1.0, cf.input.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
-            }
-        }
+        assertEquals("co2", input.getDisplayName())
+        assertEquals(1.0, cf.input.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
     fun test_meta_whenKeywordAsKey() {
@@ -240,23 +233,18 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["p"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output = result.observablePorts.getElements().first()
-                val input = result.controllablePorts.getElements().first()
-                val cf = result.value(output, input)
+        val result = assessment.inventory()
+        val output = result.observablePorts.getElements().first()
+        val input = result.controllablePorts.getElements().first()
+        val cf = result.value(output, input)
 
-                assertEquals("out from p{}", output.getDisplayName())
-                assertEquals(1.0, cf.output.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals("out from p{}", output.getDisplayName())
+        assertEquals(1.0, cf.output.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                assertEquals("in", input.getDisplayName())
-                assertEquals(6.0, cf.input.quantity().amount)
-                assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
-            }
-        }
+        assertEquals("in", input.getDisplayName())
+        assertEquals(6.0, cf.input.quantity().amount)
+        assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
     fun test_twoInstancesSameTemplate_whenOneImplicit() {
@@ -300,23 +288,18 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["office"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("co2")
-                val cf = result.value(output, input)
+        val result = assessment.inventory()
+        val output = result.observablePorts.get("office from office{}")
+        val input = result.controllablePorts.get("co2")
+        val cf = result.value(output, input)
 
-                assertEquals("office from office{}", output.getDisplayName())
-                assertEquals(1.0, cf.output.quantity().amount)
-                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals(1.0, cf.output.quantity().amount)
+        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                assertEquals("co2", input.getDisplayName())
-                assertEquals(3.0, cf.input.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
-            }
-        }
+        assertEquals("co2", input.getDisplayName())
+        assertEquals(3.0, cf.input.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
     fun test_twoInstancesSameTemplate_whenExplicit() {
@@ -360,23 +343,18 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["office"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("co2")
-                val cf = result.value(output, input)
+        val result = assessment.inventory()
+        val output = result.observablePorts.get("office from office{}")
+        val input = result.controllablePorts.get("co2")
+        val cf = result.value(output, input)
 
-                assertEquals("office from office{}", output.getDisplayName())
-                assertEquals(1.0, cf.output.quantity().amount)
-                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals(1.0, cf.output.quantity().amount)
+        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                assertEquals("co2", input.getDisplayName())
-                assertEquals(3.0, cf.input.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
-            }
-        }
+        assertEquals("co2", input.getDisplayName())
+        assertEquals(3.0, cf.input.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
     fun test_manyInstancesSameTemplate() {
@@ -426,23 +404,18 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["office"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output = result.observablePorts.get("office from office{}")
-                val input = result.controllablePorts.get("co2")
-                val cf = result.value(output, input)
+        val result = assessment.inventory()
+        val output = result.observablePorts.get("office from office{}")
+        val input = result.controllablePorts.get("co2")
+        val cf = result.value(output, input)
 
-                assertEquals("office from office{}", output.getDisplayName())
-                assertEquals(1.0, cf.output.quantity().amount)
-                assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals(1.0, cf.output.quantity().amount)
+        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
-                assertEquals("co2", input.getDisplayName())
-                assertEquals(13.0, cf.input.quantity().amount)
-                assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
-            }
-        }
+        assertEquals("co2", input.getDisplayName())
+        assertEquals(13.0, cf.input.quantity().amount)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
     fun test_allocate() {
@@ -471,21 +444,16 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = symbolTable.processTemplates["p"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output1 = result.observablePorts.getElements()[0]
-                val output2 = result.observablePorts.getElements()[1]
-                val input = result.controllablePorts.getElements().first()
-                val cf1 = result.value(output1, input)
-                val cf2 = result.value(output2, input)
+        val result = assessment.inventory()
+        val output1 = result.observablePorts.getElements()[0]
+        val output2 = result.observablePorts.getElements()[1]
+        val input = result.controllablePorts.getElements().first()
+        val cf1 = result.value(output1, input)
+        val cf2 = result.value(output2, input)
 
-                val delta = 1E-9
-                assertEquals(0.9, cf1.input.quantity().amount, delta)
-                assertEquals(0.1, cf2.input.quantity().amount, delta)
-            }
-        }
+        val delta = 1E-9
+        assertEquals(0.9, cf1.input.quantity().amount, delta)
+        assertEquals(0.1, cf2.input.quantity().amount, delta)
     }
 
     fun test_allocate_whenOneProduct_allocateIsOptional() {
@@ -558,29 +526,26 @@ class E2ETest : BasePlatformTestCase() {
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
+
         // when
         val symbolTable = parser.load()
         val entryPoint = symbolTable.processTemplates["p"]!!
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
-        // then
-        when (val result = assessment.inventory()) {
-            // then
-            is InventoryError -> fail("$result")
-            is InventoryMatrix -> {
-                val output1 = result.observablePorts.getElements()[0]
-                val output2 = result.observablePorts.getElements()[1]
-                val input = result.controllablePorts.getElements().first()
-                val cf1 = result.value(output1, input)
-                val cf2 = result.value(output2, input)
 
-                val delta = 1E-9
-                val expected1 = 1.0 * 20 / 100
-                val expected2 = 1.0 * 80 / 100
-                assertEquals(expected1, cf1.input.quantity().amount, delta)
-                assertEquals(expected2, cf2.input.quantity().amount, delta)
-            }
-        }
+        // then
+        val result = assessment.inventory()
+        val output1 = result.observablePorts.getElements()[0]
+        val output2 = result.observablePorts.getElements()[1]
+        val input = result.controllablePorts.getElements().first()
+        val cf1 = result.value(output1, input)
+        val cf2 = result.value(output2, input)
+
+        val delta = 1E-9
+        val expected1 = 1.0 * 20 / 100
+        val expected2 = 1.0 * 80 / 100
+        assertEquals(expected1, cf1.input.quantity().amount, delta)
+        assertEquals(expected2, cf2.input.quantity().amount, delta)
     }
 
     fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
@@ -608,7 +573,7 @@ class E2ETest : BasePlatformTestCase() {
         val evaluator = Evaluator(symbolTable)
 
         // when + then
-        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo", { evaluator.eval(entryPoint) })
+        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
     }
 
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
@@ -642,7 +607,7 @@ class E2ETest : BasePlatformTestCase() {
         val evaluator = Evaluator(symbolTable)
 
         // when + then
-        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo", { evaluator.eval(entryPoint) })
+        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
     }
 
     fun test_unitAlias_shouldNotThrowAnError() {
