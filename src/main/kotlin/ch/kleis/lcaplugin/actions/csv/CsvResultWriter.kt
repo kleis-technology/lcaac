@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.actions.csv
 
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
+import java.io.Closeable
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
@@ -9,7 +10,7 @@ import java.io.Writer
 class CsvResultWriter(
     outputStream: OutputStream,
     private val writer: Writer = OutputStreamWriter(outputStream)
-) {
+) : Closeable {
     private val format = CSVFormat.DEFAULT.builder()
         .setHeader()
         .setSkipHeaderRecord(true)
@@ -30,5 +31,9 @@ class CsvResultWriter(
                 .plus(result.impacts.toList().map { it.second.amount.toString() })
             csvPrinter.printRecord(line)
         }
+    }
+
+    override fun close() {
+        writer.close()
     }
 }

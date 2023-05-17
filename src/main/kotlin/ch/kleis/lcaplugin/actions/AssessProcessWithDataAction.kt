@@ -67,9 +67,8 @@ class AssessProcessWithDataAction(
                     indicator.text = "Writing to $processName.results.csv"
                     indicator.fraction = 1.0
                     val csvResultFile = Path(containingDirectory.virtualFile.path, "$processName.results.csv").toFile()
-                    csvResultFile.outputStream().use {
-                        val resultWriter = CsvResultWriter(it)
-                        resultWriter.write(results)
+                    CsvResultWriter(csvResultFile.outputStream()).use { writer ->
+                        writer.write(results)
                     }
 
                     // done
