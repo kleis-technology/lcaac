@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.actions.csv
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.apache.commons.io.output.AppendableWriter
 import org.junit.Test
 import java.io.OutputStream
-import java.io.Writer
 import kotlin.test.assertEquals
 
 
@@ -20,8 +17,8 @@ class CsvResultWriterTest {
         // given
         val request = CsvRequest(
             "p",
-            mapOf("id" to 0, "a" to 1, "b" to 2),
-            listOf("s00", "1.0", "2.0"),
+            mapOf("comment" to 0, "id" to 1, "a" to 2, "b" to 3),
+            listOf("""Comment, with comma, and "double quotes" """, "s00", "1.0", "2.0"),
         )
         val result = CsvResult(
             request,
@@ -45,8 +42,8 @@ class CsvResultWriterTest {
 
         // then
         val expected = """
-            id, a, b, product, reference unit, in1 [kg], in2 [l]
-            s00, 1.0, 2.0, out, kg, 1.0, 1.0
+            comment,id,a,b,product,reference unit,in1 [kg],in2 [l]
+            "Comment, with comma, and ""double quotes"" ",s00,1.0,2.0,out,kg,1.0,1.0
             
         """.trimIndent()
         assertEquals(expected, actual)

@@ -8,4 +8,3 @@ data class CsvResult(
     val output: MatrixColumnIndex,
     val impacts: Map<MatrixColumnIndex, QuantityValue>,
 )
-
