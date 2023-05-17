@@ -23,6 +23,7 @@ import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
@@ -32,6 +33,7 @@ class E2ETest : BasePlatformTestCase() {
         return "testdata"
     }
 
+    @Test
     fun test_csvProcessor() {
         // given
         val pkgName = "test_exponentiationPriority"
@@ -91,6 +93,7 @@ class E2ETest : BasePlatformTestCase() {
         )
     }
 
+    @Test
     fun test_exponentiationPriority() {
         // given
         val pkgName = "test_exponentiationPriority"
@@ -129,6 +132,7 @@ class E2ETest : BasePlatformTestCase() {
     }
 
 
+    @Test
     fun test_substanceResolution() {
         val pkgName = "e2e.test_substanceResolution"
         val vf = myFixture.createFile(
@@ -178,6 +182,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
+    @Test
     fun test_meta_whenKeywordAsKey() {
         // given
         val pkgName = "e2e.test_meta_whenKeywordAsKey"
@@ -205,6 +210,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals("b", actual[1].getValue())
     }
 
+    @Test
     fun test_operationPriority() {
         // given
         val pkgName = "e2e.test_operationPriority"
@@ -247,6 +253,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
+    @Test
     fun test_twoInstancesSameTemplate_whenOneImplicit() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenOneImplicit"
@@ -302,6 +309,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
+    @Test
     fun test_twoInstancesSameTemplate_whenExplicit() {
         // given
         val pkgName = "e2e.test_twoInstancesSameTemplate_whenExplicit"
@@ -357,6 +365,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
+    @Test
     fun test_manyInstancesSameTemplate() {
         // given
         val pkgName = "e2e.test_manyInstancesSameTemplate"
@@ -418,6 +427,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
     }
 
+    @Test
     fun test_allocate() {
         // given
         val pkgName = "e2e.test_allocate"
@@ -456,6 +466,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(0.1, cf2.input.quantity().amount, delta)
     }
 
+    @Test
     fun test_allocate_whenOneProduct_allocateIsOptional() {
         // given
         val pkgName = "e2e.test_allocate_whenOneProduct_allocateIsOptional"
@@ -480,6 +491,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(100.0, actual)
     }
 
+    @Test
     fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
         // given
         val pkgName = "e2e.test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed"
@@ -506,6 +518,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(100.0, actual)
     }
 
+    @Test
     fun test_allocate_whenTwoProducts_shouldReturnWeightedResult() {
         // given
         val pkgName = "e2e.test_allocate_whenTwoProducts_shouldReturnWeightedResult"
@@ -548,6 +561,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(expected2, cf2.input.quantity().amount, delta)
     }
 
+    @Test
     fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_whenInfiniteLoop_shouldThrowAnError"
@@ -576,6 +590,7 @@ class E2ETest : BasePlatformTestCase() {
         assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
     }
 
+    @Test
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError"
@@ -610,6 +625,7 @@ class E2ETest : BasePlatformTestCase() {
         assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
     }
 
+    @Test
     fun test_unitAlias_shouldNotThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_shouldNotThrowAnError"
@@ -644,6 +660,7 @@ class E2ETest : BasePlatformTestCase() {
         evaluator.eval(entryPoint)
     }
 
+    @Test
     fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
         val pkgName = "e2e.test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError"

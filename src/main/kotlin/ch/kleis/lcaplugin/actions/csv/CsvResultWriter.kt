@@ -13,7 +13,7 @@ class CsvResultWriter(
     private val format = CSVFormat.DEFAULT.builder()
         .setHeader()
         .setSkipHeaderRecord(true)
-        .setRecordSeparator("\n")
+        .setRecordSeparator(System.lineSeparator())
         .build()
     private val csvPrinter = CSVPrinter(writer, format)
 
