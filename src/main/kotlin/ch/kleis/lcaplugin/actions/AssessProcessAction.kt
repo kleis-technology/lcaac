@@ -38,8 +38,9 @@ class AssessProcessAction(private val processName: String) : AnAction(
             private var inventory: InventoryMatrix? = null
 
             override fun run(indicator: ProgressIndicator) {
+                indicator.isIndeterminate = true
+
                 // read
-                indicator.fraction = 0.0
                 indicator.text = "Loading symbol table"
                 val symbolTable = runReadAction {
                     val collector = LcaFileCollector()
@@ -48,7 +49,6 @@ class AssessProcessAction(private val processName: String) : AnAction(
                 }
 
                 // compute
-                indicator.fraction = 0.33
                 indicator.text = "Solving system"
                 val entryPoint =
                     symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
