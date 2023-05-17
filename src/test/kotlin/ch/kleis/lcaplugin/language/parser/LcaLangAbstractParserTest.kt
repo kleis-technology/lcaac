@@ -188,7 +188,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val template = symbolTable.processTemplates["a"] as ProcessTemplateExpression
         val actual =
             (ProcessTemplateExpression.eProcessTemplate.body.biosphere compose
-                    Every.list() compose EBioExchange.substance).firstOrNull(template)
+                Every.list() compose EBioExchange.substance).firstOrNull(template)
 
         // then
         assertEquals("lu", actual?.name)
@@ -533,9 +533,9 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         val template = symbolTable.getTemplate("a")!!
         val actual = (
-                ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
-                        ETechnoExchange.quantity
-                ).getOrNull(template)!!
+            ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
+                ETechnoExchange.quantity
+            ).getOrNull(template)!!
 
         // then
         val expected = EQuantityDiv(
@@ -565,9 +565,9 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
         val template = symbolTable.getTemplate("a")!!
         val actual = (
-                ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
-                        ETechnoExchange.quantity
-                ).getOrNull(template)!!
+            ProcessTemplateExpression.eProcessTemplate.body.inputs.index(Index.list(), 0) compose
+                ETechnoExchange.quantity
+            ).getOrNull(template)!!
 
         // then
         val expected = EQuantityMul(
