@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.type.exchange
 
+import ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
+import ch.kleis.lcaplugin.psi.LcaAllocateField
 import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
@@ -27,5 +29,9 @@ interface PsiTechnoProductExchange : PsiNameIdentifierOwner {
 
     override fun getNameIdentifier(): PsiElement? {
         return getProductRef().nameIdentifier
+    }
+
+    fun getAllocateField(): LcaAllocateField? {
+        return PsiTreeUtil.getChildOfType(this, LcaAllocateField::class.java)
     }
 }
