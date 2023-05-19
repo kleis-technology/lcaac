@@ -116,7 +116,6 @@ class PsiLcaTypeChecker {
         return TUnit(Dimension.of(psiUnitDefinition.getDimensionField().getValue()))
     }
 
-    // Note: We do not guard against recursion here because our generated Parser is LR, contrary to the rest of the lang.
     private fun checkQuantityExpression(element: LcaQuantityExpression): TQuantity {
         return when (element) {
             is PsiQuantityRef -> TQuantity(checkDimensionOf(element))

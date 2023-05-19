@@ -24,6 +24,57 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_whenMutuallyRecursiveQuantityExpression_shouldThrowTypeCheckException() {
+        // given
+        val pkgName = "test_whenMutuallyRecursiveQuantityExpression_shouldThrowTypeCheckException"
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                variables {
+                    p = 95 percent
+                    r = p * s
+                    s = p * r
+                }
+            """.trimIndent()
+        )
+        val target = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.r")
+            .first()
+            .getValue()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        assertFailsWith(
+            PsiTypeCheckException::class,
+        ) { checker.check(target) }
+    }
+
+    @Test
+    fun test_whenRecursiveQuantityExpression_shouldThrowTypeCheckException() {
+        // given
+        val pkgName = "test_whenRecursiveQuantityExpression_shouldThrowTypeCheckException"
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                variables {
+                    p = 95 percent
+                    r = p * r
+                }
+            """.trimIndent()
+        )
+        val target = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.r")
+            .first()
+            .getValue()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        assertFailsWith(
+            PsiTypeCheckException::class,
+        ) { checker.check(target) }
+    }
+
+    @Test
     fun test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException() {
         // given
         val pkgName = """test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException"""
