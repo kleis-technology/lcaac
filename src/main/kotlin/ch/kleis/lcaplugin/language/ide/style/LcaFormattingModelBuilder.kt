@@ -10,7 +10,6 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
 
     companion object {
 
-        // TODO: fix with new expressions.
         private fun createSpaceBuilder(settings: CodeStyleSettings): SpacingBuilder {
             return SpacingBuilder(settings, INSTANCE)
                 // Before Block
