@@ -220,10 +220,7 @@ block_products ::= PRODUCTS_KEYWORD LBRACE technoProductExchange* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
 }
 
-block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockInputsMixin"
-}
+block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE
 
 block_emissions ::= EMISSIONS_KEYWORD LBRACE bioExchange* RBRACE
 

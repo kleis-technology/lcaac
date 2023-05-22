@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs
 import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
@@ -49,8 +48,8 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
 
     fun getInputs(): Collection<PsiTechnoInputExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_INPUTS))
-            .map { it.psi as PsiBlockInputs }
-            .flatMap { it.getExchanges() }
+            .map { it.psi as LcaBlockInputs }
+            .flatMap { it.technoInputExchangeList }
     }
 
     fun getEmissions(): Collection<PsiBioExchange> {
