@@ -111,7 +111,8 @@ class ProcessTemplateExpressionReducerTest {
         val reducer = TemplateExpressionReducer()
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "unknown parameters: [foo]") { reducer.reduce(expression) }
+        val e = assertFailsWith(EvaluatorException::class, null) { reducer.reduce(expression) }
+        assertEquals("unknown parameters: [foo]", e.message)
     }
 
     @Test

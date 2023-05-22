@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang
 
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -30,13 +29,14 @@ class RegisterTest {
         val b = EQuantityRef("b")
         val register = Register.empty<QuantityExpression>()
         val duplicateKeys = listOf(
-                key to a,
-                key to b
+            key to a,
+            key to b
         )
 
 
         // When + Then
-        assertFailsWith(EvaluatorException::class, "[abc.x] are already bound", { register.plus(duplicateKeys) })
+        val e = assertFailsWith(RegisterException::class, null) { register.plus(duplicateKeys) }
+        assertEquals("[abc.x] is already bound", e.message)
     }
 
     @Test
@@ -46,11 +46,12 @@ class RegisterTest {
         val a = EQuantityRef("a")
         val b = EQuantityRef("b")
         val register = Register.empty<QuantityExpression>().plus(listOf(key to a))
-        val message = "[$key] are already bound"
+        val message = "[$key] is already bound"
         val duplicateKey = listOf(key to b)
 
         // When + Then
-        assertFailsWith(EvaluatorException::class, message, { register.plus(duplicateKey) })
+        val e = assertFailsWith(RegisterException::class, null) { register.plus(duplicateKey) }
+        assertEquals(message, e.message)
     }
 
     @Test
@@ -110,10 +111,11 @@ class RegisterTest {
         val b = EUnitAlias("b", kg)
         val optics = EUnitAlias.aliasFor compose QuantityExpression.eQuantityRef.name
         val register = Register.empty<EUnitAlias>()
-                .plus(listOf(keyA to a, keyB to b))
+            .plus(listOf(keyA to a, keyB to b))
 
 
         // When + Then
-        assertFailsWith(EvaluatorException::class, "kg is already bound", { register.getEntries(optics) })
+        val e = assertFailsWith(RegisterException::class, null) { register.getEntries(optics) }
+        assertEquals("[kg] is already bound", e.message)
     }
 }

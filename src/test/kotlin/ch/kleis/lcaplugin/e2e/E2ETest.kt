@@ -76,10 +76,10 @@ class E2ETest : BasePlatformTestCase() {
             "out", kg,
             FromProcessRefValue(
                 "p", mapOf(
-                    "a" to QuantityValue(1.0, kg),
-                    "b" to QuantityValue(1.0, kg),
-                    "c" to QuantityValue(1.0, kg),
-                )
+                "a" to QuantityValue(1.0, kg),
+                "b" to QuantityValue(1.0, kg),
+                "c" to QuantityValue(1.0, kg),
+            )
             )
         )
         assertEquals(
@@ -587,7 +587,8 @@ class E2ETest : BasePlatformTestCase() {
         val evaluator = Evaluator(symbolTable)
 
         // when + then
-        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
+        val e = assertFailsWith(EvaluatorException::class, null) { evaluator.eval(entryPoint) }
+        assertEquals("Recursive dependency for unit foo", e.message)
     }
 
     @Test
@@ -622,7 +623,8 @@ class E2ETest : BasePlatformTestCase() {
         val evaluator = Evaluator(symbolTable)
 
         // when + then
-        assertFailsWith(EvaluatorException::class, "Recursive dependency for unit foo") { evaluator.eval(entryPoint) }
+        val e = assertFailsWith(EvaluatorException::class, null) { evaluator.eval(entryPoint) }
+        assertEquals("Recursive dependency for unit foo", e.message)
     }
 
     @Test

@@ -1,12 +1,18 @@
 package ch.kleis.lcaplugin.core.lang
 
 import arrow.optics.Fold
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
+data class RegisterException(val duplicates: Set<String>) : Exception("$duplicates ${
+    if (duplicates.size > 1) {
+        "are"
+    } else {
+        "is"
+    }
+} already bound")
 
 class Register<E> private constructor(
-        internal val registerType: String,
-        private val data: Map<String, E> = HashMap()
+    internal val registerType: String,
+    private val data: Map<String, E> = HashMap()
 ) {
     constructor(register: Register<E>) : this(register.registerType, register.data)
 
@@ -22,10 +28,10 @@ class Register<E> private constructor(
 
     fun <K> getEntries(optics: Fold<E, K>): Map<K, E> {
         return data.entries.asSequence()
-                .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
-                // ensure no duplicate by calling reduce as soon as there is a second element in a group
-                .groupingBy { it.first }.reduce { key, _, _ -> throw EvaluatorException("$key is already bound") }
-                .asSequence().map { it }.associate { it.key to it.value.second }
+            .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
+            // ensure no duplicate by calling reduce as soon as there is a second element in a group
+            .groupingBy { it.first }.reduce { key, _, _ -> throw RegisterException(setOf(key.toString())) }
+            .asSequence().map { it }.associate { it.key to it.value.second }
     }
 
     operator fun get(key: String): E? {
@@ -52,19 +58,19 @@ class Register<E> private constructor(
 
     fun plus(pairs: Iterable<Pair<String, E>>): Register<E> {
         val keys = data.keys.toList()
-                .plus(pairs.map { it.first })
+            .plus(pairs.map { it.first })
 
         val firstConflicts = keys.groupingBy { it }.eachCount()
-                .filter { it.value > 1 }
-                .map { it.key }
-                .take(20)
+            .filter { it.value > 1 }
+            .map { it.key }
+            .take(20)
             .toSet()
         if (firstConflicts.isNotEmpty()) {
-            throw EvaluatorException("$firstConflicts are already bound")
+            throw RegisterException(firstConflicts.take(10).toSet())
         }
         return Register(
-                registerType,
-                data.plus(pairs)
+            registerType,
+            data.plus(pairs)
         )
     }
 }
