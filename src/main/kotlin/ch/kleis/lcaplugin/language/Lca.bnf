@@ -232,10 +232,9 @@ argument ::= parameterRef EQUAL quantityExpression {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
 }
 
-// TODO: use PsiQuantityField
 allocateField ::= ALLOCATE_KEYWORD quantityExpression {
-    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAllocateFieldMixin"
+    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiQuantityField"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiQuantityFieldMixin"
 }
 
 technoProductExchange ::= quantityExpression productRef allocateField? {
