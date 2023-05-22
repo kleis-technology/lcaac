@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.stub.process
 
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.psi.stubs.StubElement
 
-interface ProcessStub : StubElement<PsiProcess> {
+interface ProcessStub : StubElement<LcaProcess> {
     val fqn: String
 }

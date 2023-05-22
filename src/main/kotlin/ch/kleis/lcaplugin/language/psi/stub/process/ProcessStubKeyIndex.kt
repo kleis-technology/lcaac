@@ -2,15 +2,15 @@ package ch.kleis.lcaplugin.language.psi.stub.process
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class ProcessStubKeyIndex : StringStubIndexExtension<PsiProcess>() {
-    override fun getKey(): StubIndexKey<String, PsiProcess> {
+class ProcessStubKeyIndex : StringStubIndexExtension<LcaProcess>() {
+    override fun getKey(): StubIndexKey<String, LcaProcess> {
         return LcaStubIndexKeys.PROCESSES
     }
 
@@ -23,7 +23,7 @@ class ProcessStubKeyIndex : StringStubIndexExtension<PsiProcess>() {
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project),
-        ): Collection<PsiProcess> =
-            StubIndex.getElements(LcaStubIndexKeys.PROCESSES, fqn, project, scope, PsiProcess::class.java)
+        ): Collection<LcaProcess> =
+            StubIndex.getElements(LcaStubIndexKeys.PROCESSES, fqn, project, scope, LcaProcess::class.java)
     }
 }

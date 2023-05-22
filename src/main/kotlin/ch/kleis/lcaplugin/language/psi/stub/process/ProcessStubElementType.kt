@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.stub.process
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.impl.LcaProcessImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
@@ -10,14 +10,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.*
 
 class ProcessStubElementType(debugName: String) :
-    ILightStubElementType<ProcessStub, PsiProcess>(debugName, LcaLanguage.INSTANCE) {
+    ILightStubElementType<ProcessStub, LcaProcess>(debugName, LcaLanguage.INSTANCE) {
     override fun getExternalId(): String {
         return "lca.${super.toString()}"
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): ProcessStub {
-        return ProcessStubImpl(parentStub as StubElement<PsiProcess>, dataStream.readNameString()!!)
+        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, dataStream.readNameString()!!)
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): ProcessStub {
@@ -25,12 +25,12 @@ class ProcessStubElementType(debugName: String) :
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun createStub(psi: PsiProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
+    override fun createStub(psi: LcaProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
         val fqn = psi.getProcessTemplateRef().getFullyQualifiedName()
-        return ProcessStubImpl(parentStub as StubElement<PsiProcess>, fqn)
+        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, fqn)
     }
 
-    override fun createPsi(stub: ProcessStub): PsiProcess {
+    override fun createPsi(stub: ProcessStub): LcaProcess {
         return LcaProcessImpl(stub, this)
     }
 
