@@ -644,8 +644,8 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
-            .getPsiVariablesBlocks().first()
-            .getAssignments().first()
+            .getLcaVariables().first()
+            .assignmentList.first()
         val checker = PsiLcaTypeChecker()
 
         // when

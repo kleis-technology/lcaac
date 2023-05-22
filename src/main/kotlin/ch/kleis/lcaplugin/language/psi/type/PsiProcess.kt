@@ -75,15 +75,15 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
     }
 
     fun getVariables(): Map<String, LcaQuantityExpression> {
-        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
-            .map { it.psi as PsiVariables }
-            .flatMap { it.getEntries() }
+        return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
+            .flatMap { it.assignmentList.map { a ->
+                a.getQuantityRef().name to a.getValue()
+            } }
             .toMap()
     }
 
-    fun getPsiVariablesBlocks(): Collection<PsiVariables> {
-        return node.getChildren(TokenSet.create(LcaTypes.VARIABLES))
-            .map { it.psi as PsiVariables }
+    fun getLcaVariables(): Collection<LcaVariables> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
     }
 
     fun getLcaParams(): Collection<LcaParams> {
@@ -96,7 +96,7 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
-        for (block in getPsiVariablesBlocks()) {
+        for (block in getLcaVariables()) {
             if (!processor.execute(block, state)) {
                 return false
             }

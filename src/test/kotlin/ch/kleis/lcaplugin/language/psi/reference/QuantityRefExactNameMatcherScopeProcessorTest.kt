@@ -58,7 +58,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
             """.trimIndent()
         ) as LcaFile
         val process = file.getProcesses().first()
-        val assignment = process.getPsiVariablesBlocks().first().getAssignments().first()
+        val assignment = process.getLcaVariables().first().assignmentList.first()
         val quantityRef = process.getProducts().first()
             .getQuantity() as LcaQuantityRef
 
