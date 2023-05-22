@@ -163,10 +163,7 @@ symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
 
-aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantityExpression {
-        implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiQuantityField"]
-        mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiQuantityFieldMixin"
-}
+aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantityExpression
 
 
 /*
@@ -232,10 +229,7 @@ argument ::= parameterRef EQUAL quantityExpression {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
 }
 
-allocateField ::= ALLOCATE_KEYWORD quantityExpression {
-    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiQuantityField"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiQuantityFieldMixin"
-}
+allocateField ::= ALLOCATE_KEYWORD quantityExpression
 
 technoProductExchange ::= quantityExpression productRef allocateField? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]

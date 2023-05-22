@@ -106,7 +106,7 @@ class PsiLcaTypeChecker {
 
     private fun checkUnitAlias(element: PsiUnitDefinition): TUnit {
         return rec.guard { el: PsiUnitDefinition ->
-            val tyQuantity = checkQuantityExpression(el.getAliasForField().getValue())
+            val tyQuantity = checkQuantityExpression(el.getAliasForField().quantityExpression)
             TUnit(tyQuantity.dimension)
         }(element)
     }

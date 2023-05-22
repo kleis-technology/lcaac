@@ -125,7 +125,7 @@ class LcaLangAbstractParser(
     private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
-            quantityExpression(psiUnitAlias.getAliasForField().getValue())
+            quantityExpression(psiUnitAlias.getAliasForField().quantityExpression)
         )
     }
 
