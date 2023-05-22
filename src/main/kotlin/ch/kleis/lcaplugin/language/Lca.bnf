@@ -83,8 +83,8 @@ package ::= PACKAGE_KEYWORD urn {
 }
 
 import ::= IMPORT_KEYWORD urn {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiImport"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiImportMixin"
+    implements=["ch.kleis.lcaplugin.language.psi.type.trait.PsiUrnOwner"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.trait.PsiUrnOwnerMixin"
 }
 
 /*

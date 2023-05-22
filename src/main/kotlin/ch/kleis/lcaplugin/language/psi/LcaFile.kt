@@ -2,8 +2,11 @@ package ch.kleis.lcaplugin.language.psi
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
-import ch.kleis.lcaplugin.language.psi.type.*
+import ch.kleis.lcaplugin.language.psi.type.PsiGlobalVariables
+import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaImport
 import ch.kleis.lcaplugin.psi.LcaPackage
 import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
@@ -30,9 +33,8 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             ?: "default"
     }
 
-    fun getImports(): Collection<PsiImport> {
-        return node.getChildren(TokenSet.create(LcaTypes.IMPORT))
-            .map { it.psi as PsiImport }
+    fun getImports(): Collection<LcaImport> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java)
     }
 
     fun getProcesses(): Collection<PsiProcess> {

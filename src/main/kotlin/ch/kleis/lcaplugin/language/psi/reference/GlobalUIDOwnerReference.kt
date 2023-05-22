@@ -13,7 +13,7 @@ open class GlobalUIDOwnerReference<R : PsiUIDOwner, T : PsiElement>(
 ) : PsiReferenceBase<R>(element), PsiPolyVariantReference {
     private val file = element.containingFile as LcaFile
     private val pkgName = file.getPackageName()
-    private val imports = file.getImports().map { it.getPackageName() }
+    private val imports = file.getImports().map { it.name }
     private val allPkgNames = listOf(pkgName).plus(imports)
 
     override fun resolve(): PsiElement? {
