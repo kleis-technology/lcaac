@@ -240,20 +240,12 @@ technoProductExchange ::= quantityExpression productRef allocateField? {
 
 bioExchange ::= quantityExpression substanceSpec
 
-impactExchange ::= quantityExpression indicatorRef {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiImpactExchangeMixin"
-}
+impactExchange ::= quantityExpression indicatorRef
 
 /*
     Quantity
     Use GrammarKit's expression-related syntax and rules to generate a Pratt parser.
  */
-{
-    // Allow LR to generate left-associative n-ary operations
-    extends("(add|sub|mul|div)QuantityExpression")=binaryOperatorExpression
-    extends(".*QuantityExpression")=quantityExpression
-}
 
 quantityExpression ::= addGroup
            | mulGroup
@@ -272,13 +264,13 @@ fake binaryOperatorExpression ::= quantityExpression quantityExpression {
     ]
 }
 
-addQuantityExpression ::= quantityExpression PLUS quantityExpression
-subQuantityExpression ::= quantityExpression MINUS quantityExpression
-mulQuantityExpression ::= quantityExpression STAR quantityExpression
-divQuantityExpression ::= quantityExpression SLASH quantityExpression
-exponentialQuantityExpression ::= quantityExpression HAT NUMBER { methods=[exponent="NUMBER"] }
-parenQuantityExpression ::= LPAREN quantityExpression RPAREN
-scaleQuantityExpression ::= NUMBER quantityExpression { methods=[scale="NUMBER"]}
+addQuantityExpression ::= quantityExpression PLUS quantityExpression { extends=binaryOperatorExpression }
+subQuantityExpression ::= quantityExpression MINUS quantityExpression { extends=binaryOperatorExpression }
+mulQuantityExpression ::= quantityExpression STAR quantityExpression { extends=binaryOperatorExpression }
+divQuantityExpression ::= quantityExpression SLASH quantityExpression { extends=binaryOperatorExpression }
+exponentialQuantityExpression ::= quantityExpression HAT NUMBER { extends=quantityExpression methods=[exponent="NUMBER"] }
+parenQuantityExpression ::= LPAREN quantityExpression RPAREN { extends=quantityExpression }
+scaleQuantityExpression ::= NUMBER quantityExpression { extends=quantityExpression methods=[scale="NUMBER"]}
 
 /*
     Unit

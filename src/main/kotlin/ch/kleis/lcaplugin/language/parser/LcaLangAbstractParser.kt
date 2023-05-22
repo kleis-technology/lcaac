@@ -12,7 +12,6 @@ import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
@@ -203,10 +202,10 @@ class LcaLangAbstractParser(
         )
 
 
-    private fun impact(exchange: PsiImpactExchange): EImpact {
+    private fun impact(exchange: LcaImpactExchange): EImpact {
         return EImpact(
-            quantityExpression(exchange.getQuantity()),
-            indicatorSpec(exchange.getIndicatorRef()),
+            quantityExpression(exchange.quantityExpression),
+            indicatorSpec(exchange.indicatorRef),
         )
     }
 
@@ -269,7 +268,7 @@ class LcaLangAbstractParser(
                 val quantity = quantityExpression(psiExchange.quantityExpression)
                 EBioExchange(
                     quantity,
-                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
                 )
             }
 
@@ -277,7 +276,7 @@ class LcaLangAbstractParser(
                 val quantity = EQuantityNeg(quantityExpression(psiExchange.quantityExpression))
                 EBioExchange(
                     quantity,
-                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
                 )
             }
         }
