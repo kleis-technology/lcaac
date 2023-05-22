@@ -1,9 +1,13 @@
 package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.allocation.Allocation
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.core.matrix.*
+import ch.kleis.lcaplugin.core.matrix.ControllableMatrix
+import ch.kleis.lcaplugin.core.matrix.IndexedCollection
+import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.ObservableMatrix
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
 class Assessment(
@@ -54,9 +58,9 @@ class Assessment(
         )
     }
 
-    fun inventory(): InventoryResult {
+    fun inventory(): InventoryMatrix {
         val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate())
-            ?: return InventoryError("The system cannot be solved")
+            ?: throw EvaluatorException("The system cannot be solved")
         return InventoryMatrix(this.observablePorts, this.controllablePorts, data)
     }
 

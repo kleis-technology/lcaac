@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 sealed interface MatrixColumnIndex : Value, HasUID {
     fun getDimension(): Dimension
     fun getDisplayName(): String
+    fun getShortName(): String
     fun referenceUnit(): UnitValue
     override fun getUID(): String {
         return getDisplayName()
@@ -29,6 +30,10 @@ data class ProductValue(
         if (fromProcessRef is FromProcessRefValue) {
             return "$name from ${fromProcessRef.name}${fromProcessRef.arguments}"
         }
+        return name
+    }
+
+    override fun getShortName(): String {
         return name
     }
 
@@ -81,6 +86,10 @@ data class PartiallyQualifiedSubstanceValue(
         return name
     }
 
+    override fun getShortName(): String {
+        return name
+    }
+
     override fun referenceUnit(): UnitValue {
         return referenceUnit
     }
@@ -115,6 +124,10 @@ data class FullyQualifiedSubstanceValue(
 ) : SubstanceValue {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
+    }
+
+    override fun getShortName(): String {
+        return name
     }
 
     override fun getDisplayName(): String {
@@ -161,6 +174,10 @@ data class FullyQualifiedSubstanceValue(
 data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Value, MatrixColumnIndex {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
+    }
+
+    override fun getShortName(): String {
+        return name
     }
 
     override fun getDisplayName(): String {
