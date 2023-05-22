@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -29,62 +30,81 @@ class LcaLangAbstractParser(
         val unitDefinitions = files.flatMap { it.getUnitDefinitions() }
         val processDefinitions = files.flatMap { it.getProcesses() }
         val substanceDefinitions = files.flatMap { it.getSubstances() }
-        val globals: Register<QuantityExpression> = Register(Prelude.unitQuantities)
-            .plus(
-                unitDefinitions
-                    .filter { it.getType() == UnitDefinitionType.LITERAL }
-                    .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
-                    .asIterable()
-            )
-            .plus(
-                unitDefinitions
-                    .filter { it.getType() == UnitDefinitionType.ALIAS }
-                    .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
-                    .asIterable()
-            )
-            .plus(
-                files
-                    .flatMap { it.getGlobalAssignments() }
-                    .map { it.first to quantityExpression(it.second) }
-                    .asIterable()
-            )
+        val units = try {
+            Register(Prelude.units)
+                .plus(
+                    unitDefinitions
+                        .filter { it.getType() == UnitDefinitionType.LITERAL }
+                        .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
+                        .asIterable()
+                )
+                .plus(
+                    unitDefinitions
+                        .filter { it.getType() == UnitDefinitionType.ALIAS }
+                        .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
+                        .asIterable()
+                )
+        } catch (e: RegisterException) {
+            throw EvaluatorException("Duplicate unit ${e.duplicates} defined")
+        }
 
-        val units = Register(Prelude.units)
-            .plus(
-                unitDefinitions
-                    .filter { it.getType() == UnitDefinitionType.LITERAL }
-                    .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
-                    .asIterable()
-            )
-            .plus(
-                unitDefinitions
-                    .filter { it.getType() == UnitDefinitionType.ALIAS }
-                    .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
-                    .asIterable()
-            )
+        val dimensions: Register<Dimension> = try {
+            Register(Prelude.primitiveDimensions)
+                .plus(
+                    unitDefinitions
+                        .filter { it.getType() == UnitDefinitionType.LITERAL }
+                        .map { it.getDimensionField().getValue() to Dimension.of(it.getDimensionField().getValue()) }
+                        .asIterable()
+                )
+        } catch (e: RegisterException) {
+            throw EvaluatorException("Duplicate reference units for dimensions ${e.duplicates}")
+        }
 
-        val dimensions = Register(Prelude.primitiveDimensions)
-            .plus(
-                unitDefinitions
-                    .filter { it.getType() == UnitDefinitionType.LITERAL }
-                    .map { it.getDimensionField().getValue() to Dimension.of(it.getDimensionField().getValue()) }
-                    .asIterable()
-            )
+        val substanceCharacterizations = try {
+            Register.empty<ESubstanceCharacterization>()
+                .plus(
+                    substanceDefinitions
+                        .map { Pair(it.buildUniqueKey(), substanceCharacterization(it)) }
+                        .asIterable()
+                )
+        } catch (e: RegisterException) {
+            throw EvaluatorException("Duplicate substance ${e.duplicates} defined")
+        }
 
+        val globals: Register<QuantityExpression> = try {
+            Register(Prelude.unitQuantities)
+                .plus(
+                    unitDefinitions
+                        .filter { it.getType() == UnitDefinitionType.LITERAL }
+                        .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+                        .asIterable()
+                )
+                .plus(
+                    unitDefinitions
+                        .filter { it.getType() == UnitDefinitionType.ALIAS }
+                        .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
+                        .asIterable()
+                )
+                .plus(
+                    files
+                        .flatMap { it.getGlobalAssignments() }
+                        .map { it.first to quantityExpression(it.second) }
+                        .asIterable()
+                )
+        } catch (e: RegisterException) {
+            throw EvaluatorException("Duplicate global variable ${e.duplicates} defined")
+        }
 
-        val processTemplates = Register.empty<EProcessTemplate>()
-            .plus(
-                processDefinitions
-                    .map { Pair(it.getProcessTemplateRef().getUID().name, process(it, globals, units)) }
-                    .asIterable()
-            )
-
-        val substanceCharacterizations = Register.empty<ESubstanceCharacterization>()
-            .plus(
-                substanceDefinitions
-                    .map { Pair(it.buildUniqueKey(), substanceCharacterization(it)) }
-                    .asIterable()
-            )
+        val processTemplates = try {
+            Register.empty<EProcessTemplate>()
+                .plus(
+                    processDefinitions
+                        .map { Pair(it.getProcessTemplateRef().getUID().name, process(it, globals, units)) }
+                        .asIterable()
+                )
+        } catch (e: RegisterException) {
+            throw EvaluatorException("Duplicate process ${e.duplicates} defined")
+        }
 
         return SymbolTable(
             quantities = globals,

@@ -4,6 +4,7 @@ import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -39,7 +40,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("[foo] are already bound", e.message)
+        assertEquals("Duplicate reference units for dimensions [foo]", e.message)
     }
 
     @Test
@@ -59,7 +60,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("[mass] are already bound", e.message)
+        assertEquals("Duplicate reference units for dimensions [mass]", e.message)
     }
 
     @Test
@@ -233,6 +234,30 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
+    fun testParse_whenDefineUnitTwice_shouldThrow() {
+        val file = parseFile(
+            "testParse_whenDefineUnitTwice_shouldThrow.lca",
+            """
+            unit foo {
+                symbol = "foo"
+                alias_for = 1 u
+            }
+            unit foo {
+                symbol = "foo"
+                alias_for = 10 u
+            }
+            """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+
+        // when/then
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("Duplicate unit [foo] defined", e.message)
+    }
+
+    @Test
     fun testParse_whenDefineProcessTwice_shouldThrow() {
         // given
         val file = parseFile(
@@ -249,7 +274,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("[a] are already bound", e.message)
+        assertEquals("Duplicate process [a] defined", e.message)
     }
 
     @Test
@@ -274,8 +299,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("x is already bound", e.message)
+        val e = assertFailsWith(RegisterException::class, null) { parser.load() }
+        assertEquals("[x] is already bound", e.message)
     }
 
     @Test
@@ -311,7 +336,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("[x] are already bound", e.message)
+        assertEquals("Duplicate global variable [x] defined", e.message)
     }
 
     @Test
@@ -339,7 +364,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("[a] are already bound", e.message)
+        assertEquals("Duplicate substance [a_compartment_Resource] defined", e.message)
     }
 
     @Test

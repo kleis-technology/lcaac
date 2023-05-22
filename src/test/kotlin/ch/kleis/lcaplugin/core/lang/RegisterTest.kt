@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang
 
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -36,8 +35,8 @@ class RegisterTest {
 
 
         // When + Then
-        val e = assertFailsWith(EvaluatorException::class, null) { register.plus(duplicateKeys) }
-        assertEquals("[abc.x] are already bound", e.message)
+        val e = assertFailsWith(RegisterException::class, null) { register.plus(duplicateKeys) }
+        assertEquals("[abc.x] is already bound", e.message)
     }
 
     @Test
@@ -47,11 +46,11 @@ class RegisterTest {
         val a = EQuantityRef("a")
         val b = EQuantityRef("b")
         val register = Register.empty<QuantityExpression>().plus(listOf(key to a))
-        val message = "[$key] are already bound"
+        val message = "[$key] is already bound"
         val duplicateKey = listOf(key to b)
 
         // When + Then
-        val e = assertFailsWith(EvaluatorException::class, null) { register.plus(duplicateKey) }
+        val e = assertFailsWith(RegisterException::class, null) { register.plus(duplicateKey) }
         assertEquals(message, e.message)
     }
 
@@ -116,7 +115,7 @@ class RegisterTest {
 
 
         // When + Then
-        val e = assertFailsWith(EvaluatorException::class, null) { register.getEntries(optics) }
-        assertEquals("kg is already bound", e.message)
+        val e = assertFailsWith(RegisterException::class, null) { register.getEntries(optics) }
+        assertEquals("[kg] is already bound", e.message)
     }
 }
