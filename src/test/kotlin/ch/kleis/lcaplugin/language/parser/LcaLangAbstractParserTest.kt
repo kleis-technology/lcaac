@@ -38,6 +38,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
+        // TODO: nicer message for user
         assertFailsWith(EvaluatorException::class, "[foo] are already bound") { parser.load() }
     }
 
@@ -421,8 +422,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                             "carrot",
                             EUnitClosure(
                                 preludeSymbolTable, EUnitOf(
-                                    EQuantityScale(1.0, EQuantityRef("kg")),
-                                )
+                                EQuantityScale(1.0, EQuantityRef("kg")),
+                            )
                             )
                         ),
                     ),
