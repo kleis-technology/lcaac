@@ -78,8 +78,8 @@ lcaFile ::= package? import* (process | unitDefinition | substance | globalVaria
  */
 
 package ::= PACKAGE_KEYWORD urn {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiPackage"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiPackageMixin"
+    implements=["ch.kleis.lcaplugin.language.psi.type.trait.PsiUrnOwner"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.trait.PsiUrnOwnerMixin"
 }
 
 import ::= IMPORT_KEYWORD urn {

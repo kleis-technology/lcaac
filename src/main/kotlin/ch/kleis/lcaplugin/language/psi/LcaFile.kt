@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.type.*
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaPackage
 import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.extapi.psi.PsiFileBase
@@ -13,6 +14,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.ResolveState
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 
 class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLanguage.INSTANCE) {
     override fun getFileType(): FileType {
@@ -24,7 +26,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     }
 
     fun getPackageName(): String {
-        return (node.findChildByType(LcaTypes.PACKAGE)?.psi as PsiPackage?)?.name
+        return PsiTreeUtil.findChildOfType(this, LcaPackage::class.java)?.name
             ?: "default"
     }
 
