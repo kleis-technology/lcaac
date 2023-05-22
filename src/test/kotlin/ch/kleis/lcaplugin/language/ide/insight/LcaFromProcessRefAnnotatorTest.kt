@@ -6,7 +6,10 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
@@ -30,8 +33,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getProcessTemplateRef()
+            .fromProcessConstraint!!
+            .processTemplateRef!!
         val mock = AnnotationHolderMock()
         val annotator = LcaFromProcessRefAnnotator()
 
@@ -68,8 +71,8 @@ class LcaFromProcessRefAnnotatorTest : BasePlatformTestCase() {
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getProcessTemplateRef()
+            .fromProcessConstraint!!
+            .processTemplateRef!!
         val mock = AnnotationHolderMock()
         val annotator = LcaFromProcessRefAnnotator()
 

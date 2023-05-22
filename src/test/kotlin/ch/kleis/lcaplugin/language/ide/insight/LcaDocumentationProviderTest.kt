@@ -414,9 +414,9 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val ref = file.getProcesses().first()
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getPsiArguments().first()
-            .getParameterRef()
+            .fromProcessConstraint!!
+            .argumentList.first()
+            .parameterRef
         val sut = LcaDocumentationProvider()
 
         // When

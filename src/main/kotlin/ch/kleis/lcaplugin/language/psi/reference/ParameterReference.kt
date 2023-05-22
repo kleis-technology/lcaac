@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.psi.LcaArgument
+import ch.kleis.lcaplugin.psi.LcaFromProcessConstraint
 import ch.kleis.lcaplugin.psi.LcaParams
 import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.codeInsight.lookup.LookupElementBuilder
@@ -32,17 +32,17 @@ class ParameterReference(
         return argument
     }
 
-    private fun findContainingFromProcessConstraint(): PsiFromProcessConstraint? {
+    private fun findContainingFromProcessConstraint(): LcaFromProcessConstraint? {
         val argument = findContainingArgument() ?: return null
         val fromProcessConstraint = argument.parent
-        if (fromProcessConstraint !is PsiFromProcessConstraint) {
+        if (fromProcessConstraint !is LcaFromProcessConstraint) {
             return null
         }
         return fromProcessConstraint
     }
 
     private fun findTemplateRef(): PsiProcessTemplateRef? {
-        return findContainingFromProcessConstraint()?.getProcessTemplateRef()
+        return findContainingFromProcessConstraint()?.processTemplateRef
     }
 
     private fun resolveProcess(): LcaProcess? {

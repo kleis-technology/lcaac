@@ -72,11 +72,13 @@ class PsiLcaTypeChecker {
                 }
             }
             el.fromProcessConstraint?.let {
-                val psiProcess = it.getProcessTemplateRef().reference.resolve() as PsiProcess?
-                    ?: throw PsiTypeCheckException("unbound reference ${it.getProcessTemplateRef().name}")
+                val psiProcess = it.processTemplateRef!!.reference.resolve() as PsiProcess?
+                    ?: throw PsiTypeCheckException("unbound reference ${it.processTemplateRef!!.name}")
                 val tyArguments = checkProcessArguments(psiProcess)
-                it.getArguments()
-                    .forEach { (key, value) ->
+                it.argumentList
+                    .forEach { arg ->
+                        val key = arg.parameterRef.name
+                        val value = arg.quantityExpression
                         val tyActual = checkQuantityExpression(value)
                         val tyExpected = tyArguments[key] ?: throw PsiTypeCheckException("unknown parameter $key")
                         if (tyExpected != tyActual) {

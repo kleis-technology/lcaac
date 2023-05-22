@@ -68,9 +68,9 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getPsiArguments().first()
-            .getParameterRef()
+            .fromProcessConstraint!!
+            .argumentList.first()
+            .parameterRef
 
         // when
         val actual = ref.reference.resolve()

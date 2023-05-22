@@ -219,8 +219,6 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
 technoInputExchange ::= quantityExpression productRef fromProcessConstraint?
 fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_arguments? RPAREN {
     pin=1
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiFromProcessConstraintMixin"
 }
 
 private comma_sep_arguments ::= argument (COMMA argument)* COMMA?

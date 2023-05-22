@@ -8,7 +8,6 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
@@ -224,7 +223,7 @@ class LcaLangAbstractParser(
 
     private fun productSpec(
         psiProductRef: PsiProductRef,
-        psiFromProcessConstraint: PsiFromProcessConstraint? = null,
+        psiFromProcessConstraint: LcaFromProcessConstraint? = null,
     ): EProductSpec {
         return EProductSpec(
             psiProductRef.name,
@@ -232,11 +231,13 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun fromProcessRef(psiFromProcessConstraint: PsiFromProcessConstraint?): FromProcessRef? {
+    private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcessRef? {
         return psiFromProcessConstraint?.let {
             FromProcessRef(
-                ref = it.getProcessTemplateRef().name,
-                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantityExpression(q.value) },
+                ref = it.processTemplateRef!!.name,
+                arguments = psiFromProcessConstraint
+                    .argumentList
+                    .associate { arg -> arg.parameterRef.name to quantityExpression(arg.quantityExpression) }
             )
         }
     }
