@@ -6,10 +6,11 @@ import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaSubstance
 import com.intellij.psi.stubs.StubIndexKey
 
 object LcaStubIndexKeys {
-    val SUBSTANCES: StubIndexKey<SubstanceKey, PsiSubstance> =
+    val SUBSTANCES: StubIndexKey<SubstanceKey, LcaSubstance> =
         StubIndexKey.createIndexKey("lca.substances")
 
     val TECHNO_PRODUCT_EXCHANGES: StubIndexKey<String, PsiTechnoProductExchange> =
