@@ -2,14 +2,10 @@ package ch.kleis.lcaplugin.language.psi
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
-import ch.kleis.lcaplugin.language.psi.type.PsiGlobalVariables
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import ch.kleis.lcaplugin.psi.LcaImport
-import ch.kleis.lcaplugin.psi.LcaPackage
-import ch.kleis.lcaplugin.psi.LcaQuantityExpression
-import ch.kleis.lcaplugin.psi.LcaTypes
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.FileViewProvider
@@ -48,9 +44,11 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     }
 
     fun getGlobalAssignments(): Collection<Pair<String, LcaQuantityExpression>> {
-        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
-            .map { it.psi as PsiGlobalVariables }
-            .flatMap { it.getEntries() }
+        return PsiTreeUtil.findChildrenOfType(this, LcaGlobalVariables::class.java)
+            .flatMap {
+                it.globalAssignmentList
+                    .map { a -> a.getQuantityRef().name to a.getValue() }
+            }
     }
 
     fun getUnitDefinitions(): Collection<PsiUnitDefinition> {
@@ -58,9 +56,8 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             .map { it.psi as PsiUnitDefinition }
     }
 
-    fun getPsiGlobalVariablesBlocks(): Collection<PsiGlobalVariables> {
-        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
-            .map { it.psi as PsiGlobalVariables }
+    fun getLcaGlobalVariables(): Collection<LcaGlobalVariables> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaGlobalVariables::class.java)
     }
 
     override fun processDeclarations(
@@ -69,7 +66,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
-        for (block in getPsiGlobalVariablesBlocks()) {
+        for (block in getLcaGlobalVariables()) {
             if (!processor.execute(block, state)) {
                 return false
             }

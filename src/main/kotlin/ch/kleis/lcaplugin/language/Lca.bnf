@@ -91,10 +91,7 @@ import ::= IMPORT_KEYWORD urn {
     Global variables
  */
 
-globalVariables ::= VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalVariables"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalVariablesMixin"
-}
+globalVariables ::= VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE
 globalAssignment ::= quantityRef EQUAL quantityExpression {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalAssignmentMixin"
