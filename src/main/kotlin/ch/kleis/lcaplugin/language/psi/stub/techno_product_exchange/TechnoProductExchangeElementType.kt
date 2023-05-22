@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
 import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
@@ -10,8 +10,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.*
 
 class TechnoProductExchangeElementType(debugName: String) : ILightStubElementType<
-        TechnoProductExchangeStub,
-        PsiTechnoProductExchange>(
+    TechnoProductExchangeStub,
+    LcaTechnoProductExchange>(
     debugName,
     LcaLanguage.INSTANCE
 ) {
@@ -20,7 +20,7 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): TechnoProductExchangeStub {
         return TechnoProductExchangeStubImpl(
-            parentStub as StubElement<PsiTechnoProductExchange>,
+            parentStub as StubElement<LcaTechnoProductExchange>,
             dataStream.readNameString()!!
         )
     }
@@ -35,17 +35,17 @@ class TechnoProductExchangeElementType(debugName: String) : ILightStubElementTyp
 
     @Suppress("UNCHECKED_CAST")
     override fun createStub(
-        psi: PsiTechnoProductExchange,
+        psi: LcaTechnoProductExchange,
         parentStub: StubElement<out PsiElement>?
     ): TechnoProductExchangeStub {
         val fqn = psi.getProductRef().getFullyQualifiedName()
         return TechnoProductExchangeStubImpl(
-            parentStub as StubElement<PsiTechnoProductExchange>,
+            parentStub as StubElement<LcaTechnoProductExchange>,
             fqn,
         )
     }
 
-    override fun createPsi(stub: TechnoProductExchangeStub): PsiTechnoProductExchange {
+    override fun createPsi(stub: TechnoProductExchangeStub): LcaTechnoProductExchange {
         return LcaTechnoProductExchangeImpl(stub, this)
     }
 
