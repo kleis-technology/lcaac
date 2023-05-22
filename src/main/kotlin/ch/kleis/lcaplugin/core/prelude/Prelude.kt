@@ -25,6 +25,16 @@ class Prelude {
         val person_distance = none.multiply(length)
         val mass_time = mass.multiply(time)
         val volume_time = volume.multiply(time)
+
+        private val primitiveDimensionMap = listOf(
+            mass,
+            length,
+            energy,
+            time,
+            radioactivity,
+        ).associateBy { it.toString() }
+        val primitiveDimensions = Register.from(primitiveDimensionMap)
+
         val unitMap = listOf(
             EUnitLiteral("u", 1.0, none),
             EUnitLiteral("piece", 1.0, none),

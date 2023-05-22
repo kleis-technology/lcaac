@@ -60,6 +60,15 @@ class LcaLangAbstractParser(
                     .asIterable()
             )
 
+        val dimensions = Register(Prelude.primitiveDimensions)
+            .plus(
+                unitDefinitions
+                    .filter { it.getType() == UnitDefinitionType.LITERAL }
+                    .map { it.getDimensionField().getValue() to Dimension.of(it.getDimensionField().getValue()) }
+                    .asIterable()
+            )
+
+
         val processTemplates = Register.empty<EProcessTemplate>()
             .plus(
                 processDefinitions
@@ -78,6 +87,7 @@ class LcaLangAbstractParser(
             quantities = globals,
             processTemplates = processTemplates,
             units = units,
+            dimensions = dimensions,
             substanceCharacterizations = substanceCharacterizations,
         )
     }
@@ -221,7 +231,12 @@ class LcaLangAbstractParser(
         ETechnoExchange(
             quantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
-                .copy(referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantityExpression(psiExchange.getQuantity())))),
+                .copy(
+                    referenceUnit = EUnitClosure(
+                        symbolTable,
+                        EUnitOf(quantityExpression(psiExchange.getQuantity()))
+                    )
+                ),
             EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
 

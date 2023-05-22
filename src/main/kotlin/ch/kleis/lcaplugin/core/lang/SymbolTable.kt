@@ -19,6 +19,7 @@ private data class SubstanceKey(
 data class SymbolTable(
         val quantities: Register<QuantityExpression> = Register.empty(),
         val units: Register<UnitExpression> = Register.empty(),
+        val dimensions: Register<Dimension> = Register.empty(),
         val processTemplates: Register<EProcessTemplate> = Register.empty(),
         val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
