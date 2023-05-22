@@ -14,6 +14,7 @@ import com.intellij.psi.ResolveState
 import com.intellij.psi.StubBasedPsiElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner, BlockMetaOwner {
     fun getProcessTemplateRef(): PsiProcessTemplateRef {
@@ -34,9 +35,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
     }
 
     fun getParameters(): Map<String, LcaQuantityExpression> {
-        return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
-            .map { it.psi as PsiParameters }
-            .flatMap { it.getEntries() }
+        return PsiTreeUtil.findChildrenOfType(this, LcaParams::class.java)
+            .flatMap {
+                it.assignmentList.map { a ->
+                    a.getQuantityRef().name to a.getValue()
+                }
+            }
             .toMap()
     }
 
@@ -82,9 +86,8 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .map { it.psi as PsiVariables }
     }
 
-    fun getPsiParametersBlocks(): Collection<PsiParameters> {
-        return node.getChildren(TokenSet.create(LcaTypes.PARAMS))
-            .map { it.psi as PsiParameters }
+    fun getLcaParams(): Collection<LcaParams> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaParams::class.java)
     }
 
     override fun processDeclarations(
@@ -99,7 +102,7 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             }
         }
 
-        for (block in getPsiParametersBlocks()) {
+        for (block in getLcaParams()) {
             if (!processor.execute(block, state)) {
                 return false
             }

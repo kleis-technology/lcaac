@@ -77,8 +77,8 @@ class QuantityReferenceTest : BasePlatformTestCase() {
 
         // then
         val expected = ProcessStubKeyIndex.findProcesses(project, "$pkgName.called").first()
-            .getPsiParametersBlocks().first()
-            .getAssignments().first()
+            .getLcaParams().first()
+            .assignmentList.first()
         TestCase.assertEquals(expected, actual)
     }
 }

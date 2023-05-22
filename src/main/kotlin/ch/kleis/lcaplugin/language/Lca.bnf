@@ -190,10 +190,7 @@ LBRACE (
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub"
 }
 
-params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.PsiParameters"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiParametersMixin"
-}
+params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE
 
 variables ::= VARIABLES_KEYWORD LBRACE assignment* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiVariables"]

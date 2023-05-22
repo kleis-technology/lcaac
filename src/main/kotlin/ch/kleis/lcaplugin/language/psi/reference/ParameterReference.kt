@@ -1,11 +1,11 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
-import ch.kleis.lcaplugin.language.psi.type.PsiParameters
-import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import ch.kleis.lcaplugin.psi.LcaParams
+import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 
@@ -45,17 +45,17 @@ class ParameterReference(
         return findContainingFromProcessConstraint()?.getProcessTemplateRef()
     }
 
-    private fun resolveProcess(): PsiProcess? {
-        return findTemplateRef()?.reference?.resolve() as PsiProcess?
+    private fun resolveProcess(): LcaProcess? {
+        return findTemplateRef()?.reference?.resolve() as LcaProcess?
     }
 
-    private fun findParameters(psiProcess: PsiProcess): List<PsiElementResolveResult> {
-        return psiProcess.getPsiParametersBlocks()
+    private fun findParameters(process: LcaProcess): List<PsiElementResolveResult> {
+        return process.paramsList
             .flatMap { filterAndMap(it) }
     }
 
-    private fun filterAndMap(parameters: PsiParameters): List<PsiElementResolveResult> {
-        return parameters.getAssignments()
+    private fun filterAndMap(parameters: LcaParams): List<PsiElementResolveResult> {
+        return parameters.assignmentList
             .mapNotNull { assignment ->
                 assignment
                     .takeIf { it.getQuantityRef().name == element.name }
