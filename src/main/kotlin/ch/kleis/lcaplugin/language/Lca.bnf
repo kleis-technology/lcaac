@@ -164,8 +164,8 @@ symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
 }
 
 aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantityExpression {
-        implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiAliasForField"]
-        mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAliasForFieldMixin"
+        implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiQuantityField"]
+        mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiQuantityFieldMixin"
 }
 
 

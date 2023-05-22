@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.type.unit
 
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStub
-import ch.kleis.lcaplugin.language.psi.type.field.PsiAliasForField
+import ch.kleis.lcaplugin.language.psi.type.field.PsiQuantityField
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
 import ch.kleis.lcaplugin.psi.LcaTypes
@@ -39,8 +39,8 @@ interface PsiUnitDefinition : PsiNameIdentifierOwner, StubBasedPsiElement<UnitSt
         return node.findChildByType(LcaTypes.DIM_FIELD)?.psi as PsiStringLiteralField
     }
 
-    fun getAliasForField(): PsiAliasForField {
-        return node.findChildByType(LcaTypes.ALIAS_FOR_FIELD)?.psi as PsiAliasForField
+    fun getAliasForField(): PsiQuantityField {
+        return node.findChildByType(LcaTypes.ALIAS_FOR_FIELD)?.psi as PsiQuantityField
     }
 
     fun getType(): UnitDefinitionType {
