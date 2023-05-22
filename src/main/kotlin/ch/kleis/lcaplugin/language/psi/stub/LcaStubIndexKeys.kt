@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaSubstance
 import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
+import ch.kleis.lcaplugin.psi.LcaUnitDefinition
 import com.intellij.psi.stubs.StubIndexKey
 
 object LcaStubIndexKeys {
@@ -18,7 +19,7 @@ object LcaStubIndexKeys {
     val PROCESSES: StubIndexKey<String, LcaProcess> =
         StubIndexKey.createIndexKey("lca.processes")
 
-    val UNITS: StubIndexKey<String, PsiUnitDefinition> =
+    val UNITS: StubIndexKey<String, LcaUnitDefinition> =
         StubIndexKey.createIndexKey("lca.units")
 
     val GLOBAL_ASSIGNMENTS: StubIndexKey<String, PsiGlobalAssignment> =

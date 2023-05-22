@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.stub.unit
 
 import ch.kleis.lcaplugin.LcaLanguage
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaUnitDefinition
 import ch.kleis.lcaplugin.psi.impl.LcaUnitDefinitionImpl
 import com.intellij.lang.LighterAST
 import com.intellij.lang.LighterASTNode
@@ -11,7 +11,7 @@ import com.intellij.psi.stubs.*
 
 class UnitElementType(debugName: String) : ILightStubElementType<
         UnitStub,
-        PsiUnitDefinition
+    LcaUnitDefinition
         >(
     debugName,
     LcaLanguage.INSTANCE
@@ -22,7 +22,7 @@ class UnitElementType(debugName: String) : ILightStubElementType<
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): UnitStub {
-        return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, dataStream.readNameString()!!)
+        return UnitStubImpl(parentStub as StubElement<LcaUnitDefinition>, dataStream.readNameString()!!)
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): UnitStub {
@@ -30,12 +30,12 @@ class UnitElementType(debugName: String) : ILightStubElementType<
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun createStub(psi: PsiUnitDefinition, parentStub: StubElement<out PsiElement>?): UnitStub {
+    override fun createStub(psi: LcaUnitDefinition, parentStub: StubElement<out PsiElement>?): UnitStub {
         val fqn = psi.getUnitRef().getFullyQualifiedName()
-        return UnitStubImpl(parentStub as StubElement<PsiUnitDefinition>, fqn)
+        return UnitStubImpl(parentStub as StubElement<LcaUnitDefinition>, fqn)
     }
 
-    override fun createPsi(stub: UnitStub): PsiUnitDefinition {
+    override fun createPsi(stub: UnitStub): LcaUnitDefinition {
         return LcaUnitDefinitionImpl(stub, this)
     }
 
