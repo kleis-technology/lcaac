@@ -3,10 +3,15 @@ package ch.kleis.lcaplugin.language.psi.reference
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class QuantityReferenceTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
@@ -25,11 +30,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getProducts().first()
-            .getQuantity()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
+            .getQuantity() as LcaQuantityRef
 
         // when
         val actual = ref.reference.resolve()
@@ -46,12 +47,10 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.quantity.test_resolve_whenFromUnitDefinition"
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
-        val ref = process.getProducts().first()
-            .getQuantity()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
+        val assignment = process
+            .getProducts().first()
+            .getQuantity() as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
 
         // when
         val actual = ref.reference.resolve()

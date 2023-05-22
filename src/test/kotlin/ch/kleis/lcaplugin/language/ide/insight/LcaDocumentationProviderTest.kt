@@ -3,12 +3,16 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.jetbrains.rd.util.first
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaDocumentationProviderTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return ""
@@ -154,12 +158,11 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first()
-            .getParameters().first().value
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef() as LcaQuantityRef
+        val assignment = file
+            .getProcesses().first()
+            .getParameters().first()
+            .value as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -206,12 +209,11 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first()
-            .getParameters().first().value
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef() as LcaQuantityRef
+        val assignment = file
+            .getProcesses().first()
+            .getParameters().first()
+            .value as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -257,12 +259,11 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first()
-            .getParameters().first().value
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef() as LcaQuantityRef
+        val assignment: LcaScaleQuantityExpression = file
+            .getProcesses().first()
+            .getParameters().first()
+            .value as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -308,12 +309,11 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first()
-            .getParameters().first().value
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef() as LcaQuantityRef
+        val assignment = file
+            .getProcesses().first()
+            .getParameters().first()
+            .value as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -359,12 +359,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first()
-            .getParameters()["yield"]!!
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef() as LcaQuantityRef
+        val assignment = file
+            .getProcesses().first()
+            .getParameters()["yield"]!! as LcaScaleQuantityExpression
+        val ref = assignment.quantityExpression!! as LcaQuantityRef
         val sut = LcaDocumentationProvider()
 
         // When

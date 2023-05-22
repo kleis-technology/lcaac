@@ -1,18 +1,19 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.quantity.PsiQuantity
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
+import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiAssignment : PsiNameIdentifierOwner {
     fun getQuantityRef(): PsiQuantityRef {
         return node.findChildByType(LcaTypes.QUANTITY_REF)?.psi as PsiQuantityRef
     }
 
-    fun getValue(): PsiQuantity {
-        return node.findChildByType(LcaTypes.QUANTITY)?.psi as PsiQuantity
+    fun getValue(): LcaQuantityExpression {
+        return PsiTreeUtil.findChildrenOfType(this, LcaQuantityExpression::class.java).elementAt(1)
     }
 
     override fun getName(): String {

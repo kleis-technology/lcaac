@@ -19,7 +19,7 @@ class LcaQuantityAnnotator : Annotator {
         }
 
         val name = element.name
-        holder.newAnnotation(HighlightSeverity.WARNING, "unresolved quantity $name")
+        holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved quantity $name")
             .range(element)
             .highlightType(ProblemHighlightType.WARNING)
             .create()

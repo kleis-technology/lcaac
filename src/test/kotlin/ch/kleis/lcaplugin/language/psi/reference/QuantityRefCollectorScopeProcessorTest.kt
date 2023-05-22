@@ -1,11 +1,15 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
+import ch.kleis.lcaplugin.psi.LcaQuantityRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.ui.naturalSorted
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
@@ -50,11 +54,7 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
         )
         val process = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val target = process.getInputs().first()
-            .getQuantity()
-            .getTerm()
-            .getFactor()
-            .getPrimitive()
-            .getRef()
+            .getQuantity() as LcaQuantityRef
 
         // when
         val actual = target.reference.variants

@@ -16,23 +16,38 @@ import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import junit.framework.TestCase
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 import kotlin.test.assertFailsWith
 
+@RunWith(JUnit4::class)
 class E2ETest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "testdata"
     }
 
+    @Test
     fun test_exponentiationPriority() {
         // given
         val pkgName = "test_exponentiationPriority"
         val vf = myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
-                
+
                 variables {
                     x = 10 m^2
+                }
+
+                process p {
+                    products {
+                        1 kg foo
+                    }
+                    inputs {
+                        2 x^2 bar
+                    }
                 }
             """.trimIndent()
         )
@@ -41,15 +56,15 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val x = symbolTable.quantities["x"]!!
         val reducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
+        val expr = symbolTable.processTemplates["p"]!!.body.inputs.first().quantity
 
         // when
-        val actual = reducer.reduce(x)
+        val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityLiteral(10.0, EUnitLiteral("m^(2.0)", 1.0, Prelude.area))
-        assertEquals(expected, actual)
+        val expected = EQuantityLiteral(200.0, EUnitLiteral("m^(2.0)^(2.0)", 1.0, Prelude.length.pow(4.0)))
+        TestCase.assertEquals(expected, actual)
     }
 
 

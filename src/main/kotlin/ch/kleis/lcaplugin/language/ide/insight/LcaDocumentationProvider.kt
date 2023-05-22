@@ -105,7 +105,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
         lcaProcess?.paramsList?.flatMap { it.assignmentList }
             ?.forEach {
-                addKeyValueSection("${it.name} = ", it.quantity.text, sb)
+                addKeyValueSection("${it.name} = ", it.getValue().text, sb)
             }
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
