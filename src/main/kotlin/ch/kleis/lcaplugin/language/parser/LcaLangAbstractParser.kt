@@ -12,7 +12,6 @@ import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
@@ -264,10 +263,10 @@ class LcaLangAbstractParser(
         return quantityExpression(element.quantityExpression)
     }
 
-    private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
+    private fun bioExchange(psiExchange: LcaBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
         return when (polarity) {
             Polarity.POSITIVE -> {
-                val quantity = quantityExpression(psiExchange.getQuantity())
+                val quantity = quantityExpression(psiExchange.quantityExpression)
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
@@ -275,7 +274,7 @@ class LcaLangAbstractParser(
             }
 
             Polarity.NEGATIVE -> {
-                val quantity = EQuantityNeg(quantityExpression(psiExchange.getQuantity()))
+                val quantity = EQuantityNeg(quantityExpression(psiExchange.quantityExpression))
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)

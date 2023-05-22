@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaQuantityRef
 import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.psi.PsiManager
@@ -511,7 +510,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val process = file.getProcesses().first() as LcaProcess
+        val process = file.getProcesses().first()
         val sut = LcaDocumentationProvider()
 
         // When
@@ -563,7 +562,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val process = file.getProcesses().first() as LcaProcess
+        val process = file.getProcesses().first()
         val sut = LcaDocumentationProvider()
 
         // When

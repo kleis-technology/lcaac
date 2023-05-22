@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.psi.*
@@ -51,19 +50,19 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.technoInputExchangeList }
     }
 
-    fun getEmissions(): Collection<PsiBioExchange> {
+    fun getEmissions(): Collection<LcaBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_EMISSIONS))
             .map { it.psi as LcaBlockEmissions }
             .flatMap { it.bioExchangeList }
     }
 
-    fun getLandUse(): Collection<PsiBioExchange> {
+    fun getLandUse(): Collection<LcaBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_LAND_USE))
             .map { it.psi as LcaBlockLandUse }
             .flatMap { it.bioExchangeList }
     }
 
-    fun getResources(): Collection<PsiBioExchange> {
+    fun getResources(): Collection<LcaBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_RESOURCES))
             .map { it.psi as LcaBlockResources }
             .flatMap { it.bioExchangeList }
@@ -71,9 +70,11 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
 
     fun getVariables(): Map<String, LcaQuantityExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
-            .flatMap { it.assignmentList.map { a ->
-                a.getQuantityRef().name to a.getValue()
-            } }
+            .flatMap {
+                it.assignmentList.map { a ->
+                    a.getQuantityRef().name to a.getValue()
+                }
+            }
             .toMap()
     }
 

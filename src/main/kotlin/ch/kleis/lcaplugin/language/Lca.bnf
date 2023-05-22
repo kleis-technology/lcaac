@@ -238,10 +238,7 @@ technoProductExchange ::= quantityExpression productRef allocateField? {
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub"
 }
 
-bioExchange ::= quantityExpression substanceSpec {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiBioExchangeMixin"
-}
+bioExchange ::= quantityExpression substanceSpec
 
 impactExchange ::= quantityExpression indicatorRef {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange"]
