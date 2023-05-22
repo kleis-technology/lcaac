@@ -203,10 +203,7 @@ assignment ::= quantityRef EQUAL quantityExpression {
     Blocks
  */
 
-block_products ::= PRODUCTS_KEYWORD LBRACE technoProductExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
-}
+block_products ::= PRODUCTS_KEYWORD LBRACE technoProductExchange* RBRACE
 
 block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE
 
