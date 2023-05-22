@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.language.psi.stub
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKey
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaGlobalAssignment
 import ch.kleis.lcaplugin.psi.LcaProcess
 import ch.kleis.lcaplugin.psi.LcaSubstance
 import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
@@ -22,6 +23,6 @@ object LcaStubIndexKeys {
     val UNITS: StubIndexKey<String, LcaUnitDefinition> =
         StubIndexKey.createIndexKey("lca.units")
 
-    val GLOBAL_ASSIGNMENTS: StubIndexKey<String, PsiGlobalAssignment> =
+    val GLOBAL_ASSIGNMENTS: StubIndexKey<String, LcaGlobalAssignment> =
         StubIndexKey.createIndexKey("lca.globalAssignments")
 }
