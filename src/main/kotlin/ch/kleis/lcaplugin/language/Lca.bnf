@@ -132,10 +132,7 @@ subCompartmentField ::= SUB_COMPARTMENT_KEYWORD EQUAL STRING_LITERAL {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
 
-block_meta ::= META_KEYWORD LBRACE meta_assignment* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockMeta"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockMetaMixin"
-}
+block_meta ::= META_KEYWORD LBRACE meta_assignment* RBRACE
 
 meta_assignment ::= STRING_LITERAL EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiMetaAssignment"]
