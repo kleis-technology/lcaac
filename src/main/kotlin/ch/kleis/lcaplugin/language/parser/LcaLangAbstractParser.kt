@@ -14,7 +14,6 @@ import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
@@ -218,10 +217,10 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
+    private fun technoInputExchange(psiExchange: LcaTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
-            quantityExpression(psiExchange.getQuantity()),
-            productSpec(psiExchange.getProductRef(), psiExchange.getFromProcessConstraint()),
+            quantityExpression(psiExchange.quantityExpression),
+            productSpec(psiExchange.productRef, psiExchange.fromProcessConstraint),
         )
     }
 

@@ -3,9 +3,9 @@ package ch.kleis.lcaplugin.language.ide.find_usage
 import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
+import ch.kleis.lcaplugin.psi.LcaTechnoInputExchange
 import ch.kleis.lcaplugin.psi.LcaTypes.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.cacheBuilder.WordsScanner
@@ -43,7 +43,7 @@ class LcaFindUsagesProvider : FindUsagesProvider {
     override fun getType(element: PsiElement): String =
         when (element) {
             is PsiSubstance -> "Substance"
-            is PsiTechnoInputExchange -> "Product"
+            is LcaTechnoInputExchange -> "Product"
             is PsiTechnoProductExchange -> "Product"
             is PsiUnitDefinition -> "Unit"
             is PsiGlobalAssignment -> "Quantity"

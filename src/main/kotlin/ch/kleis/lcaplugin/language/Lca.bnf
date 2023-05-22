@@ -219,11 +219,7 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
     Exchanges
  */
 
-technoInputExchange ::= quantityExpression productRef fromProcessConstraint? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoInputExchangeMixin"
-}
-
+technoInputExchange ::= quantityExpression productRef fromProcessConstraint?
 fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_arguments? RPAREN {
     pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint"]
@@ -236,6 +232,7 @@ argument ::= parameterRef EQUAL quantityExpression {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
 }
 
+// TODO: use PsiQuantityField
 allocateField ::= ALLOCATE_KEYWORD quantityExpression {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAllocateFieldMixin"

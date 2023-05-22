@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.psi.*
@@ -47,9 +46,8 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.technoProductExchangeList }
     }
 
-    fun getInputs(): Collection<PsiTechnoInputExchange> {
-        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_INPUTS))
-            .map { it.psi as LcaBlockInputs }
+    fun getInputs(): Collection<LcaTechnoInputExchange> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaBlockInputs::class.java)
             .flatMap { it.technoInputExchangeList }
     }
 
