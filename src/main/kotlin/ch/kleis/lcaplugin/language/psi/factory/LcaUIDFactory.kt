@@ -14,7 +14,7 @@ class LcaUIDFactory(
             }
         """.trimIndent()
         val file = createFile(content)
-        val varBlock = file.getLcaGlobalVariables().first()
+        val varBlock = file.getBlocksOfGlobalVariables().first()
         val assignment = varBlock.globalAssignmentList.first()
         return assignment.getQuantityRef().getUID()
     }
