@@ -225,20 +225,11 @@ block_inputs ::= INPUTS_KEYWORD LBRACE technoInputExchange* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockInputsMixin"
 }
 
-block_emissions ::= EMISSIONS_KEYWORD LBRACE bioExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockEmissionsMixin"
-}
+block_emissions ::= EMISSIONS_KEYWORD LBRACE bioExchange* RBRACE
 
-block_land_use ::= LAND_USE_KEYWORD LBRACE bioExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockLandUse"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockLandUseMixin"
-}
+block_land_use ::= LAND_USE_KEYWORD LBRACE bioExchange* RBRACE
 
-block_resources ::= RESOURCES_KEYWORD LBRACE bioExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockResources"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockResourcesMixin"
-}
+block_resources ::= RESOURCES_KEYWORD LBRACE bioExchange* RBRACE
 
 block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
 

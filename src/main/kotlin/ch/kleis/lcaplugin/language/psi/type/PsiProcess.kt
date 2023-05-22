@@ -1,14 +1,14 @@
 package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.type.block.*
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockInputs
+import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
-import ch.kleis.lcaplugin.psi.LcaQuantityExpression
-import ch.kleis.lcaplugin.psi.LcaTypes
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.ResolveState
@@ -55,20 +55,20 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
 
     fun getEmissions(): Collection<PsiBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_EMISSIONS))
-            .map { it.psi as PsiBlockEmissions }
-            .flatMap { it.getExchanges() }
+            .map { it.psi as LcaBlockEmissions }
+            .flatMap { it.bioExchangeList }
     }
 
     fun getLandUse(): Collection<PsiBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_LAND_USE))
-            .map { it.psi as PsiBlockLandUse }
-            .flatMap { it.getExchanges() }
+            .map { it.psi as LcaBlockLandUse }
+            .flatMap { it.bioExchangeList }
     }
 
     fun getResources(): Collection<PsiBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_RESOURCES))
-            .map { it.psi as PsiBlockResources }
-            .flatMap { it.getExchanges() }
+            .map { it.psi as LcaBlockResources }
+            .flatMap { it.bioExchangeList }
     }
 
     fun getVariables(): Map<String, LcaQuantityExpression> {
