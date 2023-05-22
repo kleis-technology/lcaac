@@ -66,7 +66,7 @@ class Register<E> private constructor(
             .take(20)
             .toSet()
         if (firstConflicts.isNotEmpty()) {
-            throw RegisterException(firstConflicts)
+            throw RegisterException(firstConflicts.take(10).toSet())
         }
         return Register(
             registerType,
