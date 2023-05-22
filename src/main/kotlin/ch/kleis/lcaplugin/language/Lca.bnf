@@ -224,10 +224,8 @@ fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_argum
 }
 
 private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
-argument ::= parameterRef EQUAL quantityExpression {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiArgumentMixin"
-}
+
+argument ::= parameterRef EQUAL quantityExpression
 
 allocateField ::= ALLOCATE_KEYWORD quantityExpression
 

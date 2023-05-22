@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.type
 
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiArgument
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import ch.kleis.lcaplugin.psi.LcaArgument
 import ch.kleis.lcaplugin.psi.LcaQuantityExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
@@ -14,11 +14,11 @@ interface PsiFromProcessConstraint : PsiElement {
 
     fun getArguments(): Map<String, LcaQuantityExpression> {
         return getPsiArguments()
-            .associate { it.name to it.getValue() }
+            .associate { it.parameterRef.name to it.quantityExpression }
     }
 
-    fun getPsiArguments(): Collection<PsiArgument> {
+    fun getPsiArguments(): Collection<LcaArgument> {
         return node.getChildren(TokenSet.create(LcaTypes.ARGUMENT))
-            .map { it.psi as PsiArgument }
+            .map { it.psi as LcaArgument }
     }
 }
