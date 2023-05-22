@@ -11,7 +11,10 @@ import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
-import ch.kleis.lcaplugin.language.psi.type.exchange.*
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
+import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
@@ -142,10 +145,7 @@ class LcaLangAbstractParser(
         psiProcess: PsiProcess,
         symbolTable: SymbolTable,
     ): List<ETechnoExchange> {
-        val productsWithoutAllocation = psiProcess.getProducts().map { technoProductExchange(it, symbolTable) }
-        val productsWithAllocation =
-            psiProcess.getProductsWithAllocation().map { technoProductExchangeWithAllocation(it, symbolTable) }
-        return productsWithAllocation.plus(productsWithoutAllocation)
+        return psiProcess.getProducts().map { technoProductExchange(it, symbolTable) }
     }
 
     private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
@@ -237,24 +237,13 @@ class LcaLangAbstractParser(
                         EUnitOf(quantityExpression(psiExchange.getQuantity()))
                     )
                 ),
-            EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+            psiExchange.getAllocateField()?.let { allocation(it) }
+                ?: EQuantityLiteral(100.0, Prelude.units["percent"]!!)
         )
 
-    private fun technoProductExchangeWithAllocation(
-        psiExchange: PsiTechnoProductExchangeWithAllocateField,
-        symbolTable: SymbolTable
-    ): ETechnoExchange =
-        ETechnoExchange(
-            quantityExpression(psiExchange.getTechnoProductExchange().getQuantity()),
-            productSpec(psiExchange.getTechnoProductExchange().getProductRef())
-                .copy(
-                    referenceUnit = EUnitClosure(
-                        symbolTable,
-                        EUnitOf(quantityExpression(psiExchange.getTechnoProductExchange().getQuantity()))
-                    )
-                ),
-            quantityExpression(psiExchange.getAllocateField().getValue())
-        )
+    private fun allocation(element: LcaAllocateField): QuantityExpression {
+        return quantityExpression(element.quantityExpression)
+    }
 
     private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
         return when (polarity) {

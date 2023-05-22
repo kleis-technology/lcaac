@@ -61,6 +61,9 @@
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaTechnoInputExchangeAnnotator"/>
         <annotator
                 language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProcessAnnotator"/>
+        <annotator
+                language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaFromProcessRefAnnotator"/>
         <annotator
                 language="LCA"

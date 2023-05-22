@@ -3,12 +3,12 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
-import ch.kleis.lcaplugin.psi.impl.LcaTechnoProductExchangeWithAllocateFieldImpl
 import com.intellij.lang.documentation.AbstractDocumentationProvider
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.richcopy.HtmlSyntaxInfoUtil
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.JBColor
 import java.awt.Font
 
@@ -35,10 +35,10 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
 
             is LcaTechnoProductExchange -> {
                 val sb = StringBuilder()
-                val processProducer = getProcessProducer(element)
-                documentProductTitle(sb, element.getProductRef(), processProducer)
-                documentBlockMetaOwner(sb, processProducer)
-                documentProcessParams(sb, processProducer)
+                val process = PsiTreeUtil.getParentOfType(element, LcaProcess::class.java)
+                documentProductTitle(sb, element.getProductRef(), process)
+                documentBlockMetaOwner(sb, process)
+                documentProcessParams(sb, process)
                 addSeparatorLine(sb)
                 sb.toString()
             }
@@ -228,10 +228,4 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }
 
-    private fun getProcessProducer(element: PsiElement): LcaProcess? {
-        if (element.parent is LcaTechnoProductExchangeWithAllocateFieldImpl) {
-            return element.parent.parent?.parent as LcaProcess?
-        }
-        return element.parent?.parent as LcaProcess?
-    }
 }

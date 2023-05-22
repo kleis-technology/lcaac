@@ -215,7 +215,7 @@ assignment ::= quantityRef EQUAL quantityExpression {
     Blocks
  */
 
-block_products ::= PRODUCTS_KEYWORD LBRACE (technoProductExchangeWithAllocateField+ | technoProductExchange?) RBRACE {
+block_products ::= PRODUCTS_KEYWORD LBRACE technoProductExchange* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockProducts"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockProductsMixin"
 }
@@ -271,16 +271,11 @@ allocateField ::= ALLOCATE_KEYWORD quantityExpression {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiAllocateFieldMixin"
 }
 
-technoProductExchange ::= quantityExpression productRef {
+technoProductExchange ::= quantityExpression productRef allocateField? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub"
-}
-
-technoProductExchangeWithAllocateField ::= technoProductExchange allocateField {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchangeWithAllocateField"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeWithAllocateFieldMixin"
 }
 
 bioExchange ::= quantityExpression substanceSpec {

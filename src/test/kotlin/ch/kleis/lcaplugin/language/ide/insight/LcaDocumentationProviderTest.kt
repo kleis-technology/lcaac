@@ -627,7 +627,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first().getProductsWithAllocation().first().getTechnoProductExchange()
+        val ref = file.getProcesses().first().getProducts().first()
         val sut = LcaDocumentationProvider()
         // When
         val actual = sut.generateDoc(ref, ref)
