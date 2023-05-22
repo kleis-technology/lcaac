@@ -240,10 +240,7 @@ block_resources ::= RESOURCES_KEYWORD LBRACE bioExchange* RBRACE {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockResourcesMixin"
 }
 
-block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE {
-    implements=["ch.kleis.lcaplugin.language.psi.type.block.PsiBlockImpacts"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.block.PsiBlockImpactsMixin"
-}
+block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
 
 /*
     Exchanges
