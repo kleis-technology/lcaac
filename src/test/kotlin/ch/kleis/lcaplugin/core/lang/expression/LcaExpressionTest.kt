@@ -24,7 +24,8 @@ class LcaExpressionTest {
         val name = "Bad"
 
         // When / then
-        assertFailsWith(EvaluatorException::class, "Invalid SubstanceType: Bad") { SubstanceType.of(name) }
+        val e = assertFailsWith(EvaluatorException::class, null) { SubstanceType.of(name) }
+        assertEquals("Invalid SubstanceType: Bad", e.message)
     }
 
 }

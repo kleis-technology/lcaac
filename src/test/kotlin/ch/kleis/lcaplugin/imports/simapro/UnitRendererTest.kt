@@ -188,7 +188,8 @@ class UnitRendererTest {
         val message = "A Unit kg for kg already exists with another dimension, time is not compatible with mass."
 
         // When + Then
-        assertFailsWith(ImportException::class, message) { sut.render(data, writer) }
+        val e = assertFailsWith(ImportException::class, null) { sut.render(data, writer) }
+        assertEquals(message, e.message)
     }
 
     @Test
@@ -202,7 +203,8 @@ class UnitRendererTest {
         val message = "Unit kg is referencing itself in its own declaration"
 
         // When + Then
-        assertFailsWith(ImportException::class, message) { sut.render(data, writer) }
+        val e = assertFailsWith(ImportException::class, null) { sut.render(data, writer) }
+        assertEquals(message, e.message)
     }
 
     @Test

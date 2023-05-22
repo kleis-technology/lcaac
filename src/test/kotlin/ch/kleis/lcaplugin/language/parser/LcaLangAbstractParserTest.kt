@@ -38,8 +38,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        // TODO: nicer message for user
-        assertFailsWith(EvaluatorException::class, "[foo] are already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("[foo] are already bound", e.message)
     }
 
     @Test
@@ -58,7 +58,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "[mass] are already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("[mass] are already bound", e.message)
     }
 
     @Test
@@ -247,7 +248,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "[a] are already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("[a] are already bound", e.message)
     }
 
     @Test
@@ -272,7 +274,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "x is already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("x is already bound", e.message)
     }
 
     @Test
@@ -307,7 +310,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "[x] are already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("[x] are already bound", e.message)
     }
 
     @Test
@@ -334,7 +338,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when/then
-        assertFailsWith(EvaluatorException::class, "[a] are already bound") { parser.load() }
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("[a] are already bound", e.message)
     }
 
     @Test
