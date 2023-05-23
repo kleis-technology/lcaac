@@ -290,7 +290,7 @@ unitPrimitive ::=
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
 }
 
-unitDefinition ::= UNIT_KEYWORD unitRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
+unitDefinition ::= UNIT_KEYWORD quantityRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitDefinitionMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"
