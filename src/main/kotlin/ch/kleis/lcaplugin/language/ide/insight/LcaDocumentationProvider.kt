@@ -178,7 +178,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         addKeyValueSection("Type", element.getTypeField().getValue(), sb)
         addKeyValueSection("Compartment", element.getCompartmentField().getValue(), sb)
         addKeyValueSection("Sub-Compartment", element.getSubcompartmentField()?.getValue(), sb)
-        addKeyValueSection("Reference Unit", element.getReferenceUnitField().getValue().text, sb)
+        addKeyValueSection("Reference Unit", element.getReferenceUnitField().quantityExpression.text, sb)
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }

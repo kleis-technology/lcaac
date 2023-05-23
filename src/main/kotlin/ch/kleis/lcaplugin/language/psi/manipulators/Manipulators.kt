@@ -20,7 +20,6 @@ class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiQuantityRef>()
 class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
-class PsiUnitRefManipulator : PsiUIDOwnerManipulator<PsiUnitRef>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 
 class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>() {

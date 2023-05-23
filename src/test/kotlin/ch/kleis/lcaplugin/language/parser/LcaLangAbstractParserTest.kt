@@ -230,7 +230,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         assertEquals("carbon dioxide", actual.displayName)
         assertEquals("air", actual.compartment)
         assertEquals("low pop", actual.subCompartment)
-        assertEquals(EUnitRef("kg"), actual.referenceUnit)
+        assertEquals(EUnitOf(EQuantityRef("kg")), actual.referenceUnit)
     }
 
     @Test
@@ -452,8 +452,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                             "carrot",
                             EUnitClosure(
                                 preludeSymbolTable, EUnitOf(
-                                    EQuantityScale(1.0, EQuantityRef("kg")),
-                                )
+                                EQuantityScale(1.0, EQuantityRef("kg")),
+                            )
                             )
                         ),
                     ),
@@ -500,10 +500,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EUnitDiv(
-            EUnitRef("x"),
-            EUnitRef("y"),
-        )
+        val expected = EUnitOf(EQuantityDiv(
+            EQuantityRef("x"),
+            EQuantityRef("y"),
+        ))
         assertEquals(expected, actual)
     }
 
@@ -537,10 +537,10 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EUnitMul(
-            EUnitRef("x"),
-            EUnitRef("y"),
-        )
+        val expected = EUnitOf(EQuantityMul(
+            EQuantityRef("x"),
+            EQuantityRef("y"),
+        ))
         assertEquals(expected, actual)
     }
 
@@ -687,13 +687,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val expected = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
-                EQuantityLiteral(1.0, EUnitRef("kg")),
+                EQuantityRef("kg"),
                 ESubstanceSpec(
                     name = "phosphate",
                     type = SubstanceType.RESOURCE,
                     compartment = "phosphate compartment",
                     subCompartment = "phosphate sub-compartment",
-                    referenceUnit = EUnitRef("kg"),
+                    referenceUnit = EUnitOf(EQuantityRef("kg")),
                 ),
             ),
             impacts = listOf(
