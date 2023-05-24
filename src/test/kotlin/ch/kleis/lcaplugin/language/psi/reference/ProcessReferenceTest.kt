@@ -5,7 +5,10 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class ProcessReferenceTest : BasePlatformTestCase() {
     override fun setUp() {
         super.setUp()
@@ -17,8 +20,8 @@ class ProcessReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.proc.test_resolve"
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getProcessTemplateRef()
+            .fromProcessConstraint!!
+            .processTemplateRef!!
 
         // when
         val actual = ref.reference.resolve()
@@ -35,8 +38,8 @@ class ProcessReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.proc.test_resolve"
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getProcessTemplateRef()
+            .fromProcessConstraint!!
+            .processTemplateRef!!
 
         // when
         val actual =

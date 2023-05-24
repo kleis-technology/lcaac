@@ -282,10 +282,6 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_withConstraintFromProcess_shouldReduceProductAndArguments() {
         // given
-        val carrot = EProductSpec(
-            "carrot",
-            EUnitRef("kg"),
-        )
         val expression = EProductSpec(
             "carrot",
             UnitFixture.kg,

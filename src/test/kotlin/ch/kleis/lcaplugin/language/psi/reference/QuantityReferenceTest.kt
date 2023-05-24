@@ -68,17 +68,17 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process
             .getInputs().first()
-            .getFromProcessConstraint()!!
-            .getPsiArguments().first()
-            .getParameterRef()
+            .fromProcessConstraint!!
+            .argumentList.first()
+            .parameterRef
 
         // when
         val actual = ref.reference.resolve()
 
         // then
         val expected = ProcessStubKeyIndex.findProcesses(project, "$pkgName.called").first()
-            .getPsiParametersBlocks().first()
-            .getAssignments().first()
+            .getLcaParams().first()
+            .assignmentList.first()
         TestCase.assertEquals(expected, actual)
     }
 }

@@ -2,17 +2,14 @@ package ch.kleis.lcaplugin.language.psi
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
-import ch.kleis.lcaplugin.language.psi.type.*
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import ch.kleis.lcaplugin.psi.LcaQuantityExpression
-import ch.kleis.lcaplugin.psi.LcaTypes
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiElement
 import com.intellij.psi.ResolveState
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 
 class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLanguage.INSTANCE) {
     override fun getFileType(): FileType {
@@ -24,39 +21,36 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     }
 
     fun getPackageName(): String {
-        return (node.findChildByType(LcaTypes.PACKAGE)?.psi as PsiPackage?)?.name
+        return PsiTreeUtil.findChildOfType(this, LcaPackage::class.java)?.name
             ?: "default"
     }
 
-    fun getImports(): Collection<PsiImport> {
-        return node.getChildren(TokenSet.create(LcaTypes.IMPORT))
-            .map { it.psi as PsiImport }
+    fun getImports(): Collection<LcaImport> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java)
     }
 
-    fun getProcesses(): Collection<PsiProcess> {
-        return node.getChildren(TokenSet.create(LcaTypes.PROCESS))
-            .map { it.psi as PsiProcess }
+    fun getProcesses(): Collection<LcaProcess> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaProcess::class.java)
     }
 
-    fun getSubstances(): Collection<PsiSubstance> {
-        return node.getChildren(TokenSet.create(LcaTypes.SUBSTANCE))
-            .map { it.psi as PsiSubstance }
+    fun getSubstances(): Collection<LcaSubstance> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaSubstance::class.java)
     }
 
     fun getGlobalAssignments(): Collection<Pair<String, LcaQuantityExpression>> {
-        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
-            .map { it.psi as PsiGlobalVariables }
-            .flatMap { it.getEntries() }
+        return PsiTreeUtil.findChildrenOfType(this, LcaGlobalVariables::class.java)
+            .flatMap {
+                it.globalAssignmentList
+                    .map { a -> a.getQuantityRef().name to a.getValue() }
+            }
     }
 
-    fun getUnitDefinitions(): Collection<PsiUnitDefinition> {
-        return node.getChildren(TokenSet.create(LcaTypes.UNIT_DEFINITION))
-            .map { it.psi as PsiUnitDefinition }
+    fun getUnitDefinitions(): Collection<LcaUnitDefinition> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaUnitDefinition::class.java)
     }
 
-    fun getPsiGlobalVariablesBlocks(): Collection<PsiGlobalVariables> {
-        return node.getChildren(TokenSet.create(LcaTypes.GLOBAL_VARIABLES))
-            .map { it.psi as PsiGlobalVariables }
+    fun getBlocksOfGlobalVariables(): Collection<LcaGlobalVariables> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaGlobalVariables::class.java)
     }
 
     override fun processDeclarations(
@@ -65,7 +59,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
-        for (block in getPsiGlobalVariablesBlocks()) {
+        for (block in getBlocksOfGlobalVariables()) {
             if (!processor.execute(block, state)) {
                 return false
             }

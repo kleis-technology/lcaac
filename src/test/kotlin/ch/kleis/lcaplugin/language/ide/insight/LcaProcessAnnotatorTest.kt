@@ -1,14 +1,16 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 
+@RunWith(JUnit4::class)
 class LcaProcessAnnotatorTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
@@ -33,7 +35,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first() as LcaProcess
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val mock = AnnotationHolderMock()
         val annotator = LcaProcessAnnotator()
 
@@ -67,7 +69,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first() as LcaProcess
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val mock = AnnotationHolderMock()
         val annotator = LcaProcessAnnotator()
 
@@ -97,7 +99,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first() as LcaProcess
+        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val mock = AnnotationHolderMock()
         val annotator = LcaProcessAnnotator()
 

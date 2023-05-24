@@ -5,8 +5,11 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 
+@RunWith(JUnit4::class)
 class ParameterReferenceTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
@@ -46,9 +49,9 @@ class ParameterReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.p"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getInputs().first()
-            .getFromProcessConstraint()!!
-            .getPsiArguments().first()
-            .getParameterRef()
+            .fromProcessConstraint!!
+            .argumentList.first()
+            .parameterRef
 
         // when
         val actual =
@@ -93,17 +96,17 @@ class ParameterReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.p"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getInputs().first()
-            .getFromProcessConstraint()!!
-            .getPsiArguments().first()
-            .getParameterRef()
+            .fromProcessConstraint!!
+            .argumentList.first()
+            .parameterRef
 
         // when
         val actual = ref.reference.resolve()
 
         // then
         val expected = ProcessStubKeyIndex.findProcesses(project, "$pkgName.water_prod").first()
-            .getPsiParametersBlocks().first()
-            .getAssignments().first()
+            .getLcaParams().first()
+            .assignmentList.first()
         TestCase.assertEquals(expected, actual)
     }
 }

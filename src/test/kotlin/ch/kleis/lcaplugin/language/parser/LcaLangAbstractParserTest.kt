@@ -160,8 +160,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         ) as LcaFile
 
         // when
-        val actual = file.getPsiGlobalVariablesBlocks().first()
-            .getGlobalAssignments().first().getQuantityRef().getUID()
+        val actual = file.getBlocksOfGlobalVariables().first()
+            .globalAssignmentList.first().getQuantityRef().getUID()
 
         // then
         val expected = "_1kg"
@@ -452,8 +452,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                             "carrot",
                             EUnitClosure(
                                 preludeSymbolTable, EUnitOf(
-                                EQuantityScale(1.0, EQuantityRef("kg")),
-                            )
+                                    EQuantityScale(1.0, EQuantityRef("kg")),
+                                )
                             )
                         ),
                     ),

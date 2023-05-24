@@ -2,11 +2,11 @@ package ch.kleis.lcaplugin.language.psi.type.spec
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.language.psi.reference.SubstanceReferenceFromPsiSubstanceSpec
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockEmissions
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockLandUse
-import ch.kleis.lcaplugin.language.psi.type.block.PsiBlockResources
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
+import ch.kleis.lcaplugin.psi.LcaBlockEmissions
+import ch.kleis.lcaplugin.psi.LcaBlockLandUse
+import ch.kleis.lcaplugin.psi.LcaBlockResources
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.util.PsiTreeUtil
 
@@ -16,9 +16,9 @@ interface PsiSubstanceSpec : PsiUIDOwner {
     }
 
     fun getType(): SubstanceType? {
-        return PsiTreeUtil.findFirstParent(this) { p -> p is PsiBlockEmissions }?.let { SubstanceType.EMISSION }
-            ?: PsiTreeUtil.findFirstParent(this) { p -> p is PsiBlockResources }?.let { SubstanceType.RESOURCE }
-            ?: PsiTreeUtil.findFirstParent(this) { p -> p is PsiBlockLandUse }?.let { SubstanceType.LAND_USE }
+        return PsiTreeUtil.findFirstParent(this) { p -> p is LcaBlockEmissions }?.let { SubstanceType.EMISSION }
+            ?: PsiTreeUtil.findFirstParent(this) { p -> p is LcaBlockResources }?.let { SubstanceType.RESOURCE }
+            ?: PsiTreeUtil.findFirstParent(this) { p -> p is LcaBlockLandUse }?.let { SubstanceType.LAND_USE }
     }
 
     fun getCompartmentField(): PsiStringLiteralField? {

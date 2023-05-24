@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.psi.type.exchange
 
-import ch.kleis.lcaplugin.language.psi.type.field.PsiAllocateField
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.psi.LcaAllocateField
 import ch.kleis.lcaplugin.psi.LcaQuantityExpression

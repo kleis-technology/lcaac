@@ -54,7 +54,7 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
         )
         val process = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val target = process.getInputs().first()
-            .getQuantity() as LcaQuantityRef
+            .quantityExpression as LcaQuantityRef
 
         // when
         val actual = target.reference.variants

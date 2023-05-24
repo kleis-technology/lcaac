@@ -8,13 +8,9 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.language.psi.type.PsiFromProcessConstraint
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.enums.MultiplicativeOperationType
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiImpactExchange
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoInputExchange
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
@@ -126,7 +122,7 @@ class LcaLangAbstractParser(
     private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
-            quantityExpression(psiUnitAlias.getAliasForField().getValue())
+            quantityExpression(psiUnitAlias.getAliasForField().quantityExpression)
         )
     }
 
@@ -205,10 +201,10 @@ class LcaLangAbstractParser(
         )
 
 
-    private fun impact(exchange: PsiImpactExchange): EImpact {
+    private fun impact(exchange: LcaImpactExchange): EImpact {
         return EImpact(
-            quantityExpression(exchange.getQuantity()),
-            indicatorSpec(exchange.getIndicatorRef()),
+            quantityExpression(exchange.quantityExpression),
+            indicatorSpec(exchange.indicatorRef),
         )
     }
 
@@ -218,16 +214,16 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun technoInputExchange(psiExchange: PsiTechnoInputExchange): ETechnoExchange {
+    private fun technoInputExchange(psiExchange: LcaTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
-            quantityExpression(psiExchange.getQuantity()),
-            productSpec(psiExchange.getProductRef(), psiExchange.getFromProcessConstraint()),
+            quantityExpression(psiExchange.quantityExpression),
+            productSpec(psiExchange.productRef, psiExchange.fromProcessConstraint),
         )
     }
 
     private fun productSpec(
         psiProductRef: PsiProductRef,
-        psiFromProcessConstraint: PsiFromProcessConstraint? = null,
+        psiFromProcessConstraint: LcaFromProcessConstraint? = null,
     ): EProductSpec {
         return EProductSpec(
             psiProductRef.name,
@@ -235,11 +231,13 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun fromProcessRef(psiFromProcessConstraint: PsiFromProcessConstraint?): FromProcessRef? {
+    private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcessRef? {
         return psiFromProcessConstraint?.let {
             FromProcessRef(
-                ref = it.getProcessTemplateRef().name,
-                arguments = psiFromProcessConstraint.getArguments().mapValues { q -> quantityExpression(q.value) },
+                ref = it.processTemplateRef!!.name,
+                arguments = psiFromProcessConstraint
+                    .argumentList
+                    .associate { arg -> arg.parameterRef.name to quantityExpression(arg.quantityExpression) }
             )
         }
     }
@@ -265,21 +263,21 @@ class LcaLangAbstractParser(
         return quantityExpression(element.quantityExpression)
     }
 
-    private fun bioExchange(psiExchange: PsiBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
+    private fun bioExchange(psiExchange: LcaBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
         return when (polarity) {
             Polarity.POSITIVE -> {
-                val quantity = quantityExpression(psiExchange.getQuantity())
+                val quantity = quantityExpression(psiExchange.quantityExpression)
                 EBioExchange(
                     quantity,
-                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
                 )
             }
 
             Polarity.NEGATIVE -> {
-                val quantity = EQuantityNeg(quantityExpression(psiExchange.getQuantity()))
+                val quantity = EQuantityNeg(quantityExpression(psiExchange.quantityExpression))
                 EBioExchange(
                     quantity,
-                    substanceSpec(psiExchange.getSubstanceSpec(), quantity, symbolTable)
+                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
                 )
             }
         }

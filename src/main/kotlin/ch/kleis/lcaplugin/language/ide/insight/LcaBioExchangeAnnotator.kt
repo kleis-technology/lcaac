@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiBioExchange
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
+import ch.kleis.lcaplugin.psi.LcaBioExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
@@ -11,13 +11,13 @@ import com.intellij.psi.PsiElement
 
 class LcaBioExchangeAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (element !is PsiBioExchange) {
+        if (element !is LcaBioExchange) {
             return
         }
 
-        val target = element.getSubstanceSpec().reference.resolve()
+        val target = element.substanceSpec.reference.resolve()
         if (target == null || target !is PsiSubstance) {
-            val spec = element.getSubstanceSpec()
+            val spec = element.substanceSpec
             holder.newAnnotation(HighlightSeverity.WARNING, "unresolved substance ${render(spec)}")
                 .range(spec)
                 .highlightType(ProblemHighlightType.WARNING)

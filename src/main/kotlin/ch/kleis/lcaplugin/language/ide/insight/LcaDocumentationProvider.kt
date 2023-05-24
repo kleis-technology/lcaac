@@ -148,7 +148,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
             addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
         }
         if (element.getType() == UnitDefinitionType.ALIAS) {
-            addKeyValueSection("Alias for", element.getAliasForField().getValue().text, sb)
+            addKeyValueSection("Alias for", element.getAliasForField().quantityExpression.text, sb)
         }
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")

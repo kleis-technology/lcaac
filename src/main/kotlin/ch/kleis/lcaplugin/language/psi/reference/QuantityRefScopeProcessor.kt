@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.type.PsiParameters
-import ch.kleis.lcaplugin.language.psi.type.PsiVariables
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.psi.LcaParams
+import ch.kleis.lcaplugin.psi.LcaVariables
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.ResolveState
@@ -15,12 +15,12 @@ interface QuantityRefScopeProcessor : PsiScopeProcessor {
 class QuantityRefCollectorScopeProcessor : QuantityRefScopeProcessor {
     private var results: MutableSet<PsiNameIdentifierOwner> = mutableSetOf()
     override fun execute(element: PsiElement, state: ResolveState): Boolean {
-        if (element is PsiVariables) {
-            results.addAll(element.getAssignments())
+        if (element is LcaVariables) {
+            results.addAll(element.assignmentList)
         }
 
-        if (element is PsiParameters) {
-            results.addAll(element.getAssignments())
+        if (element is LcaParams) {
+            results.addAll(element.assignmentList)
         }
 
         return true
@@ -37,12 +37,12 @@ class QuantityRefExactNameMatcherScopeProcessor(
     private var results: Set<PsiNameIdentifierOwner> = emptySet()
 
     override fun execute(element: PsiElement, state: ResolveState): Boolean {
-        if (element is PsiVariables) {
-            return checkDecl(element.getAssignments())
+        if (element is LcaVariables) {
+            return checkDecl(element.assignmentList)
         }
 
-        if (element is PsiParameters) {
-            return checkDecl(element.getAssignments())
+        if (element is LcaParams) {
+            return checkDecl(element.assignmentList)
         }
 
         return true
