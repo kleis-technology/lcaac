@@ -102,9 +102,7 @@ class Dimension(elements: Map<String, Double>) {
 
         other as Dimension
 
-        if (elements != other.elements) return false
-
-        return true
+        return elements == other.elements
     }
 
     override fun hashCode(): Int {

@@ -541,6 +541,63 @@ class QuantityExpressionReducerTest {
     }
 
     @Test
+    fun reduce_whenUnitOfUnitLiteral_shouldReturnUnitLiteral() {
+        // given
+        val expr = EUnitOf(UnitFixture.l)
+        val expected = UnitFixture.l
+        val reducer = QuantityExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        assertEquals(actual, expected)
+    }
+
+    @Test
+    fun reduce_whenUnitOfRef_shouldReturnAsIs() {
+        // given
+        val expr = EUnitOf(EQuantityRef("beer"))
+        val reducer = QuantityExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        assertEquals(actual, expr)
+    }
+
+    @Test
+    fun reduce_whenUnitOfComplexExpression_shouldReturnUnitLiteral() {
+        // given
+        val expr = EUnitOf(EQuantityMul(UnitFixture.kg, QuantityFixture.twoLitres))
+        val expected = EUnitLiteral("kg.l", 1.0e-3, DimensionFixture.mass.multiply(DimensionFixture.volume))
+        val reducer = QuantityExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        assertEquals(actual, expected)
+
+    }
+
+    @Test
+    fun reduce_whenUnitOfUnitOfRef_shouldReturnUnitOfRef() {
+        // given
+        val expr = EUnitOf(EUnitOf(EQuantityRef("beer")))
+        val expected = EUnitOf(EQuantityRef("beer"))
+        val reducer = QuantityExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        assertEquals(actual, expected)
+
+    }
+
+    @Test
     fun reduce_whenDiv_shouldDivide() {
         // given
         val kg = UnitFixture.kg

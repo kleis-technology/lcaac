@@ -102,7 +102,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        // TODO: better matching function ? We are partially comparing registers...
         Prelude.units.getValues().onEach {
             assertNotNull(symbolTable.getQuantity(it.toString()))
         }

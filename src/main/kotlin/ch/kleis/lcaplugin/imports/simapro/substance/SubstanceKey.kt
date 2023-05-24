@@ -33,8 +33,8 @@ data class SubstanceKey(
     }
 
     fun removeFromName(toReplace: String): SubstanceKey {
-        val new_name = this.name.replace("_${toReplace}", "")
-        return SubstanceKey(new_name, this.type, this.compartment, subCompartment, hasChanged = true)
+        val newName = this.name.replace("_${toReplace}", "")
+        return SubstanceKey(newName, this.type, this.compartment, subCompartment, hasChanged = true)
     }
 
     fun uid(): String {
@@ -48,12 +48,10 @@ data class SubstanceKey(
 
         other as SubstanceKey
 
-        if (name != other.name) return false
-        if (type != other.type) return false
-        if (compartment != other.compartment) return false
-        if (subCompartment != other.subCompartment) return false
-
-        return true
+        return name == other.name
+            && type == other.type
+            && compartment == other.compartment
+            && subCompartment == other.subCompartment
     }
 
     /* Need custom implementation to ignore hasChanged field */

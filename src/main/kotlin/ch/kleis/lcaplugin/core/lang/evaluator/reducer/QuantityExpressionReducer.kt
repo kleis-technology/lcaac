@@ -24,6 +24,17 @@ class QuantityExpressionReducer(
             is EQuantitySub -> reduceSub(expression)
             is EUnitAlias -> reduceAlias(expression)
             is EUnitLiteral -> expression
+            is EUnitOf -> reduceUnitOf(expression)
+        }
+    }
+
+    private fun reduceUnitOf(unitOf: EUnitOf): QuantityExpression {
+        val reducedExpression = reduce(unitOf.expression)
+        return when {
+            reducedExpression is EUnitLiteral -> reducedExpression
+            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> reducedExpression.base
+            reducedExpression is EUnitOf -> reducedExpression
+            else -> EUnitOf(reducedExpression)
         }
     }
 

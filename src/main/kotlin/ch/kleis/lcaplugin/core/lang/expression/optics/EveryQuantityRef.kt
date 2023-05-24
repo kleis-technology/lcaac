@@ -44,6 +44,7 @@ val everyQuantityRefInQuantityExpression =
                 is EQuantityScale -> foldMap(M, source.base, map)
                 is EQuantityClosure -> foldMap(M, source.expression, map)
                 is EUnitAlias -> foldMap(M, source.aliasFor, map)
+                is EUnitOf -> foldMap(M, source.expression, map)
                 is EUnitLiteral -> M.empty()
             }
         }
@@ -97,6 +98,8 @@ val everyQuantityRefInQuantityExpression =
                     source.symbol,
                     modify(source.aliasFor, map)
                 )
+
+                is EUnitOf -> EUnitOf(modify(source.expression, map))
 
                 is EUnitLiteral -> source
             }

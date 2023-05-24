@@ -29,6 +29,11 @@ data class EQuantityScale(val scale: Double, val base: QuantityExpression) : Qua
 }
 
 @optics
+data class EUnitOf(val expression: QuantityExpression) : QuantityExpression {
+    companion object
+}
+
+@optics
 data class EQuantityAdd(val left: QuantityExpression, val right: QuantityExpression) : QuantityExpression {
     companion object
 }

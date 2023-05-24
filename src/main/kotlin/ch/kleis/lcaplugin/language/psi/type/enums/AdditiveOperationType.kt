@@ -1,8 +1,8 @@
-@file:Suppress("unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused")
+@file:Suppress("unused")
 
 package ch.kleis.lcaplugin.language.psi.type.enums
 
-@Suppress("unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused", "unused")
+@Suppress("unused")
 enum class AdditiveOperationType {
     ADD,
 }

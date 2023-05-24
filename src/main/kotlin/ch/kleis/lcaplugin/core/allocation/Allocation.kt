@@ -37,7 +37,7 @@ class Allocation {
     }
 
     private fun totalAllocationAmounts(processValue: ProcessValue): Double {
-        return processValue.products.map { it.allocation.amount }.sum()
+        return processValue.products.sumOf { it.allocation.amount }
     }
 
     private fun applyAllocationToInputs(
