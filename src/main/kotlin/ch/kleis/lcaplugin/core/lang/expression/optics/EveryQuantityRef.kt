@@ -16,6 +16,13 @@ val everyQuantityRefInQuantityExpression =
                     )
                 )
 
+                is EQuantitySub -> M.fold(
+                    listOf(
+                        foldMap(M, source.left, map),
+                        foldMap(M, source.right, map),
+                    )
+                )
+
                 is EQuantityDiv -> M.fold(
                     listOf(
                         foldMap(M, source.left, map),
@@ -23,7 +30,6 @@ val everyQuantityRefInQuantityExpression =
                     )
                 )
 
-                is EQuantityLiteral -> M.empty()
                 is EQuantityMul -> M.fold(
                     listOf(
                         foldMap(M, source.left, map),
@@ -34,14 +40,11 @@ val everyQuantityRefInQuantityExpression =
                 is EQuantityNeg -> foldMap(M, source.quantity, map)
                 is EQuantityPow -> foldMap(M, source.quantity, map)
                 is EQuantityRef -> map(source)
-                is EQuantitySub -> M.fold(
-                    listOf(
-                        foldMap(M, source.left, map),
-                        foldMap(M, source.right, map),
-                    )
-                )
 
-                is EQuantityScale -> foldMap(M, source.quantity, map)
+                is EQuantityScale -> foldMap(M, source.base, map)
+                is EQuantityClosure -> foldMap(M, source.expression, map)
+                is EUnitAlias -> foldMap(M, source.aliasFor, map)
+                is EUnitLiteral -> M.empty()
             }
         }
 
@@ -60,7 +63,6 @@ val everyQuantityRefInQuantityExpression =
                     modify(source.right, map),
                 )
 
-                is EQuantityLiteral -> source
                 is EQuantityMul -> EQuantityMul(
                     modify(source.left, map),
                     modify(source.right, map),
@@ -83,16 +85,28 @@ val everyQuantityRefInQuantityExpression =
 
                 is EQuantityScale -> EQuantityScale(
                     source.scale,
-                    modify(source.quantity, map),
+                    modify(source.base, map),
                 )
+
+                is EQuantityClosure -> EQuantityClosure(
+                    source.symbolTable,
+                    modify(source.expression, map)
+                )
+
+                is EUnitAlias -> EUnitAlias(
+                    source.symbol,
+                    modify(source.aliasFor, map)
+                )
+
+                is EUnitLiteral -> source
             }
         }
     }
 
 private val everyQuantityRefInConstraint: PEvery<FromProcessRef, FromProcessRef, EQuantityRef, QuantityExpression> =
     FromProcessRef.arguments compose
-            Every.map() compose
-            everyQuantityRefInQuantityExpression
+        Every.map() compose
+        everyQuantityRefInQuantityExpression
 
 private val everyQuantityRefInProductExpression: PEvery<EProductSpec, EProductSpec, EQuantityRef, QuantityExpression> =
     EProductSpec.fromProcessRef compose everyQuantityRefInConstraint
@@ -133,11 +147,11 @@ private val everyQuantityRefInSystemExpression: PEvery<SystemExpression, SystemE
     Merge(
         listOf(
             SystemExpression.eSystem.processes compose
-                    Every.list() compose
-                    everyQuantityRefInProcess,
+                Every.list() compose
+                everyQuantityRefInProcess,
             SystemExpression.eSystem.substanceCharacterizations compose
-                    Every.list() compose
-                    everyQuantityRefInSubstanceCharacterization,
+                Every.list() compose
+                everyQuantityRefInSubstanceCharacterization,
         )
     )
 
@@ -145,13 +159,13 @@ private val everyQuantityRefInLcaExpression: PEvery<LcaExpression, LcaExpression
     Merge(
         listOf(
             LcaExpression.eProcess compose
-                    everyQuantityRefInProcess,
+                everyQuantityRefInProcess,
             LcaExpression.lcaExchangeExpression.eTechnoExchange compose
-                    everyQuantityRefInETechnoExchange,
+                everyQuantityRefInETechnoExchange,
             LcaExpression.lcaExchangeExpression.eBioExchange compose
-                    everyQuantityRefInEBioExchange,
+                everyQuantityRefInEBioExchange,
             LcaExpression.eProductSpec.fromProcessRef.arguments compose
-                    Every.map() compose everyQuantityRefInQuantityExpression
+                Every.map() compose everyQuantityRefInQuantityExpression
         )
     )
 

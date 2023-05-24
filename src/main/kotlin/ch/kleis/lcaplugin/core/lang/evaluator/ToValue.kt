@@ -25,7 +25,8 @@ fun EImpact.toValue(): ImpactValue {
 }
 
 private fun EIndicatorSpec.toValue(): IndicatorValue {
-    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val referenceUnit = (this.referenceUnit as? EUnitLiteral)?.toValue()
+        ?: throw EvaluatorException("$this has no reference unit")
     return IndicatorValue(
         this.name,
         referenceUnit,
@@ -57,7 +58,8 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
 }
 
 fun ESubstanceSpec.toValue(): SubstanceValue {
-    val referenceUnit = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val referenceUnit = (this.referenceUnit as? EUnitLiteral)?.toValue()
+        ?: throw EvaluatorException("$this has no reference unit")
     val type = this.type ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
     val compartment = this.compartment ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
     return FullyQualifiedSubstanceValue(
@@ -71,7 +73,8 @@ fun ESubstanceSpec.toValue(): SubstanceValue {
 
 fun EProductSpec.toValue(): ProductValue {
     val name = this.name
-    val referenceUnitValue = this.referenceUnit?.toValue() ?: throw EvaluatorException("$this has no reference unit")
+    val referenceUnitValue = (this.referenceUnit as? EUnitLiteral)?.toValue()
+        ?: throw EvaluatorException("$this has no reference unit")
     val fromProcessRefValue = this.fromProcessRef?.toValue()
     return ProductValue(
         name,
@@ -87,25 +90,24 @@ private fun FromProcessRef.toValue(): FromProcessRefValue {
     )
 }
 
-fun QuantityExpression.toValue(): QuantityValue {
-    if (this !is EQuantityLiteral) {
-        throw EvaluatorException("$this is not reduced")
-    }
-    return QuantityValue(
-        this.amount,
-        this.unit.toValue(),
-    )
-}
+fun QuantityExpression.toValue(): QuantityValue =
+    when {
+        this is EQuantityScale && this.base is EUnitLiteral ->
+            QuantityValue(
+                this.scale,
+                this.base.toValue(),
+            )
 
-fun UnitExpression.toValue(): UnitValue {
-    return when (this) {
-        is EUnitLiteral -> UnitValue(
-            this.symbol,
-            this.scale,
-            this.dimension,
-        )
+        this is EUnitLiteral ->
+            QuantityValue(1.0, this.toValue())
 
         else -> throw EvaluatorException("$this is not reduced")
     }
-}
+
+fun EUnitLiteral.toValue(): UnitValue =
+    UnitValue(
+        this.symbol,
+        this.scale,
+        this.dimension,
+    )
 

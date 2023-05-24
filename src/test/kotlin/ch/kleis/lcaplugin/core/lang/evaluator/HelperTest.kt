@@ -109,19 +109,19 @@ class HelperTest {
                     listOf(ETechnoExchange(EQuantityRef("quantity"), ProductFixture.carrot)),
                     listOf(
                         ETechnoExchange(
-                            EQuantityLiteral(
+                            EQuantityScale(
                                 1.0,
-                                EUnitMul(EUnitRef("ua"), EUnitRef("ub"))
+                                EQuantityMul(EQuantityRef("ua"), EQuantityRef("ub"))
                             ), EProductSpec(
-                                "product",
-                            )
+                            "product",
+                        )
                         ),
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EProductSpec(
-                                "water",
-                                UnitFixture.l,
-                                FromProcessRef("template", emptyMap())
-                            )
+                            "water",
+                            UnitFixture.l,
+                            FromProcessRef("template", emptyMap())
+                        )
                         ),
                     ),
                     emptyList(),

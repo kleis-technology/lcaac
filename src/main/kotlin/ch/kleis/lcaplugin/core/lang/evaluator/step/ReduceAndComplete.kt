@@ -14,11 +14,9 @@ class ReduceAndComplete(
     private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
         symbolTable.quantities,
-        symbolTable.units,
     )
     private val templateReducer = TemplateExpressionReducer(
         symbolTable.quantities,
-        symbolTable.units,
         processTemplates,
     )
 
@@ -51,13 +49,19 @@ class ReduceAndComplete(
     private fun completeInputs(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
         return (ProcessTemplateExpression.eProcessFinal.expression.inputs compose Every.list())
             .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
+                val quantityExpression = exchange.quantity
+                val referenceUnit = when {
+                    quantityExpression is EUnitLiteral -> quantityExpression
+
+                    quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
+                        quantityExpression.base
+
+                    else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
                 }
+
                 ETechnoExchange.product
                     .modify(exchange) {
-                        it.copy(referenceUnit = q.unit)
+                        it.copy(referenceUnit = referenceUnit)
                     }
             }
     }
@@ -65,14 +69,20 @@ class ReduceAndComplete(
     private fun completeSubstances(reduced: ProcessTemplateExpression): ProcessTemplateExpression {
         return (ProcessTemplateExpression.eProcessFinal.expression.biosphere compose Every.list())
             .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
+                val quantityExpression = exchange.quantity
+                val referenceUnit = when {
+                    quantityExpression is EUnitLiteral -> quantityExpression
+
+                    quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
+                        quantityExpression.base
+
+                    else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
                 }
+
                 EBioExchange.substance
                     .modify(exchange) {
                         if (it.referenceUnit == null) {
-                            it.copy(referenceUnit = q.unit)
+                            it.copy(referenceUnit = referenceUnit)
                         } else it
                     }
             }
@@ -81,13 +91,19 @@ class ReduceAndComplete(
     private fun completeIndicators(reduced: ESubstanceCharacterization): ESubstanceCharacterization {
         return (ESubstanceCharacterization.impacts compose Every.list())
             .modify(reduced) { exchange ->
-                val q = exchange.quantity
-                if (q !is EQuantityLiteral) {
-                    throw EvaluatorException("quantity $q is not reduced")
+                val quantityExpression = exchange.quantity
+                val referenceUnit = when {
+                    quantityExpression is EUnitLiteral -> quantityExpression
+
+                    quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
+                        quantityExpression.base
+
+                    else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
                 }
+
                 EImpact.indicator
                     .modify(exchange) {
-                        EIndicatorSpec(it.name, q.unit)
+                        EIndicatorSpec(it.name, referenceUnit)
                     }
             }
     }

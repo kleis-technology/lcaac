@@ -5,8 +5,7 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
-import ch.kleis.lcaplugin.core.lang.expression.EUnitOf
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.value.*
 import java.lang.Double.parseDouble
 
@@ -23,7 +22,7 @@ class CsvProcessor(
                 request[entry.key]
                     ?.let {
                         val amount = parseDouble(it)
-                        EQuantityLiteral(amount, EUnitOf(entry.value))
+                        EQuantityScale(amount, entry.value)
                     } ?: entry.value
             }
         val systemValue = evaluator.eval(EProcessTemplateApplication(template, arguments))

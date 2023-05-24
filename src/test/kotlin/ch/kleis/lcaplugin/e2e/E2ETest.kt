@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
@@ -56,6 +56,7 @@ class E2ETest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
+        val kg = UnitValue("kg", 1.0, Dimension.of("mass"))
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
@@ -70,7 +71,6 @@ class E2ETest : BasePlatformTestCase() {
         val actual = csvProcessor.process(request)
 
         // then
-        val kg = UnitValue("kg", 1.0, Dimension.of("mass"))
         assertEquals(request, actual.request)
         val out = ProductValue(
             "out", kg,
@@ -120,14 +120,14 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val reducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
+        val reducer = QuantityExpressionReducer(symbolTable.quantities)
         val expr = symbolTable.processTemplates["p"]!!.body.inputs.first().quantity
 
         // when
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityLiteral(200.0, EUnitLiteral("m^(2.0)^(2.0)", 1.0, Prelude.length.pow(4.0)))
+        val expected = EQuantityScale(200.0, EUnitLiteral("m^(2.0)^(2.0)", 1.0, Prelude.length.pow(4.0)))
         TestCase.assertEquals(expected, actual)
     }
 
@@ -486,7 +486,7 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
         // then
         assertEquals(100.0, actual)
     }
@@ -513,7 +513,7 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val actual =
-            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityLiteral).amount
+            (((symbolTable.processTemplates["p"] as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
         // then
         assertEquals(100.0, actual)
     }

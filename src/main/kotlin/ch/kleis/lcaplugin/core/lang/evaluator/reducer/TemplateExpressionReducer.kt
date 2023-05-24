@@ -8,12 +8,10 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
     quantityRegister: Register<QuantityExpression> = Register.empty(),
-    unitRegister: Register<UnitExpression> = Register.empty(),
     templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
     private val templateRegister = Register(templateRegister)
     private val quantityRegister = Register(quantityRegister)
-    private val unitRegister = Register(unitRegister)
     private val helper = Helper()
 
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
@@ -34,13 +32,8 @@ class TemplateExpressionReducer(
                     .plus(actualArguments)
                     .plus(template.locals)
 
-                val reducer = LcaExpressionReducer(
-                    localRegister,
-                    unitRegister
-                )
-                val quantityReducer = QuantityExpressionReducer(
-                    localRegister, unitRegister,
-                )
+                val reducer = LcaExpressionReducer(localRegister)
+                val quantityReducer = QuantityExpressionReducer(localRegister)
 
                 var result = template.body
                 actualArguments.forEach {
@@ -61,11 +54,12 @@ class TemplateExpressionReducer(
         result: EProcess,
         actualArguments: Map<String, QuantityExpression>,
         quantityReducer: QuantityExpressionReducer
-    ) = (EProcess.products
+    ) = EProcess.products
         .compose(Every.list())
-        .compose(ETechnoExchange.product)).modify(result) {
+        .compose(ETechnoExchange.product)
+        .modify(result) { productSpec ->
             val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
-            it.copy(
+            productSpec.copy(
                 fromProcessRef =
                 FromProcessRef(
                     result.name,

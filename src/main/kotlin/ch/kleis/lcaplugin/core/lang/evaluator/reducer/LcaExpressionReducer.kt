@@ -5,9 +5,8 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
     quantityRegister: Register<QuantityExpression> = Register.empty(),
-    unitRegister: Register<UnitExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister, unitRegister)
+    private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
         return when (expression) {
@@ -62,7 +61,7 @@ class LcaExpressionReducer(
     private fun reduceProductSpec(expression: EProductSpec): EProductSpec {
         return EProductSpec(
             expression.name,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
             expression.fromProcessRef?.reduceWith(quantityExpressionReducer),
         )
     }
@@ -74,14 +73,14 @@ class LcaExpressionReducer(
             expression.type,
             expression.compartment,
             expression.subCompartment,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
         )
     }
 
     private fun reduceIndicatorSpec(expression: EIndicatorSpec): EIndicatorSpec {
         return EIndicatorSpec(
             expression.name,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduceUnit(it) },
+            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
         )
     }
 }

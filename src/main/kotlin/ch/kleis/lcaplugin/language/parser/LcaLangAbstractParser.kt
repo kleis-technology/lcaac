@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
+import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.units
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
@@ -25,23 +26,6 @@ class LcaLangAbstractParser(
         val unitDefinitions = files.flatMap { it.getUnitDefinitions() }
         val processDefinitions = files.flatMap { it.getProcesses() }
         val substanceDefinitions = files.flatMap { it.getSubstances() }
-        val units = try {
-            Register(Prelude.units)
-                .plus(
-                    unitDefinitions
-                        .filter { it.getType() == UnitDefinitionType.LITERAL }
-                        .map { Pair(it.getUnitRef().getUID().name, unitLiteral(it)) }
-                        .asIterable()
-                )
-                .plus(
-                    unitDefinitions
-                        .filter { it.getType() == UnitDefinitionType.ALIAS }
-                        .map { Pair(it.getUnitRef().getUID().name, unitAlias(it)) }
-                        .asIterable()
-                )
-        } catch (e: RegisterException) {
-            throw EvaluatorException("Duplicate unit ${e.duplicates} defined")
-        }
 
         val dimensions: Register<Dimension> = try {
             Register(Prelude.primitiveDimensions)
@@ -67,17 +51,17 @@ class LcaLangAbstractParser(
         }
 
         val globals: Register<QuantityExpression> = try {
-            Register(Prelude.unitQuantities)
+            Register(units)
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.LITERAL }
-                        .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitLiteral(it)) }
+                        .map { it.getUnitRef().getUID().name to unitLiteral(it) }
                         .asIterable()
                 )
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.ALIAS }
-                        .map { it.getUnitRef().getUID().name to EQuantityLiteral(1.0, unitAlias(it)) }
+                        .map { it.getUnitRef().getUID().name to unitAlias(it) }
                         .asIterable()
                 )
                 .plus(
@@ -94,7 +78,7 @@ class LcaLangAbstractParser(
             Register.empty<EProcessTemplate>()
                 .plus(
                     processDefinitions
-                        .map { Pair(it.getProcessTemplateRef().getUID().name, process(it, globals, units)) }
+                        .map { Pair(it.getProcessTemplateRef().getUID().name, process(it, globals)) }
                         .asIterable()
                 )
         } catch (e: RegisterException) {
@@ -104,13 +88,12 @@ class LcaLangAbstractParser(
         return SymbolTable(
             quantities = globals,
             processTemplates = processTemplates,
-            units = units,
             dimensions = dimensions,
             substanceCharacterizations = substanceCharacterizations,
         )
     }
 
-    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): UnitExpression {
+    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): QuantityExpression {
         return EUnitLiteral(
             psiUnitDefinition.getSymbolField().getValue(),
             1.0,
@@ -118,7 +101,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): UnitExpression {
+    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): QuantityExpression {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
             parseQuantityExpression(psiUnitAlias.getAliasForField().quantityExpression)
@@ -128,14 +111,12 @@ class LcaLangAbstractParser(
     private fun process(
         psiProcess: PsiProcess,
         globals: Register<QuantityExpression>,
-        units: Register<UnitExpression>
     ): EProcessTemplate {
         val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { parseQuantityExpression(it.value) }
         val params = psiProcess.getParameters().mapValues { parseQuantityExpression(it.value) }
         val symbolTable = SymbolTable(
             quantities = Register(globals.plus(params).plus(locals)),
-            units = Register(units),
         )
         val products = generateTechnoProductExchanges(psiProcess, symbolTable)
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
@@ -182,7 +163,7 @@ class LcaLangAbstractParser(
             type = SubstanceType.of(psiSubstance.getTypeField().getValue()),
             compartment = psiSubstance.getCompartmentField().getValue(),
             subCompartment = psiSubstance.getSubcompartmentField()?.getValue(),
-            referenceUnit = EUnitOf(parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression)),
+            referenceUnit = parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression),
         )
     }
 
@@ -196,7 +177,7 @@ class LcaLangAbstractParser(
             compartment = substanceSpec.getCompartmentField()?.getValue(),
             subCompartment = substanceSpec.getSubCompartmentField()?.getValue(),
             type = substanceSpec.getType(),
-            referenceUnit = EUnitClosure(symbolTable, EUnitOf(quantity))
+            referenceUnit = EQuantityClosure(symbolTable, quantity)
         )
 
 
@@ -249,13 +230,13 @@ class LcaLangAbstractParser(
             parseQuantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
                 .copy(
-                    referenceUnit = EUnitClosure(
+                    referenceUnit = EQuantityClosure(
                         symbolTable,
-                        EUnitOf(parseQuantityExpression(psiExchange.getQuantity()))
+                        parseQuantityExpression(psiExchange.getQuantity())
                     )
                 ),
             psiExchange.getAllocateField()?.let { allocation(it) }
-                ?: EQuantityLiteral(100.0, Prelude.units["percent"]!!)
+                ?: EQuantityScale(100.0, units["percent"]!!)
         )
 
     private fun allocation(element: LcaAllocateField): QuantityExpression {
