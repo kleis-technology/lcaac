@@ -1,10 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.language.parser.LcaFileCollector
-import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
 import com.intellij.icons.AllIcons
@@ -13,7 +10,6 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
-import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -38,22 +34,8 @@ class AssessProcessAction(private val processName: String) : AnAction(
             private var inventory: InventoryMatrix? = null
 
             override fun run(indicator: ProgressIndicator) {
-                indicator.isIndeterminate = true
-
-                // read
-                indicator.text = "Loading symbol table"
-                val symbolTable = runReadAction {
-                    val collector = LcaFileCollector()
-                    val parser = LcaLangAbstractParser(collector.collect(file))
-                    parser.load()
-                }
-
-                // compute
-                indicator.text = "Solving system"
-                val entryPoint =
-                    symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
-                val system = Evaluator(symbolTable).eval(entryPoint)
-                this.inventory = Assessment(system).inventory()
+                val systemValue = evaluateSystemWithIndicator(indicator, file, processName)
+                this.inventory = Assessment(systemValue).inventory()
             }
 
             override fun onSuccess() {

@@ -27,14 +27,6 @@ data class TIndicator(
     val dimension: Dimension,
 ) : TypeLcaExpression
 
-data class TImpact(
-    val indicator: TIndicator
-) : TypeLcaExpression
-
-data class TBioExchange(
-    val substance: TSubstance
-) : TypeLcaExpression
-
 data class TTechnoExchange(
     val product: TProduct,
 ) : TypeLcaExpression
@@ -46,12 +38,3 @@ data class TProcess(
     val biosphere: Set<TSubstance>,
 ) : TypeLcaExpression
 
-data class TSubstanceCharacterization(
-    val substance: TSubstance,
-    val indicators: Set<TIndicator>,
-) : TypeLcaExpression
-
-data class TProcessTemplate(
-    val params: Map<String, TQuantity>,
-    val body: TProcess,
-) : Type

@@ -1,13 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.stub
 
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKey
-import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import ch.kleis.lcaplugin.psi.LcaGlobalAssignment
-import ch.kleis.lcaplugin.psi.LcaProcess
-import ch.kleis.lcaplugin.psi.LcaSubstance
-import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
-import ch.kleis.lcaplugin.psi.LcaUnitDefinition
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.stubs.StubIndexKey
 
 object LcaStubIndexKeys {

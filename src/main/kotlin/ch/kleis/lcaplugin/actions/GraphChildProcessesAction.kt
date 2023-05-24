@@ -4,10 +4,7 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.language.parser.LcaFileCollector
-import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaGraphChildProcessesResult
 import com.intellij.icons.AllIcons
@@ -16,7 +13,6 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
-import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
@@ -29,14 +25,8 @@ import com.intellij.ui.content.ContentFactory
 import javax.swing.JTextArea
 import kotlin.math.min
 
-/**
- * Callback handler for when the graph gutter icon is clicked.
- *
- * Note: Only one Run Line Action marker is taken into account in the plugin.xml, so we have to rely on the Line Marker
- * interface, which makes some namings a bit weird, as it is expected to jump around in code rather than run stuff.
- */
 class GraphChildProcessesAction(private val processName: String) : AnAction(
-    "Generate graph",
+    "Generate Graph",
     "Generate graph",
     AllIcons.Graph.Layout,
 ) {
@@ -51,21 +41,7 @@ class GraphChildProcessesAction(private val processName: String) : AnAction(
             private var graph: Graph? = null
 
             override fun run(indicator: ProgressIndicator) {
-                indicator.isIndeterminate = true
-
-                // read
-                indicator.text = "Loading symbol table"
-                val symbolTable = runReadAction {
-                    val collector = LcaFileCollector()
-                    val parser = LcaLangAbstractParser(collector.collect(file))
-                    parser.load()
-                }
-
-                // compute
-                indicator.text = "Solving system"
-                val entryPoint =
-                    symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
-                val systemValue = Evaluator(symbolTable).eval(entryPoint)
+                val systemValue = evaluateSystemWithIndicator(indicator, file, processName)
 
                 // generate graph
                 indicator.text = "Generating graph"
