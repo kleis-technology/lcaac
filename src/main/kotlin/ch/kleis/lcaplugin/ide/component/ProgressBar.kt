@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.ide.imports.progressbar
+package ch.kleis.lcaplugin.ide.component
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher

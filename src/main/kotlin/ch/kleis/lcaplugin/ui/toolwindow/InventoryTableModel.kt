@@ -1,7 +1,5 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.core.lang.value.CharacterizationFactorValue
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
@@ -52,31 +50,18 @@ class InventoryTableModel(private val matrix: InventoryMatrix) : TableModel {
         }
 
         val inputProduct = matrix.controllablePorts[columnIndex - 2]
-        val cf = matrix.value(outputProduct, inputProduct)
-        return render(cf, inputProduct, outputProduct)
-    }
-
-    private fun render(
-        cf: CharacterizationFactorValue,
-        inputPort: MatrixColumnIndex,
-        outputPort: MatrixColumnIndex,
-    ): Double {
-        val input = cf.input
-        val output = cf.output
-        val numerator = input.quantity().referenceValue() / inputPort.referenceUnit().scale
-        val denominator = output.quantity().referenceValue() / outputPort.referenceUnit().scale
-        return numerator / denominator
+        return matrix.valueRatio(outputProduct, inputProduct).amount
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
-
+        // Read Only
     }
 
     override fun addTableModelListener(l: TableModelListener?) {
-
+        // Read Only
     }
 
     override fun removeTableModelListener(l: TableModelListener?) {
-
+        // Read Only
     }
 }

@@ -11,8 +11,10 @@ import ch.kleis.lcaplugin.core.matrix.MatrixFixture
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
 import com.intellij.ui.table.JBTable
+import io.mockk.mockk
+import org.hamcrest.CoreMatchers.containsString
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThat
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
@@ -31,7 +33,7 @@ class LcaProcessAssessResultTest {
             IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
         )
 
-        val lcaProcessAssessResult = LcaProcessAssessResult(inv)
+        val lcaProcessAssessResult = LcaProcessAssessResult(inv, mockk(), "name")
         val panel = lcaProcessAssessResult.getContent()
         val scrollPanel = panel.getComponent(0) as JBScrollPane
         val viewPort = scrollPanel.getComponent(0) as JBViewport
@@ -45,12 +47,12 @@ class LcaProcessAssessResultTest {
 
         // Then
         val html = result.getTransferData(DataFlavor("text/html;class=java.lang.String")) as String
-        assertTrue(html.contains("<th>item</th>"))
-        assertTrue(html.contains("<th>[Resource] propanol(air) [kg]</th>"))
-        assertTrue(html.contains("<td>carrot</td>"))
+        assertThat(html, containsString("<th>item</th>"))
+        assertThat(html, containsString("<th>[Resource] propanol(air) [kg]</th>"))
+        assertThat(html, containsString("<td>carrot</td>"))
         val text = result.getTransferData(DataFlavor("text/plain;class=java.lang.String")) as String
-        assertTrue(text.contains("item\tquantity\t[Resource] propanol(air) [kg]"))
-        assertTrue(text.contains("\ncarrot\t1 g\t0.001\t"))
+        assertThat(text, containsString("item\tquantity\t[Resource] propanol(air) [kg]"))
+        assertThat(text, containsString("\ncarrot\t1 g\t0.001\t"))
     }
 
 }

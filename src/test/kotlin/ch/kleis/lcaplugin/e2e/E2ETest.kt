@@ -76,10 +76,10 @@ class E2ETest : BasePlatformTestCase() {
             "out", kg,
             FromProcessRefValue(
                 "p", mapOf(
-                "a" to QuantityValue(1.0, kg),
-                "b" to QuantityValue(1.0, kg),
-                "c" to QuantityValue(1.0, kg),
-            )
+                    "a" to QuantityValue(1.0, kg),
+                    "b" to QuantityValue(1.0, kg),
+                    "c" to QuantityValue(1.0, kg),
+                )
             )
         )
         assertEquals(
@@ -307,6 +307,15 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals("co2", input.getDisplayName())
         assertEquals(3.0, cf.input.quantity().amount)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+
+        val ratio = result.valueRatio(output, input)
+        assertEquals(3.0, ratio.amount, 1E-12)
+        assertUnitEqualsRefUnitOf(DimensionFixture.mass, ratio.unit)
+    }
+
+    private fun assertUnitEqualsRefUnitOf(expected: Dimension, actual: UnitValue) {
+        assertEquals(expected, actual.dimension)
+        assertEquals(1.0, actual.scale, 1E-12) // ~kg
     }
 
     @Test
