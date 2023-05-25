@@ -3,16 +3,17 @@ package ch.kleis.lcaplugin.language.psi.type
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceStub
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
 import ch.kleis.lcaplugin.language.psi.type.field.PsiSubstanceTypeField
-import ch.kleis.lcaplugin.language.psi.type.field.PsiUnitField
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.psi.LcaBlockImpacts
 import ch.kleis.lcaplugin.psi.LcaImpactExchange
+import ch.kleis.lcaplugin.psi.LcaReferenceUnitField
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.StubBasedPsiElement
 import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiSubstance : BlockMetaOwner, PsiNameIdentifierOwner, StubBasedPsiElement<SubstanceStub> {
     fun getSubstanceRef(): PsiSubstanceRef {
@@ -57,8 +58,8 @@ interface PsiSubstance : BlockMetaOwner, PsiNameIdentifierOwner, StubBasedPsiEle
         return node.findChildByType(LcaTypes.SUB_COMPARTMENT_FIELD)?.psi as PsiStringLiteralField?
     }
 
-    fun getReferenceUnitField(): PsiUnitField {
-        return node.findChildByType(LcaTypes.REFERENCE_UNIT_FIELD)?.psi as PsiUnitField
+    fun getReferenceUnitField(): LcaReferenceUnitField {
+        return PsiTreeUtil.findChildOfType(this, LcaReferenceUnitField::class.java)!!
     }
 
     fun getBlockImpacts(): Collection<LcaBlockImpacts> {

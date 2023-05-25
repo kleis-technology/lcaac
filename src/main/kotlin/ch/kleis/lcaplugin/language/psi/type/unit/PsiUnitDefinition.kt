@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.type.unit
 
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStub
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.psi.LcaAliasForField
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
@@ -15,8 +15,8 @@ enum class UnitDefinitionType {
 }
 
 interface PsiUnitDefinition : PsiNameIdentifierOwner, StubBasedPsiElement<UnitStub> {
-    fun getUnitRef(): PsiUnitRef {
-        return node.findChildByType(LcaTypes.UNIT_REF)?.psi as PsiUnitRef
+    fun getUnitRef(): PsiQuantityRef {
+        return node.findChildByType(LcaTypes.QUANTITY_REF)?.psi as PsiQuantityRef
     }
 
     override fun getName(): String {

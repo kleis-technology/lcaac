@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
@@ -13,7 +13,7 @@ class ToValueTest {
     @Test
     fun toValue_whenETechnoExchange() {
         // given
-        val allocation = EQuantityLiteral(10.0, UnitFixture.percent)
+        val allocation = EQuantityScale(10.0, UnitFixture.percent)
         val expression = ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot, allocation)
         // when
         val actual = expression.toValue()

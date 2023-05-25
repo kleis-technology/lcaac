@@ -13,7 +13,7 @@ import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import com.intellij.openapi.diagnostic.Logger
 
 class Evaluator(
-    private val symbolTable: SymbolTable,
+    symbolTable: SymbolTable,
 ) {
     companion object {
         private val LOG = Logger.getInstance(Evaluator::class.java)
@@ -22,7 +22,7 @@ class Evaluator(
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
-    private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities, symbolTable.units)
+    private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.inputs
@@ -61,7 +61,7 @@ class Evaluator(
 
         val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
         val nextInstances = HashSet<EProcessTemplateApplication>()
-        val inputProductsModified = everyInputProduct.modify(reduced) { spec ->
+        val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
             resolveProcessTemplateFromProduct(spec)?.let { template ->
                 val body = template.body
                 val arguments = spec.fromProcessRef?.arguments

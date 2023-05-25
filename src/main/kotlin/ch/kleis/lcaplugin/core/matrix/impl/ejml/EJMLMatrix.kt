@@ -8,7 +8,7 @@ class EJMLMatrix(internal val matrix: SimpleMatrix) : Matrix {
         matrix[row, col]
 
     override fun set(row: Int, col: Int, value: Double) =
-        matrix.set(row, col, value);
+        matrix.set(row, col, value)
 
     override fun negate(): Matrix = EJMLMatrix(matrix.negative())
     override fun rowDim(): Int = matrix.numRows

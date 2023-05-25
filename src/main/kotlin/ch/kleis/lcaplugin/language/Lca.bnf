@@ -153,10 +153,7 @@ dimField ::= DIMENSION_KEYWORD EQUAL STRING_LITERAL {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
 
-referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL unit {
-    implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiUnitField"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiUnitFieldMixin"
-}
+referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL quantityExpression
 
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
@@ -271,26 +268,7 @@ scaleQuantityExpression ::= NUMBER quantityExpression { extends=quantityExpressi
 /*
     Unit
  */
-
-unit ::= unitFactor ((STAR | SLASH) unit)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnit"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitMixin"
-}
-
-unitFactor ::= unitPrimitive (HAT NUMBER)? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitFactor"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitFactorMixin"
-}
-
-unitPrimitive ::=
-    unitDefinition
-    | LPAREN unit RPAREN
-    | unitRef {
-    implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitPrimitive"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitPrimitiveMixin"
-}
-
-unitDefinition ::= UNIT_KEYWORD unitRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
+unitDefinition ::= UNIT_KEYWORD quantityRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitDefinitionMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"
@@ -320,11 +298,6 @@ substanceRef ::= uid {
 indicatorRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiIndicatorRefMixin"
-}
-
-unitRef ::= uid {
-    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiUnitRef"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiUnitRefMixin"
 }
 
 processTemplateRef ::= uid {

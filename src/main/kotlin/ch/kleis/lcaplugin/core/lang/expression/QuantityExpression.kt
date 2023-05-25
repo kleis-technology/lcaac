@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
+import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.SymbolTable
 
 @optics
 sealed interface QuantityExpression : Expression {
@@ -8,17 +10,26 @@ sealed interface QuantityExpression : Expression {
 }
 
 @optics
-data class EQuantityLiteral(val amount: Double, val unit: UnitExpression) : QuantityExpression {
+data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Dimension) : QuantityExpression {
     override fun toString(): String {
-        return "$amount $unit"
+        return symbol
     }
 
     companion object
-
 }
 
 @optics
-data class EQuantityScale(val scale: Double, val quantity: QuantityExpression) : QuantityExpression {
+data class EUnitAlias(val symbol: String, val aliasFor: QuantityExpression) : QuantityExpression {
+    companion object
+}
+
+@optics
+data class EQuantityScale(val scale: Double, val base: QuantityExpression) : QuantityExpression {
+    companion object
+}
+
+@optics
+data class EUnitOf(val expression: QuantityExpression) : QuantityExpression {
     companion object
 }
 
@@ -49,6 +60,11 @@ data class EQuantityDiv(val left: QuantityExpression, val right: QuantityExpress
 
 @optics
 data class EQuantityPow(val quantity: QuantityExpression, val exponent: Double) : QuantityExpression {
+    companion object
+}
+
+@optics
+data class EQuantityClosure(val symbolTable: SymbolTable, val expression: QuantityExpression) : QuantityExpression {
     companion object
 }
 

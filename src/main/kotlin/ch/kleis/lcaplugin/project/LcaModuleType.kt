@@ -9,7 +9,7 @@ import javax.swing.Icon
 class LcaModuleType : ModuleType<LcaModuleBuilder>(ID) {
 
     companion object {
-        val ID = "LCA_MODULE_TYPE"
+        const val ID = "LCA_MODULE_TYPE"
 
         fun getInstance(): LcaModuleType {
             return ModuleTypeManager.getInstance().findByID(ID) as LcaModuleType

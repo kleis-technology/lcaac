@@ -70,10 +70,6 @@ class Dimension(elements: Map<String, Double>) {
         return UnitValue("default($this)", 1.0, this)
     }
 
-    fun isNone(): Boolean {
-        return this.elements.isEmpty()
-    }
-
     fun multiply(other: Dimension): Dimension {
         val es = HashMap<String, Double>(elements)
         other.elements.entries.forEach { entry ->
@@ -106,9 +102,7 @@ class Dimension(elements: Map<String, Double>) {
 
         other as Dimension
 
-        if (elements != other.elements) return false
-
-        return true
+        return elements == other.elements
     }
 
     override fun hashCode(): Int {

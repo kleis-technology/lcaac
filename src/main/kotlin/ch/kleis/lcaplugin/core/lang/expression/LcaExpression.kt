@@ -13,14 +13,14 @@ sealed interface LcaExpression : Expression {
 @optics
 data class EProductSpec(
     val name: String,
-    val referenceUnit: UnitExpression? = null,
+    val referenceUnit: QuantityExpression? = null,
     val fromProcessRef: FromProcessRef? = null,
 ) : LcaExpression {
     companion object
 }
 
 // Substance
-enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
+enum class SubstanceType(val value: String) {
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
@@ -43,7 +43,7 @@ data class ESubstanceSpec(
     val type: SubstanceType? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
-    val referenceUnit: UnitExpression? = null,
+    val referenceUnit: QuantityExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -52,7 +52,7 @@ data class ESubstanceSpec(
 @optics
 data class EIndicatorSpec(
     val name: String,
-    val referenceUnit: UnitExpression? = null,
+    val referenceUnit: QuantityExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -73,7 +73,7 @@ data class ETechnoExchange(
     constructor(quantity: QuantityExpression, product: EProductSpec) : this(
         quantity,
         product,
-        EQuantityLiteral(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+        EQuantityScale(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
     )
 
     companion object

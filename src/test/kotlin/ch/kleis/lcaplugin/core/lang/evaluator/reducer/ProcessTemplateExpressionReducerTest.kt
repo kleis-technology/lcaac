@@ -37,7 +37,7 @@ class ProcessTemplateExpressionReducerTest {
                 biosphere = emptyList(),
             )
         )
-        val arguments = mapOf(
+        val arguments: Map<String, QuantityExpression> = mapOf(
             Pair("q_carrot", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
@@ -52,14 +52,14 @@ class ProcessTemplateExpressionReducerTest {
                 name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
-                        EQuantityLiteral(3.0, UnitFixture.kg),
+                        EQuantityScale(3.0, UnitFixture.kg),
                         ProductFixture.carrot.copy(
                             fromProcessRef =
                             FromProcessRef(
                                 "carrot_production",
                                 mapOf(
                                     "q_carrot" to QuantityFixture.twoKilograms,
-                                    "q_water" to QuantityFixture.oneLitre,
+                                    "q_water" to UnitFixture.l,
                                 )
                             )
                         )
@@ -67,7 +67,7 @@ class ProcessTemplateExpressionReducerTest {
                 ),
                 inputs = listOf(
                     ETechnoExchange(
-                        QuantityFixture.oneLitre,
+                        UnitFixture.l,
                         ProductFixture.water
                     ),
                 ),
@@ -104,7 +104,7 @@ class ProcessTemplateExpressionReducerTest {
                 biosphere = emptyList(),
             )
         )
-        val arguments = mapOf(
+        val arguments: Map<String, QuantityExpression> = mapOf(
             Pair("foo", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)

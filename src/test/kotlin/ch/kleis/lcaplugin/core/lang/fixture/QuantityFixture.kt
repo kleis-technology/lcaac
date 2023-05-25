@@ -1,13 +1,13 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
+import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 
 class QuantityFixture {
     companion object {
-        val oneKilogram = EQuantityLiteral(1.0, UnitFixture.kg)
-        val twoKilograms = EQuantityLiteral(2.0, UnitFixture.kg)
-        val oneLitre = EQuantityLiteral(1.0, UnitFixture.l)
-        val twoLitres = EQuantityLiteral(2.0, UnitFixture.l)
-        val hundredPercent = EQuantityLiteral(100.0, UnitFixture.percent)
+        val oneKilogram = EQuantityScale(1.0, UnitFixture.kg)
+        val twoKilograms = EQuantityScale(2.0, UnitFixture.kg)
+        val oneLitre = EQuantityScale(1.0, UnitFixture.l)
+        val twoLitres = EQuantityScale(2.0, UnitFixture.l)
+        val hundredPercent = EQuantityScale(100.0, UnitFixture.percent)
     }
 }

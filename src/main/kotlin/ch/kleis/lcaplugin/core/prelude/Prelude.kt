@@ -2,10 +2,8 @@ package ch.kleis.lcaplugin.core.prelude
 
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityLiteral
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
-import ch.kleis.lcaplugin.core.lang.expression.UnitExpression
 
 
 class Prelude {
@@ -78,10 +76,6 @@ class Prelude {
             EUnitLiteral("m3y", 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol }
 
-        val units: Register<UnitExpression> = Register.from(unitMap)
-        val unitQuantities: Register<QuantityExpression> = Register.from(
-            unitMap.mapValues { EQuantityLiteral(1.0, it.value) }
-        )
-
+        val units: Register<QuantityExpression> = Register.from(unitMap)
     }
 }
