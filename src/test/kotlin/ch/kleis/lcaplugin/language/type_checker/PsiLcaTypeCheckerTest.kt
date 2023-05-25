@@ -1,10 +1,8 @@
 package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.type.TProduct
-import ch.kleis.lcaplugin.core.lang.type.TQuantity
-import ch.kleis.lcaplugin.core.lang.type.TTechnoExchange
-import ch.kleis.lcaplugin.core.lang.type.TUnit
+import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
+import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
@@ -21,6 +19,88 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     override
     fun getTestDataPath(): String {
         return "testdata"
+    }
+
+    @Test
+    fun test_whenBioExchangeCompatibleRefUnitAndQuantityExpressionUnit_shouldTypeCheck() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca",
+            """
+            package $pkgName
+            
+            substance testSubstance {
+                name = "testSubstance"
+                type = Emission
+                compartment = "air"
+                reference_unit = kg
+
+                impacts {
+                    1 kg cc
+                }
+            }
+
+            process testProcess {
+                products {
+                    1 kg testProduct
+                }
+                emissions {
+                    1 kg testSubstance(compartment="air")
+                }
+            }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.testProcess").first()
+            .getEmissions().first()
+        val checker = PsiLcaTypeChecker()
+        val expected = TBioExchange(TSubstance("testSubstance", DimensionFixture.mass, "air", null))
+
+        // when
+        val actual = checker.check(target)
+
+        // then
+        TestCase.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun test_whenBioExchangeNotCompatibleRefUnitAndQuantityExpressionUnit_shouldThrow() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca",
+            """
+            package $pkgName
+            
+            substance testSubstance {
+                name = "testSubstance"
+                type = Emission
+                compartment = "air"
+                reference_unit = kg
+
+                impacts {
+                    1 kg cc
+                }
+            }
+
+            process testProcess {
+                products {
+                    1 kg testProduct
+                }
+                emissions {
+                    1 l testSubstance(compartment="air")
+                }
+            }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.testProcess").first()
+            .getEmissions().first()
+        val checker = PsiLcaTypeChecker()
+        val expected = "Incompatible dimensions: substance reference dimension is mass but exchange dimension is length³"
+
+        // when + then
+        val error = assertFailsWith(PsiTypeCheckException::class) { checker.check(target) }
+        assertEquals(expected, error.message)
     }
 
     @Test
