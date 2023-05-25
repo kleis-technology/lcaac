@@ -20,7 +20,7 @@ data class EProductSpec(
 }
 
 // Substance
-enum class SubstanceType(val value: String) { // TODO Undefined because of ReduceAndComplete.completeSubstances(), to solve
+enum class SubstanceType(val value: String) {
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
