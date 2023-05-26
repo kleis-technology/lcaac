@@ -20,6 +20,30 @@ import kotlin.test.assertFailsWith
 @RunWith(JUnit4::class)
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
     @Test
+    fun test_shouldMapLabels() {
+        // given
+        val file = parseFile(
+            "hello", """
+                process p {
+                    labels {
+                        xyz = "abc"
+                    }
+                }
+            """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+
+        // when
+        val actual = parser.load().getTemplate("p")!!.body.labels
+
+        // then
+        val expected = mapOf("xyz" to EStringLiteral("abc"))
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun testParse_shouldPreventDefiningTwoReferenceUnitsForTheSameDimension() {
         // given
         val file = parseFile(

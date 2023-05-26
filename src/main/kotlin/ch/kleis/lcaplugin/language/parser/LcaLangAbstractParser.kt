@@ -115,6 +115,7 @@ class LcaLangAbstractParser(
         globals: Register<DataExpression>,
     ): EProcessTemplate {
         val name = psiProcess.name
+        val labels = psiProcess.getLabels().mapValues { EStringLiteral(it.value) }
         val locals = psiProcess.getVariables().mapValues { parseQuantityExpression(it.value) }
         val params = psiProcess.getParameters().mapValues { parseQuantityExpression(it.value) }
         val symbolTable = SymbolTable(
@@ -132,7 +133,7 @@ class LcaLangAbstractParser(
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
             name = name,
-            labels = TODO(),
+            labels = labels,
             products = products,
             inputs = inputs,
             biosphere = biosphere,

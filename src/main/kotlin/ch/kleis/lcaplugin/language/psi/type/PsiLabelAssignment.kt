@@ -12,7 +12,7 @@ interface PsiLabelAssignment : PsiNameIdentifierOwner {
     }
 
     fun getValue(): String {
-        return node.findChildByType(LcaTypes.STRING_LITERAL)?.text as String
+        return node.findChildByType(LcaTypes.STRING_LITERAL)?.text?.trim('"') as String
     }
 
     override fun getName(): String {

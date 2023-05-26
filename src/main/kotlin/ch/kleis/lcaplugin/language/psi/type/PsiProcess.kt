@@ -50,6 +50,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.technoInputExchangeList }
     }
 
+    fun getLabels(): Map<String, String> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaLabels::class.java)
+            .flatMap { it.labelAssignmentList }
+            .associate { it.name to it.getValue() }
+    }
+
     fun getEmissions(): Collection<LcaBioExchange> {
         return node.getChildren(TokenSet.create(LcaTypes.BLOCK_EMISSIONS))
             .map { it.psi as LcaBlockEmissions }
