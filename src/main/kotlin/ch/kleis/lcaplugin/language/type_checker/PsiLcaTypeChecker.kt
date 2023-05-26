@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
+import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
@@ -48,8 +49,31 @@ class PsiLcaTypeChecker {
             is PsiAssignment -> checkQuantityExpression(element.getValue())
             is LcaTechnoInputExchange -> checkTechnoInputExchange(element)
             is PsiTechnoProductExchange -> checkTechnoProductExchange(element)
-            else -> throw IllegalArgumentException()
+            is LcaBioExchange -> checkBioExchange(element)
+            else -> throw IllegalArgumentException("Uncheckable type: $element")
         }
+    }
+
+    private fun checkBioExchange(lcaBioExchange: LcaBioExchange): TBioExchange {
+        return rec.guard { el: LcaBioExchange ->
+            val tyQuantity = checkQuantityExpression(el.quantityExpression)
+            val name = el.substanceSpec.name
+            val comp = el.substanceSpec.getCompartmentField()?.getValue() ?: ""
+            val subComp = el.substanceSpec.getSubCompartmentField()?.getValue()
+            el.substanceSpec.reference.resolve()?.let {
+                if (it is PsiSubstance) {
+                    val tyRefQuantity = checkQuantityExpression(it.getReferenceUnitField().quantityExpression)
+                    if (tyRefQuantity.dimension != tyQuantity.dimension) {
+                        throw PsiTypeCheckException(
+                            "Incompatible dimensions: substance reference dimension is ${tyRefQuantity.dimension} " +
+                                "but exchange dimension is ${tyQuantity.dimension}")
+                    }
+                } else {
+                    throw PsiTypeCheckException("Expected a PsiSubstance element but was ${it::class}")
+                }
+            }
+            TBioExchange(TSubstance(name, tyQuantity.dimension, comp, subComp))
+        }(lcaBioExchange)
     }
 
     private fun checkProcessArguments(element: PsiProcess): Map<String, TQuantity> {

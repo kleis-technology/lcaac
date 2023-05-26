@@ -6,7 +6,10 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
@@ -43,7 +46,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
                 """unresolved substance co2(compartment="air")"""
             )
         }
-        verify { mock.builder.range(element.getSubstanceSpec()) }
+        verify { mock.builder.range(element.substanceSpec) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
     }

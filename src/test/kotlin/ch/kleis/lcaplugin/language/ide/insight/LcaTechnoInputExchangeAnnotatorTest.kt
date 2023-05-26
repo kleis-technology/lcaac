@@ -6,7 +6,10 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.verify
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {

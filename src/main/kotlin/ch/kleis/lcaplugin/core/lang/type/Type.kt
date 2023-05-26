@@ -22,6 +22,10 @@ data class TSubstance(
     val subCompartment: String? = null,
 ) : TypeLcaExpression
 
+data class TBioExchange(
+    val substance: TSubstance
+) : TypeLcaExpression
+
 data class TTechnoExchange(
     val product: TProduct,
 ) : TypeLcaExpression
