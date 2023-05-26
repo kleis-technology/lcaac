@@ -380,6 +380,31 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
+    fun testParse_whenDefineUnitAndVariableWithSameName_shouldThrow() {
+        // given
+        // unit p from prelude
+        val file = parseFile(
+            "hello", """
+                process p {
+                    variables {
+                        p = 1 kg
+                    }
+                    products {
+                        1 kg productName
+                    }
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+
+        // when/then
+        val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
+        assertEquals("Conflict between local variable(s) [p] and a global definition.", e.message)
+    }
+
+    @Test
     fun testParse_withPackage_shouldReturnGivenPackageName() {
         // given
         val file = parseFile(
