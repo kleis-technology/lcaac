@@ -40,6 +40,7 @@
       INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
       RESOURCES_KEYWORD = 'resources'
+      LABELS_KEYWORD = 'labels'
       IMPORT_KEYWORD = 'import'
       IDENTIFIER = 'identifier'
       NUMBER = 'number'
@@ -170,6 +171,7 @@ aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantityExpression
 process ::= PROCESS_KEYWORD processTemplateRef
 LBRACE (
     params
+    | labels
     | variables
     | block_products
     | block_inputs
@@ -182,6 +184,12 @@ LBRACE (
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub"
+}
+
+labels ::= LABELS_KEYWORD LBRACE labelAssignment* RBRACE
+labelAssignment ::= labelRef EQUAL STRING_LITERAL {
+    implements=["ch.kleis.lcaplugin.language.psi.type.PsiLabelAssignment"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiLabelAssignmentMixin"
 }
 
 params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE
@@ -282,6 +290,11 @@ unitDefinition ::= UNIT_KEYWORD quantityRef LBRACE symbolField ( dimField | alia
 productRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProductRefMixin"
+}
+
+labelRef ::= uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiLabelRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiLabelRefMixin"
 }
 
 quantityRef ::= uid {
