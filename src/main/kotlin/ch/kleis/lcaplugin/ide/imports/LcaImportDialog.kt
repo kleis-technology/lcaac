@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.ide.imports
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.ide.component.ProgressBar
 import ch.kleis.lcaplugin.ide.imports.progressbar.AsynchronousImportWorker
-import ch.kleis.lcaplugin.ide.imports.progressbar.ProgressBar
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DefaultActionGroup

@@ -1,34 +1,58 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
 import java.awt.BorderLayout
 import java.awt.datatransfer.Transferable
-import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.JTable
-import javax.swing.TransferHandler
+import java.awt.event.MouseAdapter
+import java.awt.event.MouseEvent
+import javax.swing.*
 import javax.swing.plaf.UIResource
 
 /*
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaProcessAssessResult(result: InventoryMatrix) : LcaToolWindowContent {
+class LcaProcessAssessResult(inventory: InventoryMatrix, val project: Project, val name: String) :
+    LcaToolWindowContent {
     private val content: JPanel
 
     init {
-        val tableModel = InventoryTableModel(result)
+        val tableModel = InventoryTableModel(inventory)
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
+        table.addMouseListener(SaveListener(project, inventory, name))
+        table.toolTipText = MyBundle.message("lca.dialog.export.tooltip")
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)
         content = JPanel(BorderLayout())
         content.add(defaultScrollPane, BorderLayout.CENTER)
         content.updateUI()
+    }
+
+    private class SaveListener(val project: Project, val inventory: InventoryMatrix, val name: String) :
+        MouseAdapter() {
+        override fun mouseReleased(e: MouseEvent?) {
+            if (SwingUtilities.isRightMouseButton(e)) {
+                val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
+
+                val content = ContentFactory.getInstance()
+                    .createContent(
+                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info").getContent(), name, false
+                    )
+                toolWindow.contentManager.addContent(content)
+                toolWindow.contentManager.setSelectedContent(content)
+                toolWindow.show()
+
+            }
+        }
     }
 
     override fun getContent(): JPanel {

@@ -7,7 +7,8 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitOf
-import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import java.lang.Double.parseDouble
 
 class CsvProcessor(
@@ -31,8 +32,7 @@ class CsvProcessor(
         val inventory = assessment.inventory()
         val outputPort =
             systemValue.firstProductOf(processName) ?: throw EvaluatorException("$processName has no products")
-        val impacts = inventory.row(outputPort)
-            .associate { it.input.port() to renderCf(it, it.input.port(), outputPort) }
+        val impacts = inventory.rowAsMap(outputPort)
         return CsvResult(
             request,
             outputPort,
@@ -49,12 +49,3 @@ private fun SystemValue.firstProductOf(processName: String): ProductValue? {
         ?.firstOrNull()
 }
 
-private fun renderCf(
-    cf: CharacterizationFactorValue,
-    inputPort: MatrixColumnIndex,
-    outputPort: MatrixColumnIndex,
-): QuantityValue {
-    val numerator = cf.input.quantity().referenceValue() / inputPort.referenceUnit().scale
-    val denominator = cf.output.quantity().referenceValue() / outputPort.referenceUnit().scale
-    return QuantityValue(numerator / denominator, inputPort.referenceUnit())
-}

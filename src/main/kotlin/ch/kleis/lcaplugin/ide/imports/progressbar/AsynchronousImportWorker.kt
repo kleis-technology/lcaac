@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.ide.imports.progressbar
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.ide.component.ProgressBar
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
 import ch.kleis.lcaplugin.imports.simapro.*
 import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController

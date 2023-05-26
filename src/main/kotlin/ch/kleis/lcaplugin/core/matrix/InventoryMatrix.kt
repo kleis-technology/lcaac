@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 
-
 class InventoryMatrix(
     val observablePorts: IndexedCollection<MatrixColumnIndex>,
     val controllablePorts: IndexedCollection<MatrixColumnIndex>,
@@ -33,9 +32,22 @@ class InventoryMatrix(
         return CharacterizationFactorValue(output, input)
     }
 
-    fun row(outputPort: MatrixColumnIndex): List<CharacterizationFactorValue> {
-        return controllablePorts.getElements().map {
-            this.value(outputPort, it)
-        }
+    fun valueRatio(outputPort: MatrixColumnIndex, inputPort: MatrixColumnIndex): QuantityValue {
+        val cf = value(outputPort, inputPort)
+        val input = cf.input
+        val output = cf.output
+        val numerator = input.quantity().referenceValue() / inputPort.referenceUnit().scale
+        val denominator = output.quantity().referenceValue() / outputPort.referenceUnit().scale
+        return QuantityValue(numerator / denominator, inputPort.referenceUnit())
     }
+    
+    fun rowAsMap(outputPort: MatrixColumnIndex): Map<MatrixColumnIndex, QuantityValue> {
+        return controllablePorts.getElements().associateWith { this.valueRatio(outputPort, it) }
+    }
+
+    fun nbCells(): Int {
+        return observablePorts.size() * controllablePorts.size()
+    }
+
+
 }

@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.actions
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessHugeResult
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
@@ -17,6 +18,8 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.content.ContentFactory
+
+const val DISPLAY_MAX_CELLS = 1000
 
 class AssessProcessAction(private val processName: String) : AnAction(
     "Run",
@@ -55,9 +58,12 @@ class AssessProcessAction(private val processName: String) : AnAction(
 
             private fun displayInventory(project: Project, inventory: InventoryMatrix) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-                val lcaProcessAssessResult = LcaProcessAssessResult(inventory)
-                val content =
-                    ContentFactory.getInstance().createContent(lcaProcessAssessResult.getContent(), project.name, false)
+                val assessResultContent = if (inventory.nbCells() <= DISPLAY_MAX_CELLS) {
+                    LcaProcessAssessResult(inventory, project, processName).getContent()
+                } else {
+                    LcaProcessAssessHugeResult(inventory, "lca.dialog.export.warning").getContent()
+                }
+                val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
                 toolWindow.contentManager.addContent(content)
                 toolWindow.contentManager.setSelectedContent(content)
                 toolWindow.show()
