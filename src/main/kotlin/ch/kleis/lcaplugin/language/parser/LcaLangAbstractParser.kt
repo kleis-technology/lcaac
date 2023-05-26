@@ -116,7 +116,11 @@ class LcaLangAbstractParser(
         val locals = psiProcess.getVariables().mapValues { parseQuantityExpression(it.value) }
         val params = psiProcess.getParameters().mapValues { parseQuantityExpression(it.value) }
         val symbolTable = SymbolTable(
-            quantities = Register(globals.plus(params).plus(locals)),
+            quantities = try {
+                Register(globals.plus(params).plus(locals))
+            } catch (e: RegisterException) {
+                throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
+            },
         )
         val products = generateTechnoProductExchanges(psiProcess, symbolTable)
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
