@@ -56,9 +56,10 @@ class ProcessTemplateExpressionReducerTest {
                     ETechnoExchange(
                         EQuantityScale(3.0, UnitFixture.kg),
                         ProductFixture.carrot.copy(
-                            fromProcessRef =
+                            fromProcess =
                             FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf(
                                     "q_carrot" to QuantityFixture.twoKilograms,
                                     "q_water" to QuantityFixture.oneLitre,

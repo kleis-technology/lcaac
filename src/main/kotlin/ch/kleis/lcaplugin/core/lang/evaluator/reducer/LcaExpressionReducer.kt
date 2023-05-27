@@ -63,7 +63,7 @@ class LcaExpressionReducer(
         return EProductSpec(
             expression.name,
             expression.referenceUnit?.let { dataExpressionReducer.reduceQuantity(it) },
-            expression.fromProcessRef?.let { ref ->
+            expression.fromProcess?.let { ref ->
                 ref.copy(
                     arguments = ref.arguments.mapValues { dataExpressionReducer.reduce(it.value) }
                 )

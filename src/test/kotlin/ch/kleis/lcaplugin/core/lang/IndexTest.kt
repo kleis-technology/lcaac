@@ -16,15 +16,15 @@ class IndexTest {
         val b = EQuantityRef("b")
         val register = Register.empty<EQuantityRef>().plus(listOf(key to a, key2 to b))
         val index = Index(
-                register,
-                object : IndexKeySerializer<String> {
-                    override fun serialize(key: String): String = key
-                },
-                EQuantityRef.name,
+            register,
+            object : IndexKeySerializer<String> {
+                override fun serialize(key: String): String = key
+            },
+            EQuantityRef.name,
         )
 
         // when
-        val actual = index["a"]
+        val actual = index.firstOrNull("a")
 
         // then
         assertEquals(a, actual)

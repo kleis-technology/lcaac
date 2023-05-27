@@ -261,6 +261,7 @@ class LcaExpressionReducerTest {
             UnitFixture.kg,
             FromProcess(
                 "p",
+                MatchLabels.EMPTY,
                 mapOf(
                     Pair("x", EQuantityRef("q"))
                 )
@@ -284,6 +285,7 @@ class LcaExpressionReducerTest {
             QuantityFixture.oneKilogram,
             FromProcess(
                 "p",
+                MatchLabels.EMPTY,
                 mapOf(
                     Pair("x", EQuantityScale(3.0, UnitFixture.kg))
                 )

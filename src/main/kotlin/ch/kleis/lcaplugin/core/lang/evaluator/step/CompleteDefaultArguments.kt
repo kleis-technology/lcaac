@@ -18,16 +18,13 @@ class CompleteDefaultArguments(
             is EProcessFinal -> expression
             is EProcessTemplate -> this.apply(EProcessTemplateApplication(expression, emptyMap()))
             is EProcessTemplateApplication -> everyInputProduct.modify(expression) {
-                it.fromProcessRef?.let { ref ->
-                    val process = symbolTable.getTemplate(ref.ref)
-                        ?: throw EvaluatorException("unknown process ${ref.ref}")
+                it.fromProcess?.let { ref ->
+                    val process = symbolTable.getTemplate(ref.name)
+                        ?: throw EvaluatorException("unknown process ${ref.name}")
                     val actualArguments = process.params.plus(ref.arguments)
-                    EProductSpec(
-                        it.name,
-                        it.referenceUnit,
-                        FromProcess(
-                            ref.ref,
-                            actualArguments,
+                    it.copy(
+                        fromProcess = it.fromProcess.copy(
+                            arguments = actualArguments
                         )
                     )
                 } ?: it

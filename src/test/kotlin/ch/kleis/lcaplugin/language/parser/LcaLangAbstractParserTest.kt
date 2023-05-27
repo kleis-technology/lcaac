@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.language.parser
 import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
-import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
@@ -36,7 +35,9 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         )
 
         // when
-        val actual = parser.load().getTemplate("p")!!.body.labels
+        val actual = parser.load().getTemplate(
+            "p", mapOf("xyz" to "abc"),
+        )!!.body.labels
 
         // then
         val expected = mapOf("xyz" to EStringLiteral("abc"))
@@ -197,7 +198,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // when
-        val template = symbolTable.processTemplates["a"] as ProcessTemplateExpression
+        val template = symbolTable.getTemplate("a") as ProcessTemplateExpression
         val actual =
             (ProcessTemplateExpression.eProcessTemplate.body.biosphere compose
                 Every.list() compose EBioExchange.substance).firstOrNull(template)
@@ -287,7 +288,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testParse_whenDefineProductTwice_shouldThrow() {
+    fun testParse_whenDefineProductTwice_shouldIndexBothProcesses() {
         // given
         val file = parseFile(
             "hello", """
@@ -307,9 +308,12 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             sequenceOf(file)
         )
 
-        // when/then
-        val e = assertFailsWith(RegisterException::class, null) { parser.load() }
-        assertEquals("[x] is already bound", e.message)
+        // when
+        val actual = parser.load().getAllTemplatesByProductName("x")
+
+        // then
+        assertEquals(listOf("a", "b"), actual.map { it.body.name })
+        assertEquals(listOf("x", "x"), actual.flatMap { it.body.products }.map { it.product.name })
     }
 
     @Test
@@ -678,8 +682,9 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 EQuantityScale(10.0, EQuantityRef("l")),
                 EProductSpec(
                     "water",
-                    fromProcessRef = FromProcess(
+                    fromProcess = FromProcess(
                         "water_proc",
+                        MatchLabels.EMPTY,
                         mapOf("x" to EQuantityScale(3.0, EQuantityRef("l"))),
                     ),
                 )
@@ -763,7 +768,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         // then
-        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
+        val actual = ((symbolTable.getTemplate("carrot") as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
             data = Prelude.unitsAsData
         )
@@ -796,7 +801,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // when
         val symbolTable = parser.load()
         // then
-        val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
+        val actual = ((symbolTable.getTemplate("carrot") as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
             data = Prelude.unitsAsData
         )
@@ -844,7 +849,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        val template: EProcessTemplate = symbolTable.processTemplates["p"]
+        val template: EProcessTemplate = symbolTable.getTemplate("p")
             ?: throw Exception("template fetching barfed")
         val local = template.locals["r"] ?: throw Exception("locals barfed")
         assertEquals(expected, local)
@@ -884,7 +889,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        val template: EProcessTemplate = symbolTable.processTemplates["p"]
+        val template: EProcessTemplate = symbolTable.getTemplate("p")
             ?: throw Exception("template fetching barfed")
         val local = template.locals["r"] ?: throw Exception("locals barfed")
         assertEquals(expected, local)

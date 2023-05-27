@@ -62,22 +62,25 @@ class Evaluator(
         val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
         val nextInstances = HashSet<EProcessTemplateApplication>()
         val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
-            resolveProcessTemplateFromProduct(spec)?.let { template ->
+            resolveProcessTemplateByProductSpec(spec)?.let { template ->
                 val body = template.body
-                val arguments = spec.fromProcessRef?.arguments
+                val labels = spec.fromProcess?.matchLabels
+                    ?: MatchLabels(template.body.labels)
+                val arguments = spec.fromProcess?.arguments
                     ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
                 spec.copy(
-                    fromProcessRef =
+                    fromProcess =
                     FromProcess(
                         body.name,
+                        labels,
                         arguments,
                     )
                 )
             } ?: spec
         }
         val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
-            resolveSubstanceCharacterizationBySubstance(spec)?.let {
+            resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
                 val substanceCharacterization = reduceAndComplete.apply(it)
                 accumulator.plus(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
@@ -100,15 +103,12 @@ class Evaluator(
         }
     }
 
-    private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
+    private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
         return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
     }
 
-    private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
-        return spec.fromProcessRef?.ref?.let { processName ->
-            val candidate = processResolver.resolve(spec)
-            return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")
-        } ?: processResolver.resolve(spec)
+    private fun resolveProcessTemplateByProductSpec(spec: EProductSpec): EProcessTemplate? {
+        return processResolver.resolve(spec)
     }
 }
 

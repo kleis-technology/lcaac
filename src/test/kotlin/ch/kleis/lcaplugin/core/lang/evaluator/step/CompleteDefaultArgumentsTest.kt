@@ -48,6 +48,7 @@ class CompleteDefaultArgumentsTest {
                                 UnitFixture.kg,
                                 FromProcess(
                                     "carrot_production",
+                                    MatchLabels.EMPTY,
                                     mapOf(
                                         "q_water" to QuantityFixture.twoLitres,
                                     )
@@ -68,11 +69,12 @@ class CompleteDefaultArgumentsTest {
             .compose(ETechnoExchange.product)
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcess
 
         // then
         val expected = FromProcess(
             "carrot_production",
+            MatchLabels.EMPTY,
             params.plus("q_water" to QuantityFixture.twoLitres)
         )
         assertEquals(expected, actual)
@@ -112,6 +114,7 @@ class CompleteDefaultArgumentsTest {
                             UnitFixture.kg,
                             FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf(
                                     "q_water" to QuantityFixture.twoLitres,
                                 )
@@ -131,11 +134,12 @@ class CompleteDefaultArgumentsTest {
             .compose(ETechnoExchange.product)
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcess
 
         // then
         val expected = FromProcess(
             "carrot_production",
+            MatchLabels.EMPTY,
             params.plus("q_water" to QuantityFixture.twoLitres)
         )
         assertEquals(expected, actual)
@@ -175,6 +179,7 @@ class CompleteDefaultArgumentsTest {
                             UnitFixture.kg,
                             FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 emptyMap(),
                             )
                         )
@@ -192,11 +197,12 @@ class CompleteDefaultArgumentsTest {
             .compose(ETechnoExchange.product)
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcess
 
         // then
         val expected = FromProcess(
             "carrot_production",
+            MatchLabels.EMPTY,
             params,
         )
         assertEquals(expected, actual)
@@ -249,7 +255,7 @@ class CompleteDefaultArgumentsTest {
             .compose(ETechnoExchange.product)
 
         // when
-        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
+        val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcess
 
         // then
         assertNull(actual)

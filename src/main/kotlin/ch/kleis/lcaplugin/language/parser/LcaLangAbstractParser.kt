@@ -80,7 +80,7 @@ class LcaLangAbstractParser(
             Register.empty<EProcessTemplate>()
                 .plus(
                     processDefinitions
-                        .map { Pair(it.getProcessTemplateRef().getUID().name, process(it, globals)) }
+                        .map { Pair(it.buildUniqueKey(), process(it, globals)) }
                         .asIterable()
                 )
         } catch (e: RegisterException) {
@@ -215,14 +215,15 @@ class LcaLangAbstractParser(
     ): EProductSpec {
         return EProductSpec(
             psiProductRef.name,
-            fromProcessRef = fromProcessRef(psiFromProcessConstraint),
+            fromProcess = fromProcessRef(psiFromProcessConstraint),
         )
     }
 
     private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
         return psiFromProcessConstraint?.let {
             FromProcess(
-                ref = it.processTemplateRef!!.name,
+                name = it.processTemplateRef!!.name,
+                matchLabels = MatchLabels.EMPTY, // TODO: Map labels
                 arguments = psiFromProcessConstraint
                     .argumentList
                     .associate { arg -> arg.parameterRef.name to parseQuantityExpression(arg.quantityExpression) }

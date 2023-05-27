@@ -196,6 +196,7 @@ class EvaluatorTest {
                             UnitFixture.kg,
                             FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
@@ -280,7 +281,7 @@ class EvaluatorTest {
             emptyMap(),
             emptyMap(),
             EProcess(
-                name = "carrot_production",
+                name = "salad_production",
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
@@ -295,6 +296,7 @@ class EvaluatorTest {
                             UnitFixture.kg,
                             FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
@@ -307,10 +309,10 @@ class EvaluatorTest {
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when/then
-        assertFailsWith(
+        val e = assertFailsWith(
             EvaluatorException::class,
-            "no process 'carrot_production' providing 'irrelevant_product' found"
         ) { recursiveEvaluator.eval(expression) }
+        assertEquals("no process 'carrot_production' providing 'irrelevant_product' found", e.message)
     }
 
     @Test

@@ -15,8 +15,7 @@ sealed interface LcaExpression : Expression {
 data class EProductSpec(
     val name: String,
     val referenceUnit: QuantityExpression? = null,
-    val fromProcessRef: FromProcess? = null,
-    val matchLabels: MatchLabels? = null,
+    val fromProcess: FromProcess? = null,
 ) : LcaExpression {
     companion object
 }

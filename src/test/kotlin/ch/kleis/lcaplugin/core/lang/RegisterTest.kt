@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.expression.*
+import com.intellij.openapi.ui.naturalSorted
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -95,15 +96,16 @@ class RegisterTest {
         val sut = Register.empty<EQuantityRef>().plus(listOf(key to a, key2 to b))
 
         // When
-        val entries = sut.getEntries(EQuantityRef.name)
+        val actual = sut.getEntries(EQuantityRef.name)["a"]!!
 
         // Then
-        assertEquals(a, entries["a"])
+        assertEquals(1, actual.size)
+        assertEquals(a, actual[0])
     }
 
     @Test
-    fun getEntries_ShouldReturnAnError_WhenContainsDuplicates() {
-        // Given
+    fun getEntries_whenContainsDuplicates_shouldReturnList() {
+        // given
         val keyA = "abc.a"
         val keyB = "abc.b"
         val kg = EQuantityRef("kg")
@@ -114,8 +116,11 @@ class RegisterTest {
             .plus(listOf(keyA to a, keyB to b))
 
 
-        // When + Then
-        val e = assertFailsWith(RegisterException::class, null) { register.getEntries(optics) }
-        assertEquals("[kg] is already bound", e.message)
+        // when
+        val actual = register.getEntries(optics)
+
+        // then
+        assertEquals(1, actual.size)
+        assertEquals(listOf(a, b).naturalSorted(), actual["kg"]!!)
     }
 }

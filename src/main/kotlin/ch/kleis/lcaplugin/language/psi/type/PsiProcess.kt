@@ -17,6 +17,8 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_REF)?.psi as PsiProcessTemplateRef
     }
 
+    fun buildUniqueKey(): String = if (this.getLabels().isEmpty()) this.name else "${this.name}${this.getLabels()}"
+
     override fun getName(): String {
         return getProcessTemplateRef().name
     }

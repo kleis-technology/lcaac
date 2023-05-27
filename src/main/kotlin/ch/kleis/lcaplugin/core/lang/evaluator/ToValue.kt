@@ -75,7 +75,7 @@ fun EProductSpec.toValue(): ProductValue {
     val name = this.name
     val referenceUnitValue = this.referenceUnit?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
-    val fromProcessRefValue = this.fromProcessRef?.toValue()
+    val fromProcessRefValue = this.fromProcess?.toValue()
     return ProductValue(
         name,
         referenceUnitValue,
@@ -85,7 +85,7 @@ fun EProductSpec.toValue(): ProductValue {
 
 private fun FromProcess.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
-        this.ref,
+        this.name,
         this.arguments.mapValues {
             when (val e = it.value) {
                 is QuantityExpression -> e.toValue()

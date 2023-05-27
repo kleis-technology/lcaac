@@ -20,16 +20,15 @@ private val everyStringRefInStringExpression =
                 is EStringRef -> map(source)
             }
         }
-
     }
 
 private val everyStringRefInEProductSpec: PEvery<EProductSpec, EProductSpec, EStringRef, StringExpression> =
     Merge(
         listOf(
-            EProductSpec.matchLabels.elements compose
+            EProductSpec.fromProcess.matchLabels.elements compose
                 Every.map() compose
                 everyStringRefInStringExpression,
-            EProductSpec.fromProcessRef.arguments compose
+            EProductSpec.fromProcess.arguments compose
                 Every.map() compose
                 DataExpression.stringExpression compose
                 everyStringRefInStringExpression,

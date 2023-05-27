@@ -23,7 +23,11 @@ class HelperTest {
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
                     ProductFixture.carrot.copy(
-                        matchLabels = MatchLabels(mapOf("class" to ref))
+                        fromProcess = FromProcess(
+                            "another_process",
+                            MatchLabels(mapOf("class" to ref)),
+                            emptyMap(),
+                        ),
                     )
                 )
             ),
@@ -45,7 +49,11 @@ class HelperTest {
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
                     ProductFixture.carrot.copy(
-                        matchLabels = MatchLabels(mapOf("class" to EStringLiteral("foo")))
+                        fromProcess = FromProcess(
+                            "another_process",
+                            MatchLabels(mapOf("class" to EStringLiteral("foo"))),
+                            emptyMap(),
+                        ),
                     )
                 )
             ),
@@ -109,6 +117,7 @@ class HelperTest {
                         UnitFixture.kg,
                         FromProcess(
                             "carrot_production",
+                            MatchLabels.EMPTY,
                             mapOf(
                                 Pair("x", ref)
                             ),
@@ -136,6 +145,7 @@ class HelperTest {
                         UnitFixture.kg,
                         FromProcess(
                             "carrot_production",
+                            MatchLabels.EMPTY,
                             mapOf(
                                 Pair("x", QuantityFixture.oneKilogram)
                             ),
@@ -171,7 +181,7 @@ class HelperTest {
                             QuantityFixture.oneLitre, EProductSpec(
                                 "water",
                                 UnitFixture.l,
-                                FromProcess("template", emptyMap())
+                                FromProcess("template", MatchLabels.EMPTY, emptyMap())
                             )
                         ),
                     ),
