@@ -167,7 +167,7 @@ class LcaLangAbstractParser(
             type = SubstanceType.of(psiSubstance.getTypeField().getValue()),
             compartment = psiSubstance.getCompartmentField().getValue(),
             subCompartment = psiSubstance.getSubcompartmentField()?.getValue(),
-            referenceUnit = parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression),
+            referenceUnit = EUnitOf(parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression)),
         )
     }
 
@@ -181,7 +181,7 @@ class LcaLangAbstractParser(
             compartment = substanceSpec.getCompartmentField()?.getValue(),
             subCompartment = substanceSpec.getSubCompartmentField()?.getValue(),
             type = substanceSpec.getType(),
-            referenceUnit = EQuantityClosure(symbolTable, quantity)
+            referenceUnit = EUnitOf(EQuantityClosure(symbolTable, quantity)),
         )
 
 
@@ -234,9 +234,11 @@ class LcaLangAbstractParser(
             parseQuantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
                 .copy(
-                    referenceUnit = EQuantityClosure(
-                        symbolTable,
-                        parseQuantityExpression(psiExchange.getQuantity())
+                    referenceUnit = EUnitOf(
+                        EQuantityClosure(
+                            symbolTable,
+                            parseQuantityExpression(psiExchange.getQuantity())
+                        )
                     )
                 ),
             psiExchange.getAllocateField()?.let { allocation(it) }

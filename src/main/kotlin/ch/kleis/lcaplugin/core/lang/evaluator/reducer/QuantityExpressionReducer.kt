@@ -31,7 +31,21 @@ class QuantityExpressionReducer(
         val reducedExpression = reduce(unitOf.expression)
         return when {
             reducedExpression is EUnitLiteral -> reducedExpression
-            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> reducedExpression.base
+            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> {
+                val scale = reducedExpression.scale
+                if (scale != 0.0) {
+                    val baseSymbol = reducedExpression.base.symbol
+                    val baseScale = reducedExpression.base.scale
+                    val baseDimension = reducedExpression.base.dimension
+                    val displayScale = if (scale == 1.0) "" else "$scale "
+                    EUnitLiteral(
+                        "$displayScale$baseSymbol",
+                        reducedExpression.scale * baseScale,
+                        baseDimension
+                    )
+                } else reducedExpression.base
+            }
+
             reducedExpression is EUnitOf -> reducedExpression
             else -> EUnitOf(reducedExpression)
         }
@@ -84,16 +98,20 @@ class QuantityExpressionReducer(
                 )
 
             left is EQuantityScale && right is EQuantityScale ->
-                reduce(EQuantityScale(
-                    left.scale / right.scale,
-                    reduce(EQuantityDiv(left.base, right.base))
-                ))
+                reduce(
+                    EQuantityScale(
+                        left.scale / right.scale,
+                        reduce(EQuantityDiv(left.base, right.base))
+                    )
+                )
 
             left is EQuantityScale ->
-                reduce(EQuantityScale(
-                    left.scale,
-                    reduce(EQuantityDiv(left.base, right))
-                ))
+                reduce(
+                    EQuantityScale(
+                        left.scale,
+                        reduce(EQuantityDiv(left.base, right))
+                    )
+                )
 
             else -> EQuantityDiv(left, right)
         }
@@ -111,22 +129,28 @@ class QuantityExpressionReducer(
                 )
 
             left is EQuantityScale && right is EQuantityScale ->
-                reduce(EQuantityScale(
-                    left.scale * right.scale,
-                    reduce(EQuantityMul(left.base, right.base))
-                ))
+                reduce(
+                    EQuantityScale(
+                        left.scale * right.scale,
+                        reduce(EQuantityMul(left.base, right.base))
+                    )
+                )
 
             left is EQuantityScale ->
-                reduce(EQuantityScale(
-                    left.scale,
-                    reduce(EQuantityMul(left.base, right))
-                ))
+                reduce(
+                    EQuantityScale(
+                        left.scale,
+                        reduce(EQuantityMul(left.base, right))
+                    )
+                )
 
             right is EQuantityScale ->
-                reduce(EQuantityScale(
-                    right.scale,
-                    reduce(EQuantityMul(left, right.base))
-                ))
+                reduce(
+                    EQuantityScale(
+                        right.scale,
+                        reduce(EQuantityMul(left, right.base))
+                    )
+                )
 
             else -> EQuantityMul(left, right)
         }
@@ -200,7 +224,11 @@ class QuantityExpressionReducer(
                 EUnitLiteral(expression.symbol, aliasForExpression.scale, aliasForExpression.dimension)
 
             aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
-                EUnitLiteral(expression.symbol, aliasForExpression.scale * aliasForExpression.base.scale, aliasForExpression.base.dimension)
+                EUnitLiteral(
+                    expression.symbol,
+                    aliasForExpression.scale * aliasForExpression.base.scale,
+                    aliasForExpression.base.dimension
+                )
             }
 
             else -> EUnitAlias(expression.symbol, aliasForExpression)

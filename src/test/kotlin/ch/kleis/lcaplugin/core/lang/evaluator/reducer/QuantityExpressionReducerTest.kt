@@ -322,7 +322,8 @@ class QuantityExpressionReducerTest {
         // given
         val a = UnitFixture.kg
         val b = QuantityFixture.twoKilograms
-        val expected = EQuantityScale(2.0, EUnitLiteral("kg.kg", 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass)))
+        val expected =
+            EQuantityScale(2.0, EUnitLiteral("kg.kg", 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass)))
 
         // when
         val reducer = QuantityExpressionReducer(
@@ -341,7 +342,8 @@ class QuantityExpressionReducerTest {
         // given
         val a = QuantityFixture.twoKilograms
         val b = UnitFixture.kg
-        val expected = EQuantityScale(2.0, EUnitLiteral("kg.kg", 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass)))
+        val expected =
+            EQuantityScale(2.0, EUnitLiteral("kg.kg", 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass)))
 
         // when
         val reducer = QuantityExpressionReducer(
@@ -399,7 +401,10 @@ class QuantityExpressionReducerTest {
         // given
         val a = EQuantityScale(4.0, UnitFixture.km)
         val b = UnitFixture.hour
-        val expected = EQuantityScale(4.0, EUnitLiteral("km/hour", 1000.0 / 3600.0, DimensionFixture.length.divide(DimensionFixture.time)))
+        val expected = EQuantityScale(
+            4.0,
+            EUnitLiteral("km/hour", 1000.0 / 3600.0, DimensionFixture.length.divide(DimensionFixture.time))
+        )
         val reducer = QuantityExpressionReducer(Register.empty())
 
         // when
@@ -571,15 +576,28 @@ class QuantityExpressionReducerTest {
     fun reduce_whenUnitOfComplexExpression_shouldReturnUnitLiteral() {
         // given
         val expr = EUnitOf(EQuantityMul(UnitFixture.kg, QuantityFixture.twoLitres))
-        val expected = EUnitLiteral("kg.l", 1.0e-3, DimensionFixture.mass.multiply(DimensionFixture.volume))
+        val expected = EUnitLiteral("2.0 kg.l", 2.0e-3, DimensionFixture.mass.multiply(DimensionFixture.volume))
         val reducer = QuantityExpressionReducer(Register.empty())
 
         // when
         val actual = reducer.reduce(expr)
 
         // then
-        assertEquals(actual, expected)
+        assertEquals(expected, actual)
+    }
 
+    @Test
+    fun reduce_whenUnitOfComplexExpression_opposite_shouldReturnUnitLiteral() {
+        // given
+        val expr = EUnitOf(EQuantityMul(QuantityFixture.twoLitres, UnitFixture.kg))
+        val expected = EUnitLiteral("2.0 l.kg", 2.0e-3, DimensionFixture.mass.multiply(DimensionFixture.volume))
+        val reducer = QuantityExpressionReducer(Register.empty())
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        assertEquals(expected, actual)
     }
 
     @Test

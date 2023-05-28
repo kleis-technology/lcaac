@@ -214,7 +214,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         assertEquals("carbon dioxide", actual.displayName)
         assertEquals("air", actual.compartment)
         assertEquals("low pop", actual.subCompartment)
-        assertEquals(EQuantityRef("kg"), actual.referenceUnit)
+        assertEquals(EUnitOf(EQuantityRef("kg")), actual.referenceUnit)
     }
 
     @Test
@@ -458,9 +458,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                         EQuantityScale(1.0, EQuantityRef("kg")),
                         EProductSpec(
                             "carrot",
-                            EQuantityClosure(
-                                preludeSymbolTable,
-                                EQuantityScale(1.0, EQuantityRef("kg")),
+                            EUnitOf(
+                                EQuantityClosure(
+                                    preludeSymbolTable,
+                                    EQuantityScale(1.0, EQuantityRef("kg")),
+                                )
                             )
                         ),
                     ),
@@ -507,9 +509,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EQuantityDiv(
-            EQuantityRef("x"),
-            EQuantityRef("y"),
+        val expected = EUnitOf(
+            EQuantityDiv(
+                EQuantityRef("x"),
+                EQuantityRef("y"),
+            )
         )
         assertEquals(expected, actual)
     }
@@ -544,9 +548,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EQuantityMul(
-            EQuantityRef("x"),
-            EQuantityRef("y"),
+        val expected = EUnitOf(
+            EQuantityMul(
+                EQuantityRef("x"),
+                EQuantityRef("y"),
+            )
         )
         assertEquals(expected, actual)
     }
@@ -700,7 +706,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                     type = SubstanceType.RESOURCE,
                     compartment = "phosphate compartment",
                     subCompartment = "phosphate sub-compartment",
-                    referenceUnit = EQuantityRef("kg"),
+                    referenceUnit = EUnitOf(EQuantityRef("kg")),
                 ),
             ),
             impacts = listOf(
@@ -735,15 +741,15 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val preludeSymbolTable = SymbolTable(
             quantities = Prelude.units
         )
-        val expect = ETechnoExchange(
+        val expected = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
             EProductSpec(
                 "carrot",
-                EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg")))
+                EUnitOf(EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg"))))
             ),
             EQuantityScale(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
         )
-        assertEquals(expect, actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -772,7 +778,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             EQuantityScale(1.0, EQuantityRef("kg")),
             EProductSpec(
                 "carrot",
-                EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg")))
+                EUnitOf(EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg"))))
             ),
             EQuantityScale(10.0, EQuantityRef("percent"))
         )
