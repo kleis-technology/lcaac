@@ -23,6 +23,7 @@ import kotlin.io.path.Path
 
 class AssessProcessWithDataAction(
     private val processName: String,
+    private val matchLabels: Map<String, String>,
 ) : AnAction(
     "Run with ${processName}.csv",
     "Run with ${processName}.csv",
@@ -45,7 +46,7 @@ class AssessProcessWithDataAction(
                     indicator.text = "Reading $processName.csv"
                     val csvFile = Path(containingDirectory.virtualFile.path, "$processName.csv").toFile()
                     val requests = csvFile.inputStream().use {
-                        val requestReader = CsvRequestReader(processName, it)
+                        val requestReader = CsvRequestReader(processName, matchLabels, it)
                         requestReader.read()
                     }
 

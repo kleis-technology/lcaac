@@ -8,7 +8,12 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.progress.ProgressIndicator
 
-fun evaluateSystemWithIndicator(indicator: ProgressIndicator, file: LcaFile, processName: String): SystemValue {
+fun evaluateSystemWithIndicator(
+    indicator: ProgressIndicator,
+    file: LcaFile,
+    processName: String,
+    matchLabels: Map<String, String>,
+): SystemValue {
     indicator.isIndeterminate = true
 
     // read
@@ -22,7 +27,7 @@ fun evaluateSystemWithIndicator(indicator: ProgressIndicator, file: LcaFile, pro
     // compute
     indicator.text = "Solving system"
     val entryPoint =
-        symbolTable.getTemplate(processName)!! // We are called from a process, so it must exist
+        symbolTable.getTemplate(processName, matchLabels)!! // We are called from a process, so it must exist
 
     return Evaluator(symbolTable).eval(entryPoint)
 }

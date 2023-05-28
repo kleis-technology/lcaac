@@ -21,7 +21,10 @@ import com.intellij.ui.content.ContentFactory
 
 const val DISPLAY_MAX_CELLS = 1000
 
-class AssessProcessAction(private val processName: String) : AnAction(
+class AssessProcessAction(
+    private val processName: String,
+    private val matchLabels: Map<String, String>,
+) : AnAction(
     "Run",
     "Run",
     AllIcons.Actions.Execute,
@@ -37,7 +40,7 @@ class AssessProcessAction(private val processName: String) : AnAction(
             private var inventory: InventoryMatrix? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val systemValue = evaluateSystemWithIndicator(indicator, file, processName)
+                val systemValue = evaluateSystemWithIndicator(indicator, file, processName, matchLabels)
                 this.inventory = Assessment(systemValue).inventory()
             }
 
