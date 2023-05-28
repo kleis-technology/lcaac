@@ -44,11 +44,6 @@ data class EQuantitySub(val left: QuantityExpression, val right: QuantityExpress
 }
 
 @optics
-data class EQuantityNeg(val quantity: QuantityExpression) : QuantityExpression {
-    companion object
-}
-
-@optics
 data class EQuantityMul(val left: QuantityExpression, val right: QuantityExpression) : QuantityExpression {
     companion object
 }

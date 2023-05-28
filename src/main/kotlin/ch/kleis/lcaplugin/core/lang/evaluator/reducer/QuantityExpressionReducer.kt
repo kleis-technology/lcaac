@@ -17,7 +17,6 @@ class QuantityExpressionReducer(
             is EQuantityClosure -> reduceClosure(expression)
             is EQuantityDiv -> reduceDiv(expression)
             is EQuantityMul -> reduceMul(expression)
-            is EQuantityNeg -> reduceNeg(expression)
             is EQuantityPow -> reducePow(expression)
             is EQuantityRef -> reduceRef(expression)
             is EQuantityScale -> reduceScale(expression)
@@ -132,12 +131,6 @@ class QuantityExpressionReducer(
             else -> EQuantityMul(left, right)
         }
     }
-
-    private fun reduceNeg(expression: EQuantityNeg): QuantityExpression =
-        when (val quantity = reduce(expression.quantity)) {
-            is EQuantityScale -> EQuantityScale(-quantity.scale, quantity.base)
-            else -> EQuantityNeg(quantity)
-        }
 
     private fun reducePow(expression: EQuantityPow): QuantityExpression =
         when (val quantity = reduce(expression.quantity)) {

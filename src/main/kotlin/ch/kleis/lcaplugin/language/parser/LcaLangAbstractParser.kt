@@ -258,7 +258,7 @@ class LcaLangAbstractParser(
             }
 
             Polarity.NEGATIVE -> {
-                val quantity = EQuantityNeg(parseQuantityExpression(psiExchange.quantityExpression))
+                val quantity = EQuantityScale(-1.0, parseQuantityExpression(psiExchange.quantityExpression))
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
