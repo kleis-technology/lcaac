@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
@@ -23,8 +24,8 @@ class LcaProcessAssessResultTest {
     @Test
     fun test_getContent_AndPaste() {
         // Given
-        val p1 = ProductValue("carrot", UnitFixture.g.toValue())
-        val p2 = ProductValue("carrot_pack", UnitFixture.pack.toValue())
+        val p1 = ProductValue("carrot", UnitFixture.g.toUnitValue())
+        val p2 = ProductValue("carrot_pack", UnitFixture.pack.toUnitValue())
         val substance = SubstanceFixture.propanol.toValue()
         val product = ProductFixture.water.toValue()
 

@@ -41,19 +41,19 @@ class LcaExpressionReducerTest {
             name = "p",
             products = listOf(
                 ETechnoExchange(
-                    UnitFixture.kg,
+                    QuantityFixture.oneKilogram,
                     ProductFixture.carrot
                 ),
             ),
             inputs = listOf(
                 ETechnoExchange(
-                    UnitFixture.l,
+                    QuantityFixture.oneLitre,
                     ProductFixture.water
                 )
             ),
             biosphere = listOf(
                 EBioExchange(
-                    UnitFixture.kg,
+                    QuantityFixture.oneKilogram,
                     SubstanceFixture.propanol
                 ),
             ),
@@ -81,7 +81,7 @@ class LcaExpressionReducerTest {
 
         // then
         val expected = EImpact(
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
             EIndicatorSpec("cc"),
         )
         assertEquals(expected, actual)
@@ -107,7 +107,7 @@ class LcaExpressionReducerTest {
 
         // then
         val expected = ETechnoExchange(
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
             EProductSpec("carrot"),
         )
         assertEquals(expected, actual)
@@ -133,7 +133,7 @@ class LcaExpressionReducerTest {
 
         // then
         val expected = EBioExchange(
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
             ESubstanceSpec("propanol"),
         )
         assertEquals(expected, actual)
@@ -160,7 +160,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EIndicatorSpec(
             "cc",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         assertEquals(expected, actual)
     }
@@ -194,7 +194,7 @@ class LcaExpressionReducerTest {
             type = SubstanceType.RESOURCE,
             "air",
             null,
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         assertEquals(expected, actual)
     }
@@ -220,7 +220,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EProductSpec(
             "carrot",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         assertEquals(expected, actual)
     }
@@ -246,7 +246,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EProductSpec(
             "carrot",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         assertEquals(expected, actual)
     }
@@ -279,7 +279,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EProductSpec(
             "carrot",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
             FromProcessRef(
                 "p",
                 mapOf(
@@ -320,12 +320,12 @@ class LcaExpressionReducerTest {
         // then
         val expected = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
-                UnitFixture.kg,
+                QuantityFixture.oneKilogram,
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
                 EImpact(
-                    UnitFixture.kg,
+                    QuantityFixture.oneKilogram,
                     IndicatorFixture.climateChange
                 ),
             )

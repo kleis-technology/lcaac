@@ -11,7 +11,7 @@ class SubstanceFixture {
             type = SubstanceType.RESOURCE,
             "air",
             null,
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
     }
 }

@@ -6,15 +6,15 @@ class ProductFixture {
     companion object {
         val carrot = EProductSpec(
             "carrot",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         val salad = EProductSpec(
             "salad",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
         val water = EProductSpec(
             "water",
-            UnitFixture.l,
+            QuantityFixture.oneLitre,
         )
     }
 }

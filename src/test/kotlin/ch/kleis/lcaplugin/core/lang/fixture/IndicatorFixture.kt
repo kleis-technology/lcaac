@@ -6,7 +6,7 @@ class IndicatorFixture {
     companion object {
         val climateChange = EIndicatorSpec(
             "climate change",
-            UnitFixture.kg,
+            QuantityFixture.oneKilogram,
         )
     }
 }

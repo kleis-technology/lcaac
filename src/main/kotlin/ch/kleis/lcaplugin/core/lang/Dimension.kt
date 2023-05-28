@@ -1,15 +1,25 @@
 package ch.kleis.lcaplugin.core.lang
 
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import kotlin.math.round
 
-class Dimension(elements: Map<String, Double>) {
+class Dimension(
+    elements: Map<String, Double>,
+    scale: Double = 1.0,
+) {
+    private val scale: Double
     private val elements: Map<String, Double>
 
     override fun toString(): String {
-        return elements.entries.joinToString(".") {
+        val s = if (scale == 1.0) null else scale.toString()
+        val symbol = elements.entries.joinToString(".") {
             simpleDimToString(it)
         }
+        return listOfNotNull(
+            s,
+            symbol
+        ).joinToString(" ")
     }
 
     private fun simpleDimToString(basic: Map.Entry<String, Double>): String {
@@ -52,6 +62,10 @@ class Dimension(elements: Map<String, Double>) {
     }
 
     init {
+        if (scale == 0.0) {
+            throw EvaluatorException("scale is zero")
+        }
+        this.scale = scale
         this.elements = elements.filter { it.value != 0.0 }
     }
 
@@ -96,6 +110,11 @@ class Dimension(elements: Map<String, Double>) {
         return Dimension(es)
     }
 
+    // TODO: this is relevant only for UnitSymbol
+    fun scale(s: Double): Dimension {
+        return Dimension(elements, scale * s)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -110,4 +129,5 @@ class Dimension(elements: Map<String, Double>) {
     }
 }
 
+// TODO: make a proper class
 typealias UnitSymbol = Dimension
