@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
@@ -49,13 +50,13 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
                 throw ImportException("A Unit ${ModelWriter.sanitizeAndCompact(unit.name())} for ${unit.name()} already exists with another dimension, $dimension is not compatible with ${existingUnit.dimension}.")
 
             isNewDimensionReference(unit) -> {
-                addUnit(UnitValue(symbol, 1.0, dimension))
+                addUnit(UnitValue(UnitSymbol.of(symbol), 1.0, dimension))
                 val block = generateUnitBlockWithNewDimension(symbol, unit.name(), dimensionName)
                 writer.write("unit", block, false)
             }
 
             else -> {
-                addUnit(UnitValue(symbol, unit.conversionFactor(), dimension))
+                addUnit(UnitValue(UnitSymbol.of(symbol), unit.conversionFactor(), dimension))
                 val refUnitSymbol = ModelWriter.sanitizeAndCompact(unit.referenceUnit(), false)
 
                 val refUnit = getUnit(refUnitSymbol)
@@ -107,7 +108,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) : Rend
     }
 
     private fun addUnit(value: UnitValue) {
-        knownUnits[value.symbol.lowercase()] = value
+        knownUnits[value.symbol.toString().lowercase()] = value
     }
 
     private fun isNewDimensionReference(unit: UnitRow): Boolean {

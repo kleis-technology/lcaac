@@ -2,13 +2,14 @@ package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.math.DoubleComparator
 
 
 @optics
-data class UnitValue(val symbol: String, val scale: Double, val dimension: Dimension) : Value {
+data class UnitValue(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : Value {
     override fun toString(): String {
-        return symbol
+        return symbol.toString()
     }
 
     override fun equals(other: Any?): Boolean {

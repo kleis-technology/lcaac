@@ -6,6 +6,7 @@ import arrow.optics.typeclasses.Index
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -128,7 +129,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val quantity = symbolTable.getQuantity("fooUnitName") as EUnitLiteral
 
         // then
-        assertEquals(quantity.symbol, unit)
+        assertEquals(quantity.symbol.toString(), unit)
         assertEquals(quantity.scale, 1.0)
     }
 
@@ -747,7 +748,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 "carrot",
                 EUnitOf(EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg"))))
             ),
-            EQuantityScale(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+            EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
         )
         assertEquals(expected, actual)
     }

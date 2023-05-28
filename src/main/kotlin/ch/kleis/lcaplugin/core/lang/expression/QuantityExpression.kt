@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.lang.expression
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 
 @optics
 sealed interface QuantityExpression : Expression {
@@ -10,9 +11,9 @@ sealed interface QuantityExpression : Expression {
 }
 
 @optics
-data class EUnitLiteral(val symbol: String, val scale: Double, val dimension: Dimension) : QuantityExpression {
+data class EUnitLiteral(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : QuantityExpression {
     override fun toString(): String {
-        return symbol
+        return symbol.toString()
     }
 
     companion object

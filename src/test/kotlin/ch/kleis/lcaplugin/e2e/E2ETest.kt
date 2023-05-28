@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.actions.csv.CsvProcessor
 import ch.kleis.lcaplugin.actions.csv.CsvRequest
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
@@ -57,7 +58,7 @@ class E2ETest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val kg = UnitValue("kg", 1.0, Dimension.of("mass"))
+        val kg = UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
@@ -128,7 +129,7 @@ class E2ETest : BasePlatformTestCase() {
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityScale(200.0, EUnitLiteral("m^(2.0)^(2.0)", 1.0, Prelude.length.pow(4.0)))
+        val expected = EQuantityScale(200.0, EUnitLiteral(UnitSymbol.of("m").pow(4.0), 1.0, Prelude.length.pow(4.0)))
         TestCase.assertEquals(expected, actual)
     }
 

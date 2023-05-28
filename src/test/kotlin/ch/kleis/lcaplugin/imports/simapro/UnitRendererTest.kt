@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
@@ -43,7 +44,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldReturnWithoutWritingWhenAlreadyExistWithCompatibleDimension() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
         val data = UnitRow().name("kg")
             .quantity("Mass")
             .conversionFactor(1.0)
@@ -57,7 +58,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldDeclareUnitWhenItsTheReferenceForNewDimension() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
         val data = UnitRow().name("s€c")
             .quantity("Time")
             .conversionFactor(1.0)
@@ -83,7 +84,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldDeclareAliasWhenItsAnAliasForExistingDimension() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("m2", UnitValue("m2", 1.0, Prelude.length.pow(2.0)))))
+        val sut = UnitRenderer.of(mapOf(Pair("m2", UnitValue(UnitSymbol.of("m2"), 1.0, Prelude.length.pow(2.0)))))
         val data = UnitRow().name("me2")
             .quantity("Area")
             .conversionFactor(1.0)
@@ -109,7 +110,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldDeclareAliasWithTheRightCase() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("MJ", UnitValue("MJ", 1.0, Prelude.length.pow(2.0)))))
+        val sut = UnitRenderer.of(mapOf(Pair("MJ", UnitValue(UnitSymbol.of("MJ"), 1.0, Prelude.length.pow(2.0)))))
         val data = UnitRow().name("GJ")
             .quantity("Energy")
             .conversionFactor(1000.0)
@@ -135,7 +136,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldDeclareAliasWhenItsNotTheReference() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("s", UnitValue("S", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("s", UnitValue(UnitSymbol.of("S"), 1.0, Prelude.mass))))
         val data = UnitRow().name("s€c")
             .quantity("Time")
             .conversionFactor(2.0)
@@ -180,7 +181,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldFailWithAnotherDimension() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue("k+g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
         val data = UnitRow().name("kg")
             .quantity("Time")
             .conversionFactor(1.0)
@@ -195,7 +196,7 @@ class UnitRendererTest {
     @Test
     fun test_writeUnit_ShouldFailWithAReferenceToItselfInAnExistingDimension() {
         // Given
-        val sut = UnitRenderer.of(mapOf(Pair("g", UnitValue("g", 1.0, Prelude.mass))))
+        val sut = UnitRenderer.of(mapOf(Pair("g", UnitValue(UnitSymbol.of("g"), 1.0, Prelude.mass))))
         val data = UnitRow().name("kg")
             .quantity("mass")
             .conversionFactor(1.0)

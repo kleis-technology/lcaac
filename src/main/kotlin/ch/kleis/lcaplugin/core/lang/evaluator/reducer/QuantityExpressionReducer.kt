@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
+import ch.kleis.lcaplugin.core.lang.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlin.math.pow
@@ -33,17 +34,18 @@ class QuantityExpressionReducer(
             reducedExpression is EUnitLiteral -> reducedExpression
             reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> {
                 val scale = reducedExpression.scale
-                if (scale != 0.0) {
+                if (scale == 1.0 || scale == 0.0) reducedExpression.base
+                else {
                     val baseSymbol = reducedExpression.base.symbol
                     val baseScale = reducedExpression.base.scale
                     val baseDimension = reducedExpression.base.dimension
-                    val displayScale = if (scale == 1.0) "" else "$scale "
+                    val newSymbol = UnitSymbol.of("$scale $baseSymbol")
                     EUnitLiteral(
-                        "$displayScale$baseSymbol",
-                        reducedExpression.scale * baseScale,
+                        newSymbol,
+                        scale * baseScale,
                         baseDimension
                     )
-                } else reducedExpression.base
+                }
             }
 
             reducedExpression is EUnitOf -> reducedExpression
@@ -92,7 +94,7 @@ class QuantityExpressionReducer(
         return when {
             left is EUnitLiteral && right is EUnitLiteral ->
                 EUnitLiteral(
-                    "${left.symbol}/${right.symbol}",
+                    left.symbol.divide(right.symbol),
                     left.scale / right.scale,
                     left.dimension.divide(right.dimension)
                 )
@@ -123,7 +125,7 @@ class QuantityExpressionReducer(
         return when {
             left is EUnitLiteral && right is EUnitLiteral ->
                 EUnitLiteral(
-                    "${left.symbol}.${right.symbol}",
+                    left.symbol.multiply(right.symbol),
                     left.scale * right.scale,
                     left.dimension.multiply(right.dimension),
                 )
@@ -165,7 +167,7 @@ class QuantityExpressionReducer(
                 )
 
             is EUnitLiteral -> EUnitLiteral(
-                "${quantity.symbol}^(${expression.exponent})",
+                quantity.symbol.pow(expression.exponent),
                 quantity.scale.pow(expression.exponent),
                 quantity.dimension.pow(expression.exponent),
             )
@@ -221,11 +223,11 @@ class QuantityExpressionReducer(
         val aliasForExpression = reduceAliasFor(expression)
         return when {
             aliasForExpression is EUnitLiteral ->
-                EUnitLiteral(expression.symbol, aliasForExpression.scale, aliasForExpression.dimension)
+                EUnitLiteral(UnitSymbol.of(expression.symbol), aliasForExpression.scale, aliasForExpression.dimension)
 
             aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
                 EUnitLiteral(
-                    expression.symbol,
+                    UnitSymbol.of(expression.symbol),
                     aliasForExpression.scale * aliasForExpression.base.scale,
                     aliasForExpression.base.dimension
                 )

@@ -1,9 +1,6 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.core.lang.Dimension
-import ch.kleis.lcaplugin.core.lang.Register
-import ch.kleis.lcaplugin.core.lang.RegisterException
-import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.*
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -95,7 +92,7 @@ class LcaLangAbstractParser(
 
     private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): QuantityExpression {
         return EUnitLiteral(
-            psiUnitDefinition.getSymbolField().getValue(),
+            UnitSymbol.of(psiUnitDefinition.getSymbolField().getValue()),
             1.0,
             Dimension.of(psiUnitDefinition.getDimensionField().getValue())
         )

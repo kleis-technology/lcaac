@@ -67,7 +67,7 @@ class Dimension(elements: Map<String, Double>) {
     }
 
     fun getDefaultUnitValue(): UnitValue {
-        return UnitValue("default($this)", 1.0, this)
+        return UnitValue(this, 1.0, this)
     }
 
     fun multiply(other: Dimension): Dimension {
@@ -108,6 +108,6 @@ class Dimension(elements: Map<String, Double>) {
     override fun hashCode(): Int {
         return elements.hashCode()
     }
-
-
 }
+
+typealias UnitSymbol = Dimension
