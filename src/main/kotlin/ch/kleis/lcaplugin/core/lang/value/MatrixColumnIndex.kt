@@ -28,7 +28,7 @@ data class ProductValue(
 
     override fun getDisplayName(): String {
         if (fromProcessRef is FromProcessRefValue) {
-            return "$name from ${fromProcessRef.name}${fromProcessRef.arguments}"
+            return "$name from ${fromProcessRef.name}${fromProcessRef.matchLabels}${fromProcessRef.arguments}"
         }
         return name
     }

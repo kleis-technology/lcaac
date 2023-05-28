@@ -35,12 +35,14 @@ class ReduceAndCompleteTest {
         // then
         val expected = ProcessValue(
             "carrot_production",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
+                            emptyMap(),
                             mapOf("q_water" to QuantityValueFixture.twoLitres),
                         )
                     ),
@@ -84,6 +86,7 @@ class ReduceAndCompleteTest {
         // then
         val expected = ProcessValue(
             name = "process",
+            emptyMap(),
             emptyList(),
             emptyList(),
             listOf(
@@ -111,12 +114,58 @@ class ReduceAndCompleteTest {
         // then
         val expected = ProcessValue(
             name = "carrot_production",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
                             "carrot_production",
+                            emptyMap(),
+                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                        )
+                    )
+                )
+            ),
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneLitre,
+                    ProductValueFixture.water
+                )
+            ),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenTemplateRef_shouldReadEnv() {
+        // given
+        val templateRef = EProcessTemplateRef("p")
+        val reduceAndComplete = ReduceAndComplete(
+            SymbolTable(
+                processTemplates = Register.from(
+                    hashMapOf(
+                        Pair("p", TemplateFixture.carrotProduction)
+                    )
+                )
+            )
+        )
+
+        // when
+        val actual = reduceAndComplete.apply(templateRef).toValue()
+
+        // then
+        val expected = ProcessValue(
+            name = "carrot_production",
+            emptyMap(),
+            listOf(
+                TechnoExchangeValue(
+                    QuantityValueFixture.oneKilogram,
+                    ProductValueFixture.carrot.withFromProcessRef(
+                        FromProcessRefValue(
+                            "carrot_production",
+                            emptyMap(),
                             mapOf("q_water" to QuantityValueFixture.oneLitre),
                         )
                     )

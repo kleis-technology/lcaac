@@ -65,6 +65,7 @@ class E2ETest : BasePlatformTestCase() {
         val csvProcessor = CsvProcessor(symbolTable)
         val request = CsvRequest(
             "p",
+            emptyMap(),
             mapOf("geo" to 0, "id" to 1, "a" to 2, "b" to 2),
             listOf("UK", "s00", "1.0", "1.0"),
         )
@@ -77,7 +78,9 @@ class E2ETest : BasePlatformTestCase() {
         val out = ProductValue(
             "out", kg,
             FromProcessRefValue(
-                "p", mapOf(
+                "p",
+                emptyMap(),
+                mapOf(
                     "a" to QuantityValue(1.0, kg),
                     "b" to QuantityValue(1.0, kg),
                     "c" to QuantityValue(1.0, kg),
@@ -175,7 +178,7 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
 
-        assertEquals("a from p{}", output.getDisplayName())
+        assertEquals("a from p{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
@@ -246,7 +249,7 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
 
-        assertEquals("out from p{}", output.getDisplayName())
+        assertEquals("out from p{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
 
@@ -298,11 +301,11 @@ class E2ETest : BasePlatformTestCase() {
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
         val result = assessment.inventory()
-        val output = result.observablePorts.get("office from office{}")
+        val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
-        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount)
         assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
@@ -361,11 +364,11 @@ class E2ETest : BasePlatformTestCase() {
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
         val result = assessment.inventory()
-        val output = result.observablePorts.get("office from office{}")
+        val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
-        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount)
         assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 
@@ -423,11 +426,11 @@ class E2ETest : BasePlatformTestCase() {
         val system = Evaluator(symbolTable).eval(entryPoint)
         val assessment = Assessment(system)
         val result = assessment.inventory()
-        val output = result.observablePorts.get("office from office{}")
+        val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
-        assertEquals("office from office{}", output.getDisplayName())
+        assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount)
         assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
 

@@ -33,6 +33,7 @@ class AllocationTest {
             mutableSetOf(
                 ProcessValue(
                     "carrot",
+                    emptyMap(),
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
@@ -65,6 +66,7 @@ class AllocationTest {
             mutableSetOf(
                 ProcessValue(
                     "carrot",
+                    emptyMap(),
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
@@ -97,6 +99,7 @@ class AllocationTest {
             mutableSetOf(
                 ProcessValue(
                     "carrot",
+                    emptyMap(),
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
@@ -135,6 +138,7 @@ class AllocationTest {
             mutableSetOf(
                 ProcessValue(
                     "carrot",
+                    emptyMap(),
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
@@ -172,6 +176,7 @@ class AllocationTest {
         val allocation = Allocation()
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -194,6 +199,7 @@ class AllocationTest {
         val allocation = Allocation()
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -222,6 +228,7 @@ class AllocationTest {
         val allocation = Allocation()
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -251,6 +258,7 @@ class AllocationTest {
             mutableSetOf(
                 ProcessValue(
                     "carrot",
+                    emptyMap(),
                     listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
@@ -289,7 +297,7 @@ class AllocationTest {
     fun apply_shouldKeepAllocation() {
         // given
         val system = SystemValue(
-            mutableSetOf(ProcessValue("", listOf(), listOf(), listOf())),
+            mutableSetOf(ProcessValue("", emptyMap(), listOf(), listOf(), listOf())),
             mutableSetOf(propanolCharacterization)
         )
         // when
@@ -303,6 +311,7 @@ class AllocationTest {
         // given
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -325,6 +334,7 @@ class AllocationTest {
         // given
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -344,6 +354,7 @@ class AllocationTest {
         // given
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -366,6 +377,7 @@ class AllocationTest {
         // given
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
@@ -390,6 +402,7 @@ class AllocationTest {
         // given
         val processValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,

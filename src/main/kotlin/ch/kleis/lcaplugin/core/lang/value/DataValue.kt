@@ -5,7 +5,11 @@ import arrow.optics.optics
 sealed interface DataValue : Value
 
 @optics
-data class StringValue(val s : String): DataValue {
+data class StringValue(val s: String) : DataValue {
+    override fun toString(): String {
+        return s
+    }
+
     companion object
 }
 

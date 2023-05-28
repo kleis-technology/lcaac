@@ -113,12 +113,14 @@ class EvaluatorTest {
         val expected = setOf(
             ProcessValue(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre
                                 ),
@@ -136,12 +138,14 @@ class EvaluatorTest {
             ),
             ProcessValue(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
+                                emptyMap(),
                                 emptyMap(),
                             )
                         )
@@ -153,6 +157,7 @@ class EvaluatorTest {
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
                                 ),
@@ -215,12 +220,14 @@ class EvaluatorTest {
         val expected = setOf(
             ProcessValue(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
+                                emptyMap(),
                                 emptyMap(),
                             )
                         )
@@ -231,7 +238,9 @@ class EvaluatorTest {
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
-                                "carrot_production", mapOf(
+                                "carrot_production",
+                                emptyMap(),
+                                mapOf(
                                     "q_water" to QuantityValueFixture.twoLitres
                                 )
                             )
@@ -242,12 +251,14 @@ class EvaluatorTest {
             ),
             ProcessValue(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.twoLitres
                                 ),

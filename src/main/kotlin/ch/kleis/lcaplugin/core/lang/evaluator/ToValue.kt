@@ -36,6 +36,7 @@ private fun EIndicatorSpec.toValue(): IndicatorValue {
 fun EProcess.toValue(): ProcessValue {
     return ProcessValue(
         this.name,
+        this.labels.mapValues { it.value.toValue() },
         this.products.map { it.toValue() },
         this.inputs.map { it.toValue() },
         this.biosphere.map { it.toValue() },
@@ -86,6 +87,7 @@ fun EProductSpec.toValue(): ProductValue {
 private fun FromProcess.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
         this.name,
+        this.matchLabels.elements.mapValues { it.value.toValue() },
         this.arguments.mapValues {
             when (val e = it.value) {
                 is QuantityExpression -> e.toValue()

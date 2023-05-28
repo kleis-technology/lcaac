@@ -17,6 +17,7 @@ class CsvResultWriterTest {
         // given
         val request = CsvRequest(
             "p",
+            emptyMap(),
             mapOf("comment" to 0, "id" to 1, "a" to 2, "b" to 3),
             listOf("""Comment, with comma, and "double quotes" """, "s00", "1.0", "2.0"),
         )

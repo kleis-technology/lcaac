@@ -8,6 +8,7 @@ sealed interface MatrixRowIndex : Value, HasUID
 @optics
 data class ProcessValue(
     val name: String,
+    val labels: Map<String, StringValue>,
     val products: List<TechnoExchangeValue>,
     val inputs: List<TechnoExchangeValue>,
     val biosphere: List<BioExchangeValue>,

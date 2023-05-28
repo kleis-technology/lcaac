@@ -17,6 +17,7 @@ class Allocation {
         val totalAllocation = totalAmount(processValue)
         return ProcessValue(
             processValue.name,
+            processValue.labels,
             listOf(technoExchangeValue),
             applyAllocationToInputs(processValue.inputs, technoExchangeValue.allocation, totalAllocation),
             applyAllocationToBioSphere(processValue.biosphere, technoExchangeValue.allocation, totalAllocation)
