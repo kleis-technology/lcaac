@@ -5,7 +5,7 @@ import arrow.optics.optics
 @optics
 data class FromProcessRefValue(
     val name: String,
-    val arguments: Map<String, QuantityValue>,
+    val arguments: Map<String, DataValue>,
 ) {
     companion object
 }

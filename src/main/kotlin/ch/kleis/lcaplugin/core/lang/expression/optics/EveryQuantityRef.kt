@@ -101,9 +101,10 @@ val everyQuantityRefInQuantityExpression =
         }
     }
 
-private val everyQuantityRefInConstraint: PEvery<FromProcessRef, FromProcessRef, EQuantityRef, QuantityExpression> =
-    FromProcessRef.arguments compose
+private val everyQuantityRefInConstraint: PEvery<FromProcess, FromProcess, EQuantityRef, QuantityExpression> =
+    FromProcess.arguments compose
         Every.map() compose
+        DataExpression.quantityExpression compose
         everyQuantityRefInQuantityExpression
 
 private val everyQuantityRefInProductExpression: PEvery<EProductSpec, EProductSpec, EQuantityRef, QuantityExpression> =
@@ -163,7 +164,9 @@ private val everyQuantityRefInLcaExpression: PEvery<LcaExpression, LcaExpression
             LcaExpression.lcaExchangeExpression.eBioExchange compose
                 everyQuantityRefInEBioExchange,
             LcaExpression.eProductSpec.fromProcessRef.arguments compose
-                Every.map() compose everyQuantityRefInQuantityExpression
+                Every.map() compose
+                DataExpression.quantityExpression compose
+                everyQuantityRefInQuantityExpression
         )
     )
 
@@ -172,8 +175,12 @@ private val everyQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpressi
         listOf(
             everyProcessTemplateInTemplateExpression compose Merge(
                 listOf(
-                    EProcessTemplate.params compose Every.map() compose everyQuantityRefInQuantityExpression,
-                    EProcessTemplate.locals compose Every.map() compose everyQuantityRefInQuantityExpression,
+                    EProcessTemplate.params compose Every.map() compose
+                        DataExpression.quantityExpression compose
+                        everyQuantityRefInQuantityExpression,
+                    EProcessTemplate.locals compose Every.map() compose
+                        DataExpression.quantityExpression compose
+                        everyQuantityRefInQuantityExpression,
                     EProcessTemplate.body compose everyQuantityRefInProcess,
                 )
             ),
@@ -181,46 +188,10 @@ private val everyQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpressi
         ),
     )
 
-val everyUnboundedQuantityRefInProcessTemplate =
-    object : PEvery<EProcessTemplate, EProcessTemplate, EQuantityRef, QuantityExpression> {
-        override fun <R> foldMap(M: Monoid<R>, source: EProcessTemplate, map: (focus: EQuantityRef) -> R): R {
-            val boundedRefs = source.params
-                .plus(source.locals)
-                .keys
-                .map { EQuantityRef(it) }.toSet()
-            val allRefs = everyQuantityRefInTemplateExpression.getAll(source).toSet()
-            val unboundedRefs = allRefs.minus(boundedRefs).toList()
-            return M.fold(
-                unboundedRefs.map(map)
-            )
-        }
-
-        override fun modify(
-            source: EProcessTemplate,
-            map: (focus: EQuantityRef) -> QuantityExpression
-        ): EProcessTemplate {
-            val boundedRefs = source.params
-                .plus(source.locals)
-                .keys
-                .map { EQuantityRef(it) }.toSet()
-            return EProcessTemplate(
-                source.params,
-                source.locals,
-                everyQuantityRefInProcess.modify(source.body) {
-                    if (boundedRefs.contains(it)) it
-                    else map(it)
-                }
-            )
-        }
-    }
-
-val everyUnboundedQuantityRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EQuantityRef, QuantityExpression> =
-    ProcessTemplateExpression.eProcessTemplate compose everyUnboundedQuantityRefInProcessTemplate
-
 val everyQuantityRef: Every<Expression, EQuantityRef> =
     Merge(
         listOf(
-            Expression.quantityExpression compose everyQuantityRefInQuantityExpression,
+            Expression.dataExpression.quantityExpression compose everyQuantityRefInQuantityExpression,
             Expression.lcaExpression compose everyQuantityRefInLcaExpression,
             Expression.processTemplateExpression compose everyQuantityRefInTemplateExpression,
             Expression.systemExpression compose everyQuantityRefInSystemExpression,

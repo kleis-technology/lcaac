@@ -23,6 +23,7 @@ class ProcessTemplateExpressionReducerTest {
             ),
             body = EProcess(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
@@ -50,12 +51,13 @@ class ProcessTemplateExpressionReducerTest {
         val expected = EProcessFinal(
             EProcess(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(3.0, UnitFixture.kg),
                         ProductFixture.carrot.copy(
                             fromProcessRef =
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
                                 mapOf(
                                     "q_carrot" to QuantityFixture.twoKilograms,
@@ -90,6 +92,7 @@ class ProcessTemplateExpressionReducerTest {
             ),
             body = EProcess(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(

@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import arrow.optics.Every
 import arrow.optics.PEvery
 import ch.kleis.lcaplugin.core.lang.SymbolTable
-import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
 import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
 import ch.kleis.lcaplugin.core.lang.expression.*
@@ -22,7 +22,7 @@ class Evaluator(
     private val reduceAndComplete = ReduceAndComplete(symbolTable)
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
-    private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities)
+    private val dataReducer = DataExpressionReducer(symbolTable.data)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.inputs
@@ -65,11 +65,11 @@ class Evaluator(
             resolveProcessTemplateFromProduct(spec)?.let { template ->
                 val body = template.body
                 val arguments = spec.fromProcessRef?.arguments
-                    ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
+                    ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
                 spec.copy(
                     fromProcessRef =
-                    FromProcessRef(
+                    FromProcess(
                         body.name,
                         arguments,
                     )

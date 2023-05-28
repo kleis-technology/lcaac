@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.prelude
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.expression.DataExpression
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
 
@@ -82,6 +83,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol.toString() }
 
-        val units: Register<QuantityExpression> = Register.from(unitMap)
+        val unitsAsQuantities: Register<QuantityExpression> = Register.from(unitMap)
+        val unitsAsData: Register<DataExpression> = Register.from(unitMap)
     }
 }

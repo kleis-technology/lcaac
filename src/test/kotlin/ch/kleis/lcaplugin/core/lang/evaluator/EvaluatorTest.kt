@@ -86,6 +86,7 @@ class EvaluatorTest {
             emptyMap(),
             EProcess(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
@@ -193,14 +194,15 @@ class EvaluatorTest {
                         EProductSpec(
                             "carrot",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
                     )
                 ),
-                biosphere = emptyList()
+                biosphere = emptyList(),
+                labels = emptyMap(),
             )
         )
         val recursiveEvaluator = Evaluator(symbolTable)
@@ -229,8 +231,8 @@ class EvaluatorTest {
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production", mapOf(
-                                "q_water" to QuantityValueFixture.twoLitres
-                            )
+                                    "q_water" to QuantityValueFixture.twoLitres
+                                )
                             )
                         )
                     )
@@ -291,14 +293,15 @@ class EvaluatorTest {
                         EProductSpec(
                             "irrelevant_product",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
                     )
                 ),
-                biosphere = emptyList()
+                biosphere = emptyList(),
+                labels = emptyMap(),
             )
         )
         val recursiveEvaluator = Evaluator(symbolTable)
@@ -335,12 +338,13 @@ class EvaluatorTest {
                 biosphere = listOf(
                     EBioExchange(
                         QuantityFixture.oneKilogram, ESubstanceSpec(
-                        "propanol",
-                        compartment = "air",
-                        type = SubstanceType.RESOURCE,
+                            "propanol",
+                            compartment = "air",
+                            type = SubstanceType.RESOURCE,
+                        )
                     )
-                    )
-                )
+                ),
+                labels = emptyMap(),
             )
         )
         val recursiveEvaluator = Evaluator(symbolTable)

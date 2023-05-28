@@ -8,7 +8,8 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
-import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.units
+import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.unitsAsData
+import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.unitsAsQuantities
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
@@ -51,24 +52,24 @@ class LcaLangAbstractParser(
             throw EvaluatorException("Duplicate substance ${e.duplicates} defined")
         }
 
-        val globals: Register<QuantityExpression> = try {
-            Register(units)
+        val globals: Register<DataExpression> = try {
+            Register(unitsAsData)
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.LITERAL }
-                        .map { it.getUnitRef().getUID().name to unitLiteral(it) }
+                        .map { it.getUnitRef().getUID().name to (unitLiteral(it) as DataExpression) }
                         .asIterable()
                 )
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.ALIAS }
-                        .map { it.getUnitRef().getUID().name to unitAlias(it) }
+                        .map { it.getUnitRef().getUID().name to (unitAlias(it) as DataExpression) }
                         .asIterable()
                 )
                 .plus(
                     files
                         .flatMap { it.getGlobalAssignments() }
-                        .map { it.first to parseQuantityExpression(it.second) }
+                        .map { it.first to (parseQuantityExpression(it.second) as DataExpression) }
                         .asIterable()
                 )
         } catch (e: RegisterException) {
@@ -87,7 +88,7 @@ class LcaLangAbstractParser(
         }
 
         return SymbolTable(
-            quantities = globals,
+            data = globals,
             processTemplates = processTemplates,
             dimensions = dimensions,
             substanceCharacterizations = substanceCharacterizations,
@@ -111,13 +112,13 @@ class LcaLangAbstractParser(
 
     private fun process(
         psiProcess: PsiProcess,
-        globals: Register<QuantityExpression>,
+        globals: Register<DataExpression>,
     ): EProcessTemplate {
         val name = psiProcess.name
         val locals = psiProcess.getVariables().mapValues { parseQuantityExpression(it.value) }
         val params = psiProcess.getParameters().mapValues { parseQuantityExpression(it.value) }
         val symbolTable = SymbolTable(
-            quantities = try {
+            data = try {
                 Register(globals.plus(params).plus(locals))
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
@@ -131,6 +132,7 @@ class LcaLangAbstractParser(
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
             name = name,
+            labels = TODO(),
             products = products,
             inputs = inputs,
             biosphere = biosphere,
@@ -216,9 +218,9 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcessRef? {
+    private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
         return psiFromProcessConstraint?.let {
-            FromProcessRef(
+            FromProcess(
                 ref = it.processTemplateRef!!.name,
                 arguments = psiFromProcessConstraint
                     .argumentList
@@ -243,7 +245,10 @@ class LcaLangAbstractParser(
                     )
                 ),
             psiExchange.getAllocateField()?.let { allocation(it) }
-                ?: EQuantityScale(100.0, units["percent"]!!)
+                ?: EQuantityScale(
+                    100.0,
+                    unitsAsQuantities["percent"]!!
+                )
         )
 
     private fun allocation(element: LcaAllocateField): QuantityExpression {

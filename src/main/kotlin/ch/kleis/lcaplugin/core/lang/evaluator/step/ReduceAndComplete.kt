@@ -12,10 +12,10 @@ class ReduceAndComplete(
     symbolTable: SymbolTable,
 ) {
     private val lcaReducer = LcaExpressionReducer(
-        symbolTable.quantities,
+        symbolTable.data,
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.quantities,
+        symbolTable.data,
     )
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {

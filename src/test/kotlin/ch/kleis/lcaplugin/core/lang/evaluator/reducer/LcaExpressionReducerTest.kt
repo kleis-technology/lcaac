@@ -13,6 +13,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
             ),
@@ -24,7 +25,7 @@ class LcaExpressionReducerTest {
             ),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q_carrot", QuantityFixture.oneKilogram),
                     Pair("q_water", QuantityFixture.oneLitre),
@@ -39,6 +40,7 @@ class LcaExpressionReducerTest {
         // then
         val expected = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
@@ -69,7 +71,7 @@ class LcaExpressionReducerTest {
             EIndicatorSpec("cc")
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -95,7 +97,7 @@ class LcaExpressionReducerTest {
             EProductSpec("carrot"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -121,7 +123,7 @@ class LcaExpressionReducerTest {
             ESubstanceSpec("propanol"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q", QuantityFixture.oneKilogram),
                 )
@@ -147,7 +149,7 @@ class LcaExpressionReducerTest {
             EQuantityRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -177,7 +179,7 @@ class LcaExpressionReducerTest {
             EQuantityRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -207,7 +209,7 @@ class LcaExpressionReducerTest {
             EQuantityRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -233,7 +235,7 @@ class LcaExpressionReducerTest {
             EQuantityRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
@@ -257,7 +259,7 @@ class LcaExpressionReducerTest {
         val expression = EProductSpec(
             "carrot",
             UnitFixture.kg,
-            FromProcessRef(
+            FromProcess(
                 "p",
                 mapOf(
                     Pair("x", EQuantityRef("q"))
@@ -265,7 +267,7 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q", EQuantityScale(3.0, EQuantityRef("kg"))),
                     Pair("kg", UnitFixture.kg)
@@ -280,7 +282,7 @@ class LcaExpressionReducerTest {
         val expected = EProductSpec(
             "carrot",
             QuantityFixture.oneKilogram,
-            FromProcessRef(
+            FromProcess(
                 "p",
                 mapOf(
                     Pair("x", EQuantityScale(3.0, UnitFixture.kg))
@@ -306,7 +308,7 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            quantityRegister = Register.from(
+            dataRegister = Register.from(
                 hashMapOf(
                     Pair("q_propanol", QuantityFixture.oneKilogram),
                     Pair("q_cc", QuantityFixture.oneKilogram),

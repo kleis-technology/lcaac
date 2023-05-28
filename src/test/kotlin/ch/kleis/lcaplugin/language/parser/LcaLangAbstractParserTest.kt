@@ -103,7 +103,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        Prelude.units.getValues().onEach {
+        Prelude.unitsAsQuantities.getValues().onEach {
             assertNotNull(symbolTable.getQuantity(it.toString()))
         }
     }
@@ -447,13 +447,14 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // then
         val preludeSymbolTable = SymbolTable(
-            quantities = Prelude.units
+            data = Prelude.unitsAsData
         )
         val expected = EProcessTemplate(
             params = emptyMap(),
             locals = emptyMap(),
             EProcess(
                 name = "a",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(1.0, EQuantityRef("kg")),
@@ -653,7 +654,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                 EQuantityScale(10.0, EQuantityRef("l")),
                 EProductSpec(
                     "water",
-                    fromProcessRef = FromProcessRef(
+                    fromProcessRef = FromProcess(
                         "water_proc",
                         mapOf("x" to EQuantityScale(3.0, EQuantityRef("l"))),
                     ),
@@ -740,7 +741,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
-            quantities = Prelude.units
+            data = Prelude.unitsAsData
         )
         val expected = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
@@ -773,7 +774,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val actual = ((symbolTable.processTemplates["carrot"] as EProcessTemplate).body).products[0]
         val preludeSymbolTable = SymbolTable(
-            quantities = Prelude.units
+            data = Prelude.unitsAsData
         )
         val expect = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
@@ -893,7 +894,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        val actual = symbolTable.quantities["r"]!!
+        val actual = symbolTable.data["r"]!!
         assertEquals(expected, actual)
     }
 
@@ -925,7 +926,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        val actual = symbolTable.quantities["r"]!!
+        val actual = symbolTable.data["r"]!!
         assertEquals(expected, actual)
     }
 

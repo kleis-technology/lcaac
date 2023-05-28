@@ -8,6 +8,7 @@ class ProcessFixture {
     companion object {
         val carrotProduction = EProcess(
             name = "carrot_production",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
             ),

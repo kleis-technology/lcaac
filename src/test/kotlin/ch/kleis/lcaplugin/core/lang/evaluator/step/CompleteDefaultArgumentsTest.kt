@@ -38,6 +38,7 @@ class CompleteDefaultArgumentsTest {
                 locals = emptyMap(),
                 body = EProcess(
                     "salad_production",
+                    labels = emptyMap(),
                     products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
@@ -45,7 +46,7 @@ class CompleteDefaultArgumentsTest {
                             EProductSpec(
                                 "carrot",
                                 UnitFixture.kg,
-                                FromProcessRef(
+                                FromProcess(
                                     "carrot_production",
                                     mapOf(
                                         "q_water" to QuantityFixture.twoLitres,
@@ -70,7 +71,7 @@ class CompleteDefaultArgumentsTest {
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
-        val expected = FromProcessRef(
+        val expected = FromProcess(
             "carrot_production",
             params.plus("q_water" to QuantityFixture.twoLitres)
         )
@@ -101,6 +102,7 @@ class CompleteDefaultArgumentsTest {
             locals = emptyMap(),
             body = EProcess(
                 "salad_production",
+                labels = emptyMap(),
                 products = emptyList(),
                 inputs = listOf(
                     ETechnoExchange(
@@ -108,7 +110,7 @@ class CompleteDefaultArgumentsTest {
                         EProductSpec(
                             "carrot",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
                                 mapOf(
                                     "q_water" to QuantityFixture.twoLitres,
@@ -132,7 +134,7 @@ class CompleteDefaultArgumentsTest {
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
-        val expected = FromProcessRef(
+        val expected = FromProcess(
             "carrot_production",
             params.plus("q_water" to QuantityFixture.twoLitres)
         )
@@ -163,6 +165,7 @@ class CompleteDefaultArgumentsTest {
             locals = emptyMap(),
             body = EProcess(
                 "salad_production",
+                labels = emptyMap(),
                 products = emptyList(),
                 inputs = listOf(
                     ETechnoExchange(
@@ -170,7 +173,7 @@ class CompleteDefaultArgumentsTest {
                         EProductSpec(
                             "carrot",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
                                 emptyMap(),
                             )
@@ -192,7 +195,7 @@ class CompleteDefaultArgumentsTest {
         val actual = everyInputProduct.firstOrNull(completeDefaultArguments.apply(expression))!!.fromProcessRef
 
         // then
-        val expected = FromProcessRef(
+        val expected = FromProcess(
             "carrot_production",
             params,
         )
@@ -223,6 +226,7 @@ class CompleteDefaultArgumentsTest {
             locals = emptyMap(),
             body = EProcess(
                 "salad_production",
+                labels = emptyMap(),
                 products = emptyList(),
                 inputs = listOf(
                     ETechnoExchange(

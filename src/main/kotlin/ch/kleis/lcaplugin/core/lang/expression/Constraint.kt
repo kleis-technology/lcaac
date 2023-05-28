@@ -1,22 +1,25 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 
 @optics
-data class FromProcessRef(
+data class FromProcess(
     val ref: String,
-    val arguments: Map<String, QuantityExpression>,
+    val arguments: Map<String, DataExpression>,
 ) {
-    fun reduceWith(reducer: QuantityExpressionReducer): FromProcessRef {
-        return FromProcessRef(
-            ref,
-            arguments.mapValues { reducer.reduce(it.value) }
-        )
-    }
-
     override fun toString(): String {
         return "from $ref$arguments"
+    }
+
+    companion object
+}
+
+@optics
+data class MatchLabels(
+    val elements: Map<String, StringExpression>,
+) {
+    override fun toString(): String {
+        return "where $elements"
     }
 
     companion object

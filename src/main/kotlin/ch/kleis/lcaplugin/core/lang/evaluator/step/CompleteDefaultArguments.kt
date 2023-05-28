@@ -25,7 +25,7 @@ class CompleteDefaultArguments(
                     EProductSpec(
                         it.name,
                         it.referenceUnit,
-                        FromProcessRef(
+                        FromProcess(
                             ref.ref,
                             actualArguments,
                         )

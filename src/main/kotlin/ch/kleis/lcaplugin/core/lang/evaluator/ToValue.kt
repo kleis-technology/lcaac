@@ -83,12 +83,23 @@ fun EProductSpec.toValue(): ProductValue {
     )
 }
 
-private fun FromProcessRef.toValue(): FromProcessRefValue {
+private fun FromProcess.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
         this.ref,
-        this.arguments.mapValues { it.value.toValue() },
+        this.arguments.mapValues {
+            when (val e = it.value) {
+                is QuantityExpression -> e.toValue()
+                is StringExpression -> e.toValue()
+            }
+        },
     )
 }
+
+fun StringExpression.toValue(): StringValue =
+    when (this) {
+        is EStringLiteral -> StringValue(this.value)
+        else -> throw EvaluatorException("$this is not reduced")
+    }
 
 fun QuantityExpression.toValue(): QuantityValue =
     when {

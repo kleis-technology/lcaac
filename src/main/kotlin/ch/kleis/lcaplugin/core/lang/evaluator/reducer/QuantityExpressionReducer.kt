@@ -59,21 +59,22 @@ class QuantityExpressionReducer(
     }
 
     private fun reduceClosure(closure: EQuantityClosure): QuantityExpression =
-        QuantityExpressionReducer(closure.symbolTable.quantities).reduce(closure.expression)
+        DataExpressionReducer(closure.symbolTable.data).reduceQuantity(closure.expression)
 
     private fun reduceDiv(expression: EQuantityDiv): QuantityExpression {
         val left = reduce(expression.left)
         val right = reduce(expression.right)
         return when {
             left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
-                EQuantityScale(
-                    left.scale / right.scale,
-                    EUnitLiteral(
+
+                    EQuantityScale(
+                        left.scale / right.scale,
+                        EUnitLiteral(
                         left.base.symbol.divide(right.base.symbol),
                         left.base.scale / right.base.scale,
-                        left.base.dimension.divide(right.base.dimension),
+                        left.base.dimension.divide(right.base.dimension),)
                     )
-                )
+
 
             else -> EQuantityDiv(left, right)
         }
@@ -84,14 +85,15 @@ class QuantityExpressionReducer(
         val right = reduce(expression.right)
         return when {
             left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
-                EQuantityScale(
-                    left.scale * right.scale,
-                    EUnitLiteral(
+
+                    EQuantityScale(
+                        left.scale * right.scale,
+                        EUnitLiteral(
                         left.base.symbol.multiply(right.base.symbol),
                         left.base.scale * right.base.scale,
-                        left.base.dimension.multiply(right.base.dimension),
+                        left.base.dimension.multiply(right.base.dimension),)
                     )
-                )
+
 
             else -> EQuantityMul(left, right)
         }
@@ -143,12 +145,11 @@ class QuantityExpressionReducer(
         return when {
             aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
                 EQuantityScale(
-                    1.0,
-                    EUnitLiteral(
-                        UnitSymbol.of(expression.symbol),
-                        aliasForExpression.scale * aliasForExpression.base.scale,
-                        aliasForExpression.base.dimension
-                    )
+                    1.0,EUnitLiteral(
+                    UnitSymbol.of(expression.symbol),
+                    aliasForExpression.scale * aliasForExpression.base.scale,
+                    aliasForExpression.base.dimension
+                )
                 )
             }
 

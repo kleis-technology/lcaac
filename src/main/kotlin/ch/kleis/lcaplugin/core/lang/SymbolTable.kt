@@ -18,7 +18,7 @@ private data class SubstanceKey(
 )
 
 data class SymbolTable(
-    val quantities: Register<QuantityExpression> = Register.empty(),
+    val data: Register<DataExpression> = Register.empty(),
     val dimensions: Register<Dimension> = Register.empty(),
     val processTemplates: Register<EProcessTemplate> = Register.empty(),
     val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
@@ -70,7 +70,10 @@ data class SymbolTable(
     }
 
     fun getQuantity(name: String): QuantityExpression? {
-        return quantities[name]
+        return when (val d = data[name]) {
+            is QuantityExpression -> d
+            else -> null
+        }
     }
 
     fun getSubstanceCharacterization(

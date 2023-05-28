@@ -25,6 +25,7 @@ class ProcessResolverTest {
             ),
             body = EProcess(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
                 ),
@@ -39,6 +40,7 @@ class ProcessResolverTest {
             locals = emptyMap(),
             body = EProcess(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),

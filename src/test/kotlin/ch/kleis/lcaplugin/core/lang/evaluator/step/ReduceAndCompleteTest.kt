@@ -65,6 +65,7 @@ class ReduceAndCompleteTest {
             locals = emptyMap(),
             body = EProcess(
                 name = "process",
+                labels = emptyMap(),
                 products = emptyList(),
                 inputs = emptyList(),
                 biosphere = listOf(

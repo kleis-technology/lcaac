@@ -434,12 +434,11 @@ class QuantityExpressionReducerTest {
         val b = UnitFixture.hour
         val expected = EQuantityScale(
             4.0,
-            EUnitLiteral(
-                UnitSymbol.of("km").divide(UnitSymbol.of("hour")),
+            EUnitLiteral(UnitSymbol.of("km").divide(UnitSymbol.of("hour")),
                 1000.0 / 3600.0,
                 DimensionFixture.length.divide(DimensionFixture.time)
-            )
-        )
+            ))
+
         val reducer = QuantityExpressionReducer(Register.empty())
 
         // when
@@ -553,7 +552,7 @@ class QuantityExpressionReducerTest {
     fun reduce_whenUnitClosure_shouldReduceWithGivenTable() {
         // given
         val symbolTable = SymbolTable(
-            quantities = Register.from(
+            data = Register.from(
                 mapOf("a" to UnitFixture.kg)
             )
         )

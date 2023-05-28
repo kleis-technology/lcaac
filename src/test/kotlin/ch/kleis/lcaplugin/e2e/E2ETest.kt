@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
@@ -122,7 +123,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val reducer = QuantityExpressionReducer(symbolTable.quantities)
+        val reducer = DataExpressionReducer(symbolTable.data)
         val expr = symbolTable.processTemplates["p"]!!.body.inputs.first().quantity
 
         // when

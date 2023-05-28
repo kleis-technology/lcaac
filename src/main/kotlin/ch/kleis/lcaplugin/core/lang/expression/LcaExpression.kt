@@ -15,7 +15,8 @@ sealed interface LcaExpression : Expression {
 data class EProductSpec(
     val name: String,
     val referenceUnit: QuantityExpression? = null,
-    val fromProcessRef: FromProcessRef? = null,
+    val fromProcessRef: FromProcess? = null,
+    val matchLabels: MatchLabels? = null,
 ) : LcaExpression {
     companion object
 }
@@ -42,8 +43,8 @@ data class ESubstanceSpec(
     val name: String,
     val displayName: String = name,
     val type: SubstanceType? = null,
-    val compartment: String? = null,
-    val subCompartment: String? = null,
+    val compartment: String? = null, // TODO: use StringExpression?
+    val subCompartment: String? = null, // TODO: use StringExpression?
     val referenceUnit: QuantityExpression? = null,
 ) : LcaExpression {
     companion object
@@ -95,6 +96,7 @@ data class EImpact(val quantity: QuantityExpression, val indicator: EIndicatorSp
 @optics
 data class EProcess(
     val name: String,
+    val labels: Map<String, EStringLiteral>,
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,

@@ -6,11 +6,6 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 
 @optics
-sealed interface QuantityExpression : Expression {
-    companion object
-}
-
-@optics
 data class EUnitLiteral(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : QuantityExpression {
     override fun toString(): String {
         return symbol.toString()

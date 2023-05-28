@@ -10,11 +10,58 @@ import org.junit.Test
 
 class HelperTest {
     @Test
+    fun substitute_whenProcessWithStringRef_shouldSubstitute() {
+        // given
+        val ref = EStringRef("class")
+        val body = EProcess(
+            name = "p",
+            labels = emptyMap(),
+            products = listOf(
+                ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+            ),
+            inputs = listOf(
+                ETechnoExchange(
+                    QuantityFixture.oneKilogram,
+                    ProductFixture.carrot.copy(
+                        matchLabels = MatchLabels(mapOf("class" to ref))
+                    )
+                )
+            ),
+            biosphere = emptyList(),
+        )
+        val helper = Helper()
+
+        // when
+        val actual = helper.substitute("class", EStringLiteral("foo"), body)
+
+        // then
+        val expected = EProcess(
+            name = "p",
+            labels = emptyMap(),
+            products = listOf(
+                ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+            ),
+            inputs = listOf(
+                ETechnoExchange(
+                    QuantityFixture.oneKilogram,
+                    ProductFixture.carrot.copy(
+                        matchLabels = MatchLabels(mapOf("class" to EStringLiteral("foo")))
+                    )
+                )
+            ),
+            biosphere = emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+
+    @Test
     fun substitute_whenProcess_shouldSubstitute() {
         // given
         val ref = EQuantityRef("q")
         val body = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(ref, ProductFixture.carrot)
             ),
@@ -33,6 +80,7 @@ class HelperTest {
         // then
         val expected = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
@@ -52,13 +100,14 @@ class HelperTest {
         val ref = EQuantityRef("q")
         val body = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     ref,
                     EProductSpec(
                         "carrot",
                         UnitFixture.kg,
-                        FromProcessRef(
+                        FromProcess(
                             "carrot_production",
                             mapOf(
                                 Pair("x", ref)
@@ -78,13 +127,14 @@ class HelperTest {
         // then
         val expected = EProcess(
             name = "p",
+            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
                     EProductSpec(
                         "carrot",
                         UnitFixture.kg,
-                        FromProcessRef(
+                        FromProcess(
                             "carrot_production",
                             mapOf(
                                 Pair("x", QuantityFixture.oneKilogram)
@@ -106,6 +156,7 @@ class HelperTest {
             listOf(
                 EProcess(
                     name = "p",
+                    labels = emptyMap(),
                     listOf(ETechnoExchange(EQuantityRef("quantity"), ProductFixture.carrot)),
                     listOf(
                         ETechnoExchange(
@@ -120,7 +171,7 @@ class HelperTest {
                             QuantityFixture.oneLitre, EProductSpec(
                                 "water",
                                 UnitFixture.l,
-                                FromProcessRef("template", emptyMap())
+                                FromProcess("template", emptyMap())
                             )
                         ),
                     ),

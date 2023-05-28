@@ -7,9 +7,9 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Helper
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
-    quantityRegister: Register<QuantityExpression> = Register.empty(),
+    dataRegister: Register<DataExpression> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
-    private val quantityRegister = Register(quantityRegister)
+    private val dataRegister = Register(dataRegister)
     private val helper = Helper()
 
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
@@ -26,19 +26,19 @@ class TemplateExpressionReducer(
                 val actualArguments = template.params
                     .plus(expression.arguments)
 
-                val localRegister = Register(quantityRegister)
+                val localRegister = Register(dataRegister)
                     .plus(actualArguments)
                     .plus(template.locals)
 
                 val reducer = LcaExpressionReducer(localRegister)
-                val quantityReducer = QuantityExpressionReducer(localRegister)
+                val dataReducer = DataExpressionReducer(localRegister)
 
                 var result = template.body
                 actualArguments.forEach {
                     result = helper.substitute(it.key, it.value, result)
                 }
                 result = reducer.reduce(result) as EProcess
-                result = concretizeProducts(result, actualArguments, quantityReducer)
+                result = concretizeProducts(result, actualArguments, dataReducer)
                 return EProcessFinal(result)
             }
 
@@ -49,16 +49,16 @@ class TemplateExpressionReducer(
 
     private fun concretizeProducts(
         result: EProcess,
-        actualArguments: Map<String, QuantityExpression>,
-        quantityReducer: QuantityExpressionReducer
+        actualArguments: Map<String, DataExpression>,
+        dataExpressionReducer: DataExpressionReducer
     ) = EProcess.products
         .compose(Every.list())
         .compose(ETechnoExchange.product)
         .modify(result) { productSpec ->
-            val reducedActualArguments = actualArguments.mapValues { quantityReducer.reduce(it.value) }
+            val reducedActualArguments = actualArguments.mapValues { dataExpressionReducer.reduce(it.value) }
             productSpec.copy(
                 fromProcessRef =
-                FromProcessRef(
+                FromProcess(
                     result.name,
                     reducedActualArguments,
                 )

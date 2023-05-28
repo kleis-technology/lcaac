@@ -4,9 +4,7 @@ import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
-import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
-import ch.kleis.lcaplugin.core.lang.expression.EUnitOf
+import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import java.lang.Double.parseDouble
@@ -21,12 +19,16 @@ class CsvProcessor(
         val template = symbolTable.getTemplate(processName)!!
         val arguments = template.params
             .mapValues { entry ->
-                request[entry.key]
-                    ?.let {
+                when (val v = entry.value) {
+                    is QuantityExpression -> request[entry.key]?.let {
                         val amount = parseDouble(it)
-                        EQuantityScale(amount, EUnitOf(entry.value))
+                        EQuantityScale(amount, EUnitOf(v))
                     } ?: entry.value
+
+                    is StringExpression -> TODO()
+                }
             }
+
         val systemValue = evaluator.eval(EProcessTemplateApplication(template, arguments))
         val assessment = Assessment(systemValue)
         val inventory = assessment.inventory()
