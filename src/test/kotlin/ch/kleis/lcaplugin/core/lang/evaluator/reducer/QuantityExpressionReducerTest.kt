@@ -623,8 +623,8 @@ class QuantityExpressionReducerTest {
             EQuantityScale(
                 1.0,
                 EUnitLiteral(
-                    UnitSymbol.of("kg").multiply(UnitSymbol.of("l")).scale(2.0),
-                    2.0e-3,
+                    UnitSymbol.of("kg").multiply(UnitSymbol.of("l")),
+                    1.0e-3,
                     DimensionFixture.mass.multiply(DimensionFixture.volume)
                 )
             )
@@ -645,8 +645,8 @@ class QuantityExpressionReducerTest {
             EQuantityScale(
                 1.0,
                 EUnitLiteral(
-                    UnitSymbol.of("l").multiply(UnitSymbol.of("kg")).scale(2.0),
-                    2.0e-3,
+                    UnitSymbol.of("l").multiply(UnitSymbol.of("kg")),
+                    1.0e-3,
                     DimensionFixture.mass.multiply(DimensionFixture.volume)
                 )
             )

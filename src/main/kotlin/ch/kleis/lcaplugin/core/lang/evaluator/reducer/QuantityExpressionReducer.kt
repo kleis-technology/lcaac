@@ -34,24 +34,10 @@ class QuantityExpressionReducer(
     private fun reduceUnitOf(unitOf: EUnitOf): QuantityExpression {
         val reducedExpression = reduce(unitOf.expression)
         return when {
-            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> {
-                val scale = reducedExpression.scale
-                if (scale == 1.0 || scale == 0.0) EQuantityScale(1.0, reducedExpression.base)
-                else {
-                    val baseSymbol = reducedExpression.base.symbol
-                    val baseScale = reducedExpression.base.scale
-                    val baseDimension = reducedExpression.base.dimension
-                    val newSymbol = baseSymbol.scale(scale)
-                    EQuantityScale(
-                        1.0,
-                        EUnitLiteral(
-                            newSymbol,
-                            scale * baseScale,
-                            baseDimension
-                        )
-                    )
-                }
-            }
+            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> EQuantityScale(
+                1.0,
+                reducedExpression.base
+            )
 
             reducedExpression is EUnitOf -> reducedExpression
             else -> EUnitOf(reducedExpression)
