@@ -52,7 +52,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
                 sb.toString()
             }
 
-            is LcaQuantityRef -> {
+            is LcaDataRef -> {
                 when (val target = element.reference.resolve()) {
                     is LcaUnitDefinition -> {
                         val sb = StringBuilder()
@@ -148,18 +148,18 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
             addKeyValueSection("Dimension", element.getDimensionField().getValue(), sb)
         }
         if (element.getType() == UnitDefinitionType.ALIAS) {
-            addKeyValueSection("Alias for", element.getAliasForField().quantityExpression.text, sb)
+            addKeyValueSection("Alias for", element.getAliasForField().dataExpression.text, sb)
         }
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }
 
     private fun documentQuantityData(sb: StringBuilder, element: LcaGlobalAssignment) {
-        documentQuantityData(sb, element.getQuantityRef().name, element.getValue().text)
+        documentQuantityData(sb, element.getDataRef().name, element.getValue().text)
     }
 
     private fun documentQuantityData(sb: StringBuilder, element: LcaAssignment) {
-        documentQuantityData(sb, element.getQuantityRef().name, element.getValue().text)
+        documentQuantityData(sb, element.getDataRef().name, element.getValue().text)
     }
 
     private fun documentQuantityData(sb: StringBuilder, qtyName: String, value: String) {
@@ -178,7 +178,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         addKeyValueSection("Type", element.getTypeField().getValue(), sb)
         addKeyValueSection("Compartment", element.getCompartmentField().getValue(), sb)
         addKeyValueSection("Sub-Compartment", element.getSubcompartmentField()?.getValue(), sb)
-        addKeyValueSection("Reference Unit", element.getReferenceUnitField().quantityExpression.text, sb)
+        addKeyValueSection("Reference Unit", element.getReferenceUnitField().dataExpression.text, sb)
         sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }

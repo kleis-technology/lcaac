@@ -93,7 +93,7 @@ import ::= IMPORT_KEYWORD urn {
  */
 
 globalVariables ::= VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE
-globalAssignment ::= quantityRef EQUAL quantityExpression {
+globalAssignment ::= dataRef EQUAL dataExpression {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiGlobalAssignmentMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssignmentStubElementType"
@@ -154,14 +154,14 @@ dimField ::= DIMENSION_KEYWORD EQUAL STRING_LITERAL {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
 
-referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL quantityExpression
+referenceUnitField ::= REFERENCE_UNIT_KEYWORD EQUAL dataExpression
 
 symbolField ::= SYMBOL_KEYWORD EQUAL STRING_LITERAL {
     implements=["ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.field.PsiStringLiteralFieldMixin"
 }
 
-aliasForField ::= ALIAS_FOR_KEYWORD EQUAL quantityExpression
+aliasForField ::= ALIAS_FOR_KEYWORD EQUAL dataExpression
 
 
 /*
@@ -196,7 +196,7 @@ params ::= PARAMETERS_KEYWORD LBRACE assignment* RBRACE
 
 variables ::= VARIABLES_KEYWORD LBRACE assignment* RBRACE
 
-assignment ::= quantityRef EQUAL quantityExpression {
+assignment ::= dataRef EQUAL dataExpression {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiAssignment"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiAssignmentMixin"
 }
@@ -221,62 +221,64 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
     Exchanges
  */
 
-technoInputExchange ::= quantityExpression productRef fromProcessConstraint?
+technoInputExchange ::= dataExpression productRef fromProcessConstraint?
 fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_arguments? RPAREN {
     pin=1
 }
 
 private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
 
-argument ::= parameterRef EQUAL quantityExpression
+argument ::= parameterRef EQUAL dataExpression
 
-allocateField ::= ALLOCATE_KEYWORD quantityExpression
+allocateField ::= ALLOCATE_KEYWORD dataExpression
 
-technoProductExchange ::= quantityExpression productRef allocateField? {
+technoProductExchange ::= dataExpression productRef allocateField? {
     implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeElementType"
     stubClass = "ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub"
 }
 
-bioExchange ::= quantityExpression substanceSpec
+bioExchange ::= dataExpression substanceSpec
 
-impactExchange ::= quantityExpression indicatorRef
+impactExchange ::= dataExpression indicatorRef
 
 /*
     Quantity
     Use GrammarKit's expression-related syntax and rules to generate a Pratt parser.
  */
 
-quantityExpression ::= addGroup
+dataExpression ::= addGroup
            | mulGroup
            | exponentialQuantityExpression
            | baseGroup
 
 private addGroup ::= addQuantityExpression | subQuantityExpression
 private mulGroup ::= scaleQuantityExpression | mulQuantityExpression | divQuantityExpression
-private baseGroup ::=  parenQuantityExpression | quantityRef
+private baseGroup ::=  parenQuantityExpression | stringExpression | dataRef
 
-fake binaryOperatorExpression ::= quantityExpression quantityExpression {
-    extends=quantityExpression
+fake binaryOperatorExpression ::= dataExpression dataExpression {
+    extends=dataExpression
     methods=[
-        left="/quantityExpression[0]"
-        right="/quantityExpression[1]"
+        left="/dataExpression[0]"
+        right="/dataExpression[1]"
     ]
 }
 
-addQuantityExpression ::= quantityExpression PLUS quantityExpression { extends=binaryOperatorExpression }
-subQuantityExpression ::= quantityExpression MINUS quantityExpression { extends=binaryOperatorExpression }
-mulQuantityExpression ::= quantityExpression STAR quantityExpression { extends=binaryOperatorExpression }
-divQuantityExpression ::= quantityExpression SLASH quantityExpression { extends=binaryOperatorExpression }
-exponentialQuantityExpression ::= quantityExpression HAT NUMBER { extends=quantityExpression methods=[exponent="NUMBER"] }
-parenQuantityExpression ::= LPAREN quantityExpression RPAREN { extends=quantityExpression }
-scaleQuantityExpression ::= NUMBER quantityExpression { extends=quantityExpression methods=[scale="NUMBER"]}
+addQuantityExpression ::= dataExpression PLUS dataExpression { extends=binaryOperatorExpression }
+subQuantityExpression ::= dataExpression MINUS dataExpression { extends=binaryOperatorExpression }
+mulQuantityExpression ::= dataExpression STAR dataExpression { extends=binaryOperatorExpression }
+divQuantityExpression ::= dataExpression SLASH dataExpression { extends=binaryOperatorExpression }
+exponentialQuantityExpression ::= dataExpression HAT NUMBER { extends=dataExpression methods=[exponent="NUMBER"] }
+parenQuantityExpression ::= LPAREN dataExpression RPAREN { extends=dataExpression }
+scaleQuantityExpression ::= NUMBER dataExpression { extends=dataExpression methods=[scale="NUMBER"]}
+stringExpression ::= STRING_LITERAL { extends=dataExpression }
+
 
 /*
     Unit
  */
-unitDefinition ::= UNIT_KEYWORD quantityRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
+unitDefinition ::= UNIT_KEYWORD dataRef LBRACE symbolField ( dimField | aliasForField) RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.unit.PsiUnitDefinitionMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.unit.UnitElementType"
@@ -297,10 +299,10 @@ labelRef ::= uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiLabelRefMixin"
 }
 
-quantityRef ::= uid {
-    extends=quantityExpression
-    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiQuantityRefMixin"
+dataRef ::= uid {
+    extends=dataExpression
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiDataRefMixin"
 }
 
 substanceRef ::= uid {

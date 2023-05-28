@@ -4,15 +4,15 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 
-class QuantityReference(
-    element: PsiQuantityRef
-) : PsiReferenceBase<PsiQuantityRef>(element), PsiPolyVariantReference {
+class DataReference(
+    element: PsiDataRef
+) : PsiReferenceBase<PsiDataRef>(element), PsiPolyVariantReference {
     private val globalAssignmentRef = GlobalUIDOwnerReference(
         element,
         { project, fqn ->

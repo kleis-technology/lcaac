@@ -121,7 +121,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         verify {
             mock.holder.newAnnotation(
                 HighlightSeverity.ERROR,
-                "incompatible dimensions: expecting mass, found length³"
+                "incompatible types: expecting TQuantity(dimension=mass), found TQuantity(dimension=length³)"
             )
         }
         verify { mock.builder.range(element) }

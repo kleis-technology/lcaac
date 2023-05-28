@@ -6,7 +6,10 @@ sealed interface Type
 
 data class TUnit(val dimension: Dimension) : Type
 
-data class TQuantity(val dimension: Dimension) : Type
+sealed interface TypeDataExpression : Type
+object TString : TypeDataExpression
+data class TQuantity(val dimension: Dimension) : TypeDataExpression
+
 
 sealed interface TypeLcaExpression : Type
 

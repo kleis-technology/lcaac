@@ -32,11 +32,11 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         return getProcessTemplateRef().nameIdentifier
     }
 
-    fun getParameters(): Map<String, LcaQuantityExpression> {
+    fun getParameters(): Map<String, LcaDataExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaParams::class.java)
             .flatMap {
                 it.assignmentList.map { a ->
-                    a.getQuantityRef().name to a.getValue()
+                    a.getDataRef().name to a.getValue()
                 }
             }
             .toMap()
@@ -76,11 +76,11 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.bioExchangeList }
     }
 
-    fun getVariables(): Map<String, LcaQuantityExpression> {
+    fun getVariables(): Map<String, LcaDataExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
             .flatMap {
                 it.assignmentList.map { a ->
-                    a.getQuantityRef().name to a.getValue()
+                    a.getDataRef().name to a.getValue()
                 }
             }
             .toMap()

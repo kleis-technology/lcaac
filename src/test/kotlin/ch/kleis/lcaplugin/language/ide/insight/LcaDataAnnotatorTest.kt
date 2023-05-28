@@ -11,7 +11,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
+class LcaDataAnnotatorTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
     }
@@ -32,7 +32,7 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -61,7 +61,7 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -88,7 +88,7 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
             .findGlobalAssignments(project, "$pkgName.x").first()
             .getValue()
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -118,9 +118,9 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
             project,
             "$pkgName.s", "Resource", "c"
         ).first()
-            .getReferenceUnitField().quantityExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -152,9 +152,9 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
             project,
             "$pkgName.s", "Resource", "c"
         ).first()
-            .getReferenceUnitField().quantityExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
@@ -189,9 +189,9 @@ class LcaQuantityAnnotatorTest : BasePlatformTestCase() {
             project,
             "$pkgName.s", "Resource", "c",
         ).first()
-            .getReferenceUnitField().quantityExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
-        val annotator = LcaQuantityAnnotator()
+        val annotator = LcaDataAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)

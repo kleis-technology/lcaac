@@ -58,7 +58,7 @@ class ParameterReference(
         return parameters.assignmentList
             .mapNotNull { assignment ->
                 assignment
-                    .takeIf { it.getQuantityRef().name == element.name }
+                    .takeIf { it.getDataRef().name == element.name }
                     ?.let { PsiElementResolveResult(it) }
             }
     }

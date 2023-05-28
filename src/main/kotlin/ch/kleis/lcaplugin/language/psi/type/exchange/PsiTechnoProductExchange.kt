@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.type.exchange
 
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.psi.LcaAllocateField
-import ch.kleis.lcaplugin.psi.LcaQuantityExpression
+import ch.kleis.lcaplugin.psi.LcaDataExpression
 import ch.kleis.lcaplugin.psi.LcaTypes
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
@@ -13,8 +13,8 @@ interface PsiTechnoProductExchange : PsiNameIdentifierOwner {
         return node.findChildByType(LcaTypes.PRODUCT_REF)?.psi as PsiProductRef
     }
 
-    fun getQuantity(): LcaQuantityExpression {
-        return PsiTreeUtil.getChildOfType(this, LcaQuantityExpression::class.java)!!
+    fun getQuantity(): LcaDataExpression {
+        return PsiTreeUtil.getChildOfType(this, LcaDataExpression::class.java)!!
     }
 
     override fun getName(): String {

@@ -16,7 +16,7 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
     }
 }
 
-class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiQuantityRef>()
+class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiDataRef>()
 class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
@@ -50,7 +50,7 @@ class PsiGlobalAssignmentManipulator : AbstractElementManipulator<PsiGlobalAssig
         range: TextRange,
         newContent: String?
     ): PsiGlobalAssignment {
-        newContent?.let { element.getQuantityRef().setName(it) }
+        newContent?.let { element.getDataRef().setName(it) }
         return element
     }
 }
@@ -61,7 +61,7 @@ class PsiAssignmentManipulator : AbstractElementManipulator<PsiAssignment>() {
         range: TextRange,
         newContent: String?
     ): PsiAssignment {
-        newContent?.let { element.getQuantityRef().setName(it) }
+        newContent?.let { element.getDataRef().setName(it) }
         return element
     }
 }

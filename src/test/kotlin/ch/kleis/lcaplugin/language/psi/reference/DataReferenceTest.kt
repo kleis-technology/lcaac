@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStu
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
-import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaDataRef
 import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class QuantityReferenceTest : BasePlatformTestCase() {
+class DataReferenceTest : BasePlatformTestCase() {
 
     override fun getTestDataPath(): String {
         return "testdata/language/psi/reference/quantity"
@@ -32,7 +32,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getProducts().first()
-            .getQuantity() as LcaQuantityRef
+            .getQuantity() as LcaDataRef
 
         // when
         val actual = ref.reference.resolve()
@@ -52,7 +52,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
         val assignment = process
             .getProducts().first()
             .getQuantity() as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
 
         // when
         val actual = ref.reference.resolve()
@@ -95,7 +95,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
             "c"
         ).first()
             .getReferenceUnitField()
-            .quantityExpression
+            .dataExpression
 
         // when
         val actual = ref.reference!!.resolve()
@@ -116,7 +116,7 @@ class QuantityReferenceTest : BasePlatformTestCase() {
             "c"
         ).first()
             .getReferenceUnitField()
-            .quantityExpression
+            .dataExpression
 
         // when
         val actual = ref.reference!!.variants

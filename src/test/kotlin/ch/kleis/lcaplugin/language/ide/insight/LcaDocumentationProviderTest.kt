@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaDataRef
 import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -161,7 +161,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -212,7 +212,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -262,7 +262,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -312,7 +312,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -361,7 +361,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val assignment = file
             .getProcesses().first()
             .getParameters()["yield"]!! as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When

@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.parser.LcaParserDefinition
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaDataRef
 import com.intellij.testFramework.ParsingTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -31,7 +31,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getLcaParams().first().assignmentList.first()
         val quantityRef = process.getProducts().first()
-            .getQuantity() as LcaQuantityRef
+            .getQuantity() as LcaDataRef
 
         // when
         val actual = quantityRef.reference.resolve()
@@ -60,7 +60,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getLcaVariables().first().assignmentList.first()
         val quantityRef = process.getProducts().first()
-            .getQuantity() as LcaQuantityRef
+            .getQuantity() as LcaDataRef
 
         // when
         val actual = quantityRef.reference.resolve()

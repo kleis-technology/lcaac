@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import ch.kleis.lcaplugin.psi.LcaParams
 import ch.kleis.lcaplugin.psi.LcaVariables
 import com.intellij.psi.PsiElement
@@ -32,7 +32,7 @@ class QuantityRefCollectorScopeProcessor : QuantityRefScopeProcessor {
 }
 
 class QuantityRefExactNameMatcherScopeProcessor(
-    private val quantityRef: PsiQuantityRef
+    private val quantityRef: PsiDataRef
 ) : QuantityRefScopeProcessor {
     private var results: Set<PsiNameIdentifierOwner> = emptySet()
 

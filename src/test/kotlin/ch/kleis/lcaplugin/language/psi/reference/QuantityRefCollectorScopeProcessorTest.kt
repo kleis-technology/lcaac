@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaDataRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.ui.naturalSorted
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -54,7 +54,7 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
         )
         val process = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
         val target = process.getInputs().first()
-            .quantityExpression as LcaQuantityRef
+            .dataExpression as LcaDataRef
 
         // when
         val actual = target.reference.variants

@@ -37,11 +37,11 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
         return PsiTreeUtil.findChildrenOfType(this, LcaSubstance::class.java)
     }
 
-    fun getGlobalAssignments(): Collection<Pair<String, LcaQuantityExpression>> {
+    fun getGlobalAssignments(): Collection<Pair<String, LcaDataExpression>> {
         return PsiTreeUtil.findChildrenOfType(this, LcaGlobalVariables::class.java)
             .flatMap {
                 it.globalAssignmentList
-                    .map { a -> a.getQuantityRef().name to a.getValue() }
+                    .map { a -> a.getDataRef().name to a.getValue() }
             }
     }
 
