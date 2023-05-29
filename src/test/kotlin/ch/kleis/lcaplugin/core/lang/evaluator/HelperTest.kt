@@ -12,7 +12,7 @@ class HelperTest {
     @Test
     fun substitute_whenProcessWithStringRef_shouldSubstitute() {
         // given
-        val ref = EStringRef("class")
+        val ref = EDataRef("class")
         val body = EProcess(
             name = "p",
             labels = emptyMap(),
@@ -66,7 +66,7 @@ class HelperTest {
     @Test
     fun substitute_whenProcess_shouldSubstitute() {
         // given
-        val ref = EQuantityRef("q")
+        val ref = EDataRef("q")
         val body = EProcess(
             name = "p",
             labels = emptyMap(),
@@ -105,7 +105,7 @@ class HelperTest {
     @Test
     fun substitute_whenProcessWithConstrainedProduct_shouldSubstitute() {
         // given
-        val ref = EQuantityRef("q")
+        val ref = EDataRef("q")
         val body = EProcess(
             name = "p",
             labels = emptyMap(),
@@ -167,12 +167,12 @@ class HelperTest {
                 EProcess(
                     name = "p",
                     labels = emptyMap(),
-                    listOf(ETechnoExchange(EQuantityRef("quantity"), ProductFixture.carrot)),
+                    listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
                     listOf(
                         ETechnoExchange(
                             EQuantityScale(
                                 1.0,
-                                EQuantityMul(EQuantityRef("ua"), EQuantityRef("ub"))
+                                EQuantityMul(EDataRef("ua"), EDataRef("ub"))
                             ), EProductSpec(
                                 "product",
                             )
@@ -194,8 +194,8 @@ class HelperTest {
                     listOf(
                         EImpact(
                             EQuantityAdd(
-                                EQuantityScale(3.0, EQuantityRef("qa")),
-                                EQuantityRef("qb")
+                                EQuantityScale(3.0, EDataRef("qa")),
+                                EDataRef("qb")
                             ), EIndicatorSpec("indicator")
                         )
                     ),

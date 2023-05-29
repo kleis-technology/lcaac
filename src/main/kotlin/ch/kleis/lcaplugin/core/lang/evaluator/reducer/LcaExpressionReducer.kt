@@ -42,27 +42,27 @@ class LcaExpressionReducer(
     }
 
     private fun reduceImpact(expression: EImpact) = EImpact(
-        dataExpressionReducer.reduceQuantity(expression.quantity),
+        dataExpressionReducer.reduce(expression.quantity),
         reduceIndicatorSpec(expression.indicator),
     )
 
     private fun reduceBioExchange(expression: EBioExchange) = EBioExchange(
-        dataExpressionReducer.reduceQuantity(expression.quantity),
+        dataExpressionReducer.reduce(expression.quantity),
         reduceSubstanceSpec(expression.substance),
     )
 
     private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
         return ETechnoExchange(
-            dataExpressionReducer.reduceQuantity(expression.quantity),
+            dataExpressionReducer.reduce(expression.quantity),
             reduceProductSpec(expression.product),
-            dataExpressionReducer.reduceQuantity(expression.allocation)
+            dataExpressionReducer.reduce(expression.allocation)
         )
     }
 
     private fun reduceProductSpec(expression: EProductSpec): EProductSpec {
         return EProductSpec(
             expression.name,
-            expression.referenceUnit?.let { dataExpressionReducer.reduceQuantity(it) },
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
             expression.fromProcess?.let { ref ->
                 ref.copy(
                     arguments = ref.arguments.mapValues { dataExpressionReducer.reduce(it.value) }
@@ -78,14 +78,14 @@ class LcaExpressionReducer(
             expression.type,
             expression.compartment,
             expression.subCompartment,
-            expression.referenceUnit?.let { dataExpressionReducer.reduceQuantity(it) },
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
         )
     }
 
     private fun reduceIndicatorSpec(expression: EIndicatorSpec): EIndicatorSpec {
         return EIndicatorSpec(
             expression.name,
-            expression.referenceUnit?.let { dataExpressionReducer.reduceQuantity(it) },
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
         )
     }
 }

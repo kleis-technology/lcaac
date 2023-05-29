@@ -15,10 +15,10 @@ class TemplateFixture {
                 name = "carrot_production",
                 labels = emptyMap(),
                 products = listOf(
-                    ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
+                    ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
             )
@@ -30,10 +30,10 @@ class TemplateFixture {
                 name = "with_unbounded_ref",
                 labels = emptyMap(),
                 products = listOf(
-                    ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
+                    ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
             )

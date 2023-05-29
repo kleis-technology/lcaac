@@ -19,13 +19,14 @@ fun ESubstanceCharacterization.toValue(): SubstanceCharacterizationValue {
 
 fun EImpact.toValue(): ImpactValue {
     return ImpactValue(
-        this.quantity.toValue(),
+        this.quantity.toValue() as QuantityValue,
         this.indicator.toValue(),
     )
 }
 
 private fun EIndicatorSpec.toValue(): IndicatorValue {
-    val referenceUnit = this.referenceUnit?.toUnitValue()
+    val referenceUnit = (this.referenceUnit as QuantityExpression?)
+        ?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     return IndicatorValue(
         this.name,
@@ -36,7 +37,7 @@ private fun EIndicatorSpec.toValue(): IndicatorValue {
 fun EProcess.toValue(): ProcessValue {
     return ProcessValue(
         this.name,
-        this.labels.mapValues { it.value.toValue() },
+        this.labels.mapValues { it.value.toValue() as StringValue },
         this.products.map { it.toValue() },
         this.inputs.map { it.toValue() },
         this.biosphere.map { it.toValue() },
@@ -45,21 +46,22 @@ fun EProcess.toValue(): ProcessValue {
 
 fun EBioExchange.toValue(): BioExchangeValue {
     return BioExchangeValue(
-        this.quantity.toValue(),
+        this.quantity.toValue() as QuantityValue,
         this.substance.toValue(),
     )
 }
 
 fun ETechnoExchange.toValue(): TechnoExchangeValue {
     return TechnoExchangeValue(
-        this.quantity.toValue(),
+        this.quantity.toValue() as QuantityValue,
         this.product.toValue(),
-        this.allocation.toValue()
+        this.allocation.toValue() as QuantityValue,
     )
 }
 
 fun ESubstanceSpec.toValue(): SubstanceValue {
-    val referenceUnit = this.referenceUnit?.toUnitValue()
+    val referenceUnit = (this.referenceUnit as QuantityExpression?)
+        ?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     val type = this.type ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
     val compartment = this.compartment ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
@@ -74,7 +76,8 @@ fun ESubstanceSpec.toValue(): SubstanceValue {
 
 fun EProductSpec.toValue(): ProductValue {
     val name = this.name
-    val referenceUnitValue = this.referenceUnit?.toUnitValue()
+    val referenceUnitValue = (this.referenceUnit as QuantityExpression?)
+        ?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     val fromProcessRefValue = this.fromProcess?.toValue()
     return ProductValue(
@@ -87,35 +90,31 @@ fun EProductSpec.toValue(): ProductValue {
 private fun FromProcess.toValue(): FromProcessRefValue {
     return FromProcessRefValue(
         this.name,
-        this.matchLabels.elements.mapValues { it.value.toValue() },
+        this.matchLabels.elements.mapValues { it.value.toValue() as StringValue },
         this.arguments.mapValues {
             when (val e = it.value) {
                 is QuantityExpression -> e.toValue()
                 is StringExpression -> e.toValue()
+                is EDataRef -> throw EvaluatorException("$it is not reduced")
             }
         },
     )
 }
 
-fun StringExpression.toValue(): StringValue =
-    when (this) {
+fun DataExpression.toValue(): DataValue {
+    return when(this) {
         is EStringLiteral -> StringValue(this.value)
-        else -> throw EvaluatorException("$this is not reduced")
-    }
-
-fun QuantityExpression.toValue(): QuantityValue =
-    when {
-        this is EQuantityScale && this.base is EUnitLiteral ->
-            QuantityValue(
-                this.scale,
-                this.base.toUnitValue(),
+        is EUnitLiteral -> QuantityValue(1.0, this.toUnitValue())
+        is EQuantityScale -> when (val b = this.base) {
+            is EUnitLiteral -> QuantityValue(
+                this.scale, b.toUnitValue(),
             )
-
-        this is EUnitLiteral ->
-            QuantityValue(1.0, this.toUnitValue())
+            else -> throw EvaluatorException("$b is not reduced")
+        }
 
         else -> throw EvaluatorException("$this is not reduced")
     }
+}
 
 fun QuantityExpression.toUnitValue(): UnitValue =
     when {

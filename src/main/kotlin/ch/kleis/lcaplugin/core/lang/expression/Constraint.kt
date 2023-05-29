@@ -17,7 +17,7 @@ data class FromProcess(
 
 @optics
 data class MatchLabels(
-    val elements: Map<String, StringExpression>,
+    val elements: Map<String, DataExpression>,
 ) {
     override fun toString(): String {
         return if (elements.isEmpty()) "" else "where $elements"

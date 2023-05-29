@@ -11,3 +11,5 @@ sealed interface RefExpression {
     fun name(): String
 }
 
+sealed interface QuantityExpression
+sealed interface StringExpression

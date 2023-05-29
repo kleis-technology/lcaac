@@ -2,10 +2,10 @@ package ch.kleis.lcaplugin.core.lang.resolver
 
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.expression.EDataRef
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EProductSpec
 import ch.kleis.lcaplugin.core.lang.expression.EStringLiteral
-import ch.kleis.lcaplugin.core.lang.expression.EStringRef
 
 class ProcessResolver(
     private val symbolTable: SymbolTable
@@ -19,7 +19,7 @@ class ProcessResolver(
             .mapValues {
                 when (val v = it.value) {
                     is EStringLiteral -> v.value
-                    is EStringRef -> throw EvaluatorException("calling process $name with label ${it.key} = ${it.value} that is not a literal")
+                    else -> throw EvaluatorException("$v is not a valid label value")
                 }
             }
         return symbolTable.getTemplate(name, labels)?.let { candidate ->

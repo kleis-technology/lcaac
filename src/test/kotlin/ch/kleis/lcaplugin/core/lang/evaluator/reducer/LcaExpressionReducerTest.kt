@@ -15,13 +15,13 @@ class LcaExpressionReducerTest {
             name = "p",
             labels = emptyMap(),
             products = listOf(
-                ETechnoExchange(EQuantityRef("q_carrot"), ProductFixture.carrot),
+                ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
             ),
             inputs = listOf(
-                ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water)
+                ETechnoExchange(EDataRef("q_water"), ProductFixture.water)
             ),
             biosphere = listOf(
-                EBioExchange(EQuantityRef("q_propanol"), SubstanceFixture.propanol),
+                EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol),
             ),
         )
         val reducer = LcaExpressionReducer(
@@ -67,7 +67,7 @@ class LcaExpressionReducerTest {
     fun reduce_whenImpact_shouldReduceQuantityAndIndicator() {
         // given
         val expression = EImpact(
-            EQuantityRef("q"),
+            EDataRef("q"),
             EIndicatorSpec("cc")
         )
         val reducer = LcaExpressionReducer(
@@ -93,7 +93,7 @@ class LcaExpressionReducerTest {
     fun reduce_whenTechnoExchange_shouldReduceQuantity() {
         // given
         val expression = ETechnoExchange(
-            EQuantityRef("q"),
+            EDataRef("q"),
             EProductSpec("carrot"),
         )
         val reducer = LcaExpressionReducer(
@@ -119,7 +119,7 @@ class LcaExpressionReducerTest {
     fun reduce_whenBioExchange_shouldReduceQuantityAndSubstance() {
         // given
         val expression = EBioExchange(
-            EQuantityRef("q"),
+            EDataRef("q"),
             ESubstanceSpec("propanol"),
         )
         val reducer = LcaExpressionReducer(
@@ -146,7 +146,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EIndicatorSpec(
             "cc",
-            EQuantityRef("kg"),
+            EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -176,7 +176,7 @@ class LcaExpressionReducerTest {
             type = SubstanceType.RESOURCE,
             "air",
             null,
-            EQuantityRef("kg"),
+            EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -206,7 +206,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EProductSpec(
             "carrot",
-            EQuantityRef("kg"),
+            EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -232,7 +232,7 @@ class LcaExpressionReducerTest {
         // given
         val expression = EProductSpec(
             "carrot",
-            EQuantityRef("kg"),
+            EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -263,14 +263,14 @@ class LcaExpressionReducerTest {
                 "p",
                 MatchLabels.EMPTY,
                 mapOf(
-                    Pair("x", EQuantityRef("q"))
+                    Pair("x", EDataRef("q"))
                 )
             )
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
                 hashMapOf(
-                    Pair("q", EQuantityScale(3.0, EQuantityRef("kg"))),
+                    Pair("q", EQuantityScale(3.0, EDataRef("kg"))),
                     Pair("kg", UnitFixture.kg)
                 )
             )
@@ -299,12 +299,12 @@ class LcaExpressionReducerTest {
         // given
         val expression = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
-                EQuantityRef("q_propanol"),
+                EDataRef("q_propanol"),
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
                 EImpact(
-                    EQuantityRef("q_cc"),
+                    EDataRef("q_cc"),
                     IndicatorFixture.climateChange
                 ),
             )

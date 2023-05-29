@@ -26,6 +26,7 @@ class CsvProcessor(
                     } ?: entry.value
 
                     is StringExpression -> TODO()
+                    is EDataRef -> TODO()
                 }
             }
 

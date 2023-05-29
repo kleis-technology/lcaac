@@ -27,18 +27,18 @@ class ProcessTemplateExpressionReducerTest {
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
-                            EQuantityRef("q_carrot"),
-                            EQuantityRef("x"),
+                            EDataRef("q_carrot"),
+                            EDataRef("x"),
                         ), ProductFixture.carrot
                     ),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
             )
         )
-        val arguments: Map<String, QuantityExpression> = mapOf(
+        val arguments: Map<String, DataExpression> = mapOf(
             Pair("q_carrot", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
@@ -97,18 +97,18 @@ class ProcessTemplateExpressionReducerTest {
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
-                            EQuantityRef("q_carrot"),
-                            EQuantityRef("x"),
+                            EDataRef("q_carrot"),
+                            EDataRef("x"),
                         ), ProductFixture.carrot
                     ),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EQuantityRef("q_water"), ProductFixture.water),
+                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
             )
         )
-        val arguments: Map<String, QuantityExpression> = mapOf(
+        val arguments: Map<String, DataExpression> = mapOf(
             Pair("foo", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
