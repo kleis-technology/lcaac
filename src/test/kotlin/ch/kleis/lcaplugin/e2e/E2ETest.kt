@@ -36,6 +36,42 @@ class E2ETest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_stringParams() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water from water_production(geo = "FR")
+                    }
+                }
+
+                process water_production {
+                    params {
+                        geo = "GLO"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val symbolTable = parser.load()
+
+        // when/then does not throw
+        symbolTable.getTemplate("p")
+            ?.let { Evaluator(symbolTable).eval(it) }!!
+    }
+
+    @Test
     fun test_csvProcessor() {
         // given
         val pkgName = "test_exponentiationPriority"

@@ -11,6 +11,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.testFramework.ParsingTestCase
+import junit.framework.TestCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -18,6 +19,28 @@ import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
+    @Test
+    fun test_stringVariables() {
+        // given
+        val file = parseFile(
+            "hello", """
+                variables {
+                    x = "hello"
+                }
+            """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+
+        // when
+        val actual = parser.load().getData("x")
+
+        // then
+        val expected = EStringLiteral("hello")
+        assertEquals(expected, actual)
+    }
+
     @Test
     fun test_shouldMapLabels() {
         // given
@@ -108,7 +131,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val symbolTable = parser.load()
 
         // then
-        val actual = symbolTable.getQuantity("lbs")
+        val actual = symbolTable.getData("lbs")
         val expect = EUnitAlias("lbs", EQuantityScale(2.2, EQuantityRef("kg")))
         assertEquals(expect, actual)
     }
@@ -129,7 +152,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
         // then
         Prelude.unitsAsQuantities.getValues().onEach {
-            assertNotNull(symbolTable.getQuantity(it.toString()))
+            assertNotNull(symbolTable.getData(it.toString()))
         }
     }
 
@@ -151,7 +174,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val unit = "fooSymbol"
 
         // when
-        val quantity = symbolTable.getQuantity("fooUnitName") as EUnitLiteral
+        val quantity = symbolTable.getData("fooUnitName") as EUnitLiteral
 
         // then
         assertEquals(quantity.symbol.toString(), unit)

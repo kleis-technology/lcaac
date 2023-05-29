@@ -132,16 +132,9 @@ data class SymbolTable(
             ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
         )
 
-    /*
-        Quantity
-     */
 
-
-    fun getQuantity(name: String): QuantityExpression? {
-        return when (val d = data[name]) {
-            is QuantityExpression -> d
-            else -> null
-        }
+    fun getData(name: String): DataExpression? {
+        return data[name]
     }
 
     fun getSubstanceCharacterization(
