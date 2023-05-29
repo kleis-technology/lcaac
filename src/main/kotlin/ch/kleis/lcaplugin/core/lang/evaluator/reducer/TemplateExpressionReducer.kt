@@ -15,36 +15,40 @@ class TemplateExpressionReducer(
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {
             is EProcessTemplateApplication -> {
-                val template = expression.template
-
-                val unknownParameters = expression.arguments.keys
-                    .minus(template.params.keys)
-                if (unknownParameters.isNotEmpty()) {
-                    throw EvaluatorException("unknown parameters: $unknownParameters")
-                }
-
-                val actualArguments = template.params
-                    .plus(expression.arguments)
-
-                val localRegister = Register(dataRegister)
-                    .plus(actualArguments)
-                    .plus(template.locals)
-
-                val reducer = LcaExpressionReducer(localRegister)
-                val dataReducer = DataExpressionReducer(localRegister)
-
-                var result = template.body
-                actualArguments.forEach {
-                    result = helper.substitute(it.key, it.value, result)
-                }
-                result = reducer.reduce(result) as EProcess
-                result = concretizeProducts(result, actualArguments, dataReducer)
-                return EProcessFinal(result)
+                return reduceTemplateApplication(expression)
             }
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
         }
+    }
+
+    fun reduceTemplateApplication(expression: EProcessTemplateApplication): EProcessFinal {
+        val template = expression.template
+
+        val unknownParameters = expression.arguments.keys
+            .minus(template.params.keys)
+        if (unknownParameters.isNotEmpty()) {
+            throw EvaluatorException("unknown parameters: $unknownParameters")
+        }
+
+        val actualArguments = template.params
+            .plus(expression.arguments)
+
+        val localRegister = Register(dataRegister)
+            .plus(actualArguments)
+            .plus(template.locals)
+
+        val reducer = LcaExpressionReducer(localRegister)
+        val dataReducer = DataExpressionReducer(localRegister)
+
+        var result = template.body
+        actualArguments.forEach {
+            result = helper.substitute(it.key, it.value, result)
+        }
+        result = reducer.reduce(result) as EProcess
+        result = concretizeProducts(result, actualArguments, dataReducer)
+        return EProcessFinal(result)
     }
 
     private fun concretizeProducts(

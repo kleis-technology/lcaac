@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
@@ -218,5 +219,73 @@ class ProcessResolverTest {
 
         // then
         assertEquals(carrotProduction, actual)
+    }
+
+    @Test
+    fun resolve_whenNameOnly_multipleMatch_shouldReturnNull() {
+        // given
+        val carrotProductionFR = EProcessTemplate(
+            params = emptyMap(),
+            locals = emptyMap(),
+            body = EProcess(
+                name = "carrot_production",
+                labels = mapOf("geo" to EStringLiteral("FR")),
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                ),
+                inputs = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
+                ),
+                biosphere = emptyList(),
+            )
+        )
+        val carrotProductionUK = EProcessTemplate(
+            params = emptyMap(),
+            locals = emptyMap(),
+            body = EProcess(
+                name = "carrot_production",
+                labels = mapOf("geo" to EStringLiteral("UK")),
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                ),
+                inputs = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
+                ),
+                biosphere = emptyList(),
+            )
+        )
+        val saladProduction = EProcessTemplate(
+            params = emptyMap(),
+            locals = emptyMap(),
+            body = EProcess(
+                name = "salad_production",
+                labels = emptyMap(),
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
+                ),
+                inputs = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                ),
+                biosphere = emptyList(),
+            )
+        )
+        val processTemplates: Register<EProcessTemplate> = Register.from(
+            mapOf(
+                "carrot_production_FR" to carrotProductionFR,
+                "carrot_production_UK" to carrotProductionUK,
+                "salad_production" to saladProduction,
+            )
+        )
+        val carrotSpec = ProductFixture.carrot
+        val symbolTable = SymbolTable(
+            processTemplates = processTemplates,
+        )
+        val resolver = ProcessResolver(symbolTable)
+
+        // when
+        val actual = resolver.resolve(carrotSpec)
+
+        // then
+        Assert.assertNull(actual)
     }
 }

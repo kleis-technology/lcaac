@@ -5,7 +5,9 @@ import arrow.optics.PEvery
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
-import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
+import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteTerminals
+import ch.kleis.lcaplugin.core.lang.evaluator.step.Reduce
+import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceLabelSelectors
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaplugin.core.lang.resolver.SubstanceCharacterizationResolver
@@ -19,11 +21,14 @@ class Evaluator(
         private val LOG = Logger.getInstance(Evaluator::class.java)
     }
 
-    private val reduceAndComplete = ReduceAndComplete(symbolTable)
+    private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable)
+    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
+    private val reduce = Reduce(symbolTable)
+    private val completeTerminals = CompleteTerminals()
+
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
     private val dataReducer = DataExpressionReducer(symbolTable.data)
-    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
@@ -33,7 +38,7 @@ class Evaluator(
             .compose(Every.list())
             .compose(EBioExchange.substance)
 
-    fun eval(expression: ProcessTemplateExpression): SystemValue {
+    fun eval(expression: EProcessTemplateApplication): SystemValue {
         LOG.info("Start recursive Compile")
         try {
             val result = SystemValue.empty()
@@ -48,8 +53,8 @@ class Evaluator(
 
     private tailrec fun recursiveCompile(
         accumulator: SystemValue,
-        visited: HashSet<ProcessTemplateExpression>,
-        toProcess: HashSet<ProcessTemplateExpression>,
+        visited: HashSet<EProcessTemplateApplication>,
+        toProcess: HashSet<EProcessTemplateApplication>,
     ) {
         // termination condition
         if (toProcess.isEmpty()) return
@@ -59,7 +64,12 @@ class Evaluator(
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
-        val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
+        val reduced = expression
+            .let(reduceLabelSelectors::apply)
+            .let(completeDefaultArguments::apply)
+            .let(reduce::apply)
+            .let(completeTerminals::apply)
+
         val nextInstances = HashSet<EProcessTemplateApplication>()
         val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
             resolveProcessTemplateByProductSpec(spec)?.let { template ->
@@ -81,7 +91,9 @@ class Evaluator(
         }
         val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
             resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
-                val substanceCharacterization = reduceAndComplete.apply(it)
+                val substanceCharacterization = it
+                    .let(reduce::apply)
+                    .let(completeTerminals::apply)
                 accumulator.plus(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
             } ?: spec

@@ -34,7 +34,7 @@ class LcaFromProcessAnnotatorTest : BasePlatformTestCase() {
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .fromProcessConstraint!!
-            .processTemplateRef!!
+            .processTemplateSpec!!
         val mock = AnnotationHolderMock()
         val annotator = LcaFromProcessRefAnnotator()
 
@@ -72,7 +72,7 @@ class LcaFromProcessAnnotatorTest : BasePlatformTestCase() {
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .fromProcessConstraint!!
-            .processTemplateRef!!
+            .processTemplateSpec!!
         val mock = AnnotationHolderMock()
         val annotator = LcaFromProcessRefAnnotator()
 

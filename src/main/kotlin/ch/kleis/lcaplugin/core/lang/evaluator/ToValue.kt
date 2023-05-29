@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.lang.value.*
 fun ProcessTemplateExpression.toValue(): ProcessValue {
     return when (this) {
         is EProcessFinal -> this.expression.toValue()
-        else -> throw EvaluatorException("$this is not this")
+        else -> throw EvaluatorException("$this is not final")
     }
 }
 

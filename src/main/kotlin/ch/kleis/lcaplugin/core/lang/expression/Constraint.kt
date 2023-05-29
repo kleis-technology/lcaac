@@ -9,7 +9,7 @@ data class FromProcess(
     val arguments: Map<String, DataExpression>,
 ) {
     override fun toString(): String {
-        return "from $name$arguments"
+        return "from $name$matchLabels$arguments"
     }
 
     companion object
@@ -20,7 +20,7 @@ data class MatchLabels(
     val elements: Map<String, DataExpression>,
 ) {
     override fun toString(): String {
-        return if (elements.isEmpty()) "" else "where $elements"
+        return if (elements.isEmpty()) "" else "$elements"
     }
 
     companion object {

@@ -9,26 +9,33 @@ class CompleteDefaultArguments(
     private val symbolTable: SymbolTable,
 ) {
     private val everyInputProduct =
-        ProcessTemplateExpression.eProcessTemplateApplication.template.body.inputs compose
+        EProcessTemplateApplication.template.body.inputs compose
             Every.list() compose
             ETechnoExchange.product
 
-    fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
-        return when (expression) {
-            is EProcessFinal -> expression
-            is EProcessTemplate -> this.apply(EProcessTemplateApplication(expression, emptyMap()))
-            is EProcessTemplateApplication -> everyInputProduct.modify(expression) {
-                it.fromProcess?.let { ref ->
-                    val process = symbolTable.getTemplate(ref.name)
-                        ?: throw EvaluatorException("unknown process ${ref.name}")
-                    val actualArguments = process.params.plus(ref.arguments)
-                    it.copy(
-                        fromProcess = it.fromProcess.copy(
-                            arguments = actualArguments
-                        )
+    fun apply(expression: EProcessTemplateApplication): EProcessTemplateApplication {
+        return everyInputProduct.modify(expression) {
+            it.fromProcess?.let { ref ->
+                val name = ref.name
+                val matchLabels = ref.matchLabels.elements.mapValues { entry -> evalLabel(entry) }
+                val process = symbolTable.getTemplate(name, matchLabels)
+                    ?: throw EvaluatorException("unknown process $name$matchLabels")
+                val actualArguments = process.params.plus(ref.arguments)
+                it.copy(
+                    fromProcess = it.fromProcess.copy(
+                        matchLabels = MatchLabels(matchLabels.mapValues { entry -> EStringLiteral(entry.value) }),
+                        arguments = actualArguments
                     )
-                } ?: it
-            }
+                )
+            } ?: it
+        }
+    }
+
+    private fun evalLabel(entry: Map.Entry<String, DataExpression>): String {
+        val key = entry.key
+        return when (val expression = entry.value) {
+            is EStringLiteral -> expression.value
+            else -> throw EvaluatorException("$key = $expression is not a valid label value")
         }
     }
 }

@@ -17,11 +17,12 @@ class EvaluatorTest {
     fun eval_unresolvedSubstance_shouldBeTreatedAsTerminal() {
         // given
         val symbolTable = SymbolTable.empty()
-        val template = EProcessTemplate(
+        val instance = EProcessTemplateApplication(EProcessTemplate(
             params = mapOf(),
             locals = mapOf(),
-            body = EProcess("eprocess",
+            body = EProcess("eProcess",
                 products = listOf(),
+                labels = emptyMap(),
                 inputs = listOf(),
                 biosphere = listOf(
                     EBioExchange(
@@ -35,7 +36,7 @@ class EvaluatorTest {
                     )
                 )
             )
-        )
+        ), emptyMap())
         val evaluator = Evaluator(symbolTable)
         val expected = FullyQualifiedSubstanceValue("doesNotExist",
             type = SubstanceType.EMISSION,
@@ -45,7 +46,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(template).processes.first().biosphere.first().substance
+        val actual = evaluator.eval(instance).processes.first().biosphere.first().substance
 
         // then
         assertEquals(expected, actual)
@@ -81,7 +82,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -103,7 +104,7 @@ class EvaluatorTest {
                 ),
                 biosphere = emptyList()
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
@@ -182,7 +183,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -210,7 +211,7 @@ class EvaluatorTest {
                 biosphere = emptyList(),
                 labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
@@ -288,7 +289,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -316,7 +317,7 @@ class EvaluatorTest {
                 biosphere = emptyList(),
                 labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when/then
@@ -336,7 +337,7 @@ class EvaluatorTest {
                 )
             ),
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -359,7 +360,7 @@ class EvaluatorTest {
                 ),
                 labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when

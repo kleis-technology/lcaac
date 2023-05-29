@@ -96,10 +96,6 @@ data class SymbolTable(
         )
     }
 
-    fun getFirstTemplateOrNullByProductName(name: String): EProcessTemplate? {
-        return templatesIndexedByProductName.firstOrNull(name)
-    }
-
     fun getAllTemplatesByProductName(name: String): List<EProcessTemplate> {
         return templatesIndexedByProductName.getAll(name)
     }

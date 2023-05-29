@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.psi.LcaArgument
 import ch.kleis.lcaplugin.psi.LcaFromProcessConstraint
 import ch.kleis.lcaplugin.psi.LcaParams
@@ -41,8 +41,8 @@ class ParameterReference(
         return fromProcessConstraint
     }
 
-    private fun findTemplateRef(): PsiProcessTemplateRef? {
-        return findContainingFromProcessConstraint()?.processTemplateRef
+    private fun findTemplateRef(): PsiProcessTemplateSpec? {
+        return findContainingFromProcessConstraint()?.processTemplateSpec
     }
 
     private fun resolveProcess(): LcaProcess? {

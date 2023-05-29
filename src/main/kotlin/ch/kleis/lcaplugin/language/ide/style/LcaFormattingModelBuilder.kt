@@ -40,7 +40,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .aroundInside(DATA_REF, UNIT_DEFINITION)
                 .spaces(1)
                 // PROCESS
-                .aroundInside(PROCESS_TEMPLATE_REF, PROCESS)
+                .aroundInside(PROCESS_TEMPLATE_SPEC, PROCESS)
                 .spaces(1)
                 .betweenInside(IDENTIFIER, LBRACE, PROCESS)
                 .spacing(1, 1, 0, false, 0)

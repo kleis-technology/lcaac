@@ -19,7 +19,7 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
 class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiDataRef>()
 class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
-class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateRef>()
+class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateSpec>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 
 class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>() {

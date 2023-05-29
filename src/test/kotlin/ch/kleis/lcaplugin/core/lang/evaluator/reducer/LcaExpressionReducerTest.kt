@@ -7,6 +7,45 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LcaExpressionReducerTest {
+    @Test
+    fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {
+        // given
+        val expression = ETechnoExchange(
+            QuantityFixture.oneKilogram,
+            EProductSpec(
+                "a",
+                UnitFixture.kg,
+                FromProcess(
+                    "p",
+                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                    emptyMap(),
+                )
+            )
+        )
+        val reducer = LcaExpressionReducer(
+            Register.from(
+                mapOf("geo" to EStringLiteral("FR"))
+            )
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = ETechnoExchange(
+            QuantityFixture.oneKilogram,
+            EProductSpec(
+                "a",
+                QuantityFixture.oneKilogram,
+                FromProcess(
+                    "p",
+                    MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                    emptyMap(),
+                )
+            )
+        )
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun reduce_whenProcess_shouldReduceExchanges() {

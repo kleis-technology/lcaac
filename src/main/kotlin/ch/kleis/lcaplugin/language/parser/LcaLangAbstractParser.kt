@@ -220,12 +220,17 @@ class LcaLangAbstractParser(
 
     private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
         return psiFromProcessConstraint?.let {
+            val spec = it.processTemplateSpec!!
+            val arguments = psiFromProcessConstraint.argumentList
+            val labelSelectors = spec.matchLabels?.labelSelectorList ?: emptyList()
             FromProcess(
-                name = it.processTemplateRef!!.name,
-                matchLabels = MatchLabels.EMPTY, // TODO: Map labels
-                arguments = psiFromProcessConstraint
-                    .argumentList
-                    .associate { arg -> arg.parameterRef.name to this.parseDataExpression(arg.dataExpression) }
+                name = spec.name,
+                matchLabels = MatchLabels(
+                    labelSelectors
+                        .associate { selector -> selector.labelRef.name to parseDataExpression(selector.dataExpression) }
+                ),
+                arguments = arguments
+                    .associate { arg -> arg.parameterRef.name to parseDataExpression(arg.dataExpression) }
             )
         }
     }

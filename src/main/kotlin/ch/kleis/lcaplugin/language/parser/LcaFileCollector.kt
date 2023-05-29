@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
@@ -65,7 +65,7 @@ class LcaFileCollector(
             PsiSubstanceSpec::class.java,
             PsiDataRef::class.java,
             PsiProductRef::class.java,
-            PsiProcessTemplateRef::class.java,
+            PsiProcessTemplateSpec::class.java,
         ).asSequence()
     }
 }

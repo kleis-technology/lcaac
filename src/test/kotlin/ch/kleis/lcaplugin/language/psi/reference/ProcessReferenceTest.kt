@@ -21,7 +21,7 @@ class ProcessReferenceTest : BasePlatformTestCase() {
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .fromProcessConstraint!!
-            .processTemplateRef!!
+            .processTemplateSpec!!
 
         // when
         val actual = ref.reference.resolve()
@@ -39,7 +39,7 @@ class ProcessReferenceTest : BasePlatformTestCase() {
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .fromProcessConstraint!!
-            .processTemplateRef!!
+            .processTemplateSpec!!
 
         // when
         val actual =

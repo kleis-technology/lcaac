@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.core.lang.resolver
 
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.expression.EDataRef
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EProductSpec
 import ch.kleis.lcaplugin.core.lang.expression.EStringLiteral
@@ -12,11 +11,11 @@ class ProcessResolver(
 ) {
     fun resolve(spec: EProductSpec): EProcessTemplate? {
         if (spec.fromProcess == null) {
-            return symbolTable.getFirstTemplateOrNullByProductName(spec.name)
+            val matches = symbolTable.getAllTemplatesByProductName(spec.name)
+            return if (matches.isEmpty() || matches.size > 1) null else matches.firstOrNull()
         }
         val name = spec.fromProcess.name
-        val labels = spec.fromProcess.matchLabels.elements
-            .mapValues {
+        val labels = spec.fromProcess.matchLabels.elements.mapValues {
                 when (val v = it.value) {
                     is EStringLiteral -> v.value
                     else -> throw EvaluatorException("$v is not a valid label value")

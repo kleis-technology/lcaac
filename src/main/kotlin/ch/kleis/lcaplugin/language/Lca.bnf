@@ -168,7 +168,7 @@ aliasForField ::= ALIAS_FOR_KEYWORD EQUAL dataExpression
     Process
  */
 
-process ::= PROCESS_KEYWORD processTemplateRef
+process ::= PROCESS_KEYWORD processTemplateSpec
 LBRACE (
     params
     | labels
@@ -222,11 +222,11 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
  */
 
 technoInputExchange ::= dataExpression productRef fromProcessConstraint?
-fromProcessConstraint ::= FROM_KEYWORD processTemplateRef LPAREN comma_sep_arguments? RPAREN {
+fromProcessConstraint ::= FROM_KEYWORD processTemplateSpec LPAREN comma_sep_arguments? RPAREN {
     pin=1
 }
-
 private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
+
 
 argument ::= parameterRef EQUAL dataExpression
 
@@ -315,11 +315,6 @@ indicatorRef ::= uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiIndicatorRefMixin"
 }
 
-processTemplateRef ::= uid {
-    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateRefMixin"
-}
-
 parameterRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiParameterRefMixin"
@@ -329,10 +324,19 @@ parameterRef ::= uid {
    Spec
  */
 
+processTemplateSpec ::= uid matchLabels? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateSpecMixin"
+}
+matchLabels ::= LSQBRACE comma_sep_label_selectors? RSQBRACE
+private comma_sep_label_selectors ::= labelSelector (COMMA labelSelector)* COMMA?
+labelSelector ::= labelRef EQUAL dataExpression
+
 substanceSpec ::= uid (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiSubstanceSpecMixin"
 }
+
 /*
     Identifier
  */

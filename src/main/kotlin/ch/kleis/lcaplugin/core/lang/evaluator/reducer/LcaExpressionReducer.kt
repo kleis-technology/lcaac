@@ -65,6 +65,7 @@ class LcaExpressionReducer(
             expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
             expression.fromProcess?.let { ref ->
                 ref.copy(
+                    matchLabels = MatchLabels(ref.matchLabels.elements.mapValues { dataExpressionReducer.reduce(it.value) }),
                     arguments = ref.arguments.mapValues { dataExpressionReducer.reduce(it.value) }
                 )
             },

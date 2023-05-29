@@ -13,6 +13,7 @@ import kotlin.test.assertNull
 
 
 class CompleteDefaultArgumentsTest {
+
     @Test
     fun apply_whenEProcessTemplateApplication() {
         // given
@@ -99,34 +100,35 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
-        val expression = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
-            body = EProcess(
-                "salad_production",
-                labels = emptyMap(),
-                products = emptyList(),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels.EMPTY,
-                                mapOf(
-                                    "q_water" to QuantityFixture.twoLitres,
+        val expression = EProcessTemplateApplication(
+            EProcessTemplate(
+                params = emptyMap(),
+                locals = emptyMap(),
+                body = EProcess(
+                    "salad_production",
+                    labels = emptyMap(),
+                    products = emptyList(),
+                    inputs = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels.EMPTY,
+                                    mapOf(
+                                        "q_water" to QuantityFixture.twoLitres,
+                                    )
                                 )
                             )
                         )
-                    )
-                ),
-                biosphere = emptyList(),
-            )
+                    ),
+                    biosphere = emptyList(),
+                )
+            ), emptyMap()
         )
-        val everyInputProduct = ProcessTemplateExpression
-            .eProcessTemplateApplication
+        val everyInputProduct = EProcessTemplateApplication
             .template
             .body
             .inputs
@@ -164,32 +166,33 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
-        val expression = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
-            body = EProcess(
-                "salad_production",
-                labels = emptyMap(),
-                products = emptyList(),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels.EMPTY,
-                                emptyMap(),
+        val expression = EProcessTemplateApplication(
+            EProcessTemplate(
+                params = emptyMap(),
+                locals = emptyMap(),
+                body = EProcess(
+                    "salad_production",
+                    labels = emptyMap(),
+                    products = emptyList(),
+                    inputs = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels.EMPTY,
+                                    emptyMap(),
+                                )
                             )
                         )
-                    )
-                ),
-                biosphere = emptyList(),
-            )
+                    ),
+                    biosphere = emptyList(),
+                )
+            ), emptyMap()
         )
-        val everyInputProduct = ProcessTemplateExpression
-            .eProcessTemplateApplication
+        val everyInputProduct = EProcessTemplateApplication
             .template
             .body
             .inputs
@@ -227,27 +230,28 @@ class CompleteDefaultArgumentsTest {
             )
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
-        val expression = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
-            body = EProcess(
-                "salad_production",
-                labels = emptyMap(),
-                products = emptyList(),
-                inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
-                            UnitFixture.kg,
+        val expression = EProcessTemplateApplication(
+            EProcessTemplate(
+                params = emptyMap(),
+                locals = emptyMap(),
+                body = EProcess(
+                    "salad_production",
+                    labels = emptyMap(),
+                    products = emptyList(),
+                    inputs = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                            )
                         )
-                    )
-                ),
-                biosphere = emptyList(),
-            )
+                    ),
+                    biosphere = emptyList(),
+                )
+            ), emptyMap()
         )
-        val everyInputProduct = ProcessTemplateExpression
-            .eProcessTemplateApplication
+        val everyInputProduct = EProcessTemplateApplication
             .template
             .body
             .inputs
