@@ -25,13 +25,6 @@ class SimaproSubstanceMapperTest {
 
     @Before
     fun before() {
-//        every {
-//            writer.write(
-//                capture(pathSlot), capture(bodySlot), capture(indexSlot),
-//                capture(closeSlot)
-//            )
-//        } returns Unit
-//        every { writer.write(capture(pathSlot), capture(bodySlot)) } returns Unit
         mockkObject(ModelWriter)
         every { ModelWriter.sanitizeAndCompact("kg") } returns "kg"
     }

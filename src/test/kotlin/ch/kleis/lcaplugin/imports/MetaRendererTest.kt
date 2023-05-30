@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports
 
-import io.mockk.mockkObject
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Test
@@ -11,7 +10,6 @@ import kotlin.test.assertTrue
 class MetaRendererTest {
 
     private val sut = MetaRenderer()
-    private val writer = mockkObject(ModelWriter.Companion)
     private val result = mutableMapOf<String, String>()
 
 
@@ -91,17 +89,4 @@ class MetaRendererTest {
         // Then
         assertEquals(mapOf("name" to "Georges"), result)
     }
-
-//    @Test
-//    fun render_ShouldReturnToString_WithOtherObject() {
-//        // Given
-//        val date = LocalDate.of(2023, 5, 10)
-//
-//        // When
-//        sut.render(date, "", result)
-//
-//        // Then, checks without default format dependency.
-//        assertEquals(1, result.size)
-//        assertThat(result[""], containsString("2023") }
-//    }
 }

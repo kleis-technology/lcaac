@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.imports.*
-import ch.kleis.lcaplugin.imports.ModelWriter.Companion.createCommentLine
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.ProcessDictRecord
 import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
@@ -169,12 +168,12 @@ ${renderBiosphere(biosphere)}
         biosphere.variableName?.let { comments.add("// variableName: $it") }
 
         val amountFormula = biosphere.amount.toString()
-        val (amount, changed) = FormulaConverter.compute(amountFormula)
+        val amount = FormulaConverter.compute(amountFormula, comments)
         val unit = sanitizeUnit(unitToStr(biosphere.unit))
         val uid = uid(biosphere)
-        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+//        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return comments
-            .plus("$amount $unit $uid $endingComment")
+            .plus("$amount $unit $uid")
     }
 
     private fun uncertaintyToStr(comments: ArrayList<String>, it: Uncertainty) {
@@ -199,7 +198,7 @@ ${renderBiosphere(biosphere)}
         techno.uncertainty?.let { uncertaintyToStr(comments, it) }
 
         val amountFormula = techno.amount.toString()
-        val (amount, changed) = FormulaConverter.compute(amountFormula)
+        val amount = FormulaConverter.compute(amountFormula, comments)
         val unit = sanitizeUnit(unitToStr(techno.unit))
         val uid = uid(techno, geo)
         val (allocation, from) =
@@ -215,9 +214,9 @@ ${renderBiosphere(biosphere)}
                     Pair("", "from ${refProcUid}()")
                 }
             }
-        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
+//        val endingComment = createCommentLine(listOf(if (changed) "Formula=[$amountFormula]" else ""))
         return comments
-            .plus("$amount $unit $uid $allocation $from $endingComment")
+            .plus("$amount $unit $uid $allocation $from")
     }
 
     private fun uid(techno: IntermediateExchange, geo: String): String {

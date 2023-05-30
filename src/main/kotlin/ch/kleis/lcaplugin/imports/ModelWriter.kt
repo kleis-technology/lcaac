@@ -53,7 +53,7 @@ class ModelWriter(
 ) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
-        private const val BASE_PAD = 4
+        const val BASE_PAD = 4
         private val multipleSeparator = Regex("_{2,}")
 
         fun sanitizeAndCompact(s: String, toLowerCase: Boolean = true): String {
@@ -83,6 +83,7 @@ class ModelWriter(
         }
 
         fun compactText(s: CharSequence): String {
+            // TODO Private ?
             if (s.isBlank()) {
                 return ""
             }
@@ -109,7 +110,7 @@ class ModelWriter(
             return text.joinToString("\n$sep")
         }
 
-        fun padList(text: List<CharSequence>, pad: Int): List<CharSequence> {
+        private fun padList(text: List<CharSequence>, pad: Int): List<CharSequence> {
             val sep = " ".repeat(pad)
             return text.map { "$sep$it" }
         }
@@ -158,7 +159,7 @@ class ModelWriter(
                 val split = v
                     ?.split("\n")
                     ?.map { compactText(it) }
-                    ?.filter { it.isNotBlank() }
+                    ?.filterIndexed { k2, v2 -> v2.isNotBlank() || k2 == 0 }
                 if (!split.isNullOrEmpty()) {
                     val sep = " ".repeat(pad)
                     builder.append(
@@ -172,6 +173,7 @@ class ModelWriter(
 
 
         fun createCommentLine(comments: List<String>): String {
+            // TODO Remove
             val cleaned = comments.filter { it.isNotBlank() }
 
             return if (cleaned.isEmpty()) ""

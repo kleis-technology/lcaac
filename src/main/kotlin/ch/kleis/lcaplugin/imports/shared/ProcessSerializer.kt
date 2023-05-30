@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.padButFirst
 import ch.kleis.lcaplugin.imports.model.*
 
 class ProcessSerializer {
@@ -22,6 +23,19 @@ $metaBloc
     }
 """
             )
+            // Params
+            if (p.params.isNotEmpty()) {
+                val paramsBloc = p.params.map { "${it.symbol} = ${it.value}" }
+                builder.append(
+                    """
+
+    params {
+        ${padButFirst(paramsBloc, 8)}
+    }
+"""
+                )
+            }
+
             val blocks = listOf(
                 "products" to p.productBlocks,
                 "inputs" to p.inputBlocks,

@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.model.*
+import org.hamcrest.CoreMatchers.containsString
+import org.junit.Assert.assertThat
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -9,17 +11,20 @@ class ProcessSerializerTest {
     private val proc: ProcessImported
 
     init {
-        proc = ProcessImported("uid", "name_value")
-        proc.meta["description"] = "The module reflects.\n[This dataset ]\nProduction volume: 0.15000000596046448 p"
+        proc = ProcessImported("uid")
+        proc.meta["name"] = "name_value"
+        proc.meta["description"] = "The \"module\" reflects.\n[This dataset ]\nProduction volume: 0.15000000596046448 p"
         proc.meta["category"] = "energy"
         proc.meta["identifier"] = "EI1519605797"
+        proc.meta["literatures"] =
+            "\n    * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.\n    * Another Methodological."
 
         val prod1 = ProductImported(
             listOf(
                 "name: Absorption chiller, 100kW {RoW}| production | Cut-off, U",
                 "category: Cogeneration\\Gas\\Transformation\\Infrastructure"
             ),
-            1.0,
+            "1.0",
             "p",
             "absorption_chiller_100kw",
             80.0
@@ -28,7 +33,7 @@ class ProcessSerializerTest {
             listOf(
                 "name: Absorption chiller, 50kW {RoW}",
             ),
-            1.0,
+            "(x + 2) * 1",
             "p",
             "absorption_chiller_50kw",
             20.0
@@ -42,7 +47,7 @@ class ProcessSerializerTest {
                 mutableListOf(
                     InputImported(
                         listOf("Estimation based on few references"),
-                        420.0, "kg", "aluminium_glo_market"
+                        "420.0", "kg", "aluminium_glo_market"
                     )
                 )
             )
@@ -54,7 +59,7 @@ class ProcessSerializerTest {
                 mutableListOf(
                     BioExchangeImported(
                         listOf("Calculated value based on expertise"),
-                        0.9915, "m3", "water_m3", "air"
+                        "0.9915", "m3", "water_m3", "air"
                     )
                 )
             )
@@ -65,7 +70,7 @@ class ProcessSerializerTest {
                 mutableListOf(
                     BioExchangeImported(
                         listOf("Calculated value based on expertise"),
-                        0.9915, "m3", "water_m3", "water", "river"
+                        "0.9915", "m3", "water_m3", "water", "river"
                     )
                 )
             )
@@ -76,7 +81,7 @@ class ProcessSerializerTest {
                 mutableListOf(
                     BioExchangeImported(
                         listOf("Approximation"),
-                        5.9, "m3", "water", "water", "in river"
+                        "5.9", "m3", "water", "water", "in river"
                     )
                 )
             )
@@ -88,7 +93,7 @@ class ProcessSerializerTest {
                 mutableListOf(
                     BioExchangeImported(
                         listOf("Rough estimation"),
-                        42.17, "m2a", "occupation_industrial_area", "raw", "land"
+                        "42.17", "m2a", "occupation_industrial_area", "raw", "land"
                     )
                 )
             )
@@ -109,11 +114,14 @@ process uid {
 
     meta {
         "name" = "name_value"
-        "description" = "The module reflects.
+        "description" = "The 'module' reflects.
             [This dataset ]
             Production volume: 0.15000000596046448 p"
         "category" = "energy"
         "identifier" = "EI1519605797"
+        "literatures" = "
+                * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.
+                * Another Methodological."
     }
 
     products { // Products
@@ -121,7 +129,7 @@ process uid {
         // category: Cogeneration\Gas\Transformation\Infrastructure
         1.0 p absorption_chiller_100kw allocate 80.0 percent
         // name: Absorption chiller, 50kW {RoW}
-        1.0 p absorption_chiller_50kw allocate 20.0 percent
+        (x + 2) * 1 p absorption_chiller_50kw allocate 20.0 percent
     }
 
     inputs { // materialsAndFuels
@@ -152,5 +160,23 @@ process uid {
         assertEquals(expected, result.toString())
     }
 
+
+    @Test
+    fun testRender_WithParams() {
+        // Given
+        proc.params.add(ParamImported("x", "3 u"))
+        proc.params.add(ParamImported("y", "5 u"))
+
+        // When
+        val result = ProcessSerializer.serialize(proc)
+
+        // Then
+        val expected = """
+    params {
+        x = 3 u
+        y = 5 u
+    }"""
+        assertThat(result.toString(), containsString(expected))
+    }
 
 }

@@ -1,10 +1,11 @@
 package ch.kleis.lcaplugin.imports.model
 
 class ProcessImported(
-    val uid: String,
-    val name: String,
+    val uid: String
 ) {
-    var meta: MutableMap<String, String?> = mutableMapOf("name" to name)
+    var meta: MutableMap<String, String?> = mutableMapOf()
+    var params: MutableList<ParamImported> = mutableListOf()
+    var comments: MutableList<String> = mutableListOf()
 
     var productBlocks: MutableList<ExchangeBlock<ProductImported>> = mutableListOf()
     var inputBlocks: MutableList<ExchangeBlock<InputImported>> = mutableListOf()
@@ -14,6 +15,8 @@ class ProcessImported(
 
 }
 
+data class ParamImported(val symbol: String, val value: String)
+
 class ExchangeBlock<T : ExchangeImported>(
     val comment: String,
     var exchanges: MutableList<T> = mutableListOf()
@@ -22,7 +25,7 @@ class ExchangeBlock<T : ExchangeImported>(
 sealed class ExchangeImported(val comments: List<String>)
 class BioExchangeImported(
     comments: List<String>,
-    val qty: Double,
+    val qty: String,
     val unit: String,
     val uid: String,
     val compartment: String,
@@ -31,15 +34,19 @@ class BioExchangeImported(
 
 class ProductImported(
     comments: List<String>,
-    val qty: Double,
+    val qty: String,
     val unit: String,
     val uid: String,
     val allocation: Double = 100.0
-) : ExchangeImported(comments)
+) : ExchangeImported(comments) {
+    fun asInput(): InputImported {
+        return InputImported(comments, qty, unit, uid)
+    }
+}
 
 class InputImported(
     comments: List<String>,
-    val qty: Double,
+    val qty: String,
     val unit: String,
     val uid: String
 ) : ExchangeImported(comments)
