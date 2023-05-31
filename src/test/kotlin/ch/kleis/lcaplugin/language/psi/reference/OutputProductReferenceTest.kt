@@ -12,18 +12,98 @@ import org.junit.Test
 
 class OutputProductReferenceTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
-        return "testdata/language/psi/reference/prod"
+        return ""
     }
 
-    override fun setUp() {
-        super.setUp()
-        myFixture.copyDirectoryToProject("", "")
+    @Test
+    fun test_resolve_fromProcess_withPatternMatching_noLabels() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName.water
+                
+                process water_production {
+                    products {
+                        1 l water
+                    }
+                }
+                
+                process water_production {
+                    labels {
+                        geo = "2"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .inputProductSpec
+
+        // when
+        val actual = ref.reference.resolve()
+
+        // then
+        val expected = ProcessStubKeyIndex.findProcesses(
+            project,
+            "$pkgName.water.water_production",
+            emptyMap(),
+        ).first()
+            .getProducts().first()
+            .outputProductSpec
+        assertEquals(expected, actual)
     }
 
     @Test
     fun test_resolve() {
         // given
-        val pkgName = "language.psi.reference.prod.test_resolve"
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName.water
+                
+                process water_production {
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
@@ -33,13 +113,152 @@ class OutputProductReferenceTest : BasePlatformTestCase() {
 
         // then
         val expected = OutputProductKeyIndex.findOutputProducts(project, "$pkgName.water.water").first()
-        TestCase.assertEquals(expected, actual)
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun test_resolve_fromProcess_sameProduct() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water from water_production_1
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName.water
+                
+                process water_production_1 {
+                    products {
+                        1 l water
+                    }
+                }
+                
+                process water_production_2 {
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .inputProductSpec
+
+        // when
+        val actual = ref.reference.resolve()
+
+        // then
+        val expected = ProcessStubKeyIndex.findProcesses(project, "$pkgName.water.water_production_1").first()
+            .getProducts().first()
+            .outputProductSpec
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun test_resolve_fromProcess_withPatternMatching() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water from water_production match (geo = "1")
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName.water
+                
+                process water_production {
+                    labels {
+                        geo = "1"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+                
+                process water_production {
+                    labels {
+                        geo = "2"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .inputProductSpec
+
+        // when
+        val actual = ref.reference.resolve()
+
+        // then
+        val expected = ProcessStubKeyIndex.findProcesses(
+            project,
+            "$pkgName.water.water_production",
+            mapOf("geo" to "1"),
+        ).first()
+            .getProducts().first()
+            .outputProductSpec
+        assertEquals(expected, actual)
     }
 
     @Test
     fun test_getVariants() {
         // given
-        val pkgName = "language.psi.reference.prod.test_resolve"
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName
+                
+                process water_production {
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec

@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
@@ -48,7 +47,7 @@ class PsiLcaTypeChecker {
             is PsiGlobalAssignment -> checkDataExpression(element.getValue())
             is PsiAssignment -> checkDataExpression(element.getValue())
             is LcaTechnoInputExchange -> checkTechnoInputExchange(element)
-            is PsiTechnoProductExchange -> checkTechnoProductExchange(element)
+            is LcaTechnoProductExchange -> checkTechnoProductExchange(element)
             is LcaBioExchange -> checkBioExchange(element)
             else -> throw PsiTypeCheckException("Uncheckable type: $element")
         }
@@ -89,20 +88,21 @@ class PsiLcaTypeChecker {
             val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
             val productName = el.inputProductSpec.name
             el.inputProductSpec.reference.resolve()?.let {
-                val tyProductExchange = check(it)
-                if (tyProductExchange !is TTechnoExchange) {
-                    throw PsiTypeCheckException("expected TTechnoExchange, found $tyProductExchange")
+                val outputProductSpec = it as LcaOutputProductSpec
+                val tyOutputExchange = check(outputProductSpec.getContainingTechnoExchange())
+                if (tyOutputExchange !is TTechnoExchange) {
+                    throw PsiTypeCheckException("expected TTechnoExchange, found $tyOutputExchange")
                 }
-                if (tyProductExchange.product.dimension != tyQuantity.dimension) {
-                    throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
+                if (tyOutputExchange.product.dimension != tyQuantity.dimension) {
+                    throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyOutputExchange.product.dimension}")
                 }
-            }
-            el.inputProductSpec.fromProcessConstraint?.let {
-                val psiProcess = it.processTemplateSpec!!.reference.resolve() as PsiProcess?
-                    ?: throw PsiTypeCheckException("unbound reference ${it.processTemplateSpec!!.name}")
+
+                val psiProcess = outputProductSpec.getContainingProcess()
                 val tyArguments = checkProcessArguments(psiProcess)
-                it.processTemplateSpec!!.argumentList
-                    .forEach { arg ->
+                el.inputProductSpec.getFromProcessConstraint()
+                    ?.processTemplateSpec
+                    ?.argumentList
+                    ?.forEach { arg ->
                         val key = arg.parameterRef.name
                         val value = arg.dataExpression
                         val tyActual = checkDataExpression(value)
@@ -117,10 +117,10 @@ class PsiLcaTypeChecker {
     }
 
 
-    private fun checkTechnoProductExchange(element: PsiTechnoProductExchange): TTechnoExchange {
-        return rec.guard { el: PsiTechnoProductExchange ->
-            val tyQuantity = checkDataExpression(el.getQuantity(), TQuantity::class.java)
-            val productName = el.getOutputProductSpec().name
+    private fun checkTechnoProductExchange(element: LcaTechnoProductExchange): TTechnoExchange {
+        return rec.guard { el: LcaTechnoProductExchange ->
+            val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
+            val productName = el.outputProductSpec.name
             TTechnoExchange(TProduct(productName, tyQuantity.dimension))
         }(element)
     }

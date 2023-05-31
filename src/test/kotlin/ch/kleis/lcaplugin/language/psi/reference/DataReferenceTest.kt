@@ -71,8 +71,8 @@ class DataReferenceTest : BasePlatformTestCase() {
         val ref = process
             .getInputs().first()
             .inputProductSpec
-            .fromProcessConstraint!!
-            .processTemplateSpec!!
+            .getFromProcessConstraint()
+            ?.processTemplateSpec!!
             .argumentList.first()
             .parameterRef
 

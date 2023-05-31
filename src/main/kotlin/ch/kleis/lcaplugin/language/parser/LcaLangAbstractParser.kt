@@ -219,7 +219,7 @@ class LcaLangAbstractParser(
     ): EProductSpec {
         return EProductSpec(
             inputProductSpec.name,
-            fromProcess = fromProcessConstraint(inputProductSpec.fromProcessConstraint),
+            fromProcess = fromProcessConstraint(inputProductSpec.getFromProcessConstraint()),
         )
     }
 

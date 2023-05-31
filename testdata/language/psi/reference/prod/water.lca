@@ -1,7 +1,0 @@
-package language.psi.reference.prod.test_resolve.water
-
-process water_production {
-    products {
-        1 l water
-    }
-}

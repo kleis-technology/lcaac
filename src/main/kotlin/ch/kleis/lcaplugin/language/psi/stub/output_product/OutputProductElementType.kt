@@ -30,7 +30,7 @@ class OutputProductElementType(debugName: String) : ILightStubElementType<
         node: LighterASTNode,
         parentStub: StubElement<*>
     ): OutputProductStub {
-        throw UnsupportedOperationException("cannot create techno product exchange stub from lighter ast node")
+        throw UnsupportedOperationException("cannot create techno product spec stub from lighter ast node")
     }
 
     @Suppress("UNCHECKED_CAST")

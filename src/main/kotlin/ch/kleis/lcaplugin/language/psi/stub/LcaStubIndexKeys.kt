@@ -10,7 +10,7 @@ object LcaStubIndexKeys {
         StubIndexKey.createIndexKey("lca.substances")
 
     val OUTPUT_PRODUCTS: StubIndexKey<String, LcaOutputProductSpec> =
-        StubIndexKey.createIndexKey("lca.technoProductExchanges")
+        StubIndexKey.createIndexKey("lca.outputProducts")
 
     val PROCESSES: StubIndexKey<ProcessKey, LcaProcess> =
         StubIndexKey.createIndexKey("lca.processes")
