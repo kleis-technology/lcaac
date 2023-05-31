@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.core.prelude
 
-import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
-import ch.kleis.lcaplugin.core.lang.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.expression.QuantityExpression
 

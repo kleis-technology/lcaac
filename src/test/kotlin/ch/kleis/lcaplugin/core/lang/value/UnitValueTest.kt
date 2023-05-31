@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import ch.kleis.lcaplugin.core.lang.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.math.DoubleComparator
 import org.junit.Test

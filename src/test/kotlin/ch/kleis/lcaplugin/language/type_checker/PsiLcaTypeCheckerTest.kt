@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.type_checker
 
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -96,7 +96,8 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
         val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.testProcess").first()
             .getEmissions().first()
         val checker = PsiLcaTypeChecker()
-        val expected = "Incompatible dimensions: substance reference dimension is mass but exchange dimension is length³"
+        val expected =
+            "Incompatible dimensions: substance reference dimension is mass but exchange dimension is length³"
 
         // when + then
         val error = assertFailsWith(PsiTypeCheckException::class) { checker.check(target) }

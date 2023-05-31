@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.type
 
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 
 sealed interface Type
 

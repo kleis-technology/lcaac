@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.core.allocation
 
-import ch.kleis.lcaplugin.core.lang.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 import kotlin.math.absoluteValue

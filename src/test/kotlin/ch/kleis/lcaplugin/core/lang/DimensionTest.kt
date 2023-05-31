@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.lang
 
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
