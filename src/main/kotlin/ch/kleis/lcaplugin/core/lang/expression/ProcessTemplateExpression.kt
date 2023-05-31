@@ -25,15 +25,6 @@ data class EProcessTemplateApplication(
 }
 
 @optics
-data class EProcessTemplateRef(val name: String) : ProcessTemplateExpression, RefExpression {
-    override fun name(): String {
-        return name
-    }
-
-    companion object
-}
-
-@optics
 data class EProcessFinal(val expression: EProcess) : ProcessTemplateExpression {
     companion object
 }

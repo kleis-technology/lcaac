@@ -11,13 +11,11 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 class ReduceAndComplete(
     symbolTable: SymbolTable,
 ) {
-    private val processTemplates = symbolTable.processTemplates
     private val lcaReducer = LcaExpressionReducer(
         symbolTable.quantities,
     )
     private val templateReducer = TemplateExpressionReducer(
         symbolTable.quantities,
-        processTemplates,
     )
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
@@ -25,9 +23,6 @@ class ReduceAndComplete(
             is EProcessTemplateApplication -> templateReducer.reduce(expression)
             is EProcessFinal -> expression
             is EProcessTemplate -> templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
-            is EProcessTemplateRef -> processTemplates[expression.name]?.let {
-                templateReducer.reduce(EProcessTemplateApplication(expression, emptyMap()))
-            } ?: expression
         }
         val unboundedReferences = Helper().allRequiredRefs(reduced)
         if (unboundedReferences.isNotEmpty()) {

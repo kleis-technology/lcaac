@@ -8,9 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 
 class TemplateExpressionReducer(
     quantityRegister: Register<QuantityExpression> = Register.empty(),
-    templateRegister: Register<EProcessTemplate> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression> {
-    private val templateRegister = Register(templateRegister)
     private val quantityRegister = Register(quantityRegister)
     private val helper = Helper()
 
@@ -46,7 +44,6 @@ class TemplateExpressionReducer(
 
             is EProcessFinal -> expression
             is EProcessTemplate -> expression
-            is EProcessTemplateRef -> templateRegister[expression.name]?.let { reduce(it) } ?: expression
         }
     }
 

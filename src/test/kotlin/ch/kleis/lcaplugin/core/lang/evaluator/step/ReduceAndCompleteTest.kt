@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.step
 
-import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.evaluator.toValue
@@ -107,48 +106,6 @@ class ReduceAndCompleteTest {
 
         // when
         val actual = reduceAndComplete.apply(template).toValue()
-
-        // then
-        val expected = ProcessValue(
-            name = "carrot_production",
-            listOf(
-                TechnoExchangeValue(
-                    QuantityValueFixture.oneKilogram,
-                    ProductValueFixture.carrot.withFromProcessRef(
-                        FromProcessRefValue(
-                            "carrot_production",
-                            mapOf("q_water" to QuantityValueFixture.oneLitre),
-                        )
-                    )
-                )
-            ),
-            listOf(
-                TechnoExchangeValue(
-                    QuantityValueFixture.oneLitre,
-                    ProductValueFixture.water
-                )
-            ),
-            emptyList(),
-        )
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun eval_whenTemplateRef_shouldReadEnv() {
-        // given
-        val templateRef = EProcessTemplateRef("p")
-        val reduceAndComplete = ReduceAndComplete(
-            SymbolTable(
-                processTemplates = Register.from(
-                    hashMapOf(
-                        Pair("p", TemplateFixture.carrotProduction)
-                    )
-                )
-            )
-        )
-
-        // when
-        val actual = reduceAndComplete.apply(templateRef).toValue()
 
         // then
         val expected = ProcessValue(

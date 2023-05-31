@@ -17,7 +17,6 @@ class CompleteDefaultArguments(
         return when (expression) {
             is EProcessFinal -> expression
             is EProcessTemplate -> this.apply(EProcessTemplateApplication(expression, emptyMap()))
-            is EProcessTemplateRef -> expression
             is EProcessTemplateApplication -> everyInputProduct.modify(expression) {
                 it.fromProcessRef?.let { ref ->
                     val process = symbolTable.getTemplate(ref.ref)
