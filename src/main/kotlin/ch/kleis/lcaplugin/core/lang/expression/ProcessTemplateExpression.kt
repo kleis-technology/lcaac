@@ -18,7 +18,7 @@ data class EProcessTemplate(
 
 @optics
 data class EProcessTemplateApplication(
-    val template: ProcessTemplateExpression,
+    val template: EProcessTemplate,
     val arguments: Map<String, QuantityExpression>
 ) : ProcessTemplateExpression {
     companion object

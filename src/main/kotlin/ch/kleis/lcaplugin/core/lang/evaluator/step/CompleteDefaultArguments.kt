@@ -9,9 +9,9 @@ class CompleteDefaultArguments(
     private val symbolTable: SymbolTable,
 ) {
     private val everyInputProduct =
-        ProcessTemplateExpression.eProcessTemplateApplication.template.eProcessTemplate.body.inputs compose
-                Every.list() compose
-                ETechnoExchange.product
+        ProcessTemplateExpression.eProcessTemplateApplication.template.body.inputs compose
+            Every.list() compose
+            ETechnoExchange.product
 
     fun apply(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {

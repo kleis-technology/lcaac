@@ -15,7 +15,7 @@ class TemplateExpressionReducer(
     override fun reduce(expression: ProcessTemplateExpression): ProcessTemplateExpression {
         return when (expression) {
             is EProcessTemplateApplication -> {
-                val template = reduce(expression.template) as EProcessTemplate
+                val template = expression.template
 
                 val unknownParameters = expression.arguments.keys
                     .minus(template.params.keys)
