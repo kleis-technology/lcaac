@@ -498,7 +498,7 @@ class QuantityExpressionReducerTest {
      */
 
     @Test
-    fun reduce_whenUnitComposition_shouldReturnEUnitLiteral() {
+    fun reduce_whenUnitComposition_shouldReturnNormalForm() {
         // given
         val kg = EUnitLiteral(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
         val quantityConversion = EQuantityScale(2.2, kg)
@@ -589,7 +589,7 @@ class QuantityExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenUnitOfUnitLiteral_shouldReturnUnitLiteral() {
+    fun reduce_whenUnitOfUnitLiteral_shouldReturnNormalForm() {
         // given
         val expr = EUnitOf(UnitFixture.l)
         val expected = QuantityFixture.oneLitre
@@ -616,7 +616,7 @@ class QuantityExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenUnitOfComplexExpression_shouldReturnUnitLiteral() {
+    fun reduce_whenUnitOfComplexExpression_shouldReturnNormalForm() {
         // given
         val expr = EUnitOf(EQuantityMul(UnitFixture.kg, QuantityFixture.twoLitres))
         val expected =
@@ -638,7 +638,7 @@ class QuantityExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenUnitOfComplexExpression_opposite_shouldReturnUnitLiteral() {
+    fun reduce_whenUnitOfComplexExpression_opposite_shouldReturnNormalForm() {
         // given
         val expr = EUnitOf(EQuantityMul(QuantityFixture.twoLitres, UnitFixture.kg))
         val expected =

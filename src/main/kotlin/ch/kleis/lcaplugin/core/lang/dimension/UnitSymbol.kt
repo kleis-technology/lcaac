@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.lang.dimension
 
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.math.DoubleComparator
+import kotlin.math.pow
 
 class UnitSymbol(
     elements: Map<String, Double>,
@@ -44,7 +45,7 @@ class UnitSymbol(
     }
 
     fun pow(n: Double): UnitSymbol {
-        return UnitSymbol(pow(elements, n))
+        return UnitSymbol(pow(elements, n), scale.pow(n))
     }
 
     fun scale(s: Double): UnitSymbol {
