@@ -11,6 +11,7 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
@@ -308,14 +309,12 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(3.0, cf.input.quantity().amount)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
 
-        val ratio = result.valueRatio(output, input)
-        assertEquals(3.0, ratio.amount, 1E-12)
-        assertUnitEqualsRefUnitOf(DimensionFixture.mass, ratio.unit)
-    }
+        fun asValue(unit: EUnitLiteral): UnitValue {
+            return UnitValue(unit.symbol, unit.scale, unit.dimension)
+        }
 
-    private fun assertUnitEqualsRefUnitOf(expected: Dimension, actual: UnitValue) {
-        assertEquals(expected, actual.dimension)
-        assertEquals(1.0, actual.scale, 1E-12) // ~kg
+        val ratio = result.valueRatio(output, input)
+        assertEquals(QuantityValue(3.0, asValue(UnitFixture.kg)), ratio)
     }
 
     @Test
