@@ -1,7 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
@@ -33,7 +34,7 @@ data class TechnoExchangeValue(val quantity: QuantityValue, val product: Product
     constructor(quantity: QuantityValue, product: ProductValue) : this(
         quantity,
         product,
-        QuantityValue(100.0, UnitValue("percent", 1E-2, Dimension.None))
+        QuantityValue(100.0, UnitValue(UnitSymbol.of("percent"), 1E-2, Dimension.None))
     )
 
     init {

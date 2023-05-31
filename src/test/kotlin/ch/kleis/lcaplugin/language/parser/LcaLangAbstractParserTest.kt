@@ -3,9 +3,10 @@ package ch.kleis.lcaplugin.language.parser
 import arrow.optics.Every
 import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
-import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -128,7 +129,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val quantity = symbolTable.getQuantity("fooUnitName") as EUnitLiteral
 
         // then
-        assertEquals(quantity.symbol, unit)
+        assertEquals(quantity.symbol.toString(), unit)
         assertEquals(quantity.scale, 1.0)
     }
 
@@ -214,7 +215,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         assertEquals("carbon dioxide", actual.displayName)
         assertEquals("air", actual.compartment)
         assertEquals("low pop", actual.subCompartment)
-        assertEquals(EQuantityRef("kg"), actual.referenceUnit)
+        assertEquals(EUnitOf(EQuantityRef("kg")), actual.referenceUnit)
     }
 
     @Test
@@ -458,9 +459,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                         EQuantityScale(1.0, EQuantityRef("kg")),
                         EProductSpec(
                             "carrot",
-                            EQuantityClosure(
-                                preludeSymbolTable,
-                                EQuantityScale(1.0, EQuantityRef("kg")),
+                            EUnitOf(
+                                EQuantityClosure(
+                                    preludeSymbolTable,
+                                    EQuantityScale(1.0, EQuantityRef("kg")),
+                                )
                             )
                         ),
                     ),
@@ -507,9 +510,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EQuantityDiv(
-            EQuantityRef("x"),
-            EQuantityRef("y"),
+        val expected = EUnitOf(
+            EQuantityDiv(
+                EQuantityRef("x"),
+                EQuantityRef("y"),
+            )
         )
         assertEquals(expected, actual)
     }
@@ -544,9 +549,11 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val actual = substance.referenceUnit!!
 
         // then
-        val expected = EQuantityMul(
-            EQuantityRef("x"),
-            EQuantityRef("y"),
+        val expected = EUnitOf(
+            EQuantityMul(
+                EQuantityRef("x"),
+                EQuantityRef("y"),
+            )
         )
         assertEquals(expected, actual)
     }
@@ -700,7 +707,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                     type = SubstanceType.RESOURCE,
                     compartment = "phosphate compartment",
                     subCompartment = "phosphate sub-compartment",
-                    referenceUnit = EQuantityRef("kg"),
+                    referenceUnit = EUnitOf(EQuantityRef("kg")),
                 ),
             ),
             impacts = listOf(
@@ -735,15 +742,15 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         val preludeSymbolTable = SymbolTable(
             quantities = Prelude.units
         )
-        val expect = ETechnoExchange(
+        val expected = ETechnoExchange(
             EQuantityScale(1.0, EQuantityRef("kg")),
             EProductSpec(
                 "carrot",
-                EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg")))
+                EUnitOf(EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg"))))
             ),
-            EQuantityScale(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+            EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
         )
-        assertEquals(expect, actual)
+        assertEquals(expected, actual)
     }
 
     @Test
@@ -772,7 +779,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             EQuantityScale(1.0, EQuantityRef("kg")),
             EProductSpec(
                 "carrot",
-                EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg")))
+                EUnitOf(EQuantityClosure(preludeSymbolTable, EQuantityScale(1.0, EQuantityRef("kg"))))
             ),
             EQuantityScale(10.0, EQuantityRef("percent"))
         )

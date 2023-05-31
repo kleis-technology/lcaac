@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.core.allocation
 
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 import kotlin.math.absoluteValue
@@ -28,7 +29,7 @@ class Allocation {
     }
 
     fun allocationUnitCheck(processValue: ProcessValue) {
-        if (processValue.products.any { it.allocation.unit.symbol != "percent" }) {
+        if (processValue.products.any { it.allocation.unit.symbol != UnitSymbol.of("percent") }) {
             throw EvaluatorException("Only percent is allowed for allocation unit (process: ${processValue.name})")
         }
         if ((totalAllocationAmounts(processValue) - 100).absoluteValue > 10E-3) {

@@ -37,7 +37,6 @@ val everyQuantityRefInQuantityExpression =
                     )
                 )
 
-                is EQuantityNeg -> foldMap(M, source.quantity, map)
                 is EQuantityPow -> foldMap(M, source.quantity, map)
                 is EQuantityRef -> map(source)
 
@@ -67,10 +66,6 @@ val everyQuantityRefInQuantityExpression =
                 is EQuantityMul -> EQuantityMul(
                     modify(source.left, map),
                     modify(source.right, map),
-                )
-
-                is EQuantityNeg -> EQuantityNeg(
-                    modify(source.quantity, map),
                 )
 
                 is EQuantityPow -> EQuantityPow(

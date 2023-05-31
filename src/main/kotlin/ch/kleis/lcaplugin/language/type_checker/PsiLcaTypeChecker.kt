@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.type_checker
 
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
@@ -66,7 +66,8 @@ class PsiLcaTypeChecker {
                     if (tyRefQuantity.dimension != tyQuantity.dimension) {
                         throw PsiTypeCheckException(
                             "Incompatible dimensions: substance reference dimension is ${tyRefQuantity.dimension} " +
-                                "but exchange dimension is ${tyQuantity.dimension}")
+                                "but exchange dimension is ${tyQuantity.dimension}"
+                        )
                     }
                 } else {
                     throw PsiTypeCheckException("Expected a PsiSubstance element but was ${it::class}")

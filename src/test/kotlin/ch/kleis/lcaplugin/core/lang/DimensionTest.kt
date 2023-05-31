@@ -1,9 +1,19 @@
 package ch.kleis.lcaplugin.core.lang
 
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DimensionTest {
+    @Test
+    fun filterSmallExponents() {
+        // given
+        val actual = Dimension(mapOf("a" to 1e-21))
+
+        // then
+        assertEquals(Dimension.None, actual)
+    }
+   
     @Test
     fun multiply() {
         // given

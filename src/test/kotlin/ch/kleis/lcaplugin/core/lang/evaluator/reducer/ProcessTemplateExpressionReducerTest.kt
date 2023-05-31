@@ -59,7 +59,7 @@ class ProcessTemplateExpressionReducerTest {
                                 "carrot_production",
                                 mapOf(
                                     "q_carrot" to QuantityFixture.twoKilograms,
-                                    "q_water" to UnitFixture.l,
+                                    "q_water" to QuantityFixture.oneLitre,
                                 )
                             )
                         )
@@ -67,7 +67,7 @@ class ProcessTemplateExpressionReducerTest {
                 ),
                 inputs = listOf(
                     ETechnoExchange(
-                        UnitFixture.l,
+                        QuantityFixture.oneLitre,
                         ProductFixture.water
                     ),
                 ),

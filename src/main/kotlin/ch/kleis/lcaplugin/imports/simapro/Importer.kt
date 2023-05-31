@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports.simapro
 
-import ch.kleis.lcaplugin.core.lang.value.UnitValue
+import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
 import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
@@ -68,8 +68,8 @@ class Importer(
     private var counting: CountingInputStream? = null
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap.values
-            .map { UnitValue(ModelWriter.sanitize(it.symbol, false), it.scale, it.dimension) }
-            .associateBy { it.symbol.lowercase() }
+            .map { it.toUnitValue() }
+            .associateBy { it.symbol.toString().lowercase() }
     )
 
     fun import(): Summary {

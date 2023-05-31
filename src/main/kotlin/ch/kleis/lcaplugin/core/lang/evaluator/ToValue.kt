@@ -25,7 +25,7 @@ fun EImpact.toValue(): ImpactValue {
 }
 
 private fun EIndicatorSpec.toValue(): IndicatorValue {
-    val referenceUnit = (this.referenceUnit as? EUnitLiteral)?.toValue()
+    val referenceUnit = this.referenceUnit?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     return IndicatorValue(
         this.name,
@@ -58,7 +58,7 @@ fun ETechnoExchange.toValue(): TechnoExchangeValue {
 }
 
 fun ESubstanceSpec.toValue(): SubstanceValue {
-    val referenceUnit = (this.referenceUnit as? EUnitLiteral)?.toValue()
+    val referenceUnit = this.referenceUnit?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     val type = this.type ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
     val compartment = this.compartment ?: return PartiallyQualifiedSubstanceValue(this.name, referenceUnit)
@@ -73,7 +73,7 @@ fun ESubstanceSpec.toValue(): SubstanceValue {
 
 fun EProductSpec.toValue(): ProductValue {
     val name = this.name
-    val referenceUnitValue = (this.referenceUnit as? EUnitLiteral)?.toValue()
+    val referenceUnitValue = this.referenceUnit?.toUnitValue()
         ?: throw EvaluatorException("$this has no reference unit")
     val fromProcessRefValue = this.fromProcessRef?.toValue()
     return ProductValue(
@@ -95,19 +95,31 @@ fun QuantityExpression.toValue(): QuantityValue =
         this is EQuantityScale && this.base is EUnitLiteral ->
             QuantityValue(
                 this.scale,
-                this.base.toValue(),
+                this.base.toUnitValue(),
             )
 
         this is EUnitLiteral ->
-            QuantityValue(1.0, this.toValue())
+            QuantityValue(1.0, this.toUnitValue())
 
         else -> throw EvaluatorException("$this is not reduced")
     }
 
-fun EUnitLiteral.toValue(): UnitValue =
-    UnitValue(
-        this.symbol,
-        this.scale,
-        this.dimension,
-    )
+fun QuantityExpression.toUnitValue(): UnitValue =
+    when {
+        this is EQuantityScale && this.base is EUnitLiteral ->
+            UnitValue(
+                this.base.symbol.scale(this.scale),
+                this.scale * this.base.scale,
+                this.base.dimension,
+            )
+
+        this is EUnitLiteral ->
+            UnitValue(
+                this.symbol,
+                this.scale,
+                this.dimension,
+            )
+
+        else -> throw EvaluatorException("$this is not reduced")
+    }
 

@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 
 sealed interface MatrixColumnIndex : Value, HasUID {

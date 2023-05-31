@@ -1,7 +1,8 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
@@ -73,7 +74,7 @@ data class ETechnoExchange(
     constructor(quantity: QuantityExpression, product: EProductSpec) : this(
         quantity,
         product,
-        EQuantityScale(100.0, EUnitLiteral("percent", 0.01, Dimension.None))
+        EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
     )
 
     companion object

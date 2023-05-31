@@ -1,9 +1,10 @@
 package ch.kleis.lcaplugin.language.parser
 
-import ch.kleis.lcaplugin.core.lang.Dimension
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.RegisterException
 import ch.kleis.lcaplugin.core.lang.SymbolTable
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
+import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -95,7 +96,7 @@ class LcaLangAbstractParser(
 
     private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): QuantityExpression {
         return EUnitLiteral(
-            psiUnitDefinition.getSymbolField().getValue(),
+            UnitSymbol.of(psiUnitDefinition.getSymbolField().getValue()),
             1.0,
             Dimension.of(psiUnitDefinition.getDimensionField().getValue())
         )
@@ -167,7 +168,7 @@ class LcaLangAbstractParser(
             type = SubstanceType.of(psiSubstance.getTypeField().getValue()),
             compartment = psiSubstance.getCompartmentField().getValue(),
             subCompartment = psiSubstance.getSubcompartmentField()?.getValue(),
-            referenceUnit = parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression),
+            referenceUnit = EUnitOf(parseQuantityExpression(psiSubstance.getReferenceUnitField().quantityExpression)),
         )
     }
 
@@ -181,7 +182,7 @@ class LcaLangAbstractParser(
             compartment = substanceSpec.getCompartmentField()?.getValue(),
             subCompartment = substanceSpec.getSubCompartmentField()?.getValue(),
             type = substanceSpec.getType(),
-            referenceUnit = EQuantityClosure(symbolTable, quantity)
+            referenceUnit = EUnitOf(EQuantityClosure(symbolTable, quantity)),
         )
 
 
@@ -234,9 +235,11 @@ class LcaLangAbstractParser(
             parseQuantityExpression(psiExchange.getQuantity()),
             productSpec(psiExchange.getProductRef())
                 .copy(
-                    referenceUnit = EQuantityClosure(
-                        symbolTable,
-                        parseQuantityExpression(psiExchange.getQuantity())
+                    referenceUnit = EUnitOf(
+                        EQuantityClosure(
+                            symbolTable,
+                            parseQuantityExpression(psiExchange.getQuantity())
+                        )
                     )
                 ),
             psiExchange.getAllocateField()?.let { allocation(it) }
@@ -258,7 +261,7 @@ class LcaLangAbstractParser(
             }
 
             Polarity.NEGATIVE -> {
-                val quantity = EQuantityNeg(parseQuantityExpression(psiExchange.quantityExpression))
+                val quantity = EQuantityScale(-1.0, parseQuantityExpression(psiExchange.quantityExpression))
                 EBioExchange(
                     quantity,
                     substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)

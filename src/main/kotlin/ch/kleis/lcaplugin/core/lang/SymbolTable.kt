@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.lang
 import arrow.optics.Every
 import arrow.optics.Fold
 import arrow.typeclasses.Monoid
+import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.expression.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
