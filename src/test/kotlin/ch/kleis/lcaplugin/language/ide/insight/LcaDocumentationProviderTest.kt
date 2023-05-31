@@ -391,10 +391,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun testQuantityRef_whenArgument_ShouldRender() {
+    fun testDataRef_whenArgument_ShouldRender() {
         // Given
         val virtualFile = myFixture.createFile(
-            "testQuantityRef_whenArgument_ShouldRender.lca", """
+            "testDataRef_whenArgument_ShouldRender.lca", """
             process a {
                 inputs {
                     1 kg carrot from b(x = 3 kg)
@@ -414,7 +414,9 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val ref = file.getProcesses().first()
             .getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
+            .processTemplateSpec!!
             .argumentList.first()
             .parameterRef
         val sut = LcaDocumentationProvider()

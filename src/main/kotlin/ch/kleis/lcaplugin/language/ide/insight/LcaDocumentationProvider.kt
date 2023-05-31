@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
+import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.lang.documentation.AbstractDocumentationProvider
@@ -36,7 +37,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
             is LcaTechnoProductExchange -> {
                 val sb = StringBuilder()
                 val process = PsiTreeUtil.getParentOfType(element, LcaProcess::class.java)
-                documentProductTitle(sb, element.getProductRef(), process)
+                documentProductTitle(sb, element.outputProductSpec, process)
                 documentBlockMetaOwner(sb, process)
                 documentProcessParams(sb, process)
                 addSeparatorLine(sb)
@@ -45,7 +46,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
 
             is LcaProcess -> {
                 val sb = StringBuilder()
-                documentTitle(sb, "Process", element.getProcessTemplateRef().name)
+                documentTitle(sb, "Process", element.getProcessRef().name)
                 documentBlockMetaOwner(sb, element)
                 documentProcessParams(sb, element)
                 addSeparatorLine(sb)
@@ -111,19 +112,19 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }
 
-    private fun documentProductTitle(sb: StringBuilder, product: LcaProductRef, process: LcaProcess?) {
+    private fun documentProductTitle(sb: StringBuilder, product: PsiUIDOwner, process: LcaProcess?) {
         sb.append(DocumentationMarkup.DEFINITION_START).append("\n")
         val att = TextAttributes()
         att.foregroundColor = JBColor.ORANGE
         att.fontType = Font.ITALIC
         HtmlSyntaxInfoUtil.appendStyledSpan(sb, att, "Product", 1f)
         sb.append(" ")
-        documentUid(sb, product.uid.name, false)
+        documentUid(sb, product.getUID().name, false)
         HtmlSyntaxInfoUtil.appendStyledSpan(sb, att, " from ", 1f)
         if (process == null) {
             documentUid(sb, "unknown")
         } else {
-            documentUid(sb, process.getProcessTemplateRef().name)
+            documentUid(sb, process.getProcessRef().name)
         }
         sb.append(DocumentationMarkup.DEFINITION_END).append("\n")
     }

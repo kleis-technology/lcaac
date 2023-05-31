@@ -33,16 +33,17 @@ class LcaFromProcessAnnotatorTest : BasePlatformTestCase() {
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
             .processTemplateSpec!!
         val mock = AnnotationHolderMock()
-        val annotator = LcaFromProcessRefAnnotator()
+        val annotator = LcaFromProcessTemplateSpecAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved process carrot_prod") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "cannot resolve process carrot_prod") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
@@ -71,10 +72,11 @@ class LcaFromProcessAnnotatorTest : BasePlatformTestCase() {
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
             .processTemplateSpec!!
         val mock = AnnotationHolderMock()
-        val annotator = LcaFromProcessRefAnnotator()
+        val annotator = LcaFromProcessTemplateSpecAnnotator()
 
         // when
         annotator.annotate(element, mock.holder)

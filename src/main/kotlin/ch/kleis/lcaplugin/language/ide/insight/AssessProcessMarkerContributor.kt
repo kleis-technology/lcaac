@@ -17,7 +17,7 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (isProcess(element)) {
             val process = element.parent as PsiProcess
-            val target = process.getProcessTemplateRef().getUID().name
+            val target = process.getProcessRef().getUID().name
             val labels = process.getLabels()
             val assessProcessAction = AssessProcessAction(target, labels)
             val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target, labels)

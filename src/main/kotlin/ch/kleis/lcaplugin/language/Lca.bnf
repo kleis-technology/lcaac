@@ -43,6 +43,7 @@
       LABELS_KEYWORD = 'labels'
       IMPORT_KEYWORD = 'import'
       IDENTIFIER = 'identifier'
+      MATCH_KEYWORD = 'match'
       NUMBER = 'number'
       LSQBRACE = 'left-sqbrace'
       RSQBRACE = 'right-sqbrace'
@@ -168,7 +169,7 @@ aliasForField ::= ALIAS_FOR_KEYWORD EQUAL dataExpression
     Process
  */
 
-process ::= PROCESS_KEYWORD processTemplateSpec
+process ::= PROCESS_KEYWORD processRef
 LBRACE (
     params
     | labels
@@ -221,26 +222,9 @@ block_impacts ::= IMPACTS_KEYWORD LBRACE impactExchange* RBRACE
     Exchanges
  */
 
-technoInputExchange ::= dataExpression productRef fromProcessConstraint?
-fromProcessConstraint ::= FROM_KEYWORD processTemplateSpec LPAREN comma_sep_arguments? RPAREN {
-    pin=1
-}
-private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
-
-
-argument ::= parameterRef EQUAL dataExpression
-
-allocateField ::= ALLOCATE_KEYWORD dataExpression
-
-technoProductExchange ::= dataExpression productRef allocateField? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.exchange.PsiTechnoProductExchangeMixin"
-    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeElementType"
-    stubClass = "ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeStub"
-}
-
+technoInputExchange ::= dataExpression inputProductSpec
+technoProductExchange ::= dataExpression outputProductSpec
 bioExchange ::= dataExpression substanceSpec
-
 impactExchange ::= dataExpression indicatorRef
 
 /*
@@ -289,11 +273,6 @@ unitDefinition ::= UNIT_KEYWORD dataRef LBRACE symbolField ( dimField | aliasFor
     Reference
  */
 
-productRef ::= uid {
-    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProductRefMixin"
-}
-
 labelRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiLabelRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiLabelRefMixin"
@@ -303,6 +282,11 @@ dataRef ::= uid {
     extends=dataExpression
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiDataRefMixin"
+}
+
+processRef ::= uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessRefMixin"
 }
 
 substanceRef ::= uid {
@@ -324,13 +308,34 @@ parameterRef ::= uid {
    Spec
  */
 
-processTemplateSpec ::= uid matchLabels? {
-    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec"]
+outputProductSpec ::= uid allocateField? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiOutputProductSpec"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiOutputProductSpecMixin"
+    elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductElementType"
+    stubClass = "ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductStub"
+}
+allocateField ::= ALLOCATE_KEYWORD dataExpression
+
+inputProductSpec ::= uid fromProcessConstraint? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiInputProductSpecMixin"
+}
+fromProcessConstraint ::= FROM_KEYWORD processTemplateSpec  {
+    pin=1
+}
+
+
+processTemplateSpec ::= uid (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
+    implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateSpecMixin"
 }
-matchLabels ::= LSQBRACE comma_sep_label_selectors? RSQBRACE
+matchLabels ::= MATCH_KEYWORD LPAREN comma_sep_label_selectors? RPAREN
+
 private comma_sep_label_selectors ::= labelSelector (COMMA labelSelector)* COMMA?
 labelSelector ::= labelRef EQUAL dataExpression
+
+private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
+argument ::= parameterRef EQUAL dataExpression
 
 substanceSpec ::= uid (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"]

@@ -1,13 +1,10 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec
-import ch.kleis.lcaplugin.psi.LcaArgument
-import ch.kleis.lcaplugin.psi.LcaFromProcessConstraint
-import ch.kleis.lcaplugin.psi.LcaParams
-import ch.kleis.lcaplugin.psi.LcaProcess
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
+import com.intellij.psi.util.PsiTreeUtil
 
 class ParameterReference(
     element: PsiParameterRef
@@ -24,29 +21,12 @@ class ParameterReference(
             ?: emptyArray()
     }
 
-    private fun findContainingArgument(): LcaArgument? {
-        val argument = element.parent
-        if (argument !is LcaArgument) {
-            return null
-        }
-        return argument
-    }
-
-    private fun findContainingFromProcessConstraint(): LcaFromProcessConstraint? {
-        val argument = findContainingArgument() ?: return null
-        val fromProcessConstraint = argument.parent
-        if (fromProcessConstraint !is LcaFromProcessConstraint) {
-            return null
-        }
-        return fromProcessConstraint
-    }
-
-    private fun findTemplateRef(): PsiProcessTemplateSpec? {
-        return findContainingFromProcessConstraint()?.processTemplateSpec
+    private fun findTemplateSpec(): LcaProcessTemplateSpec? {
+        return PsiTreeUtil.getParentOfType(element, LcaProcessTemplateSpec::class.java)
     }
 
     private fun resolveProcess(): LcaProcess? {
-        return findTemplateRef()?.reference?.resolve() as LcaProcess?
+        return findTemplateSpec()?.reference?.resolve() as LcaProcess?
     }
 
     private fun findParameters(process: LcaProcess): List<PsiElementResolveResult> {

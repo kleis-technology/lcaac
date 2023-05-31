@@ -87,8 +87,8 @@ class PsiLcaTypeChecker {
     private fun checkTechnoInputExchange(element: LcaTechnoInputExchange): TTechnoExchange {
         return rec.guard { el: LcaTechnoInputExchange ->
             val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
-            val productName = el.productRef.name
-            el.productRef.reference.resolve()?.let {
+            val productName = el.inputProductSpec.name
+            el.inputProductSpec.reference.resolve()?.let {
                 val tyProductExchange = check(it)
                 if (tyProductExchange !is TTechnoExchange) {
                     throw PsiTypeCheckException("expected TTechnoExchange, found $tyProductExchange")
@@ -97,11 +97,11 @@ class PsiLcaTypeChecker {
                     throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
                 }
             }
-            el.fromProcessConstraint?.let {
+            el.inputProductSpec.fromProcessConstraint?.let {
                 val psiProcess = it.processTemplateSpec!!.reference.resolve() as PsiProcess?
                     ?: throw PsiTypeCheckException("unbound reference ${it.processTemplateSpec!!.name}")
                 val tyArguments = checkProcessArguments(psiProcess)
-                it.argumentList
+                it.processTemplateSpec!!.argumentList
                     .forEach { arg ->
                         val key = arg.parameterRef.name
                         val value = arg.dataExpression
@@ -120,7 +120,7 @@ class PsiLcaTypeChecker {
     private fun checkTechnoProductExchange(element: PsiTechnoProductExchange): TTechnoExchange {
         return rec.guard { el: PsiTechnoProductExchange ->
             val tyQuantity = checkDataExpression(el.getQuantity(), TQuantity::class.java)
-            val productName = el.getProductRef().name
+            val productName = el.getOutputProductSpec().name
             TTechnoExchange(TProduct(productName, tyQuantity.dimension))
         }(element)
     }

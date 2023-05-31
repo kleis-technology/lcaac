@@ -1,18 +1,17 @@
-package ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange
+package ch.kleis.lcaplugin.language.psi.stub.output_product
 
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.stubIndexVersion
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.psi.LcaTechnoProductExchange
+import ch.kleis.lcaplugin.psi.LcaOutputProductSpec
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class TechnoProductExchangeKeyIndex : StringStubIndexExtension<LcaTechnoProductExchange>() {
-    override fun getKey(): StubIndexKey<String, LcaTechnoProductExchange> {
-        return LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES
+class OutputProductKeyIndex : StringStubIndexExtension<LcaOutputProductSpec>() {
+    override fun getKey(): StubIndexKey<String, LcaOutputProductSpec> {
+        return LcaStubIndexKeys.OUTPUT_PRODUCTS
     }
 
     override fun getVersion(): Int {
@@ -20,17 +19,17 @@ class TechnoProductExchangeKeyIndex : StringStubIndexExtension<LcaTechnoProductE
     }
 
     companion object {
-        fun findTechnoProductExchanges(
+        fun findOutputProducts(
             project: Project,
             fqn: String,
             scope: GlobalSearchScope = GlobalSearchScope.allScope(project)
-        ): Collection<PsiTechnoProductExchange> =
+        ): Collection<LcaOutputProductSpec> =
             StubIndex.getElements(
-                LcaStubIndexKeys.TECHNO_PRODUCT_EXCHANGES,
+                LcaStubIndexKeys.OUTPUT_PRODUCTS,
                 fqn,
                 project,
                 scope,
-                LcaTechnoProductExchange::class.java,
+                LcaOutputProductSpec::class.java,
             )
     }
 }

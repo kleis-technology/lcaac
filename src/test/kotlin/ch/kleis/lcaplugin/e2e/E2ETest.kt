@@ -49,7 +49,7 @@ class E2ETest : BasePlatformTestCase() {
                         1 kg carrot
                     }
                     inputs {
-                        1 l water from water_production[geo = "FR"]()
+                        1 l water from water_production match (geo = "FR")
                     }
                 }
                 
@@ -123,7 +123,7 @@ class E2ETest : BasePlatformTestCase() {
                         1 kg intermediate
                     }
                     inputs {
-                        1 l water from water_production[geo = geo]()
+                        1 l water from water_production match (geo = geo)
                     }
                 }
                 

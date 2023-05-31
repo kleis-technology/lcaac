@@ -3,7 +3,11 @@ package ch.kleis.lcaplugin.language.psi.manipulators
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.language.psi.type.ref.*
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.util.TextRange
@@ -17,10 +21,20 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
 }
 
 class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiDataRef>()
-class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
-class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessTemplateSpec>()
+class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessRef>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
+
+class PsiProcessTemplateSpecManipulator : AbstractElementManipulator<PsiProcessTemplateSpec>() {
+    override fun handleContentChange(
+        element: PsiProcessTemplateSpec,
+        range: TextRange,
+        newContent: String?
+    ): PsiProcessTemplateSpec {
+        newContent?.let { element.setName(it) }
+        return element
+    }
+}
 
 class PsiSubstanceSpecManipulator : AbstractElementManipulator<PsiSubstanceSpec>() {
     override fun handleContentChange(
@@ -39,7 +53,7 @@ class PsiTechnoProductExchangeManipulator : AbstractElementManipulator<PsiTechno
         range: TextRange,
         newContent: String?
     ): PsiTechnoProductExchange {
-        newContent?.let { element.getProductRef().setName(it) }
+        newContent?.let { element.getOutputProductSpec().setName(it) }
         return element
     }
 }

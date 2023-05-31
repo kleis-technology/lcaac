@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
+import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -10,7 +10,7 @@ import junit.framework.TestCase
 import org.junit.Test
 
 
-class ProductReferenceTest : BasePlatformTestCase() {
+class OutputProductReferenceTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata/language/psi/reference/prod"
     }
@@ -26,13 +26,13 @@ class ProductReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.prod.test_resolve"
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getProductRef()
+            .inputProductSpec
 
         // when
         val actual = ref.reference.resolve()
 
         // then
-        val expected = TechnoProductExchangeKeyIndex.findTechnoProductExchanges(project, "$pkgName.water.water").first()
+        val expected = OutputProductKeyIndex.findOutputProducts(project, "$pkgName.water.water").first()
         TestCase.assertEquals(expected, actual)
     }
 
@@ -42,7 +42,7 @@ class ProductReferenceTest : BasePlatformTestCase() {
         val pkgName = "language.psi.reference.prod.test_resolve"
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
-            .getProductRef()
+            .inputProductSpec
 
         // when
         val actual = ref.reference.variants

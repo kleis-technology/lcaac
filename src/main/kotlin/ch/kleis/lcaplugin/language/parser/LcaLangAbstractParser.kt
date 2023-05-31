@@ -12,9 +12,7 @@ import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.units
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiIndicatorRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
@@ -204,25 +202,32 @@ class LcaLangAbstractParser(
     private fun technoInputExchange(psiExchange: LcaTechnoInputExchange): ETechnoExchange {
         return ETechnoExchange(
             parseDataExpression(psiExchange.dataExpression),
-            productSpec(psiExchange.productRef, psiExchange.fromProcessConstraint),
+            inputProductSpec(psiExchange.inputProductSpec),
         )
     }
 
-    private fun productSpec(
-        psiProductRef: PsiProductRef,
-        psiFromProcessConstraint: LcaFromProcessConstraint? = null,
+    private fun outputProductSpec(
+        outputProductSpec: LcaOutputProductSpec,
     ): EProductSpec {
         return EProductSpec(
-            psiProductRef.name,
-            fromProcess = fromProcessRef(psiFromProcessConstraint),
+            outputProductSpec.name
         )
     }
 
-    private fun fromProcessRef(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
+    private fun inputProductSpec(
+        inputProductSpec: LcaInputProductSpec,
+    ): EProductSpec {
+        return EProductSpec(
+            inputProductSpec.name,
+            fromProcess = fromProcessConstraint(inputProductSpec.fromProcessConstraint),
+        )
+    }
+
+    private fun fromProcessConstraint(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
         return psiFromProcessConstraint?.let {
             val spec = it.processTemplateSpec!!
-            val arguments = psiFromProcessConstraint.argumentList
-            val labelSelectors = spec.matchLabels?.labelSelectorList ?: emptyList()
+            val arguments = spec.argumentList
+            val labelSelectors = spec.getMatchLabels()?.labelSelectorList ?: emptyList()
             FromProcess(
                 name = spec.name,
                 matchLabels = MatchLabels(
@@ -236,21 +241,21 @@ class LcaLangAbstractParser(
     }
 
     private fun technoProductExchange(
-        psiExchange: PsiTechnoProductExchange,
+        psiExchange: LcaTechnoProductExchange,
         symbolTable: SymbolTable
     ): ETechnoExchange =
         ETechnoExchange(
-            parseDataExpression(psiExchange.getQuantity()),
-            productSpec(psiExchange.getProductRef())
+            parseDataExpression(psiExchange.dataExpression),
+            outputProductSpec(psiExchange.outputProductSpec)
                 .copy(
                     referenceUnit = EUnitOf(
                         EQuantityClosure(
                             symbolTable,
-                            parseDataExpression(psiExchange.getQuantity())
+                            parseDataExpression(psiExchange.dataExpression)
                         )
                     )
                 ),
-            psiExchange.getAllocateField()?.let { allocation(it) }
+            psiExchange.outputProductSpec.allocateField?.let { allocation(it) }
                 ?: EQuantityScale(
                     100.0,
                     units["percent"]!!

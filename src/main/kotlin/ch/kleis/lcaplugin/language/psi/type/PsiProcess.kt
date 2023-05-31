@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
@@ -13,23 +12,23 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner, BlockMetaOwner {
-    fun getProcessTemplateRef(): PsiProcessTemplateSpec {
-        return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_SPEC)?.psi as PsiProcessTemplateSpec
+    fun getProcessRef(): LcaProcessRef {
+        return PsiTreeUtil.getChildOfType(this, LcaProcessRef::class.java) as LcaProcessRef
     }
 
     fun buildUniqueKey(): String = if (this.getLabels().isEmpty()) this.name else "${this.name}${this.getLabels()}"
 
     override fun getName(): String {
-        return getProcessTemplateRef().name
+        return getProcessRef().name
     }
 
     override fun setName(name: String): PsiElement {
-        getProcessTemplateRef().name = name
+        getProcessRef().name = name
         return this
     }
 
     override fun getNameIdentifier(): PsiElement? {
-        return getProcessTemplateRef().nameIdentifier
+        return getProcessRef().nameIdentifier
     }
 
     fun getParameters(): Map<String, LcaDataExpression> {

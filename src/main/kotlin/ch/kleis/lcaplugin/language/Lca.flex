@@ -92,6 +92,7 @@ CommentContent = .*
 <YYINITIAL> "land_use"             { return LcaTypes.LAND_USE_KEYWORD; }
 <YYINITIAL> "resources"             { return LcaTypes.RESOURCES_KEYWORD; }
 <YYINITIAL> "labels"             { return LcaTypes.LABELS_KEYWORD; }
+<YYINITIAL> "match"             { return LcaTypes.MATCH_KEYWORD; }
 
 
 <YYINITIAL> [-]?{Number_Int} ("." {Number_Int}? )? {Number_Exp}? { return LcaTypes.NUMBER; }

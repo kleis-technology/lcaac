@@ -2,8 +2,8 @@ package ch.kleis.lcaplugin.language.parser
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.diagnostic.Logger
@@ -64,7 +64,7 @@ class LcaFileCollector(
             file,
             PsiSubstanceSpec::class.java,
             PsiDataRef::class.java,
-            PsiProductRef::class.java,
+            PsiInputProductSpec::class.java,
             PsiProcessTemplateSpec::class.java,
         ).asSequence()
     }

@@ -31,7 +31,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getLcaParams().first().assignmentList.first()
         val quantityRef = process.getProducts().first()
-            .getQuantity() as LcaDataRef
+            .dataExpression as LcaDataRef
 
         // when
         val actual = quantityRef.reference.resolve()
@@ -60,7 +60,7 @@ class QuantityRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca",
         val process = file.getProcesses().first()
         val assignment = process.getLcaVariables().first().assignmentList.first()
         val quantityRef = process.getProducts().first()
-            .getQuantity() as LcaDataRef
+            .dataExpression as LcaDataRef
 
         // when
         val actual = quantityRef.reference.resolve()

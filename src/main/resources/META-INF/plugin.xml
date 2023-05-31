@@ -64,7 +64,7 @@
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaProcessAnnotator"/>
         <annotator
                 language="LCA"
-                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaFromProcessRefAnnotator"/>
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaFromProcessTemplateSpecAnnotator"/>
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaBioExchangeAnnotator"/>
@@ -74,12 +74,12 @@
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiQuantityRefManipulator"/>
-        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"
-                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProductRefManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiSubstanceRefManipulator"/>
-        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateSpec"
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateRefManipulator"/>
+        <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"
+                                 implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiProcessTemplateSpecManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiSubstanceSpecManipulator"/>
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange"
@@ -99,7 +99,7 @@
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
         <stubIndex
-                implementation="ch.kleis.lcaplugin.language.psi.stub.techno_product_exchange.TechnoProductExchangeKeyIndex"/>
+                implementation="ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex"/>

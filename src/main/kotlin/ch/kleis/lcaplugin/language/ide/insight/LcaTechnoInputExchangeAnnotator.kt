@@ -15,11 +15,12 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
         if (element !is LcaTechnoInputExchange) {
             return
         }
-        val target = element.productRef.reference.resolve()
+        val target = element.inputProductSpec.reference.resolve()
+
         if (target == null || target !is PsiTechnoProductExchange) {
-            val name = element.productRef.name
+            val name = element.inputProductSpec.name
             holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product $name")
-                .range(element.productRef)
+                .range(element.inputProductSpec)
                 .highlightType(ProblemHighlightType.WARNING)
                 .create()
         }

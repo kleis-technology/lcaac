@@ -42,7 +42,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
 
         // then
         verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product carrot") }
-        verify { mock.builder.range(element.getProductRef()) }
+        verify { mock.builder.range(element.inputProductSpec) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
     }

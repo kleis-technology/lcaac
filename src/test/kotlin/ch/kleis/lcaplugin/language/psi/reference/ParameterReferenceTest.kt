@@ -49,7 +49,9 @@ class ParameterReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.p"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
+            .processTemplateSpec!!
             .argumentList.first()
             .parameterRef
 
@@ -96,7 +98,9 @@ class ParameterReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.p"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
+            .processTemplateSpec!!
             .argumentList.first()
             .parameterRef
 

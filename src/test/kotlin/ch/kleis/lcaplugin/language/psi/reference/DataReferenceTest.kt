@@ -32,7 +32,7 @@ class DataReferenceTest : BasePlatformTestCase() {
         val fqn = "$pkgName.a"
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process.getProducts().first()
-            .getQuantity() as LcaDataRef
+            .dataExpression as LcaDataRef
 
         // when
         val actual = ref.reference.resolve()
@@ -51,7 +51,7 @@ class DataReferenceTest : BasePlatformTestCase() {
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val assignment = process
             .getProducts().first()
-            .getQuantity() as LcaScaleQuantityExpression
+            .dataExpression as LcaScaleQuantityExpression
         val ref = assignment.dataExpression!! as LcaDataRef
 
         // when
@@ -70,7 +70,9 @@ class DataReferenceTest : BasePlatformTestCase() {
         val process = ProcessStubKeyIndex.findProcesses(project, fqn).first()
         val ref = process
             .getInputs().first()
+            .inputProductSpec
             .fromProcessConstraint!!
+            .processTemplateSpec!!
             .argumentList.first()
             .parameterRef
 
@@ -106,7 +108,7 @@ class DataReferenceTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun test_getVariants_whenInSustanceReferenceField() {
+    fun test_getVariants_whenInSubstanceReferenceField() {
         // given
         val pkgName = "language.psi.reference.units.test_resolve"
         val ref = SubstanceKeyIndex.findSubstances(
@@ -124,7 +126,7 @@ class DataReferenceTest : BasePlatformTestCase() {
             .sorted()
 
         // then
-        val expected = listOf("foo", "bar").sorted()
-        TestCase.assertEquals(expected, actual)
+        val expected = setOf("foo", "bar")
+        TestCase.assertEquals(expected, actual.toSet())
     }
 }
