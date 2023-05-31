@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.dimension
 
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
+import kotlin.math.absoluteValue
 
 class Dimension(
     elements: Map<String, Double>,
@@ -14,7 +15,8 @@ class Dimension(
     }
 
     init {
-        this.elements = elements.filter { it.value != 0.0 }
+        val thresholdToZero = 1e-20
+        this.elements = elements.filter { it.value.absoluteValue > thresholdToZero }
     }
 
     companion object {

@@ -6,6 +6,15 @@ import org.junit.Test
 
 class DimensionTest {
     @Test
+    fun filterSmallExponents() {
+        // given
+        val actual = Dimension(mapOf("a" to 1e-21))
+
+        // then
+        assertEquals(Dimension.None, actual)
+    }
+   
+    @Test
     fun multiply() {
         // given
         val a = Dimension.of("a")
