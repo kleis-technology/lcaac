@@ -2,9 +2,8 @@ package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.Dimension
-import kotlin.math.abs
+import ch.kleis.lcaplugin.core.math.DoubleComparator
 
-const val ACCEPTABLE_SCALE_GAP = 1E-11
 
 @optics
 data class UnitValue(val symbol: String, val scale: Double, val dimension: Dimension) : Value {
@@ -19,10 +18,7 @@ data class UnitValue(val symbol: String, val scale: Double, val dimension: Dimen
         other as UnitValue
 
         if (dimension != other.dimension) return false
-        if (scale == 0.0) return abs(other.scale) <= ACCEPTABLE_SCALE_GAP
-        if (abs((scale - other.scale) / scale) > ACCEPTABLE_SCALE_GAP) return false
-
-        return true
+        return DoubleComparator.nzEquals(scale, other.scale)
     }
 
     override fun hashCode(): Int {
