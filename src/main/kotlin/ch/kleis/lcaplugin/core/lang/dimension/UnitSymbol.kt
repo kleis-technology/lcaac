@@ -37,11 +37,11 @@ class UnitSymbol(
     }
 
     fun multiply(other: UnitSymbol): UnitSymbol {
-        return UnitSymbol(multiply(elements, other.elements))
+        return UnitSymbol(multiply(elements, other.elements), scale * other.scale)
     }
 
     fun divide(other: UnitSymbol): UnitSymbol {
-        return UnitSymbol(divide(elements, other.elements))
+        return UnitSymbol(divide(elements, other.elements), scale / other.scale)
     }
 
     fun pow(n: Double): UnitSymbol {

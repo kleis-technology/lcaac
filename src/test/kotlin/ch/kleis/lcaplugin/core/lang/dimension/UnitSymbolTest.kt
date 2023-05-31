@@ -8,28 +8,28 @@ class UnitSymbolTest {
     @Test
     fun multiply() {
         // given
-        val a = UnitSymbol.of("a")
-        val b = UnitSymbol.of("b")
+        val a = UnitSymbol(mapOf("a" to 1.0), 2.0)
+        val b = UnitSymbol(mapOf("b" to 1.0), 3.0)
 
         // when
         val actual = a.multiply(b)
 
         // then
-        val expected = UnitSymbol(mapOf("a" to 1.0, "b" to 1.0), 1.0)
+        val expected = UnitSymbol(mapOf("a" to 1.0, "b" to 1.0), 6.0)
         assertEquals(expected, actual)
     }
 
     @Test
     fun divide() {
         // given
-        val a = UnitSymbol.of("a")
-        val b = UnitSymbol.of("b")
+        val a = UnitSymbol(mapOf("a" to 1.0), 4.0)
+        val b = UnitSymbol(mapOf("b" to 1.0), 2.0)
 
         // when
         val actual = a.divide(b)
 
         // then
-        val expected = UnitSymbol(mapOf("a" to 1.0, "b" to -1.0), 1.0)
+        val expected = UnitSymbol(mapOf("a" to 1.0, "b" to -1.0), 2.0)
         assertEquals(expected, actual)
     }
 
