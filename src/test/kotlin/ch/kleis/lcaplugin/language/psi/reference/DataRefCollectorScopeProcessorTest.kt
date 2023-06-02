@@ -10,15 +10,15 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
+class DataRefCollectorScopeProcessorTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
     }
 
     @Test
-    fun test_quantityRefCollectorScopeProcessor_getVariants() {
+    fun test_dataRefCollectorScopeProcessor_getVariants() {
         // given
-        val pkgName = "test_quantityRefCollectorScopeProcessor_getVariants"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -36,6 +36,9 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
                     variables {
                         c = 3 kg
                     }
+                    labels {
+                        d = "LABEL"
+                    }
                     inputs {
                         a foo
                     }
@@ -48,11 +51,11 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
                 package $pkgName.bis
                 
                 variables {
-                    d = 2 kg
+                    e = 2 kg
                 }
             """.trimIndent()
         )
-        val process = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+        val process = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p", mapOf("d" to "LABEL")).first()
         val target = process.getInputs().first()
             .dataExpression as LcaDataRef
 
@@ -62,7 +65,7 @@ class QuantityRefCollectorScopeProcessorTest : BasePlatformTestCase() {
             .naturalSorted()
 
         // then
-        val expected = listOf("a", "b", "c", "d").naturalSorted()
+        val expected = listOf("a", "b", "c", "d", "e").naturalSorted()
         assertEquals(expected, actual)
     }
 }

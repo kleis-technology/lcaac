@@ -39,7 +39,7 @@ class DataReference(
 
     override fun multiResolve(incompleteCode: Boolean): Array<ResolveResult> {
         val localMatches = resolveElementLocally(
-            QuantityRefExactNameMatcherScopeProcessor(element)
+            DataRefExactNameMatcherScopeProcessor(element)
         )
         if (localMatches.isNotEmpty()) {
             return localMatches.map { PsiElementResolveResult(it) }.toTypedArray()
@@ -52,7 +52,7 @@ class DataReference(
 
     override fun getVariants(): Array<Any> {
         val localDefns: List<Any> = resolveElementLocally(
-            QuantityRefCollectorScopeProcessor()
+            DataRefCollectorScopeProcessor()
         )
             .mapNotNull { psi ->
                 psi.name?.let {
@@ -65,7 +65,7 @@ class DataReference(
     }
 
     private fun resolveElementLocally(
-        resolver: QuantityRefScopeProcessor
+        resolver: DataRefScopeProcessor
     ): Set<PsiNameIdentifierOwner> {
         var lastParent: PsiElement? = null
         val parents = PsiTreeUtil.collectParents(element, PsiElement::class.java, false) {

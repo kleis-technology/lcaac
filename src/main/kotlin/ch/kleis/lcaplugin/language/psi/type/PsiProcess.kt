@@ -85,6 +85,10 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .toMap()
     }
 
+    fun getLcaLabels(): Collection<LcaLabels> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaLabels::class.java)
+    }
+
     fun getLcaVariables(): Collection<LcaVariables> {
         return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
     }
@@ -99,6 +103,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
+        for (block in getLcaLabels()) {
+            if (!processor.execute(block, state)) {
+                return false
+            }
+        }
+
         for (block in getLcaVariables()) {
             if (!processor.execute(block, state)) {
                 return false
