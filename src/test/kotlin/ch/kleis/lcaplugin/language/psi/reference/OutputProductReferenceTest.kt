@@ -7,6 +7,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import io.mockk.unmockkStatic
 import junit.framework.TestCase
+import org.junit.Assert
 import org.junit.Test
 
 
@@ -16,7 +17,71 @@ class OutputProductReferenceTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun test_resolve_fromProcess_withPatternMatching_noLabels() {
+    fun test_resolve_withDataRefInMatchLabelExpression() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    params {
+                        geo = "FR"
+                    }
+                    inputs {
+                        1 l water from water_production match (geo = geo)
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName.water
+                
+                process water_production {
+                    labels {
+                        geo = "FR"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+                
+                process water_production {
+                    labels {
+                        geo = "UK"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .inputProductSpec
+
+        // when
+        val actual = ref.reference.resolve()
+
+        // then
+        val expected = ProcessStubKeyIndex.findProcesses(
+            project,
+            "$pkgName.water.water_production",
+            mapOf("geo" to "FR"),
+        ).first()
+            .getProducts().first()
+            .outputProductSpec
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun test_resolve_productNameOnly_ambiguousProcess() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
@@ -47,6 +112,15 @@ class OutputProductReferenceTest : BasePlatformTestCase() {
                 
                 process water_production {
                     labels {
+                        geo = "1"
+                    }
+                    products {
+                        1 l water
+                    }
+                }
+                
+                process water_production {
+                    labels {
                         geo = "2"
                     }
                     products {
@@ -63,14 +137,7 @@ class OutputProductReferenceTest : BasePlatformTestCase() {
         val actual = ref.reference.resolve()
 
         // then
-        val expected = ProcessStubKeyIndex.findProcesses(
-            project,
-            "$pkgName.water.water_production",
-            emptyMap(),
-        ).first()
-            .getProducts().first()
-            .outputProductSpec
-        assertEquals(expected, actual)
+        Assert.assertNull(actual)
     }
 
     @Test

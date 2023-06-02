@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
+import ch.kleis.lcaplugin.language.type_checker.LcaMatchLabelsEvaluator
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
@@ -26,7 +27,9 @@ class ProcessReferenceFromPsiProcessTemplateSpec(
         val candidateFqns = allPkgNames.map {
             "$it.${element.name}"
         }
-        val labels = element.getMatchLabelsMap()
+        val labels = element.getMatchLabels()
+            ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
+            ?: emptyMap()
         return candidateFqns
             .flatMap { fqn -> ProcessStubKeyIndex.findProcesses(project, fqn, labels) }
             .map(::PsiElementResolveResult)

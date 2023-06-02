@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
+import ch.kleis.lcaplugin.language.type_checker.LcaMatchLabelsEvaluator
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
@@ -26,15 +27,23 @@ class OutputProductReference(
         val candidateFqns = allPkgNames.map {
             "$it.${element.name}"
         }
+        val candidateOutputProducts = candidateFqns
+            .flatMap { fqn -> OutputProductKeyIndex.findOutputProducts(project, fqn) }
+        if (element.getFromProcessConstraint() == null) {
+            return candidateOutputProducts
+                .map(::PsiElementResolveResult)
+                .toTypedArray()
+        }
+
         val processName = element.getFromProcessConstraint()
             ?.processTemplateSpec
             ?.name
         val matchLabels = element.getFromProcessConstraint()
             ?.processTemplateSpec
-            ?.getMatchLabelsMap()
+            ?.getMatchLabels()
+            ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
             ?: emptyMap()
-        return candidateFqns
-            .flatMap { fqn -> OutputProductKeyIndex.findOutputProducts(project, fqn) }
+        return candidateOutputProducts
             .filter {
                 val process = it.getContainingProcess()
                 (processName == null || process.name == processName)

@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.type_checker.LcaMatchLabelsEvaluator
 import ch.kleis.lcaplugin.language.type_checker.PsiLcaTypeChecker
 import ch.kleis.lcaplugin.language.type_checker.PsiTypeCheckException
 import ch.kleis.lcaplugin.psi.LcaInputProductSpec
@@ -20,7 +20,8 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
         val target = element.inputProductSpec.reference.resolve()
 
         if (target == null
-            || target !is LcaOutputProductSpec) {
+            || target !is LcaOutputProductSpec
+        ) {
             val message = errorMessage(element.inputProductSpec)
             holder.newAnnotation(HighlightSeverity.WARNING, message)
                 .range(element.inputProductSpec)
@@ -41,7 +42,10 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
     private fun errorMessage(inputProductSpec: LcaInputProductSpec): String {
         val product = inputProductSpec.name
         val process = inputProductSpec.getFromProcessConstraint()?.processTemplateSpec?.name
-        val labels = inputProductSpec.getFromProcessConstraint()?.processTemplateSpec?.getMatchLabelsMap()
+        val labels = inputProductSpec.getFromProcessConstraint()
+            ?.processTemplateSpec
+            ?.getMatchLabels()
+            ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
         val parts = listOfNotNull(
             product,
             process?.let { "from $it" },

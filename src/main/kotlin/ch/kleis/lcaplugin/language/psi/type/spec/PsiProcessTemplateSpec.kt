@@ -13,11 +13,4 @@ interface PsiProcessTemplateSpec : PsiUIDOwner {
     fun getMatchLabels(): LcaMatchLabels? {
         return PsiTreeUtil.getChildOfType(this, LcaMatchLabels::class.java)
     }
-
-    fun getMatchLabelsMap(): Map<String, String> {
-        return getMatchLabels()
-            ?.labelSelectorList
-            ?.associate { it.labelRef.name to it.dataExpression.text.trim('"') }
-            ?: emptyMap()
-    }
 }

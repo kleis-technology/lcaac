@@ -44,6 +44,10 @@ data class EUnitAlias(val symbol: String, val aliasFor: DataExpression) : DataEx
 
 @optics
 data class EQuantityScale(val scale: Double, val base: DataExpression) : DataExpression, QuantityExpression {
+    override fun toString(): String {
+        return "$scale $base"
+    }
+
     companion object
 }
 
@@ -79,8 +83,7 @@ data class EQuantityPow(val quantity: DataExpression, val exponent: Double) : Da
 
 @optics
 data class EQuantityClosure(
-    val symbolTable: SymbolTable,
-    val expression: DataExpression
+    val symbolTable: SymbolTable, val expression: DataExpression
 ) : DataExpression, QuantityExpression {
     companion object
 }

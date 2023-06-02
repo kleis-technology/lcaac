@@ -5,7 +5,16 @@ import com.intellij.psi.PsiElement
 
 class LcaMatchLabelsEvaluator {
     private val rec = RecursiveGuard()
-    fun eval(labels: LcaMatchLabels): Map<String, String?> {
+
+    fun evalOrNull(labels: LcaMatchLabels): Map<String, String>? {
+        return try {
+            eval(labels)
+        } catch (e: PsiTypeCheckException) {
+            null
+        }
+    }
+
+    fun eval(labels: LcaMatchLabels): Map<String, String> {
         return labels.labelSelectorList
             .associate { it.labelRef.name to evalDataExpression(it.dataExpression) }
     }
