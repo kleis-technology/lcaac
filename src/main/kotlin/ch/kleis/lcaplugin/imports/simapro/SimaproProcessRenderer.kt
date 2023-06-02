@@ -8,13 +8,13 @@ import java.io.File
 
 
 class ProcessRenderer(mode: SubstanceImportMode) {
-    private val renderer = SimaproProcessMapper.of(mode)
+    private val mapper = SimaproProcessMapper.of(mode)
     var nbProcesses: Int = 0
 
 
     fun render(processBlock: ProcessBlock, writer: ModelWriter) {
         val subFolder = if (processBlock.category() == null) "" else "${processBlock.category()}${File.separatorChar}"
-        val process = renderer.map(processBlock)
+        val process = mapper.map(processBlock)
         val str = ProcessSerializer.serialize(process)
 
         writer.write(

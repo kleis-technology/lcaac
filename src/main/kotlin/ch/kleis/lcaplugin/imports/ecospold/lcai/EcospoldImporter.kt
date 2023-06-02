@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold
+package ch.kleis.lcaplugin.imports.ecospold.lcai
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -41,7 +41,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
 
         val pkg = settings.rootPackage.ifBlank { "default" }
         SevenZFile(path.toFile()).use { f ->
-            ModelWriter(pkg, settings.rootFolder, listOf("ef31"), watcher).use { w ->
+            ModelWriter(pkg, settings.rootFolder, listOf(), watcher).use { w ->
                 importEntries(f, w, controller, watcher)
             }
         }
@@ -56,8 +56,6 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(processRenderer.nbProcesses, "processes"),
         )
-
-
     }
 
     private fun importEntries(
@@ -138,6 +136,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         }
     }
 
+
     private fun importImpactMethod(
         method: ImpactMethod,
         w: ModelWriter,
@@ -156,5 +155,8 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
     ) {
         LOG.info("Read $type dataset from $path")
         processRenderer.render(dataSet, w, "$type from $path")
+
     }
+
+
 }
