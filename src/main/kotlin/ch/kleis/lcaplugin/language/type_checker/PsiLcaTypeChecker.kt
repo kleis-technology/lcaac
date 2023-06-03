@@ -75,8 +75,7 @@ class PsiLcaTypeChecker {
 
                 val psiProcess = outputProductSpec.getContainingProcess()
                 val tyArguments = checkProcessArguments(psiProcess)
-                el.inputProductSpec.getFromProcessConstraint()
-                    ?.processTemplateSpec
+                el.inputProductSpec.getProcessTemplateSpec()
                     ?.argumentList
                     ?.forEach { arg ->
                         val key = arg.parameterRef.name
@@ -88,8 +87,7 @@ class PsiLcaTypeChecker {
                         }
                     }
             }
-            el.inputProductSpec.getFromProcessConstraint()
-                ?.processTemplateSpec
+            el.inputProductSpec.getProcessTemplateSpec()
                 ?.getMatchLabels()
                 ?.labelSelectorList
                 ?.forEach { label ->

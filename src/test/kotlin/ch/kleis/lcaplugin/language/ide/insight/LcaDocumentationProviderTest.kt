@@ -415,8 +415,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val ref = file.getProcesses().first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()
-            ?.processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .argumentList.first()
             .parameterRef
         val sut = LcaDocumentationProvider()

@@ -69,8 +69,7 @@ class LabelReferenceTest : BasePlatformTestCase() {
             project, "$pkgName.p",
         ).first().getInputs()
             .first()
-            .inputProductSpec.getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .inputProductSpec.getProcessTemplateSpec()!!
             .getMatchLabels()!!.labelSelectorList.first()
             .labelRef
 

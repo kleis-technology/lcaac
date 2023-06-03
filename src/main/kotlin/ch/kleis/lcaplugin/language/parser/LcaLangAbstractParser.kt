@@ -219,25 +219,22 @@ class LcaLangAbstractParser(
     ): EProductSpec {
         return EProductSpec(
             inputProductSpec.name,
-            fromProcess = fromProcessConstraint(inputProductSpec.getFromProcessConstraint()),
+            fromProcess = inputProductSpec.getProcessTemplateSpec()?.let { fromProcess(it) },
         )
     }
 
-    private fun fromProcessConstraint(psiFromProcessConstraint: LcaFromProcessConstraint?): FromProcess? {
-        return psiFromProcessConstraint?.let {
-            val spec = it.processTemplateSpec!!
-            val arguments = spec.argumentList
-            val labelSelectors = spec.getMatchLabels()?.labelSelectorList ?: emptyList()
-            FromProcess(
-                name = spec.name,
-                matchLabels = MatchLabels(
-                    labelSelectors
-                        .associate { selector -> selector.labelRef.name to parseDataExpression(selector.dataExpression) }
-                ),
-                arguments = arguments
-                    .associate { arg -> arg.parameterRef.name to parseDataExpression(arg.dataExpression) }
-            )
-        }
+    private fun fromProcess(spec: LcaProcessTemplateSpec): FromProcess {
+        val arguments = spec.argumentList
+        val labelSelectors = spec.getMatchLabels()?.labelSelectorList ?: emptyList()
+        return FromProcess(
+            name = spec.name,
+            matchLabels = MatchLabels(
+                labelSelectors
+                    .associate { selector -> selector.labelRef.name to parseDataExpression(selector.dataExpression) }
+            ),
+            arguments = arguments
+                .associate { arg -> arg.parameterRef.name to parseDataExpression(arg.dataExpression) }
+        )
     }
 
     private fun technoProductExchange(

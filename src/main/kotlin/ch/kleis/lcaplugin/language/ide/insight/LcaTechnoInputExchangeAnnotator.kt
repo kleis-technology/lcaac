@@ -41,9 +41,8 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
 
     private fun errorMessage(inputProductSpec: LcaInputProductSpec): String {
         val product = inputProductSpec.name
-        val process = inputProductSpec.getFromProcessConstraint()?.processTemplateSpec?.name
-        val labels = inputProductSpec.getFromProcessConstraint()
-            ?.processTemplateSpec
+        val process = inputProductSpec.getProcessTemplateSpec()?.name
+        val labels = inputProductSpec.getProcessTemplateSpec()
             ?.getMatchLabels()
             ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
         val parts = listOfNotNull(

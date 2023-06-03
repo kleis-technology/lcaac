@@ -33,8 +33,7 @@ class DataRefExactNameMatcherScopeProcessorTest : ParsingTestCase("", "lca", Lca
         val assignment = process.getLcaLabels().first().labelAssignmentList.first()
         val dataRef = process.getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
             .labelSelectorList.first()
             .dataExpression as LcaDataRef

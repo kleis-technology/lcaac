@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.type.spec
 
 import ch.kleis.lcaplugin.language.psi.reference.OutputProductReference
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
-import ch.kleis.lcaplugin.psi.LcaFromProcessConstraint
+import ch.kleis.lcaplugin.psi.LcaProcessTemplateSpec
 import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiInputProductSpec : PsiUIDOwner {
@@ -10,7 +10,7 @@ interface PsiInputProductSpec : PsiUIDOwner {
         return OutputProductReference(this)
     }
 
-    fun getFromProcessConstraint(): LcaFromProcessConstraint? {
-        return PsiTreeUtil.getChildOfType(this, LcaFromProcessConstraint::class.java)
+    fun getProcessTemplateSpec(): LcaProcessTemplateSpec? {
+        return PsiTreeUtil.getChildOfType(this, LcaProcessTemplateSpec::class.java)
     }
 }

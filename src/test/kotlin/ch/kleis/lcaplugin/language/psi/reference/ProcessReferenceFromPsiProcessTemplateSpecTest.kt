@@ -60,8 +60,7 @@ class ProcessReferenceFromPsiProcessTemplateSpecTest : BasePlatformTestCase() {
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()
-            ?.processTemplateSpec!!
+            .getProcessTemplateSpec()!!
 
         // when
         val actual = ref.reference.resolve()
@@ -138,8 +137,7 @@ class ProcessReferenceFromPsiProcessTemplateSpecTest : BasePlatformTestCase() {
         val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()
-            ?.processTemplateSpec!!
+            .getProcessTemplateSpec()!!
 
         // when
         val actual =

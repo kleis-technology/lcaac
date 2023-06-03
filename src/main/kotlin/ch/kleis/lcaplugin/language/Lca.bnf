@@ -316,16 +316,13 @@ outputProductSpec ::= uid allocateField? {
 }
 allocateField ::= ALLOCATE_KEYWORD dataExpression
 
-inputProductSpec ::= uid fromProcessConstraint? {
+inputProductSpec ::= uid processTemplateSpec? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiInputProductSpecMixin"
 }
-fromProcessConstraint ::= FROM_KEYWORD processTemplateSpec  {
+
+processTemplateSpec ::= FROM_KEYWORD uid (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
     pin=1
-}
-
-
-processTemplateSpec ::= uid (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateSpecMixin"
 }

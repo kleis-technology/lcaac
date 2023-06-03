@@ -78,7 +78,7 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .around(EQUAL).spaces(1)
                 .after(LPAREN).spaces(1)
                 .before(RPAREN).spaces(1)
-                .around(FROM_PROCESS_CONSTRAINT).spaces(1)
+                .around(PROCESS_TEMPLATE_SPEC).spaces(1)
                 .around(FROM_KEYWORD).spaces(1)
                 .around(ALLOCATE_KEYWORD).spaces(1)
                 .around(ALLOCATE_FIELD).spaces(1)

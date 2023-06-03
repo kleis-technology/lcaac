@@ -28,8 +28,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         val labels = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -62,8 +61,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         val labels = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -96,8 +94,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         val labels = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -134,8 +131,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         ).first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -172,8 +168,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         ).first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -212,8 +207,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         ).first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -247,8 +241,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         ).first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 
@@ -278,8 +271,7 @@ class LcaMatchLabelsEvaluatorTest : BasePlatformTestCase() {
         ).first()
             .getInputs().first()
             .inputProductSpec
-            .getFromProcessConstraint()!!
-            .processTemplateSpec!!
+            .getProcessTemplateSpec()!!
             .getMatchLabels()!!
         val sut = LcaMatchLabelsEvaluator()
 

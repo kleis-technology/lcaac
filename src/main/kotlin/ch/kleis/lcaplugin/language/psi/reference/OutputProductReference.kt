@@ -29,17 +29,14 @@ class OutputProductReference(
         }
         val candidateOutputProducts = candidateFqns
             .flatMap { fqn -> OutputProductKeyIndex.findOutputProducts(project, fqn) }
-        if (element.getFromProcessConstraint() == null) {
+        if (element.getProcessTemplateSpec() == null) {
             return candidateOutputProducts
                 .map(::PsiElementResolveResult)
                 .toTypedArray()
         }
 
-        val processName = element.getFromProcessConstraint()
-            ?.processTemplateSpec
-            ?.name
-        val matchLabels = element.getFromProcessConstraint()
-            ?.processTemplateSpec
+        val processName = element.getProcessTemplateSpec()?.name
+        val matchLabels = element.getProcessTemplateSpec()
             ?.getMatchLabels()
             ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
             ?: emptyMap()
