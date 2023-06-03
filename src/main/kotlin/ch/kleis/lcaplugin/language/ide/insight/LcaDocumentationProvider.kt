@@ -34,10 +34,11 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
                 sb.toString()
             }
 
-            is LcaTechnoProductExchange -> {
+            is LcaOutputProductSpec -> {
                 val sb = StringBuilder()
                 val process = PsiTreeUtil.getParentOfType(element, LcaProcess::class.java)
-                documentProductTitle(sb, element.outputProductSpec.getProductRef(), process)
+                documentProductTitle(sb, element.getProductRef(), process)
+                documentBlockLabels(sb, process)
                 documentBlockMetaOwner(sb, process)
                 documentProcessParams(sb, process)
                 addSeparatorLine(sb)
@@ -47,6 +48,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
             is LcaProcess -> {
                 val sb = StringBuilder()
                 documentTitle(sb, "Process", element.getProcessRef().name)
+                documentBlockLabels(sb, element)
                 documentBlockMetaOwner(sb, element)
                 documentProcessParams(sb, element)
                 addSeparatorLine(sb)
@@ -95,6 +97,23 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
 
             else -> super.generateDoc(element, originalElement)
         }
+    }
+
+    private fun documentBlockLabels(sb: StringBuilder, lcaProcess: LcaProcess?) {
+        if (lcaProcess == null || lcaProcess.labelsList.isEmpty()) return
+
+        sb.append(DocumentationMarkup.CONTENT_START).append("\n")
+        val att = TextAttributes()
+        att.foregroundColor = JBColor.GRAY
+        att.fontType = Font.ITALIC
+        HtmlSyntaxInfoUtil.appendStyledSpan(sb, att, "Process Labels:", 1f)
+        sb.append(DocumentationMarkup.SECTIONS_START).append("\n")
+        lcaProcess.labelsList.flatMap { it.labelAssignmentList }
+            .forEach {
+                addKeyValueSection("${it.name} = ", """"${it.getValue()}"""", sb)
+            }
+        sb.append(DocumentationMarkup.SECTIONS_END).append("\n")
+        sb.append(DocumentationMarkup.CONTENT_END).append("\n")
     }
 
     private fun documentProcessParams(sb: StringBuilder, lcaProcess: LcaProcess?) {
