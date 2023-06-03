@@ -52,7 +52,7 @@ class AssessProcessWithDataAction(
 
                     // process
                     val symbolTable = runReadAction {
-                        val collector = LcaFileCollector()
+                        val collector = LcaFileCollector(file.project)
                         val parser = LcaLangAbstractParser(collector.collect(file))
                         parser.load()
                     }
