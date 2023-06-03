@@ -7,7 +7,12 @@ sealed interface Type
 data class TUnit(val dimension: Dimension) : Type
 
 sealed interface TypeDataExpression : Type
-object TString : TypeDataExpression
+object TString : TypeDataExpression {
+    override fun toString(): String {
+        return "TString"
+    }
+}
+
 data class TQuantity(val dimension: Dimension) : TypeDataExpression
 
 

@@ -845,6 +845,54 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_whenTechnoInputExchange_invalidLabelValue_shouldThrow() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                unit foo {
+                    symbol = "foo"
+                    dimension = "foo_dim"
+                }
+                
+                unit kg {
+                    symbol = "kg"
+                    dimension = "mass"
+                }
+                
+                process p {
+                    inputs {
+                        1 kg foo_product from foo_prod match (geo = 1 kg)
+                    }
+                }
+                
+                process foo_prod {
+                    params {
+                        x = 1 foo
+                    }
+                    labels {
+                        geo = "FR"
+                    }
+                    products {
+                        1 kg foo_product
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        val e = assertFailsWith(
+            PsiTypeCheckException::class
+        ) { checker.check(target) }
+        assertEquals("incompatible types: expecting TString, found TQuantity(dimension=mass)", e.message)
+    }
+
+    @Test
     fun test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow() {
         // given
         val pkgName = """test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow"""

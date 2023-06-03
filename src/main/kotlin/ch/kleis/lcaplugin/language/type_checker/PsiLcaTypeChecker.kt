@@ -88,6 +88,17 @@ class PsiLcaTypeChecker {
                         }
                     }
             }
+            el.inputProductSpec.getFromProcessConstraint()
+                ?.processTemplateSpec
+                ?.getMatchLabels()
+                ?.labelSelectorList
+                ?.forEach { label ->
+                    val tyActual = checkDataExpression(label.dataExpression)
+                    val tyExpected = TString
+                    if (tyExpected != tyActual) {
+                        throw PsiTypeCheckException("incompatible types: expecting $tyExpected, found $tyActual")
+                    }
+                }
             TTechnoExchange(TProduct(productName, tyQuantity.dimension))
         }(element)
     }
