@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class UnitKeyIndex : StringStubIndexExtension<LcaUnitDefinition>() {
+class UnitStubKeyIndex : StringStubIndexExtension<LcaUnitDefinition>() {
     override fun getKey(): StubIndexKey<String, LcaUnitDefinition> {
         return LcaStubIndexKeys.UNITS
     }

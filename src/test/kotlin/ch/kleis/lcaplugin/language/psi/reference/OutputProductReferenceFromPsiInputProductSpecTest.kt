@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
-import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.stubs.StubIndex
@@ -179,7 +179,7 @@ class OutputProductReferenceFromPsiInputProductSpecTest : BasePlatformTestCase()
         val actual = ref.reference.resolve()
 
         // then
-        val expected = OutputProductKeyIndex.findOutputProducts(project, "$pkgName.water.water").first()
+        val expected = OutputProductStubKeyIndex.findOutputProducts(project, "$pkgName.water.water").first()
         assertEquals(expected, actual)
     }
 

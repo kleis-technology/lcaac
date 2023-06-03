@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
-import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import ch.kleis.lcaplugin.psi.LcaDataRef
 import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.codeInsight.lookup.LookupElementBuilder
@@ -58,7 +58,7 @@ class DataReferenceTest : BasePlatformTestCase() {
         val actual = ref.reference.resolve()
 
         // then
-        val expected = UnitKeyIndex.findUnits(project, "$pkgName.x").first()
+        val expected = UnitStubKeyIndex.findUnits(project, "$pkgName.x").first()
         TestCase.assertEquals(expected, actual)
     }
 
@@ -102,7 +102,7 @@ class DataReferenceTest : BasePlatformTestCase() {
         val actual = ref.reference!!.resolve()
 
         // then
-        val expected = UnitKeyIndex.findUnits(project, "$pkgName.my_units.foo").first()
+        val expected = UnitStubKeyIndex.findUnits(project, "$pkgName.my_units.foo").first()
         TestCase.assertEquals(expected, actual)
     }
 

@@ -104,9 +104,9 @@
 
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex"/>
         <stubIndex
-                implementation="ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex"/>
+                implementation="ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductStubKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex"/>
-        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex"/>
+        <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex"/>
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 

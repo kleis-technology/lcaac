@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.stubs.StubIndexKey
 
-class OutputProductKeyIndex : StringStubIndexExtension<LcaOutputProductSpec>() {
+class OutputProductStubKeyIndex : StringStubIndexExtension<LcaOutputProductSpec>() {
     override fun getKey(): StubIndexKey<String, LcaOutputProductSpec> {
         return LcaStubIndexKeys.OUTPUT_PRODUCTS
     }

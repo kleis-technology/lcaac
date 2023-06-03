@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -174,7 +174,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.foo").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.foo").first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
@@ -198,7 +198,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.foo").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.foo").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -228,7 +228,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -263,7 +263,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -298,7 +298,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -333,7 +333,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -368,7 +368,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -403,7 +403,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
@@ -436,7 +436,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -470,7 +470,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -504,7 +504,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when

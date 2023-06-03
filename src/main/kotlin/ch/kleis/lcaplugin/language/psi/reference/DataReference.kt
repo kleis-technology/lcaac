@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
-import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
@@ -25,7 +25,7 @@ class DataReference(
     private val unitRef = GlobalUIDOwnerReference(
         element,
         { project, fqn ->
-            UnitKeyIndex.findUnits(project, fqn)
+            UnitStubKeyIndex.findUnits(project, fqn)
         },
         { project ->
             StubIndex.getInstance().getAllKeys(LcaStubIndexKeys.UNITS, project)

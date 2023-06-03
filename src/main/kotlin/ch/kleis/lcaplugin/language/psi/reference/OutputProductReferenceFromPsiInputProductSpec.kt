@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.stub.LcaStubIndexKeys
-import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
 import ch.kleis.lcaplugin.language.type_checker.LcaMatchLabelsEvaluator
 import com.intellij.codeInsight.lookup.LookupElementBuilder
@@ -28,7 +28,7 @@ class OutputProductReferenceFromPsiInputProductSpec(
             "$it.${element.name}"
         }
         val candidateOutputProducts = candidateFqns
-            .flatMap { fqn -> OutputProductKeyIndex.findOutputProducts(project, fqn) }
+            .flatMap { fqn -> OutputProductStubKeyIndex.findOutputProducts(project, fqn) }
         if (element.getProcessTemplateSpec() == null) {
             return candidateOutputProducts
                 .map(::PsiElementResolveResult)
