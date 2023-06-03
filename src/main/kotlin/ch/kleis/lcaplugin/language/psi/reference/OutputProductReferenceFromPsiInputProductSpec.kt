@@ -9,7 +9,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.stubs.StubIndex
 
-class OutputProductReference(
+class OutputProductReferenceFromPsiInputProductSpec(
     element: PsiInputProductSpec
 ) : PsiReferenceBase<PsiInputProductSpec>(element), PsiPolyVariantReference {
     private val project = element.project

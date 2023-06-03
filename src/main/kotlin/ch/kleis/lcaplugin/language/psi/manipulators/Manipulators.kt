@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiOutputProductSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
@@ -24,9 +25,8 @@ class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessRef>()
 class PsiLabelRefManipulator : PsiUIDOwnerManipulator<PsiLabelRef>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
-class PsiInputProductSpecManipulator : PsiUIDOwnerManipulator<PsiInputProductSpec>()
-class PsiOutputProductSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
-class PsiSubstanceSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
+class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
+class PsiSubstanceSpecManipulator : PsiUIDOwnerManipulator<PsiSubstanceSpec>()
 
 sealed class PsiDelegateManipulator<E : PsiElement>(
     private val getter: (E) -> PsiUIDOwner
@@ -37,40 +37,26 @@ sealed class PsiDelegateManipulator<E : PsiElement>(
     }
 }
 
+class PsiInputProductSpecManipulator : PsiDelegateManipulator<PsiInputProductSpec>(
+    { it.getProductRef() }
+)
+
+class PsiOutputProductSpecManipulator : PsiDelegateManipulator<PsiOutputProductSpec>(
+    { it.getProductRef() }
+)
+
 class PsiProcessTemplateSpecManipulator : PsiDelegateManipulator<PsiProcessTemplateSpec>(
     { it.getProcessRef() }
 )
 
+class PsiLabelAssignmentManipulator : PsiDelegateManipulator<PsiLabelAssignment>(
+    { it.getLabelRef() }
+)
 
-class PsiLabelAssignmentManipulator : AbstractElementManipulator<PsiLabelAssignment>() {
-    override fun handleContentChange(
-        element: PsiLabelAssignment,
-        range: TextRange,
-        newContent: String?
-    ): PsiLabelAssignment {
-        newContent?.let { element.getLabelRef().setName(it) }
-        return element
-    }
-}
+class PsiGlobalAssignmentManipulator : PsiDelegateManipulator<PsiGlobalAssignment>(
+    { it.getDataRef() }
+)
 
-class PsiGlobalAssignmentManipulator : AbstractElementManipulator<PsiGlobalAssignment>() {
-    override fun handleContentChange(
-        element: PsiGlobalAssignment,
-        range: TextRange,
-        newContent: String?
-    ): PsiGlobalAssignment {
-        newContent?.let { element.getDataRef().setName(it) }
-        return element
-    }
-}
-
-class PsiAssignmentManipulator : AbstractElementManipulator<PsiAssignment>() {
-    override fun handleContentChange(
-        element: PsiAssignment,
-        range: TextRange,
-        newContent: String?
-    ): PsiAssignment {
-        newContent?.let { element.getDataRef().setName(it) }
-        return element
-    }
-}
+class PsiAssignmentManipulator : PsiDelegateManipulator<PsiAssignment>(
+    { it.getDataRef() }
+)

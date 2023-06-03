@@ -11,7 +11,7 @@ import org.junit.Assert
 import org.junit.Test
 
 
-class OutputProductReferenceTest : BasePlatformTestCase() {
+class OutputProductReferenceFromPsiInputProductSpecTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return ""
     }

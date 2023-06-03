@@ -38,7 +38,7 @@ class OutputProductElementType(debugName: String) : ILightStubElementType<
         psi: LcaOutputProductSpec,
         parentStub: StubElement<out PsiElement>?
     ): OutputProductStub {
-        val fqn = psi.getFullyQualifiedName()
+        val fqn = psi.getProductRef().getFullyQualifiedName()
         return OutputProductStubImpl(
             parentStub as StubElement<LcaOutputProductSpec>,
             fqn,

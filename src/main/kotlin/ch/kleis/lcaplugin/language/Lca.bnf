@@ -284,6 +284,11 @@ dataRef ::= uid {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiDataRefMixin"
 }
 
+productRef ::= uid {
+    implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProductRef"]
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProductRefMixin"
+}
+
 processRef ::= uid {
     implements=["ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessRef"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessRefMixin"
@@ -308,7 +313,7 @@ parameterRef ::= uid {
    Spec
  */
 
-outputProductSpec ::= uid allocateField? {
+outputProductSpec ::= productRef allocateField? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiOutputProductSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiOutputProductSpecMixin"
     elementTypeClass="ch.kleis.lcaplugin.language.psi.stub.output_product.OutputProductElementType"
@@ -316,7 +321,7 @@ outputProductSpec ::= uid allocateField? {
 }
 allocateField ::= ALLOCATE_KEYWORD dataExpression
 
-inputProductSpec ::= uid processTemplateSpec? {
+inputProductSpec ::= productRef processTemplateSpec? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiInputProductSpecMixin"
 }
@@ -324,7 +329,7 @@ inputProductSpec ::= uid processTemplateSpec? {
 processTemplateSpec ::= FROM_KEYWORD processRef (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
     pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"]
-    mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateSpecMixin"
+    mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiProcessTemplateSpecMixin"
 }
 matchLabels ::= MATCH_KEYWORD LPAREN comma_sep_label_selectors? RPAREN
 

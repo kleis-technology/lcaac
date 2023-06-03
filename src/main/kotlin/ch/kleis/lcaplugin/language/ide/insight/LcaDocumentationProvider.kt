@@ -37,7 +37,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
             is LcaTechnoProductExchange -> {
                 val sb = StringBuilder()
                 val process = PsiTreeUtil.getParentOfType(element, LcaProcess::class.java)
-                documentProductTitle(sb, element.outputProductSpec, process)
+                documentProductTitle(sb, element.outputProductSpec.getProductRef(), process)
                 documentBlockMetaOwner(sb, process)
                 documentProcessParams(sb, process)
                 addSeparatorLine(sb)

@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.language.psi.mixin.ref
+package ch.kleis.lcaplugin.language.psi.mixin.spec
 
 import ch.kleis.lcaplugin.language.psi.reference.ProcessReferenceFromPsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
