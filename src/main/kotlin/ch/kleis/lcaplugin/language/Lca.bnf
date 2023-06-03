@@ -339,7 +339,7 @@ labelSelector ::= labelRef EQUAL dataExpression
 private comma_sep_arguments ::= argument (COMMA argument)* COMMA?
 argument ::= parameterRef EQUAL dataExpression
 
-substanceSpec ::= uid (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
+substanceSpec ::= substanceRef (LPAREN compartmentField (COMMA subCompartmentField )? RPAREN)? {
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiSubstanceSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiSubstanceSpecMixin"
 }

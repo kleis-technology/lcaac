@@ -26,7 +26,6 @@ class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessRef>()
 class PsiLabelRefManipulator : PsiUIDOwnerManipulator<PsiLabelRef>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 class PsiProductRefManipulator : PsiUIDOwnerManipulator<PsiProductRef>()
-class PsiSubstanceSpecManipulator : PsiUIDOwnerManipulator<PsiSubstanceSpec>()
 
 sealed class PsiDelegateManipulator<E : PsiElement>(
     private val getter: (E) -> PsiUIDOwner
@@ -36,6 +35,10 @@ sealed class PsiDelegateManipulator<E : PsiElement>(
         return element
     }
 }
+
+class PsiSubstanceSpecManipulator : PsiDelegateManipulator<PsiSubstanceSpec>(
+    { it.getSubstanceRef() }
+)
 
 class PsiInputProductSpecManipulator : PsiDelegateManipulator<PsiInputProductSpec>(
     { it.getProductRef() }
