@@ -25,8 +25,11 @@ class CsvProcessor(
                         EQuantityScale(amount, EUnitOf(v))
                     } ?: entry.value
 
-                    is StringExpression -> TODO()
-                    is EDataRef -> TODO()
+                    is StringExpression -> request[entry.key]?.let {
+                        EStringLiteral(it)
+                    } ?: entry.value
+
+                    else -> throw EvaluatorException("$v is not a supported data expression")
                 }
             }
 
