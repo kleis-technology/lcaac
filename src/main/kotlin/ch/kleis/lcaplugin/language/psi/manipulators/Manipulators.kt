@@ -6,9 +6,11 @@ import ch.kleis.lcaplugin.language.psi.type.PsiLabelAssignment
 import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiOutputProductSpec
+import ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.AbstractElementManipulator
+import com.intellij.psi.PsiElement
 
 sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulator<E>() {
     override fun handleContentChange(element: E, range: TextRange, newContent: String?): E {
@@ -25,7 +27,20 @@ class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 class PsiInputProductSpecManipulator : PsiUIDOwnerManipulator<PsiInputProductSpec>()
 class PsiOutputProductSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
 class PsiSubstanceSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
-class PsiProcessTemplateSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
+
+sealed class PsiDelegateManipulator<E : PsiElement>(
+    private val getter: (E) -> PsiUIDOwner
+) : AbstractElementManipulator<E>() {
+    override fun handleContentChange(element: E, range: TextRange, newContent: String?): E? {
+        newContent?.let { getter(element).setName(it) }
+        return element
+    }
+}
+
+class PsiProcessTemplateSpecManipulator : PsiDelegateManipulator<PsiProcessTemplateSpec>(
+    { it.getProcessRef() }
+)
+
 
 class PsiLabelAssignmentManipulator : AbstractElementManipulator<PsiLabelAssignment>() {
     override fun handleContentChange(

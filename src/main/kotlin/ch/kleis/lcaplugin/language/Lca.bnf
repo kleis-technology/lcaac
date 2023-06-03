@@ -321,7 +321,7 @@ inputProductSpec ::= uid processTemplateSpec? {
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiInputProductSpecMixin"
 }
 
-processTemplateSpec ::= FROM_KEYWORD uid (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
+processTemplateSpec ::= FROM_KEYWORD processRef (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
     pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.ref.PsiProcessTemplateSpecMixin"
