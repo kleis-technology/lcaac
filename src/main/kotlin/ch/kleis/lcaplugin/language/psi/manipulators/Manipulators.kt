@@ -2,10 +2,8 @@ package ch.kleis.lcaplugin.language.psi.manipulators
 
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessRef
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiSubstanceRef
+import ch.kleis.lcaplugin.language.psi.type.PsiLabelAssignment
+import ch.kleis.lcaplugin.language.psi.type.ref.*
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiInputProductSpec
 import ch.kleis.lcaplugin.language.psi.type.spec.PsiOutputProductSpec
 import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
@@ -22,12 +20,23 @@ sealed class PsiUIDOwnerManipulator<E : PsiUIDOwner> : AbstractElementManipulato
 class PsiQuantityRefManipulator : PsiUIDOwnerManipulator<PsiDataRef>()
 class PsiSubstanceRefManipulator : PsiUIDOwnerManipulator<PsiSubstanceRef>()
 class PsiProcessTemplateRefManipulator : PsiUIDOwnerManipulator<PsiProcessRef>()
+class PsiLabelRefManipulator : PsiUIDOwnerManipulator<PsiLabelRef>()
 class PsiParameterRefManipulator : PsiUIDOwnerManipulator<PsiParameterRef>()
 class PsiInputProductSpecManipulator : PsiUIDOwnerManipulator<PsiInputProductSpec>()
 class PsiOutputProductSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
 class PsiSubstanceSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
 class PsiProcessTemplateSpecManipulator : PsiUIDOwnerManipulator<PsiOutputProductSpec>()
 
+class PsiLabelAssignmentManipulator : AbstractElementManipulator<PsiLabelAssignment>() {
+    override fun handleContentChange(
+        element: PsiLabelAssignment,
+        range: TextRange,
+        newContent: String?
+    ): PsiLabelAssignment {
+        newContent?.let { element.getLabelRef().setName(it) }
+        return element
+    }
+}
 
 class PsiGlobalAssignmentManipulator : AbstractElementManipulator<PsiGlobalAssignment>() {
     override fun handleContentChange(
