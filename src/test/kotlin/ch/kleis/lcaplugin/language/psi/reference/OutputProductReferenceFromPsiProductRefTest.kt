@@ -108,6 +108,9 @@ class OutputProductReferenceFromPsiProductRefTest : BasePlatformTestCase() {
                 package $pkgName
                 
                 process water_production {
+                    labels {
+                        geo = "FR"
+                    }
                     products {
                         1 l water
                     }
@@ -125,7 +128,10 @@ class OutputProductReferenceFromPsiProductRefTest : BasePlatformTestCase() {
             .sorted()
 
         // then
-        val expected = listOf("carrot", "water")
+        val expected = listOf(
+            "carrot from p",
+            "water from water_production match (geo = \"FR\")",
+        )
         TestCase.assertEquals(expected, actual)
 
         // clean

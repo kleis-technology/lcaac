@@ -9,8 +9,11 @@ import io.mockk.unmockkStatic
 import junit.framework.TestCase
 import org.junit.Assert
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 
+@RunWith(JUnit4::class)
 class OutputProductReferenceFromPsiInputProductSpecTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return ""
@@ -320,6 +323,9 @@ class OutputProductReferenceFromPsiInputProductSpecTest : BasePlatformTestCase()
                 package $pkgName
                 
                 process water_production {
+                    labels {
+                        geo = "FR"
+                    }
                     products {
                         1 l water
                     }
@@ -336,7 +342,10 @@ class OutputProductReferenceFromPsiInputProductSpecTest : BasePlatformTestCase()
             .sorted()
 
         // then
-        val expected = listOf("carrot", "water")
+        val expected = listOf(
+            "carrot from p",
+            "water from water_production match (geo = \"FR\")",
+            )
         TestCase.assertEquals(expected, actual)
 
         // clean
