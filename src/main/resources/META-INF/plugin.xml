@@ -110,6 +110,8 @@
         <stubIndex implementation="ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex"/>
         <stubElementTypeHolder class="ch.kleis.lcaplugin.psi.LcaTypes" externalIdPrefix="lca."/>
 
+        <fileBasedIndex implementation="ch.kleis.lcaplugin.language.psi.index.LcaProcessFileIndexExtension"/>
+
         <toolWindow id="LCA Output"
                     icon="AllIcons.General.Modified"
                     anchor="bottom"
