@@ -327,7 +327,6 @@ inputProductSpec ::= productRef processTemplateSpec? {
 }
 
 processTemplateSpec ::= FROM_KEYWORD processRef (LPAREN comma_sep_arguments? RPAREN)? matchLabels? {
-    pin=1
     implements=["ch.kleis.lcaplugin.language.psi.type.spec.PsiProcessTemplateSpec"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.spec.PsiProcessTemplateSpecMixin"
 }
