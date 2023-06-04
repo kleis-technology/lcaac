@@ -22,4 +22,9 @@ class OutputProductReferenceFromPsiProductRef(
     private fun getEnclosingOutputProductSpec(element: PsiProductRef): LcaOutputProductSpec? {
         return PsiTreeUtil.getParentOfType(element, LcaOutputProductSpec::class.java)
     }
+
+    override fun getVariants(): Array<Any> {
+        return getEnclosingInputProductSpec(element)?.reference?.variants
+            ?: emptyArray()
+    }
 }

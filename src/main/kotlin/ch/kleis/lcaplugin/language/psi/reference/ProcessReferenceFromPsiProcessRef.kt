@@ -23,4 +23,9 @@ class ProcessReferenceFromPsiProcessRef(
         return PsiTreeUtil.getParentOfType(element, LcaProcess::class.java)
             ?.takeIf { it.name == element.name }
     }
+
+    override fun getVariants(): Array<Any> {
+        return getEnclosingProcessTemplateSpec(element)?.reference?.variants
+            ?: emptyArray()
+    }
 }

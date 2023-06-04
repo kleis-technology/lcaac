@@ -1,7 +1,11 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
+import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import io.mockk.unmockkStatic
+import junit.framework.TestCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -77,5 +81,54 @@ class OutputProductReferenceFromPsiProductRefTest : BasePlatformTestCase() {
 
         // then
         assertEquals(outputProductSpec, actual)
+    }
+
+    @Test
+    fun test_getVariants() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+
+                import $pkgName.water
+
+                process p {
+                    products {
+                        1 kg carrot
+                    }
+                    inputs {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        myFixture.createFile(
+            "$pkgName.water.lca", """
+                package $pkgName
+                
+                process water_production {
+                    products {
+                        1 l water
+                    }
+                }
+            """.trimIndent()
+        )
+        val ref = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+            .inputProductSpec
+            .getProductRef()
+
+        // when
+        val actual = ref.reference.variants
+            .map { (it as LookupElementBuilder).lookupString }
+            .sorted()
+
+        // then
+        val expected = listOf("carrot", "water")
+        TestCase.assertEquals(expected, actual)
+
+        // clean
+        unmockkStatic(StubIndex::class)
     }
 }
