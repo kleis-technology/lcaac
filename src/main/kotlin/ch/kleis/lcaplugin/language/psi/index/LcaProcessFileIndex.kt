@@ -9,7 +9,7 @@ import com.intellij.util.indexing.ID
 
 class LcaProcessFileIndex {
     companion object {
-        val NAME = ID.create<String, Void>("LcaProcessFileIndex[")
+        val NAME = ID.create<String, Void>("LcaProcessFileIndex")
         fun findFiles(
             project: Project,
             processName: String,
