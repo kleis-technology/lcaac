@@ -10,8 +10,8 @@ class SubstanceSerializerTest {
     private val sub: SubstanceImported
 
     init {
-        sub = SubstanceImported("Aluminium", "Resource", "kg", "raw")
-        sub.impacts.add(ImpactImported(1000.0, "g", "alu_tox"))
+        sub = SubstanceImported("Aluminium", "Resource", "CO2-Eq", "raw", pUid = "Aluminium_ch")
+        sub.impacts.add(ImpactImported(1000.0, "P-Eq", "alu_tox"))
         sub.meta["description"] = "Formula: Al\nAl\n"
     }
 
@@ -25,20 +25,20 @@ class SubstanceSerializerTest {
         // Then
         val expected = """
 
-substance aluminium {
+substance aluminium_ch {
 
     name = "Aluminium"
     type = Resource
     compartment = "raw"
-    reference_unit = kg
-
-    impacts {
-        1000.0 g alu_tox
-    }
+    reference_unit = CO2_Eq
 
     meta {
         "description" = "Formula: Al
             Al"
+    }
+
+    impacts {
+        1000.0 P_Eq alu_tox
     }
 }"""
         assertEquals(expected, result.toString())
@@ -56,21 +56,21 @@ substance aluminium {
         // Then
         val expected = """
 
-substance aluminium {
+substance aluminium_ch {
 
     name = "Aluminium"
     type = Resource
     compartment = "raw"
     sub_compartment = "sub"
-    reference_unit = kg
-
-    impacts {
-        1000.0 g alu_tox
-    }
+    reference_unit = CO2_Eq
 
     meta {
         "description" = "Formula: Al
             Al"
+    }
+
+    impacts {
+        1000.0 P_Eq alu_tox
     }
 }"""
         assertEquals(expected, result.toString())

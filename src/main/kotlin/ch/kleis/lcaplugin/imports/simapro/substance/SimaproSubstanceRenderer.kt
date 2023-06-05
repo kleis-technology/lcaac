@@ -10,11 +10,7 @@ import java.io.File
 
 class SimaproSubstanceRenderer {
     var nbSubstances = 0
-
-    companion object {
-
-    }
-
+    
     fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)

@@ -30,18 +30,18 @@ class SimaproImportSettingsPanel(private val settings: SimaproImportSettings) : 
     init {
         val builder = FormBuilder()
         val locComp = ComponentFactory.createLocationComponent(
-            { -> settings.rootFolder },
+            { settings.rootFolder },
             { s: String -> settings.rootFolder = s })
         builder.addLabeledComponent(locComp.label, locComp.component)
         val packCom = createTextComponent(
             "lca.dialog.import.package.label",
-            { -> settings.rootPackage },
+            { settings.rootPackage },
             { s: String -> settings.rootPackage = s }
         )
         packageField = packCom.component
         builder.addLabeledComponent(packCom.label, packCom.component)
         val libComp = ComponentFactory.createLibraryFileComponent(
-            { -> settings.libraryFile },
+            { settings.libraryFile },
             { s: String -> settings.libraryFile = s })
         libField = libComp.component.textField
         builder.addLabeledComponent(libComp.label, libComp.component)
@@ -124,8 +124,8 @@ class SimaproImportSettingsPanel(private val settings: SimaproImportSettings) : 
 
     override fun doValidate(): ValidationInfo? {
         return listOf(
-            { -> LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
-            { -> LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+            { LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
             .firstNotNullOfOrNull { it.invoke() }
     }
 

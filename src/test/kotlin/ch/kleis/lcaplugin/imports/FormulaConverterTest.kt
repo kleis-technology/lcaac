@@ -5,8 +5,6 @@ import kotlin.test.assertEquals
 
 class FormulaConverterTest {
 
-    data class Par(val param: String, val expected: String, val hasBeenComputed: Boolean)
-
     @Test
     fun compute_ShouldReturnLiteralNumbers() {
         // Given

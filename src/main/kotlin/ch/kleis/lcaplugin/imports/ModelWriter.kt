@@ -83,7 +83,6 @@ class ModelWriter(
         }
 
         fun compactText(s: CharSequence): String {
-            // TODO Private ?
             if (s.isBlank()) {
                 return ""
             }
@@ -124,30 +123,9 @@ class ModelWriter(
                 .toImmutableList()
         }
 
-        fun optionalBlock(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
-            return if (blockLines.isNotEmpty()) {
-                val lines: MutableList<CharSequence> = mutableListOf(title)
-                val elements = padList(blockLines, pad)
-                lines.addAll(elements)
-                lines.add("}")
-                pad(lines, pad)
-            } else {
-                ""
-            }
-        }
-
         fun block(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
             val lines: MutableList<CharSequence> = mutableListOf(title)
             val elements = padList(blockLines, pad)
-            lines.addAll(elements)
-            lines.add("}")
-            return pad(lines, pad)
-        }
-
-        fun blockText(title: CharSequence, blockLines: List<Text>, pad: Int = BASE_PAD): CharSequence {
-            val lines: MutableList<CharSequence> = mutableListOf(title)
-            val asLines = blockLines.flatten()
-            val elements = padList(asLines, pad)
             lines.addAll(elements)
             lines.add("}")
             return pad(lines, pad)
@@ -170,16 +148,6 @@ class ModelWriter(
             }
             return builder.dropLast(1)
         }
-
-
-        fun createCommentLine(comments: List<String>): String {
-            // TODO Remove
-            val cleaned = comments.filter { it.isNotBlank() }
-
-            return if (cleaned.isEmpty()) ""
-            else cleaned.joinToString(", ", " // ")
-        }
-
 
     }
 

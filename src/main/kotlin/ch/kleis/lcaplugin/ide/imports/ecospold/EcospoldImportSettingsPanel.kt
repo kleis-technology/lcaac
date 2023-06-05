@@ -66,6 +66,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
                 MyBundle.message("lca.dialog.import.processes.desc")
             )
         )
+        // TODO Add Select MEthod
         this.add(builder.panel)
     }
 
@@ -145,8 +146,8 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
 
     override fun doValidate(): ValidationInfo? {
         return listOf(
-            { -> LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
-            { -> LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+            { LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
             .firstNotNullOfOrNull { it.invoke() }
     }
 

@@ -5,22 +5,25 @@
         <activityDescription>
             <activity specialActivityType="0" id="24342343"
                       activityNameId="123"
-                      activityNameContextId="456">
+                      activityNameContextId="456" inheritanceDepth="0" type="2" energyValues="0">
                 <activityName xml:lang="en">electricity, high voltage</activityName>
                 <includedActivitiesStart xml:lang="en">This activity represents</includedActivitiesStart>
-                <includedActivitiesEnd xml:lang="en">This dataset.</includedActivitiesEnd>
+                <includedActivitiesEnd xml:lang="en">This activity is not.</includedActivitiesEnd>
                 <generalComment>
-                    <text xml:lang="en" index="0">This dataset represents</text>
+                    <text xml:lang="en" index="1">Second</text>
+                    <text xml:lang="en" index="0">First</text>
                 </generalComment>
             </activity>
-            <!--            <classification classificationId="132">-->
-            <!--                <classificationSystem xml:lang="en">ISIC rev.4 ecoinvent</classificationSystem>-->
-            <!--                <classificationValue xml:lang="en">3510:Electric power generation, transmission and distribution-->
-            <!--                </classificationValue>-->
-            <!--            </classification>-->
-            <!--            <geography geographyId="13293cec-7d7e-11de-9ae2-0019e336be3a">-->
-            <!--                <shortname xml:lang="en">TJ</shortname>-->
-            <!--            </geography>-->
+            <classification classificationId="132">
+                <classificationSystem xml:lang="en">ISIC rev.4</classificationSystem>
+                <classificationValue xml:lang="en">3510:</classificationValue>
+            </classification>
+            <geography geographyId="13293cec-7d7e-11de-9ae2-0019e336be3a">
+                <shortname xml:lang="en">TJ</shortname>
+                <comment>
+                    <text xml:lang="en" index="0">Empty</text>
+                </comment>
+            </geography>
             <!--            <technology technologyLevel="3"/>-->
             <!--            <timePeriod startDate="2012-01-01" endDate="2022-12-31" isDataValidForEntirePeriod="true"/>-->
             <!--            <macroEconomicScenario macroEconomicScenarioId="d9f57f0a-a01f-42eb-a57b-8f18d6635801">-->
@@ -35,37 +38,30 @@
                 <name xml:lang="en">electricity, high voltage</name>
                 <unitName xml:lang="en">kWh</unitName>
                 <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
-                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                          isCalculatedAmount="true" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
                     <name xml:lang="en">carbon allocation</name>
                     <unitName xml:lang="en">kg</unitName>
                 </property>
-                <!--                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"-->
-                <!--                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">-->
-                <!--                    <name xml:lang="en">carbon content</name>-->
-                <!--                    <unitName xml:lang="en">dimensionless</unitName>-->
-                <!--                </property>-->
-                <!--                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977"-->
-                <!--                          unitId="7b75baf0-cbee-45e6-bf66-af119da06553">-->
-                <!--                    <name xml:lang="en">price</name>-->
-                <!--                    <unitName xml:lang="en">EUR2005</unitName>-->
-                <!--                    <comment xml:lang="en">Temporary price data. Calculated as 90% of purchasers price based on: 94% of-->
-                <!--                        the average price (to account for a 6% loss in transformation and transmission) for electricity-->
-                <!--                        for industrial consumersin 2005 (excluded taxes). From IEA.-->
-                <!--                    </comment>-->
-                <!--                </property>-->
+                <comment xml:lang="en">Net electricity generated from this waste and used in internal MSWI plant energy
+                    redistribution.
+                </comment>
+                <uncertainty>
+                    <lognormal meanValue="8.688" mu="2.162" variance="0.015"
+                               varianceWithPedigreeUncertainty="0.0152"/>
+                    <pedigreeMatrix reliability="1" completeness="2" temporalCorrelation="3" geographicalCorrelation="4"
+                                    furtherTechnologyCorrelation="5"/>
+                    <comment xml:lang="en">uncertainty is calculated</comment>
+                </uncertainty>
+                <synonym xml:lang="en">WTF</synonym>
                 <!--                <productionVolumeComment xml:lang="en">Total import data for this country from IEA electricity-->
                 <!--                    information (2016 edition). Part II - World and OECD overview. Table 1.1 World electricity-->
                 <!--                    production, imports, exports, final consumption, 2014 (TWh). The origin country of the imported-->
                 <!--                    electricity is assumed to be Uzbekistan, as this is the largest exporter in the region.-->
                 <!--                </productionVolumeComment>-->
-                <!--                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">-->
-                <!--                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>-->
-                <!--                    <classificationValue xml:lang="en">allocatable product</classificationValue>-->
-                <!--                </classification>-->
-                <!--                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">-->
-                <!--                    <classificationSystem xml:lang="en">CPC</classificationSystem>-->
-                <!--                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>-->
-                <!--                </classification>-->
+                <classification classificationId="AAAA">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
                 <outputGroup>0</outputGroup>
             </intermediateExchange>
             <impactIndicator impactIndicatorId="bfbecdfe-7374-4c10-9fe7-c886fdd1978d"
@@ -143,20 +139,20 @@
         <!--                </otherDetails>-->
         <!--            </review>-->
         <!--        </modellingAndValidation>-->
-        <!--        <administrativeInformation>-->
-        <!--            <dataEntryBy personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" isActiveAuthor="true" personName="Karin Treyer"-->
-        <!--                         personEmail="karin.treyer@psi.ch"/>-->
-        <!--            <dataGeneratorAndPublication personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" personName="Karin Treyer"-->
-        <!--                                         personEmail="karin.treyer@psi.ch" dataPublishedIn="1"-->
-        <!--                                         publishedSourceId="307f02b5-e4cb-47be-af56-a57efdeebbe1"-->
-        <!--                                         publishedSourceYear="2012" publishedSourceFirstAuthor="Itten R."-->
-        <!--                                         isCopyrightProtected="true" pageNumbers="chapter 3.4"/>-->
-        <!--            <fileAttributes majorRelease="3" minorRelease="0" majorRevision="1" minorRevision="0" defaultLanguage="en"-->
-        <!--                            creationTimestamp="2015-05-19T10:32:17" lastEditTimestamp="2017-06-02T13:41:14"-->
-        <!--                            fileGenerator="EcoEditor 3.8.600.15134" fileTimestamp="2017-06-02T13:41:14"-->
-        <!--                            contextId="de659012-50c4-4e96-b54a-fc781bf987ab">-->
-        <!--                <contextName xml:lang="en">ecoinvent</contextName>-->
-        <!--            </fileAttributes>-->
-        <!--        </administrativeInformation>-->
+        <administrativeInformation>
+            <dataEntryBy personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" isActiveAuthor="true" personName="Karin Treyer"
+                         personEmail="karin.treyer@psi.ch"/>
+            <dataGeneratorAndPublication personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" personName="Karin Treyer"
+                                         personEmail="karin.treyer@psi.ch" dataPublishedIn="1"
+                                         publishedSourceId="307f02b5-e4cb-47be-af56-a57efdeebbe1"
+                                         publishedSourceYear="2012" publishedSourceFirstAuthor="Itten R."
+                                         isCopyrightProtected="true" pageNumbers="chapter 3.4"/>
+            <fileAttributes majorRelease="3" minorRelease="0" majorRevision="1" minorRevision="0" defaultLanguage="en"
+                            creationTimestamp="2015-05-19T10:32:17" lastEditTimestamp="2017-06-02T13:41:14"
+                            fileGenerator="EcoEditor 3.8.600.15134" fileTimestamp="2017-06-02T13:41:14"
+                            contextId="de659012-50c4-4e96-b54a-fc781bf987ab">
+                <contextName xml:lang="en">ecoinvent</contextName>
+            </fileAttributes>
+        </administrativeInformation>
     </childActivityDataset>
 </ecoSpold>

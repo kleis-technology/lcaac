@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.ecospold.lcai.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.model.UnitImported
 import ch.kleis.lcaplugin.imports.shared.UnitRenderer
 import com.intellij.openapi.diagnostic.Logger
@@ -11,12 +12,12 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import spold2.*
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Path
-import javax.xml.bind.JAXB
 import kotlin.math.roundToInt
+
+private const val METHOD_NAME = "EF v3.1"
 
 class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer() {
     companion object {
@@ -29,7 +30,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
 
     private var totalValue = 1
     private var currentValue = 0
-    private val processRenderer = ProcessRenderer()
+    private val processRenderer = Ecospold2ProcessRenderer()
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap.values
             .map { it.toUnitValue() }
@@ -71,15 +72,22 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
 
         if (settings.importUnits) {
             val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
-            val input1 = f.getInputStream(unitConversionFile)
-            val unitConvs: UnitConversionList = JAXB.unmarshal(input1, UnitConversionList::class.java)
-            fun qty(u: UnitConversion): String {
-                return if (u.quantity != "lenght") u.quantity else "length"
+            val fromMeta = f.getInputStream(unitConversionFile).use {
+                val unitConvs = Parser.readUnits(it)
+                unitConvs.asSequence()
+                    .map { u -> UnitImported(u.dimension, u.fromUnit, u.factor, unitToStr(u.toUnit)) }
+                    .filter { u -> u.name != "foot-candle" }
             }
-            unitConvs.conversions
-                .asSequence()
-                .map { UnitImported(qty(it), it.fromUnit, it.factor, unitToStr(it.toUnit)) }
-                .filter { it.name != "foot-candle" }
+            val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
+            val fromMethod = f.getInputStream(methodsFile).use {
+                val unitConvs = Parser.readMethodUnits(it, METHOD_NAME)
+                unitConvs.asSequence()
+                    .map { u -> UnitImported(u.dimension, u.fromUnit, u.factor, unitToStr(u.toUnit)) }
+                    .filter { u -> u.name != "foot-candle" }
+            }
+
+            (fromMeta + fromMethod)
+                .distinctBy { it.name }
                 .forEach { unitRenderer.render(it, writer) }
         }
         entries.asSequence()
@@ -88,6 +96,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             .forEach {
                 importEntry(it.name, f.getInputStream(it), writer, controller, watcher)
             }
+        // TODO next PR: Add main with import info
     }
 
 
@@ -122,39 +131,19 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         watcher: AsynchronousWatcher
     ) {
         if (!controller.isActive()) throw ImportInterruptedException()
-        val eco = EcoSpold2.read(input)
+        val eco = Parser.readDataset(input)
         currentValue++
         watcher.notifyProgress((100.0 * currentValue / totalValue).roundToInt())
-        when {
-            eco.dataSet != null -> importDataSet(eco.dataSet, w, "main", path)
-
-            eco.childDataSet != null -> importDataSet(eco.childDataSet, w, "child", path)
-
-            eco.impactMethod != null -> {
-                importImpactMethod(eco.impactMethod, w, watcher, path)
-            }
-        }
-    }
-
-
-    private fun importImpactMethod(
-        method: ImpactMethod,
-        w: ModelWriter,
-        watcher: AsynchronousWatcher,
-        path: String
-    ) {
-        LOG.info("Read impactMethod ${method.name} from $path")
-
+        importDataSet(eco.activityDataset, w, path)
     }
 
     private fun importDataSet(
-        dataSet: DataSet,
+        dataSet: ActivityDataset,
         w: ModelWriter,
-        type: String,
         path: String
     ) {
-        LOG.info("Read $type dataset from $path")
-        processRenderer.render(dataSet, w, "$type from $path")
+        LOG.info("Read dataset from $path")
+        processRenderer.render(dataSet, w, "from $path", METHOD_NAME)
 
     }
 

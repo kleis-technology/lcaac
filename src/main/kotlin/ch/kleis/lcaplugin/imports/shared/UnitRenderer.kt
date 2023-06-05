@@ -39,7 +39,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
     fun render(unit: UnitImported, writer: ModelWriter) {
         val dimensionName = unit.dimension.lowercase()
         val dimension = Dimension.of(dimensionName)
-        val symbol = ModelWriter.sanitizeAndCompact(unit.name, false)
+        val symbol = sanitizeUnit(ModelWriter.sanitizeAndCompact(unit.name, false))
         val existingUnit = getUnit(unit.name)
 
         when {
@@ -51,19 +51,19 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
 
             isNewDimensionReference(dimension, unit.scaleFactor) -> {
                 addUnit(UnitValue(UnitSymbol.of(symbol), 1.0, dimension))
-                val block = generateUnitBlockWithNewDimension(symbol, unit.name, dimensionName)
+                val block = generateUnitBlockWithNewDimension(symbol, unit.name, dimensionName, unit.comment)
                 writer.write("unit", block, false)
             }
 
             else -> {
                 addUnit(UnitValue(UnitSymbol.of(symbol), unit.scaleFactor, dimension))
-                val refUnitSymbol = unit.refUnitName // ModelWriter.sanitizeAndCompact(unit.refUnitName, false)
+                val refUnitSymbol = unit.refUnitName
 
                 if (refUnitSymbol == symbol) {
                     throw ImportException("Unit $symbol is referencing itself in its own declaration")
                 } else {
                     val block =
-                        generateUnitAliasBlock(symbol, unit.name, "${unit.scaleFactor} $refUnitSymbol")
+                        generateUnitAliasBlock(symbol, unit.name, "${unit.scaleFactor} $refUnitSymbol", unit.comment)
                     writer.write("unit", block, false)
                 }
             }
@@ -71,35 +71,30 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
         nbUnit++
     }
 
-    private fun generateUnitBlockWithNewDimension(symbol: String, unitName: String, dimensionName: String): String {
-        val sanitizedSymbol = sanitizeUnit(symbol)
-        val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
+    private fun generateUnitBlockWithNewDimension(
+        symbol: String,
+        unitName: String,
+        dimensionName: String,
+        comment: String?
+    ): String {
+        val sanitizedComment = if (comment != null) " // $comment" else ""
         return """
 
-        unit $sanitizedSymbol {$sanitizedComment
+        unit $symbol {$sanitizedComment
             symbol = "$unitName"
             dimension = "$dimensionName"
         }
         """.trimIndent()
     }
 
-    private fun generateUnitAliasBlock(symbol: String, unitName: String, alias: String): String {
-        val sanitizedSymbol = sanitizeUnit(symbol)
-        val sanitizedComment = getSanitizedSymbolComment(symbol, sanitizedSymbol)
+    private fun generateUnitAliasBlock(symbol: String, unitName: String, alias: String, comment: String?): String {
+        val sanitizedComment = if (comment != null) " // $comment" else ""
         return """
     
-        unit $sanitizedSymbol {$sanitizedComment
+        unit $symbol {$sanitizedComment
             symbol = "$unitName"
             alias_for = $alias
         }""".trimIndent()
-    }
-
-    fun getSanitizedSymbolComment(symbol: String, sanitizedSymbol: String): String {
-        return if (symbol == sanitizedSymbol) {
-            ""
-        } else {
-            " // $symbol"
-        }
     }
 
     private fun getUnit(symbolName: String): UnitValue? {

@@ -28,24 +28,24 @@ substance ${s.uid} {
             }
             builder.append(
                 """
-    reference_unit = ${s.referenceUnit}
+    reference_unit = ${s.referenceUnitSymbol()}
+
+    meta {
+"""
+            )
+            builder.append(ModelWriter.blockKeyValue(s.meta.entries, 8))
+            builder.append(
+                """
+    }
 
     impacts {"""
             )
             s.impacts.forEach {
                 builder.append(
                     """
-        ${it.value} ${it.unit} ${it.uid}"""
+        ${it.value} ${it.unitSymbol} ${ModelWriter.sanitizeAndCompact(it.name)}"""
                 )
             }
-            builder.append(
-                """
-    }
-
-    meta {
-"""
-            )
-            builder.append(ModelWriter.blockKeyValue(s.meta.entries, 8))
             builder.append(
                 """
     }

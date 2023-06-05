@@ -9,6 +9,8 @@ import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.UnitImported
 import io.mockk.*
 import junit.framework.TestCase.assertEquals
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -55,7 +57,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldDeclareUnitWhenItsTheReferenceForNewDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
-        val data = UnitImported("Time", "s€c", 1.0, "s")
+        val data = UnitImported("Time", "s€C", 1.0, "s")
 
         // When
         sut.render(data, writer)
@@ -63,8 +65,8 @@ class UnitRendererTest {
         // Then
         val expected = """
 
-            unit s_c {
-                symbol = "s€c"
+            unit s_C {
+                symbol = "s€C"
                 dimension = "time"
             }
             """.trimIndent()
@@ -72,6 +74,20 @@ class UnitRendererTest {
         Assert.assertEquals("unit", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(false, indexSlot.captured)
+    }
+
+    @Test
+    fun render_ShouldDeclareUnitWithComment_WhenItsTheReferenceForNewDimension() {
+        // Given
+        val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
+        val data = UnitImported("Time", "s€c", 1.0, "s", "Test")
+
+        // When
+        sut.render(data, writer)
+
+        // Then
+        // Better way to view large diff than using mockk.verify
+        assertThat(bodySlot.captured, containsString("unit s_c { // Test"))
     }
 
     @Test
@@ -95,6 +111,20 @@ class UnitRendererTest {
         Assert.assertEquals("unit", pathSlot.captured)
         Assert.assertEquals(expected, bodySlot.captured)
         Assert.assertEquals(false, indexSlot.captured)
+    }
+
+    @Test
+    fun render_ShouldWriteComment_WhenDeclareAliasWhenItsAnAliasForExistingDimension() {
+        // Given
+        val sut = UnitRenderer.of(mapOf(Pair("m2", UnitValue(UnitSymbol.of("m2"), 1.0, Prelude.length.pow(2.0)))))
+        val data = UnitImported("Area", "me2", 1.0, "m2", "Test")
+
+        // When
+        sut.render(data, writer)
+
+        // Then
+        // Better way to view large diff than using mockk.verify
+        assertThat(bodySlot.captured, containsString("unit me2 { // Test"))
     }
 
     @Test
@@ -227,29 +257,4 @@ class UnitRendererTest {
         }
     }
 
-    @Test
-    fun test_getSanitizedComment_whenNoSanitizedUnit_shouldReturnAnEmptyString() {
-        // given
-        val symbol = "kg"
-        val sanitizedSymbol = "kg"
-        val sut = UnitRenderer.of(emptyMap())
-
-        // when
-        val comment = sut.getSanitizedSymbolComment(symbol, sanitizedSymbol)
-
-        // then
-        assertEquals("", comment)
-    }
-
-    @Test
-    fun test_getSanitizedComment_whenSanitizedUnit_shouldReturnACommentExplainingTheSanitization() {
-        // given
-        val symbol = "unit"
-        val sanitizedSymbol = "u"
-        val sut = UnitRenderer.of(emptyMap())
-        // when
-        val comment = sut.getSanitizedSymbolComment(symbol, sanitizedSymbol)
-        // then
-        assertEquals(" // unit", comment)
-    }
 }
