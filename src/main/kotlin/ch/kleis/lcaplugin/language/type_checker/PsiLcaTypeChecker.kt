@@ -22,6 +22,7 @@ class PsiLcaTypeChecker {
             is LcaDataExpression -> checkDataExpression(element)
             is PsiGlobalAssignment -> checkDataExpression(element.getValue())
             is PsiAssignment -> checkDataExpression(element.getValue())
+            is LcaLabelAssignment -> TString
             is LcaTechnoInputExchange -> checkTechnoInputExchange(element)
             is LcaTechnoProductExchange -> checkTechnoProductExchange(element)
             is LcaBioExchange -> checkBioExchange(element)

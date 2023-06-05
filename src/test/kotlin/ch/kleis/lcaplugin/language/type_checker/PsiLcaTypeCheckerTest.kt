@@ -18,7 +18,42 @@ import kotlin.test.assertFailsWith
 class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     override
     fun getTestDataPath(): String {
-        return "testdata"
+        return ""
+    }
+
+    @Test
+    fun test_whenLabelAssignment_shouldTypeCheck() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process p {
+                    labels {
+                        geo = "FR"
+                    }
+                    inputs {
+                        1 kg carrot from carrot_production match (geo = geo)
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex
+            .findProcesses(project, "$pkgName.p", mapOf("geo" to "FR")).first()
+            .getInputs().first()
+            .inputProductSpec
+            .getProcessTemplateSpec()!!
+            .getMatchLabels()!!
+            .labelSelectorList.first()
+            .dataExpression
+        val checker = PsiLcaTypeChecker()
+
+        // when
+        val actual = checker.check(target)
+
+        // then
+        assertEquals(TString, actual)
     }
 
     @Test
