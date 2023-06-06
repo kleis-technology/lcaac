@@ -61,7 +61,6 @@ class CompleteDefaultArgumentsTest {
         val everyInputProduct = ProcessTemplateExpression
             .eProcessTemplateApplication
             .template
-            .eProcessTemplate
             .body
             .inputs
             .compose(Every.list())
@@ -124,7 +123,6 @@ class CompleteDefaultArgumentsTest {
         val everyInputProduct = ProcessTemplateExpression
             .eProcessTemplateApplication
             .template
-            .eProcessTemplate
             .body
             .inputs
             .compose(Every.list())
@@ -185,7 +183,6 @@ class CompleteDefaultArgumentsTest {
         val everyInputProduct = ProcessTemplateExpression
             .eProcessTemplateApplication
             .template
-            .eProcessTemplate
             .body
             .inputs
             .compose(Every.list())
@@ -242,7 +239,6 @@ class CompleteDefaultArgumentsTest {
         val everyInputProduct = ProcessTemplateExpression
             .eProcessTemplateApplication
             .template
-            .eProcessTemplate
             .body
             .inputs
             .compose(Every.list())

@@ -2,7 +2,10 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
-import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.EProcessFinal
+import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
+import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
+import ch.kleis.lcaplugin.core.lang.expression.ProcessTemplateExpression
 
 val everyProcessTemplateInTemplateExpression =
     object : PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EProcessTemplate, ProcessTemplateExpression> {
@@ -15,7 +18,6 @@ val everyProcessTemplateInTemplateExpression =
                 is EProcessTemplateApplication -> foldMap(M, source.template, map)
                 is EProcessFinal -> M.empty()
                 is EProcessTemplate -> map(source)
-                is EProcessTemplateRef -> M.empty()
             }
         }
 
@@ -27,7 +29,6 @@ val everyProcessTemplateInTemplateExpression =
                 is EProcessTemplateApplication -> modify(source.template, map)
                 is EProcessFinal -> source
                 is EProcessTemplate -> map(source)
-                is EProcessTemplateRef -> source
             }
         }
     }

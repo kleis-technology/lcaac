@@ -113,15 +113,15 @@ class HelperTest {
                                 1.0,
                                 EQuantityMul(EQuantityRef("ua"), EQuantityRef("ub"))
                             ), EProductSpec(
-                            "product",
-                        )
+                                "product",
+                            )
                         ),
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EProductSpec(
-                            "water",
-                            UnitFixture.l,
-                            FromProcessRef("template", emptyMap())
-                        )
+                                "water",
+                                UnitFixture.l,
+                                FromProcessRef("template", emptyMap())
+                            )
                         ),
                     ),
                     emptyList(),
@@ -148,7 +148,7 @@ class HelperTest {
 
         // then
         val expected = setOf(
-            "quantity", "ua", "ub", "template", "qa", "qb"
+            "quantity", "ua", "ub", "qa", "qb"
         )
         assertEquals(expected, actual)
     }

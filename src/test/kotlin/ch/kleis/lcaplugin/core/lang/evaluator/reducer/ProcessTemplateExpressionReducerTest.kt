@@ -116,26 +116,6 @@ class ProcessTemplateExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenTemplateRef_shouldReadEnv() {
-        // given
-        val template = TemplateFixture.carrotProduction
-        val expression = EProcessTemplateRef("carrot_production")
-        val reducer = TemplateExpressionReducer(
-            templateRegister = Register.from(
-                hashMapOf(
-                    Pair("carrot_production", template)
-                )
-            )
-        )
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        assertEquals(template, actual)
-    }
-
-    @Test
     fun reduce_whenProcessFinal_shouldRemainUnchanged() {
         // given
         val expression = EProcessFinal(ProcessFixture.carrotProduction)
