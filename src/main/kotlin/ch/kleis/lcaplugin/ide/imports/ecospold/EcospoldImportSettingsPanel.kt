@@ -10,7 +10,9 @@ import com.intellij.ide.IdeBundle
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.ui.*
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.ui.FormBuilder
@@ -29,6 +31,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
 
     private val libField: JComponent
     private val packageField: JComponent
+    private val warning = JBLabel()
 
     init {
         val builder = FormBuilder()
@@ -40,6 +43,12 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         val libComp = createLibraryFileComponent()
         libField = libComp.component.textField
         builder.addLabeledComponent(libComp.label, libComp.component)
+        warning.foreground = JBColor.ORANGE
+        val warningLabelled = LabeledComponent.create(
+            warning, "",
+            BorderLayout.WEST
+        )
+        builder.addLabeledComponent(warningLabelled.label, warningLabelled.component)
         builder.addComponent(
             CheckBoxWithDescription(
                 JBCheckBox(
@@ -53,20 +62,6 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
                 MyBundle.message("lca.dialog.import.units.desc")
             )
         )
-        builder.addComponent(
-            CheckBoxWithDescription(
-                JBCheckBox(
-                    BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.processes.label")),
-                    settings.importProcesses
-                ).apply {
-                    addItemListener { e ->
-                        settings.importProcesses = e.stateChange == ItemEvent.SELECTED
-                    }
-                },
-                MyBundle.message("lca.dialog.import.processes.desc")
-            )
-        )
-        // TODO Add Select MEthod
         this.add(builder.panel)
     }
 
@@ -127,11 +122,21 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
             MyBundle.message("lca.dialog.import.library.file.label"),
             MyBundle.message("lca.dialog.import.library.file.desc"), null, descriptor
         )
+        fun checkLibName() {
+            if (myLocationField.textField.text.lowercase().contains("lcia")) {
+                warning.text = ""
+            } else {
+                warning.text = MyBundle.message("lca.dialog.import.ecospold.warning")
+            }
+
+        }
         myLocationField.textField.addFocusListener(object : FocusAdapter() {
             override fun focusLost(e: FocusEvent?) {
                 settings.libraryFile = myLocationField.textField.text
+                checkLibName()
             }
         })
+        checkLibName()
 
         return LabeledComponent.create(
             myLocationField,
