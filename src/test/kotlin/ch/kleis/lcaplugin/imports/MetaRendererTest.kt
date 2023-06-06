@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.imports
 
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Classification
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Test
-import spold2.Activity
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -80,13 +80,12 @@ class MetaRendererTest {
     @Test
     fun render_ShouldReturnMapWithProperties_WithEcospoldObject() {
         // Given
-        val desc = Activity()
-        desc.name = "Georges"
+        val desc = Classification("systemValue", "valueValue")
 
         // When
         sut.render(desc, "", result)
 
         // Then
-        assertEquals(mapOf("name" to "Georges"), result)
+        assertEquals(mapOf("system" to "systemValue", "value" to "valueValue"), result)
     }
 }

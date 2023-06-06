@@ -1,10 +1,10 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.Classification
-import ch.kleis.lcaplugin.imports.model.ProcessImported
-import ch.kleis.lcaplugin.imports.model.SubstanceImported
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Classification
+import ch.kleis.lcaplugin.imports.model.ImportedProcess
+import ch.kleis.lcaplugin.imports.model.ImportedSubstance
 import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
 import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
 import io.mockk.*
@@ -35,19 +35,19 @@ class Ecospold2ProcessRendererTest {
         every { activity.description.geography?.shortName } returns "ch"
         every { activity.description.classifications } returns listOf(Classification("EcoSpold01Categories", "cat"))
         mockkObject(EcoSpold2ProcessMapper)
-        val processImported = mockk<ProcessImported>()
-        every { EcoSpold2ProcessMapper.map(activity) } returns processImported
+        val importedProcess = mockk<ImportedProcess>()
+        every { EcoSpold2ProcessMapper.map(activity) } returns importedProcess
         val comments = mutableListOf<String>()
-        every { processImported.comments } returns comments
-        every { processImported.uid } returns "uid"
+        every { importedProcess.comments } returns comments
+        every { importedProcess.uid } returns "uid"
         mockkObject(ProcessSerializer)
-        every { ProcessSerializer.serialize(processImported) } returns "serialized process"
+        every { ProcessSerializer.serialize(importedProcess) } returns "serialized process"
 
         mockkObject(EcoSpold2SubstanceMapper)
-        val substanceImported = mockk<SubstanceImported>()
-        every { EcoSpold2SubstanceMapper.map(activity, "EF v3.1") } returns substanceImported
+        val importedSubstance = mockk<ImportedSubstance>()
+        every { EcoSpold2SubstanceMapper.map(activity, "EF v3.1") } returns importedSubstance
         mockkObject(SubstanceSerializer)
-        every { SubstanceSerializer.serialize(substanceImported) } returns "serialized substance"
+        every { SubstanceSerializer.serialize(importedSubstance) } returns "serialized substance"
         val sut = Ecospold2ProcessRenderer()
 
         // When

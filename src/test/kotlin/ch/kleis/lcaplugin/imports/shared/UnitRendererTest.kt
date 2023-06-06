@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.model.UnitImported
+import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import io.mockk.*
 import junit.framework.TestCase.assertEquals
 import org.hamcrest.CoreMatchers.containsString
@@ -45,7 +45,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldReturnWithoutWritingWhenAlreadyExistWithCompatibleDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
-        val data = UnitImported("Mass", "kg", 1.0, "kg")
+        val data = ImportedUnit("Mass", "kg", 1.0, "kg")
 
         // When
         sut.render(data, writer)
@@ -57,7 +57,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldDeclareUnitWhenItsTheReferenceForNewDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
-        val data = UnitImported("Time", "s€C", 1.0, "s")
+        val data = ImportedUnit("Time", "s€C", 1.0, "s")
 
         // When
         sut.render(data, writer)
@@ -80,7 +80,7 @@ class UnitRendererTest {
     fun render_ShouldDeclareUnitWithComment_WhenItsTheReferenceForNewDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
-        val data = UnitImported("Time", "s€c", 1.0, "s", "Test")
+        val data = ImportedUnit("Time", "s€c", 1.0, "s", "Test")
 
         // When
         sut.render(data, writer)
@@ -94,7 +94,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldDeclareAliasWhenItsAnAliasForExistingDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("m2", UnitValue(UnitSymbol.of("m2"), 1.0, Prelude.length.pow(2.0)))))
-        val data = UnitImported("Area", "me2", 1.0, "m2")
+        val data = ImportedUnit("Area", "me2", 1.0, "m2")
 
         // When
         sut.render(data, writer)
@@ -117,7 +117,7 @@ class UnitRendererTest {
     fun render_ShouldWriteComment_WhenDeclareAliasWhenItsAnAliasForExistingDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("m2", UnitValue(UnitSymbol.of("m2"), 1.0, Prelude.length.pow(2.0)))))
-        val data = UnitImported("Area", "me2", 1.0, "m2", "Test")
+        val data = ImportedUnit("Area", "me2", 1.0, "m2", "Test")
 
         // When
         sut.render(data, writer)
@@ -131,7 +131,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldDeclareAliasWithTheRightCase() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("MJ", UnitValue(UnitSymbol.of("MJ"), 1.0, Prelude.length.pow(2.0)))))
-        val data = UnitImported("Energy", "GJ", 1000.0, "mj")
+        val data = ImportedUnit("Energy", "GJ", 1000.0, "mj")
 
         // When
         sut.render(data, writer)
@@ -154,7 +154,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldDeclareAliasWhenItsNotTheReference() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("s", UnitValue(UnitSymbol.of("S"), 1.0, Prelude.mass))))
-        val data = UnitImported("Time", "s€c", 2.0, "s")
+        val data = ImportedUnit("Time", "s€c", 2.0, "s")
 
         // When
         sut.render(data, writer)
@@ -177,7 +177,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldRecordNewUnit() {
         // Given
         val sut = UnitRenderer.of(emptyMap())
-        val data = UnitImported("Time", "s€c", 2.0, "s")
+        val data = ImportedUnit("Time", "s€c", 2.0, "s")
         sut.render(data, writer)
 
         // When
@@ -193,7 +193,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldFailWithAnotherDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("kg", UnitValue(UnitSymbol.of("k+g"), 1.0, Prelude.mass))))
-        val data = UnitImported("Time", "kg", 1.0, "kg")
+        val data = ImportedUnit("Time", "kg", 1.0, "kg")
         val message = "A Unit kg for kg already exists with another dimension, time is not compatible with mass."
 
         // When + Then
@@ -205,7 +205,7 @@ class UnitRendererTest {
     fun test_writeUnit_ShouldFailWithAReferenceToItselfInAnExistingDimension() {
         // Given
         val sut = UnitRenderer.of(mapOf(Pair("g", UnitValue(UnitSymbol.of("g"), 1.0, Prelude.mass))))
-        val data = UnitImported("mass", "kg", 1.0, "kg")
+        val data = ImportedUnit("mass", "kg", 1.0, "kg")
         val message = "Unit kg is referencing itself in its own declaration"
 
         // When + Then

@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.model.ImpactImported
+import ch.kleis.lcaplugin.imports.model.ImportedImpact
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceMapper.Companion.resolveSimaproType
 import io.mockk.every
 import io.mockk.mockkObject
@@ -47,7 +47,7 @@ class SimaproSubstanceMapperTest {
         assertEquals("Resource", actual.type)
         assertEquals("raw", actual.compartment)
         assertEquals("kg", actual.referenceUnit)
-        assertEquals(listOf(ImpactImported(1.0, "kg", "aluminium")), actual.impacts)
+        assertEquals(listOf(ImportedImpact(1.0, "kg", "aluminium")), actual.impacts)
         assertEquals(
             mapOf(
                 "generator" to "kleis-lca-generator",
@@ -77,7 +77,7 @@ class SimaproSubstanceMapperTest {
     }
 
     @Test
-    fun render_whenUnitNameIsAReservedKeyword_shouldRenameItWithAnUnderscore() {
+    fun render_whenUnitNameIsUnit_shouldRenameItWithU() {
         // Given
         row.unit("unit") // this unit name is a reserved keyword
 
@@ -85,7 +85,7 @@ class SimaproSubstanceMapperTest {
         val actual = SimaproSubstanceMapper.map(row, ElementaryFlowType.RESOURCES, "raw")
 
         // Then
-        assertEquals("_unit", actual.referenceUnit)
+        assertEquals("u", actual.referenceUnit)
 
     }
 

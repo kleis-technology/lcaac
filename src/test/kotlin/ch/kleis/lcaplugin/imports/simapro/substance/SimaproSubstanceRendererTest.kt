@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.model.SubstanceImported
+import ch.kleis.lcaplugin.imports.model.ImportedSubstance
 import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
 import io.mockk.*
 import org.junit.After
@@ -29,7 +29,7 @@ class SimaproSubstanceRendererTest {
     fun after() {
         unmockkAll()
     }
-    
+
     @Test
     fun render() {
         // Given
@@ -41,7 +41,7 @@ class SimaproSubstanceRendererTest {
             .comment("Formula: Al\nAl\n")
             .platformId("platformId")
         block.flows().add(row)
-        val substance = mockk<SubstanceImported>()
+        val substance = mockk<ImportedSubstance>()
         mockkObject(SimaproSubstanceMapper)
         every { SimaproSubstanceMapper.map(row, ElementaryFlowType.RESOURCES, "raw") } returns substance
         mockkObject(SubstanceSerializer)

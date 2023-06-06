@@ -58,9 +58,9 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-    fun map(process: ProcessBlock): ProcessImported {
+    fun map(process: ProcessBlock): ImportedProcess {
 
-        val result = ProcessImported(process.uid())
+        val result = ImportedProcess(process.uid())
         val metas = result.meta
         process.comment()?.let { metas["description"] = it }
         process.category()?.let { metas["category"] = it.toString() }
@@ -127,7 +127,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         return result
     }
 
-    private fun mapInputs(lst: List<TechExchangeRow>, type: String): ExchangeBlock<InputImported> {
+    private fun mapInputs(lst: List<TechExchangeRow>, type: String): ExchangeBlock<ImportedInputExchange> {
         val exchanges = lst.map { render(it).asInput() }
         return ExchangeBlock(type, exchanges.toMutableList())
     }
@@ -135,7 +135,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
     private fun mapEmissions(
         lst: List<ElementaryExchangeRow>?,
         comp: String
-    ): ExchangeBlock<BioExchangeImported> {
+    ): ExchangeBlock<ImportedBioExchange> {
         val exchanges = lst?.map { renderElementary(it, "Emission", comp) } ?: listOf()
         return ExchangeBlock("Emission to $comp", exchanges.toMutableList())
     }
@@ -143,7 +143,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
     private fun mapResourcesOrLanduse(
         lst: List<ElementaryExchangeRow>?,
         type: String
-    ): ExchangeBlock<BioExchangeImported> {
+    ): ExchangeBlock<ImportedBioExchange> {
         val exchanges = lst?.map { renderElementary(it, type, "raw") } ?: listOf()
         return ExchangeBlock("", exchanges.toMutableList())
     }
@@ -157,7 +157,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
     }
 
 
-    private fun renderProduct(product: ProductOutputRow): ProductImported {
+    private fun renderProduct(product: ProductOutputRow): ImportedProductExchange {
         val initComments = ArrayList<String>()
         product.name()?.let { initComments.add("name: $it") }
         product.category()?.let { initComments.add("category: $it") }
@@ -165,10 +165,10 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         val unit = sanitizeUnit(product.unit())
         val allocation = product.allocation().value()
         val amount = FormulaConverter.compute(product.amount().toString(), comments)
-        return ProductImported(comments, amount, unit, product.uid(), allocation)
+        return ImportedProductExchange(comments, amount, unit, product.uid(), allocation)
     }
 
-    private fun renderWasteTreatment(exchange: WasteTreatmentRow): ProductImported {
+    private fun renderWasteTreatment(exchange: WasteTreatmentRow): ImportedProductExchange {
         val additionalComments = ArrayList<String>()
         exchange.name()?.let { additionalComments.add("name: $it") }
         exchange.category()?.let { additionalComments.add("category: $it") }
@@ -181,12 +181,12 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         exchange: ExchangeRow,
         suffix: String = "",
         additionalComments: List<String> = listOf()
-    ): ProductImported {
+    ): ImportedProductExchange {
         val comments = createComments(exchange.comment(), additionalComments)
         val unit = sanitizeUnit(exchange.unit())
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
         val amount = FormulaConverter.compute(exchange.amount().toString(), comments)
-        return ProductImported(comments, amount, unit, uid)
+        return ImportedProductExchange(comments, amount, unit, uid)
     }
 
     private fun createComments(text: String, existingComments: List<String> = listOf()): MutableList<String> {
@@ -202,7 +202,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         exchange: ElementaryExchangeRow,
         type: String,
         compartment: String
-    ): BioExchangeImported {
+    ): ImportedBioExchange {
         val comments = createComments(exchange.comment())
         val amount = FormulaConverter.compute(exchange.amount().toString(), comments)
         val unit = sanitizeUnit(exchange.unit())
@@ -214,7 +214,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         }
 
         val uid = realKey.uid()
-        return BioExchangeImported(comments, amount, unit, uid, compartment, sub)
+        return ImportedBioExchange(comments, amount, unit, uid, compartment, sub)
     }
 
 

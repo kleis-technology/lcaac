@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.model.ProcessImported
+import ch.kleis.lcaplugin.imports.model.ImportedProcess
 import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
 import io.mockk.*
 import org.junit.After
@@ -37,11 +37,11 @@ class SimaproProcessRendererTest {
         mockkObject(SimaproProcessMapper)
         val mapper = mockk<SimaproProcessMapper>()
         every { SimaproProcessMapper.of(SubstanceImportMode.SIMAPRO) } returns mapper
-        val processImported = mockk<ProcessImported>()
-        every { processImported.uid } returns "uid"
-        every { mapper.map(processBlock) } returns processImported
+        val importedProcess = mockk<ImportedProcess>()
+        every { importedProcess.uid } returns "uid"
+        every { mapper.map(processBlock) } returns importedProcess
         mockkObject(ProcessSerializer)
-        every { ProcessSerializer.serialize(processImported) } returns "serialized process"
+        every { ProcessSerializer.serialize(importedProcess) } returns "serialized process"
         val sut = ProcessRenderer(SubstanceImportMode.SIMAPRO)
 
         // When

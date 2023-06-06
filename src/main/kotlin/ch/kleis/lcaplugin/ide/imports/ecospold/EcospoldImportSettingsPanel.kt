@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.imports.ImportHandler
 import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
 import ch.kleis.lcaplugin.imports.Importer
-import ch.kleis.lcaplugin.imports.ecospold.lcai.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter
 import com.intellij.BundleBase
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory

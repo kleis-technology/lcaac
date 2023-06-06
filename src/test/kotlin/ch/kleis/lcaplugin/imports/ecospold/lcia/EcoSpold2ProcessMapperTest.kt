@@ -1,7 +1,8 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.imports.ImportException
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.lcia.EcoSpold2ProcessMapper
 import com.intellij.testFramework.UsefulTestCase.assertThrows
 import org.junit.Test
 import kotlin.test.assertEquals

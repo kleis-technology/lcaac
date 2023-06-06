@@ -7,7 +7,7 @@ import ch.kleis.lcaplugin.imports.model.*
 class ProcessSerializer {
     companion object {
 
-        fun serialize(p: ProcessImported): CharSequence {
+        fun serialize(p: ImportedProcess): CharSequence {
 
             val builder = StringBuilder()
 
@@ -64,20 +64,20 @@ ${serialize(block.exchanges, 8)}
     }
 }
 
-fun serialize(block: List<ExchangeImported>, pad: Int): CharSequence {
+fun serialize(block: List<ImportedExchange>, pad: Int): CharSequence {
     val prefix = " ".repeat(pad)
     return block.flatMap { serialize(it) }
         .joinTo(StringBuilder(), "\n$prefix", prefix)
 }
 
-fun serialize(e: ExchangeImported): List<CharSequence> {
+fun serialize(e: ImportedExchange): List<CharSequence> {
     val comments = e.comments
         .filter { it.isNotBlank() }
         .map { "// $it" }
     val txt = when (e) {
-        is ProductImported -> "${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
-        is InputImported -> "${e.qty} ${e.unit} ${e.uid}"
-        is BioExchangeImported -> {
+        is ImportedProductExchange -> "${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
+        is ImportedInputExchange -> "${e.qty} ${e.unit} ${e.uid}"
+        is ImportedBioExchange -> {
             val sub = e.subCompartment?.let { ", sub_compartment = \"$it\"" } ?: ""
             """${e.qty} ${e.unit} ${e.uid}(compartment = "${e.compartment}"$sub)"""
         }

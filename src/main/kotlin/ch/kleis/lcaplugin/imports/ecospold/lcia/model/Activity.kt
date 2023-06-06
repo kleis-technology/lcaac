@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai.model
+package ch.kleis.lcaplugin.imports.ecospold.lcia.model
 
 class Activity(
     val id: String? = null,

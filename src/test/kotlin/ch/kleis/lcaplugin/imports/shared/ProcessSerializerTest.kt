@@ -8,10 +8,10 @@ import kotlin.test.assertEquals
 
 class ProcessSerializerTest {
     @Suppress("JoinDeclarationAndAssignment")
-    private val proc: ProcessImported
+    private val proc: ImportedProcess
 
     init {
-        proc = ProcessImported("uid")
+        proc = ImportedProcess("uid")
         proc.meta["name"] = "name_value"
         proc.meta["description"] = "The \"module\" reflects.\n[This dataset ]\nProduction volume: 0.15000000596046448 p"
         proc.meta["category"] = "energy"
@@ -19,7 +19,7 @@ class ProcessSerializerTest {
         proc.meta["literatures"] =
             "\n    * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.\n    * Another Methodological."
 
-        val prod1 = ProductImported(
+        val prod1 = ImportedProductExchange(
             listOf(
                 "name: Absorption chiller, 100kW {RoW}| production | Cut-off, U",
                 "category: Cogeneration\\Gas\\Transformation\\Infrastructure"
@@ -29,7 +29,7 @@ class ProcessSerializerTest {
             "absorption_chiller_100kw",
             80.0
         )
-        val prod2 = ProductImported(
+        val prod2 = ImportedProductExchange(
             listOf(
                 "name: Absorption chiller, 50kW {RoW}",
             ),
@@ -45,7 +45,7 @@ class ProcessSerializerTest {
             ExchangeBlock(
                 "materialsAndFuels",
                 mutableListOf(
-                    InputImported(
+                    ImportedInputExchange(
                         listOf("Estimation based on few references"),
                         "420.0", "kg", "aluminium_glo_market"
                     )
@@ -57,7 +57,7 @@ class ProcessSerializerTest {
             ExchangeBlock(
                 "To Air",
                 mutableListOf(
-                    BioExchangeImported(
+                    ImportedBioExchange(
                         listOf("Calculated value based on expertise"),
                         "0.9915", "m3", "water_m3", "air"
                     )
@@ -68,7 +68,7 @@ class ProcessSerializerTest {
             ExchangeBlock(
                 "To Water with sub",
                 mutableListOf(
-                    BioExchangeImported(
+                    ImportedBioExchange(
                         listOf("Calculated value based on expertise"),
                         "0.9915", "m3", "water_m3", "water", "river"
                     )
@@ -79,7 +79,7 @@ class ProcessSerializerTest {
             ExchangeBlock(
                 "Natural",
                 mutableListOf(
-                    BioExchangeImported(
+                    ImportedBioExchange(
                         listOf("Approximation"),
                         "5.9", "m3", "water", "water", "in river"
                     )
@@ -91,7 +91,7 @@ class ProcessSerializerTest {
             ExchangeBlock(
                 "",
                 mutableListOf(
-                    BioExchangeImported(
+                    ImportedBioExchange(
                         listOf("Rough estimation"),
                         "42.17", "m2a", "occupation_industrial_area", "raw", "land"
                     )
@@ -164,8 +164,8 @@ process uid {
     @Test
     fun testRender_WithParams() {
         // Given
-        proc.params.add(ParamImported("x", "3 u"))
-        proc.params.add(ParamImported("y", "5 u"))
+        proc.params.add(ImportedParam("x", "3 u"))
+        proc.params.add(ImportedParam("y", "5 u"))
 
         // When
         val result = ProcessSerializer.serialize(proc)

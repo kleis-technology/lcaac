@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.*
-import ch.kleis.lcaplugin.imports.model.UnitImported
+import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.UnitRenderer
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
@@ -118,7 +118,7 @@ class SimaproImporter(
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
                 .map {
-                    UnitImported(it.quantity().lowercase(), it.name(), it.conversionFactor(), it.referenceUnit())
+                    ImportedUnit(it.quantity().lowercase(), it.name(), it.conversionFactor(), it.referenceUnit())
                 }
                 .forEach { unitRenderer.render(it, writer) }
 

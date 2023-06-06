@@ -1,13 +1,13 @@
 package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.model.SubstanceImported
+import ch.kleis.lcaplugin.imports.model.ImportedSubstance
 
 class SubstanceSerializer {
 
     companion object {
 
-        fun serialize(s: SubstanceImported): CharSequence {
+        fun serialize(s: ImportedSubstance): CharSequence {
 
             val builder = StringBuilder()
 

@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.ecospold.lcai.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter
 import com.intellij.openapi.diagnostic.Logger
 import java.nio.file.Path
 import java.time.Instant

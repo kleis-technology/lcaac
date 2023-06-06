@@ -1,6 +1,6 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.*
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.*
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

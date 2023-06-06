@@ -42,7 +42,6 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("piece"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("person"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("p"), 1.0, none),
-            EUnitLiteral(UnitSymbol.of("_unit"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("percent"), 1.0e-2, none),
             EUnitLiteral(UnitSymbol.of("K"), 1.0, temperature),
             EUnitLiteral(UnitSymbol.of("kg"), 1.0, mass),

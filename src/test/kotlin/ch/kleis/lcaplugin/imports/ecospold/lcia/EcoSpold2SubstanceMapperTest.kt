@@ -1,5 +1,6 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
+import ch.kleis.lcaplugin.imports.ecospold.lcia.EcoSpold2SubstanceMapper
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

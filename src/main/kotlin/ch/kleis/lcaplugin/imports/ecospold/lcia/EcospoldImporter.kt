@@ -1,11 +1,11 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.*
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.model.UnitImported
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.UnitRenderer
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
@@ -75,14 +75,24 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             val fromMeta = f.getInputStream(unitConversionFile).use {
                 val unitConvs = Parser.readUnits(it)
                 unitConvs.asSequence()
-                    .map { u -> UnitImported(u.dimension, u.fromUnit, u.factor, unitToStr(u.toUnit)) }
+                    .map { u ->
+                        ImportedUnit(
+                            u.dimension, u.fromUnit, u.factor,
+                            unitToStr(u.toUnit)
+                        )
+                    }
                     .filter { u -> u.name != "foot-candle" }
             }
             val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
             val fromMethod = f.getInputStream(methodsFile).use {
                 val unitConvs = Parser.readMethodUnits(it, METHOD_NAME)
                 unitConvs.asSequence()
-                    .map { u -> UnitImported(u.dimension, u.fromUnit, u.factor, unitToStr(u.toUnit)) }
+                    .map { u ->
+                        ImportedUnit(
+                            u.dimension, u.fromUnit, u.factor,
+                            unitToStr(u.toUnit)
+                        )
+                    }
                     .filter { u -> u.name != "foot-candle" }
             }
 

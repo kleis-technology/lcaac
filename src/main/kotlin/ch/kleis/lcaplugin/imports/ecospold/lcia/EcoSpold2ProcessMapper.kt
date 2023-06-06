@@ -1,22 +1,22 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.lcai.EcospoldImporter.Companion.unitToStr
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.IntermediateExchange
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.Uncertainty
-import ch.kleis.lcaplugin.imports.model.BioExchangeImported
+import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.Companion.unitToStr
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.IntermediateExchange
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Uncertainty
 import ch.kleis.lcaplugin.imports.model.ExchangeBlock
-import ch.kleis.lcaplugin.imports.model.ProcessImported
-import ch.kleis.lcaplugin.imports.model.ProductImported
+import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
+import ch.kleis.lcaplugin.imports.model.ImportedProcess
+import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
 import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
 
 class EcoSpold2ProcessMapper {
     companion object {
-        fun map(process: ActivityDataset): ProcessImported {
+        fun map(process: ActivityDataset): ImportedProcess {
             val pUid = uid(process)
-            val result = ProcessImported(pUid)
+            val result = ImportedProcess(pUid)
             val metas = result.meta
 
             val geo = if (process.description.geography?.shortName == "GLO") ""
@@ -31,12 +31,12 @@ class EcoSpold2ProcessMapper {
             return result
         }
 
-        private fun mapEmission(pUid: String): MutableList<ExchangeBlock<BioExchangeImported>> {
-            val bio = BioExchangeImported(listOf(), "1.0", "u", pUid, "")
+        private fun mapEmission(pUid: String): MutableList<ExchangeBlock<ImportedBioExchange>> {
+            val bio = ImportedBioExchange(listOf(), "1.0", "u", pUid, "")
             return mutableListOf(ExchangeBlock("Virtual Substance for Impact Factors", mutableListOf(bio)))
         }
 
-        private fun mapProduct(e: IntermediateExchange, geo: String): ProductImported {
+        private fun mapProduct(e: IntermediateExchange, geo: String): ImportedProductExchange {
             val initComments = ArrayList<String>()
             e.name?.let { initComments.add(it) }
             e.classifications.forEach { initComments.add("${it.system} = ${it.value}") }
@@ -50,7 +50,7 @@ class EcoSpold2ProcessMapper {
                 throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
             }
             e.properties.forEach { initComments.add("${it.name} ${it.amount} ${it.unit} isCalculatedAmount=${it.isCalculatedAmount ?: ""} isDefiningValue=${it.isDefiningValue ?: ""}") }
-            return ProductImported(initComments, amount, unit, uid, 100.0)
+            return ImportedProductExchange(initComments, amount, unit, uid, 100.0)
         }
 
 

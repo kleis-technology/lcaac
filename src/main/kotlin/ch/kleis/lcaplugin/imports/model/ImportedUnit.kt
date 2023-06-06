@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports.model
 
-data class UnitImported(
+data class ImportedUnit(
     val dimension: String,
     val name: String,
     val scaleFactor: Double,

@@ -1,6 +1,6 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcai
+package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.lcai.model.*
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.*
 import org.jdom2.Element
 import org.jdom2.JDOMFactory
 import org.jdom2.input.SAXBuilder
