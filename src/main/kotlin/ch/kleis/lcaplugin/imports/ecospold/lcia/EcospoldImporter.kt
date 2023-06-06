@@ -17,25 +17,36 @@ import java.nio.charset.Charset
 import java.nio.file.Path
 import kotlin.math.roundToInt
 
-private const val METHOD_NAME = "EF v3.1"
-
-class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer() {
+class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
 
         fun unitToStr(u: String): String {
             return if (u != "metric ton*km") u else "ton*km"
         }
+
+        fun getMethodNames(libFile: String): List<String> {
+            val path = Path.of(libFile)
+            try {
+                SevenZFile(path.toFile()).use { f ->
+                    val methodsFile = f.entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
+                    f.getInputStream(methodsFile).use {
+                        return Parser.readMethodName(it)
+                    }
+                }
+            } catch (e: Exception) {
+                return listOf("")
+            }
+        }
     }
 
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = Ecospold2ProcessRenderer()
-    private val unitRenderer = UnitRenderer.of(
-        Prelude.unitMap.values
-            .map { it.toUnitValue() }
-            .associateBy { it.symbol.toString() }
-    )
+    private val predefinedUnits = Prelude.unitMap.values
+        .map { it.toUnitValue() }
+        .associateBy { it.symbol.toString() }
+    private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
         val path = Path.of(settings.libraryFile)
@@ -85,7 +96,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             }
             val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
             val fromMethod = f.getInputStream(methodsFile).use {
-                val unitConvs = Parser.readMethodUnits(it, METHOD_NAME)
+                val unitConvs = Parser.readMethodUnits(it, methodName)
                 unitConvs.asSequence()
                     .map { u ->
                         ImportedUnit(
@@ -94,7 +105,9 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
                         )
                     }
                     .filter { u -> u.name != "foot-candle" }
+                    .filter { u -> !predefinedUnits.containsKey(u.name) }
             }
+
 
             (fromMeta + fromMethod)
                 .distinctBy { it.name }
@@ -153,7 +166,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         path: String
     ) {
         LOG.info("Read dataset from $path")
-        processRenderer.render(dataSet, w, "from $path", METHOD_NAME)
+        processRenderer.render(dataSet, w, "from $path", methodName)
 
     }
 

@@ -97,6 +97,19 @@ class ParserTest {
         }
     }
 
+    @Test
+    fun readMethodNames_ShouldReturnList() {
+        // Given
+        this::class.java.getResourceAsStream("impact_method.xml")!!.use {
+
+            // When
+            val names = Parser.readMethodName(it)
+
+            // Then
+            assertEquals(listOf("EF v1.0", "EF v3.1 no LT"), names)
+        }
+    }
+
     private fun assertEqualsToFlow(flowData: FlowData) {
         assertEquals(1, flowData.intermediateExchanges.size)
         val exchange = flowData.intermediateExchanges[0]
