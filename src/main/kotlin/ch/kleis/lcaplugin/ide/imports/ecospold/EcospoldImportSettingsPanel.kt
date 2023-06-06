@@ -79,7 +79,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         val comp = ComboBox(methodNameModel, 300)
         comp.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
-                settings.methodName = methodNameModel.selectedItem.toString()
+                settings.methodName = methodNameModel.selectedItem?.toString() ?: ""
             }
         }
         methodNameModel.selectedItem = settings.methodName

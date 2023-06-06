@@ -15,6 +15,9 @@ import org.apache.commons.csv.CSVParser
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
 class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
@@ -77,6 +80,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
     ) {
+        val start = Instant.now()
         val entries = f.entries.toList()
         totalValue = entries.size
 
@@ -120,9 +124,25 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
             .forEach {
                 importEntry(it.name, f.getInputStream(it), writer, controller, watcher)
             }
-        // TODO next PR: Add main with import info
+        val duration = Duration.between(start, Instant.now())
+        renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
     }
 
+    private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
+        val s = duration.seconds
+        val durAsStr = String.format("%02dm %02ds", s / 60, (s % 60));
+        val block = """
+            Import Method: $methodName
+            Date: ${ZonedDateTime.now().toString()}
+            Import Summary:
+                * $nbUnits units
+                * $nbProcess processes
+                * $nbProcess substances
+            Duration: $durAsStr
+        """.trimIndent()
+
+        writer.write("main", ModelWriter.pad(ModelWriter.asComment(block), 0), false)
+    }
 
     data class ProcessDictRecord(
         val processId: String,
