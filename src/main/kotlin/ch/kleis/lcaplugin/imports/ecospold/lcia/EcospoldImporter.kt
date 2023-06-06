@@ -67,6 +67,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         return listOf(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(processRenderer.nbProcesses, "processes"),
+            Imported(processRenderer.nbProcesses, "substances"),
         )
     }
 

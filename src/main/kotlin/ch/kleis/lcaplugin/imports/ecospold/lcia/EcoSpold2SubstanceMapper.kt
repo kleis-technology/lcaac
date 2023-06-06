@@ -20,7 +20,8 @@ class EcoSpold2SubstanceMapper {
                     ImportedImpact(
                         it.amount,
                         it.unitName,
-                        it.name
+                        it.name,
+                        it.categoryName
                     )
                 }.toMutableList()
 
