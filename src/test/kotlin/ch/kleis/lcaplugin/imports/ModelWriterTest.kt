@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
 import ch.kleis.lcaplugin.TestUtils
-import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
 import com.intellij.openapi.vfs.LocalFileSystem
 import io.mockk.*
 import junit.framework.TestCase

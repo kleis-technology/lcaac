@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.simapro.AsynchronousWatcher
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -20,11 +19,9 @@ import kotlin.io.path.deleteExisting
 import kotlin.io.path.exists
 
 
-interface Renderer<T> {
-    fun render(block: T, writer: ModelWriter)
-}
-
 private const val MAX_FILE_SIZE = 2000000
+typealias Line = CharSequence
+typealias Text = List<CharSequence>
 
 data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) :
     Closeable {
@@ -56,7 +53,7 @@ class ModelWriter(
 ) : Closeable {
     companion object {
         private val LOG = Logger.getInstance(ModelWriter::class.java)
-        private const val BASE_PAD = 4
+        const val BASE_PAD = 4
         private val multipleSeparator = Regex("_{2,}")
 
         fun sanitizeAndCompact(s: String, toLowerCase: Boolean = true): String {
@@ -78,18 +75,21 @@ class ModelWriter(
                 .replace("*", "_m_")
                 .replace("+", "_p_")
                 .replace("&", "_a_")
-                .replace(">", "_more_")
-                .replace("<", "_less_")
+                .replace(">", "_gt_")
+                .replace("<", "_lt_")
+                .replace("/", "_sl_")
                 .replace(nonAlphaNumeric, "_")
                 .trimEnd('_')
         }
 
-        fun compactText(s: String): String {
+        fun compactText(s: CharSequence): String {
             if (s.isBlank()) {
-                return s
+                return ""
             }
-            return s.replace("\"", "'")
-                .trimEnd('\n').trimEnd()
+            return s.toString()
+                .replace("\"", "'")
+                .trimEnd('\n')
+                .trimEnd()
         }
 
         fun pad(text: List<CharSequence>, number: Int = BASE_PAD): CharSequence {
@@ -97,7 +97,7 @@ class ModelWriter(
             return text.joinToString("\n") { "$sep$it" }
         }
 
-        fun compactAndPad(s: String, number: Int = BASE_PAD): String {
+        fun compactAndPad(s: CharSequence, number: Int = BASE_PAD): String {
             val text = s.split("\n")
                 .map { compactText(it) }
                 .filter { it.isNotBlank() }
@@ -109,10 +109,11 @@ class ModelWriter(
             return text.joinToString("\n$sep")
         }
 
-        private fun padList(text: List<CharSequence>, number: Int): List<CharSequence> {
-            val sep = " ".repeat(number)
+        private fun padList(text: List<CharSequence>, pad: Int): List<CharSequence> {
+            val sep = " ".repeat(pad)
             return text.map { "$sep$it" }
         }
+
 
         fun asComment(str: String?): ImmutableList<String> {
             return (str ?: "")
@@ -122,19 +123,7 @@ class ModelWriter(
                 .toImmutableList()
         }
 
-        fun optionalBlock(title: String, blockLines: List<String>, pad: Int = BASE_PAD): CharSequence {
-            return if (blockLines.isNotEmpty()) {
-                val lines: MutableList<CharSequence> = mutableListOf(title)
-                val elements = padList(blockLines, pad)
-                lines.addAll(elements)
-                lines.add("}")
-                pad(lines, pad)
-            } else {
-                ""
-            }
-        }
-
-        fun block(title: String, blockLines: List<String>, pad: Int = BASE_PAD): CharSequence {
+        fun block(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
             val lines: MutableList<CharSequence> = mutableListOf(title)
             val elements = padList(blockLines, pad)
             lines.addAll(elements)
@@ -142,12 +131,30 @@ class ModelWriter(
             return pad(lines, pad)
         }
 
+        fun blockKeyValue(metas: MutableSet<MutableMap.MutableEntry<String, String?>>, pad: Int): CharSequence {
+            val builder = StringBuilder()
+            metas.forEach { (k, v) ->
+                val split = v
+                    ?.split("\n")
+                    ?.map { compactText(it) }
+                    ?.filterIndexed { k2, v2 -> v2.isNotBlank() || k2 == 0 }
+                if (!split.isNullOrEmpty()) {
+                    val sep = " ".repeat(pad)
+                    builder.append(
+                        """$sep"$k" = "${padButFirst(split, pad + 4)}"
+"""
+                    )
+                }
+            }
+            return builder.dropLast(1)
+        }
+
     }
 
     private val openedFiles: MutableMap<String, FileWriterWithSize> = mutableMapOf()
 
     fun write(relativePath: String, block: CharSequence, index: Boolean = true, closeAfterWrite: Boolean = false) {
-        if (block.isNotEmpty()) {
+        if (block.isNotBlank()) {
             watcher.notifyCurrentWork(relativePath)
             val file = recreateIfNeeded(relativePath, index)
             file.write(block)
@@ -177,8 +184,8 @@ class ModelWriter(
         Files.createDirectories(path.parent)
         val new = FileWriterWithSize(path, currentIndex)
         openedFiles[relativePath] = new
-        new.write("package $packageName\n")
-        imports.forEach { new.write("import $it\n") }
+        new.write("package $packageName")
+        imports.forEach { new.write("import $it") }
         return new
     }
 

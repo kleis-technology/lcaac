@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ecoSpold xmlns="http://www.EcoInvent.org/EcoSpold02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.EcoInvent.org/EcoSpold02 ../../schemas/datasets/EcoSpold02.xsd http://www.EcoInvent.org/UsedUserMasterData ../../schemas/datasets/EcoSpold02UserMasterData.xsd">
+    <childActivityDataset>
+        <activityDescription>
+            <activity specialActivityType="0" id="24342343"
+                      activityNameId="123"
+                      activityNameContextId="456" inheritanceDepth="0" type="2" energyValues="0">
+                <activityName xml:lang="en">electricity, high voltage</activityName>
+                <includedActivitiesStart xml:lang="en">This activity represents</includedActivitiesStart>
+                <includedActivitiesEnd xml:lang="en">This activity is not.</includedActivitiesEnd>
+                <generalComment>
+                    <text xml:lang="en" index="1">Second</text>
+                    <text xml:lang="en" index="0">First</text>
+                </generalComment>
+            </activity>
+            <classification classificationId="132">
+                <classificationSystem xml:lang="en">ISIC rev.4</classificationSystem>
+                <classificationValue xml:lang="en">3510:</classificationValue>
+            </classification>
+            <geography geographyId="13293cec-7d7e-11de-9ae2-0019e336be3a">
+                <shortname xml:lang="en">TJ</shortname>
+                <comment>
+                    <text xml:lang="en" index="0">Empty</text>
+                </comment>
+            </geography>
+            <!--            <technology technologyLevel="3"/>-->
+            <!--            <timePeriod startDate="2012-01-01" endDate="2022-12-31" isDataValidForEntirePeriod="true"/>-->
+            <!--            <macroEconomicScenario macroEconomicScenarioId="d9f57f0a-a01f-42eb-a57b-8f18d6635801">-->
+            <!--                <name xml:lang="en">Business-as-Usual</name>-->
+            <!--            </macroEconomicScenario>-->
+        </activityDescription>
+        <flowData>
+            <intermediateExchange id="33c69055-3fc4-58cc-880b-958940ac3511"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="1.0"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  productionVolumeAmount="225038791.01789343">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="true" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <comment xml:lang="en">Net electricity generated from this waste and used in internal MSWI plant energy
+                    redistribution.
+                </comment>
+                <uncertainty>
+                    <lognormal meanValue="8.688" mu="2.162" variance="0.015"
+                               varianceWithPedigreeUncertainty="0.0152"/>
+                    <pedigreeMatrix reliability="1" completeness="2" temporalCorrelation="3" geographicalCorrelation="4"
+                                    furtherTechnologyCorrelation="5"/>
+                    <comment xml:lang="en">uncertainty is calculated</comment>
+                </uncertainty>
+                <synonym xml:lang="en">WTF</synonym>
+                <!--                <productionVolumeComment xml:lang="en">Total import data for this country from IEA electricity-->
+                <!--                    information (2016 edition). Part II - World and OECD overview. Table 1.1 World electricity-->
+                <!--                    production, imports, exports, final consumption, 2014 (TWh). The origin country of the imported-->
+                <!--                    electricity is assumed to be Uzbekistan, as this is the largest exporter in the region.-->
+                <!--                </productionVolumeComment>-->
+                <classification classificationId="AAAA">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <outputGroup>0</outputGroup>
+            </intermediateExchange>
+            <impactIndicator impactIndicatorId="bfbecdfe-7374-4c10-9fe7-c886fdd1978d"
+                             impactMethodId="35716c60-7337-4442-9f3a-42effd692b82"
+                             impactCategoryId="90b2732a-cc11-4f9f-93ac-6d890afa7fd3" amount="0.0011083933659871714">
+                <impactMethodName>CML v4.8 2016</impactMethodName>
+                <impactCategoryName>acidification</impactCategoryName>
+                <name>acidification (incl. fate, average Europe total, A&amp;B)</name>
+                <unitName>kg SO2-Eq</unitName>
+            </impactIndicator>
+        </flowData>
+        <!--        <modellingAndValidation>-->
+        <!--            <representativeness systemModelId="290c1f85-4cc4-4fa1-b0c8-2cb7f4276dce">-->
+        <!--                <systemModelName xml:lang="en">Allocation, cut-off by classification</systemModelName>-->
+        <!--                <extrapolations xml:lang="en"/>-->
+        <!--            </representativeness>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0"-->
+        <!--                    reviewedMinorRevision="12" reviewerId="9a963412-20a7-428b-8740-3582e217c4b6"-->
+        <!--                    reviewerName="Carl Vadenbo" reviewerEmail="vadenbo@ifu.baug.ethz.ch" reviewDate="2015-08-04">-->
+        <!--                <details>-->
+        <!--                    <text xml:lang="en" index="0">The update of the whole electricity sector for the ecoinvent v3.2-->
+        <!--                        database consist of hundreds of datasets. All these datasets have passed through a streamlined-->
+        <!--                        review processes where the underlying modelling of production volumes, technology shares and-->
+        <!--                        efficiencies was reviewed in detail prior to the datasets being submitted to the database.-->
+        <!--                    </text>-->
+        <!--                </details>-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0"-->
+        <!--                    reviewedMinorRevision="11" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]"-->
+        <!--                    reviewerEmail="support@ecoinvent.org" reviewDate="2015-08-04">-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0"-->
+        <!--                    reviewedMinorRevision="12" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]"-->
+        <!--                    reviewerEmail="support@ecoinvent.org" reviewDate="2015-08-04">-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="1"-->
+        <!--                    reviewedMinorRevision="5" reviewerId="35d091e9-38c2-4037-9efe-a73673c57123"-->
+        <!--                    reviewerName="Emilia Moreno Ruiz" reviewerEmail="moreno@ecoinvent.org" reviewDate="2015-09-28">-->
+        <!--                <details>-->
+        <!--                    <text xml:lang="en" index="0">None</text>-->
+        <!--                </details>-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="1"-->
+        <!--                    reviewedMinorRevision="5" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]"-->
+        <!--                    reviewerEmail="support@ecoinvent.org" reviewDate="2015-09-28">-->
+        <!--                <details>-->
+        <!--                    <text xml:lang="en" index="0">None</text>-->
+        <!--                </details>-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0"-->
+        <!--                    reviewedMinorRevision="1" reviewerId="35d091e9-38c2-4037-9efe-a73673c57123"-->
+        <!--                    reviewerName="Emilia Moreno Ruiz" reviewerEmail="moreno@ecoinvent.org" reviewDate="2017-06-28">-->
+        <!--                <details>-->
+        <!--                    <text xml:lang="en" index="0">None</text>-->
+        <!--                </details>-->
+        <!--                <otherDetails xml:lang="en"/>-->
+        <!--            </review>-->
+        <!--            <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="2"-->
+        <!--                    reviewedMinorRevision="1" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]"-->
+        <!--                    reviewerEmail="support@ecoinvent.org" reviewDate="2017-06-28">-->
+        <!--                <otherDetails xml:lang="en">Validation warnings:-->
+
+        <!--                    - Mass and/or economic deficit in activity dataset exceeds either 0.1% of input or output sum:-->
+
+        <!--                    Property 'price':-->
+        <!--                    - Input='0', Output='0.0977'-->
+        <!--                    - Input &lt; output by 0.0977 EUR2005 (100% of output)-->
+
+
+        <!--                </otherDetails>-->
+        <!--            </review>-->
+        <!--        </modellingAndValidation>-->
+        <administrativeInformation>
+            <dataEntryBy personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" isActiveAuthor="true" personName="Karin Treyer"
+                         personEmail="karin.treyer@psi.ch"/>
+            <dataGeneratorAndPublication personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" personName="Karin Treyer"
+                                         personEmail="karin.treyer@psi.ch" dataPublishedIn="1"
+                                         publishedSourceId="307f02b5-e4cb-47be-af56-a57efdeebbe1"
+                                         publishedSourceYear="2012" publishedSourceFirstAuthor="Itten R."
+                                         isCopyrightProtected="true" pageNumbers="chapter 3.4"/>
+            <fileAttributes majorRelease="3" minorRelease="0" majorRevision="1" minorRevision="0" defaultLanguage="en"
+                            creationTimestamp="2015-05-19T10:32:17" lastEditTimestamp="2017-06-02T13:41:14"
+                            fileGenerator="EcoEditor 3.8.600.15134" fileTimestamp="2017-06-02T13:41:14"
+                            contextId="de659012-50c4-4e96-b54a-fc781bf987ab">
+                <contextName xml:lang="en">ecoinvent</contextName>
+            </fileAttributes>
+        </administrativeInformation>
+    </childActivityDataset>
+</ecoSpold>

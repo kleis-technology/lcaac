@@ -118,19 +118,30 @@
         <notificationGroup id="LcaAsCode"
                            displayType="BALLOON"
                            bundle="messages.MyBundle"/>
-        <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.LcaImportSettings"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ui.toolwindow.SaveSettings"/>
+        <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings"/>
+        <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings"/>
+
     </extensions>
 
     <applicationListeners>
         <listener class="ch.kleis.lcaplugin.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
-    <actions>
-        <action id="ImportLibrary" class="ch.kleis.lcaplugin.ide.imports.LcaImportClickAction" text="Import Library">
-            <add-to-group group-id="FileMenu" anchor="first"/>
-        </action>
 
+    <actions>
+        <group id="ImportLibrary" text="Import" popup="true">
+            <add-to-group group-id="FileMenu" anchor="first"/>
+        </group>
+
+        <action id="ImportSimapro" class="ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportMenuAction"
+                text="Simapro Library">
+            <add-to-group group-id="ImportLibrary"/>
+        </action>
+        <action id="ImportEcospold" class="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportMenuAction"
+                text="EcoSpold Library">
+            <add-to-group group-id="ImportLibrary"/>
+        </action>
     </actions>
 
 </idea-plugin>

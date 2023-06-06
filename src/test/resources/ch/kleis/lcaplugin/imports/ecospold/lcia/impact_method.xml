@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<validImpactMethods majorRelease="-1" minorRelease="-1" majorRevision="-1" minorRevision="-1"
+                    contextId="AAA">
+    <contextName>ecoinvent</contextName>
+    <impactMethod id="111">
+        <name>EF v3.1 no LT</name>
+        <category id="2222">
+            <name>acidification no LT</name>
+            <indicator id="3333">
+                <name>accumulated exceedance (AE) no LT</name>
+                <unitName>mol H+-Eq</unitName>
+            </indicator>
+        </category>
+        <category id="2222">
+            <name>another to ignore, because new dimension should not be duplicated</name>
+            <indicator id="444">
+                <name>accumulated to ignore</name>
+                <unitName>mol H+-Eq</unitName>
+            </indicator>
+        </category>
+    </impactMethod>
+    <impactMethod id="2222">
+        <name>EF v1.0</name>
+        <category id="333">
+            <name>acidification Bad</name>
+            <indicator id="3333">
+                <name>accumulated Bad</name>
+                <unitName>dimensionless</unitName>
+            </indicator>
+        </category>
+    </impactMethod>
+</validImpactMethods>

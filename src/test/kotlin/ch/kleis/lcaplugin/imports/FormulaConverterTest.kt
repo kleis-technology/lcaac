@@ -1,14 +1,9 @@
 package ch.kleis.lcaplugin.imports
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class FormulaConverterTest {
-
-    // ( 824.9999999999999 u * Heavy_metal_uptake ) * 1 kg crop_default_heavy_metals_uptake_wfldb_3_7_glo_u // Formula=[824.9999999999999 * Heavy_metal_uptake]
-    data class Par(val param: String, val expected: String, val hasBeenComputed: Boolean)
 
     @Test
     fun compute_ShouldReturnLiteralNumbers() {
@@ -26,10 +21,11 @@ class FormulaConverterTest {
 
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.compute(param)
+            val comments = mutableListOf<String>()
+            val result = FormulaConverter.compute(param, comments)
             // Then
             assertEquals(expected, result)
-            assertFalse(changed)
+            assertEquals(0, comments.size)
         }
     }
 
@@ -44,10 +40,12 @@ class FormulaConverterTest {
         )
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.compute(param)
+            val comments = mutableListOf<String>()
+            val result = FormulaConverter.compute(param, comments)
             // Then
             assertEquals(expected, result)
-            assertTrue(changed)
+            assertEquals(1, comments.size)
+            assertEquals("Formula=[$param]", comments[0])
         }
     }
 
@@ -63,10 +61,12 @@ class FormulaConverterTest {
         )
         data.forEach { (param, expected) ->
             // When
-            val (result, changed) = FormulaConverter.compute(param)
+            val comments = mutableListOf<String>()
+            val result = FormulaConverter.compute(param, comments)
             // Then
             assertEquals(expected, result)
-            assertTrue(changed)
+            assertEquals(1, comments.size)
+            assertEquals("Formula=[$param]", comments[0])
         }
 
     }

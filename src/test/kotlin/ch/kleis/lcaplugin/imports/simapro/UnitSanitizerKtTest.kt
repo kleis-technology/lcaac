@@ -21,6 +21,16 @@ class UnitSanitizerKtTest {
         // when
         val sanitizedSymbol = sanitizeUnit(symbol)
         // then
-        TestCase.assertEquals("_unit", sanitizedSymbol)
+        TestCase.assertEquals("u", sanitizedSymbol)
+    }
+
+    @Test
+    fun test_sanitizeSymbol_whenUnitSymbol_shouldEscape() {
+        // given
+        val symbol = "process"
+        // when
+        val sanitizedSymbol = sanitizeUnit(symbol)
+        // then
+        TestCase.assertEquals("_process", sanitizedSymbol)
     }
 }

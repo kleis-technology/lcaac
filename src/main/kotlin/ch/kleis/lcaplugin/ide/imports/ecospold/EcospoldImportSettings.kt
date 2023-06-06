@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.ide.imports
+package ch.kleis.lcaplugin.ide.imports.ecospold
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
@@ -7,14 +7,13 @@ import com.intellij.openapi.components.Storage
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.xmlb.XmlSerializerUtil
 
-enum class SubstanceImportMode { SIMAPRO, EF30, EF31, NOTHING }
 
-@State(name = "LcaImportSettings", storages = [Storage("lcaImport.xml")], reportStatistic = false)
-class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
+@State(name = "EcospoldImportSettings", storages = [Storage("EcospoldImportSettings.xml")], reportStatistic = false)
+class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.State> {
     companion object {
         @JvmStatic
-        val instance: LcaImportSettings
-            get() = ApplicationManager.getApplication().getService(LcaImportSettings::class.java)
+        val instance: EcospoldImportSettings
+            get() = ApplicationManager.getApplication().getService(EcospoldImportSettings::class.java)
     }
 
     private val state: State = State()
@@ -48,11 +47,6 @@ class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
         set(value) {
             state.IMPORT_PROCESSES = value
         }
-    var importSubstancesMode: SubstanceImportMode
-        get() = state.IMPORT_SUBSTANCES_MODE
-        set(value) {
-            state.IMPORT_SUBSTANCES_MODE = value
-        }
 
 
     override fun getState(): State = state
@@ -78,7 +72,5 @@ class LcaImportSettings : PersistentStateComponent<LcaImportSettings.State> {
         @JvmField
         var IMPORT_PROCESSES: Boolean = true
 
-        @JvmField
-        var IMPORT_SUBSTANCES_MODE: SubstanceImportMode = SubstanceImportMode.SIMAPRO
     }
 }

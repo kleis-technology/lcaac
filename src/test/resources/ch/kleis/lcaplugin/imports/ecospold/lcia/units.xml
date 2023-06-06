@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<validUnitConversions majorRelease="3" minorRelease="0" majorRevision="0" minorRevision="3097"
+                      contextId="de659012-50c4-4e96-b54a-fc781bf987ab" xmlns="http://www.EcoInvent.org/EcoSpold02">
+    <contextName xml:lang="en">tests</contextName>
+    <unitConversion id="f12UZ32IUZ3U284" factor="1.60934">
+        <unitFromName xml:lang="en">miles</unitFromName>
+        <unitToName xml:lang="en">km</unitToName>
+        <unitType xml:lang="en">distance</unitType>
+    </unitConversion>
+</validUnitConversions>

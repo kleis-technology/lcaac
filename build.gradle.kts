@@ -58,6 +58,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-optics")
     implementation("org.openlca:olca-simapro-csv:$olcaSimaproVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSONVersion")
+    implementation("org.jdom:jdom2:2.0.6.1")
     ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
 
     testImplementation("io.mockk:mockk:1.13.4")
@@ -138,15 +139,15 @@ tasks {
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription.set(
-                projectDir.resolve("README.md").readText().lines().run {
-                    val start = "<!-- Plugin description -->"
-                    val end = "<!-- Plugin description end -->"
+            projectDir.resolve("README.md").readText().lines().run {
+                val start = "<!-- Plugin description -->"
+                val end = "<!-- Plugin description end -->"
 
-                    if (!containsAll(listOf(start, end))) {
-                        throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
-                    }
-                    subList(indexOf(start) + 1, indexOf(end))
-                }.joinToString("\n").run { markdownToHTML(this) }
+                if (!containsAll(listOf(start, end))) {
+                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                }
+                subList(indexOf(start) + 1, indexOf(end))
+            }.joinToString("\n").run { markdownToHTML(this) }
         )
 
         // Get the latest available change notes from the changelog file

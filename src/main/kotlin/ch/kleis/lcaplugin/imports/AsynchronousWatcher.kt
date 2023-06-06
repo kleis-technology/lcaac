@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.simapro
+package ch.kleis.lcaplugin.imports
 
 interface AsynchronousWatcher {
 

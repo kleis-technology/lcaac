@@ -37,9 +37,9 @@ class FormulaConverter {
         }
 
 
-        fun compute(amountFormula: String): Pair<String, Boolean> {
+        fun compute(amountFormula: String, comments: MutableList<String>): String {
 
-            val compute = try {
+            val computed = try {
                 if (onlyScientific.matches(amountFormula)) {
                     amountFormula
                 } else {
@@ -53,7 +53,10 @@ class FormulaConverter {
                 val withoutSpacesAroundPowerTen = withoutUnitInExponent.replace(power10WithSpaceCapture, "$1E$2")
                 "( $withoutSpacesAroundPowerTen ) * 1"
             }
-            return Pair(compute, compute != amountFormula)
+            if (computed != amountFormula) {
+                comments.add("Formula=[$amountFormula]")
+            }
+            return computed
         }
     }
 

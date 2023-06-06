@@ -119,7 +119,7 @@ class SubstanceKeyTest {
         val ref = SubstanceKey("Name__40/kg", "comp", "sub")
 
         // Then
-        assertEquals("name_40_kg", ref.name)
+        assertEquals("name_40_sl_kg", ref.name)
     }
 
 }

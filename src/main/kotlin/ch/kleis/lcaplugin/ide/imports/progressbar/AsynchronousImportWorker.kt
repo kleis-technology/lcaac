@@ -2,22 +2,19 @@ package ch.kleis.lcaplugin.ide.imports.progressbar
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.component.ProgressBar
-import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
-import ch.kleis.lcaplugin.imports.simapro.*
-import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
+import ch.kleis.lcaplugin.imports.*
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.concurrency.SwingWorker
-import java.nio.file.Path
 
 
 class AsynchronousImportWorker(
-    private val settings: LcaImportSettings,
-    private val progressBar: ProgressBar,
+    private val importer: Importer,
     private val onSuccess: Runnable,
-    private val onFailure: Runnable
+    private val onFailure: Runnable,
+    private val progressBar: ProgressBar
 ) : SwingWorker<Summary>(), AsyncTaskController {
     @Volatile
     var active = true
@@ -28,7 +25,7 @@ class AsynchronousImportWorker(
 
     /* Called in worker Thread */
     override fun construct(): Summary {
-        return Importer(settings, progressBar, this).import()
+        return importer.import(this, progressBar)
     }
 
     /* Called in GUI Thread after end of the worker task */
@@ -45,7 +42,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.INFORMATION
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
-                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(importer.getImportRoot())
                 onSuccess.run()
             }
 
@@ -60,7 +57,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.INFORMATION
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
-                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(importer.getImportRoot())
                 onSuccess.run()
             }
 
@@ -75,7 +72,7 @@ class AsynchronousImportWorker(
                         ), NotificationType.ERROR
                     )
                     .notify(ProjectManager.getInstance().openProjects.firstOrNull())
-                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(Path.of(settings.rootFolder))
+                VirtualFileManager.getInstance().refreshAndFindFileByNioPath(importer.getImportRoot())
                 onFailure.run()
             }
         }

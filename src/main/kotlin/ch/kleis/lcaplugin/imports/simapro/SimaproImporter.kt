@@ -2,11 +2,11 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
-import ch.kleis.lcaplugin.ide.imports.LcaImportSettings
-import ch.kleis.lcaplugin.ide.imports.SubstanceImportMode
-import ch.kleis.lcaplugin.imports.ImportInterruptedException
-import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.simapro.substance.AsyncTaskController
+import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
+import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
+import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.model.ImportedUnit
+import ch.kleis.lcaplugin.imports.shared.UnitRenderer
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream
@@ -16,50 +16,18 @@ import org.openlca.simapro.csv.refdata.SystemDescriptionBlock
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.file.Path
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipInputStream
 import kotlin.math.roundToInt
 
-data class Imported(val qty: Int, val name: String)
-sealed class Summary(
-    val durationInSec: Long,
-    private val importedResources: List<Imported> = listOf()
-) {
-    fun getResourcesAsString(): String {
-        return importedResources.filter { it.qty > 0 }
-            .joinToString(", ") { "${it.qty} ${it.name}" }
-    }
 
-}
-
-class SummaryInSuccess(
-    durationInSec: Long,
-    importedResources: List<Imported>,
-) : Summary(durationInSec, importedResources)
-
-class SummaryInterrupted(
-    durationInSec: Long,
-    importedResources: List<Imported>,
-) : Summary(durationInSec, importedResources)
-
-class SummaryInError(
-    durationInSec: Long,
-    importedResources: List<Imported>,
-    val errorMessage: String
-) : Summary(durationInSec, importedResources)
-
-class Importer(
-    private val settings: LcaImportSettings,
-    private val watcher: AsynchronousWatcher,
-    private val controller: AsyncTaskController
-) {
-    private val begin = Instant.now()
+class SimaproImporter(
+    private val settings: SimaproImportSettings
+) : Importer() {
     private var totalValue = 1L
 
     companion object {
-        private val LOG = Logger.getInstance(Importer::class.java)
+        private val LOG = Logger.getInstance(SimaproImporter::class.java)
     }
 
     private val processRenderer = ProcessRenderer(settings.importSubstancesMode)
@@ -69,46 +37,43 @@ class Importer(
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap.values
             .map { it.toUnitValue() }
-            .associateBy { it.symbol.toString().lowercase() }
+            .associateBy { it.symbol.toString() }
     )
 
-    fun import(): Summary {
-        try {
-            val path = Path.of(settings.libraryFile)
+    override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
+        val path = Path.of(settings.libraryFile)
 
-            val pkg = settings.rootPackage.ifBlank { "default" }
-            val fileHeaderImports = when (settings.importSubstancesMode) {
-                SubstanceImportMode.EF30 -> listOf("ef30")
-                SubstanceImportMode.EF31 -> listOf("ef31")
-                SubstanceImportMode.SIMAPRO, SubstanceImportMode.NOTHING -> listOf()
-            }
-            ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
-                .use { w ->
-                    importFile(path, w, unitRenderer)
-                }
-            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
-            return SummaryInSuccess(duration, collectProgress())
-        } catch (e: ImportInterruptedException) {
-            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
-            return SummaryInterrupted(duration, collectProgress())
-        } catch (e: Exception) {
-            val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
-            return SummaryInError(duration, collectProgress(), e.message ?: "")
+        val pkg = settings.rootPackage.ifBlank { "default" }
+        val fileHeaderImports = when (settings.importSubstancesMode) {
+            SubstanceImportMode.EF30 -> listOf("ef30")
+            SubstanceImportMode.EF31 -> listOf("ef31")
+            SubstanceImportMode.SIMAPRO, SubstanceImportMode.NOTHING -> listOf()
         }
+        ModelWriter(pkg, settings.rootFolder, fileHeaderImports, watcher)
+            .use { w ->
+                importFile(path, w, controller, watcher)
+            }
     }
 
-    private fun collectProgress(): List<Imported> {
+    override fun getImportRoot(): Path {
+        return Path.of(settings.rootFolder)
+    }
+
+    override fun collectProgress(): List<Imported> {
         return listOf(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(inputParameterRenderer.nbParameters, "parameters"),
             Imported(processRenderer.nbProcesses, "processes"),
             Imported(simaproSubstanceRenderer.nbSubstances, "substances")
         )
-
-
     }
 
-    private fun importFile(path: Path, writer: ModelWriter, unitRenderer: UnitRenderer) {
+    private fun importFile(
+        path: Path,
+        writer: ModelWriter,
+        controller: AsyncTaskController,
+        watcher: AsynchronousWatcher
+    ) {
         val file = path.toFile()
         totalValue = file.length()
         val input = file.inputStream()
@@ -125,13 +90,18 @@ class Importer(
             counting = countingVal
             val reader = InputStreamReader(realInput)
             SimaProCsv.read(reader) { block: CsvBlock ->
-                importBlock(block, writer, unitRenderer)
+                importBlock(block, writer, controller, watcher)
             }
         }
     }
 
 
-    private fun importBlock(block: CsvBlock, writer: ModelWriter, unitRenderer: UnitRenderer) {
+    private fun importBlock(
+        block: CsvBlock,
+        writer: ModelWriter,
+        controller: AsyncTaskController,
+        watcher: AsynchronousWatcher
+    ) {
         val read = counting?.bytesRead ?: 0L
         watcher.notifyProgress((100.0 * read / totalValue).roundToInt())
 
@@ -147,6 +117,9 @@ class Importer(
                     simaproSubstanceRenderer.render(block.asElementaryFlowBlock(), writer)
 
             block.isUnitBlock && settings.importUnits -> block.asUnitBlock().units()
+                .map {
+                    ImportedUnit(it.quantity().lowercase(), it.name(), it.conversionFactor(), it.referenceUnit())
+                }
                 .forEach { unitRenderer.render(it, writer) }
 
             block.isInputParameterBlock -> inputParameterRenderer.render(block.asInputParameterBlock(), writer)

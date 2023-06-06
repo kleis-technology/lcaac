@@ -11,6 +11,7 @@ class Prelude {
     companion object {
         val mass = Dimension.of("mass")
         val length = Dimension.of("length")
+        val temperature = Dimension.of("temperature")
         val area = length.multiply(length)
         val volume = length.multiply(area)
         val energy = Dimension.of("energy")
@@ -28,6 +29,7 @@ class Prelude {
         private val primitiveDimensionMap = listOf(
             mass,
             length,
+            temperature,
             energy,
             time,
             radioactivity,
@@ -36,11 +38,14 @@ class Prelude {
 
         val unitMap = listOf(
             EUnitLiteral(UnitSymbol.of("u"), 1.0, none),
+            EUnitLiteral(UnitSymbol.of("dimensionless"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("piece"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("person"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("p"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("percent"), 1.0e-2, none),
+            EUnitLiteral(UnitSymbol.of("K"), 1.0, temperature),
             EUnitLiteral(UnitSymbol.of("kg"), 1.0, mass),
+            EUnitLiteral(UnitSymbol.of("ton"), 1E3, mass),
             EUnitLiteral(UnitSymbol.of("g"), 1.0e-3, mass),
             EUnitLiteral(UnitSymbol.of("mm"), 1.0e-3, length),
             EUnitLiteral(UnitSymbol.of("cm"), 1.0e-2, length),

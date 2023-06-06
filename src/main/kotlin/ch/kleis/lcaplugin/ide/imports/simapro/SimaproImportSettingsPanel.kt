@@ -1,11 +1,16 @@
-package ch.kleis.lcaplugin.ide.imports
+package ch.kleis.lcaplugin.ide.imports.simapro
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createTextComponent
+import ch.kleis.lcaplugin.ide.imports.ImportHandler
+import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
+import ch.kleis.lcaplugin.imports.Importer
+import ch.kleis.lcaplugin.imports.simapro.SimaproImporter
 import com.intellij.BundleBase
 import com.intellij.openapi.ui.CheckBoxWithDescription
 import com.intellij.openapi.ui.LabeledComponent
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBRadioButton
@@ -16,26 +21,27 @@ import javax.swing.ButtonGroup
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(VerticalFlowLayout()) {
+class SimaproImportSettingsPanel(private val settings: SimaproImportSettings) : JPanel(VerticalFlowLayout()),
+    ImportHandler {
 
-    val libField: JComponent
-    val packageField: JComponent
+    private val libField: JComponent
+    private val packageField: JComponent
 
     init {
         val builder = FormBuilder()
         val locComp = ComponentFactory.createLocationComponent(
-            { -> settings.rootFolder },
+            { settings.rootFolder },
             { s: String -> settings.rootFolder = s })
         builder.addLabeledComponent(locComp.label, locComp.component)
         val packCom = createTextComponent(
             "lca.dialog.import.package.label",
-            { -> settings.rootPackage },
+            { settings.rootPackage },
             { s: String -> settings.rootPackage = s }
         )
         packageField = packCom.component
         builder.addLabeledComponent(packCom.label, packCom.component)
         val libComp = ComponentFactory.createLibraryFileComponent(
-            { -> settings.libraryFile },
+            { settings.libraryFile },
             { s: String -> settings.libraryFile = s })
         libField = libComp.component.textField
         builder.addLabeledComponent(libComp.label, libComp.component)
@@ -69,6 +75,7 @@ class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(Vert
         builder.addLabeledComponent(substanceComp.label, substanceComp.component)
         this.add(builder.panel)
     }
+
 
     private fun createSubstanceCombo(): LabeledComponent<JPanel> {
         val simaproMsg =
@@ -110,5 +117,16 @@ class ImportSettingsPanel(private val settings: LcaImportSettings) : JPanel(Vert
         )
     }
 
+
+    override fun importer(): Importer {
+        return SimaproImporter(settings)
+    }
+
+    override fun doValidate(): ValidationInfo? {
+        return listOf(
+            { LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+            .firstNotNullOfOrNull { it.invoke() }
+    }
 
 }
