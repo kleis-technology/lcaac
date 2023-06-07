@@ -42,10 +42,10 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
             state.IMPORT_UNITS = value
         }
 
-    var importProcesses: Boolean
-        get() = state.IMPORT_PROCESSES
+    var methodName: String
+        get() = state.METHOD_NAME
         set(value) {
-            state.IMPORT_PROCESSES = value
+            state.METHOD_NAME = value
         }
 
 
@@ -70,7 +70,7 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
         var IMPORT_UNITS: Boolean = true
 
         @JvmField
-        var IMPORT_PROCESSES: Boolean = true
+        var METHOD_NAME: String = ""
 
     }
 }

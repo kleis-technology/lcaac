@@ -2,6 +2,8 @@ package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.model.ImportedImpact
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -74,6 +76,26 @@ substance aluminium_ch {
     }
 }"""
         assertEquals(expected, result.toString())
+
+    }
+
+    @Test
+    fun testRender_WithoutComment() {
+        // Given
+        sub.impacts.clear()
+        sub.impacts.add(ImportedImpact(1000.0, "P-Eq", "alu_tox", "Comment"))
+
+        // When
+        val result = SubstanceSerializer.serialize(sub)
+
+        // Then
+        val expected = """
+    impacts {
+        // Comment
+        1000.0 P_Eq alu_tox
+    }
+}"""
+        assertThat(result.toString(), containsString(expected))
 
     }
 

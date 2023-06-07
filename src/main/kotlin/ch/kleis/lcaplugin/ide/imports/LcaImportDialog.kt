@@ -52,6 +52,14 @@ class LcaImportDialog<P>(private val panel: P, title: String) :
                 null
             }
         }
+
+        fun validateNonEmpty(value: String, component: JComponent): ValidationInfo? {
+            return if (value.isBlank()) {
+                ValidationInfo(MyBundle.message("lca.dialog.import.field.mandatory.error"), component)
+            } else {
+                null
+            }
+        }
     }
 
     init {

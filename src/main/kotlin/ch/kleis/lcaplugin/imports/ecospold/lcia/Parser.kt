@@ -66,6 +66,16 @@ class Parser {
             return EcospoldRoot(dataset)
         }
 
+        fun readMethodName(stream: InputStream): List<String> {
+            val builder = getSAXBuilder()
+            val root = rootElt(builder, stream)
+
+            return root.getChildren("impactMethod")
+                .map { it.getChildText("name") }
+                .sorted()
+        }
+
+
         private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
             return indicators.map {
                 ImpactIndicator.Builder()

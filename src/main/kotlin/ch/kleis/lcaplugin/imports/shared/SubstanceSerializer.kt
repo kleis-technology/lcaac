@@ -41,6 +41,12 @@ substance ${s.uid} {
     impacts {"""
             )
             s.impacts.forEach {
+                if (it.comment != null) {
+                    builder.append(
+                        """
+        // ${it.comment}"""
+                    )
+                }
                 builder.append(
                     """
         ${it.value} ${it.unitSymbol} ${ModelWriter.sanitizeAndCompact(it.name)}"""

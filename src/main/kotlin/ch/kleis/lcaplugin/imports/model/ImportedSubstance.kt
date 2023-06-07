@@ -18,11 +18,18 @@ class ImportedSubstance(
     fun referenceUnitSymbol() = ModelWriter.sanitizeAndCompact(referenceUnit, false)
 }
 
-data class ImportedImpact(val uid: String, val name: String, val value: Double, val unitSymbol: String) {
-    constructor(value: Double, unitName: String, name: String) : this(
+data class ImportedImpact(
+    val uid: String,
+    val name: String,
+    val value: Double,
+    val unitSymbol: String,
+    val comment: String?
+) {
+    constructor(value: Double, unitName: String, name: String, comment: String? = null) : this(
         ModelWriter.sanitizeAndCompact(name),
         name,
         value,
-        ModelWriter.sanitizeAndCompact(unitName, toLowerCase = false)
+        ModelWriter.sanitizeAndCompact(unitName, toLowerCase = false),
+        comment
     )
 }

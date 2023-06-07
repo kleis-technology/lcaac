@@ -15,27 +15,41 @@ import org.apache.commons.csv.CSVParser
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Path
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
-private const val METHOD_NAME = "EF v3.1"
-
-class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer() {
+class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
 
         fun unitToStr(u: String): String {
             return if (u != "metric ton*km") u else "ton*km"
         }
+
+        fun getMethodNames(libFile: String): List<String> {
+            val path = Path.of(libFile)
+            try {
+                SevenZFile(path.toFile()).use { f ->
+                    val methodsFile = f.entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
+                    f.getInputStream(methodsFile).use {
+                        return Parser.readMethodName(it)
+                    }
+                }
+            } catch (e: Exception) {
+                return listOf("")
+            }
+        }
     }
 
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = Ecospold2ProcessRenderer()
-    private val unitRenderer = UnitRenderer.of(
-        Prelude.unitMap.values
-            .map { it.toUnitValue() }
-            .associateBy { it.symbol.toString() }
-    )
+    private val predefinedUnits = Prelude.unitMap.values
+        .map { it.toUnitValue() }
+        .associateBy { it.symbol.toString() }
+    private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
         val path = Path.of(settings.libraryFile)
@@ -56,6 +70,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         return listOf(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(processRenderer.nbProcesses, "processes"),
+            Imported(processRenderer.nbProcesses, "substances"),
         )
     }
 
@@ -65,6 +80,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
     ) {
+        val start = Instant.now()
         val entries = f.entries.toList()
         totalValue = entries.size
 
@@ -85,7 +101,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             }
             val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
             val fromMethod = f.getInputStream(methodsFile).use {
-                val unitConvs = Parser.readMethodUnits(it, METHOD_NAME)
+                val unitConvs = Parser.readMethodUnits(it, methodName)
                 unitConvs.asSequence()
                     .map { u ->
                         ImportedUnit(
@@ -94,7 +110,9 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
                         )
                     }
                     .filter { u -> u.name != "foot-candle" }
+                    .filter { u -> !predefinedUnits.containsKey(u.name) }
             }
+
 
             (fromMeta + fromMethod)
                 .distinctBy { it.name }
@@ -106,9 +124,25 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
             .forEach {
                 importEntry(it.name, f.getInputStream(it), writer, controller, watcher)
             }
-        // TODO next PR: Add main with import info
+        val duration = Duration.between(start, Instant.now())
+        renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
     }
 
+    private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
+        val s = duration.seconds
+        val durAsStr = String.format("%02dm %02ds", s / 60, (s % 60));
+        val block = """
+            Import Method: $methodName
+            Date: ${ZonedDateTime.now().toString()}
+            Import Summary:
+                * $nbUnits units
+                * $nbProcess processes
+                * $nbProcess substances
+            Duration: $durAsStr
+        """.trimIndent()
+
+        writer.write("main", ModelWriter.pad(ModelWriter.asComment(block), 0), false)
+    }
 
     data class ProcessDictRecord(
         val processId: String,
@@ -153,7 +187,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings) : Importer(
         path: String
     ) {
         LOG.info("Read dataset from $path")
-        processRenderer.render(dataSet, w, "from $path", METHOD_NAME)
+        processRenderer.render(dataSet, w, "from $path", methodName)
 
     }
 
