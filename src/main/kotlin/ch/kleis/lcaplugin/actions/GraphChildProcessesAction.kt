@@ -25,7 +25,10 @@ import com.intellij.ui.content.ContentFactory
 import javax.swing.JTextArea
 import kotlin.math.min
 
-class GraphChildProcessesAction(private val processName: String) : AnAction(
+class GraphChildProcessesAction(
+    private val processName: String,
+    private val matchLabels: Map<String, String>,
+) : AnAction(
     "Generate Graph",
     "Generate graph",
     AllIcons.Graph.Layout,
@@ -41,7 +44,7 @@ class GraphChildProcessesAction(private val processName: String) : AnAction(
             private var graph: Graph? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val systemValue = evaluateSystemWithIndicator(indicator, file, processName)
+                val systemValue = evaluateSystemWithIndicator(indicator, file, processName, matchLabels)
 
                 // generate graph
                 indicator.text = "Generating graph"

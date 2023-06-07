@@ -6,6 +6,7 @@ import java.io.InputStream
 
 class CsvRequestReader(
     private val processName: String,
+    private val matchLabels: Map<String, String>,
     private val inputStream: InputStream,
 ) {
     private val format = CSVFormat.DEFAULT.builder()
@@ -19,6 +20,7 @@ class CsvRequestReader(
         return parser.records.map { record ->
             CsvRequest(
                 processName,
+                matchLabels,
                 header,
                 record.toList()
             )

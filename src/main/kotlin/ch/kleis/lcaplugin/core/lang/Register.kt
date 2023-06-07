@@ -1,14 +1,17 @@
 package ch.kleis.lcaplugin.core.lang
 
+import arrow.core.filterMap
 import arrow.optics.Fold
 
-data class RegisterException(val duplicates: Set<String>) : Exception("$duplicates ${
-    if (duplicates.size > 1) {
-        "are"
-    } else {
-        "is"
-    }
-} already bound")
+data class RegisterException(val duplicates: Set<String>) : Exception(
+    "$duplicates ${
+        if (duplicates.size > 1) {
+            "are"
+        } else {
+            "is"
+        }
+    } already bound"
+)
 
 class Register<E> private constructor(
     internal val registerType: String,
@@ -26,16 +29,21 @@ class Register<E> private constructor(
         }
     }
 
-    fun <K> getEntries(optics: Fold<E, K>): Map<K, E> {
+    fun <K> getEntries(optics: Fold<E, K>): Map<K, List<E>> {
         return data.entries.asSequence()
             .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
-            // ensure no duplicate by calling reduce as soon as there is a second element in a group
-            .groupingBy { it.first }.reduce { key, _, _ -> throw RegisterException(setOf(key.toString())) }
-            .asSequence().map { it }.associate { it.key to it.value.second }
+            .groupBy(keySelector = { it.first }, valueTransform = { it.second })
     }
 
     operator fun get(key: String): E? {
         return data[key]
+    }
+
+    fun <F> filterMap(fn: (E) -> F?): Register<F> {
+        return Register(
+            registerType,
+            data.filterMap { fn(it) }
+        )
     }
 
     fun getValues(): Sequence<E> = data.values.asSequence()

@@ -7,36 +7,11 @@ import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiQuantityRef
+import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
-
-private class RecursiveGuard {
-    private val visited = HashSet<PsiElement>()
-
-    fun <E : PsiElement, R> guard(fn: (E) -> R): (E) -> R {
-        return { element ->
-            if (visited.contains(element)) {
-                val names = visited.map {
-                    """"${
-                        it.text
-                            .replace("\n", "")
-                            .replace("\\s+".toRegex(), " ")
-                            .take(20)
-                    } ...""""
-                }.sorted().joinToString().take(80)
-                throw PsiTypeCheckException("circular dependencies: $names")
-            }
-            visited.add(element)
-            val r = fn(element)
-            visited.remove(element)
-            r
-        }
-    }
-}
 
 class PsiLcaTypeChecker {
     private val rec = RecursiveGuard()
@@ -44,25 +19,27 @@ class PsiLcaTypeChecker {
     fun check(element: PsiElement): Type {
         return when (element) {
             is PsiUnitDefinition -> checkUnit(element)
-            is LcaQuantityExpression -> checkQuantityExpression(element)
-            is PsiGlobalAssignment -> checkQuantityExpression(element.getValue())
-            is PsiAssignment -> checkQuantityExpression(element.getValue())
+            is LcaDataExpression -> checkDataExpression(element)
+            is PsiGlobalAssignment -> checkDataExpression(element.getValue())
+            is PsiAssignment -> checkDataExpression(element.getValue())
+            is LcaLabelAssignment -> TString
             is LcaTechnoInputExchange -> checkTechnoInputExchange(element)
-            is PsiTechnoProductExchange -> checkTechnoProductExchange(element)
+            is LcaTechnoProductExchange -> checkTechnoProductExchange(element)
             is LcaBioExchange -> checkBioExchange(element)
-            else -> throw IllegalArgumentException("Uncheckable type: $element")
+            else -> throw PsiTypeCheckException("Uncheckable type: $element")
         }
     }
 
     private fun checkBioExchange(lcaBioExchange: LcaBioExchange): TBioExchange {
         return rec.guard { el: LcaBioExchange ->
-            val tyQuantity = checkQuantityExpression(el.quantityExpression)
+            val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
             val name = el.substanceSpec.name
             val comp = el.substanceSpec.getCompartmentField()?.getValue() ?: ""
             val subComp = el.substanceSpec.getSubCompartmentField()?.getValue()
             el.substanceSpec.reference.resolve()?.let {
                 if (it is PsiSubstance) {
-                    val tyRefQuantity = checkQuantityExpression(it.getReferenceUnitField().quantityExpression)
+                    val tyRefQuantity =
+                        checkDataExpression(it.getReferenceUnitField().dataExpression, TQuantity::class.java)
                     if (tyRefQuantity.dimension != tyQuantity.dimension) {
                         throw PsiTypeCheckException(
                             "Incompatible dimensions: substance reference dimension is ${tyRefQuantity.dimension} " +
@@ -77,49 +54,59 @@ class PsiLcaTypeChecker {
         }(lcaBioExchange)
     }
 
-    private fun checkProcessArguments(element: PsiProcess): Map<String, TQuantity> {
+    private fun checkProcessArguments(element: PsiProcess): Map<String, TypeDataExpression> {
         return rec.guard { el: PsiProcess ->
-            el.getParameters().mapValues { checkQuantityExpression(it.value) }
+            el.getParameters().mapValues { checkDataExpression(it.value) }
         }(element)
     }
 
     private fun checkTechnoInputExchange(element: LcaTechnoInputExchange): TTechnoExchange {
         return rec.guard { el: LcaTechnoInputExchange ->
-            val tyQuantity = checkQuantityExpression(el.quantityExpression)
-            val productName = el.productRef.name
-            el.productRef.reference.resolve()?.let {
-                val tyProductExchange = check(it)
-                if (tyProductExchange !is TTechnoExchange) {
-                    throw PsiTypeCheckException("expected TTechnoExchange, found $tyProductExchange")
+            val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
+            val productName = el.inputProductSpec.name
+            el.inputProductSpec.reference.resolve()?.let {
+                val outputProductSpec = it as LcaOutputProductSpec
+                val tyOutputExchange = check(outputProductSpec.getContainingTechnoExchange())
+                if (tyOutputExchange !is TTechnoExchange) {
+                    throw PsiTypeCheckException("expected TTechnoExchange, found $tyOutputExchange")
                 }
-                if (tyProductExchange.product.dimension != tyQuantity.dimension) {
-                    throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyProductExchange.product.dimension}")
+                if (tyOutputExchange.product.dimension != tyQuantity.dimension) {
+                    throw PsiTypeCheckException("incompatible dimensions: ${tyQuantity.dimension} vs ${tyOutputExchange.product.dimension}")
                 }
-            }
-            el.fromProcessConstraint?.let {
-                val psiProcess = it.processTemplateRef!!.reference.resolve() as PsiProcess?
-                    ?: throw PsiTypeCheckException("unbound reference ${it.processTemplateRef!!.name}")
+
+                val psiProcess = outputProductSpec.getContainingProcess()
                 val tyArguments = checkProcessArguments(psiProcess)
-                it.argumentList
-                    .forEach { arg ->
+                el.inputProductSpec.getProcessTemplateSpec()
+                    ?.argumentList
+                    ?.forEach { arg ->
                         val key = arg.parameterRef.name
-                        val value = arg.quantityExpression
-                        val tyActual = checkQuantityExpression(value)
+                        val value = arg.dataExpression
+                        val tyActual = checkDataExpression(value)
                         val tyExpected = tyArguments[key] ?: throw PsiTypeCheckException("unknown parameter $key")
                         if (tyExpected != tyActual) {
-                            throw PsiTypeCheckException("incompatible dimensions: expecting ${tyExpected.dimension}, found ${tyActual.dimension}")
+                            throw PsiTypeCheckException("incompatible types: expecting $tyExpected, found $tyActual")
                         }
                     }
             }
+            el.inputProductSpec.getProcessTemplateSpec()
+                ?.getMatchLabels()
+                ?.labelSelectorList
+                ?.forEach { label ->
+                    val tyActual = checkDataExpression(label.dataExpression)
+                    val tyExpected = TString
+                    if (tyExpected != tyActual) {
+                        throw PsiTypeCheckException("incompatible types: expecting $tyExpected, found $tyActual")
+                    }
+                }
             TTechnoExchange(TProduct(productName, tyQuantity.dimension))
         }(element)
     }
 
 
-    private fun checkTechnoProductExchange(element: PsiTechnoProductExchange): TTechnoExchange {
-        return rec.guard { el: PsiTechnoProductExchange ->
-            val tyQuantity = checkQuantityExpression(el.getQuantity())
-            val productName = el.getProductRef().name
+    private fun checkTechnoProductExchange(element: LcaTechnoProductExchange): TTechnoExchange {
+        return rec.guard { el: LcaTechnoProductExchange ->
+            val tyQuantity = checkDataExpression(el.dataExpression, TQuantity::class.java)
+            val productName = el.outputProductSpec.name
             TTechnoExchange(TProduct(productName, tyQuantity.dimension))
         }(element)
     }
@@ -133,7 +120,7 @@ class PsiLcaTypeChecker {
 
     private fun checkUnitAlias(element: PsiUnitDefinition): TUnit {
         return rec.guard { el: PsiUnitDefinition ->
-            val tyQuantity = checkQuantityExpression(el.getAliasForField().quantityExpression)
+            val tyQuantity = checkDataExpression(el.getAliasForField().dataExpression, TQuantity::class.java)
             TUnit(tyQuantity.dimension)
         }(element)
     }
@@ -142,20 +129,29 @@ class PsiLcaTypeChecker {
         return TUnit(Dimension.of(psiUnitDefinition.getDimensionField().getValue()))
     }
 
-    private fun checkQuantityExpression(element: LcaQuantityExpression): TQuantity {
+    private fun <T> checkDataExpression(element: LcaDataExpression, cls: Class<T>): T {
+        val ty = checkDataExpression(element)
+        if (ty.javaClass != cls) {
+            throw PsiTypeCheckException("expected ${cls.simpleName}, found $ty")
+        }
+        return ty as T
+    }
+
+    private fun checkDataExpression(element: LcaDataExpression): TypeDataExpression {
         return when (element) {
-            is PsiQuantityRef -> TQuantity(checkDimensionOf(element))
-            is LcaScaleQuantityExpression -> checkQuantityExpression(element.quantityExpression!!)
-            is LcaParenQuantityExpression -> checkQuantityExpression(element.quantityExpression!!)
+            is PsiDataRef -> checkDataRef(element)
+            is LcaStringExpression -> TString
+            is LcaScaleQuantityExpression -> checkDataExpression(element.dataExpression!!)
+            is LcaParenQuantityExpression -> checkDataExpression(element.dataExpression!!)
             is LcaExponentialQuantityExpression -> {
                 val exponent = element.exponent.text.toDouble()
-                val tyBase = checkQuantityExpression(element.quantityExpression)
+                val tyBase = checkDataExpression(element.dataExpression, TQuantity::class.java)
                 TQuantity(tyBase.dimension.pow(exponent))
             }
 
             is LcaBinaryOperatorExpression -> {
-                val tyLeft = checkQuantityExpression(element.left)
-                val tyRight = checkQuantityExpression(element.right!!)
+                val tyLeft = checkDataExpression(element.left, TQuantity::class.java)
+                val tyRight = checkDataExpression(element.right!!, TQuantity::class.java)
                 when (element) {
                     is LcaAddQuantityExpression, is LcaSubQuantityExpression -> {
                         if (tyLeft.dimension == tyRight.dimension) {
@@ -175,17 +171,18 @@ class PsiLcaTypeChecker {
         }
     }
 
-    private fun checkDimensionOf(element: PsiQuantityRef): Dimension {
-        return rec.guard { el: PsiQuantityRef ->
+    private fun checkDataRef(element: PsiDataRef): TypeDataExpression {
+        return rec.guard { el: PsiDataRef ->
             el.reference.resolve()
                 ?.let {
                     when (val ty = check(it)) {
-                        is TQuantity -> ty.dimension
-                        is TUnit -> ty.dimension
-                        else -> throw PsiTypeCheckException("expected TQuantity or TUnit, found $ty")
+                        is TQuantity -> ty
+                        is TUnit -> TQuantity(ty.dimension)
+                        is TString -> ty
+                        else -> throw PsiTypeCheckException("expected TQuantity, TUnit or TString, found $ty")
                     }
                 }
-                ?: Prelude.unitMap[el.name]?.dimension
+                ?: Prelude.unitMap[el.name]?.let { TQuantity(it.dimension) }
                 ?: throw PsiTypeCheckException("unbound reference ${el.name}")
         }(element)
     }

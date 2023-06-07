@@ -17,10 +17,11 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (isProcess(element)) {
             val process = element.parent as PsiProcess
-            val target = process.getProcessTemplateRef().getUID().name
-            val assessProcessAction = AssessProcessAction(target)
-            val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target)
-            val graphChildProcessesAction = GraphChildProcessesAction(target)
+            val target = process.getProcessRef().getUID().name
+            val labels = process.getLabels()
+            val assessProcessAction = AssessProcessAction(target, labels)
+            val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target, labels)
+            val graphChildProcessesAction = GraphChildProcessesAction(target, labels)
             return Info(AllIcons.Actions.Execute, {
                 "Run $target"
             }, assessProcessAction, assessProcessWithExternalDataAction, graphChildProcessesAction)

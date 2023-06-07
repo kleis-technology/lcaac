@@ -1,11 +1,12 @@
 package ch.kleis.lcaplugin.core.lang.expression.optics
 
 import arrow.core.compose
+import arrow.optics.Fold
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
 
-data class Merge<S, A, B>(
-    val elements: List<PEvery<S, S, A, B>>
+class Merge<S, A, B>(
+    private val elements: List<PEvery<S, S, A, B>>
 ) : PEvery<S, S, A, B> {
     override fun <R> foldMap(M: Monoid<R>, source: S, map: (focus: A) -> R): R {
         return elements.map { it.foldMap(M, source, map) }
@@ -17,5 +18,14 @@ data class Merge<S, A, B>(
             .map { it.lift(map) }
             .reduce { acc, function -> acc.compose(function) }
         return update(source)
+    }
+}
+
+class MergeFold<S, A>(
+    private val elements: List<Fold<S, A>>,
+) : Fold<S, A> {
+    override fun <R> foldMap(M: Monoid<R>, source: S, map: (focus: A) -> R): R {
+        return elements.map { it.foldMap(M, source, map) }
+            .reduce { acc, r -> M.fold(listOf(acc, r)) }
     }
 }

@@ -17,11 +17,12 @@ class EvaluatorTest {
     fun eval_unresolvedSubstance_shouldBeTreatedAsTerminal() {
         // given
         val symbolTable = SymbolTable.empty()
-        val template = EProcessTemplate(
+        val instance = EProcessTemplateApplication(EProcessTemplate(
             params = mapOf(),
             locals = mapOf(),
-            body = EProcess("eprocess",
+            body = EProcess("eProcess",
                 products = listOf(),
+                labels = emptyMap(),
                 inputs = listOf(),
                 biosphere = listOf(
                     EBioExchange(
@@ -35,7 +36,7 @@ class EvaluatorTest {
                     )
                 )
             )
-        )
+        ), emptyMap())
         val evaluator = Evaluator(symbolTable)
         val expected = FullyQualifiedSubstanceValue("doesNotExist",
             type = SubstanceType.EMISSION,
@@ -45,7 +46,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(template).processes.first().biosphere.first().substance
+        val actual = evaluator.eval(instance).processes.first().biosphere.first().substance
 
         // then
         assertEquals(expected, actual)
@@ -81,11 +82,12 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
@@ -102,7 +104,7 @@ class EvaluatorTest {
                 ),
                 biosphere = emptyList()
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
@@ -112,12 +114,14 @@ class EvaluatorTest {
         val expected = setOf(
             ProcessValue(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre
                                 ),
@@ -135,12 +139,14 @@ class EvaluatorTest {
             ),
             ProcessValue(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
+                                emptyMap(),
                                 emptyMap(),
                             )
                         )
@@ -152,6 +158,7 @@ class EvaluatorTest {
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.oneLitre,
                                 ),
@@ -176,7 +183,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -193,16 +200,18 @@ class EvaluatorTest {
                         EProductSpec(
                             "carrot",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
                     )
                 ),
-                biosphere = emptyList()
+                biosphere = emptyList(),
+                labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
@@ -212,12 +221,14 @@ class EvaluatorTest {
         val expected = setOf(
             ProcessValue(
                 name = "salad_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.salad.withFromProcessRef(
                             FromProcessRefValue(
                                 "salad_production",
+                                emptyMap(),
                                 emptyMap(),
                             )
                         )
@@ -228,9 +239,11 @@ class EvaluatorTest {
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
-                                "carrot_production", mapOf(
-                                "q_water" to QuantityValueFixture.twoLitres
-                            )
+                                "carrot_production",
+                                emptyMap(),
+                                mapOf(
+                                    "q_water" to QuantityValueFixture.twoLitres
+                                )
                             )
                         )
                     )
@@ -239,12 +252,14 @@ class EvaluatorTest {
             ),
             ProcessValue(
                 name = "carrot_production",
+                labels = emptyMap(),
                 products = listOf(
                     TechnoExchangeValue(
                         QuantityValueFixture.oneKilogram,
                         ProductValueFixture.carrot.withFromProcessRef(
                             FromProcessRefValue(
                                 "carrot_production",
+                                emptyMap(),
                                 mapOf(
                                     "q_water" to QuantityValueFixture.twoLitres
                                 ),
@@ -274,11 +289,11 @@ class EvaluatorTest {
                 )
             )
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
-                name = "carrot_production",
+                name = "salad_production",
                 products = listOf(
                     ETechnoExchange(
                         QuantityFixture.oneKilogram,
@@ -291,23 +306,25 @@ class EvaluatorTest {
                         EProductSpec(
                             "irrelevant_product",
                             UnitFixture.kg,
-                            FromProcessRef(
+                            FromProcess(
                                 "carrot_production",
+                                MatchLabels.EMPTY,
                                 mapOf("q_water" to QuantityFixture.twoLitres),
                             ),
                         )
                     )
                 ),
-                biosphere = emptyList()
+                biosphere = emptyList(),
+                labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when/then
-        assertFailsWith(
+        val e = assertFailsWith(
             EvaluatorException::class,
-            "no process 'carrot_production' providing 'irrelevant_product' found"
         ) { recursiveEvaluator.eval(expression) }
+        assertEquals("no process 'carrot_production' providing 'irrelevant_product' found", e.message)
     }
 
     @Test
@@ -320,7 +337,7 @@ class EvaluatorTest {
                 )
             ),
         )
-        val expression = EProcessTemplate(
+        val expression = EProcessTemplateApplication(EProcessTemplate(
             emptyMap(),
             emptyMap(),
             EProcess(
@@ -335,14 +352,15 @@ class EvaluatorTest {
                 biosphere = listOf(
                     EBioExchange(
                         QuantityFixture.oneKilogram, ESubstanceSpec(
-                        "propanol",
-                        compartment = "air",
-                        type = SubstanceType.RESOURCE,
+                            "propanol",
+                            compartment = "air",
+                            type = SubstanceType.RESOURCE,
+                        )
                     )
-                    )
-                )
+                ),
+                labels = emptyMap(),
             )
-        )
+        ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when

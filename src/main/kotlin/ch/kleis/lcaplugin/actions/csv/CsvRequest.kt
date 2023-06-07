@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.actions.csv
 
 class CsvRequest(
     val processName: String,
+    val matchLabels: Map<String, String>,
     private val header: Map<String, Int>,
     private val record: List<String>,
 ) {

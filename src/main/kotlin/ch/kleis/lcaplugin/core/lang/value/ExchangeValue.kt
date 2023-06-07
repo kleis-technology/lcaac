@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.core.lang.value
 
 import arrow.optics.optics
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
 sealed interface ExchangeValue : Value {

@@ -4,9 +4,9 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 
 class LcaExpressionReducer(
-    quantityRegister: Register<QuantityExpression> = Register.empty(),
+    dataRegister: Register<DataExpression> = Register.empty(),
 ) : Reducer<LcaExpression> {
-    private val quantityExpressionReducer = QuantityExpressionReducer(quantityRegister)
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister)
 
     override fun reduce(expression: LcaExpression): LcaExpression {
         return when (expression) {
@@ -34,6 +34,7 @@ class LcaExpressionReducer(
     private fun reduceProcess(expression: EProcess): EProcess {
         return EProcess(
             expression.name,
+            expression.labels,
             expression.products.map { reduceTechnoExchange(it) },
             expression.inputs.map { reduceTechnoExchange(it) },
             expression.biosphere.map { reduceBioExchange(it) },
@@ -41,28 +42,33 @@ class LcaExpressionReducer(
     }
 
     private fun reduceImpact(expression: EImpact) = EImpact(
-        quantityExpressionReducer.reduce(expression.quantity),
+        dataExpressionReducer.reduce(expression.quantity),
         reduceIndicatorSpec(expression.indicator),
     )
 
     private fun reduceBioExchange(expression: EBioExchange) = EBioExchange(
-        quantityExpressionReducer.reduce(expression.quantity),
+        dataExpressionReducer.reduce(expression.quantity),
         reduceSubstanceSpec(expression.substance),
     )
 
     private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
         return ETechnoExchange(
-            quantityExpressionReducer.reduce(expression.quantity),
+            dataExpressionReducer.reduce(expression.quantity),
             reduceProductSpec(expression.product),
-            quantityExpressionReducer.reduce(expression.allocation)
+            dataExpressionReducer.reduce(expression.allocation)
         )
     }
 
     private fun reduceProductSpec(expression: EProductSpec): EProductSpec {
         return EProductSpec(
             expression.name,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
-            expression.fromProcessRef?.reduceWith(quantityExpressionReducer),
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
+            expression.fromProcess?.let { ref ->
+                ref.copy(
+                    matchLabels = MatchLabels(ref.matchLabels.elements.mapValues { dataExpressionReducer.reduce(it.value) }),
+                    arguments = ref.arguments.mapValues { dataExpressionReducer.reduce(it.value) }
+                )
+            },
         )
     }
 
@@ -73,14 +79,14 @@ class LcaExpressionReducer(
             expression.type,
             expression.compartment,
             expression.subCompartment,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
         )
     }
 
     private fun reduceIndicatorSpec(expression: EIndicatorSpec): EIndicatorSpec {
         return EIndicatorSpec(
             expression.name,
-            expression.referenceUnit?.let { quantityExpressionReducer.reduce(it) },
+            expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
         )
     }
 }

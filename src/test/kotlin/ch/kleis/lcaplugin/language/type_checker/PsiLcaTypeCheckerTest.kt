@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
-import ch.kleis.lcaplugin.language.psi.stub.unit.UnitKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -18,7 +18,42 @@ import kotlin.test.assertFailsWith
 class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     override
     fun getTestDataPath(): String {
-        return "testdata"
+        return ""
+    }
+
+    @Test
+    fun test_whenLabelAssignment_shouldTypeCheck() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process p {
+                    labels {
+                        geo = "FR"
+                    }
+                    inputs {
+                        1 kg carrot from carrot_production match (geo = geo)
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex
+            .findProcesses(project, "$pkgName.p", mapOf("geo" to "FR")).first()
+            .getInputs().first()
+            .inputProductSpec
+            .getProcessTemplateSpec()!!
+            .getMatchLabels()!!
+            .labelSelectorList.first()
+            .dataExpression
+        val checker = PsiLcaTypeChecker()
+
+        // when
+        val actual = checker.check(target)
+
+        // then
+        assertEquals(TString, actual)
     }
 
     @Test
@@ -174,7 +209,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.foo").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.foo").first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
@@ -198,7 +233,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.foo").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.foo").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -228,7 +263,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -263,7 +298,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -298,7 +333,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -333,7 +368,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -368,7 +403,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -403,7 +438,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when/then
@@ -436,7 +471,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -470,7 +505,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -504,7 +539,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val target = UnitKeyIndex.findUnits(project, "$pkgName.bar").first()
+        val target = UnitStubKeyIndex.findUnits(project, "$pkgName.bar").first()
         val checker = PsiLcaTypeChecker()
 
         // when
@@ -842,6 +877,54 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             PsiTypeCheckException::class,
             "incompatible dimensions: foo_dim vs mass"
         ) { checker.check(target) }
+    }
+
+    @Test
+    fun test_whenTechnoInputExchange_invalidLabelValue_shouldThrow() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                unit foo {
+                    symbol = "foo"
+                    dimension = "foo_dim"
+                }
+                
+                unit kg {
+                    symbol = "kg"
+                    dimension = "mass"
+                }
+                
+                process p {
+                    inputs {
+                        1 kg foo_product from foo_prod match (geo = 1 kg)
+                    }
+                }
+                
+                process foo_prod {
+                    params {
+                        x = 1 foo
+                    }
+                    labels {
+                        geo = "FR"
+                    }
+                    products {
+                        1 kg foo_product
+                    }
+                }
+            """.trimIndent()
+        )
+        val target = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
+            .getInputs().first()
+        val checker = PsiLcaTypeChecker()
+
+        // when/then
+        val e = assertFailsWith(
+            PsiTypeCheckException::class
+        ) { checker.check(target) }
+        assertEquals("incompatible types: expecting TString, found TQuantity(dimension=mass)", e.message)
     }
 
     @Test

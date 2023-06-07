@@ -14,8 +14,8 @@ sealed interface LcaExpression : Expression {
 @optics
 data class EProductSpec(
     val name: String,
-    val referenceUnit: QuantityExpression? = null,
-    val fromProcessRef: FromProcessRef? = null,
+    val referenceUnit: DataExpression? = null,
+    val fromProcess: FromProcess? = null,
 ) : LcaExpression {
     companion object
 }
@@ -44,7 +44,7 @@ data class ESubstanceSpec(
     val type: SubstanceType? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
-    val referenceUnit: QuantityExpression? = null,
+    val referenceUnit: DataExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -53,7 +53,7 @@ data class ESubstanceSpec(
 @optics
 data class EIndicatorSpec(
     val name: String,
-    val referenceUnit: QuantityExpression? = null,
+    val referenceUnit: DataExpression? = null,
 ) : LcaExpression {
     companion object
 }
@@ -66,12 +66,12 @@ sealed interface LcaExchangeExpression : LcaExpression {
 
 @optics
 data class ETechnoExchange(
-    val quantity: QuantityExpression,
+    val quantity: DataExpression,
     val product: EProductSpec,
-    val allocation: QuantityExpression
+    val allocation: DataExpression
 ) :
     LcaExchangeExpression {
-    constructor(quantity: QuantityExpression, product: EProductSpec) : this(
+    constructor(quantity: DataExpression, product: EProductSpec) : this(
         quantity,
         product,
         EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
@@ -81,13 +81,13 @@ data class ETechnoExchange(
 }
 
 @optics
-data class EBioExchange(val quantity: QuantityExpression, val substance: ESubstanceSpec) :
+data class EBioExchange(val quantity: DataExpression, val substance: ESubstanceSpec) :
     LcaExchangeExpression {
     companion object
 }
 
 @optics
-data class EImpact(val quantity: QuantityExpression, val indicator: EIndicatorSpec) : LcaExchangeExpression {
+data class EImpact(val quantity: DataExpression, val indicator: EIndicatorSpec) : LcaExchangeExpression {
     companion object
 }
 
@@ -95,6 +95,7 @@ data class EImpact(val quantity: QuantityExpression, val indicator: EIndicatorSp
 @optics
 data class EProcess(
     val name: String,
+    val labels: Map<String, EStringLiteral>,
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,

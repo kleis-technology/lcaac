@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.imports.shared
 
+import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter

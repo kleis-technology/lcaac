@@ -4,6 +4,29 @@ import com.intellij.psi.formatter.FormatterTestCase
 import org.junit.Test
 
 class LcaIndentBlockTest : FormatterTestCase() {
+    @Test
+    fun test_formattingLabels() {
+        doTextTest(
+            """
+            package test_formatting_labels
+            
+     process p {
+labels     {
+    geo    = "FR"
+         }
+                       }
+            """.trimIndent(),
+            """
+            package test_formatting_labels
+            
+            process p {
+                labels {
+                    geo = "FR"
+                }
+            }
+            """.trimIndent()
+        )
+    }
 
 
     @Test

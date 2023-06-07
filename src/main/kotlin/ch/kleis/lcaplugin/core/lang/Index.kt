@@ -7,22 +7,31 @@ interface IndexKeySerializer<K> {
 }
 
 class Index<K, E> private constructor(
-        private val indexType: String,
-        private val indexKeySerializer: IndexKeySerializer<K>,
-        private val cachedEntries: Map<String, E>
+    private val indexType: String,
+    private val indexKeySerializer: IndexKeySerializer<K>,
+    private val cachedEntries: Map<String, List<E>>,
+    private val optics: Fold<E, K>,
 ) {
     constructor(
-            register: Register<E>,
-            indexKeySerializer: IndexKeySerializer<K>,
-            optics: Fold<E, K>
+        register: Register<E>,
+        indexKeySerializer: IndexKeySerializer<K>,
+        optics: Fold<E, K>
     ) : this(
-            register.registerType,
-            indexKeySerializer,
-            register.getEntries(optics).mapKeys { indexKeySerializer.serialize(it.key) },
+        register.registerType,
+        indexKeySerializer,
+        register.getEntries(optics).mapKeys { indexKeySerializer.serialize(it.key) },
+        optics,
     )
 
-    operator fun get(key: K): E? {
-        return cachedEntries[indexKeySerializer.serialize(key)]
+    fun firstOrNull(key: K): E? {
+        val h = indexKeySerializer.serialize(key)
+        return cachedEntries[h]?.firstOrNull {
+            this.optics.firstOrNull(it) == key
+        }
+    }
+
+    fun getAll(key: K): List<E> {
+        return cachedEntries[indexKeySerializer.serialize(key)] ?: emptyList()
     }
 
     override fun toString(): String {

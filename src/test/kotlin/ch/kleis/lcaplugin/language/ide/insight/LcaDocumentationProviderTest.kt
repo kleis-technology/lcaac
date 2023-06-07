@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.psi.LcaQuantityRef
+import ch.kleis.lcaplugin.psi.LcaDataRef
 import ch.kleis.lcaplugin.psi.LcaScaleQuantityExpression
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -161,7 +161,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -212,7 +212,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -262,7 +262,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -312,7 +312,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             .getProcesses().first()
             .getParameters().first()
             .value as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -361,7 +361,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val assignment = file
             .getProcesses().first()
             .getParameters()["yield"]!! as LcaScaleQuantityExpression
-        val ref = assignment.quantityExpression!! as LcaQuantityRef
+        val ref = assignment.dataExpression!! as LcaDataRef
         val sut = LcaDocumentationProvider()
 
         // When
@@ -391,10 +391,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun testQuantityRef_whenArgument_ShouldRender() {
+    fun testDataRef_whenArgument_ShouldRender() {
         // Given
         val virtualFile = myFixture.createFile(
-            "testQuantityRef_whenArgument_ShouldRender.lca", """
+            "testDataRef_whenArgument_ShouldRender.lca", """
             process a {
                 inputs {
                     1 kg carrot from b(x = 3 kg)
@@ -414,7 +414,8 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
         val ref = file.getProcesses().first()
             .getInputs().first()
-            .fromProcessConstraint!!
+            .inputProductSpec
+            .getProcessTemplateSpec()!!
             .argumentList.first()
             .parameterRef
         val sut = LcaDocumentationProvider()
@@ -451,9 +452,13 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         val virtualFile = myFixture.createFile(
             "testProduct_ShouldRenderWithoutProcess.lca", """
             process b {
+                labels {
+                    geo = "FR"
+                }
                 params {
                     p1 = 1 kg
                     p2 = p1 + p1
+                    p3 = "GLO"
                 }            
                 products {
                     1 kg carrot
@@ -462,7 +467,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val carrotInputExchange = file.getProcesses().first().getProducts().first()
+        val carrotInputExchange = file
+            .getProcesses().first()
+            .getProducts().first()
+            .outputProductSpec
         val sut = LcaDocumentationProvider()
 
         // When
@@ -475,6 +483,14 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             <span style="color:#ffc800;font-style:italic;">Product</span> <span style="color:#0000ff;font-weight:bold;">carrot</span><span style="color:#ffc800;font-style:italic;"> from </span><span style="color:#0000ff;font-weight:bold;">b</span>
             </pre></div>
             <div class='content'>
+            <span style="color:#808080;font-style:italic;">Process Labels:</span><table class='sections'>
+            <tr>
+            <td valign='top' class='section'>geo = </td>
+            <td valign='top'>"FR"</td>
+            </tr>
+            </table>
+            </div>
+            <div class='content'>
             <span style="color:#808080;font-style:italic;">Process Parameters:</span><table class='sections'>
             <tr>
             <td valign='top' class='section'>p1 = </td>
@@ -483,6 +499,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             <tr>
             <td valign='top' class='section'>p2 = </td>
             <td valign='top'>p1 + p1</td>
+            </tr>
+            <tr>
+            <td valign='top' class='section'>p3 = </td>
+            <td valign='top'>"GLO"</td>
             </tr>
             </table>
             </div>
@@ -502,6 +522,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
                 params {
                     p1 = 1 kg
                     p2 = p1 + p1
+                    p3 = "GLO"
                 }            
                 products {
                     1 kg carrot
@@ -531,6 +552,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         <tr>
         <td valign='top' class='section'>p2 = </td>
         <td valign='top'>p1 + p1</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>p3 = </td>
+        <td valign='top'>"GLO"</td>
         </tr>
         </table>
         </div>
@@ -604,6 +629,84 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun testProcess_ShouldRenderWithLabels() {
+        // Given
+        val virtualFile = myFixture.createFile(
+            "testProcess_ShouldRenderWithProcessAndMeta.lca", """
+            process b {
+                labels {
+                    geo = "GLO"
+                    env = "PROD"
+                }
+                meta {
+                    "author" = "Alain Colas"
+                    "description" = "Propan-1-ol..."
+                }
+                params {
+                    p1 = 1 kg
+                    p2 = p1 + p1
+                }            
+                products {
+                    1 kg carrot
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
+        val process = file.getProcesses().first()
+        val sut = LcaDocumentationProvider()
+
+        // When
+        val result = sut.generateDoc(process, process)
+
+        // Then
+        TestCase.assertEquals(
+            """
+        <div class='definition'><pre>
+        <span style="color:#ffc800;font-style:italic;">Process</span> <span style="color:#0000ff;font-weight:bold;">b</span>
+        </pre></div>
+        <div class='content'>
+        <span style="color:#808080;font-style:italic;">Process Labels:</span><table class='sections'>
+        <tr>
+        <td valign='top' class='section'>geo = </td>
+        <td valign='top'>"GLO"</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>env = </td>
+        <td valign='top'>"PROD"</td>
+        </tr>
+        </table>
+        </div>
+        <div class='content'>
+        <span style="">Propan-1-ol...</span></div>
+        <div class='content'>
+        <table class='sections'>
+        <tr>
+        <td valign='top' class='section'>Author</td>
+        <td valign='top'>Alain Colas</td>
+        </tr>
+        </table>
+        </div>
+        <div class='content'>
+        <span style="color:#808080;font-style:italic;">Process Parameters:</span><table class='sections'>
+        <tr>
+        <td valign='top' class='section'>p1 = </td>
+        <td valign='top'>1 kg</td>
+        </tr>
+        <tr>
+        <td valign='top' class='section'>p2 = </td>
+        <td valign='top'>p1 + p1</td>
+        </tr>
+        </table>
+        </div>
+        <div class='definition'><pre>
+        </pre></div>
+
+        """.trimIndent(), result
+        )
+    }
+
+    @Test
     fun test_technoExchangeWithAllocateField_ShouldRender() {
         // Given
         val virtualFile = myFixture.createFile(
@@ -626,7 +729,10 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(virtualFile) as LcaFile
-        val ref = file.getProcesses().first().getProducts().first()
+        val ref = file
+            .getProcesses().first()
+            .getProducts().first()
+            .outputProductSpec
         val sut = LcaDocumentationProvider()
         // When
         val actual = sut.generateDoc(ref, ref)

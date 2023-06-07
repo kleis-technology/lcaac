@@ -13,7 +13,7 @@ class CsvRequestReaderTest {
             UK,s00,1.0,2.0
             FR,s01,2.0,1.0
         """.trimIndent().byteInputStream()
-        val reader = CsvRequestReader("p", inputStream)
+        val reader = CsvRequestReader("p", emptyMap(), inputStream)
 
         // when
         val actual = reader.read()

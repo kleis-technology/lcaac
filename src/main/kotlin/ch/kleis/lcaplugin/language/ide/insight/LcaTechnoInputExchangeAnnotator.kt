@@ -1,8 +1,10 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
+import ch.kleis.lcaplugin.language.type_checker.LcaMatchLabelsEvaluator
 import ch.kleis.lcaplugin.language.type_checker.PsiLcaTypeChecker
 import ch.kleis.lcaplugin.language.type_checker.PsiTypeCheckException
+import ch.kleis.lcaplugin.psi.LcaInputProductSpec
+import ch.kleis.lcaplugin.psi.LcaOutputProductSpec
 import ch.kleis.lcaplugin.psi.LcaTechnoInputExchange
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
@@ -15,11 +17,14 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
         if (element !is LcaTechnoInputExchange) {
             return
         }
-        val target = element.productRef.reference.resolve()
-        if (target == null || target !is PsiTechnoProductExchange) {
-            val name = element.productRef.name
-            holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product $name")
-                .range(element.productRef)
+        val target = element.inputProductSpec.reference.resolve()
+
+        if (target == null
+            || target !is LcaOutputProductSpec
+        ) {
+            val message = errorMessage(element.inputProductSpec)
+            holder.newAnnotation(HighlightSeverity.WARNING, message)
+                .range(element.inputProductSpec)
                 .highlightType(ProblemHighlightType.WARNING)
                 .create()
         }
@@ -32,5 +37,19 @@ class LcaTechnoInputExchangeAnnotator : Annotator {
                 .highlightType(ProblemHighlightType.ERROR)
                 .create()
         }
+    }
+
+    private fun errorMessage(inputProductSpec: LcaInputProductSpec): String {
+        val product = inputProductSpec.name
+        val process = inputProductSpec.getProcessTemplateSpec()?.name
+        val labels = inputProductSpec.getProcessTemplateSpec()
+            ?.getMatchLabels()
+            ?.let { LcaMatchLabelsEvaluator().evalOrNull(it) }
+        val parts = listOfNotNull(
+            product,
+            process?.let { "from $it" },
+            labels?.let { "match $it" },
+        ).joinToString(" ")
+        return "cannot resolve $parts"
     }
 }

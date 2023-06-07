@@ -10,6 +10,12 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Serializable
+private data class ProcessKey(
+    val name: String,
+    val labels: Map<String, String>,
+)
+
+@Serializable
 private data class SubstanceKey(
     val name: String,
     val type: String?,
@@ -18,20 +24,50 @@ private data class SubstanceKey(
 )
 
 data class SymbolTable(
-    val quantities: Register<QuantityExpression> = Register.empty(),
+    val data: Register<DataExpression> = Register.empty(),
     val dimensions: Register<Dimension> = Register.empty(),
     val processTemplates: Register<EProcessTemplate> = Register.empty(),
     val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
 ) {
+    companion object {
+        fun empty() = SymbolTable()
+    }
+
+
+    override fun toString(): String {
+        return "[symbolTable]"
+    }
+
+
+    /*
+        Templates
+     */
+
+    private val processKeyDescriptor = object : IndexKeySerializer<ProcessKey> {
+        override fun serialize(key: ProcessKey): String {
+            return Json.encodeToString(key)
+        }
+    }
+    private val processKeyOptics = object : Fold<EProcess, ProcessKey> {
+        override fun <R> foldMap(M: Monoid<R>, source: EProcess, map: (focus: ProcessKey) -> R): R {
+            return map(
+                ProcessKey(
+                    source.name,
+                    source.labels.mapValues { it.value.value }
+                )
+            )
+        }
+
+    }
+    private val templatesIndexedByProcessKey: Index<ProcessKey, EProcessTemplate> = Index(
+        processTemplates,
+        processKeyDescriptor,
+        EProcessTemplate.body compose processKeyOptics,
+    )
+
     private val stringDescriptor = object : IndexKeySerializer<String> {
         override fun serialize(key: String): String {
             return key
-        }
-    }
-
-    private val substanceKeyDescriptor = object : IndexKeySerializer<SubstanceKey> {
-        override fun serialize(key: SubstanceKey): String {
-            return Json.encodeToString(key)
         }
     }
     private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
@@ -42,6 +78,37 @@ data class SymbolTable(
             ETechnoExchange.product compose
             EProductSpec.name
     )
+
+    fun getTemplate(name: String): EProcessTemplate? {
+        return templatesIndexedByProcessKey.firstOrNull(
+            ProcessKey(
+                name,
+                emptyMap(),
+            )
+        )
+    }
+
+    fun getTemplate(name: String, labels: Map<String, String>): EProcessTemplate? {
+        return templatesIndexedByProcessKey.firstOrNull(
+            ProcessKey(
+                name, labels
+            )
+        )
+    }
+
+    fun getAllTemplatesByProductName(name: String): List<EProcessTemplate> {
+        return templatesIndexedByProductName.getAll(name)
+    }
+
+
+    /*
+        Substances
+     */
+    private val substanceKeyDescriptor = object : IndexKeySerializer<SubstanceKey> {
+        override fun serialize(key: SubstanceKey): String {
+            return Json.encodeToString(key)
+        }
+    }
     private val substanceKeyOptics = object : Fold<ESubstanceSpec, SubstanceKey> {
         override fun <R> foldMap(M: Monoid<R>, source: ESubstanceSpec, map: (focus: SubstanceKey) -> R): R {
             return map(
@@ -61,16 +128,9 @@ data class SymbolTable(
             ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
         )
 
-    companion object {
-        fun empty() = SymbolTable()
-    }
 
-    fun getTemplate(name: String): EProcessTemplate? {
-        return processTemplates[name]
-    }
-
-    fun getQuantity(name: String): QuantityExpression? {
-        return quantities[name]
+    fun getData(name: String): DataExpression? {
+        return data[name]
     }
 
     fun getSubstanceCharacterization(
@@ -78,12 +138,14 @@ data class SymbolTable(
         type: SubstanceType,
         compartment: String
     ): ESubstanceCharacterization? {
-        return substanceCharacterizationsIndexedBySubstanceKey[SubstanceKey(
-            name,
-            type.value,
-            compartment,
-            null,
-        )]
+        return substanceCharacterizationsIndexedBySubstanceKey.firstOrNull(
+            SubstanceKey(
+                name,
+                type.value,
+                compartment,
+                null,
+            )
+        )
     }
 
     fun getSubstanceCharacterization(
@@ -92,20 +154,14 @@ data class SymbolTable(
         compartment: String,
         subCompartment: String
     ): ESubstanceCharacterization? {
-        return substanceCharacterizationsIndexedBySubstanceKey[SubstanceKey(
-            name,
-            type.value,
-            compartment,
-            subCompartment,
-        )]
-    }
-
-    fun getTemplateFromProductName(name: String): EProcessTemplate? {
-        return templatesIndexedByProductName[name]
-    }
-
-    override fun toString(): String {
-        return "[symbolTable]"
+        return substanceCharacterizationsIndexedBySubstanceKey.firstOrNull(
+            SubstanceKey(
+                name,
+                type.value,
+                compartment,
+                subCompartment,
+            )
+        )
     }
 }
 

@@ -1,11 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.find_usage
 
 import ch.kleis.lcaplugin.language.parser.LcaLexerAdapter
-import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
-import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
-import ch.kleis.lcaplugin.language.psi.type.exchange.PsiTechnoProductExchange
-import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
-import ch.kleis.lcaplugin.psi.LcaTechnoInputExchange
+import ch.kleis.lcaplugin.psi.*
 import ch.kleis.lcaplugin.psi.LcaTypes.*
 import com.intellij.lang.cacheBuilder.DefaultWordsScanner
 import com.intellij.lang.cacheBuilder.WordsScanner
@@ -31,10 +27,13 @@ class LcaFindUsagesProvider : FindUsagesProvider {
 
     override fun canFindUsagesFor(psiElement: PsiElement): Boolean =
         when (psiElement) {
-            is PsiTechnoProductExchange -> true
-            is PsiSubstance -> true
-            is PsiUnitDefinition -> true
-            is PsiGlobalAssignment -> true
+            is LcaProcess -> true
+            is LcaOutputProductSpec -> true
+            is LcaSubstance -> true
+            is LcaUnitDefinition -> true
+            is LcaGlobalAssignment -> true
+            is LcaAssignment -> true
+            is LcaLabelAssignment -> true
             else -> false
         }
 
@@ -42,11 +41,13 @@ class LcaFindUsagesProvider : FindUsagesProvider {
 
     override fun getType(element: PsiElement): String =
         when (element) {
-            is PsiSubstance -> "Substance"
-            is LcaTechnoInputExchange -> "Product"
-            is PsiTechnoProductExchange -> "Product"
-            is PsiUnitDefinition -> "Unit"
-            is PsiGlobalAssignment -> "Quantity"
+            is LcaProcess -> "Process"
+            is LcaOutputProductSpec -> "Product"
+            is LcaSubstance -> "Substance"
+            is LcaUnitDefinition -> "Unit"
+            is LcaGlobalAssignment -> "Data"
+            is LcaAssignment -> "Data"
+            is LcaLabelAssignment -> "Label"
             else -> ""
         }
 

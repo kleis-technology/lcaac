@@ -26,7 +26,7 @@ class GlobalAssignmentStubElementType(debugName: String) :
 
     @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: LcaGlobalAssignment, parentStub: StubElement<out PsiElement>?): GlobalAssignmentStub {
-        val fqn = psi.getQuantityRef().getFullyQualifiedName()
+        val fqn = psi.getDataRef().getFullyQualifiedName()
         return GlobalAssignmentStubImpl(parentStub as StubElement<LcaGlobalAssignment>, fqn)
     }
 

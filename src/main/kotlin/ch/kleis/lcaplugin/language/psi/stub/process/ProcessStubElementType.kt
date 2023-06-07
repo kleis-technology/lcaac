@@ -17,7 +17,8 @@ class ProcessStubElementType(debugName: String) :
 
     @Suppress("UNCHECKED_CAST")
     override fun deserialize(dataStream: StubInputStream, parentStub: StubElement<*>?): ProcessStub {
-        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, dataStream.readNameString()!!)
+        val key = ProcessKeyDescriptor.INSTANCE.read(dataStream)
+        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, key)
     }
 
     override fun createStub(tree: LighterAST, node: LighterASTNode, parentStub: StubElement<*>): ProcessStub {
@@ -26,8 +27,10 @@ class ProcessStubElementType(debugName: String) :
 
     @Suppress("UNCHECKED_CAST")
     override fun createStub(psi: LcaProcess, parentStub: StubElement<out PsiElement>?): ProcessStub {
-        val fqn = psi.getProcessTemplateRef().getFullyQualifiedName()
-        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, fqn)
+        val fqn = psi.getProcessRef().getFullyQualifiedName()
+        val labels = psi.getLabels()
+        val key = ProcessKey(fqn, labels)
+        return ProcessStubImpl(parentStub as StubElement<LcaProcess>, key)
     }
 
     override fun createPsi(stub: ProcessStub): LcaProcess {
@@ -35,10 +38,10 @@ class ProcessStubElementType(debugName: String) :
     }
 
     override fun indexStub(stub: ProcessStub, sink: IndexSink) {
-        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.fqn)
+        sink.occurrence(LcaStubIndexKeys.PROCESSES, stub.key)
     }
 
     override fun serialize(stub: ProcessStub, dataStream: StubOutputStream) {
-        dataStream.writeName(stub.fqn)
+        ProcessKeyDescriptor.INSTANCE.save(dataStream, stub.key)
     }
 }

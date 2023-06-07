@@ -4,5 +4,5 @@ import ch.kleis.lcaplugin.psi.LcaProcess
 import com.intellij.psi.stubs.StubElement
 
 interface ProcessStub : StubElement<LcaProcess> {
-    val fqn: String
+    val key: ProcessKey
 }

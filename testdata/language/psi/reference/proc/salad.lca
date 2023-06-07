@@ -1,8 +1,0 @@
-package language.psi.reference.proc.test_resolve.salad
-
-
-process salad_production {
-    products {
-        1 kg salad
-    }
-}

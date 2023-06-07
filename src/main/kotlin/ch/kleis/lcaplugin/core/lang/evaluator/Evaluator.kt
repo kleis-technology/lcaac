@@ -3,9 +3,11 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 import arrow.optics.Every
 import arrow.optics.PEvery
 import ch.kleis.lcaplugin.core.lang.SymbolTable
-import ch.kleis.lcaplugin.core.lang.evaluator.reducer.QuantityExpressionReducer
+import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
-import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceAndComplete
+import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteTerminals
+import ch.kleis.lcaplugin.core.lang.evaluator.step.Reduce
+import ch.kleis.lcaplugin.core.lang.evaluator.step.ReduceLabelSelectors
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaplugin.core.lang.resolver.SubstanceCharacterizationResolver
@@ -19,11 +21,14 @@ class Evaluator(
         private val LOG = Logger.getInstance(Evaluator::class.java)
     }
 
-    private val reduceAndComplete = ReduceAndComplete(symbolTable)
+    private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable)
+    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
+    private val reduce = Reduce(symbolTable)
+    private val completeTerminals = CompleteTerminals()
+
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
-    private val quantityReducer = QuantityExpressionReducer(symbolTable.quantities)
-    private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
+    private val dataReducer = DataExpressionReducer(symbolTable.data)
     private val everyInputProduct =
         ProcessTemplateExpression.eProcessFinal.expression.inputs
             .compose(Every.list())
@@ -33,7 +38,7 @@ class Evaluator(
             .compose(Every.list())
             .compose(EBioExchange.substance)
 
-    fun eval(expression: ProcessTemplateExpression): SystemValue {
+    fun eval(expression: EProcessTemplateApplication): SystemValue {
         LOG.info("Start recursive Compile")
         try {
             val result = SystemValue.empty()
@@ -48,8 +53,8 @@ class Evaluator(
 
     private tailrec fun recursiveCompile(
         accumulator: SystemValue,
-        visited: HashSet<ProcessTemplateExpression>,
-        toProcess: HashSet<ProcessTemplateExpression>,
+        visited: HashSet<EProcessTemplateApplication>,
+        toProcess: HashSet<EProcessTemplateApplication>,
     ) {
         // termination condition
         if (toProcess.isEmpty()) return
@@ -59,26 +64,36 @@ class Evaluator(
         if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
         visited.add(expression)
 
-        val reduced = reduceAndComplete.apply(completeDefaultArguments.apply(expression))
+        val reduced = expression
+            .let(reduceLabelSelectors::apply)
+            .let(completeDefaultArguments::apply)
+            .let(reduce::apply)
+            .let(completeTerminals::apply)
+
         val nextInstances = HashSet<EProcessTemplateApplication>()
         val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
-            resolveProcessTemplateFromProduct(spec)?.let { template ->
+            resolveProcessTemplateByProductSpec(spec)?.let { template ->
                 val body = template.body
-                val arguments = spec.fromProcessRef?.arguments
-                    ?: template.params.mapValues { entry -> quantityReducer.reduce(entry.value) }
+                val labels = spec.fromProcess?.matchLabels
+                    ?: MatchLabels(template.body.labels)
+                val arguments = spec.fromProcess?.arguments
+                    ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
                 nextInstances.add(EProcessTemplateApplication(template, arguments))
                 spec.copy(
-                    fromProcessRef =
-                    FromProcessRef(
+                    fromProcess =
+                    FromProcess(
                         body.name,
+                        labels,
                         arguments,
                     )
                 )
             } ?: spec
         }
         val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
-            resolveSubstanceCharacterizationBySubstance(spec)?.let {
-                val substanceCharacterization = reduceAndComplete.apply(it)
+            resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
+                val substanceCharacterization = it
+                    .let(reduce::apply)
+                    .let(completeTerminals::apply)
                 accumulator.plus(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
             } ?: spec
@@ -100,15 +115,12 @@ class Evaluator(
         }
     }
 
-    private fun resolveSubstanceCharacterizationBySubstance(spec: ESubstanceSpec): ESubstanceCharacterization? {
+    private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
         return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
     }
 
-    private fun resolveProcessTemplateFromProduct(spec: EProductSpec): EProcessTemplate? {
-        return spec.fromProcessRef?.ref?.let { processName ->
-            val candidate = processResolver.resolve(spec)
-            return candidate ?: throw EvaluatorException("no process '$processName' providing '${spec.name}' found")
-        } ?: processResolver.resolve(spec)
+    private fun resolveProcessTemplateByProductSpec(spec: EProductSpec): EProcessTemplate? {
+        return processResolver.resolve(spec)
     }
 }
 

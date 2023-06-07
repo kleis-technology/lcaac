@@ -9,6 +9,7 @@ class ProcessValueFixture {
     companion object {
         val carrotProcessValue = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(carrotTechnoExchangeValue),
             listOf(),
             listOf()
@@ -16,6 +17,7 @@ class ProcessValueFixture {
 
         val carrotProcessValueWithAllocation = ProcessValue(
             "carrot",
+            emptyMap(),
             listOf(carrotTechnoExchangeValueWithAllocation),
             listOf(waterTechnoExchangeValueWithAllocation),
             listOf()

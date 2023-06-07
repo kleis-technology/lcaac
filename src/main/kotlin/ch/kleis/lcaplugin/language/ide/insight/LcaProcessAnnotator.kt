@@ -18,9 +18,9 @@ class LcaProcessAnnotator : Annotator {
             return
         }
 
-        val productNames = products.map { it.name }
+        val productNames = products.map { it.outputProductSpec.name }
         val productsWithoutAllocationFactors = products
-            .filter { it.getAllocateField() == null }
+            .filter { it.outputProductSpec.allocateField == null }
         if (productsWithoutAllocationFactors.isNotEmpty()) {
             holder.newAnnotation(
                 HighlightSeverity.ERROR,

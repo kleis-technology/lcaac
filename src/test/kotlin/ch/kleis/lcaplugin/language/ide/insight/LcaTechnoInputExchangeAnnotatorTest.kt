@@ -41,8 +41,8 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "unresolved product carrot") }
-        verify { mock.builder.range(element.getProductRef()) }
+        verify { mock.holder.newAnnotation(HighlightSeverity.WARNING, "cannot resolve carrot") }
+        verify { mock.builder.range(element.inputProductSpec) }
         verify { mock.builder.highlightType(ProblemHighlightType.WARNING) }
         verify { mock.builder.create() }
     }
@@ -121,7 +121,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
         verify {
             mock.holder.newAnnotation(
                 HighlightSeverity.ERROR,
-                "incompatible dimensions: expecting mass, found length³"
+                "incompatible types: expecting TQuantity(dimension=mass), found TQuantity(dimension=length³)"
             )
         }
         verify { mock.builder.range(element) }

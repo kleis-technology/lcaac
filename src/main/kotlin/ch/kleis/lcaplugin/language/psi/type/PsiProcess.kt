@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.language.psi.type
 
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStub
-import ch.kleis.lcaplugin.language.psi.type.ref.PsiProcessTemplateRef
 import ch.kleis.lcaplugin.language.psi.type.trait.BlockMetaOwner
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
@@ -13,28 +12,30 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 
 interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner, BlockMetaOwner {
-    fun getProcessTemplateRef(): PsiProcessTemplateRef {
-        return node.findChildByType(LcaTypes.PROCESS_TEMPLATE_REF)?.psi as PsiProcessTemplateRef
+    fun getProcessRef(): LcaProcessRef {
+        return PsiTreeUtil.getChildOfType(this, LcaProcessRef::class.java) as LcaProcessRef
     }
 
+    fun buildUniqueKey(): String = if (this.getLabels().isEmpty()) this.name else "${this.name}${this.getLabels()}"
+
     override fun getName(): String {
-        return getProcessTemplateRef().name
+        return getProcessRef().name
     }
 
     override fun setName(name: String): PsiElement {
-        getProcessTemplateRef().name = name
+        getProcessRef().name = name
         return this
     }
 
     override fun getNameIdentifier(): PsiElement? {
-        return getProcessTemplateRef().nameIdentifier
+        return getProcessRef().nameIdentifier
     }
 
-    fun getParameters(): Map<String, LcaQuantityExpression> {
+    fun getParameters(): Map<String, LcaDataExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaParams::class.java)
             .flatMap {
                 it.assignmentList.map { a ->
-                    a.getQuantityRef().name to a.getValue()
+                    a.getDataRef().name to a.getValue()
                 }
             }
             .toMap()
@@ -48,6 +49,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
     fun getInputs(): Collection<LcaTechnoInputExchange> {
         return PsiTreeUtil.findChildrenOfType(this, LcaBlockInputs::class.java)
             .flatMap { it.technoInputExchangeList }
+    }
+
+    fun getLabels(): Map<String, String> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaLabels::class.java)
+            .flatMap { it.labelAssignmentList }
+            .associate { it.name to it.getValue() }
     }
 
     fun getEmissions(): Collection<LcaBioExchange> {
@@ -68,14 +75,18 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.bioExchangeList }
     }
 
-    fun getVariables(): Map<String, LcaQuantityExpression> {
+    fun getVariables(): Map<String, LcaDataExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
             .flatMap {
                 it.assignmentList.map { a ->
-                    a.getQuantityRef().name to a.getValue()
+                    a.getDataRef().name to a.getValue()
                 }
             }
             .toMap()
+    }
+
+    fun getLcaLabels(): Collection<LcaLabels> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaLabels::class.java)
     }
 
     fun getLcaVariables(): Collection<LcaVariables> {
@@ -92,6 +103,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
         lastParent: PsiElement?,
         place: PsiElement
     ): Boolean {
+        for (block in getLcaLabels()) {
+            if (!processor.execute(block, state)) {
+                return false
+            }
+        }
+
         for (block in getLcaVariables()) {
             if (!processor.execute(block, state)) {
                 return false
