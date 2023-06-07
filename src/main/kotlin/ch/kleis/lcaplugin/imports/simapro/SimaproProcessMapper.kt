@@ -162,7 +162,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         product.name()?.let { initComments.add("name: $it") }
         product.category()?.let { initComments.add("category: $it") }
         val comments = createComments(product.comment(), initComments)
-        val unit = sanitizeUnit(product.unit())
+        val unit = sanitizeSymbol(product.unit())
         val allocation = product.allocation().value()
         val amount = FormulaConverter.compute(product.amount().toString(), comments)
         return ImportedProductExchange(comments, amount, unit, product.uid(), allocation)
@@ -183,7 +183,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         additionalComments: List<String> = listOf()
     ): ImportedProductExchange {
         val comments = createComments(exchange.comment(), additionalComments)
-        val unit = sanitizeUnit(exchange.unit())
+        val unit = sanitizeSymbol(exchange.unit())
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
         val amount = FormulaConverter.compute(exchange.amount().toString(), comments)
         return ImportedProductExchange(comments, amount, unit, uid)
@@ -205,7 +205,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
     ): ImportedBioExchange {
         val comments = createComments(exchange.comment())
         val amount = FormulaConverter.compute(exchange.amount().toString(), comments)
-        val unit = sanitizeUnit(exchange.unit())
+        val unit = sanitizeSymbol(exchange.unit())
         val sub = exchange.subCompartment().ifBlank { null }
         val name = exchange.name()
         val realKey = substanceDict.realKeyForSubstance(name, type, unit, compartment, sub)

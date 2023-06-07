@@ -3,13 +3,13 @@ package ch.kleis.lcaplugin.imports.simapro
 import junit.framework.TestCase
 import org.junit.Test
 
-class UnitSanitizerKtTest {
+class SymbolSanitizerKtTest {
     @Test
     fun test_sanitizeSymbol_whenNoSanitizeNeeded_shouldReturnSameSymbol() {
         // given
         val symbol = "kg"
         // when
-        val sanitizedSymbol = sanitizeUnit(symbol)
+        val sanitizedSymbol = sanitizeSymbol(symbol)
         // then
         TestCase.assertEquals(symbol, sanitizedSymbol)
     }
@@ -19,7 +19,7 @@ class UnitSanitizerKtTest {
         // given
         val symbol = "unit"
         // when
-        val sanitizedSymbol = sanitizeUnit(symbol)
+        val sanitizedSymbol = sanitizeSymbol(symbol)
         // then
         TestCase.assertEquals("u", sanitizedSymbol)
     }
@@ -29,7 +29,7 @@ class UnitSanitizerKtTest {
         // given
         val symbol = "process"
         // when
-        val sanitizedSymbol = sanitizeUnit(symbol)
+        val sanitizedSymbol = sanitizeSymbol(symbol)
         // then
         TestCase.assertEquals("_process", sanitizedSymbol)
     }

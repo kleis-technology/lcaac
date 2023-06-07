@@ -14,7 +14,7 @@
             <li>Description of processes, intermediary and elementary flows, with parameters.</li>
             <li>Embedded inventory computation engine.</li>
             <li>Code navigation.</li>
-            </ul>
+        </ul>
     ]]>
     </description>
     <xi:include href="/META-INF/tips-kleis-1.xml"/>
@@ -36,7 +36,6 @@
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.parser.LcaParserDefinition"/>
 
-
         <lang.commenter
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.LcaCommenter"/>
@@ -44,8 +43,9 @@
         <lang.foldingBuilder
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaFoldingBuilder"/>
-        <lang.braceMatcher language="LCA"
-                           implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
+        <lang.braceMatcher
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LcaBraceMatcher"/>
         <lang.formatter
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.style.LcaFormattingModelBuilder"/>
@@ -146,7 +146,7 @@
             <add-to-group group-id="ImportLibrary"/>
         </action>
         <action id="ImportEcospold" class="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportMenuAction"
-                text="EcoSpold Library">
+                text="EcoSpold LCIA Library">
             <add-to-group group-id="ImportLibrary"/>
         </action>
     </actions>
