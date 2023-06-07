@@ -20,7 +20,7 @@ class LcaFileCollector(
 
     private val guard = CacheGuard { el: PsiNamedElement -> refFileResolver.resolve(el) }
 
-    fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files ?
+    fun collect(file: LcaFile): Sequence<LcaFile> { // TODO Collect Symbols instead of files
         val result = HashMap<String, LcaFile>()
         LOG.info("Start recursive collect")
         recursiveCollect(result, mutableMapOf(file.virtualFile.path to file))

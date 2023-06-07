@@ -42,8 +42,8 @@ data class ESubstanceSpec(
     val name: String,
     val displayName: String = name,
     val type: SubstanceType? = null,
-    val compartment: String? = null, // TODO: use DataExpression?
-    val subCompartment: String? = null, // TODO: use DataExpression?
+    val compartment: String? = null,
+    val subCompartment: String? = null,
     val referenceUnit: DataExpression? = null,
 ) : LcaExpression {
     companion object
