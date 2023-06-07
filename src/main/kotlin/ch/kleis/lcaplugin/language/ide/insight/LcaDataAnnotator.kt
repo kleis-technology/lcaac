@@ -1,34 +1,43 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.core.prelude.Prelude
+import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.annotateWarnWithMessage
+import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.isAssignementReciever
+import ch.kleis.lcaplugin.language.ide.insight.LcaDataAnnotator.ResolveResult.*
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 
 class LcaDataAnnotator : Annotator {
+    enum class ResolveResult {
+        NORESOLVE, ONERESOLVE, MANYRESOLVE
+    }
+
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (element !is PsiDataRef) {
-            return
+        if (element is PsiDataRef && !isAssignementReciever(element)) {
+            val name = element.name
+            when (tryResolve(element)) {
+                ONERESOLVE -> Unit
+
+                NORESOLVE ->
+                    annotateWarnWithMessage(element, holder, "Unresolved quantity reference $name")
+
+                MANYRESOLVE ->
+                    annotateWarnWithMessage(element, holder, "Quantity reference $name has several resolution targets")
+            }
         }
 
-        if (doesResolve(element)) {
-            return
+    }
+
+    private fun tryResolve(psiDataRef: PsiDataRef): ResolveResult {
+        val fromPrelude = Prelude.unitMap[psiDataRef.name]?.let { 1 } ?: 0
+        val fromCode = psiDataRef.reference.multiResolve(false).size
+        return when (fromPrelude + fromCode) {
+            0 -> NORESOLVE
+            1 -> ONERESOLVE
+            else -> MANYRESOLVE
         }
-
-        val name = element.name
-        holder.newAnnotation(HighlightSeverity.WARNING, "Unresolved quantity $name")
-            .range(element)
-            .highlightType(ProblemHighlightType.WARNING)
-            .create()
     }
 
-    // there should be a better way ...
-    private fun doesResolve(psiDataRef: PsiDataRef): Boolean {
-        return psiDataRef.reference.resolve()?.let { true }
-            ?: Prelude.unitMap[psiDataRef.name]?.let { true }
-            ?: false
-    }
 }

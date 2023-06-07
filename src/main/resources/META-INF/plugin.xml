@@ -68,6 +68,9 @@
         <annotator
                 language="LCA"
                 implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaDataAnnotator"/>
+        <annotator
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.insight.LcaAssignmentAnnotator"/>
 
         <lang.elementManipulator forClass="ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef"
                                  implementationClass="ch.kleis.lcaplugin.language.psi.manipulators.PsiQuantityRefManipulator"/>
