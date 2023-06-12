@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.imports.simapro.substance
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.model.ImportedImpact
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
-import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
+import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
 
@@ -14,8 +14,8 @@ class SimaproSubstanceMapper {
         ): ImportedSubstance {
             val subType = resolveSimaproType(type, element.name())
             val substance =
-                ImportedSubstance(element.name(), subType.toString(), sanitizeUnit(element.unit()), compartment)
-            substance.impacts.add(ImportedImpact(1.0, sanitizeUnit(element.unit()), substance.uid))
+                ImportedSubstance(element.name(), subType.toString(), sanitizeSymbol(element.unit()), compartment)
+            substance.impacts.add(ImportedImpact(1.0, sanitizeSymbol(element.unit()), substance.uid))
             substance.meta["generator"] = "kleis-lca-generator"
             substance.meta["description"] = element.comment()
             substance.meta["casNumber"] = element.cas()

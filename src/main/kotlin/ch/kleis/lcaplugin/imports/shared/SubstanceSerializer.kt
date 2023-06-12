@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
+import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 
 class SubstanceSerializer {
 
@@ -47,9 +48,10 @@ substance ${s.uid} {
         // ${it.comment}"""
                     )
                 }
+                val name = sanitizeSymbol(ModelWriter.sanitizeAndCompact(it.name))
                 builder.append(
                     """
-        ${it.value} ${it.unitSymbol} ${ModelWriter.sanitizeAndCompact(it.name)}"""
+        ${it.value} ${it.unitSymbol} $name"""
                 )
             }
             builder.append(

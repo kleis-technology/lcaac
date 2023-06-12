@@ -10,7 +10,7 @@ import ch.kleis.lcaplugin.imports.model.ExchangeBlock
 import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
 import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
-import ch.kleis.lcaplugin.imports.simapro.sanitizeUnit
+import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 
 class EcoSpold2ProcessMapper {
     companion object {
@@ -43,7 +43,7 @@ class EcoSpold2ProcessMapper {
             e.uncertainty?.let { uncertaintyToStr(initComments, it) }
             e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
             val amount = e.amount.toString()
-            val unit = sanitizeUnit(unitToStr(e.unit))
+            val unit = sanitizeSymbol(unitToStr(e.unit))
 
             val uid = ModelWriter.sanitizeAndCompact("${e.name}_$geo")
             if (e.outputGroup != 0) {

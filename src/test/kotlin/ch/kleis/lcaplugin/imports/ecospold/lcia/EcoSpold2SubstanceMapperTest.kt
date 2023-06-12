@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcoSpold2SubstanceMapper
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -24,11 +23,11 @@ class EcoSpold2SubstanceMapperTest {
         assertNull(result.subCompartment)
         assertEquals(2, result.impacts.size)
         val climateChange = result.impacts
-            .first { it.name == "global warming potential (GWP100)" }
-        assertEquals("global warming potential (GWP100)", climateChange.name)
-        assertEquals(0.6, climateChange.value, 1E-12)
-        assertEquals("kg_CO2_Eq", climateChange.unitSymbol)
-
+            .firstOrNull() { it.name == "climate change" }
+        assertEquals("climate change", climateChange?.name)
+        assertEquals("global warming potential (GWP100)", climateChange?.comment)
+        assertEquals(0.6, climateChange?.value ?: 0.0, 1E-12)
+        assertEquals("kg_CO2_Eq", climateChange?.unitSymbol)
     }
 
 }

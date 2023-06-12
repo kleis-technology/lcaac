@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.ecospold.lcia.model
 
 class ImpactIndicator(
     val methodName: String,
-    val categoryName: String?,
+    val categoryName: String,
     val name: String,
     val amount: Double,
     val unitName: String
@@ -20,7 +20,7 @@ class ImpactIndicator(
         fun amount(amount: Double) = apply { this.amount = amount }
         fun unitName(unitName: String) = apply { this.unitName = unitName }
         fun build(): ImpactIndicator {
-            return ImpactIndicator(methodName!!, categoryName, name!!, amount!!, unitName!!)
+            return ImpactIndicator(methodName!!, categoryName!!, name!!, amount!!, unitName!!)
         }
     }
 
