@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/stdlib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/gen" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/ksp/main/kotlin" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="intellij.java" />
+    <orderEntry type="module" module-name="intellij.java.ui" />
+    <orderEntry type="module" module-name="intellij.idea.community.main" />
+    <orderEntry type="module" module-name="intellij.platform.util.ui" />
+    <orderEntry type="module" module-name="intellij.platform.core.impl" />
+    <orderEntry type="module" module-name="intellij.platform.core" />
+    <orderEntry type="module" module-name="intellij.platform.core.ui" />
+    <orderEntry type="module" module-name="intellij.platform.debugger" />
+    <orderEntry type="module" module-name="intellij.platform.debugger.impl" />
+    <orderEntry type="module" module-name="intellij.platform.extensions" />
+    <orderEntry type="module" module-name="intellij.platform.ide.impl" />
+    <orderEntry type="module" module-name="intellij.platform.lang.impl" />
+    <orderEntry type="module" module-name="intellij.platform.ml" />
+    <orderEntry type="module" module-name="intellij.platform.smRunner" />
+    <orderEntry type="module" module-name="intellij.platform.testRunner" />
+    <orderEntry type="module" module-name="intellij.platform.util" />
+    <orderEntry type="module" module-name="intellij.platform.util.jdom" />
+    <orderEntry type="module" module-name="intellij.platform.vcs" />
+    <orderEntry type="library" name="openlca.olca.simapro.csv" level="project" />
+    <orderEntry type="library" name="jetbrains.kotlinx.serialization.json" level="project" />
+    <orderEntry type="library" name="kotlinx-serialization-json" level="project" />
+    <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
+    <orderEntry type="library" name="io.arrow.kt.core" level="project" />
+    <orderEntry type="library" name="io.arrow.kt.optics" level="project" />
+    <orderEntry type="library" name="io.arrow.kt.optics.ksp.plugin" level="project" />
+    <orderEntry type="library" name="jdom.jdom2" level="project" />
+    <orderEntry type="library" name="ejml.simple" level="project" />
+    <orderEntry type="library" name="kotlinx-collections-immutable" level="project" />
+    <orderEntry type="library" name="commons-compress" level="project" />
+    <orderEntry type="module" module-name="intellij.platform.codeStyle.impl" />
+    <orderEntry type="library" name="swingx" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.13.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="kotlin-test" level="project" />
+    <orderEntry type="library" scope="TEST" name="commons-io" level="project" />
+    <orderEntry type="module" module-name="intellij.json" scope="TEST" />
+    <orderEntry type="module" module-name="intellij.platform.testFramework" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="kotlin-test-junit" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-agent-api-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-agent-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-core-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-dsl-jvm:1.13.4" level="project" />
+    <orderEntry type="module" module-name="intellij.platform.rd.community" />
+    <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
+    <orderEntry type="library" name="kotlinc.kotlinx-serialization-compiler-plugin" level="project" />
+  </component>
+</module>

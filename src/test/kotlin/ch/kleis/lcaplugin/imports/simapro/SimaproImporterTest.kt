@@ -9,7 +9,6 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
-import com.intellij.util.io.exists
 import io.mockk.*
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -21,6 +20,7 @@ import org.junit.Test
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.test.assertEquals
 
 class SimaproImporterTest {

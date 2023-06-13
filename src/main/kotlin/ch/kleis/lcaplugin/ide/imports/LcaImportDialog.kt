@@ -17,26 +17,26 @@ import com.intellij.openapi.wm.impl.welcomeScreen.ActionGroupPanelWrapper
 import com.intellij.openapi.wm.impl.welcomeScreen.FlatWelcomeFrame
 import com.intellij.ui.ScrollingUtil
 import com.intellij.ui.components.JBList
-import com.intellij.util.io.exists
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.update.UiNotifyConnector
 import java.nio.file.Path
 import javax.swing.JComponent
 import javax.swing.JPanel
 import kotlin.io.path.isRegularFile
+import kotlin.io.path.notExists
 
 
 class LcaImportDialog<P>(private val panel: P, title: String) :
     DialogWrapper(ProjectManager.getInstance().defaultProject) where P : ImportHandler, P : JPanel {
 
-    private var panelAndActions: Pair<JPanel, JBList<AnAction>>? = null
+    private var panelAndActions: Pair<JPanel?, JBList<AnAction?>> = Pair(null, JBList())
 
     private var worker: AsynchronousImportWorker? = null
 
     companion object {
         fun validateRegularFile(value: String, component: JComponent): ValidationInfo? {
             val libPath = Path.of(value)
-            return if (!libPath.exists() || !libPath.isRegularFile()) {
+            return if (!libPath.notExists() || !libPath.isRegularFile()) {
                 ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), component)
             } else {
                 null
@@ -86,9 +86,9 @@ class LcaImportDialog<P>(private val panel: P, title: String) :
         val component = groupActions.first
         component.add(panel)
         panelAndActions = groupActions
-        UiNotifyConnector.doWhenFirstShown(panelAndActions!!.second) {
+        UiNotifyConnector.doWhenFirstShown(panelAndActions.second) {
             ScrollingUtil.ensureSelectionExists(
-                panelAndActions!!.second
+                panelAndActions.second
             )
         }
         ActionGroupPanelWrapper.installQuickSearch(groupActions.second)
@@ -97,7 +97,7 @@ class LcaImportDialog<P>(private val panel: P, title: String) :
 
 
     override fun getPreferredFocusedComponent(): JComponent {
-        return FlatWelcomeFrame.getPreferredFocusedComponent(panelAndActions!!)
+        return FlatWelcomeFrame.getPreferredFocusedComponent(panelAndActions)
     }
 
     private fun importOnSuccess() {

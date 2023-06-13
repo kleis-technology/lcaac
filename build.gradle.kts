@@ -9,10 +9,11 @@ fun properties(key: String) = project.findProperty(key).toString()
 plugins {
     // Java support
     id("java")
-    // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.8.10"
+    // Kotlin support, oom issue with this version see https://jb.gg/intellij-platform-kotlin-oom
+    // TODO Move to next version to solve it when fix is available
+    id("org.jetbrains.kotlin.jvm") version "1.8.20"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.12.0"
+    id("org.jetbrains.intellij") version "1.14.2"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "2.0.0"
     // Gradle Qodana Plugin
@@ -20,7 +21,7 @@ plugins {
     // Gradle Grammar kit Plugin
     id("org.jetbrains.grammarkit") version "2021.2.2"
     // Arrow optics auto-generation Plugin
-    id("com.google.devtools.ksp") version "1.8.10-1.0.9"
+    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     // JSON serialization tools for graph visualization
     kotlin("plugin.serialization") version "1.8.10"
 }
@@ -52,7 +53,7 @@ dependencies {
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.5"
-    val kotlinxSerializationJSONVersion = "1.5.0"
+    val kotlinxSerializationJSONVersion = "1.5.1"
     implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-optics")

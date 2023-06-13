@@ -215,7 +215,7 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
         if (blockOwner != null) {
             val meta = blockOwner.getBlockMetaList()
                 .flatMap { it.metaAssignmentList }
-                .associate { Pair(it.name, it.getValue()) }
+                .associate { Pair(it.getName(), it.getValue()) }
             val desc = meta["description"]
             if (desc != null) {
                 sb.append(DocumentationMarkup.CONTENT_START).append("\n")
