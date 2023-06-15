@@ -132,6 +132,8 @@
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings"/>
 
+        <defaultLiveTemplates file="/liveTemplates/lca.xml"/>
+        <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext"/>
     </extensions>
 
     <applicationListeners>
