@@ -93,7 +93,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined somewhere else") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -197,7 +197,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined somewhere else") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
