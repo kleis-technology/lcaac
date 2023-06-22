@@ -16,7 +16,7 @@ class LcaAssignmentAnnotator : Annotator {
                     annotateErrWithMessage(element, holder, "Quantity reference ${element.name} is already defined in the unit prelude.")
 
                 element.reference.multiResolve(false).size > 1 ->
-                    annotateErrWithMessage(element, holder, "This name is already defined somewhere else")
+                    annotateErrWithMessage(element, holder, "This name is already defined")
             }
         }
     }
