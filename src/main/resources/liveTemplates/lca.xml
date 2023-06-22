@@ -1,0 +1,42 @@
+<templateSet group="Lca">
+    <template name="process{"
+              value="process $PRODUCT$ {&#10;&#10;    params {&#10;        p1 = 1 kg&#10;    }&#10;&#10;    products {&#10;        1 l $PRODUCT$&#10;    }&#10;&#10;    inputs {&#10;        3 g carrot from process_b( p4 = 200 g )&#10;    }&#10;&#10;    emissions {&#10;        1.5 g mySubstance( compartment = &quot;water&quot;, sub_compartment = &quot;sea water&quot; )&#10;    }&#10;&#10;    land_use {&#10;        2 m2a agriculture( compartment = &quot;land occupation&quot; )&#10;    }&#10;}"
+              description="generate process template" toReformat="true" toShortenFQNames="true">
+        <variable name="PRODUCT" expression="fileNameWithoutExtension()" defaultValue="myProduct" alwaysStopAt="true"/>
+        <context>
+            <option name="LCARoot" value="true"/>
+        </context>
+    </template>
+    <template name="substance{"
+              value="substance mySubstance {&#10;    name = &quot;mySubstanceName&quot;&#10;    type = Emission&#10;    compartment = &quot;water&quot;&#10;    sub_compartment = &quot;sea water&quot;&#10;&#10;    reference_unit = kg&#10;    meta {&#10;        &quot;description&quot; = &quot;My doc&quot;&#10;        &quot;author&quot; = &quot;My name&quot;&#10;    }&#10;&#10;    impacts {&#10;        48.218 u Climate_change&#10;    }&#10;&#10;}"
+              description="generate substance template" toReformat="false" toShortenFQNames="true">
+        <context>
+            <option name="LCARoot" value="true"/>
+        </context>
+    </template>
+    <template name="unit alias {"
+              value="unit $SYMBOL$ {&#10;    symbol = &quot;$SYMBOL$&quot;&#10;    alias_for = 0.001 kg&#10;}"
+              description="Create unit alias" toReformat="false" toShortenFQNames="true">
+        <variable name="SYMBOL" expression="&quot;newG&quot;" defaultValue="newG" alwaysStopAt="true"/>
+        <context>
+            <option name="LCARoot" value="true"/>
+        </context>
+    </template>
+    <template name="unit new dimension {"
+              value="unit $SYMBOL_NEW$ {&#10;    symbol = &quot;$SYMBOL_NEW$&quot;&#10;    dimension = &quot;$DIMENSION$&quot;&#10;}&#10;"
+              description="Create a new dimension with a reference unit" toReformat="false" toShortenFQNames="true">
+        <variable name="SYMBOL_NEW" expression="&quot;symb&quot;" defaultValue="symb" alwaysStopAt="true"/>
+        <variable name="DIMENSION" expression="&quot;newDimension&quot;" defaultValue="newDimension"
+                  alwaysStopAt="true"/>
+        <context>
+            <option name="LCARoot" value="true"/>
+        </context>
+    </template>
+    <template name="variables {" value="variables {&#10;    $VAR$ = 1 kg&#10;}&#10;"
+              description="Create a new variables block" toReformat="false" toShortenFQNames="true">
+        <variable name="VAR" expression="&quot;x&quot;" defaultValue="x" alwaysStopAt="true"/>
+        <context>
+            <option name="LCARoot" value="true"/>
+        </context>
+    </template>
+</templateSet>
