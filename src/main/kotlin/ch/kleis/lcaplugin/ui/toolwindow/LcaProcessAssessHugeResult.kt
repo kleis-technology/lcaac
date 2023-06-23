@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.FormBuilder
@@ -24,7 +24,7 @@ import java.nio.file.Paths
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String) : LcaToolWindowContent {
+class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String, val project: Project) : LcaToolWindowContent {
 
     companion object {
         private val LOG = Logger.getInstance(LcaProcessAssessHugeResult::class.java)
@@ -38,13 +38,13 @@ class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String
         val label = JBLabel(MyBundle.message(messageKey))
         builder.addComponent(label)
         val locComp = createLocationComponent(
-            { -> settings.saveFolder },
+            { settings.saveFolder },
             { s: String -> settings.saveFolder = s }
         )
         builder.addLabeledComponent(locComp.label, locComp.component)
         val fileComp = ComponentFactory.createTextComponent(
             "lca.dialog.export.filename.label",
-            { -> settings.fileName },
+            { settings.fileName },
             { s: String -> settings.fileName = s }
         )
         builder.addLabeledComponent(fileComp.label, fileComp.component)
@@ -58,7 +58,6 @@ class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String
     }
 
     private fun save() {
-        val project = ProjectManager.getInstance().openProjects.firstOrNull()
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Saving your data") {
             override fun run(indicator: ProgressIndicator) {
                 indicator.isIndeterminate = true
@@ -94,7 +93,7 @@ class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String
                         .getNotificationGroup("LcaAsCode")
                         .createNotification(title, e.message ?: "unknown error", NotificationType.ERROR)
                         .notify(project)
-                    LcaProcessAssessHugeResult.LOG.warn("Unable to process computation", e)
+                    LOG.warn("Unable to process computation", e)
                 }
             }
         })
