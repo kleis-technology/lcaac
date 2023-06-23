@@ -94,7 +94,7 @@ class Evaluator(
                 val substanceCharacterization = it
                     .let(reduce::apply)
                     .let(completeTerminals::apply)
-                accumulator.plus(substanceCharacterization.toValue())
+                accumulator.add(substanceCharacterization.toValue())
                 substanceCharacterization.referenceExchange.substance
             } ?: spec
         }
@@ -106,7 +106,7 @@ class Evaluator(
         } else {
 
             // add evaluated process
-            accumulator.plus(v)
+            accumulator.add(v)
 
             // recursively visit process template instances
             nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }

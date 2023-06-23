@@ -17,17 +17,17 @@ data class SystemValue(
         return processes.contains(process)
     }
 
-    fun plus(process: ProcessValue): SystemValue {
+    fun add(process: ProcessValue): SystemValue {
         processes.add(process)
         return this
     }
 
-    fun plus(substanceCharacterization: SubstanceCharacterizationValue): SystemValue {
+    fun add(substanceCharacterization: SubstanceCharacterizationValue): SystemValue {
         substanceCharacterizations.add(substanceCharacterization)
         return this
     }
 
-    fun plus(unlinkedSystem: SystemValue): SystemValue {
+    fun add(unlinkedSystem: SystemValue): SystemValue {
         unlinkedSystem.processes.forEach { processes.add(it) }
         unlinkedSystem.substanceCharacterizations.forEach { substanceCharacterizations.add(it) }
         return this
