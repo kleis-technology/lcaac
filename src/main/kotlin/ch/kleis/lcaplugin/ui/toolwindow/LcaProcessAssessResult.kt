@@ -45,7 +45,7 @@ class LcaProcessAssessResult(inventory: InventoryMatrix, val project: Project, v
 
                 val content = ContentFactory.getInstance()
                     .createContent(
-                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info").getContent(), name, false
+                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info", project).getContent(), name, false
                     )
                 toolWindow.contentManager.addContent(content)
                 toolWindow.contentManager.setSelectedContent(content)

@@ -64,7 +64,7 @@ class AssessProcessAction(
                 val assessResultContent = if (inventory.nbCells() <= DISPLAY_MAX_CELLS) {
                     LcaProcessAssessResult(inventory, project, processName).getContent()
                 } else {
-                    LcaProcessAssessHugeResult(inventory, "lca.dialog.export.warning").getContent()
+                    LcaProcessAssessHugeResult(inventory, "lca.dialog.export.warning", project).getContent()
                 }
                 val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
                 toolWindow.contentManager.addContent(content)
