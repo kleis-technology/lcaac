@@ -1,19 +1,14 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
-@optics
 sealed interface ExchangeValue : Value {
     fun quantity(): QuantityValue
     fun port(): MatrixColumnIndex
-
-    companion object
 }
 
-@optics
 data class GenericExchangeValue(
     val quantity: QuantityValue, val port: MatrixColumnIndex
 ) : ExchangeValue {
@@ -24,11 +19,8 @@ data class GenericExchangeValue(
     override fun port(): MatrixColumnIndex {
         return port
     }
-
-    companion object
 }
 
-@optics
 data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue, val allocation: QuantityValue) :
     ExchangeValue {
     constructor(quantity: QuantityValue, product: ProductValue) : this(
@@ -50,11 +42,8 @@ data class TechnoExchangeValue(val quantity: QuantityValue, val product: Product
     override fun port(): MatrixColumnIndex {
         return product
     }
-
-    companion object
 }
 
-@optics
 data class BioExchangeValue(val quantity: QuantityValue, val substance: SubstanceValue) : ExchangeValue {
     init {
         if (quantity.unit.dimension != substance.getDimension()) {
@@ -69,11 +58,8 @@ data class BioExchangeValue(val quantity: QuantityValue, val substance: Substanc
     override fun port(): MatrixColumnIndex {
         return substance
     }
-
-    companion object
 }
 
-@optics
 data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValue) : ExchangeValue {
     init {
         if (quantity.unit.dimension != indicator.referenceUnit.dimension) {
@@ -88,6 +74,4 @@ data class ImpactValue(val quantity: QuantityValue, val indicator: IndicatorValu
     override fun port(): MatrixColumnIndex {
         return indicator
     }
-
-    companion object
 }

@@ -1,12 +1,10 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import arrow.optics.optics
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.math.DoubleComparator
 
 
-@optics
 data class UnitValue(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : Value {
     override fun toString(): String {
         return symbol.toString()
@@ -25,7 +23,4 @@ data class UnitValue(val symbol: UnitSymbol, val scale: Double, val dimension: D
     override fun hashCode(): Int {
         return 1
     }
-
-    companion object
-
 }
