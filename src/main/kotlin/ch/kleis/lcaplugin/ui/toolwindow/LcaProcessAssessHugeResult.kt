@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createLocationComponent
 import com.intellij.notification.NotificationGroupManager
@@ -108,7 +108,7 @@ class LcaProcessAssessHugeResult(
     private fun getHeaders(): Array<String> {
         val cols = sortedControllablePorts
             .map { "${it.getDisplayName()} [${it.referenceUnit().symbol}]" }
-        return (listOf("Product", "Quantity") + cols).toTypedArray()
+        return (listOf("Product", "Quantity", "Unit") + cols).toTypedArray()
     }
 
     private fun getRow(outputProduct: MatrixColumnIndex): Array<String> {
@@ -117,7 +117,8 @@ class LcaProcessAssessHugeResult(
 
         return (listOf(
             outputProduct.getDisplayName(),
-            "1 ${outputProduct.referenceUnit().symbol}"
+            "${quantity.amount}",
+            "${quantity.unit.symbol}"
         ) + cells).toTypedArray()
     }
 

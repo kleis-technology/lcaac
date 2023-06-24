@@ -1,14 +1,17 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import ch.kleis.lcaplugin.core.matrix.IndexedCollection
 import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
+import ch.kleis.lcaplugin.core.matrix.IndexedCollection
 import ch.kleis.lcaplugin.core.matrix.MatrixFixture
+import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
 import com.intellij.ui.table.JBTable
@@ -29,9 +32,16 @@ class LcaProcessAssessResultTest {
         val substance = SubstanceFixture.propanol.toValue()
         val product = ProductFixture.water.toValue()
 
-        val data = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
-        val inv = ImpactFactorMatrix(
-            IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
+        val observablePorts: IndexedCollection<MatrixColumnIndex> = IndexedCollection(listOf(p1, p2))
+        val impactFactorsData = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
+        val supplyData = MatrixFixture.make(1, 2, arrayOf(1.0, 2.0))
+        val inv = Inventory(
+            impactFactors = ImpactFactorMatrix(
+                observablePorts, IndexedCollection(listOf(substance, product)), impactFactorsData
+            ),
+            supply = SupplyMatrix(
+                observablePorts, supplyData
+            )
         )
 
         val lcaProcessAssessResult = LcaProcessAssessResult(
@@ -58,7 +68,7 @@ class LcaProcessAssessResultTest {
         assertThat(html, containsString("<td>carrot</td>"))
         val text = result.getTransferData(DataFlavor("text/plain;class=java.lang.String")) as String
         assertThat(text, containsString("item\tquantity\t[Resource] propanol(air) [kg]"))
-        assertThat(text, containsString("\ncarrot\t1 g\t0.001\t"))
+        assertThat(text, containsString("\ncarrot\t1.0 g\t0.001\t"))
     }
 
 }
