@@ -54,65 +54,62 @@ class Evaluator(
     private tailrec fun recursiveCompile(
         accumulator: SystemValue,
         visited: HashSet<EProcessTemplateApplication>,
-        toProcess: HashSet<EProcessTemplateApplication>,
+        batch: HashSet<EProcessTemplateApplication>,
     ) {
         // termination condition
-        if (toProcess.isEmpty()) return
+        if (batch.isEmpty()) return
 
-        // eval
-        val expression = toProcess.first(); toProcess.remove(expression)
-        if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
-        visited.add(expression)
+        // eval : breadth-first strategy
+        val nextBatch = HashSet<EProcessTemplateApplication>()
+        batch.forEach { expression ->
+            if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
+            visited.add(expression)
 
-        val reduced = expression
-            .let(reduceLabelSelectors::apply)
-            .let(completeDefaultArguments::apply)
-            .let(reduce::apply)
-            .let(completeTerminals::apply)
+            val reduced = expression
+                .let(reduceLabelSelectors::apply)
+                .let(completeDefaultArguments::apply)
+                .let(reduce::apply)
+                .let(completeTerminals::apply)
 
-        val nextInstances = HashSet<EProcessTemplateApplication>()
-        val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
-            resolveProcessTemplateByProductSpec(spec)?.let { template ->
-                val body = template.body
-                val labels = spec.fromProcess?.matchLabels
-                    ?: MatchLabels(template.body.labels)
-                val arguments = spec.fromProcess?.arguments
-                    ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
-                nextInstances.add(EProcessTemplateApplication(template, arguments))
-                spec.copy(
-                    fromProcess =
-                    FromProcess(
-                        body.name,
-                        labels,
-                        arguments,
+            val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
+                resolveProcessTemplateByProductSpec(spec)?.let { template ->
+                    val body = template.body
+                    val labels = spec.fromProcess?.matchLabels
+                        ?: MatchLabels(template.body.labels)
+                    val arguments = spec.fromProcess?.arguments
+                        ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
+                    nextBatch.add(EProcessTemplateApplication(template, arguments))
+                    spec.copy(
+                        fromProcess =
+                        FromProcess(
+                            body.name,
+                            labels,
+                            arguments,
+                        )
                     )
-                )
-            } ?: spec
+                } ?: spec
+            }
+            val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
+                resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
+                    val substanceCharacterization = it
+                        .let(reduce::apply)
+                        .let(completeTerminals::apply)
+                    accumulator.add(substanceCharacterization.toValue())
+                    substanceCharacterization.referenceExchange.substance
+                } ?: spec
+            }
+            val v = substancesModified.toValue()
+
+            if (accumulator.containsProcess(v)) {
+                LOG.warn("This expression should not be present in accumulator $expression and $v")
+            } else {
+                // accumulate evaluated process
+                accumulator.add(v)
+                nextBatch.removeIf { visited.contains(it) }
+            }
         }
-        val substancesModified = everySubstance.modify(inputProductsModified) { spec ->
-            resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
-                val substanceCharacterization = it
-                    .let(reduce::apply)
-                    .let(completeTerminals::apply)
-                accumulator.add(substanceCharacterization.toValue())
-                substanceCharacterization.referenceExchange.substance
-            } ?: spec
-        }
-        val v = substancesModified.toValue()
 
-        if (accumulator.containsProcess(v)) {
-            LOG.warn("This expression should not be present in accumulator $expression and $v")
-            recursiveCompile(accumulator, visited, toProcess)
-        } else {
-
-            // add evaluated process
-            accumulator.add(v)
-
-            // recursively visit process template instances
-            nextInstances.forEach { if (!visited.contains(it)) toProcess.add(it) }
-
-            recursiveCompile(accumulator, visited, toProcess)
-        }
+        recursiveCompile(accumulator, visited, nextBatch)
     }
 
     private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
