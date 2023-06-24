@@ -26,7 +26,11 @@ class Trace {
                 if (d1 > d2) {
                     return 1
                 }
-                return o1.getUID().compareTo(o2.getUID())
+                return when {
+                    (o1 is ProductValue) && (o2 is SubstanceValue) -> -1
+                    (o1 is SubstanceValue) && (o2 is ProductValue) -> 1
+                    else -> o1.getUID().compareTo(o2.getUID())
+                }
             }
         }
     }
