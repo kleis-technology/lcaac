@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
+import ch.kleis.lcaplugin.core.lang.evaluator.Trace
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
@@ -9,12 +10,12 @@ import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.openapi.application.runReadAction
 import com.intellij.openapi.progress.ProgressIndicator
 
-fun evaluateSystemWithIndicator(
+fun traceSystemWithIndicator(
     indicator: ProgressIndicator,
     file: LcaFile,
     processName: String,
     matchLabels: Map<String, String>,
-): SystemValue {
+): Trace {
     indicator.isIndeterminate = true
 
     // read
@@ -31,5 +32,5 @@ fun evaluateSystemWithIndicator(
         symbolTable.getTemplate(processName, matchLabels)!! // We are called from a process, so it must exist
     val entryPoint = EProcessTemplateApplication(template, emptyMap())
 
-    return Evaluator(symbolTable).eval(entryPoint)
+    return Evaluator(symbolTable).trace(entryPoint)
 }

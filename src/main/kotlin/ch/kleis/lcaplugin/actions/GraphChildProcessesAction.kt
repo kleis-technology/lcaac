@@ -44,11 +44,11 @@ class GraphChildProcessesAction(
             private var graph: Graph? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val systemValue = evaluateSystemWithIndicator(indicator, file, processName, matchLabels)
+                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
 
                 // generate graph
                 indicator.text = "Generating graph"
-                this.graph = buildSystemProcessGraph(systemValue)
+                this.graph = buildSystemProcessGraph(trace.getSystemValue())
             }
 
             override fun onSuccess() {

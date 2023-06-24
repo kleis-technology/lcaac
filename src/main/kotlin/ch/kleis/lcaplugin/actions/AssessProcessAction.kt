@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessHugeResult
@@ -37,16 +38,18 @@ class AssessProcessAction(
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Run") {
-            private var inventory: InventoryMatrix? = null
+            private var data: Pair<InventoryMatrix, Comparator<MatrixColumnIndex>>? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val systemValue = evaluateSystemWithIndicator(indicator, file, processName, matchLabels)
-                this.inventory = Assessment(systemValue).inventory()
+                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
+                val order = trace.getProductOrder()
+                val inventory = Assessment(trace.getSystemValue()).inventory()
+                this.data = Pair(inventory, order)
             }
 
             override fun onSuccess() {
-                this.inventory?.let {
-                    displayInventory(project, it)
+                this.data?.let {
+                    displayInventory(project, it.first, it.second)
                 }
             }
 
@@ -59,10 +62,10 @@ class AssessProcessAction(
                 LOG.warn("Unable to process computation", e)
             }
 
-            private fun displayInventory(project: Project, inventory: InventoryMatrix) {
+            private fun displayInventory(project: Project, inventory: InventoryMatrix, order: Comparator<MatrixColumnIndex>) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
                 val assessResultContent = if (inventory.nbCells() <= DISPLAY_MAX_CELLS) {
-                    LcaProcessAssessResult(inventory, project, processName).getContent()
+                    LcaProcessAssessResult(inventory, order, project, processName).getContent()
                 } else {
                     LcaProcessAssessHugeResult(inventory, "lca.dialog.export.warning", project).getContent()
                 }

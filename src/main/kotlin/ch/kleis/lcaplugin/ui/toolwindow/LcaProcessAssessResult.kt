@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
@@ -20,12 +21,17 @@ import javax.swing.plaf.UIResource
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaProcessAssessResult(inventory: InventoryMatrix, val project: Project, val name: String) :
+class LcaProcessAssessResult(
+    inventory: InventoryMatrix,
+    observablePortComparator: Comparator<MatrixColumnIndex>,
+    val project: Project,
+    val name: String,
+) :
     LcaToolWindowContent {
     private val content: JPanel
 
     init {
-        val tableModel = InventoryTableModel(inventory)
+        val tableModel = InventoryTableModel(inventory, observablePortComparator)
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
         table.addMouseListener(SaveListener(project, inventory, name))
@@ -45,7 +51,9 @@ class LcaProcessAssessResult(inventory: InventoryMatrix, val project: Project, v
 
                 val content = ContentFactory.getInstance()
                     .createContent(
-                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info", project).getContent(), name, false
+                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info", project).getContent(),
+                        name,
+                        false
                     )
                 toolWindow.contentManager.addContent(content)
                 toolWindow.contentManager.setSelectedContent(content)
