@@ -689,8 +689,8 @@ class E2ETest : BasePlatformTestCase() {
         val cf2 = result.value(output2, input)
 
         val delta = 1E-9
-        assertEquals(0.1, cf1.input.quantity().amount, delta)
-        assertEquals(0.9, cf2.input.quantity().amount, delta)
+        assertEquals(0.9, cf1.input.quantity().amount, delta)
+        assertEquals(0.1, cf2.input.quantity().amount, delta)
     }
 
     @Test
@@ -782,8 +782,8 @@ class E2ETest : BasePlatformTestCase() {
         val cf2 = result.value(output2, input)
 
         val delta = 1E-9
-        val expected1 = 1.0 * 80 / 100
-        val expected2 = 1.0 * 20 / 100
+        val expected1 = 1.0 * 20 / 100
+        val expected2 = 1.0 * 80 / 100
         assertEquals(expected1, cf1.input.quantity().amount, delta)
         assertEquals(expected2, cf2.input.quantity().amount, delta)
     }

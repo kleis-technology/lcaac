@@ -21,8 +21,8 @@ class Assessment(
 
     init {
         val allocatedSystem = Allocation().apply(system)
-        val processes = allocatedSystem.getProcesses()
-        val substanceCharacterizations = allocatedSystem.getSubstanceCharacterizations()
+        val processes = allocatedSystem.processes
+        val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
         val observableProducts = processes
             .flatMap { it.products }

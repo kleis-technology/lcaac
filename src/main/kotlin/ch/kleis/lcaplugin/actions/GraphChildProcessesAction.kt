@@ -99,7 +99,7 @@ class GraphChildProcessesAction(
              * completely and exclusively the processes related to that entry point.
              */
             private fun buildSystemProcessGraph(systemValue: SystemValue): Graph {
-                return systemValue.getProcesses().fold(Graph.empty()) { graph, processValue ->
+                return systemValue.processes.fold(Graph.empty()) { graph, processValue ->
                     val processKey = "PROCESS_${processValue.name}"
                     val processNode = GraphNode(processValue.name)
 

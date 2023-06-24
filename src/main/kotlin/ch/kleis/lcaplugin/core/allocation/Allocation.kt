@@ -7,10 +7,10 @@ import kotlin.math.absoluteValue
 
 class Allocation {
     fun apply(system: SystemValue): SystemValue {
-        val processes = system.getProcesses().flatMap { processValue ->
+        val processes = system.processes.flatMap { processValue ->
             processValue.products.map { allocateProduct(it, processValue) }
         }.toMutableSet()
-        return SystemValue(processes, system.getSubstanceCharacterizations())
+        return SystemValue(processes, system.substanceCharacterizations)
     }
 
     private fun allocateProduct(technoExchangeValue: TechnoExchangeValue, processValue: ProcessValue): ProcessValue {

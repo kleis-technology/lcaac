@@ -54,7 +54,7 @@ class AllocationTest {
         )
         val allocation = Allocation()
         // When
-        val actual = allocation.apply(system).getProcesses().size
+        val actual = allocation.apply(system).processes.size
         // Then
         Assert.assertEquals(2, actual)
     }
@@ -87,7 +87,7 @@ class AllocationTest {
         )
         val allocation = Allocation()
         // When
-        val actual = allocation.apply(system).getProcesses().toList()[0].products.size
+        val actual = allocation.apply(system).processes.toList()[0].products.size
         // Then
         Assert.assertEquals(1, actual)
     }
@@ -125,7 +125,7 @@ class AllocationTest {
         )
         val allocation = Allocation()
         // When
-        val actual = allocation.apply(system).getProcesses().toList()[0].inputs[0].quantity
+        val actual = allocation.apply(system).processes.toList()[0].inputs[0].quantity
         // Then
         val expected = QuantityValueFixture.oneLitre
         Assert.assertEquals(expected, actual)
@@ -164,7 +164,7 @@ class AllocationTest {
         )
         val allocation = Allocation()
         // when
-        val actual = allocation.apply(system).getProcesses().toList()[0].biosphere[0].quantity
+        val actual = allocation.apply(system).processes.toList()[0].biosphere[0].quantity
         // then
         val expected = QuantityValueFixture.oneKilogram
         Assert.assertEquals(expected, actual)
@@ -283,7 +283,7 @@ class AllocationTest {
             mutableSetOf()
         )
         // when
-        val actual = allocation.apply(system).getProcesses().first().inputs.first().quantity.amount
+        val actual = allocation.apply(system).processes.first().inputs.first().quantity.amount
 
         // then
         val delta = 1E-9
@@ -301,7 +301,7 @@ class AllocationTest {
             mutableSetOf(propanolCharacterization)
         )
         // when
-        val actual = Allocation().apply(system).getSubstanceCharacterizations()
+        val actual = Allocation().apply(system).substanceCharacterizations
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
     }
