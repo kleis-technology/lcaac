@@ -38,12 +38,12 @@ class Evaluator(
             .compose(Every.list())
             .compose(EBioExchange.substance)
 
-    fun eval(expression: EProcessTemplateApplication): SystemValue {
+    fun trace(expression: EProcessTemplateApplication): Trace {
         LOG.info("Start recursive Compile")
         try {
-            val result = SystemValue.empty()
+            val result = Trace.empty()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
-            LOG.info("End recursive Compile, found ${result.getProcesses().size} processes and ${result.getSubstanceCharacterizations().size} substances")
+            LOG.info("End recursive Compile, found ${result.getNumberOfProcesses()} processes and ${result.getNumberOfSubstanceCharacterizations()} substances")
             return result
         } catch (e: Exception) {
             LOG.info("End recursive Compile with error $e")
@@ -51,8 +51,12 @@ class Evaluator(
         }
     }
 
+    fun eval(expression: EProcessTemplateApplication): SystemValue {
+        return trace(expression).getSystemValue()
+    }
+
     private tailrec fun recursiveCompile(
-        accumulator: SystemValue,
+        trace: Trace,
         visited: HashSet<EProcessTemplateApplication>,
         batch: HashSet<EProcessTemplateApplication>,
     ) {
@@ -94,22 +98,26 @@ class Evaluator(
                     val substanceCharacterization = it
                         .let(reduce::apply)
                         .let(completeTerminals::apply)
-                    accumulator.add(substanceCharacterization.toValue())
+                    trace.add(substanceCharacterization.toValue())
                     substanceCharacterization.referenceExchange.substance
                 } ?: spec
             }
             val v = substancesModified.toValue()
 
-            if (accumulator.containsProcess(v)) {
+            if (trace.contains(v)) {
                 LOG.warn("This expression should not be present in accumulator $expression and $v")
             } else {
                 // accumulate evaluated process
-                accumulator.add(v)
+                trace.add(v)
                 nextBatch.removeIf { visited.contains(it) }
             }
         }
 
-        recursiveCompile(accumulator, visited, nextBatch)
+        // end stage
+        trace.commit()
+
+        // continue
+        recursiveCompile(trace, visited, nextBatch)
     }
 
     private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
