@@ -48,7 +48,7 @@ class CsvProcessor(
 }
 
 private fun SystemValue.firstProductOf(processName: String): ProductValue? {
-    return this.processes
+    return this.getProcesses()
         .firstOrNull { it.name == processName }
         ?.products
         ?.map { it.product }

@@ -46,7 +46,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(instance).processes.first().biosphere.first().substance
+        val actual = evaluator.eval(instance).getProcesses().first().biosphere.first().substance
 
         // then
         assertEquals(expected, actual)
@@ -62,8 +62,8 @@ class EvaluatorTest {
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
-        val p1 = recursiveEvaluator.eval(i1).processes.first().products.first().product
-        val p2 = recursiveEvaluator.eval(i2).processes.first().products.first().product
+        val p1 = recursiveEvaluator.eval(i1).getProcesses().first().products.first().product
+        val p2 = recursiveEvaluator.eval(i2).getProcesses().first().products.first().product
 
         // then
         assertEquals(p1.name, p2.name)
@@ -108,7 +108,7 @@ class EvaluatorTest {
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
-        val actual = recursiveEvaluator.eval(expression).processes.naturalSorted()
+        val actual = recursiveEvaluator.eval(expression).getProcesses().naturalSorted()
 
         // then
         val expected = setOf(
@@ -215,7 +215,7 @@ class EvaluatorTest {
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
-        val actual = recursiveEvaluator.eval(expression).processes.naturalSorted()
+        val actual = recursiveEvaluator.eval(expression).getProcesses().naturalSorted()
 
         // then
         val expected = setOf(
@@ -364,7 +364,7 @@ class EvaluatorTest {
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
-        val actual = recursiveEvaluator.eval(expression).substanceCharacterizations.toSet()
+        val actual = recursiveEvaluator.eval(expression).getSubstanceCharacterizations().toSet()
 
         // then
         val expected = setOf(

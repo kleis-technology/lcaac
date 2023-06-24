@@ -43,7 +43,7 @@ class Evaluator(
         try {
             val result = SystemValue.empty()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
-            LOG.info("End recursive Compile, found ${result.processes.size} processes and ${result.substanceCharacterizations.size} substances")
+            LOG.info("End recursive Compile, found ${result.getProcesses().size} processes and ${result.getSubstanceCharacterizations().size} substances")
             return result
         } catch (e: Exception) {
             LOG.info("End recursive Compile with error $e")
