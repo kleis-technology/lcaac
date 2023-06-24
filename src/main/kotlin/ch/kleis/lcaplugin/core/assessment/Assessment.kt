@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.assessment
 import ch.kleis.lcaplugin.core.allocation.Allocation
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.matrix.ControllableMatrix
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
@@ -12,6 +13,7 @@ import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
 class Assessment(
     system: SystemValue,
+    targetProcess: ProcessValue,
     private val solver: Solver = Solver.INSTANCE
 ) {
     private val observableMatrix: ObservableMatrix

@@ -51,6 +51,12 @@ class EvaluationTrace {
         return stages
     }
 
+    fun getFirstProcess(): ProcessValue {
+        return stages.first()
+            .filterIsInstance<ProcessValue>()
+            .first()
+    }
+
     fun getSystemValue(): SystemValue {
         return SystemValue(
             processes,
