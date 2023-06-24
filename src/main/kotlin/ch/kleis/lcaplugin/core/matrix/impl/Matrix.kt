@@ -8,6 +8,7 @@ interface Matrix {
     fun set(row: Int, col: Int, value: Double)
 
     fun negate(): Matrix
+    fun transpose(): Matrix
 
     fun rowDim(): Int
     fun colDim(): Int

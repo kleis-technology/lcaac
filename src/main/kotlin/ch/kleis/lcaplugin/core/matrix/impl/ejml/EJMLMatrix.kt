@@ -11,6 +11,8 @@ class EJMLMatrix(internal val matrix: SimpleMatrix) : Matrix {
         matrix.set(row, col, value)
 
     override fun negate(): Matrix = EJMLMatrix(matrix.negative())
+    override fun transpose(): Matrix = EJMLMatrix(matrix.transpose())
+
     override fun rowDim(): Int = matrix.numRows
 
     override fun colDim(): Int = matrix.numCols

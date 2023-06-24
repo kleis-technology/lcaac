@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class InventoryMatrixTest {
+class ImpactFactorMatrixTest {
 
     private val kgValue = UnitValue(UnitFixture.kg.symbol, UnitFixture.kg.scale, UnitFixture.kg.dimension)
     private val literValue = UnitValue(UnitFixture.l.symbol, UnitFixture.l.scale, UnitFixture.l.dimension)
@@ -31,6 +31,10 @@ class InventoryMatrixTest {
             return this
         }
 
+        override fun transpose(): Matrix { // Ignore
+            return this
+        }
+
         override fun rowDim(): Int {
             return 1
         }
@@ -40,7 +44,7 @@ class InventoryMatrixTest {
         }
 
     }
-    val sut = InventoryMatrix(outputs, inputs, matrix)
+    val sut = ImpactFactorMatrix(outputs, inputs, matrix)
 
     @Test
     fun value_shouldReturnExchange() {

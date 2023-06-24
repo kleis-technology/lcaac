@@ -7,7 +7,7 @@ import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.matrix.impl.Matrix
 
 
-class InventoryMatrix(
+class ImpactFactorMatrix(
     val observablePorts: IndexedCollection<MatrixColumnIndex>,
     val controllablePorts: IndexedCollection<MatrixColumnIndex>,
     private val data: Matrix,

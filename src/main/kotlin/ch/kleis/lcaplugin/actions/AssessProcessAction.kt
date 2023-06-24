@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessHugeResult
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
@@ -38,13 +38,13 @@ class AssessProcessAction(
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Run") {
-            private var data: Pair<InventoryMatrix, Comparator<MatrixColumnIndex>>? = null
+            private var data: Pair<ImpactFactorMatrix, Comparator<MatrixColumnIndex>>? = null
 
             override fun run(indicator: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
                 val order = trace.getProductOrder()
                 val inventory = Assessment(trace.getSystemValue(), trace.getFirstProcess()).inventory()
-                this.data = Pair(inventory, order)
+                this.data = Pair(inventory.impactFactors, order)
             }
 
             override fun onSuccess() {
@@ -62,7 +62,7 @@ class AssessProcessAction(
                 LOG.warn("Unable to process computation", e)
             }
 
-            private fun displayInventory(project: Project, inventory: InventoryMatrix, order: Comparator<MatrixColumnIndex>) {
+            private fun displayInventory(project: Project, inventory: ImpactFactorMatrix, order: Comparator<MatrixColumnIndex>) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
                 val assessResultContent = if (inventory.nbCells() <= DISPLAY_MAX_CELLS) {
                     LcaProcessAssessResult(inventory, order, project, processName).getContent()

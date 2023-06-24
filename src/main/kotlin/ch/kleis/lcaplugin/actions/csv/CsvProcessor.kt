@@ -40,7 +40,7 @@ class CsvProcessor(
             firstProcess.products.firstOrNull()
                 ?.product
                 ?: throw EvaluatorException("$processName has no products")
-        val impacts = inventory.rowAsMap(outputPort)
+        val impacts = inventory.impactFactors.rowAsMap(outputPort)
         return CsvResult(
             request,
             outputPort,

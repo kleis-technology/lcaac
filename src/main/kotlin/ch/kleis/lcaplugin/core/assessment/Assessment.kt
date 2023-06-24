@@ -5,10 +5,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.core.matrix.ControllableMatrix
-import ch.kleis.lcaplugin.core.matrix.IndexedCollection
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
-import ch.kleis.lcaplugin.core.matrix.ObservableMatrix
+import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
 class Assessment(
@@ -18,6 +15,7 @@ class Assessment(
 ) {
     private val observableMatrix: ObservableMatrix
     private val controllableMatrix: ControllableMatrix
+    private val demandMatrix: DemandMatrix
     private val observablePorts: IndexedCollection<MatrixColumnIndex>
     private val controllablePorts: IndexedCollection<MatrixColumnIndex>
 
@@ -58,13 +56,21 @@ class Assessment(
             terminalSubstances,
             indicators
         )
+
+        demandMatrix = DemandMatrix(
+            targetProcess,
+            observablePorts,
+        )
     }
 
-    fun inventory(): InventoryMatrix {
-        val data = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate())
+    fun inventory(): Inventory {
+        val impactFactorMatrix = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate())
+            ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it) }
             ?: throw EvaluatorException("The system cannot be solved")
-        return InventoryMatrix(observablePorts, controllablePorts, data)
+        val supplyMatrix = solver.solve(this.observableMatrix.matrix.transpose(), demandMatrix.matrix.transpose())
+            ?.transpose()
+            ?.let { SupplyMatrix(observablePorts, it) }
+            ?: throw EvaluatorException("The system cannot be solved")
+        return Inventory(impactFactorMatrix, supplyMatrix)
     }
-
-
 }

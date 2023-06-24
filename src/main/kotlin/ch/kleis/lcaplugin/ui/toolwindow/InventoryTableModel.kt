@@ -1,12 +1,12 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(
-    private val matrix: InventoryMatrix,
+    private val matrix: ImpactFactorMatrix,
     observablePortComparator: Comparator<MatrixColumnIndex>,
 ) : TableModel {
     private val sortedObservablePorts = matrix.observablePorts.getElements().sortedWith(observablePortComparator)

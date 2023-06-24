@@ -5,10 +5,9 @@ import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.core.matrix.MatrixFixture
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
@@ -31,7 +30,7 @@ class LcaProcessAssessResultTest {
         val product = ProductFixture.water.toValue()
 
         val data = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
-        val inv = InventoryMatrix(
+        val inv = ImpactFactorMatrix(
             IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
         )
 
