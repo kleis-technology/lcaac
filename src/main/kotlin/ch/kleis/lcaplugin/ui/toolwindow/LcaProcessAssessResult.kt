@@ -34,7 +34,7 @@ class LcaProcessAssessResult(
         val tableModel = InventoryTableModel(inventory, observablePortComparator)
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
-        table.addMouseListener(SaveListener(project, inventory, name))
+        table.addMouseListener(SaveListener(project, inventory, observablePortComparator, name))
         table.toolTipText = MyBundle.message("lca.dialog.export.tooltip")
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)
@@ -43,7 +43,10 @@ class LcaProcessAssessResult(
         content.updateUI()
     }
 
-    private class SaveListener(val project: Project, val inventory: InventoryMatrix, val name: String) :
+    private class SaveListener(val project: Project,
+                               val inventory: InventoryMatrix,
+                               val observablePortComparator: Comparator<MatrixColumnIndex>,
+                               val name: String) :
         MouseAdapter() {
         override fun mouseReleased(e: MouseEvent?) {
             if (SwingUtilities.isRightMouseButton(e)) {
@@ -51,7 +54,7 @@ class LcaProcessAssessResult(
 
                 val content = ContentFactory.getInstance()
                     .createContent(
-                        LcaProcessAssessHugeResult(inventory, "lca.dialog.export.info", project).getContent(),
+                        LcaProcessAssessHugeResult(inventory, observablePortComparator, "lca.dialog.export.info", project).getContent(),
                         name,
                         false
                     )
