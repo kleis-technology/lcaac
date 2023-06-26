@@ -51,10 +51,16 @@ class EvaluationTrace {
         return stages
     }
 
-    fun getFirstProcess(): ProcessValue {
-        return stages.first()
+    fun getEntryPoint(): ProcessValue {
+        if (stages.isEmpty()) {
+            throw EvaluatorException("execution trace is empty")
+        }
+        val candidates = stages.first()
             .filterIsInstance<ProcessValue>()
-            .first()
+        if (candidates.size > 1) {
+            throw EvaluatorException("execution trace contains multiple entrypoint")
+        }
+        return candidates.first()
     }
 
     fun getSystemValue(): SystemValue {

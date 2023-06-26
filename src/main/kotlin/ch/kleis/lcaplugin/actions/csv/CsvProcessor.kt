@@ -33,7 +33,7 @@ class CsvProcessor(
 
         val trace = evaluator.trace(EProcessTemplateApplication(template, arguments))
         val systemValue = trace.getSystemValue()
-        val firstProcess = trace.getFirstProcess()
+        val firstProcess = trace.getEntryPoint()
         val assessment = Assessment(systemValue, firstProcess)
         val inventory = assessment.inventory()
         val outputPort =
