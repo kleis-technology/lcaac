@@ -25,13 +25,13 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class LcaProcessAssessHugeResult(
-    private val matrix: ImpactFactorMatrix,
+    private val inventory: Inventory,
     observablePortComparator: Comparator<MatrixColumnIndex>,
     messageKey: String,
     val project: Project,
 ) : LcaToolWindowContent {
-    private val sortedObservablePorts = matrix.observablePorts.getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = matrix.controllablePorts.getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     companion object {
         private val LOG = Logger.getInstance(LcaProcessAssessHugeResult::class.java)
@@ -113,8 +113,9 @@ class LcaProcessAssessHugeResult(
 
     private fun getRow(outputProduct: MatrixColumnIndex): Array<String> {
         val cells = sortedControllablePorts
-            .map { matrix.valueRatio(outputProduct, it).amount.toString() }
+            .map { inventory.impactFactors.valueRatio(outputProduct, it).amount.toString() }
 
+        val quantity = inventory.supply.quantityOf(outputProduct)
         return (listOf(
             outputProduct.getDisplayName(),
             "${quantity.amount}",
