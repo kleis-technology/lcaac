@@ -9,7 +9,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 
-class TraceTest {
+class EvaluationTraceTest {
     @Test
     fun trace_productOrder_isBFS() {
         // given
@@ -29,7 +29,7 @@ class TraceTest {
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
         val substance = sc.referenceExchange.substance
 
-        val trace = Trace()
+        val trace = EvaluationTrace()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -71,7 +71,7 @@ class TraceTest {
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
         val substance = sc.referenceExchange.substance
 
-        val trace = Trace()
+        val trace = EvaluationTrace()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -100,7 +100,7 @@ class TraceTest {
         val p1 = ProcessValueFixture.carrotProcessValue
         val p2 = p1.copy(name = "another_carrot_production")
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = Trace()
+        val trace = EvaluationTrace()
 
         // when
         trace.add(p1)
@@ -119,7 +119,7 @@ class TraceTest {
         val p1 = ProcessValueFixture.carrotProcessValue
         val p2 = p1.copy(name = "another_carrot_production")
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = Trace()
+        val trace = EvaluationTrace()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -138,7 +138,7 @@ class TraceTest {
     fun trace_emptyCommit_shouldNotAddStages() {
         // given
         val p = ProcessValueFixture.carrotProcessValue
-        val trace = Trace()
+        val trace = EvaluationTrace()
 
         // when
         trace.commit()

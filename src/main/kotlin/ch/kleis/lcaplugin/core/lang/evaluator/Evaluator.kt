@@ -38,10 +38,10 @@ class Evaluator(
             .compose(Every.list())
             .compose(EBioExchange.substance)
 
-    fun trace(expression: EProcessTemplateApplication): Trace {
+    fun trace(expression: EProcessTemplateApplication): EvaluationTrace {
         LOG.info("Start recursive Compile")
         try {
-            val result = Trace.empty()
+            val result = EvaluationTrace.empty()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
             LOG.info("End recursive Compile, found ${result.getNumberOfProcesses()} processes and ${result.getNumberOfSubstanceCharacterizations()} substances")
             return result
@@ -56,7 +56,7 @@ class Evaluator(
     }
 
     private tailrec fun recursiveCompile(
-        trace: Trace,
+        trace: EvaluationTrace,
         visited: HashSet<EProcessTemplateApplication>,
         batch: HashSet<EProcessTemplateApplication>,
     ) {

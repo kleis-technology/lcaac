@@ -1,9 +1,8 @@
 package ch.kleis.lcaplugin.actions
 
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
-import ch.kleis.lcaplugin.core.lang.evaluator.Trace
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -15,7 +14,7 @@ fun traceSystemWithIndicator(
     file: LcaFile,
     processName: String,
     matchLabels: Map<String, String>,
-): Trace {
+): EvaluationTrace {
     indicator.isIndeterminate = true
 
     // read

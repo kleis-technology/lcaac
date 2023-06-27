@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.value.*
 
-class Trace {
+class EvaluationTrace {
     private val stages = ArrayList<HashSet<MatrixRowIndex>>()
     private var currentStage = HashSet<MatrixRowIndex>()
     private val processes = HashSet<ProcessValue>()
@@ -10,8 +10,8 @@ class Trace {
     private val productDepthMap = HashMap<MatrixColumnIndex, Int>()
 
     companion object {
-        fun empty(): Trace {
-            return Trace()
+        fun empty(): EvaluationTrace {
+            return EvaluationTrace()
         }
     }
 
