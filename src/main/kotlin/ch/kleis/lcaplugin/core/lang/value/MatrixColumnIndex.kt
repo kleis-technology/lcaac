@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
@@ -15,7 +14,6 @@ sealed interface MatrixColumnIndex : Value, HasUID {
     }
 }
 
-@optics
 data class ProductValue(
     val name: String,
     val referenceUnit: UnitValue,
@@ -62,18 +60,10 @@ data class ProductValue(
         result = 31 * result + (fromProcessRef?.hashCode() ?: 0)
         return result
     }
-
-
-    companion object
-
 }
 
-@optics
-sealed interface SubstanceValue : Value, MatrixColumnIndex {
-    companion object
-}
+sealed interface SubstanceValue : Value, MatrixColumnIndex
 
-@optics
 data class PartiallyQualifiedSubstanceValue(
     val name: String,
     val referenceUnit: UnitValue,
@@ -109,12 +99,8 @@ data class PartiallyQualifiedSubstanceValue(
         result = 31 * result + referenceUnit.dimension.hashCode()
         return result
     }
-
-
-    companion object
 }
 
-@optics
 data class FullyQualifiedSubstanceValue(
     val name: String,
     val type: SubstanceType,
@@ -167,8 +153,6 @@ data class FullyQualifiedSubstanceValue(
         result = 31 * result + referenceUnit.dimension.hashCode()
         return result
     }
-
-    companion object
 }
 
 data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Value, MatrixColumnIndex {
@@ -203,6 +187,4 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         result = 31 * result + referenceUnit.dimension.hashCode()
         return result
     }
-
-
 }

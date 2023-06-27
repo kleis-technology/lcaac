@@ -1,45 +1,14 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import arrow.optics.optics
 import ch.kleis.lcaplugin.core.HasUID
 
 
-@optics
 data class SystemValue(
-    val processes: MutableSet<ProcessValue>,
-    val substanceCharacterizations: MutableSet<SubstanceCharacterizationValue>,
-) : Value, HasUID {
-    companion object {
-        fun empty(): SystemValue {
-            return SystemValue(HashSet(), HashSet())
-        }
-    }
+    val processes: Set<ProcessValue>,
+    val substanceCharacterizations: Set<SubstanceCharacterizationValue>,
+) : Value, HasUID
 
-    fun containsProcess(process: ProcessValue): Boolean {
-        return processes.contains(process)
-    }
-
-    fun plus(process: ProcessValue): SystemValue {
-        processes.add(process)
-        return this
-    }
-
-    fun plus(substanceCharacterization: SubstanceCharacterizationValue): SystemValue {
-        substanceCharacterizations.add(substanceCharacterization)
-        return this
-    }
-
-    fun plus(unlinkedSystem: SystemValue): SystemValue {
-        unlinkedSystem.processes.forEach { processes.add(it) }
-        unlinkedSystem.substanceCharacterizations.forEach { substanceCharacterizations.add(it) }
-        return this
-    }
-}
-
-@optics
 data class CharacterizationFactorValue(
     val output: ExchangeValue,
     val input: ExchangeValue,
-) : Value {
-    companion object
-}
+) : Value

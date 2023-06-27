@@ -24,7 +24,14 @@ import java.nio.file.Paths
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String, val project: Project) : LcaToolWindowContent {
+class LcaProcessAssessHugeResult(
+    private val matrix: InventoryMatrix,
+    observablePortComparator: Comparator<MatrixColumnIndex>,
+    messageKey: String,
+    val project: Project,
+) : LcaToolWindowContent {
+    private val sortedObservablePorts = matrix.observablePorts.getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = matrix.controllablePorts.getElements().sortedBy { it.getUID() }
 
     companion object {
         private val LOG = Logger.getInstance(LcaProcessAssessHugeResult::class.java)
@@ -70,10 +77,9 @@ class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String
 
                         val builder = CSVFormat.Builder.create().setHeader(*getHeaders())
                         val printer = builder.build().print(out)
-                        result.observablePorts.getElements()
-                            .forEach {
-                                printer.printRecord(*getRow(it))
-                            }
+                        sortedObservablePorts.forEach {
+                            printer.printRecord(*getRow(it))
+                        }
                     }
                     val duration = (System.currentTimeMillis() - start) / 1000
                     NotificationGroupManager.getInstance()
@@ -100,14 +106,14 @@ class LcaProcessAssessHugeResult(val result: InventoryMatrix, messageKey: String
     }
 
     private fun getHeaders(): Array<String> {
-        val cols = result.controllablePorts.getElements()
+        val cols = sortedControllablePorts
             .map { "${it.getDisplayName()} [${it.referenceUnit().symbol}]" }
         return (listOf("Product", "Quantity") + cols).toTypedArray()
     }
 
     private fun getRow(outputProduct: MatrixColumnIndex): Array<String> {
-        val cells = result.controllablePorts.getElements()
-            .map { result.valueRatio(outputProduct, it).amount.toString() }
+        val cells = sortedControllablePorts
+            .map { matrix.valueRatio(outputProduct, it).amount.toString() }
 
         return (listOf(
             outputProduct.getDisplayName(),

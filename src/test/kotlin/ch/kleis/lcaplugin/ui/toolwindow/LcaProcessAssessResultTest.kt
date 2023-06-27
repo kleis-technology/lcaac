@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.toValue
 import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
 import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
@@ -34,7 +35,12 @@ class LcaProcessAssessResultTest {
             IndexedCollection(listOf(p1, p2)), IndexedCollection(listOf(substance, product)), data
         )
 
-        val lcaProcessAssessResult = LcaProcessAssessResult(inv, mockk(), "name")
+        val lcaProcessAssessResult = LcaProcessAssessResult(
+            inv,
+            Comparator.comparing { it.getUID() },
+            mockk(),
+            "name"
+        )
         val panel = lcaProcessAssessResult.getContent()
         val scrollPanel = panel.getComponent(0) as JBScrollPane
         val viewPort = scrollPanel.getComponent(0) as JBViewport
