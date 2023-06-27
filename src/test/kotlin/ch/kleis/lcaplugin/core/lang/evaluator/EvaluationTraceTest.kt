@@ -24,7 +24,7 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = Trace()
+        val trace = EvaluationTrace()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -51,7 +51,7 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = Trace.empty()
+        val trace = EvaluationTrace.empty()
         trace.add(p1)
         trace.add(p2)
         trace.commit()
@@ -66,7 +66,7 @@ class EvaluationTraceTest {
     @Test
     fun trace_getEntryPoint_whenEmptyTrace_shouldThrow() {
         // given
-        val trace = Trace.empty()
+        val trace = EvaluationTrace.empty()
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class) {  trace.getEntryPoint() }
