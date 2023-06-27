@@ -21,10 +21,15 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
             val labels = process.getLabels()
             val assessProcessAction = AssessProcessAction(target, labels)
             val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target, labels)
-            val graphChildProcessesAction = GraphChildProcessesAction(target, labels)
+            // TODO: Un-hide graph action when sankey is ready
+//            val graphChildProcessesAction = GraphChildProcessesAction(target, labels)
             return Info(AllIcons.Actions.Execute, {
                 "Run $target"
-            }, assessProcessAction, assessProcessWithExternalDataAction, graphChildProcessesAction)
+            },
+                assessProcessAction,
+                assessProcessWithExternalDataAction,
+//                graphChildProcessesAction,
+                )
         }
         return null
     }
