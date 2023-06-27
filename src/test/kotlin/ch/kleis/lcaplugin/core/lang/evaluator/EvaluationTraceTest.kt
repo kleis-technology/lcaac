@@ -7,9 +7,72 @@ import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixtur
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 
 class EvaluationTraceTest {
+    @Test
+    fun trace_getEntryPoint() {
+        // given
+        val product1 = ProductValueFixture.product("product1")
+        val p1 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product1)))
+        val product2 = ProductValueFixture.product("product2")
+        val p2 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product2)))
+        val product3 = ProductValueFixture.product("product3")
+        val p3 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
+
+        val trace = Trace()
+        trace.add(p1)
+        trace.commit()
+        trace.add(p2)
+        trace.add(p3)
+        trace.commit()
+
+        // when
+        val actual = trace.getEntryPoint()
+
+        // then
+        assertEquals(p1, actual)
+    }
+
+    @Test
+    fun trace_getEntryPoint_whenMultipleProcessesInFirstStage_shouldThrow() {
+        // given
+        val product1 = ProductValueFixture.product("product1")
+        val p1 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product1)))
+        val product2 = ProductValueFixture.product("product2")
+        val p2 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product2)))
+        val product3 = ProductValueFixture.product("product3")
+        val p3 = ProcessValueFixture.carrotProcessValue
+            .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
+
+        val trace = Trace.empty()
+        trace.add(p1)
+        trace.add(p2)
+        trace.commit()
+        trace.add(p3)
+        trace.commit()
+
+        // when/then
+        val e = assertFailsWith(EvaluatorException::class) {  trace.getEntryPoint() }
+        assertEquals("execution trace contains multiple entrypoint", e.message)
+    }
+
+    @Test
+    fun trace_getEntryPoint_whenEmptyTrace_shouldThrow() {
+        // given
+        val trace = Trace.empty()
+
+        // when/then
+        val e = assertFailsWith(EvaluatorException::class) {  trace.getEntryPoint() }
+        assertEquals("execution trace is empty", e.message)
+    }
+
     @Test
     fun trace_productOrder_isBFS() {
         // given

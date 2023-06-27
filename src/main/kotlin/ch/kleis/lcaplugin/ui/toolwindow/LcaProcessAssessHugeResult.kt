@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createLocationComponent
 import com.intellij.notification.NotificationGroupManager
@@ -25,13 +25,13 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class LcaProcessAssessHugeResult(
-    private val matrix: InventoryMatrix,
+    private val inventory: Inventory,
     observablePortComparator: Comparator<MatrixColumnIndex>,
     messageKey: String,
     val project: Project,
 ) : LcaToolWindowContent {
-    private val sortedObservablePorts = matrix.observablePorts.getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = matrix.controllablePorts.getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     companion object {
         private val LOG = Logger.getInstance(LcaProcessAssessHugeResult::class.java)
@@ -108,16 +108,18 @@ class LcaProcessAssessHugeResult(
     private fun getHeaders(): Array<String> {
         val cols = sortedControllablePorts
             .map { "${it.getDisplayName()} [${it.referenceUnit().symbol}]" }
-        return (listOf("Product", "Quantity") + cols).toTypedArray()
+        return (listOf("Product", "Quantity", "Unit") + cols).toTypedArray()
     }
 
     private fun getRow(outputProduct: MatrixColumnIndex): Array<String> {
         val cells = sortedControllablePorts
-            .map { matrix.valueRatio(outputProduct, it).amount.toString() }
+            .map { inventory.impactFactors.valueRatio(outputProduct, it).amount.toString() }
 
+        val quantity = inventory.supply.quantityOf(outputProduct)
         return (listOf(
             outputProduct.getDisplayName(),
-            "1 ${outputProduct.referenceUnit().symbol}"
+            "${quantity.amount}",
+            "${quantity.unit.symbol}"
         ) + cells).toTypedArray()
     }
 

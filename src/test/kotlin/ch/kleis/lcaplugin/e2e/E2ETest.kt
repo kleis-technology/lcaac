@@ -84,9 +84,10 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -158,9 +159,10 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -386,9 +388,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
@@ -457,9 +460,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
@@ -513,9 +517,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -576,9 +581,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -638,9 +644,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -679,9 +686,10 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
-        val result = assessment.inventory()
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+        val result = assessment.inventory().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()
@@ -770,11 +778,12 @@ class E2ETest : BasePlatformTestCase() {
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
-        val system = Evaluator(symbolTable).eval(entryPoint)
-        val assessment = Assessment(system)
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
 
         // then
-        val result = assessment.inventory()
+        val result = assessment.inventory().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()

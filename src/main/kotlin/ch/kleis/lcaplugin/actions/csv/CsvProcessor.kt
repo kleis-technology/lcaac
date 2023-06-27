@@ -5,8 +5,6 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.lang.value.ProductValue
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import java.lang.Double.parseDouble
 
 class CsvProcessor(
@@ -33,12 +31,16 @@ class CsvProcessor(
                 }
             }
 
-        val systemValue = evaluator.eval(EProcessTemplateApplication(template, arguments))
-        val assessment = Assessment(systemValue)
+        val trace = evaluator.trace(EProcessTemplateApplication(template, arguments))
+        val systemValue = trace.getSystemValue()
+        val firstProcess = trace.getEntryPoint()
+        val assessment = Assessment(systemValue, firstProcess)
         val inventory = assessment.inventory()
         val outputPort =
-            systemValue.firstProductOf(processName) ?: throw EvaluatorException("$processName has no products")
-        val impacts = inventory.rowAsMap(outputPort)
+            firstProcess.products.firstOrNull()
+                ?.product
+                ?: throw EvaluatorException("$processName has no products")
+        val impacts = inventory.impactFactors.rowAsMap(outputPort)
         return CsvResult(
             request,
             outputPort,
@@ -46,12 +48,3 @@ class CsvProcessor(
         )
     }
 }
-
-private fun SystemValue.firstProductOf(processName: String): ProductValue? {
-    return this.processes
-        .firstOrNull { it.name == processName }
-        ?.products
-        ?.map { it.product }
-        ?.firstOrNull()
-}
-

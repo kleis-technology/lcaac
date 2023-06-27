@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.components.JBScrollPane
@@ -22,7 +22,7 @@ import javax.swing.plaf.UIResource
  */
 
 class LcaProcessAssessResult(
-    inventory: InventoryMatrix,
+    inventory: Inventory,
     observablePortComparator: Comparator<MatrixColumnIndex>,
     val project: Project,
     val name: String,
@@ -44,7 +44,7 @@ class LcaProcessAssessResult(
     }
 
     private class SaveListener(val project: Project,
-                               val inventory: InventoryMatrix,
+                               val inventory: Inventory,
                                val observablePortComparator: Comparator<MatrixColumnIndex>,
                                val name: String) :
         MouseAdapter() {

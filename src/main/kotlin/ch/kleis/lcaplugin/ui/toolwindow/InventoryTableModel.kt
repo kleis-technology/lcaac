@@ -1,23 +1,24 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.InventoryMatrix
+import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(
-    private val matrix: InventoryMatrix,
+    private val inventory: Inventory,
     observablePortComparator: Comparator<MatrixColumnIndex>,
 ) : TableModel {
-    private val sortedObservablePorts = matrix.observablePorts.getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = matrix.controllablePorts.getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     override fun getRowCount(): Int {
         return sortedObservablePorts.size
     }
 
     override fun getColumnCount(): Int {
-        return 2 + sortedControllablePorts.size
+        return 3 + sortedControllablePorts.size
     }
 
     override fun getColumnName(columnIndex: Int): String {
@@ -29,16 +30,20 @@ class InventoryTableModel(
             return "quantity"
         }
 
-        val product = sortedControllablePorts[columnIndex - 2]
+        if (columnIndex == 2) {
+            return "unit"
+        }
+
+        val product = sortedControllablePorts[columnIndex - 3]
         return "${product.getDisplayName()} [${product.referenceUnit().symbol}]"
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        if (columnIndex < 2) {
+        if (columnIndex < 3) {
             return String::class.java
         }
 
-        return sortedControllablePorts[columnIndex - 2]::class.java
+        return sortedControllablePorts[columnIndex - 3]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -52,12 +57,17 @@ class InventoryTableModel(
             return outputProduct.getDisplayName()
         }
 
+        val quantity = inventory.supply.quantityOf(outputProduct)
         if (columnIndex == 1) {
-            return "1 ${outputProduct.referenceUnit().symbol}"
+            return "${quantity.amount}"
+        }
+        if (columnIndex == 2) {
+            return "${quantity.unit.symbol}"
         }
 
-        val inputProduct = sortedControllablePorts[columnIndex - 2]
-        return matrix.valueRatio(outputProduct, inputProduct).amount
+        val inputProduct = sortedControllablePorts[columnIndex - 3]
+        val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
+        return quantity.amount * ratio
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
