@@ -1,147 +1,111 @@
-// Main {{{1
-function main(width, height, graph) {
-    const svgElement = createSVGElement(width, height);
+import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as d3Sankey from "https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/+esm";
 
-    createTriangleMarkerElements(svgElement)
+// Utils
+var count = 0;
 
-    const links = createLinkElements(svgElement, graph.links);
-    const nodes = createNodeGElements(svgElement, graph.nodes);
+export function uid(name) {
+    return new Id("O-" + (name == null ? "" : name + "-") + ++count);
+}
 
-    createProductNodeShapeElements(nodes);
-    createSubstanceNodeShapeElements(nodes);
-    createProcessNodeShapeElements(nodes);
-    createNodeTextElements(nodes);
+function Id(id) {
+    this.id = id;
+    this.href = new URL(`#${id}`, location) + "";
+}
 
-    const simulation = d3.forceSimulation();
+Id.prototype.toString = function () {
+    return "url(" + this.href + ")";
+};
 
-    nodes.call(d3.drag()
-        .on("start", dragstart)
-        .on("drag", dragged(simulation, width))).on("click", function (_, d) { click(this, d, simulation); });
+// Specify the dimensions of the chart.
+const width = 928;
+const height = 600;
+const format = d3.format(",.0f");
 
-    simulation
-        .nodes(graph.nodes)
-        .force("charge", d3.forceManyBody().strength(-50))
-        .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collide", d3.forceCollide().radius(75).iterations(2))
-        .force("link", d3
-        .forceLink(graph.links)
-        .id((d) => d.key)
-        .distance(150)
-        .strength(1)
-        .iterations(3))
-        .on("tick", () => tick(nodes, links));
-}
-// SVG/HTML Element creation {{{1
-function createSVGElement(width, height) {
-    return d3.select("body")
-        .append("svg")
-        .attr("viewBox", [0, 0, width, height]);
-}
-function createLinkElements(svgElement, links) {
-    return svgElement
-        .selectAll(".link")
-        .data(links)
-        .join("line")
-        .classed("link", true)
-        .attr("marker-end", "url(#triangle)");
-}
-function createTriangleMarkerElements(svgElement) {
-    svgElement.append("marker")
-        .attr("id", "triangle")
-        .attr("viewBox", [0, 0, 10, 10])
-        .attr("refX", 55)
-        .attr("refY", 5)
-        .attr("markerUnits", "strokeWidth")
-        .attr("markerWidth", 10)
-        .attr("markerHeight", 10)
-        .attr("orient", "auto")
-        .append("path")
-        .attr("d", "M 0 0 L 10 5 L 0 10 z");
-}
-function createNodeGElements(svgElement, nodes) {
-    return svgElement
-        .selectAll(".node")
-        .data(nodes)
-        .join("g")
-        .classed("node", true)
-        .classed("process", (d) => d.type == "PROCESS")
-        .classed("substance", (d) => d.type == "SUBSTANCE")
-        .classed("product", (d) => d.type == "PRODUCT")
-        .classed("fixed", (d) => d.fx != undefined);
-}
-function createProductNodeShapeElements(nodeGElements) {
-    return nodeGElements
-        .filter(".product")
-        .append("rect")
-        .attr("width", (d) => relativeStringLength(d))
-        .attr("height", "2em")
-        .attr("x", (d) => "-" + halfRelativeStringLength(d))
-        .attr("y", "-1em")
-        .classed("shape", true)
-        .classed("productShape", true);
-}
-function createSubstanceNodeShapeElements(nodeGElements) {
-    return nodeGElements
-        .filter(".substance")
-        .append("rect")
-        .attr("width", (d) => relativeStringLength(d))
-        .attr("height", "2em")
-        .attr("x", (d) => "-" + halfRelativeStringLength(d))
-        .attr("y", "-1em")
-        .classed("shape", true)
-        .classed("substanceShape", true);
-}
-function createProcessNodeShapeElements(nodeGElements) {
-    return nodeGElements
-        .filter(".process")
-        .append("ellipse")
-        .attr("rx", (d) => halfRelativeStringLength(d))
-        .attr("ry", "1em")
-        .classed("shape", true)
-        .classed("processShape", true);
-}
-function createNodeTextElements(nodeGElements) {
-    return nodeGElements
-        .append("text")
-        .attr("text-anchor", "middle")
-        .attr("alignment-baseline", "middle") // measure source the center of the text
-        .text((d) => d.name);
-}
-// Dynamic behavior callbacks {{{1
-function dragstart(event, d) {
-    d3.select(this).classed("fixed", true);
-}
-function dragged(simulation, width) {
-    return (event, d) => {
-        d.fx = clamp(event.x, 0, width);
-        d.fy = clamp(event.y, 0, width);
-        simulation.alpha(1).restart();
-    };
-}
-function click(clickedTarget, d, simulation) {
-    delete d.fx;
-    delete d.fy;
-    d3.select(clickedTarget).classed("fixed", false);
-    simulation.alpha(1).restart();
-}
-function tick(nodes, links) {
-    links
-        .attr("x1", (d) => d.source.x)
-        .attr("y1", (d) => d.source.y)
-        .attr("x2", (d) => d.target.x)
-        .attr("y2", (d) => d.target.y);
-    nodes.attr("transform", (d) => "translate(" + d.x + "," + d.y + ")");
-}
-// Utility functions {{{1
-function clamp(x, lo, hi) {
-    return x < lo ? lo : x > hi ? hi : x;
-}
-// Assuming a mean ratio of 0.6 between the height and length of
-// characters in modern fonts, we use 0.8 target be safe.
-function relativeStringLength(d3Datum) {
-    return d3Datum.name.length * 0.8 + "em";
-}
-function halfRelativeStringLength(d3Datum) {
-    return d3Datum.name.length * 0.4 + "em";
-}
-// vim: set expandtab softtabstop=2 tabstop=2 :
+// Create a SVG container.
+const svg = d3.create("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height])
+    .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
+
+// Constructs and configures a Sankey generator.
+const sankey = d3Sankey.sankey()
+    .nodeId(d => d.name)
+    .nodeAlign(d3Sankey.sankeyJustify)
+    .nodeWidth(15)
+    .nodePadding(10)
+    .extent([[1, 5], [width - 1, height - 5]]);
+
+// Applies it to the data. We make a copy of the nodes and links objects
+// to avoid mutating the original.
+const {nodes, links} = sankey({
+    nodes: data.nodes.map(d => Object.assign({}, d)),
+    links: data.links.map(d => Object.assign({}, d)),
+});
+
+// Defines a color scale.
+const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+// Creates the rects that represent the nodes.
+const rect = svg.append("g")
+    .attr("stroke", "#000")
+    .selectAll()
+    .data(nodes)
+    .join("rect")
+    .attr("x", d => d.x0)
+    .attr("y", d => d.y0)
+    .attr("height", d => d.y1 - d.y0)
+    .attr("width", d => d.x1 - d.x0)
+    .attr("fill", d => color(d.name));
+
+// Adds a title on the nodes.
+rect.append("title")
+    .text(d => `${d.name}\n${format(d.value)} TWh`);
+
+// Creates the paths that represent the links.
+const link = svg.append("g")
+    .attr("fill", "none")
+    .attr("stroke-opacity", 0.5)
+    .selectAll()
+    .data(links)
+    .join("g")
+    .style("mix-blend-mode", "multiply");
+
+
+// Creates a gradient, if necessary, for the source-target color option.
+const gradient = link.append("linearGradient")
+    .attr("id", d => (d.uid = uid("link")).id)
+    .attr("gradientUnits", "userSpaceOnUse")
+    .attr("x1", d => d.source.x1)
+    .attr("x2", d => d.target.x0);
+gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", d => color(d.source));
+gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", d => color(d.target));
+
+
+link.append("path")
+    .attr("d", d3Sankey.sankeyLinkHorizontal())
+    .attr("stroke", (d) => d.uid)
+    .attr("stroke-width", d => Math.max(1, d.width));
+
+link.append("title")
+    .text(d => `${d.source.name} → ${d.target.name}\n${format(d.value)} TWh`);
+
+// Adds labels on the nodes.
+svg.append("g")
+    .selectAll()
+    .data(nodes)
+    .join("text")
+    .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+    .attr("y", d => (d.y1 + d.y0) / 2)
+    .attr("dy", "0.35em")
+    .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+    .text(d => d.name);
+
+container.append(svg.node())
+
+window.link = link

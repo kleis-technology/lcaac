@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.AssessProcessAction
 import ch.kleis.lcaplugin.actions.AssessProcessWithDataAction
-import ch.kleis.lcaplugin.actions.GraphChildProcessesAction
+import ch.kleis.lcaplugin.actions.SankeyGraphAction
 import ch.kleis.lcaplugin.language.psi.isProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
@@ -21,15 +21,17 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
             val labels = process.getLabels()
             val assessProcessAction = AssessProcessAction(target, labels)
             val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target, labels)
-            // TODO: Un-hide graph action when sankey is ready
-//            val graphChildProcessesAction = GraphChildProcessesAction(target, labels)
-            return Info(AllIcons.Actions.Execute, {
-                "Run $target"
-            },
+
+            val sankeyGraphAction = SankeyGraphAction(target, labels)
+            return Info(
+                AllIcons.Actions.Execute,
+                {
+                    "Run $target"
+                },
                 assessProcessAction,
                 assessProcessWithExternalDataAction,
-//                graphChildProcessesAction,
-                )
+                sankeyGraphAction,
+            )
         }
         return null
     }
