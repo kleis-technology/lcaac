@@ -18,6 +18,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
+import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.FileNotFoundException
 import kotlin.io.path.Path
 
@@ -67,7 +68,8 @@ class AssessProcessWithDataAction(
                     // write
                     indicator.text = "Writing to $processName.results.csv"
                     indicator.fraction = 1.0
-                    val csvResultFile = Path(containingDirectory.virtualFile.path, "$processName.results.csv").toFile()
+                    val path = Path(containingDirectory.virtualFile.path, "$processName.results.csv")
+                    val csvResultFile = path.toFile()
                     CsvResultWriter(csvResultFile.outputStream()).use { writer ->
                         writer.write(results)
                     }
@@ -77,6 +79,7 @@ class AssessProcessWithDataAction(
                     indicator.fraction = 1.0
                     val title = "${requests.size} successful assessments of process $processName"
                     val message = "Results stored in ${processName}.results.csv"
+                    VirtualFileManager.getInstance().refreshAndFindFileByNioPath(path)
                     NotificationGroupManager.getInstance()
                         .getNotificationGroup("LcaAsCode")
                         .createNotification(title, message, NotificationType.INFORMATION)
