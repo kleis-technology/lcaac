@@ -19,7 +19,7 @@ import com.intellij.psi.tree.TokenSet
 
 class LcaParserDefinition : ParserDefinition {
     companion object {
-        val FILE = IStubFileElementType<PsiFileStubImpl<LcaFile>>(LcaLanguage.INSTANCE)
+        val FILE = IStubFileElementType<PsiFileStubImpl<LcaFile>>(LcaLanguage.INSTANCE.id, LcaLanguage.INSTANCE)
     }
 
     override fun createLexer(project: Project?): Lexer {
