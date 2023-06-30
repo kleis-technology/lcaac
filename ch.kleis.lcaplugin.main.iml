@@ -32,6 +32,8 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/stdlib/ef3.0" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/stdlib/ef3.1" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
