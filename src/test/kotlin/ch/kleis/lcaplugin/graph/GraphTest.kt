@@ -5,7 +5,9 @@ import ch.kleis.lcaplugin.core.lang.fixture.BioExchangeValueFixture.Companion.pr
 import ch.kleis.lcaplugin.core.lang.fixture.TechnoExchangeValueFixture.Companion.carrotTechnoExchangeValue
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.not
-import org.junit.Assert.*
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 class GraphTest {

@@ -13,8 +13,8 @@ import io.mockk.*
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -35,7 +35,6 @@ class SimaproImporterTest {
     private val outputProcessFile = "$rootFolder${File.separatorChar}process.lca"
     private val outputSubstanceFile = "$rootFolder${File.separatorChar}substance.lca"
 
-    @Suppress("RemoveExplicitTypeArguments")
     @Before
     fun init() {
         settings = mockk<SimaproImportSettings>()
