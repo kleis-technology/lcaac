@@ -5,8 +5,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.TokenSet
 
 interface PsiMetaAssignment : PsiElement {
-    val name: String
-        get() = getKey()
+
+    fun getName(): String? {
+        return getKey()
+    }
 
     fun getKey(): String {
         return node.getChildren(TokenSet.create(LcaTypes.STRING_LITERAL))[0].text.trim('"')

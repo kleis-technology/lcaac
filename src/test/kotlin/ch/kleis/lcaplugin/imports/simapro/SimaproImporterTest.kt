@@ -9,18 +9,18 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.RefreshQueue
-import com.intellij.util.io.exists
 import io.mockk.*
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.exists
 import kotlin.test.assertEquals
 
 class SimaproImporterTest {
@@ -35,7 +35,6 @@ class SimaproImporterTest {
     private val outputProcessFile = "$rootFolder${File.separatorChar}process.lca"
     private val outputSubstanceFile = "$rootFolder${File.separatorChar}substance.lca"
 
-    @Suppress("RemoveExplicitTypeArguments")
     @Before
     fun init() {
         settings = mockk<SimaproImportSettings>()

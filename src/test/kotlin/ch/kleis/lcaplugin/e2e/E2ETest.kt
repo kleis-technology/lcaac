@@ -427,9 +427,9 @@ class E2ETest : BasePlatformTestCase() {
         val actual = file.getProcesses().first().getBlockMetaList().first().metaAssignmentList
 
         // then
-        assertEquals("unit", actual[0].name)
+        assertEquals("unit", actual[0].getName())
         assertEquals("a", actual[0].getValue())
-        assertEquals("process", actual[1].name)
+        assertEquals("process", actual[1].getName())
         assertEquals("b", actual[1].getValue())
     }
 

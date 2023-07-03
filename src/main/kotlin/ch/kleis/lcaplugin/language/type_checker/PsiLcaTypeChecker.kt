@@ -134,6 +134,7 @@ class PsiLcaTypeChecker {
         if (ty.javaClass != cls) {
             throw PsiTypeCheckException("expected ${cls.simpleName}, found $ty")
         }
+        @Suppress("UNCHECKED_CAST")
         return ty as T
     }
 

@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.shared
 
 import ch.kleis.lcaplugin.imports.model.*
 import org.hamcrest.CoreMatchers.containsString
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import kotlin.test.assertEquals
 

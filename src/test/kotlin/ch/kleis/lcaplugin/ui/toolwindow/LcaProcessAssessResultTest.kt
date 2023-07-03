@@ -17,8 +17,8 @@ import com.intellij.ui.components.JBViewport
 import com.intellij.ui.table.JBTable
 import io.mockk.mockk
 import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.MatcherAssert.assertThat
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
-import org.junit.Assert.assertThat
 import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 

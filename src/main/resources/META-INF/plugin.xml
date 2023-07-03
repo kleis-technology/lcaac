@@ -1,22 +1,9 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin xmlns:xi="http://www.w3.org/2001/XInclude">
-    <id>ch.kleis.lcaplugin</id>
+    <id>ch.kleis.lcaplugin.main</id>
     <name>Life Cycle Analysis as Code</name>
+    <!--    <name>ch.kleis.lcaplugin</name>-->
     <vendor url="https://kleis.ch" email="contact@kleis.ch">Kleis</vendor>
-    <description>
-        <![CDATA[
-        Adds support for a new domain-specific language targeting <i>Life Cycle
-            Analysis</i> experts. The following features are available for free.
-        <ul>
-            <li>EF 3.1 flows and characterization factors from the <a
-                    href="https://eplca.jrc.ec.europa.eu/LCDN/developerEF.xhtml">European Platform on Life Cycle
-                Assessment</a></li>
-            <li>Description of processes, intermediary and elementary flows, with parameters.</li>
-            <li>Embedded inventory computation engine.</li>
-            <li>Code navigation.</li>
-        </ul>
-    ]]>
-    </description>
     <xi:include href="/META-INF/tips-kleis-1.xml"/>
 
     <extensions defaultExtensionNs="com.intellij">
