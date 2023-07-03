@@ -36,7 +36,7 @@ class LcaImportDialog<P>(private val panel: P, title: String) :
     companion object {
         fun validateRegularFile(value: String, component: JComponent): ValidationInfo? {
             val libPath = Path.of(value)
-            return if (!libPath.notExists() || !libPath.isRegularFile()) {
+            return if (libPath.notExists() || !libPath.isRegularFile()) {
                 ValidationInfo(MyBundle.message("lca.dialog.import.library.file.error"), component)
             } else {
                 null

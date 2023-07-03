@@ -69,7 +69,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
     // Case of the LCA As Code run as an installed IDE
     private fun extractLibToFolder(lib: AdditionalLib): VirtualFile? {
         val targetFolder =
-            Path.of(PathManager.getDefaultPluginPathFor("LcaAsCode2023.1") + File.separatorChar + "lca-as-code")
+            Path.of(PathManager.getDefaultPluginPathFor("LcaAsCode1.0") + File.separatorChar + "lca-as-code")
         if (targetFolder.notExists()) targetFolder.createDirectories()
         val targetFile = Path.of(targetFolder.toString() + File.separatorChar + lib.jarName)
         if (targetFile.notExists()) {
