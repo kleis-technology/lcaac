@@ -6,7 +6,6 @@ import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
-import ch.kleis.lcaplugin.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.SankeyGraphResult
@@ -48,14 +47,16 @@ class SankeyGraphAction(
 
             override fun run(indicator: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
-                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint()).inventory()
+                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint())
+                val inventory = assessment.inventory()
+                val allocatedSystem = assessment.allocatedSystem
 
                 // generate graph
                 indicator.text = "Generating graph"
                 // FIXME: let the user choose !
                 val sankeyPort = inventory.getControllablePorts().getElements().first()
 
-                this.graph = buildContributionGraph(sankeyPort, trace, inventory)
+                this.graph = buildContributionGraph(sankeyPort, allocatedSystem, inventory)
             }
 
             override fun onSuccess() {
@@ -106,7 +107,7 @@ class SankeyGraphAction(
 
     fun buildContributionGraph(
         observed: MatrixColumnIndex,
-        trace: EvaluationTrace,
+        allocatedSystem: SystemValue,
         inventory: Inventory,
     ): Graph {
         val portsWithObservedImpact = inventory.getObservablePorts().getElements().filter { observable ->
@@ -117,7 +118,7 @@ class SankeyGraphAction(
         val productToProcessMap = portsWithObservedImpact
             .filterIsInstance<ProductValue>()
             .associateWith { productValue ->
-                trace.getSystemValue().processes.first { processValue: ProcessValue ->
+                allocatedSystem.processes.first { processValue: ProcessValue ->
                     processValue.products.any { tev -> tev.product == productValue }
                 }
             }
@@ -138,7 +139,6 @@ class SankeyGraphAction(
 
                 is ProductValue -> {
                     val parentProcess = productToProcessMap[port]!!
-                    val allocationFactor = parentProcess.products.first { it.product == port }.allocation.amount / 100
 
                     val linksWithObservedImpact = (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
                         portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == observed
@@ -149,7 +149,7 @@ class SankeyGraphAction(
                             GraphLink(
                                 port.getUID(),
                                 exchange.port().getUID(),
-                                impactAmountForExchange(observed, inventory, port, allocationFactor, exchange)))
+                                impactAmountForExchange(observed, inventory, port, exchange)))
                     }
                 }
 
@@ -167,7 +167,6 @@ class SankeyGraphAction(
         observed: MatrixColumnIndex,
         inventory: Inventory,
         product: ProductValue,
-        allocationFactor: Double,
         exchange: ExchangeValue
     ): Double {
         val valueRatioForObservedImpact = when {
@@ -175,7 +174,7 @@ class SankeyGraphAction(
             else -> inventory.impactFactors.valueRatio(exchange.port(), observed).referenceValue()
         }
 
-        return valueRatioForObservedImpact * allocationFactor *
+        return valueRatioForObservedImpact *
             inventory.supply.quantityOf(product).referenceValue() *
             exchange.quantity().referenceValue()
     }
