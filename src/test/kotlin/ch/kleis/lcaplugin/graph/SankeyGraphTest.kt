@@ -156,9 +156,17 @@ class SankeyGraphTest : BasePlatformTestCase() {
                                1 kg my_product
                            }
                            inputs {
-                               500 g my_input
+                               50 percent * 1 kg my_input
                            }
                        }
+                       process input {
+                           products {
+                                1 kg my_input
+                           }
+                           inputs {
+                               1000 g my_indicator
+                           }
+                      }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
         val action = SankeyGraphAction("p", mapOf())
@@ -169,9 +177,11 @@ class SankeyGraphTest : BasePlatformTestCase() {
         // then
         val expected = Graph.empty().addNode(
             GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("my_input", "my_input"),
+            GraphNode("my_input from input{}{}", "my_input from input{}{}"),
+            GraphNode("my_indicator", "my_indicator"),
         ).addLink(
-            GraphLink("my_product from p{}{}", "my_input", 0.5),
+            GraphLink("my_product from p{}{}", "my_input from input{}{}", 500.0),
+            GraphLink("my_input from input{}{}", "my_indicator", 500.0),
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)

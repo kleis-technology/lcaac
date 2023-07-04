@@ -103,7 +103,7 @@ svg.append("g")
     .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
     .attr("y", d => (d.y1 + d.y0) / 2)
     .attr("dy", "0.35em")
-    .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+    .attr("text-anchor", d => d.x0 < width / 3 ? "start" : "end")
     .text(d => d.name);
 
 container.append(svg.node())

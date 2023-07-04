@@ -54,6 +54,9 @@ class SankeyGraphAction(
                 // generate graph
                 indicator.text = "Generating graph"
                 // FIXME: let the user choose !
+                // FIXME: detect cycles and
+                // 1) warn ?
+                // 2) remove ?
                 val sankeyPort = inventory.getControllablePorts().getElements().first()
 
                 this.graph = buildContributionGraph(sankeyPort, allocatedSystem, inventory)
@@ -162,12 +165,22 @@ class SankeyGraphAction(
     ): Double {
         val valueRatioForObservedImpact = when {
             (exchange.port() == observed) -> 1.0
-            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).referenceValue()
+            else -> {
+                val valRat = inventory.impactFactors.valueRatio(exchange.port(), observed)
+                val valRatRef = valRat.referenceValue()
+                valRat.amount
+            }
         }
 
+
+        val invqty = inventory.supply.quantityOf(product)
+        val invqtyRef = inventory.supply.quantityOf(product).referenceValue()
+        val xchgeqty = exchange.quantity()
+        val xchgeqtyRef = exchange.quantity().referenceValue()
+
         return valueRatioForObservedImpact *
-            inventory.supply.quantityOf(product).referenceValue() *
-            exchange.quantity().referenceValue()
+            invqty.amount *
+            xchgeqty.amount
     }
 
 }
