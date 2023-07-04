@@ -110,18 +110,9 @@ class SankeyGraphAction(
         allocatedSystem: SystemValue,
         inventory: Inventory,
     ): Graph {
-        val portsWithObservedImpact = inventory.getObservablePorts().getElements().filter { observable ->
-            // FIXME: what delta to use ?
-            inventory.supply.quantityOf(observable).amount > 10E-6 && inventory.impactFactors.valueRatio(observable, observed).amount > 10E-6
-        }.toSet()
+        // Add filters on (or) 1) impact 2) relative impact 3) QQQ depending on user feebdack
+        val portsWithObservedImpact = inventory.getObservablePorts().getElements().toSet()
 
-        val productToProcessMap = portsWithObservedImpact
-            .filterIsInstance<ProductValue>()
-            .associateWith { productValue ->
-                allocatedSystem.processes.first { processValue: ProcessValue ->
-                    processValue.products.any { tev -> tev.product == productValue }
-                }
-            }
         return portsWithObservedImpact.fold(
             Graph.empty().addNode(GraphNode(observed.getUID(), observed.getDisplayName()))
         ) { graph, port ->
@@ -138,7 +129,7 @@ class SankeyGraphAction(
                 }
 
                 is ProductValue -> {
-                    val parentProcess = productToProcessMap[port]!!
+                    val parentProcess = allocatedSystem.productToProcessMap[port]!!
 
                     val linksWithObservedImpact = (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
                         portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == observed
