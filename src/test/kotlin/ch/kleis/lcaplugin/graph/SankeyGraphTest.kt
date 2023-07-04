@@ -213,6 +213,70 @@ class SankeyGraphTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_whenDiamondShaped_thenSankey() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                    process p {
+                        products {
+                            1 kg my_product
+                        }
+                        inputs {
+                            1 kg my_left_product
+                            1 kg my_right_product
+                        }
+                    }
+                    process q {
+                        products {
+                            1 kg my_left_product
+                        }
+                        inputs {
+                            1 kg my_input
+                        }
+                    }
+                    process r {
+                        products {
+                            1 kg my_right_product
+                        }
+                        inputs {
+                            1 kg my_input
+                        }
+                    }
+                    process input {
+                        products {
+                            1 kg my_input
+                        }
+                        emissions {
+                            1 kg my_substance
+                        }
+                    }
+                """.trimIndent())
+        val (sankeyPort, trace, inventory) = getRequiredInformation("p", vf)
+        val action = SankeyGraphAction("p", mapOf())
+
+        // when
+        val graph = action.buildContributionGraph(sankeyPort, trace, inventory)
+
+        // then
+        val expected = Graph.empty().addNode(
+            GraphNode("my_substance", "my_substance"),
+            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
+            GraphNode("my_left_product from q{}{}", "my_left_product from q{}{}"),
+            GraphNode("my_right_product from r{}{}", "my_right_product from r{}{}"),
+            GraphNode("my_input from input{}{}", "my_input from input{}{}"),
+        ).addLink(
+            GraphLink("my_product from p{}{}", "my_left_product from q{}{}", 1.0),
+            GraphLink("my_product from p{}{}", "my_right_product from r{}{}", 1.0),
+            GraphLink("my_left_product from q{}{}", "my_input from input{}{}", 1.0),
+            GraphLink("my_right_product from r{}{}", "my_input from input{}{}", 1.0),
+            GraphLink("my_input from input{}{}", "my_substance", 2.0),
+        )
+        assertEquals(expected.nodes, graph.nodes)
+        assertEquals(expected.links, graph.links)
+    }
+
+    @Test
     fun test_whenComplexGraph_thenSankey() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
