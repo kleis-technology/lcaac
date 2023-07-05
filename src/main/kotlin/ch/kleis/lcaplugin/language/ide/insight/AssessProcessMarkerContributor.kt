@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.AssessProcessAction
 import ch.kleis.lcaplugin.actions.AssessProcessWithDataAction
-import ch.kleis.lcaplugin.actions.SankeyGraphAction
+import ch.kleis.lcaplugin.actions.sankey.SankeyGraphAction
 import ch.kleis.lcaplugin.language.psi.isProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import com.intellij.execution.lineMarker.RunLineMarkerContributor

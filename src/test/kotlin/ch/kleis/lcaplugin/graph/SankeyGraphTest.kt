@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.graph
 
-import ch.kleis.lcaplugin.actions.SankeyGraphAction
+import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.graph.*
@@ -53,10 +53,10 @@ class SankeyGraphTest : BasePlatformTestCase() {
                        }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, allocatedSystem, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -85,10 +85,10 @@ class SankeyGraphTest : BasePlatformTestCase() {
                 }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, allocatedSystem, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -126,10 +126,10 @@ class SankeyGraphTest : BasePlatformTestCase() {
                 }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, allocatedSystem, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -169,10 +169,10 @@ class SankeyGraphTest : BasePlatformTestCase() {
                       }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, allocatedSystem, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -204,10 +204,10 @@ class SankeyGraphTest : BasePlatformTestCase() {
                        }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, allocatedSystem, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -262,11 +262,11 @@ class SankeyGraphTest : BasePlatformTestCase() {
                         }
                     }
                 """.trimIndent())
-        val (sankeyPort, trace, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, trace, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -324,11 +324,11 @@ class SankeyGraphTest : BasePlatformTestCase() {
                            }
                        }
                 """.trimIndent())
-        val (sankeyPort, trace, inventory) = getRequiredInformation("p", vf)
-        val action = SankeyGraphAction("p", mapOf())
+        val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
+        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = action.buildContributionGraph(sankeyPort, trace, inventory)
+        val graph = skBuilder.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
