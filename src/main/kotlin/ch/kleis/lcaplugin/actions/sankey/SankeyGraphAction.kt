@@ -42,8 +42,9 @@ class SankeyGraphAction(
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generate sankey graph") {
-            private var graph: Graph? = null
             private var indicatorList: List<MatrixColumnIndex>? = null
+            private var graphBuilder: SankeyGraphBuilder? = null
+            private var graph: Graph? = null
 
             override fun run(progress: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(progress, file, processName, matchLabels)
@@ -57,8 +58,8 @@ class SankeyGraphAction(
 
                 // generate graph
                 progress.text = "Generating sankey graph"
-                val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
-                this.graph = skBuilder.buildContributionGraph(sankeyIndicator)
+                graphBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+                this.graph = graphBuilder!!.buildContributionGraph(sankeyIndicator)
             }
 
             override fun onSuccess() {
@@ -89,7 +90,7 @@ class SankeyGraphAction(
 
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    SankeyGraphResult(graph, indicatorList!!).getContent(), "Contribution analysis of $processName for ${indicatorList!!.first().getDisplayName()}", false
+                    SankeyGraphResult(graph, indicatorList!!, graphBuilder!!).getContent(), "Contribution analysis of $processName", false
                 )
 
             private fun fillAndShowToolWindow(project: Project, content: Content) {
