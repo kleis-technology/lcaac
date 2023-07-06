@@ -1,6 +1,5 @@
-package ch.kleis.lcaplugin.graph
+package ch.kleis.lcaplugin.actions.sankey
 
-import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.graph.*
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SankeyGraphTest : BasePlatformTestCase() {
+class SankeyGraphBuilderTest : BasePlatformTestCase() {
     override fun getTestDataPath(): String {
         return "testdata"
     }
