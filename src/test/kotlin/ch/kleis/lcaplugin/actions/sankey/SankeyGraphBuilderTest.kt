@@ -52,10 +52,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -84,10 +84,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -125,10 +125,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -168,10 +168,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                       }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -203,10 +203,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -262,10 +262,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                     }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
@@ -324,10 +324,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
-        val skBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
 
         // when
-        val graph = skBuilder.buildContributionGraph(sankeyPort)
+        val graph = sut.buildContributionGraph(sankeyPort)
 
         // then
         val expected = Graph.empty().addNode(
