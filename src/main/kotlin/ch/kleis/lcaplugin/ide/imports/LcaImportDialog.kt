@@ -7,7 +7,7 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.DialogWrapperPeer
 import com.intellij.openapi.ui.ValidationInfo
@@ -26,8 +26,8 @@ import kotlin.io.path.isRegularFile
 import kotlin.io.path.notExists
 
 
-class LcaImportDialog<P>(private val panel: P, title: String) :
-    DialogWrapper(ProjectManager.getInstance().defaultProject) where P : ImportHandler, P : JPanel {
+class LcaImportDialog<P>(private val panel: P, title: String, project: Project?) :
+    DialogWrapper(project) where P : ImportHandler, P : JPanel {
 
     private var panelAndActions: Pair<JPanel?, JBList<AnAction?>> = Pair(null, JBList())
 

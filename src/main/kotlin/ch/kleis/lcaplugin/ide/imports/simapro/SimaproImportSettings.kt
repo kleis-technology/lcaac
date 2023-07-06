@@ -70,7 +70,7 @@ class SimaproImportSettings : PersistentStateComponent<SimaproImportSettings.Sta
         var LIBRARY_FILE: String = ""
 
         @JvmField
-        var ROOT_FOLDER: String = ProjectManager.getInstance().defaultProject.basePath ?: ""
+        var ROOT_FOLDER: String = ProjectManager.getInstance().openProjects.firstOrNull()?.basePath ?: ""
 
         @JvmField
         var IMPORT_UNITS: Boolean = true
