@@ -13,6 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.JBColor
 import java.awt.Font
 
+// TODO Move deprecated API
 class LcaDocumentationProvider : AbstractDocumentationProvider() {
     private companion object {
         private var SECTION_ROW_START = "<tr>\n<td valign='top' class='section'>"

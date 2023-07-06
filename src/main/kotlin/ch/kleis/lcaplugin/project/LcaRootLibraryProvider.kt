@@ -18,6 +18,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Path
 import java.nio.file.Paths.get
+import kotlin.io.path.exists
 import kotlin.io.path.notExists
 
 data class AdditionalLib(val alias: String, val jarName: String)
@@ -68,8 +69,11 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
     // Case of the LCA As Code run as an installed IDE
     private fun extractLibToFolder(lib: AdditionalLib): VirtualFile? {
+        // TODO Remove cleaning after next deployment ie after august 2023
+        val oldPath = Path.of(PathManager.getDefaultPluginPathFor("LcaAsCode1.x")).parent
+        if (oldPath.exists()) oldPath.toFile().deleteRecursively()
         val targetFolder =
-            Path.of(PathManager.getDefaultPluginPathFor("LcaAsCode1.0") + File.separatorChar + "lca-as-code")
+            Path.of(PathManager.getDefaultPluginPathFor("CacheLcaAsCode1.x") + File.separatorChar + "lca-as-code")
         if (targetFolder.notExists()) targetFolder.createDirectories()
         val targetFile = Path.of(targetFolder.toString() + File.separatorChar + lib.jarName)
         if (targetFile.notExists()) {
