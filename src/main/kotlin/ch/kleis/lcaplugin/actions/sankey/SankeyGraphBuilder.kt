@@ -19,7 +19,7 @@ class SankeyGraphBuilder(
             when (port) {
                 is SubstanceValue -> {
                     graph.addNode(GraphNode(port.getUID(), port.getShortName()))
-                        .addLink(
+                        .addLinkIfNoCycle(
                             GraphLink(
                                 port.getUID(),
                                 sankeyIndicator.getUID(),
@@ -36,7 +36,7 @@ class SankeyGraphBuilder(
                     }
 
                     linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getShortName()))) { accumulatorGraph, exchange ->
-                        accumulatorGraph.addLink(
+                        accumulatorGraph.addLinkIfNoCycle(
                             GraphLink(
                                 port.getUID(),
                                 exchange.port().getUID(),
@@ -50,6 +50,13 @@ class SankeyGraphBuilder(
 
         return completeGraph
     }
+
+    private fun Graph.addLinkIfNoCycle(link: GraphLink): Graph =
+        if (this.links.any { it.source == link.target && it.target == link.source }) {
+            this
+        } else {
+            this.addLink(link)
+        }
 
     private fun impactAmountForSubstance(observed: MatrixColumnIndex, inventory: Inventory, substance: SubstanceValue): Double {
         return inventory.impactFactors.valueRatio(substance, observed).amount *
