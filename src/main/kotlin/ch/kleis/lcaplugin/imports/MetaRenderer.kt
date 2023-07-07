@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.imports
 
 import kotlin.reflect.full.declaredMemberProperties
 
+// TODO Delete ?
 class MetaRenderer {
 
     fun render(o: Any?, prefix: String, metas: MutableMap<String, String>) {

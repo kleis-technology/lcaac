@@ -3,7 +3,7 @@ package ch.kleis.lcaplugin.imports.simapro
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
-import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert

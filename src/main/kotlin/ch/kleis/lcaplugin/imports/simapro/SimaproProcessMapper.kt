@@ -2,9 +2,9 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import arrow.core.toNonEmptyListOrNull
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
-import ch.kleis.lcaplugin.imports.FormulaConverter
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.*
+import ch.kleis.lcaplugin.imports.shared.serializer.FormulaConverter
 import ch.kleis.lcaplugin.imports.simapro.substance.Dictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary

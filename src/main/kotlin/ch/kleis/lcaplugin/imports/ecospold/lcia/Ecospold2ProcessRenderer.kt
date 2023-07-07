@@ -3,8 +3,8 @@ package ch.kleis.lcaplugin.imports.ecospold.lcia
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.ProcessDictRecord
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
-import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import java.io.File
 
 class Ecospold2ProcessRenderer {

@@ -5,8 +5,8 @@ import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Classification
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
-import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
-import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import io.mockk.*
 import org.junit.After
 import org.junit.Before

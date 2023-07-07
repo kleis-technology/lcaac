@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.shared
+package ch.kleis.lcaplugin.imports.shared.serializer
 
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol

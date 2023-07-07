@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports
+package ch.kleis.lcaplugin.imports.shared.serializer
 
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager

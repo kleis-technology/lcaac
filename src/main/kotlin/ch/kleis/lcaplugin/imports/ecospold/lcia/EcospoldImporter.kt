@@ -5,8 +5,9 @@ import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.*
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
-import ch.kleis.lcaplugin.imports.shared.UnitRenderer
+import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile

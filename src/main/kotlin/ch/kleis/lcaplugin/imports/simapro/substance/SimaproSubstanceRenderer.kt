@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import org.openlca.simapro.csv.enums.ElementaryFlowType
 import org.openlca.simapro.csv.refdata.ElementaryFlowBlock
 import org.openlca.simapro.csv.refdata.ElementaryFlowRow
@@ -10,7 +10,7 @@ import java.io.File
 
 class SimaproSubstanceRenderer {
     var nbSubstances = 0
-    
+
     fun render(block: ElementaryFlowBlock, writer: ModelWriter) {
         val compartimentRaw = block.type().compartment().lowercase()
         val compartiment = ModelWriter.sanitizeAndCompact(compartimentRaw)

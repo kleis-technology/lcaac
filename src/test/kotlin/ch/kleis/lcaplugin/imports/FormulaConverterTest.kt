@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
+import ch.kleis.lcaplugin.imports.shared.serializer.FormulaConverter
 import org.junit.Test
 import kotlin.test.assertEquals
 

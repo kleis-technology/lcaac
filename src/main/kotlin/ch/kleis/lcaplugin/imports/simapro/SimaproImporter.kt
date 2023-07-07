@@ -6,7 +6,7 @@ import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.*
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
-import ch.kleis.lcaplugin.imports.shared.UnitRenderer
+import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream

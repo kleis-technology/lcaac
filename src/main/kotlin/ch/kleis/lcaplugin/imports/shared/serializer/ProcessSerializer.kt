@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.shared
+package ch.kleis.lcaplugin.imports.shared.serializer
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ModelWriter.Companion.padButFirst
