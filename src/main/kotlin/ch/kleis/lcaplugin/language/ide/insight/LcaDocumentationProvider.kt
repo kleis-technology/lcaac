@@ -13,7 +13,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.JBColor
 import java.awt.Font
 
-// TODO Move deprecated API
+/** The API is deprecated, but the new one is still experimental in June 2023 (see
+ *  [com.intellij.platform.backend.documentation.DocumentationTarget] and
+ * [com.intellij.platform.backend.presentation.TargetPresentation])
+ */
 class LcaDocumentationProvider : AbstractDocumentationProvider() {
     private companion object {
         private var SECTION_ROW_START = "<tr>\n<td valign='top' class='section'>"
