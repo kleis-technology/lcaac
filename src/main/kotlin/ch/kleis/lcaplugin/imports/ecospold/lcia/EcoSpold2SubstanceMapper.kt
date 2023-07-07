@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.EcoSpold2ProcessMapper
+import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.model.ImportedImpact
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
 

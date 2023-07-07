@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.ProcessDictRecord
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
 import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import java.io.File
@@ -19,7 +19,7 @@ class Ecospold2ProcessRenderer {
         val category = category(data)
 
         val subFolder = if (category == null) "" else "${category}${File.separatorChar}"
-        val process = EcoSpold2ProcessMapper.map(data)
+        val process = LciaProcessMapper(data).map()
         process.comments.add(processComment)
         val strProcess = ProcessSerializer.serialize(process)
 

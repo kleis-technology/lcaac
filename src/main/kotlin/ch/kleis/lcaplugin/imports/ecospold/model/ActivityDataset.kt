@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia.model
+package ch.kleis.lcaplugin.imports.ecospold.model
 
 class ActivityDataset private constructor(
     val description: ActivityDescription,

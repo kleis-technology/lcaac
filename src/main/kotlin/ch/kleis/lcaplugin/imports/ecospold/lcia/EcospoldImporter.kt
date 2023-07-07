@@ -6,8 +6,8 @@ import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Parser
+import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
 import ch.kleis.lcaplugin.imports.util.AsyncTaskController

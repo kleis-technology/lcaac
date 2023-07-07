@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia.model
+package ch.kleis.lcaplugin.imports.ecospold.model
 
 import org.jdom2.Element
 import org.jdom2.JDOMFactory

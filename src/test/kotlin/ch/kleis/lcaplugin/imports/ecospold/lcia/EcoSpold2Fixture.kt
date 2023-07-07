@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.*
+import ch.kleis.lcaplugin.imports.ecospold.model.*
 
 class EcoSpold2Fixture {
     companion object {
