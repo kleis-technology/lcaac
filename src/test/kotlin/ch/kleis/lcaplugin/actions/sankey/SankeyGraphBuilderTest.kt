@@ -21,7 +21,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         return "testdata"
     }
 
-    private data class SankeyRequiredInformation(val port: MatrixColumnIndex, val allocatedSystem: SystemValue, val inventory: Inventory)
+    private data class SankeyRequiredInformation(val observedPort: MatrixColumnIndex, val allocatedSystem: SystemValue, val inventory: Inventory)
 
     private fun getRequiredInformation(process: String, vf: VirtualFile): SankeyRequiredInformation {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
@@ -59,8 +59,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
         // then
         val expected = Graph.empty().addNode(
-            GraphNode("[Emission] my_substance(air)", "[Emission] my_substance(air)"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
+            GraphNode("[Emission] my_substance(air)", "my_substance"),
+            GraphNode("my_product from p{}{}", "my_product")
         ).addLink(
             GraphLink("my_product from p{}{}", "[Emission] my_substance(air)", 1.0),
         )
@@ -92,7 +92,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         // then
         val expected = Graph.empty().addNode(
             GraphNode("my_input", "my_input"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
+            GraphNode("my_product from p{}{}", "my_product"),
         ).addLink(
             GraphLink("my_product from p{}{}", "my_input", 1.0),
         )
@@ -133,8 +133,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         // then
         val expected = Graph.empty().addNode(
             GraphNode("climate_change", "climate_change"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("[Emission] my_substance(air)", "[Emission] my_substance(air)")
+            GraphNode("my_product from p{}{}", "my_product"),
+            GraphNode("[Emission] my_substance(air)", "my_substance")
         ).addLink(
             GraphLink("my_product from p{}{}", "[Emission] my_substance(air)", 1.0),
             GraphLink("[Emission] my_substance(air)", "climate_change", 1.0)
@@ -175,8 +175,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
         // then
         val expected = Graph.empty().addNode(
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("my_input from input{}{}", "my_input from input{}{}"),
+            GraphNode("my_product from p{}{}", "my_product"),
+            GraphNode("my_input from input{}{}", "my_input"),
             GraphNode("my_indicator", "my_indicator"),
         ).addLink(
             GraphLink("my_product from p{}{}", "my_input from input{}{}", 500.0),
@@ -210,9 +210,9 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
         // then
         val expected = Graph.empty().addNode(
-            GraphNode("[Emission] my_substance(air)", "[Emission] my_substance(air)"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("my_other_product from p{}{}", "my_other_product from p{}{}"),
+            GraphNode("[Emission] my_substance(air)", "my_substance"),
+            GraphNode("my_product from p{}{}", "my_product"),
+            GraphNode("my_other_product from p{}{}", "my_other_product"),
         ).addLink(
             GraphLink("my_product from p{}{}", "[Emission] my_substance(air)", 1.0),
             GraphLink("my_other_product from p{}{}", "[Emission] my_substance(air)", 1.0),
@@ -270,10 +270,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         // then
         val expected = Graph.empty().addNode(
             GraphNode("my_substance", "my_substance"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("my_left_product from q{}{}", "my_left_product from q{}{}"),
-            GraphNode("my_right_product from r{}{}", "my_right_product from r{}{}"),
-            GraphNode("my_input from input{}{}", "my_input from input{}{}"),
+            GraphNode("my_product from p{}{}", "my_product"),
+            GraphNode("my_left_product from q{}{}", "my_left_product"),
+            GraphNode("my_right_product from r{}{}", "my_right_product"),
+            GraphNode("my_input from input{}{}", "my_input"),
         ).addLink(
             GraphLink("my_product from p{}{}", "my_left_product from q{}{}", 1.0),
             GraphLink("my_product from p{}{}", "my_right_product from r{}{}", 1.0),
@@ -332,10 +332,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         // then
         val expected = Graph.empty().addNode(
             GraphNode("climate_change", "climate_change"),
-            GraphNode("my_input from q{}{}", "my_input from q{}{}"),
-            GraphNode("my_product from p{}{}", "my_product from p{}{}"),
-            GraphNode("my_other_product from p{}{}", "my_other_product from p{}{}"),
-            GraphNode("[Emission] my_substance(air)", "[Emission] my_substance(air)")
+            GraphNode("my_input from q{}{}", "my_input"),
+            GraphNode("my_product from p{}{}", "my_product"),
+            GraphNode("my_other_product from p{}{}", "my_other_product"),
+            GraphNode("[Emission] my_substance(air)", "my_substance")
         ).addLink(
             GraphLink("my_product from p{}{}", "my_input from q{}{}", 1.5),
             GraphLink("my_other_product from p{}{}", "my_input from q{}{}", 0.5),

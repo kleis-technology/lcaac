@@ -10,19 +10,15 @@ class SankeyGraphBuilder(
     private val allocatedSystem: SystemValue,
     private val inventory: Inventory,
 ) {
-    // FIXME: detect cycles and
-    // 1) warn ?
-    // 2) remove ?
-    // Add filters on (xor) 1) impact 2) relative impact 3) QQQ depending on user feebdack
     fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex): Graph {
         val portsWithObservedImpact = inventory.getObservablePorts().getElements().toSet()
 
-        return portsWithObservedImpact.fold(
-            Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getDisplayName()))
+        val completeGraph = portsWithObservedImpact.fold(
+            Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getShortName()))
         ) { graph, port ->
             when (port) {
                 is SubstanceValue -> {
-                    graph.addNode(GraphNode(port.getUID(), port.getDisplayName()))
+                    graph.addNode(GraphNode(port.getUID(), port.getShortName()))
                         .addLink(
                             GraphLink(
                                 port.getUID(),
@@ -39,7 +35,7 @@ class SankeyGraphBuilder(
                         portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == sankeyIndicator
                     }
 
-                    linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getDisplayName()))) { accumulatorGraph, exchange ->
+                    linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getShortName()))) { accumulatorGraph, exchange ->
                         accumulatorGraph.addLink(
                             GraphLink(
                                 port.getUID(),
@@ -51,6 +47,8 @@ class SankeyGraphBuilder(
                 else -> graph
             }
         }
+
+        return completeGraph
     }
 
     private fun impactAmountForSubstance(observed: MatrixColumnIndex, inventory: Inventory, substance: SubstanceValue): Double {
