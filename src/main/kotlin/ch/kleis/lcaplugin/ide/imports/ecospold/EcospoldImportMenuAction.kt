@@ -9,7 +9,7 @@ class EcospoldImportMenuAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val panel = EcospoldImportSettingsPanel(EcospoldImportSettings.instance)
         val title = MyBundle.message("lca.dialog.import.ecospold.title")
-        val dlg = LcaImportDialog(panel, title)
+        val dlg = LcaImportDialog(panel, title, e.project)
         dlg.show()
     }
 
