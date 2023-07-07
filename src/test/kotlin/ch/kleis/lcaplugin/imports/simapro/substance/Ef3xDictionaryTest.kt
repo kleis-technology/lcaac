@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
-import ch.kleis.lcaplugin.imports.MissingLibraryFileException
+import ch.kleis.lcaplugin.imports.util.MissingLibraryFileException
 import org.junit.Assert.*
 import org.junit.Test
 import kotlin.test.assertFailsWith

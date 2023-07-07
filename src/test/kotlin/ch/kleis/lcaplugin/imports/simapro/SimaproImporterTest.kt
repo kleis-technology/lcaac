@@ -2,9 +2,13 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
-import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.SummaryInError
+import ch.kleis.lcaplugin.imports.SummaryInSuccess
+import ch.kleis.lcaplugin.imports.SummaryInterrupted
 import ch.kleis.lcaplugin.imports.simapro.substance.Ef3xDictionary
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproDictionary
+import ch.kleis.lcaplugin.imports.util.AsyncTaskController
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile

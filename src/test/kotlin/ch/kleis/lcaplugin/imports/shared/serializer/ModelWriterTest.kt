@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.imports.shared.serializer
 
 import ch.kleis.lcaplugin.TestUtils
-import ch.kleis.lcaplugin.imports.AsynchronousWatcher
 import ch.kleis.lcaplugin.imports.FileWriterWithSize
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import com.intellij.openapi.vfs.LocalFileSystem
 import io.mockk.*
 import junit.framework.TestCase

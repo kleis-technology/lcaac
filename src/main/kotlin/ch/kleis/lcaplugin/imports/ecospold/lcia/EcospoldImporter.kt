@@ -3,11 +3,16 @@ package ch.kleis.lcaplugin.imports.ecospold.lcia
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
-import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.Imported
+import ch.kleis.lcaplugin.imports.Importer
+import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
+import ch.kleis.lcaplugin.imports.util.AsyncTaskController
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
+import ch.kleis.lcaplugin.imports.util.ImportInterruptedException
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
@@ -67,7 +72,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         return Path.of(settings.rootFolder)
     }
 
-    override fun collectProgress(): List<Imported> {
+    override fun collectResults(): List<Imported> {
         return listOf(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(processRenderer.nbProcesses, "processes"),

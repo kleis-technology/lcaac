@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
-import ch.kleis.lcaplugin.imports.MissingLibraryFileException
+import ch.kleis.lcaplugin.imports.util.MissingLibraryFileException
 import com.intellij.openapi.diagnostic.Logger
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser

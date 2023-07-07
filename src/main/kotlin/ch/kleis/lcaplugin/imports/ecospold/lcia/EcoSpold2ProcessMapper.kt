@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ImportException
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.lcia.model.ActivityDataset
@@ -11,6 +10,7 @@ import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
 import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
+import ch.kleis.lcaplugin.imports.util.ImportException
 
 class EcoSpold2ProcessMapper {
     companion object {

@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.ide.component
 
 import ch.kleis.lcaplugin.MyBundle
-import ch.kleis.lcaplugin.imports.AsynchronousWatcher
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import com.intellij.ide.IdeBundle
 import com.intellij.util.ui.GridBag
 import com.intellij.util.ui.JBUI
