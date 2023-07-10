@@ -9,6 +9,9 @@ class Dimension(
     private val elements: Map<String, Double>
 
     override fun toString(): String {
+        if (elements.isEmpty()) {
+            return "dimensionless"
+        }
         return elements.entries.joinToString(".") {
             simpleDimToString(it)
         }
