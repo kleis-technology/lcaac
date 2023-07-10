@@ -11,7 +11,7 @@ class Prelude {
     companion object {
         val mass = Dimension.of("mass")
         val length = Dimension.of("length")
-        val temperature = Dimension.of("temperature")
+        private val temperature = Dimension.of("temperature")
         val area = length.multiply(length)
         val volume = length.multiply(area)
         val energy = Dimension.of("energy")
@@ -74,7 +74,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("W"), 1.0, power),
             EUnitLiteral(UnitSymbol.of("m2a"), 1.0, land_use),
             EUnitLiteral(UnitSymbol.of("m3a"), 1.0, land_use),
-            EUnitLiteral(UnitSymbol.of("tkm"), 1.0, transport),
+            EUnitLiteral(UnitSymbol.of("tkm"), 1e3 * 1e3, transport),
             EUnitLiteral(UnitSymbol.of("my"), 365 * 24 * 3600.0, length_time),
             EUnitLiteral(UnitSymbol.of("personkm"), 1000.0, person_distance),
             EUnitLiteral(UnitSymbol.of("kgy"), 365 * 24 * 3600.0, mass_time),
