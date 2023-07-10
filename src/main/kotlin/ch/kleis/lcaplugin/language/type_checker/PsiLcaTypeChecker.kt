@@ -42,8 +42,7 @@ class PsiLcaTypeChecker {
                         checkDataExpression(it.getReferenceUnitField().dataExpression, TQuantity::class.java)
                     if (tyRefQuantity.dimension != tyQuantity.dimension) {
                         throw PsiTypeCheckException(
-                            "Incompatible dimensions: substance reference dimension is ${tyRefQuantity.dimension} " +
-                                "but exchange dimension is ${tyQuantity.dimension}"
+                            "Incompatible dimensions: expecting ${tyRefQuantity.dimension}, found ${tyQuantity.dimension}"
                         )
                     }
                 } else {

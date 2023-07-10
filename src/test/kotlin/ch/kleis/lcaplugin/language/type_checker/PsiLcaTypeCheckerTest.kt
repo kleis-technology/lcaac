@@ -132,7 +132,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
             .getEmissions().first()
         val checker = PsiLcaTypeChecker()
         val expected =
-            "Incompatible dimensions: substance reference dimension is mass but exchange dimension is length³"
+            "Incompatible dimensions: expecting mass, found length³"
 
         // when + then
         val error = assertFailsWith(PsiTypeCheckException::class) { checker.check(target) }
