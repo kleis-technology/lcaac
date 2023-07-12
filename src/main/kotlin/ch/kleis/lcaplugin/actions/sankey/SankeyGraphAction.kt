@@ -90,7 +90,7 @@ class SankeyGraphAction(
 
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    SankeyGraphResult(graph, indicatorList!!, graphBuilder!!).getContent(), "Contribution analysis of $processName", false
+                    SankeyGraphResult(graph, indicatorList!!).getContent(), "Contribution analysis of $processName", false
                 )
 
             private fun fillAndShowToolWindow(project: Project, content: Content) {

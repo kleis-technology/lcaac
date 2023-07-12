@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
-import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import com.intellij.openapi.ui.ComboBox
@@ -18,7 +17,6 @@ import javax.swing.JPanel
 class SankeyGraphResult(
     private val graphData: Graph,
     private val indicatorList: List<MatrixColumnIndex>,
-    private val graphBuilder: SankeyGraphBuilder,
 ) : LcaToolWindowContent {
 
     override fun getContent(): JPanel {
@@ -66,6 +64,7 @@ class SankeyGraphResult(
                 <title>Sankey</title>
              </head>
              <body>
+               <div id="error-container"></div>
                <div id="container"></div>
              </body>
              <script type="module">
