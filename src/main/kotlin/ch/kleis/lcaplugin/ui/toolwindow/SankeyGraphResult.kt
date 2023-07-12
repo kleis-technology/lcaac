@@ -3,13 +3,13 @@ package ch.kleis.lcaplugin.ui.toolwindow
 import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import com.intellij.openapi.ui.JBMenuItem
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBLabel
-import com.intellij.ui.components.JBMenu
 import com.intellij.ui.jcef.JBCefBrowser
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.awt.BorderLayout
+import javax.swing.JComponent
 import javax.swing.JMenuBar
 import javax.swing.JPanel
 
@@ -27,16 +27,7 @@ class SankeyGraphResult(
             val myMenuBar = JMenuBar()
 
             myMenuBar.add(JBLabel("Choose an indicator: "))
-
-            // First element of the list is the currently selected indicator.
-            val myMenu: JBMenu = buildMenu(
-                indicatorList.first(),
-                indicatorList,
-                myMenuBar,
-                myBrowser
-            )
-
-            myMenuBar.add(myMenu)
+            myMenuBar.add(buildIndicatorChoiceMenu(indicatorList, myBrowser))
             myPanel.add(myMenuBar, BorderLayout.NORTH)
         }
 
@@ -45,33 +36,23 @@ class SankeyGraphResult(
         return myPanel
     }
 
-    private fun buildMenu(
-        currentIndicator: MatrixColumnIndex,
+    private fun buildIndicatorChoiceMenu(
         indicatorList: List<MatrixColumnIndex>,
-        parent: JMenuBar,
         browser: JBCefBrowser,
-    ): JBMenu {
-        val myMenu = JBMenu()
-        myMenu.text = currentIndicator.getDisplayName()
+    ): JComponent {
+        val myCombo = ComboBox<MatrixColumnIndex>()
 
-        indicatorList.filterNot { it == currentIndicator }.forEach { indicator ->
+        indicatorList.forEach(myCombo::addItem)
 
-            val menuItem = JBMenuItem(indicator.getDisplayName())
-            menuItem.addActionListener {
-                // update contents
+        myCombo.addActionListener {
+            if (it.actionCommand == "comboBoxChanged") {
                 browser.loadHTML(
-                    buildWebPage(Json.encodeToString(graphBuilder.buildContributionGraph(indicator)))
+                    buildWebPage(Json.encodeToString(graphBuilder.buildContributionGraph(myCombo.selectedItem as MatrixColumnIndex)))
                 )
-                // update menu
-                val newMenu = buildMenu(indicator, indicatorList, parent, browser)
-                parent.removeAll()
-                parent.add(JBLabel("Choose an indicator: "))
-                parent.add(newMenu)
             }
-
-            myMenu.add(menuItem)
         }
-        return myMenu
+
+        return myCombo
     }
 
     private fun buildWebPage(graphData: String): String {
