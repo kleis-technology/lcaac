@@ -53,7 +53,7 @@ const rect = svg
     .attr("fill", (d) => color(d.name));
 
 // Adds a title on the nodes.
-rect.append("title").text((d) => `${d.name}\n${format(d.value)}`);
+rect.append("title").text((d) => `${d.name}\n${format(d.value)} ${unit}`);
 
 // Creates the paths that represent the links.
 const link = svg
@@ -74,7 +74,7 @@ link
 link
     .append("title")
     .text(
-        (d) => `${d.source.name} → ${d.target.name}\n${format(d.value)}`
+        (d) => `${d.source.name} → ${d.target.name}\n${format(d.value)} ${unit}`
     );
 
 // Adds labels on the nodes.
@@ -95,12 +95,12 @@ svg.append("g")
     .data(nodes)
     .join("text")
     .filter((d, i) => d.value > 0.0)
-    .filter((d, i) => (d.y1 - d.y0) > 12 * `${d.value}`.length)
+    .filter((d, i) => (d.y1 - d.y0) > 10 * `${d.value} ${unit}`.length)
     .attr("x", (d) => (d.x0 + d.x1) / 2)
     .attr("y", (d) => (d.y0 + d.y1) / 2)
     .attr("text-anchor", "middle")
     .attr("transform", (d) => `rotate(270, ${(d.x0 + d.x1) / 2 + 6}, ${(d.y0 + d.y1) / 2})`)
-    .text((d) => format(d.value));
+    .text((d) => `${format(d.value)} ${unit}`);
 
 container.append(svg.node());
 

@@ -6,6 +6,8 @@ import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.jcef.JBCefBrowser
+import com.intellij.ui.util.maximumWidth
+import com.intellij.ui.util.preferredWidth
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.awt.BorderLayout
@@ -31,7 +33,7 @@ class SankeyGraphResult(
             myPanel.add(myMenuBar, BorderLayout.NORTH)
         }
 
-        myBrowser.loadHTML(buildWebPage(Json.encodeToString(graphData)))
+        myBrowser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().referenceUnit().toString()))
         myPanel.add(myBrowser.component, BorderLayout.CENTER)
         return myPanel
     }
@@ -44,18 +46,18 @@ class SankeyGraphResult(
 
         indicatorList.forEach(myCombo::addItem)
 
+        myCombo.maximumWidth = myCombo.preferredWidth
+
         myCombo.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
-                browser.loadHTML(
-                    buildWebPage(Json.encodeToString(graphBuilder.buildContributionGraph(myCombo.selectedItem as MatrixColumnIndex)))
-                )
+                browser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().referenceUnit().toString()))
             }
         }
 
         return myCombo
     }
 
-    private fun buildWebPage(graphData: String): String {
+    private fun buildWebPage(graphData: String, indicatorUnit: String): String {
         return """
            <!DOCTYPE HTML>
            <html>
@@ -67,6 +69,7 @@ class SankeyGraphResult(
                <div id="container"></div>
              </body>
              <script type="module">
+             const unit = "$indicatorUnit";
              const data = $graphData;
                      
              ${this.javaClass.classLoader.getResource("ch/kleis/lcaplugin/lcaGraph.js")?.readText()}
