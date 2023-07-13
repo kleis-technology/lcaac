@@ -1,12 +1,12 @@
-package ch.kleis.lcaplugin.actions
+package ch.kleis.lcaplugin.actions.sankey
 
 import ch.kleis.lcaplugin.MyBundle
+import ch.kleis.lcaplugin.actions.traceSystemWithIndicator
+import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.graph.Graph
-import ch.kleis.lcaplugin.core.graph.GraphLink
-import ch.kleis.lcaplugin.core.graph.GraphNode
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.ui.toolwindow.LcaGraphChildProcessesResult
+import ch.kleis.lcaplugin.ui.toolwindow.SankeyGraphResult
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
@@ -25,7 +25,7 @@ import com.intellij.ui.content.ContentFactory
 import javax.swing.JTextArea
 import kotlin.math.min
 
-class GraphChildProcessesAction(
+class SankeyGraphAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
@@ -34,21 +34,32 @@ class GraphChildProcessesAction(
     AllIcons.Graph.Layout,
 ) {
     companion object {
-        private val LOG = Logger.getInstance(GraphChildProcessesAction::class.java)
+        private val LOG = Logger.getInstance(SankeyGraphAction::class.java)
     }
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
-        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generate graph") {
+
+        ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generate sankey graph") {
+            private var indicatorList: List<MatrixColumnIndex>? = null
+            private var graphBuilder: SankeyGraphBuilder? = null
             private var graph: Graph? = null
 
-            override fun run(indicator: ProgressIndicator) {
-                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
+            override fun run(progress: ProgressIndicator) {
+                val trace = traceSystemWithIndicator(progress, file, processName, matchLabels)
+                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint())
+                val inventory = assessment.inventory()
+                val allocatedSystem = assessment.allocatedSystem
+                indicatorList = inventory.getControllablePorts().getElements()
+
+                // FIXME: let the user choose
+                val sankeyIndicator = indicatorList!!.first()
 
                 // generate graph
-                indicator.text = "Generating graph"
-                this.graph = buildSystemProcessGraph(trace.getSystemValue())
+                progress.text = "Generating sankey graph"
+                graphBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+                this.graph = graphBuilder!!.buildContributionGraph(sankeyIndicator)
             }
 
             override fun onSuccess() {
@@ -63,9 +74,6 @@ class GraphChildProcessesAction(
                 fillAndShowToolWindow(project, content)
             }
 
-            /**
-             * Format an error in Content form for consumption by the IntelliJ ToolWindow API.
-             */
             @Suppress("DialogTitleCapitalization")
             private fun buildErrorContent(processName: String, error: Throwable): Content {
                 val title = MyBundle.message("lca.dialog.graph.error", processName)
@@ -80,12 +88,9 @@ class GraphChildProcessesAction(
                 )
             }
 
-            /**
-             * Format the data in Content form for consumption by the IntelliJ ToolWindow API.
-             */
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    LcaGraphChildProcessesResult(graph).getContent(), "ProcessGraph for process $processName", false
+                    SankeyGraphResult(graph, indicatorList!!).getContent(), "Contribution analysis of $processName", false
                 )
 
             private fun fillAndShowToolWindow(project: Project, content: Content) {
@@ -94,32 +99,6 @@ class GraphChildProcessesAction(
                 toolWindow.contentManager.setSelectedContent(content)
                 toolWindow.show()
             }
-
-            /* This is written under the understanding that a system built using an Evaluator and an entry point contains
-             * completely and exclusively the processes related to that entry point.
-             */
-            private fun buildSystemProcessGraph(systemValue: SystemValue): Graph {
-                return systemValue.processes.fold(Graph.empty()) { graph, processValue ->
-                    val processKey = "PROCESS_${processValue.name}"
-                    val processNode = GraphNode(processValue.name)
-
-                    val productsGraph = processValue.products.fold(Graph.empty()) { g, xchange ->
-                        g.addNode(GraphNode(xchange)).addLink(GraphLink(false, processKey, xchange))
-                    }
-
-                    val inputsGraph = processValue.inputs.fold(Graph.empty()) { g, xchange ->
-                        g.addNode(GraphNode(xchange)).addLink(GraphLink(true, processKey, xchange))
-                    }
-
-                    val biosphereGraph = processValue.biosphere.fold((Graph.empty())) { g, xchange ->
-                        g.addNode(GraphNode(xchange)).addLink(GraphLink(processKey, xchange))
-                    }
-
-                    graph.addNode(processNode).merge(productsGraph, inputsGraph, biosphereGraph)
-                }
-            }
         })
     }
-
-
 }

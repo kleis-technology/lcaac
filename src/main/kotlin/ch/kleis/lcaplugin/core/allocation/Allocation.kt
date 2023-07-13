@@ -18,7 +18,7 @@ class Allocation {
         return ProcessValue(
             processValue.name,
             processValue.labels,
-            listOf(technoExchangeValue),
+            listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation.copy(amount = 100.0))),
             applyAllocationToInputs(processValue.inputs, technoExchangeValue.allocation, totalAllocation),
             applyAllocationToBioSphere(processValue.biosphere, technoExchangeValue.allocation, totalAllocation)
         )
@@ -61,7 +61,7 @@ class Allocation {
                 technoExchangeValue.quantity.unit
             ),
             technoExchangeValue.product,
-            technoExchangeValue.allocation
+            technoExchangeValue.allocation,
         )
     }
 

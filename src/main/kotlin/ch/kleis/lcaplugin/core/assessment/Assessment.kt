@@ -19,8 +19,10 @@ class Assessment(
     private val observablePorts: IndexedCollection<MatrixColumnIndex>
     private val controllablePorts: IndexedCollection<MatrixColumnIndex>
 
+    val allocatedSystem: SystemValue
+
     init {
-        val allocatedSystem = Allocation().apply(system)
+        allocatedSystem = Allocation().apply(system)
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 

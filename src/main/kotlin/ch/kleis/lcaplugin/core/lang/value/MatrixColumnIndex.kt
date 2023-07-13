@@ -43,6 +43,10 @@ data class ProductValue(
         return ProductValue(name, referenceUnit, fromProcessRef)
     }
 
+    override fun toString(): String {
+        return getDisplayName()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -82,6 +86,10 @@ data class PartiallyQualifiedSubstanceValue(
 
     override fun referenceUnit(): UnitValue {
         return referenceUnit
+    }
+
+    override fun toString(): String {
+        return getDisplayName()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -132,6 +140,10 @@ data class FullyQualifiedSubstanceValue(
         return referenceUnit
     }
 
+    override fun toString(): String {
+        return getDisplayName()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -170,6 +182,10 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
 
     override fun referenceUnit(): UnitValue {
         return referenceUnit
+    }
+
+    override fun toString(): String {
+        return getDisplayName()
     }
 
     override fun equals(other: Any?): Boolean {

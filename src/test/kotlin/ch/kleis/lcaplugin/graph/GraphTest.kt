@@ -1,8 +1,8 @@
 package ch.kleis.lcaplugin.graph
 
-import ch.kleis.lcaplugin.core.graph.*
-import ch.kleis.lcaplugin.core.lang.fixture.BioExchangeValueFixture.Companion.propanolBioExchange
-import ch.kleis.lcaplugin.core.lang.fixture.TechnoExchangeValueFixture.Companion.carrotTechnoExchangeValue
+import ch.kleis.lcaplugin.core.graph.Graph
+import ch.kleis.lcaplugin.core.graph.GraphLink
+import ch.kleis.lcaplugin.core.graph.GraphNode
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -14,8 +14,8 @@ class GraphTest {
     @Test
     fun addNode_ShouldAppendNode() {
         // Given
-        val n1 = GraphNode("beer", GraphNodeType.SUBSTANCE, "beer")
-        val n2 = GraphNode("whisky", GraphNodeType.SUBSTANCE, "whisky")
+        val n1 = GraphNode("beer", "beer")
+        val n2 = GraphNode("whisky", "whisky")
         val g = Graph(setOf(n1), setOf())
 
         // When
@@ -30,7 +30,7 @@ class GraphTest {
     fun addNode_ShouldNotViolateGraphImmutability() {
         // Given
         val sut = Graph.empty()
-        val n = GraphNode("beer", GraphNodeType.SUBSTANCE, "beer")
+        val n = GraphNode("beer", "beer")
 
         // When
         sut.addNode(n)
@@ -42,8 +42,8 @@ class GraphTest {
     @Test
     fun addLink_ShouldAppendLink() {
         // Given
-        val l1 = GraphLink("beer", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1L")
-        val l2 = GraphLink("whisky", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "10cL")
+        val l1 = GraphLink("beer", "drinking", 1.0)
+        val l2 = GraphLink("whisky", "drinking", 3.0)
         val g = Graph(setOf(), setOf(l1))
 
         // When
@@ -58,7 +58,7 @@ class GraphTest {
     fun addLink_ShouldNotViolateGraphImmutability() {
         // Given
         val sut = Graph.empty()
-        val l = GraphLink("beer", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1L")
+        val l = GraphLink("beer", "drinking", 1.0)
 
         // When
         sut.addLink(l)
@@ -70,13 +70,13 @@ class GraphTest {
     @Test
     fun merge_ShouldUnionGraphs_WhenOneArgument() {
         // Given
-        val beer = GraphNode("beer", GraphNodeType.SUBSTANCE, "beer")
-        val drinkingB = GraphNode("drinking", GraphNodeType.PROCESS, "drinking")
-        val beerDrinking = GraphLink("beer", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1L")
+        val beer = GraphNode("beer", "beer")
+        val drinkingB = GraphNode("drinking", "drinking")
+        val beerDrinking = GraphLink("beer", "drinking", 1.0)
 
-        val gin = GraphNode("gin", GraphNodeType.SUBSTANCE, "gin")
-        val drinkingG = GraphNode("drinking", GraphNodeType.PROCESS, "drinking")
-        val ginDrinking = GraphLink("gin", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1cL")
+        val gin = GraphNode("gin", "gin")
+        val drinkingG = GraphNode("drinking", "drinking")
+        val ginDrinking = GraphLink("gin", "drinking", 1.0)
 
         val sut = Graph(setOf(gin, drinkingG), setOf(ginDrinking))
         val beerGraph = Graph(setOf(beer, drinkingB), setOf(beerDrinking))
@@ -94,19 +94,19 @@ class GraphTest {
     @Test
     fun merge_ShouldUnionGraphs_WhenVarArgs() {
         // Given
-        val beer = GraphNode("beer", GraphNodeType.SUBSTANCE, "beer")
-        val drinkingB = GraphNode("drinking", GraphNodeType.PROCESS, "drinking")
-        val beerDrinking = GraphLink("beer", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1L")
+        val beer = GraphNode("beer", "beer")
+        val drinkingB = GraphNode("drinking", "drinking")
+        val beerDrinking = GraphLink("beer", "drinking", 1.0)
         val graphBeer = Graph(setOf(beer, drinkingB), setOf(beerDrinking))
 
-        val gin = GraphNode("gin", GraphNodeType.SUBSTANCE, "gin")
-        val drinkingG = GraphNode("drinking", GraphNodeType.PROCESS, "drinking")
-        val ginDrinking = GraphLink("gin", "drinking", GraphLinkType.BIOSPHERE_EXCHANGE, "1cL")
+        val gin = GraphNode("gin", "gin")
+        val drinkingG = GraphNode("drinking", "drinking")
+        val ginDrinking = GraphLink("gin", "drinking", 1.0)
         val graphGin = Graph(setOf(gin, drinkingG), setOf(ginDrinking))
 
-        val aspirin = GraphNode("aspirin", GraphNodeType.PRODUCT, "aspirin")
-        val eating = GraphNode("eating", GraphNodeType.PROCESS, "eating")
-        val eatingAspirin = GraphLink("aspirin", "eating", GraphLinkType.BIOSPHERE_EXCHANGE, "100mg")
+        val aspirin = GraphNode("aspirin", "aspirin")
+        val eating = GraphNode("eating", "eating")
+        val eatingAspirin = GraphLink("aspirin", "eating", 100.0)
         val graphAspirin = Graph(setOf(aspirin, eating), setOf(eatingAspirin))
 
         // When
@@ -126,55 +126,11 @@ class GraphTest {
     }
 
     @Test
-    fun graphNode_ShouldBePureFunction_WhenCalledWithProcessName() {
-        // Given
-        val processName = "foo"
-
-        // When
-        val n1 = GraphNode(processName)
-        val n2 = GraphNode(processName)
-
-        // Then
-        assertEquals(n1, n2)
-    }
-
-    @Test
-    fun graphNode_ShouldBePureFunction_WhenCalledWithTechnoExchange() {
-        // Given
-        val technoExchange = carrotTechnoExchangeValue
-
-        // When
-        val n1 = GraphNode(technoExchange)
-        val n2 = GraphNode(technoExchange)
-
-        // Then
-        assertEquals(n1, n2)
-    }
-
-    @Test
-    fun graphNode_ShouldBePureFunction_WhenCalledWithBioExchange() {
-        // Given
-        val bioExchange = propanolBioExchange
-
-        // When
-        val n1 = GraphNode(bioExchange)
-        val n2 = GraphNode(bioExchange)
-
-        // Then
-        assertEquals(n1, n2)
-    }
-
-    @Test
     fun graphNode_ShouldBeInjective() {
         // Given
-        val technoExchange = carrotTechnoExchangeValue
-        val bioExchange = propanolBioExchange
-        val processName = "foo"
-
-        // When
-        val n1 = GraphNode(technoExchange)
-        val n2 = GraphNode(bioExchange)
-        val n3 = GraphNode(processName)
+        val n1 = GraphNode("foo", "pretty_foo")
+        val n2 = GraphNode("bar", "pretty_bar")
+        val n3 = GraphNode("baz", "pretty_baz")
 
         // Then
         assertNotEquals(n1, n2)
@@ -183,45 +139,10 @@ class GraphTest {
     }
 
     @Test
-    fun graphLink_ShouldBePureFunction_WhenCalledWithTechnoExchange() {
-        // Given
-        val technoExchange = carrotTechnoExchangeValue
-        val isInput = false
-        val processName = "foo"
-
-        // When
-        val l1 = GraphLink(isInput, processName, technoExchange)
-        val l2 = GraphLink(isInput, processName, technoExchange)
-
-        // Then
-        assertEquals(l1, l2)
-    }
-
-    @Test
-    fun graphLink_ShouldBePureFunction_WhenCalledWithBioExchange() {
-        // Given
-        val bioExchange = propanolBioExchange
-        val processName = "foo"
-
-        // When
-        val l1 = GraphLink(processName, bioExchange)
-        val l2 = GraphLink(processName, bioExchange)
-
-        // Then
-        assertEquals(l1, l2)
-    }
-
-    @Test
     fun graphLink_ShouldBeInjective() {
         // Given
-        val technoExchange = carrotTechnoExchangeValue
-        val bioExchange = propanolBioExchange
-        val processName = "foo"
-        val isInput = false
-
-        // When
-        val l1 = GraphLink(isInput, processName, technoExchange)
-        val l2 = GraphLink(processName, bioExchange)
+        val l1 = GraphLink("foo", "bar", 1.0)
+        val l2 = GraphLink("baz", "floob", 2.0)
 
         // Then
         assertNotEquals(l1, l2)
