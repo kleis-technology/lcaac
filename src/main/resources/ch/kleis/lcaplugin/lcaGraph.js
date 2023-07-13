@@ -92,18 +92,6 @@ try {
         .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
         .text((d) => d.name);
 
-    svg.append("g")
-        .selectAll()
-        .data(nodes)
-        .join("text")
-        .filter((d, _) => d.value > 0.0)
-        .filter((d, _) => (d.y1 - d.y0) > 10 * `${d.value} ${unit}`.length)
-        .attr("x", (d) => (d.x0 + d.x1) / 2)
-        .attr("y", (d) => (d.y0 + d.y1) / 2)
-        .attr("text-anchor", "middle")
-        .attr("transform", (d) => `rotate(270, ${(d.x0 + d.x1) / 2 + 6}, ${(d.y0 + d.y1) / 2})`)
-        .text((d) => `${format(d.value)} ${unit}`);
-
     container.append(svg.node());
 
     window.link = link;
