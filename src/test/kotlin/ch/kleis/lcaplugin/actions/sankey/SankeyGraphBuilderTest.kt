@@ -23,7 +23,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
     private data class SankeyRequiredInformation(val observedPort: MatrixColumnIndex, val allocatedSystem: SystemValue, val inventory: Inventory)
 
-    private fun getRequiredInformation(process: String, vf: VirtualFile): SankeyRequiredInformation {
+    private fun getRequiredInformation(@Suppress("SameParameterValue") process: String, vf: VirtualFile): SankeyRequiredInformation {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
@@ -46,7 +46,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                            products {
                                1 kg my_product
                            }
-                           emissions {
+                           emissions{
                                1 m3 my_substance (compartment = "air")
                            }
                        }
@@ -63,6 +63,38 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
             GraphNode("my_product from p{}{}", "my_product")
         ).addLink(
             GraphLink("my_product from p{}{}", "[Emission] my_substance(air)", 1.0),
+        )
+        assertEquals(expected.nodes, graph.nodes)
+        assertEquals(expected.links, graph.links)
+    }
+
+    @Test
+    fun test_whenRessource_thenSankey() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                       process p {
+                           products {
+                               1 kg my_product
+                           }
+                           resources {
+                               1 m3 my_substance (compartment = "air")
+                           }
+                       }
+                """.trimIndent())
+        val (sankeyPort, allocatedSystem, inventory) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory)
+
+        // when
+        val graph = sut.buildContributionGraph(sankeyPort)
+
+        // then
+        val expected = Graph.empty().addNode(
+            GraphNode("[Resource] my_substance(air)", "my_substance"),
+            GraphNode("my_product from p{}{}", "my_product")
+        ).addLink(
+            GraphLink("my_product from p{}{}", "[Resource] my_substance(air)", 1.0),
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)

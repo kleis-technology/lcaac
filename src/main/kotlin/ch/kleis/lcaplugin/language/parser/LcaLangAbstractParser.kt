@@ -124,9 +124,9 @@ class LcaLangAbstractParser(
         )
         val products = generateTechnoProductExchanges(psiProcess, symbolTable)
         val inputs = psiProcess.getInputs().map { technoInputExchange(it) }
-        val emissions = psiProcess.getEmissions().map { bioExchange(it, Polarity.POSITIVE, symbolTable) }
-        val landUse = psiProcess.getLandUse().map { bioExchange(it, Polarity.POSITIVE, symbolTable) }
-        val resources = psiProcess.getResources().map { bioExchange(it, Polarity.NEGATIVE, symbolTable) }
+        val emissions = psiProcess.getEmissions().map { bioExchange(it, symbolTable) }
+        val landUse = psiProcess.getLandUse().map { bioExchange(it, symbolTable) }
+        val resources = psiProcess.getResources().map { bioExchange(it, symbolTable) }
         val biosphere = emissions.plus(resources).plus(landUse)
         val body = EProcess(
             name = name,
@@ -263,27 +263,12 @@ class LcaLangAbstractParser(
         return parseDataExpression(element.dataExpression)
     }
 
-    private fun bioExchange(psiExchange: LcaBioExchange, polarity: Polarity, symbolTable: SymbolTable): EBioExchange {
-        return when (polarity) {
-            Polarity.POSITIVE -> {
-                val quantity = parseDataExpression(psiExchange.dataExpression)
-                EBioExchange(
-                    quantity,
-                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
-                )
-            }
-
-            Polarity.NEGATIVE -> {
-                val quantity = EQuantityScale(
-                    -1.0,
-                    parseDataExpression(psiExchange.dataExpression)
-                )
-                EBioExchange(
-                    quantity,
-                    substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
-                )
-            }
-        }
+    private fun bioExchange(psiExchange: LcaBioExchange, symbolTable: SymbolTable): EBioExchange {
+        val quantity = parseDataExpression(psiExchange.dataExpression)
+        return EBioExchange(
+            quantity,
+            substanceSpec(psiExchange.substanceSpec, quantity, symbolTable)
+        )
     }
 
     private fun parseDataExpression(dataExpression: LcaDataExpression): DataExpression {
@@ -327,8 +312,4 @@ class LcaLangAbstractParser(
             else -> throw EvaluatorException("Unknown data expression: $dataExpression")
         }
     }
-}
-
-private enum class Polarity {
-    POSITIVE, NEGATIVE
 }
