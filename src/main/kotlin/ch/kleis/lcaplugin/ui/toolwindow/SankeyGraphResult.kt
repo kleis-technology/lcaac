@@ -15,6 +15,7 @@ import javax.swing.JMenuBar
 import javax.swing.JPanel
 
 class SankeyGraphResult(
+    private val processName: String,
     private val graphData: Graph,
     private val indicatorList: List<MatrixColumnIndex>,
 ) : LcaToolWindowContent {
@@ -31,7 +32,7 @@ class SankeyGraphResult(
             myPanel.add(myMenuBar, BorderLayout.NORTH)
         }
 
-        myBrowser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().referenceUnit().toString()))
+        myBrowser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().getDisplayName()))
         myPanel.add(myBrowser.component, BorderLayout.CENTER)
         return myPanel
     }
@@ -48,14 +49,14 @@ class SankeyGraphResult(
 
         myCombo.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
-                browser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().referenceUnit().toString()))
+                browser.loadHTML(buildWebPage(Json.encodeToString(graphData), indicatorList.first().getDisplayName()))
             }
         }
 
         return myCombo
     }
 
-    private fun buildWebPage(graphData: String, indicatorUnit: String): String {
+    private fun buildWebPage(graphData: String, indicatorName: String): String {
         return """
            <!DOCTYPE HTML>
            <html>
@@ -64,11 +65,11 @@ class SankeyGraphResult(
                 <title>Sankey</title>
              </head>
              <body>
+               <h1>Contribution flows from <i>$processName</i> to <i>$indicatorName</i></h1>
                <div id="error-container"></div>
                <div id="container"></div>
              </body>
              <script type="module">
-             const unit = "$indicatorUnit";
              const data = $graphData;
                      
              ${this.javaClass.classLoader.getResource("ch/kleis/lcaplugin/lcaGraph.js")?.readText()}

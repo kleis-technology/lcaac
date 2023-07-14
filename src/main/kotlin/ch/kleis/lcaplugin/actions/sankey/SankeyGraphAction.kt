@@ -53,7 +53,6 @@ class SankeyGraphAction(
                 val allocatedSystem = assessment.allocatedSystem
                 indicatorList = inventory.getControllablePorts().getElements()
 
-                // FIXME: let the user choose
                 val sankeyIndicator = indicatorList!!.first()
 
                 // generate graph
@@ -90,7 +89,11 @@ class SankeyGraphAction(
 
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    SankeyGraphResult(graph, indicatorList!!).getContent(), "Contribution analysis of $processName", false
+                    SankeyGraphResult(
+                        processName,
+                        graph, indicatorList!!).getContent(),
+                    "Contribution analysis of $processName",
+                    false
                 )
 
             private fun fillAndShowToolWindow(project: Project, content: Content) {
