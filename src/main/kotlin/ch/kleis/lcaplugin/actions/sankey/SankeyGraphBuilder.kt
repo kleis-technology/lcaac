@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.value.*
+import kotlin.math.abs
 
 class SankeyGraphBuilder(
     private val allocatedSystem: SystemValue,
@@ -74,8 +75,8 @@ class SankeyGraphBuilder(
             else -> inventory.impactFactors.valueRatio(exchange.port(), observed).amount
         }
 
-        return valueRatioForObservedImpact *
+        return abs(valueRatioForObservedImpact *
             inventory.supply.quantityOf(product).amount *
-            exchange.quantity().amount
+            exchange.quantity().amount)
     }
 }
