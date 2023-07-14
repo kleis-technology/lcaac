@@ -91,7 +91,10 @@ class SankeyGraphAction(
                 ContentFactory.getInstance().createContent(
                     SankeyGraphResult(
                         processName,
-                        graph, indicatorList!!).getContent(),
+                        graph,
+                        indicatorList!!,
+                        graphBuilder!!,
+                    ).getContent(),
                     "Contribution analysis of $processName",
                     false
                 )
