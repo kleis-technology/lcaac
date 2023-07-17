@@ -26,12 +26,12 @@ import javax.swing.JTextArea
 import kotlin.math.min
 
 class SankeyGraphAction(
-    private val processName: String,
-    private val matchLabels: Map<String, String>,
+        private val processName: String,
+        private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Generate Graph",
-    "Generate graph",
-    AllIcons.Graph.Layout,
+        "Generate Graph",
+        "Generate graph",
+        AllIcons.Graph.Layout,
 ) {
     companion object {
         private val LOG = Logger.getInstance(SankeyGraphAction::class.java)
@@ -57,7 +57,7 @@ class SankeyGraphAction(
 
                 // generate graph
                 progress.text = "Generating sankey graph"
-                graphBuilder = SankeyGraphBuilder(allocatedSystem, inventory)
+                graphBuilder = SankeyGraphBuilder(allocatedSystem, inventory, trace.getProductOrder())
                 this.graph = graphBuilder!!.buildContributionGraph(sankeyIndicator)
             }
 
@@ -78,26 +78,26 @@ class SankeyGraphAction(
                 val title = MyBundle.message("lca.dialog.graph.error", processName)
                 val msg = error.message ?: "An unknown error has occurred."
                 NotificationGroupManager.getInstance()
-                    .getNotificationGroup("LcaAsCode")
-                    .createNotification(title, msg, NotificationType.WARNING)
-                    .notify(ProjectManager.getInstance().openProjects.firstOrNull())
+                        .getNotificationGroup("LcaAsCode")
+                        .createNotification(title, msg, NotificationType.WARNING)
+                        .notify(ProjectManager.getInstance().openProjects.firstOrNull())
                 LOG.warn(title, error)
                 return ContentFactory.getInstance().createContent(
-                    JTextArea(msg.substring(0, min(msg.length, 400))), title, false
+                        JTextArea(msg.substring(0, min(msg.length, 400))), title, false
                 )
             }
 
             private fun buildContent(processName: String, graph: Graph): Content =
-                ContentFactory.getInstance().createContent(
-                    SankeyGraphResult(
-                        processName,
-                        graph,
-                        indicatorList!!,
-                        graphBuilder!!,
-                    ).getContent(),
-                    "Contribution analysis of $processName",
-                    false
-                )
+                    ContentFactory.getInstance().createContent(
+                            SankeyGraphResult(
+                                    processName,
+                                    graph,
+                                    indicatorList!!,
+                                    graphBuilder!!,
+                            ).getContent(),
+                            "Contribution analysis of $processName",
+                            false
+                    )
 
             private fun fillAndShowToolWindow(project: Project, content: Content) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
