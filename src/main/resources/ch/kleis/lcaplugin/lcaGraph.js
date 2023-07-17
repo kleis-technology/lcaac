@@ -24,6 +24,7 @@ try {
         .nodeId((d) => d.key)
         .nodeWidth(30)
         .nodePadding(20)
+        .nodeAlign(d3Sankey.sankeyLeft)
         .extent([
             [1, 20],
             [width - 1, height - 20],

@@ -393,6 +393,53 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 "$pkgName.lca", """
                     process p1 {
                         products {
+                            1 kg A
+                        }
+                        inputs {
+                            1 kg B
+                        }
+                    }
+                    process p2 {
+                        products {
+                            1 kg B
+                        }
+                        inputs {
+                            0.1 kg A
+                        }
+                        emissions {
+                            1 kg C
+                        }
+                    }
+                """.trimIndent())
+        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p1", vf)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+
+        // when
+        val graph = sut.buildContributionGraph(sankeyPort)
+
+        // then
+        val expected = Graph.empty().addNode(
+                GraphNode("A from p1{}{}", "A"),
+                GraphNode("B from p2{}{}", "B"),
+                GraphNode("C", "C"),
+                GraphNode("cycle back to A", "cycle back to A")
+        ).addLink(
+                GraphLink("A from p1{}{}", "B from p2{}{}", 1.234567901234568),
+                GraphLink("B from p2{}{}", "C", 1.1111111111111112),
+                GraphLink("B from p2{}{}", "cycle back to A", 0.12345679012345681)
+        )
+        assertEquals(expected.nodes, graph.nodes)
+        assertEquals(expected.links, graph.links)
+    }
+
+    @Test
+    fun test_whenMultiProductCycle_thenCorrectOrder() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+                "$pkgName.lca", """
+                    process p1 {
+                        products {
                             1 kg A allocate 50 percent
                             2 kg Aprime allocate 50 percent
                         }
@@ -423,12 +470,15 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 GraphNode("A from p1{}{}", "A"),
                 GraphNode("Aprime from p1{}{}", "Aprime"),
                 GraphNode("B from p2{}{}", "B"), GraphNode("C", "C"),
+                GraphNode("cycle back to A", "cycle back to A")
         ).addLink(
                 GraphLink("A from p1{}{}", "B from p2{}{}", 0.5817174515235457),
                 GraphLink("Aprime from p1{}{}", "B from p2{}{}", 0.5263157894736842),
                 GraphLink("B from p2{}{}", "C", 1.0526315789473686),
+                GraphLink("B from p2{}{}", "cycle back to A", 0.0554016620498615)
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)
     }
+
 }

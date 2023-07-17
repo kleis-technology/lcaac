@@ -64,7 +64,13 @@ class SankeyGraphBuilder(
         return if (comparisonResult < 0) {
             this.addLink(GraphLink(source.getUID(), target.getUID(), value))
         } else {
-            this
+            val cycleUID = "cycle back to ${target.getShortName()}"
+            this.addNode(GraphNode(cycleUID, cycleUID))
+                    .addLink(GraphLink(
+                            source.getUID(),
+                            cycleUID,
+                            value)
+                    )
         }
     }
 
