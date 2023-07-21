@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import arrow.core.replicate
 import com.intellij.util.containers.tail
 import kotlin.math.*
 
@@ -22,6 +23,11 @@ class DisplayedNumber(
                 digits.add(u.mod(10))
                 u /= 10
             }
+
+            if (digits.take(nbSignificantDigits).all { it == 9 }) {
+                return exponent to listOf(1,) + listOf(0).replicate(nbSignificantDigits - 1).flatten()
+            }
+
             return exponent to digits.reversed()
         }
 
