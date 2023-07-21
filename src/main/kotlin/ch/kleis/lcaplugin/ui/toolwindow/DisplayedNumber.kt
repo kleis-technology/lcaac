@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import com.intellij.util.containers.tail
 import kotlin.math.*
 
 class DisplayedNumber(
@@ -44,15 +45,31 @@ class DisplayedNumber(
         return digits
     }
 
+    private fun isPowerOf10(): Boolean {
+        return digits[0] == 1
+            && digits.tail().all { it == 0 }
+    }
+
+    private fun renderPowerOf10(): String {
+        return when (exponent) {
+            -2 -> "0.01"
+            -1 -> "0.1"
+            0 -> "1"
+            1 -> "10"
+            2 -> "100"
+            else -> "1E$exponent"
+        }.let {
+            if (isPositive) it else "-$it"
+        }
+    }
+
     override fun toString(): String {
         if (value == 0.0) {
             return "0"
         }
-        if (value == 1.0) {
-            return "1"
-        }
-        if (value == -1.0) {
-            return "-1"
+
+        if (isPowerOf10()) {
+            return renderPowerOf10()
         }
 
         val midpoint = when {

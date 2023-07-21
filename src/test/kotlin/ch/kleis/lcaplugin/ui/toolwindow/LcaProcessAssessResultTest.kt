@@ -68,7 +68,7 @@ class LcaProcessAssessResultTest {
         assertThat(html, containsString("<td>carrot</td>"))
         val text = result.getTransferData(DataFlavor("text/plain;class=java.lang.String")) as String
         assertThat(text, containsString("item\tquantity\tunit\t[Resource] propanol(air) [kg]"))
-        assertThat(text, containsString("\ncarrot\t1.0\tg\t0.001\t"))
+        assertThat(text, containsString("\ncarrot\t1\tg\t1E-3\t"))
     }
 
 }
