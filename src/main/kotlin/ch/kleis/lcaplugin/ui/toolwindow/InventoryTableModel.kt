@@ -59,7 +59,7 @@ class InventoryTableModel(
 
         val quantity = inventory.supply.quantityOf(outputProduct)
         if (columnIndex == 1) {
-            return "${quantity.amount}"
+            return DisplayedNumber(quantity.amount).toString()
         }
         if (columnIndex == 2) {
             return "${quantity.unit.symbol}"
@@ -67,7 +67,7 @@ class InventoryTableModel(
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
         val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
-        return quantity.amount * ratio
+        return DisplayedNumber(quantity.amount * ratio).toString()
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
