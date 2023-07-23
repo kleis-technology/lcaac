@@ -60,7 +60,7 @@ class DisplayedNumberTest(
     @Test
     fun run() {
         // when
-        val actual = DisplayedNumber(value).toString()
+        val actual = FloatingPointRepresentation.of(value).toString()
 
         // then
         assertEquals(expected, actual)
