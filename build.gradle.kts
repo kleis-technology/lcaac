@@ -54,6 +54,7 @@ dependencies {
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.5"
     val kotlinxSerializationJSONVersion = "1.5.1"
+
     implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
     implementation("io.arrow-kt:arrow-core")
     implementation("io.arrow-kt:arrow-optics")
@@ -90,7 +91,6 @@ qodana {
     saveReport.set(true)
     showReport.set(System.getenv("QODANA_SHOW_REPORT")?.toBoolean() ?: false)
 }
-
 
 tasks {
     // Set the JVM compatibility versions
