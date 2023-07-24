@@ -7,7 +7,7 @@ class EvaluationTrace {
     private var currentStage = HashSet<MatrixRowIndex>()
     private val processes = HashSet<ProcessValue>()
     private val substanceCharacterizations = HashSet<SubstanceCharacterizationValue>()
-    private val productDepthMap = HashMap<MatrixColumnIndex, Int>()
+    private val observableDepthMap = HashMap<MatrixColumnIndex, Int>()
 
     companion object {
         fun empty(): EvaluationTrace {
@@ -15,11 +15,11 @@ class EvaluationTrace {
         }
     }
 
-    fun getProductOrder(): Comparator<MatrixColumnIndex> {
+    fun getObservableOrder(): Comparator<MatrixColumnIndex> {
         return object : Comparator<MatrixColumnIndex> {
             override fun compare(o1: MatrixColumnIndex, o2: MatrixColumnIndex): Int {
-                val d1 = productDepthMap[o1] ?: throw EvaluatorException("unknown ${o1}")
-                val d2 = productDepthMap[o2] ?: throw EvaluatorException("unknown ${o2}")
+                val d1 = observableDepthMap[o1] ?: throw EvaluatorException("unknown ${o1}")
+                val d2 = observableDepthMap[o2] ?: throw EvaluatorException("unknown ${o2}")
                 if (d1 < d2) {
                     return -1
                 }
@@ -94,13 +94,13 @@ class EvaluationTrace {
             .filterIsInstance<ProcessValue>()
             .forEach { process ->
                 process.products.forEach { exchange ->
-                    productDepthMap[exchange.product] = currentDepth
+                    observableDepthMap[exchange.product] = currentDepth
                 }
             }
         currentStage
             .filterIsInstance<SubstanceCharacterizationValue>()
             .forEach { sc ->
-                productDepthMap[sc.referenceExchange.substance] = currentDepth
+                observableDepthMap[sc.referenceExchange.substance] = currentDepth
             }
 
         stages.add(currentStage)

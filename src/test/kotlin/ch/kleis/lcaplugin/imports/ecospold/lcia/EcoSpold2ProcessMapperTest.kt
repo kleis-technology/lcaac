@@ -17,7 +17,7 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper.map(sub)
+        val result = EcoSpold2ProcessMapper(sub).map()
 
         // Then
         assertEquals("aname_ch", result.uid)
@@ -36,7 +36,7 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper.map(sub)
+        val result = EcoSpold2ProcessMapper(sub).map()
 
         // Then
         assertEquals(1, result.productBlocks.size)
@@ -48,12 +48,12 @@ class EcoSpold2ProcessMapperTest {
         assertEquals("km", p.unit)
         assertEquals(100.0, p.allocation)
         assertEquals(
-            listOf(
-                "pName",
-                "PSystem = PValue",
-                "// uncertainty: logNormal mean=1.2, variance=2.3, mu=3.4",
-                "synonym_0 = p1"
-            ), p.comments
+                listOf(
+                        "pName",
+                        "PSystem = PValue",
+                        "// uncertainty: logNormal mean=1.2, variance=2.3, mu=3.4",
+                        "synonym_0 = p1"
+                ), p.comments
         )
 
     }
@@ -65,9 +65,9 @@ class EcoSpold2ProcessMapperTest {
 
         // When
         assertThrows(
-            ImportException::class.java,
-            "Invalid outputGroup for product, expected 0, found 1"
-        ) { EcoSpold2ProcessMapper.map(falseSub) }
+                ImportException::class.java,
+                "Invalid outputGroup for product, expected 0, found 1"
+        ) { EcoSpold2ProcessMapper(falseSub).map() }
     }
 
     @Test
@@ -75,13 +75,13 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper.map(sub)
+        val result = EcoSpold2ProcessMapper(sub).map()
 
         // Then
-        assertEquals(1, result.emissionBlocks.size)
-        assertEquals("Virtual Substance for Impact Factors", result.emissionBlocks[0].comment)
-        assertEquals(1, result.emissionBlocks[0].exchanges.size)
-        val substance = result.emissionBlocks[0].exchanges[0]
+        assertEquals(2, result.emissionBlocks.size)
+        assertEquals("Virtual Substance for Impact Factors", result.emissionBlocks[1].comment)
+        assertEquals(1, result.emissionBlocks[1].exchanges.size)
+        val substance = result.emissionBlocks[1].exchanges[0]
         assertEquals("aname_ch", substance.uid)
         assertEquals("1.0", substance.qty)
         assertEquals("u", substance.unit)

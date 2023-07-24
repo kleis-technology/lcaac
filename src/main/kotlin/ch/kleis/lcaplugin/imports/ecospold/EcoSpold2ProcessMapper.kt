@@ -1,11 +1,14 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
+import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.IntermediateExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.Uncertainty
 import ch.kleis.lcaplugin.imports.model.ExchangeBlock
+import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
 import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
@@ -36,7 +39,7 @@ open class EcoSpold2ProcessMapper(val process: ActivityDataset) {
         mapInputs()
         mapLandUse()
         mapResources()
-        mapEmission()
+        mapEmissions()
 
         return result
     }
@@ -48,11 +51,46 @@ open class EcoSpold2ProcessMapper(val process: ActivityDataset) {
         result.productBlocks = mutableListOf(ExchangeBlock("Products", products))
     }
 
-    open fun mapEmission() {}
-    open fun mapInputs() {}
-    open fun mapLandUse() {}
-    open fun mapResources() {}
+    private fun mapEmissions() {
+        result.emissionBlocks += ExchangeBlock("FIXME",
+                process.flowData.elementaryExchanges
+                        .filter { it.substanceType == SubstanceType.EMISSION }
+                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        )
 
+        // TODO: Remove when closing #261
+        val bio = ImportedBioExchange(listOf(), "1.0", "u", pUid, "")
+        result.emissionBlocks += ExchangeBlock("Virtual Substance for Impact Factors", mutableListOf(bio))
+
+    }
+
+    private fun mapLandUse() {
+        result.landUseBlocks = mutableListOf(ExchangeBlock("FIXME",
+                process.flowData.elementaryExchanges
+                        .filter { it.substanceType == SubstanceType.LAND_USE }
+                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        ))
+    }
+
+    private fun mapResources() {
+        result.resourceBlocks = mutableListOf(ExchangeBlock("FIXME",
+                process.flowData.elementaryExchanges
+                        .filter { it.substanceType == SubstanceType.RESOURCE }
+                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        ))
+    }
+
+    private fun elementaryExchangeToImportedBioExchange(elementaryExchange: ElementaryExchange): ImportedBioExchange =
+            ImportedBioExchange(
+                    comments = elementaryExchange.comment?.let { listOf(it) } ?: listOf(),
+                    qty = elementaryExchange.amount.toString(),
+                    unit = elementaryExchange.unit,
+                    uid = ModelWriter.sanitizeAndCompact(elementaryExchange.name),
+                    compartment = elementaryExchange.compartment,
+                    subCompartment = elementaryExchange.subCompartment,
+            )
+
+    open fun mapInputs() {}
 
     open fun mapMetas() {
         val metas = result.meta
