@@ -4,28 +4,29 @@ import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 
 class SankeyGraphBuilder(
-        private val allocatedSystem: SystemValue,
-        private val inventory: Inventory,
-        private val comparator: Comparator<MatrixColumnIndex>,
+    private val allocatedSystem: SystemValue,
+    private val inventory: Inventory,
+    private val progressionOrder: Comparator<MatrixColumnIndex>,
 ) {
     fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex): Graph {
         val portsWithObservedImpact = inventory.getObservablePorts().getElements().toSet()
 
         val completeGraph = portsWithObservedImpact.fold(
-                Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getShortName()))
+            Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getShortName()))
         ) { graph, port ->
             when (port) {
                 is SubstanceValue -> {
                     graph.addNode(GraphNode(port.getUID(), port.getShortName()))
-                            .addLinkIfNoCycle(
-                                    sankeyIndicator,
-                                    port,
-                                    sankeyIndicator,
-                                    impactAmountForSubstance(sankeyIndicator, inventory, port)
-                            )
+                        .addLinkIfNoCycle(
+                            progressionOrder,
+                            port,
+                            sankeyIndicator,
+                            impactAmountForSubstance(sankeyIndicator, inventory, port)
+                        )
                 }
 
                 is ProductValue -> {
@@ -37,10 +38,10 @@ class SankeyGraphBuilder(
 
                     linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getShortName()))) { accumulatorGraph, exchange ->
                         accumulatorGraph.addLinkIfNoCycle(
-                                sankeyIndicator,
-                                port,
-                                exchange.port(),
-                                impactAmountForExchange(sankeyIndicator, inventory, port, exchange))
+                            progressionOrder,
+                            port,
+                            exchange.port(),
+                            impactAmountForExchange(sankeyIndicator, inventory, port, exchange))
                     }
                 }
 
@@ -52,46 +53,46 @@ class SankeyGraphBuilder(
     }
 
     private fun Graph.addLinkIfNoCycle(
-            sankeyIndicator: MatrixColumnIndex,
-            source: MatrixColumnIndex,
-            target: MatrixColumnIndex,
-            value: Double
+        comparator: Comparator<MatrixColumnIndex>,
+        source: MatrixColumnIndex,
+        target: MatrixColumnIndex,
+        value: Double,
     ): Graph {
-        val comparisonResult = when {
-            target == sankeyIndicator -> -1
-            else -> comparator.compare(source, target)
+        // The observable wrt which we are computing is not in the matrix: it will raise a not found exception.
+        // It is always the target, and always "deeper" in the graph than everything else.
+        val compareResult = try {
+            comparator.compare(source, target)
+        } catch (e: EvaluatorException) {
+            -1
         }
-        return if (comparisonResult < 0) {
-            this.addLink(GraphLink(source.getUID(), target.getUID(), value))
+
+        return if (source == target || 0 < compareResult) {
+            this
         } else {
-            val cycleUID = "cycle back to ${target.getShortName()}"
-            this.addNode(GraphNode(cycleUID, cycleUID))
-                    .addLink(GraphLink(
-                            source.getUID(),
-                            cycleUID,
-                            value)
-                    )
+            this.addLink(GraphLink(source.getUID(), target.getUID(), value))
         }
     }
 
     private fun impactAmountForSubstance(observed: MatrixColumnIndex, inventory: Inventory, substance: SubstanceValue): Double {
         return inventory.impactFactors.valueRatio(substance, observed).amount *
-                inventory.supply.quantityOf(substance).amount
+            inventory.supply.quantityOf(substance).amount
     }
 
     private fun impactAmountForExchange(
-            observed: MatrixColumnIndex,
-            inventory: Inventory,
-            product: ProductValue,
-            exchange: ExchangeValue
+        observed: MatrixColumnIndex,
+        inventory: Inventory,
+        product: ProductValue,
+        exchange: ExchangeValue
     ): Double {
         val valueRatioForObservedImpact = when {
             (exchange.port() == observed) -> 1.0
             else -> inventory.impactFactors.valueRatio(exchange.port(), observed).amount
         }
 
-        return valueRatioForObservedImpact *
-                inventory.supply.quantityOf(product).amount *
-                exchange.quantity().amount
+        val retVal = valueRatioForObservedImpact *
+            inventory.supply.quantityOf(product).amount *
+            exchange.quantity().amount
+
+        return retVal
     }
 }
