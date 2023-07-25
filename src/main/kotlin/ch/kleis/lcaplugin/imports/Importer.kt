@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
 import ch.kleis.lcaplugin.imports.util.AsyncTaskController
 import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import ch.kleis.lcaplugin.imports.util.ImportInterruptedException

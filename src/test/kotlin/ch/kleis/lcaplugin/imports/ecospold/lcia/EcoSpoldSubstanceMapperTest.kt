@@ -4,7 +4,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class EcoSpold2SubstanceMapperTest {
+class EcoSpoldSubstanceMapperTest {
 
     @Test
     fun map_ShouldMapSubstance_WithTheRightMethod() {
@@ -12,7 +12,7 @@ class EcoSpold2SubstanceMapperTest {
         val sub = EcoSpold2Fixture.buildData()
 
         // When
-        val result = EcoSpold2SubstanceMapper.map(sub, "EF v3.1")
+        val result = EcoSpoldSubstanceMapper.map(sub, "EF v3.1")
 
         // Then
         assertEquals("aName", result.name)

@@ -1,7 +1,8 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.EcoSpold2ProcessMapper
+import ch.kleis.lcaplugin.imports.ecospold.EcoSpoldProcessMapper
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldProcessRenderer
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.Classification
 import ch.kleis.lcaplugin.imports.model.ImportedProcess
@@ -14,7 +15,7 @@ import org.junit.Before
 import kotlin.test.assertEquals
 
 
-class Ecospold2ProcessRendererTest {
+class EcospoldProcessRendererTest {
     private val writer = mockk<ModelWriter>()
 
     @Before
@@ -34,21 +35,21 @@ class Ecospold2ProcessRendererTest {
         every { activity.description.activity.name } returns "pName"
         every { activity.description.geography?.shortName } returns "ch"
         every { activity.description.classifications } returns listOf(Classification("EcoSpold01Categories", "cat"))
-        mockkObject(EcoSpold2ProcessMapper)
+        mockkObject(EcoSpoldProcessMapper)
         val importedProcess = mockk<ImportedProcess>()
-        every { EcoSpold2ProcessMapper(activity).map() } returns importedProcess
+        every { EcoSpoldProcessMapper(activity).map() } returns importedProcess
         val comments = mutableListOf<String>()
         every { importedProcess.comments } returns comments
         every { importedProcess.uid } returns "uid"
         mockkObject(ProcessSerializer)
         every { ProcessSerializer.serialize(importedProcess) } returns "serialized process"
 
-        mockkObject(EcoSpold2SubstanceMapper)
+        mockkObject(EcoSpoldSubstanceMapper)
         val importedSubstance = mockk<ImportedSubstance>()
-        every { EcoSpold2SubstanceMapper.map(activity, "EF v3.1") } returns importedSubstance
+        every { EcoSpoldSubstanceMapper.map(activity, "EF v3.1") } returns importedSubstance
         mockkObject(SubstanceSerializer)
         every { SubstanceSerializer.serialize(importedSubstance) } returns "serialized substance"
-        val sut = Ecospold2ProcessRenderer()
+        val sut = EcospoldProcessRenderer()
 
         // When
         sut.render(activity, writer, "a comment", "EF v3.1")

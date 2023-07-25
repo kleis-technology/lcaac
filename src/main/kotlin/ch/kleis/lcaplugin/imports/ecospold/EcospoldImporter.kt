@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia
+package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
@@ -51,7 +51,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
 
     private var totalValue = 1
     private var currentValue = 0
-    private val processRenderer = Ecospold2ProcessRenderer()
+    private val processRenderer = EcospoldProcessRenderer()
     private val predefinedUnits = Prelude.unitMap.values
         .map { it.toUnitValue() }
         .associateBy { it.symbol.toString() }
@@ -136,10 +136,10 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
 
     private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
         val s = duration.seconds
-        val durAsStr = String.format("%02dm %02ds", s / 60, (s % 60));
+        val durAsStr = String.format("%02dm %02ds", s / 60, (s % 60))
         val block = """
             Import Method: $methodName
-            Date: ${ZonedDateTime.now().toString()}
+            Date: ${ZonedDateTime.now()}
             Import Summary:
                 * $nbUnits units
                 * $nbProcess processes

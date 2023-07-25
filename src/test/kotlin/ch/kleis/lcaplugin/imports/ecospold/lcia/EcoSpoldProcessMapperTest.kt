@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports.ecospold.lcia
 
-import ch.kleis.lcaplugin.imports.ecospold.EcoSpold2ProcessMapper
+import ch.kleis.lcaplugin.imports.ecospold.EcoSpoldProcessMapper
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.util.ImportException
 import com.intellij.testFramework.UsefulTestCase.assertThrows
@@ -8,7 +8,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class EcoSpold2ProcessMapperTest {
+class EcoSpoldProcessMapperTest {
 
     private val sub: ActivityDataset = EcoSpold2Fixture.buildData()
 
@@ -17,7 +17,7 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper(sub).map()
 
         // Then
         assertEquals("aname_ch", result.uid)
@@ -36,7 +36,7 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper(sub).map()
 
         // Then
         assertEquals(1, result.productBlocks.size)
@@ -48,12 +48,12 @@ class EcoSpold2ProcessMapperTest {
         assertEquals("km", p.unit)
         assertEquals(100.0, p.allocation)
         assertEquals(
-                listOf(
-                        "pName",
-                        "PSystem = PValue",
-                        "// uncertainty: logNormal mean=1.2, variance=2.3, mu=3.4",
-                        "synonym_0 = p1"
-                ), p.comments
+            listOf(
+                "pName",
+                "PSystem = PValue",
+                "// uncertainty: logNormal mean=1.2, variance=2.3, mu=3.4",
+                "synonym_0 = p1"
+            ), p.comments
         )
 
     }
@@ -65,9 +65,9 @@ class EcoSpold2ProcessMapperTest {
 
         // When
         assertThrows(
-                ImportException::class.java,
-                "Invalid outputGroup for product, expected 0, found 1"
-        ) { EcoSpold2ProcessMapper(falseSub).map() }
+            ImportException::class.java,
+            "Invalid outputGroup for product, expected 0, found 1"
+        ) { EcoSpoldProcessMapper(falseSub).map() }
     }
 
     @Test
@@ -75,7 +75,7 @@ class EcoSpold2ProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpold2ProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper(sub).map()
 
         // Then
         assertEquals(2, result.emissionBlocks.size)

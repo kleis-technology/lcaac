@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter.Companion.unitToStr
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.IntermediateExchange
@@ -14,7 +14,7 @@ import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
-open class EcoSpold2ProcessMapper(val process: ActivityDataset) {
+open class EcoSpoldProcessMapper(val process: ActivityDataset) {
     val pUid = uid(process)
     val result = ImportedProcess(pUid)
 
