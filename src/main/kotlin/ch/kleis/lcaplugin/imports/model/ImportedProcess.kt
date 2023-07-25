@@ -18,7 +18,7 @@ class ImportedProcess(
 data class ImportedParam(val symbol: String, val value: String)
 
 class ExchangeBlock<T : ImportedExchange>(
-    val comment: String,
+    val comment: String?,
     var exchanges: MutableList<T> = mutableListOf()
 )
 

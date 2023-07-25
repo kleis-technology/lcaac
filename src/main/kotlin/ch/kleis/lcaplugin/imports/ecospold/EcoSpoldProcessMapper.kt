@@ -15,7 +15,7 @@ import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
 open class EcoSpoldProcessMapper(val process: ActivityDataset) {
-    val pUid = uid(process)
+    private val pUid = uid(process)
     val result = ImportedProcess(pUid)
 
     companion object {
@@ -52,10 +52,10 @@ open class EcoSpoldProcessMapper(val process: ActivityDataset) {
     }
 
     private fun mapEmissions() {
-        result.emissionBlocks += ExchangeBlock("FIXME",
-                process.flowData.elementaryExchanges
-                        .filter { it.substanceType == SubstanceType.EMISSION }
-                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        result.emissionBlocks += ExchangeBlock(null,
+            process.flowData.elementaryExchanges
+                .filter { it.substanceType == SubstanceType.EMISSION }
+                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
         )
 
         // TODO: Remove when closing #261
@@ -65,30 +65,30 @@ open class EcoSpoldProcessMapper(val process: ActivityDataset) {
     }
 
     private fun mapLandUse() {
-        result.landUseBlocks = mutableListOf(ExchangeBlock("FIXME",
-                process.flowData.elementaryExchanges
-                        .filter { it.substanceType == SubstanceType.LAND_USE }
-                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        result.landUseBlocks = mutableListOf(ExchangeBlock(null,
+            process.flowData.elementaryExchanges
+                .filter { it.substanceType == SubstanceType.LAND_USE }
+                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
         ))
     }
 
     private fun mapResources() {
-        result.resourceBlocks = mutableListOf(ExchangeBlock("FIXME",
-                process.flowData.elementaryExchanges
-                        .filter { it.substanceType == SubstanceType.RESOURCE }
-                        .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        result.resourceBlocks = mutableListOf(ExchangeBlock(null,
+            process.flowData.elementaryExchanges
+                .filter { it.substanceType == SubstanceType.RESOURCE }
+                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
         ))
     }
 
     private fun elementaryExchangeToImportedBioExchange(elementaryExchange: ElementaryExchange): ImportedBioExchange =
-            ImportedBioExchange(
-                    comments = elementaryExchange.comment?.let { listOf(it) } ?: listOf(),
-                    qty = elementaryExchange.amount.toString(),
-                    unit = elementaryExchange.unit,
-                    uid = ModelWriter.sanitizeAndCompact(elementaryExchange.name),
-                    compartment = elementaryExchange.compartment,
-                    subCompartment = elementaryExchange.subCompartment,
-            )
+        ImportedBioExchange(
+            comments = elementaryExchange.comment?.let { listOf(it) } ?: listOf(),
+            qty = elementaryExchange.amount.toString(),
+            unit = elementaryExchange.unit,
+            uid = ModelWriter.sanitizeAndCompact(elementaryExchange.name),
+            compartment = elementaryExchange.compartment,
+            subCompartment = elementaryExchange.subCompartment,
+        )
 
     open fun mapInputs() {}
 

@@ -46,7 +46,7 @@ $metaBloc
 
             blocks.forEach { blockGrp ->
                 blockGrp.second.forEach { block ->
-                    val doc = if (block.comment.isNotBlank()) " // ${block.comment}" else ""
+                    val doc = if (block.comment?.isNotBlank() == true) " // ${block.comment}" else ""
                     builder.append(
                         """
     ${blockGrp.first} {$doc
