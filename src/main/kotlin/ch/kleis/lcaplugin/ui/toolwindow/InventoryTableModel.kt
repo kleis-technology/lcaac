@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
@@ -59,7 +58,7 @@ class InventoryTableModel(
 
         val quantity = inventory.supply.quantityOf(outputProduct)
         if (columnIndex == 1) {
-            return "${quantity.amount}"
+            return FloatingPointRepresentation.of(quantity.amount).toString()
         }
         if (columnIndex == 2) {
             return "${quantity.unit.symbol}"
@@ -67,7 +66,7 @@ class InventoryTableModel(
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
         val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
-        return quantity.amount * ratio
+        return FloatingPointRepresentation.of(quantity.amount * ratio).toString()
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
