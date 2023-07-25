@@ -31,6 +31,61 @@ class EcoSpoldProcessMapperTest {
         assertEquals("comment", result.meta["geography-comment"])
     }
 
+    // When closing #261, this test is going to fail - change the number of blocks to 1 then.
+    @Test
+    fun map_shouldMapEmissions() {
+        // given
+        // when
+        val result = EcoSpoldProcessMapper(sub).map()
+
+        // then
+        assertEquals(2, result.emissionBlocks.size)
+        assertEquals(1, result.emissionBlocks[0].exchanges.size)
+        val e = result.emissionBlocks[0].exchanges[0]
+        assertEquals("1.8326477008541038E-8", e.qty)
+        assertEquals("_1_2_dichlorobenzene", e.uid)
+        assertEquals("kg", e.unit)
+        assertEquals("air", e.compartment)
+        assertEquals("urban air close to ground", e.subCompartment)
+        assertEquals(listOf(), e.comments)
+    }
+
+    @Test
+    fun map_shouldMapLandUse() {
+        // given
+        // when
+        val result = EcoSpoldProcessMapper(sub).map()
+
+        // then
+        assertEquals(1, result.landUseBlocks.size)
+        assertEquals(1, result.landUseBlocks[0].exchanges.size)
+        val lu = result.landUseBlocks[0].exchanges[0]
+        assertEquals("0.04997982922431679", lu.qty)
+        assertEquals("occupation_annual_crop_irrigated", lu.uid)
+        assertEquals("m2*year", lu.unit)
+        assertEquals("natural resource", lu.compartment)
+        assertEquals("land", lu.subCompartment)
+        assertEquals(listOf(), lu.comments)
+    }
+
+    @Test
+    fun map_shouldMapResource() {
+        // given
+        // when
+        val result = EcoSpoldProcessMapper(sub).map()
+
+        // then
+        assertEquals(1, result.resourceBlocks.size)
+        assertEquals(1, result.resourceBlocks[0].exchanges.size)
+        val res = result.resourceBlocks[0].exchanges[0]
+        assertEquals("0.004413253823373581", res.qty)
+        assertEquals("nitrogen", res.uid)
+        assertEquals("kg", res.unit)
+        assertEquals("natural resource", res.compartment)
+        assertEquals("land", res.subCompartment)
+        assertEquals(listOf(), res.comments)
+    }
+
     @Test
     fun map_ShouldMapProduct() {
         // Given
