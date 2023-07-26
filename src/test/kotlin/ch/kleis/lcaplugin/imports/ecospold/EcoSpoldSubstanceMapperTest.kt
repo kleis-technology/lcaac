@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia
+package ch.kleis.lcaplugin.imports.ecospold
 
 import org.junit.Test
 import kotlin.test.assertEquals

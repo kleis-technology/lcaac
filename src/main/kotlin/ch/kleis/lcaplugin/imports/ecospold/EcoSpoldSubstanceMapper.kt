@@ -1,6 +1,5 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia
+package ch.kleis.lcaplugin.imports.ecospold
 
-import ch.kleis.lcaplugin.imports.ecospold.EcoSpoldProcessMapper
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.model.ImportedImpact
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
@@ -12,20 +11,20 @@ class EcoSpoldSubstanceMapper {
 
             val pName = process.description.activity.name
             val meta = mutableMapOf<String, String?>(
-                    "methodName" to methodName,
-                    "geography" to (process.description.geography?.shortName ?: "")
+                "methodName" to methodName,
+                "geography" to (process.description.geography?.shortName ?: "")
             )
             val pUid = EcoSpoldProcessMapper.uid(process)
             val impacts = process.flowData.impactIndicators
-                    .filter { it.methodName == methodName }
-                    .map {
-                        ImportedImpact(
-                                it.amount,
-                                it.unitName,
-                                it.categoryName,
-                                it.name
-                        )
-                    }.toMutableList()
+                .filter { it.methodName == methodName }
+                .map {
+                    ImportedImpact(
+                        it.amount,
+                        it.unitName,
+                        it.categoryName,
+                        it.name
+                    )
+                }.toMutableList()
 
             return ImportedSubstance(pName, "Emission", "u", "", meta = meta, pUid = pUid, impacts = impacts)
         }

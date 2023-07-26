@@ -1,6 +1,5 @@
-package ch.kleis.lcaplugin.imports.ecospold.lcia
+package ch.kleis.lcaplugin.imports.ecospold
 
-import ch.kleis.lcaplugin.imports.ecospold.EcoSpoldProcessMapper
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.util.ImportException
 import com.intellij.testFramework.UsefulTestCase.assertThrows
