@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.ProcessDictRecord
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcoSpoldSubstanceMapper
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
 import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer

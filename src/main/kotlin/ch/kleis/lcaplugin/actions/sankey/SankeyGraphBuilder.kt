@@ -10,7 +10,7 @@ import ch.kleis.lcaplugin.core.lang.value.*
 class SankeyGraphBuilder(
     private val allocatedSystem: SystemValue,
     private val inventory: Inventory,
-    private val progressionOrder: Comparator<MatrixColumnIndex>,
+    private val observableOrder: Comparator<MatrixColumnIndex>,
 ) {
     fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex): Graph {
         val portsWithObservedImpact = inventory.getObservablePorts().getElements().toSet()
@@ -22,7 +22,7 @@ class SankeyGraphBuilder(
                 is SubstanceValue -> {
                     graph.addNode(GraphNode(port.getUID(), port.getShortName()))
                         .addLinkIfNoCycle(
-                            progressionOrder,
+                            observableOrder,
                             port,
                             sankeyIndicator,
                             impactAmountForSubstance(sankeyIndicator, inventory, port)
@@ -38,7 +38,7 @@ class SankeyGraphBuilder(
 
                     linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getShortName()))) { accumulatorGraph, exchange ->
                         accumulatorGraph.addLinkIfNoCycle(
-                            progressionOrder,
+                            observableOrder,
                             port,
                             exchange.port(),
                             impactAmountForExchange(sankeyIndicator, inventory, port, exchange))
@@ -53,7 +53,7 @@ class SankeyGraphBuilder(
     }
 
     private fun Graph.addLinkIfNoCycle(
-        comparator: Comparator<MatrixColumnIndex>,
+        observableOrder: Comparator<MatrixColumnIndex>,
         source: MatrixColumnIndex,
         target: MatrixColumnIndex,
         value: Double,
@@ -61,7 +61,7 @@ class SankeyGraphBuilder(
         // The observable wrt which we are computing is not in the matrix: it will raise a not found exception.
         // It is always the target, and always "deeper" in the graph than everything else.
         val compareResult = try {
-            comparator.compare(source, target)
+            observableOrder.compare(source, target)
         } catch (e: EvaluatorException) {
             -1
         }

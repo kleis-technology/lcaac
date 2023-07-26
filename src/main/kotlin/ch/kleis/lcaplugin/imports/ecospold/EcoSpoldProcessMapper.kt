@@ -14,7 +14,7 @@ import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
-open class EcoSpoldProcessMapper(val process: ActivityDataset) {
+class EcoSpoldProcessMapper(val process: ActivityDataset) {
     private val pUid = uid(process)
     val result = ImportedProcess(pUid)
 
@@ -36,7 +36,6 @@ open class EcoSpoldProcessMapper(val process: ActivityDataset) {
 
         mapMetas()
         mapProducts()
-        mapInputs()
         mapLandUse()
         mapResources()
         mapEmissions()
@@ -44,7 +43,7 @@ open class EcoSpoldProcessMapper(val process: ActivityDataset) {
         return result
     }
 
-    open fun mapProducts() {
+    private fun mapProducts() {
         val geo = if (process.description.geography?.shortName == "GLO") ""
         else process.description.geography?.shortName ?: ""
         val products = process.flowData.intermediateExchanges.map { mapProduct(it, geo) }.toMutableList()
@@ -90,9 +89,7 @@ open class EcoSpoldProcessMapper(val process: ActivityDataset) {
             subCompartment = elementaryExchange.subCompartment,
         )
 
-    open fun mapInputs() {}
-
-    open fun mapMetas() {
+    private fun mapMetas() {
         val metas = result.meta
         process.description.let { description ->
             description.activity.let { activity ->
