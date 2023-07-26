@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.simapro.substance
 
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.ImportedSubstance
-import ch.kleis.lcaplugin.imports.shared.SubstanceSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import io.mockk.*
 import org.junit.After
 import org.junit.Assert

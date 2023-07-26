@@ -1,6 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.model.Classification
+import ch.kleis.lcaplugin.imports.ecospold.model.Classification
 import io.mockk.unmockkAll
 import org.junit.After
 import org.junit.Test

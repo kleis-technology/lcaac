@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.imports
 
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.LocalFileSystem

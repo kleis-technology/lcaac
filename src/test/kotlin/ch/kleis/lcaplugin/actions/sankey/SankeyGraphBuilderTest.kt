@@ -8,6 +8,7 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
+import com.intellij.openapi.ui.naturalSorted
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -25,7 +26,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
             val observedPort: MatrixColumnIndex,
             val allocatedSystem: SystemValue,
             val inventory: Inventory,
-            val comparator: Comparator<MatrixColumnIndex>
+            val comparator: Comparator<MatrixColumnIndex>,
     )
 
     private fun getRequiredInformation(@Suppress("SameParameterValue") process: String, vf: VirtualFile): SankeyRequiredInformation {
@@ -38,7 +39,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val inventory = assessment.inventory()
         val allocatedSystem = assessment.allocatedSystem
         val sankeyPort = inventory.getControllablePorts().getElements().first()
-        return SankeyRequiredInformation(sankeyPort, allocatedSystem, inventory, trace.getProductOrder())
+        return SankeyRequiredInformation(sankeyPort, allocatedSystem, inventory, trace.getObservableOrder())
     }
 
     @Test
@@ -135,6 +136,48 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)
+    }
+
+    @Test
+    fun test_whenTwoLinks_thenSankey() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+                "$pkgName.lca", """
+                process p {
+                    products {
+                        1 kg prod
+                    }
+                    inputs {
+                        2 kg qrod
+                    }
+                }
+                process q {
+                    products {
+                        1 kg qrod
+                    }
+                    emissions {
+                        2.5 kg my_emission
+                    }
+               }
+                """.trimIndent())
+        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+
+        // when
+        val graph = sut.buildContributionGraph(sankeyPort)
+
+        // then
+        val expected = Graph.empty().addNode(
+                GraphNode("prod from p{}{}", "prod"),
+                GraphNode("qrod from q{}{}", "qrod"),
+                GraphNode("my_emission", "my_emission"),
+        ).addLink(
+                GraphLink("prod from p{}{}", "qrod from q{}{}", 5.0),
+                GraphLink("qrod from q{}{}", "my_emission", 5.0),
+        )
+        assertEquals(expected.nodes.naturalSorted(), graph.nodes.naturalSorted())
+        assertEquals(expected.links.naturalSorted(), graph.links.naturalSorted())
     }
 
     @Test
@@ -386,30 +429,30 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun test_whenCycle_thenCorrectOrder() {
+    fun test_whenCycle_thenAcyclicGraph() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
                 "$pkgName.lca", """
-                    process p1 {
-                        products {
-                            1 kg A
-                        }
-                        inputs {
-                            1 kg B
-                        }
+                process p1 {
+                    products {
+                        1 kg A
                     }
-                    process p2 {
-                        products {
-                            1 kg B
-                        }
-                        inputs {
-                            0.1 kg A
-                        }
-                        emissions {
-                            1 kg C
-                        }
+                    inputs {
+                        1 kg B
                     }
+                }
+                process p2 {
+                    products {
+                        1 kg B
+                    }
+                    inputs {
+                        0.5 kg A
+                    }
+                    emissions {
+                        1 kg C
+                    }
+                }
                 """.trimIndent())
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p1", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
@@ -422,44 +465,97 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 GraphNode("A from p1{}{}", "A"),
                 GraphNode("B from p2{}{}", "B"),
                 GraphNode("C", "C"),
-                GraphNode("cycle back to A", "cycle back to A")
         ).addLink(
-                GraphLink("A from p1{}{}", "B from p2{}{}", 1.234567901234568),
-                GraphLink("B from p2{}{}", "C", 1.1111111111111112),
-                GraphLink("B from p2{}{}", "cycle back to A", 0.12345679012345681)
+                GraphLink("A from p1{}{}", "B from p2{}{}", 4.0),
+                GraphLink("B from p2{}{}", "C", 2.0),
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)
     }
 
     @Test
-    fun test_whenMultiProductCycle_thenCorrectOrder() {
+    fun test_whenComplexCycles_thenAcyclicSankey() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
                 "$pkgName.lca", """
-                    process p1 {
-                        products {
-                            1 kg A allocate 50 percent
-                            2 kg Aprime allocate 50 percent
-                        }
-                        inputs {
-                            1 kg B
-                        }
+                process pA {
+                    products {
+                        1 kg A
                     }
-                    process p2 {
-                        products {
-                            1 kg B
-                        }
-                        inputs {
-                            0.1 kg A
-                        }
-                        emissions {
-                            1 kg C
-                        }
+                    inputs {
+                        0.5 kg B
+                        0.5 kg C
                     }
+                }
+
+                process pB {
+                    products {
+                        1 kg B
+                    }
+                    inputs {
+                        0.5 kg B
+                        1 kg D
+                        1 kg E
+                    }
+                }
+
+                process pC {
+                    products {
+                        1 kg C
+                    }
+                    inputs {
+                        1 kg F
+                    }
+                }
+
+                process pD {
+                    products {
+                        1 kg D
+                    }
+                    inputs {
+                        1 kg F
+                    }
+                }
+
+                process pE {
+                    products {
+                        1 kg E
+                    }
+                    inputs {
+                        1 kg G
+                    }
+                }
+
+                process pF {
+                    products {
+                        1 kg F
+                    }
+                    inputs {
+                        1 kg H
+                    }
+                }
+
+                process pG {
+                    products {
+                        1 kg G
+                    }
+                    inputs {
+                        0.5 kg E
+                        1 kg H
+                    }
+                }
+
+                process pH {
+                    products {
+                        1 kg H
+                    }
+                    emissions {
+                        1 kg my_emission
+                    }
+                } 
                 """.trimIndent())
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p1", vf)
+        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("pA", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
         // when
@@ -467,18 +563,28 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
         // then
         val expected = Graph.empty().addNode(
-                GraphNode("A from p1{}{}", "A"),
-                GraphNode("Aprime from p1{}{}", "Aprime"),
-                GraphNode("B from p2{}{}", "B"), GraphNode("C", "C"),
-                GraphNode("cycle back to A", "cycle back to A")
+                GraphNode("A from pA{}{}", "A"),
+                GraphNode("B from pB{}{}", "B"),
+                GraphNode("C from pC{}{}", "C"),
+                GraphNode("D from pD{}{}", "D"),
+                GraphNode("E from pE{}{}", "E"),
+                GraphNode("F from pF{}{}", "F"),
+                GraphNode("G from pG{}{}", "G"),
+                GraphNode("H from pH{}{}", "H"),
+                GraphNode("my_emission", "my_emission")
         ).addLink(
-                GraphLink("A from p1{}{}", "B from p2{}{}", 0.5817174515235457),
-                GraphLink("Aprime from p1{}{}", "B from p2{}{}", 0.5263157894736842),
-                GraphLink("B from p2{}{}", "C", 1.0526315789473686),
-                GraphLink("B from p2{}{}", "cycle back to A", 0.0554016620498615)
+                GraphLink("F from pF{}{}", "H from pH{}{}", value = 1.5),
+                GraphLink("C from pC{}{}", "F from pF{}{}", value = 0.5),
+                GraphLink("A from pA{}{}", "B from pB{}{}", value = 3.0),
+                GraphLink("A from pA{}{}", "C from pC{}{}", value = 0.5),
+                GraphLink("D from pD{}{}", "F from pF{}{}", value = 1.0),
+                GraphLink("H from pH{}{}", "my_emission", value = 3.5),
+                GraphLink("B from pB{}{}", "D from pD{}{}", value = 1.0),
+                GraphLink("B from pB{}{}", "E from pE{}{}", value = 2.0),
+                GraphLink("E from pE{}{}", "G from pG{}{}", value = 4.0),
+                GraphLink("G from pG{}{}", "H from pH{}{}", value = 2.0),
         )
         assertEquals(expected.nodes, graph.nodes)
         assertEquals(expected.links, graph.links)
     }
-
 }

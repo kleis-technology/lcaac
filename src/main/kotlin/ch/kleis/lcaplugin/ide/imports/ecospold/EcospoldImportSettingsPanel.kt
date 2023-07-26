@@ -4,7 +4,8 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.imports.ImportHandler
 import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
 import ch.kleis.lcaplugin.imports.Importer
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldLibraryType
 import com.intellij.BundleBase
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.diagnostic.Logger
@@ -40,6 +41,9 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
     private val methodNameModel = DefaultComboBoxModel<String>()
     private val warning = JBLabel()
 
+    // FIXME
+    private val libType: EcospoldLibraryType = EcospoldLibraryType.LCIA
+
     init {
         val builder = FormBuilder()
         val locComp = createLocationComponent()
@@ -56,9 +60,21 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
             BorderLayout.WEST
         )
         builder.addLabeledComponent(warningLabelled.label, warningLabelled.component)
+
         val methodLabelled = createMethodComponent()
         methodNameField = methodLabelled.component
-        builder.addLabeledComponent(methodLabelled.label, methodLabelled.component)
+
+        when (libType) {
+            EcospoldLibraryType.LCIA -> {
+                builder.addLabeledComponent(methodLabelled.label, methodLabelled.component)
+            }
+
+            EcospoldLibraryType.LCI -> {
+                // TODO: add component letting user choose the substance mapping
+            }
+        }
+
+
         builder.addComponent(
             CheckBoxWithDescription(
                 JBCheckBox(
@@ -91,7 +107,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
 
     private fun updateMethodModelFromLib() {
         val file = Path.of(settings.libraryFile)
-        if (file.isRegularFile() && file.exists()) {
+        if (file.exists() && file.isRegularFile()) {
             val names = EcospoldImporter.getMethodNames(file.toString())
             methodNameModel.removeAllElements()
             methodNameModel.addAll(names)

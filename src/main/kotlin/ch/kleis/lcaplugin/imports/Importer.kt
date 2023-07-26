@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.imports
 
-import ch.kleis.lcaplugin.imports.ecospold.lcia.EcospoldImporter
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
+import ch.kleis.lcaplugin.imports.util.AsyncTaskController
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
+import ch.kleis.lcaplugin.imports.util.ImportInterruptedException
 import com.intellij.openapi.diagnostic.Logger
 import java.nio.file.Path
 import java.time.Instant
@@ -17,20 +20,20 @@ abstract class Importer {
         return try {
             importAll(controller, watcher)
             val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
-            SummaryInSuccess(duration, collectProgress())
+            SummaryInSuccess(duration, collectResults())
         } catch (e: ImportInterruptedException) {
             val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
-            SummaryInterrupted(duration, collectProgress())
+            SummaryInterrupted(duration, collectResults())
         } catch (e: Exception) {
             val duration = begin.until(Instant.now(), ChronoUnit.SECONDS)
             LOG.warn("Unexpected error during import", e)
-            SummaryInError(duration, collectProgress(), e.message ?: "")
+            SummaryInError(duration, collectResults(), e.message ?: "")
         }
     }
 
     protected abstract fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher)
 
-    protected abstract fun collectProgress(): List<Imported>
+    protected abstract fun collectResults(): List<Imported>
     abstract fun getImportRoot(): Path
 
 }

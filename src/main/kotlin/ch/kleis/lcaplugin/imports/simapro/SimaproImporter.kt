@@ -4,10 +4,15 @@ import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
-import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.Imported
+import ch.kleis.lcaplugin.imports.Importer
+import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
-import ch.kleis.lcaplugin.imports.shared.UnitRenderer
+import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
 import ch.kleis.lcaplugin.imports.simapro.substance.SimaproSubstanceRenderer
+import ch.kleis.lcaplugin.imports.util.AsyncTaskController
+import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
+import ch.kleis.lcaplugin.imports.util.ImportInterruptedException
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.io.CountingInputStream
 import org.openlca.simapro.csv.CsvBlock
@@ -59,7 +64,7 @@ class SimaproImporter(
         return Path.of(settings.rootFolder)
     }
 
-    override fun collectProgress(): List<Imported> {
+    override fun collectResults(): List<Imported> {
         return listOf(
             Imported(unitRenderer.nbUnit, "units"),
             Imported(inputParameterRenderer.nbParameters, "parameters"),

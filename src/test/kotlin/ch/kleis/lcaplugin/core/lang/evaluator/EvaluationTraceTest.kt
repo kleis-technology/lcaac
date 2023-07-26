@@ -59,7 +59,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when/then
-        val e = assertFailsWith(EvaluatorException::class) {  trace.getEntryPoint() }
+        val e = assertFailsWith(EvaluatorException::class) { trace.getEntryPoint() }
         assertEquals("execution trace contains multiple entrypoint", e.message)
     }
 
@@ -69,7 +69,7 @@ class EvaluationTraceTest {
         val trace = EvaluationTrace.empty()
 
         // when/then
-        val e = assertFailsWith(EvaluatorException::class) {  trace.getEntryPoint() }
+        val e = assertFailsWith(EvaluatorException::class) { trace.getEntryPoint() }
         assertEquals("execution trace is empty", e.message)
     }
 
@@ -103,7 +103,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getProductOrder()
+        val actual = trace.getObservableOrder()
 
         // then
         assert(actual.compare(product1, product2) < 0)
@@ -145,7 +145,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getProductOrder()
+        val actual = trace.getObservableOrder()
 
         // then
         assert(actual.compare(product1, product2) == -actual.compare(product2, product1))

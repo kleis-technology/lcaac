@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ide.imports.progressbar
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.component.ProgressBar
 import ch.kleis.lcaplugin.imports.*
+import ch.kleis.lcaplugin.imports.util.AsyncTaskController
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.ProjectManager

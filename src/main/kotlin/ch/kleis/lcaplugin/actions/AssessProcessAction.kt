@@ -42,7 +42,7 @@ class AssessProcessAction(
 
             override fun run(indicator: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
-                val order = trace.getProductOrder()
+                val order = trace.getObservableOrder()
                 val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint()).inventory()
                 this.data = Pair(inventory, order)
             }

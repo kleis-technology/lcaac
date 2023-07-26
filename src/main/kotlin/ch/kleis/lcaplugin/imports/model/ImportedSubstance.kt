@@ -3,11 +3,14 @@ package ch.kleis.lcaplugin.imports.model
 import ch.kleis.lcaplugin.imports.ModelWriter
 
 class ImportedSubstance(
-    val name: String, val type: String, val referenceUnit: String, val compartment: String,
-    var subCompartment: String? = null,
-    val impacts: MutableList<ImportedImpact> = mutableListOf(),
-    val meta: MutableMap<String, String?> = mutableMapOf(),
-    pUid: String? = null
+        val name: String,
+        val type: String,
+        val referenceUnit: String,
+        val compartment: String,
+        var subCompartment: String? = null,
+        val impacts: MutableList<ImportedImpact> = mutableListOf(),
+        val meta: MutableMap<String, String?> = mutableMapOf(),
+        pUid: String? = null
 ) {
     val uid: String
 
@@ -19,17 +22,17 @@ class ImportedSubstance(
 }
 
 data class ImportedImpact(
-    val uid: String,
-    val name: String,
-    val value: Double,
-    val unitSymbol: String,
-    val comment: String?
+        val uid: String,
+        val name: String,
+        val value: Double,
+        val unitSymbol: String,
+        val comment: String?
 ) {
     constructor(value: Double, unitName: String, name: String, comment: String? = null) : this(
-        ModelWriter.sanitizeAndCompact(name),
-        name,
-        value,
-        ModelWriter.sanitizeAndCompact(unitName, toLowerCase = false),
-        comment
+            ModelWriter.sanitizeAndCompact(name),
+            name,
+            value,
+            ModelWriter.sanitizeAndCompact(unitName, toLowerCase = false),
+            comment
     )
 }

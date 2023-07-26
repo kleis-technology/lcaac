@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.imports.simapro
 
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.shared.ProcessSerializer
+import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
 import org.openlca.simapro.csv.process.ProcessBlock
 import java.io.File
 
