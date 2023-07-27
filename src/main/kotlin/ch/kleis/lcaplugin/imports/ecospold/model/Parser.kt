@@ -21,14 +21,14 @@ class Parser {
             }
 
             return root.getChildren("unitConversion")
-                    .map {
-                        UnitConversion(
-                                it.getAttribute("factor").doubleValue,
-                                it.getChildText("unitFromName"),
-                                it.getChildText("unitToName"),
-                                dimension(it.getChildText("unitType"))
-                        )
-                    }
+                .map {
+                    UnitConversion(
+                        it.getAttribute("factor").doubleValue,
+                        it.getChildText("unitFromName"),
+                        it.getChildText("unitToName"),
+                        dimension(it.getChildText("unitType"))
+                    )
+                }
         }
 
         fun readMethodUnits(stream: InputStream, methodName: String): List<UnitConversion> {
@@ -37,20 +37,20 @@ class Parser {
             fun realName(unitName: String) = if (unitName == "dimensionless") "dimensionless_impact" else unitName
 
             return root.getChildren("impactMethod").asSequence()
-                    .filter { it.getChildText("name") == methodName }
-                    .flatMap { m -> m.getChildren("category") }
-                    .map { c -> c.getChild("indicator") }
-                    .map {
-                        UnitConversion(
-                                1.0,
-                                realName(it.getChildText("unitName")),
-                                "No Ref",
-                                realName(it.getChildText("unitName")),
-                                it.getChildText("name"),
-                        )
-                    }
-                    .distinctBy { it.fromUnit }
-                    .toList()
+                .filter { it.getChildText("name") == methodName }
+                .flatMap { m -> m.getChildren("category") }
+                .map { c -> c.getChild("indicator") }
+                .map {
+                    UnitConversion(
+                        1.0,
+                        realName(it.getChildText("unitName")),
+                        "No Ref",
+                        realName(it.getChildText("unitName")),
+                        it.getChildText("name"),
+                    )
+                }
+                .distinctBy { it.fromUnit }
+                .toList()
         }
 
 
@@ -59,9 +59,9 @@ class Parser {
             val root = rootElt(builder, stream)
             val xmlDataset = root.getChild("activityDataset") ?: root.getChild("childActivityDataset")
             val dataset = ActivityDataset.Builder()
-                    .description(readDescription(xmlDataset.getChild("activityDescription")))
-                    .flowData(readFlowData(xmlDataset.getChild("flowData")))
-                    .build()
+                .description(readDescription(xmlDataset.getChild("activityDescription")))
+                .flowData(readFlowData(xmlDataset.getChild("flowData")))
+                .build()
 
             return EcospoldRoot(dataset)
         }
@@ -71,38 +71,36 @@ class Parser {
             val root = rootElt(builder, stream)
 
             return root.getChildren("impactMethod")
-                    .map { it.getChildText("name") }
-                    .sorted()
+                .map { it.getChildText("name") }
+                .sorted()
         }
 
 
         private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
             return indicators.map {
                 ImpactIndicator.Builder()
-                        .amount(it.getAttributeValue("amount").toDouble())
-                        .name(it.getChildText("name"))
-                        .unitName(it.getChildText("unitName"))
-                        .categoryName(it.getChildText("impactCategoryName"))
-                        .methodName(it.getChildText("impactMethodName"))
-                        .build()
+                    .amount(it.getAttributeValue("amount").toDouble())
+                    .name(it.getChildText("name"))
+                    .unitName(it.getChildText("unitName"))
+                    .categoryName(it.getChildText("impactCategoryName"))
+                    .methodName(it.getChildText("impactMethodName"))
+                    .build()
             }
         }
 
-        // TODO: setting to use, or not, the mapping towards ef3x
-        // FIXME: unspecified compartment
         private fun readElementaryExchanges(elementaryExchangeList: List<Element>): Sequence<ElementaryExchange> =
-                elementaryExchangeList.asSequence().map {
-                    ElementaryExchange(
-                            elementaryExchangeId = it.getAttributeValue("elementaryExchangeId")!!,
-                            amount = it.getAttributeValue("amount")!!.toDouble(),
-                            name = it.getChildText("name")!!,
-                            unit = it.getChildText("unitName")!!,
-                            compartment = it.getChild("compartment")!!.getChildText("compartment")!!,
-                            subCompartment = it.getChild("compartment")!!.getChildText("subcompartment"),
-                            substanceType = readSubstanceType(it),
-                            comment = it.getChildText("comment")
-                    )
-                }
+            elementaryExchangeList.asSequence().map {
+                ElementaryExchange(
+                    elementaryExchangeId = it.getAttributeValue("elementaryExchangeId")!!,
+                    amount = it.getAttributeValue("amount")!!.toDouble(),
+                    name = it.getChildText("name")!!,
+                    unit = it.getChildText("unitName")!!,
+                    compartment = it.getChild("compartment")!!.getChildText("compartment")!!,
+                    subCompartment = it.getChild("compartment")!!.getChildText("subcompartment"),
+                    substanceType = readSubstanceType(it),
+                    comment = it.getChildText("comment")
+                )
+            }
 
         private fun readSubstanceType(elementaryExchange: Element): SubstanceType {
             val outputGroup = elementaryExchange.getChildText("outputGroup")
@@ -119,18 +117,18 @@ class Parser {
 
         private fun readFlowData(xmlDesc: Element): FlowData {
             val intermediateExchangeList = xmlDesc.getChildren("intermediateExchange")
-                    .map {
-                        val builder = IntermediateExchange.Builder()
-                                .amount(it.getAttributeValue("amount").toDouble())
-                                .name(it.getChildText("name"))
-                                .unit(it.getChildText("unitName"))
-                                .synonyms(it.getChildren("synonym").map { n -> n.value })
-                                .uncertainty(readUncertainty(it.getChild("uncertainty")))
-                                .outputGroup(it.getChildText("outputGroup").toInt())
-                                .classifications(readClassifications(it.getChildren("classification")))
-                                .properties(readProperties(it.getChildren("property")))
-                        builder.build()
-                    }
+                .map {
+                    val builder = IntermediateExchange.Builder()
+                        .amount(it.getAttributeValue("amount").toDouble())
+                        .name(it.getChildText("name"))
+                        .unit(it.getChildText("unitName"))
+                        .synonyms(it.getChildren("synonym").map { n -> n.value })
+                        .uncertainty(readUncertainty(it.getChild("uncertainty")))
+                        .outputGroup(it.getChildText("outputGroup").toInt())
+                        .classifications(readClassifications(it.getChildren("classification")))
+                        .properties(readProperties(it.getChildren("property")))
+                    builder.build()
+                }
             val indicators = readIndicators(xmlDesc.getChildren("impactIndicator"))
             val elementaryExchangeList = readElementaryExchanges(xmlDesc.getChildren("elementaryExchange"))
 
@@ -141,11 +139,11 @@ class Parser {
         private fun readProperties(children: List<Element>): List<Property> {
             return children.map {
                 Property(
-                        it.getChildText("name"),
-                        it.getAttributeValue("amount").toDouble(),
-                        it.getChildText("unitName"),
-                        it.getAttributeValue("isDefiningValue"),
-                        it.getAttributeValue("isCalculatedAmount"),
+                    it.getChildText("name"),
+                    it.getAttributeValue("amount").toDouble(),
+                    it.getChildText("unitName"),
+                    it.getAttributeValue("isDefiningValue"),
+                    it.getAttributeValue("isCalculatedAmount"),
                 )
             }
 
@@ -153,46 +151,46 @@ class Parser {
 
         private fun readDescription(xmlDesc: Element): ActivityDescription {
             return ActivityDescription.Builder()
-                    .activity(readActivity(xmlDesc.getChild("activity")))
-                    .classifications(readClassifications(xmlDesc.getChildren("classification")))
-                    .geography(readGeography(xmlDesc.getChild("geography")))
-                    .build()
+                .activity(readActivity(xmlDesc.getChild("activity")))
+                .classifications(readClassifications(xmlDesc.getChildren("classification")))
+                .geography(readGeography(xmlDesc.getChild("geography")))
+                .build()
         }
 
         private fun readClassifications(children: List<Element>): List<Classification> {
             return children.map {
                 Classification(
-                        it.getChildText("classificationSystem"),
-                        it.getChildText("classificationValue")
+                    it.getChildText("classificationSystem"),
+                    it.getChildText("classificationValue")
                 )
             }
         }
 
         private fun readGeography(xml: Element): Geography {
             return Geography(
-                    xml.getChildText("shortname"),
-                    readMultiline(xml.getChild("comment"))
+                xml.getChildText("shortname"),
+                readMultiline(xml.getChild("comment"))
             )
         }
 
 
         private fun readActivity(xml: Element): Activity {
             return Activity.Builder()
-                    .id(xml.getAttributeValue("id"))
-                    .type(xml.getAttributeValue("type"))
-                    .energyValues(xml.getAttributeValue("energyValues"))
-                    .name(xml.getChildText("activityName"))
-                    .includedActivitiesStart(xml.getChildText("includedActivitiesStart"))
-                    .includedActivitiesEnd(xml.getChildText("includedActivitiesEnd"))
-                    .generalComment(readMultiline(xml.getChild("generalComment")))
-                    .build()
+                .id(xml.getAttributeValue("id"))
+                .type(xml.getAttributeValue("type"))
+                .energyValues(xml.getAttributeValue("energyValues"))
+                .name(xml.getChildText("activityName"))
+                .includedActivitiesStart(xml.getChildText("includedActivitiesStart"))
+                .includedActivitiesEnd(xml.getChildText("includedActivitiesEnd"))
+                .generalComment(readMultiline(xml.getChild("generalComment")))
+                .build()
         }
 
         private fun readMultiline(xml: Element?): List<String> {
             return xml?.getChildren("text")
-                    ?.sortedBy { it.getAttribute("index").intValue }
-                    ?.map { it.text }
-                    ?: listOf()
+                ?.sortedBy { it.getAttribute("index").intValue }
+                ?.map { it.text }
+                ?: listOf()
         }
 
         private fun rootElt(builder: SAXBuilder, stream: InputStream): Element {
@@ -214,7 +212,7 @@ class Parser {
             override fun createSAXHandler(factory: JDOMFactory?): SAXHandler {
                 return object : SAXHandler() {
                     override fun startElement(
-                            namespaceURI: String?, localName: String?, qName: String?, atts: Attributes?
+                        namespaceURI: String?, localName: String?, qName: String?, atts: Attributes?
                     ) {
                         super.startElement("", localName, qName, atts)
                     }
@@ -231,46 +229,46 @@ class Parser {
 
             val logNormal: LogNormal? = xml.getChild("lognormal")?.let {
                 LogNormal(
-                        it.getAttributeValue("meanValue").toDouble(),
-                        it.getAttributeValue("mu").toDouble(),
-                        it.getAttributeValue("variance").toDouble(),
-                        it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble()
+                    it.getAttributeValue("meanValue").toDouble(),
+                    it.getAttributeValue("mu").toDouble(),
+                    it.getAttributeValue("variance").toDouble(),
+                    it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble()
                 )
             }
             val normal: Normal? = xml.getChild("normal")?.let {
                 Normal(
-                        it.getAttributeValue("meanValue").toDouble(),
-                        it.getAttributeValue("variance").toDouble(),
-                        it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble(),
+                    it.getAttributeValue("meanValue").toDouble(),
+                    it.getAttributeValue("variance").toDouble(),
+                    it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble(),
                 )
             }
             val triangular: Triangular? = xml.getChild("triangular")?.let {
                 Triangular(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("mostLikelyValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
+                    it.getAttributeValue("minValue").toDouble(),
+                    it.getAttributeValue("mostLikelyValue").toDouble(),
+                    it.getAttributeValue("maxValue").toDouble(),
                 )
             }
             val uniform: Uniform? = xml.getChild("uniform")?.let {
                 Uniform(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
+                    it.getAttributeValue("minValue").toDouble(),
+                    it.getAttributeValue("maxValue").toDouble(),
                 )
             }
             val undefined: UndefinedUncertainty? = xml.getChild("undefined")?.let {
                 UndefinedUncertainty(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
-                        it.getAttributeValue("standardDeviation95").toDouble(),
+                    it.getAttributeValue("minValue").toDouble(),
+                    it.getAttributeValue("maxValue").toDouble(),
+                    it.getAttributeValue("standardDeviation95").toDouble(),
                 )
             }
             val pedigreeMatrix: PedigreeMatrix? = xml.getChild("pedigreeMatrix")?.let {
                 PedigreeMatrix(
-                        it.getAttributeValue("reliability").toInt(),
-                        it.getAttributeValue("completeness").toInt(),
-                        it.getAttributeValue("temporalCorrelation").toInt(),
-                        it.getAttributeValue("geographicalCorrelation").toInt(),
-                        it.getAttributeValue("furtherTechnologyCorrelation").toInt()
+                    it.getAttributeValue("reliability").toInt(),
+                    it.getAttributeValue("completeness").toInt(),
+                    it.getAttributeValue("temporalCorrelation").toInt(),
+                    it.getAttributeValue("geographicalCorrelation").toInt(),
+                    it.getAttributeValue("furtherTechnologyCorrelation").toInt()
                 )
             }
             val comment: String? = xml.getChildText("comment")
