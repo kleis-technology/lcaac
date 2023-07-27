@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.ide.imports.ecospold
 
+import ch.kleis.lcaplugin.imports.ecospold.EcospoldLibraryType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
@@ -28,6 +29,12 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
         get() = state.LIBRARY_FILE
         set(value) {
             state.LIBRARY_FILE = value
+        }
+
+    var libraryType: EcospoldLibraryType
+        get() = state.LIBRARY_TYPE
+        set(value) {
+            state.LIBRARY_TYPE = value
         }
 
     var rootFolder: String
@@ -62,6 +69,9 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
 
         @JvmField
         var LIBRARY_FILE: String = ""
+
+        @JvmField
+        var LIBRARY_TYPE: EcospoldLibraryType = EcospoldLibraryType.LCI
 
         @JvmField
         var ROOT_FOLDER: String = ProjectManager.getInstance().openProjects.firstOrNull()?.basePath ?: ""

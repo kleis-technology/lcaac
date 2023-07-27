@@ -41,19 +41,23 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
     private val methodNameModel = DefaultComboBoxModel<String>()
     private val warning = JBLabel()
 
-    // FIXME
-    private val libType: EcospoldLibraryType = EcospoldLibraryType.LCIA
-
     init {
         val builder = FormBuilder()
+
         val locComp = createLocationComponent()
         builder.addLabeledComponent(locComp.label, locComp.component)
+
         val packCom = createPackageComponent()
         packageField = packCom.component
         builder.addLabeledComponent(packCom.label, packCom.component)
+
+        val libTypeComp = createLibraryTypeChoiceComponent()
+        builder.addLabeledComponent(libTypeComp.label, libTypeComp.component)
+
         val libComp = createLibraryFileComponent()
         libField = libComp.component.textField
         builder.addLabeledComponent(libComp.label, libComp.component)
+
         warning.foreground = JBColor.ORANGE
         val warningLabelled = LabeledComponent.create(
             warning, "",
@@ -64,15 +68,9 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         val methodLabelled = createMethodComponent()
         methodNameField = methodLabelled.component
 
-        when (libType) {
-            EcospoldLibraryType.LCIA -> {
-                builder.addLabeledComponent(methodLabelled.label, methodLabelled.component)
-            }
+        builder.addLabeledComponent(methodLabelled.component, methodLabelled.label)
 
-            EcospoldLibraryType.LCI -> {
-                // TODO: add component letting user choose the substance mapping
-            }
-        }
+        // TODO: add component letting user choose the substance mapping
 
 
         builder.addComponent(
@@ -137,6 +135,23 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         )
     }
 
+    private fun createLibraryTypeChoiceComponent(): LabeledComponent<ComboBox<EcospoldLibraryType>> {
+        val myComboBox = ComboBox<EcospoldLibraryType>()
+
+        EcospoldLibraryType.values().forEach(myComboBox::addItem)
+        myComboBox.addActionListener {
+            if (it.actionCommand == "comboBoxChanged") {
+                val newLibraryType = myComboBox.selectedItem as EcospoldLibraryType
+                settings.libraryType = newLibraryType
+            }
+        }
+
+        return LabeledComponent.create(
+            myComboBox,
+            BundleBase.replaceMnemonicAmpersand("&Library type:"),
+            BorderLayout.EAST
+        )
+    }
 
     private fun createLocationComponent(): LabeledComponent<TextFieldWithBrowseButton> {
         val myLocationField = TextFieldWithBrowseButton()
