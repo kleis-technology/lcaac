@@ -18,7 +18,7 @@ class LcaModuleBuilder : ModuleBuilder(), ModuleBuilderListener {
 
 
     override fun getModuleType(): ModuleType<*> {
-        return LcaModuleType.getInstance()
+        return LcaModuleType.FACTORY.getInstance()
     }
 
     override fun moduleCreated(module: Module) {

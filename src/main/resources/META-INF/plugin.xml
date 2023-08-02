@@ -12,7 +12,6 @@
                 id="LCA_MODULE_TYPE"
                 implementationClass="ch.kleis.lcaplugin.project.LcaModuleType"/>
 
-        <applicationService serviceImplementation="ch.kleis.lcaplugin.services.MyApplicationService"/>
         <fileType
                 name="LCA Definition File"
                 implementationClass="ch.kleis.lcaplugin.LcaFileType"
@@ -120,7 +119,7 @@
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings"/>
 
         <defaultLiveTemplates file="/liveTemplates/lca.xml"/>
-        <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext"/>
+        <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext" contextId="LCARoot"/>
     </extensions>
 
     <applicationListeners>
