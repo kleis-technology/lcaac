@@ -6,7 +6,9 @@ import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
 import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.ecospold.lci.EcospoldMethodMapper
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
@@ -18,6 +20,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
+import java.io.FileReader
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Path
@@ -52,14 +55,21 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = EcospoldProcessRenderer()
+    private var methodMapping: Map<String, ElementaryExchange>? = null
     private val predefinedUnits = Prelude.unitMap.values
         .map { it.toUnitValue() }
         .associateBy { it.symbol.toString() }
     private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
-        val path = Path.of(settings.libraryFile)
+        if (settings.mappingFile.isNotEmpty()) {
+            watcher.notifyCurrentWork("Building requested method map")
+            FileReader(settings.mappingFile).use {
+                methodMapping = EcospoldMethodMapper.buildMapping(it)
+            }
+        }
 
+        val path = Path.of(settings.libraryFile)
         val pkg = settings.rootPackage.ifBlank { "default" }
         SevenZFile(path.toFile()).use { f ->
             ModelWriter(pkg, settings.rootFolder, listOf(), watcher).use { w ->
@@ -181,10 +191,11 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         watcher: AsynchronousWatcher
     ) {
         if (!controller.isActive()) throw ImportInterruptedException()
-        val eco = Parser.readDataset(input)
+        val eco: ActivityDataset = Parser.readDataset(input)
+
         currentValue++
         watcher.notifyProgress((100.0 * currentValue / totalValue).roundToInt())
-        importDataSet(eco.activityDataset, w, path)
+        importDataSet(eco, w, path)
     }
 
     private fun importDataSet(

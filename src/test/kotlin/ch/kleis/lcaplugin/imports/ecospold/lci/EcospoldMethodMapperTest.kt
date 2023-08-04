@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-class EcospoldMapperTest {
+class EcospoldMethodMapperTest {
     @Test
     fun test_buildMapping_whenNoData_thenError() {
         // given
@@ -18,7 +18,7 @@ class EcospoldMapperTest {
 
         // when then
         assertFailsWith(IllegalArgumentException::class) {
-            EcospoldMapper.buildMapping(emptyCSVReader)
+            EcospoldMethodMapper.buildMapping(emptyCSVReader)
         }
     }
 
@@ -26,7 +26,7 @@ class EcospoldMapperTest {
     fun test_buildMapping_whenMapped_thenMap() {
         // given when
         val mapping = this::class.java.getResourceAsStream("one-record-map.csv")?.use {
-            EcospoldMapper.buildMapping(InputStreamReader(it))
+            EcospoldMethodMapper.buildMapping(InputStreamReader(it))
         }
         // then
         assertNotNull(mapping)
@@ -50,7 +50,7 @@ class EcospoldMapperTest {
     fun test_buildMapping_whenOrphan_thenNoMap() {
         // given when
         val mapping = this::class.java.getResourceAsStream("orphan.csv")?.use {
-            EcospoldMapper.buildMapping(InputStreamReader(it))
+            EcospoldMethodMapper.buildMapping(InputStreamReader(it))
         }
 
         // then
@@ -62,7 +62,7 @@ class EcospoldMapperTest {
     fun test_buildMapping_whenMixed_thenOnlyMapped() {
         // given when
         val mapping = this::class.java.getResourceAsStream("one-valid-one-invalid.csv")?.use {
-            EcospoldMapper.buildMapping(InputStreamReader(it))
+            EcospoldMethodMapper.buildMapping(InputStreamReader(it))
         }
         // then
         assertNotNull(mapping)

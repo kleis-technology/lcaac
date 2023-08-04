@@ -55,6 +55,11 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
             state.METHOD_NAME = value
         }
 
+    var mappingFile: String
+        get() = state.MAPPING_FILE
+        set(value) {
+            state.MAPPING_FILE = value
+        }
 
     override fun getState(): State = state
 
@@ -82,5 +87,7 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
         @JvmField
         var METHOD_NAME: String = ""
 
+        @JvmField
+        var MAPPING_FILE: String = ""
     }
 }

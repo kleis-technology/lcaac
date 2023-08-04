@@ -10,7 +10,7 @@ import kotlin.streams.asSequence
 
 typealias ID = String
 
-object EcospoldMapper {
+object EcospoldMethodMapper {
     private val csvFormat: CSVFormat = CSVFormat.Builder.create().setHeader().build()
 
     fun buildMapping(mapData: Reader): Map<ID, ElementaryExchange> =
