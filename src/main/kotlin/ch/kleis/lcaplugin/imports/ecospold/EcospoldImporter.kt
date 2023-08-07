@@ -2,7 +2,9 @@ package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
-import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.EcospoldImportSettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
 import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
@@ -29,7 +31,9 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
-class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
+class EcospoldImporter(
+    private val settings: EcospoldImportSettings,
+) : Importer() {
 
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
@@ -57,27 +61,38 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     private var currentValue = 0
     private val processRenderer = EcospoldProcessRenderer()
     private var methodMapping: Map<String, MappingExchange>? = null
+    private val methodName: String = when (settings) {
+        is LCISettings -> "Ecospold LCI library file."
+        is LCIASettings -> settings.methodName
+    }
     private val predefinedUnits = Prelude.unitMap.values
         .map { it.toUnitValue() }
         .associateBy { it.symbol.toString() }
     private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
-        if (settings.mappingFile.isNotEmpty()) {
-            watcher.notifyCurrentWork("Building requested method map")
-            FileReader(settings.mappingFile).use {
-                methodMapping = EcospoldMethodMapper.buildMapping(it)
+        if (settings is LCISettings) {
+            if (settings.mappingFile.isNotEmpty()) {
+                watcher.notifyCurrentWork("Building requested method map")
+                FileReader(settings.mappingFile).use {
+                    methodMapping = EcospoldMethodMapper.buildMapping(it)
+                }
             }
         }
 
         val path = Path.of(settings.libraryFile)
         val pkg = settings.rootPackage.ifBlank { "default" }
         SevenZFile(path.toFile()).use { f ->
-            ModelWriter(pkg, settings.rootFolder, listOf(), watcher).use { w ->
+            ModelWriter(pkg, settings.rootFolder, buildImports(settings), watcher).use { w ->
                 importEntries(f, w, controller, watcher)
             }
         }
     }
+
+    private fun buildImports(settings: EcospoldImportSettings): List<String> =
+        if (settings is LCISettings && settings.importBuiltinLibrary != null) {
+            listOf(settings.importBuiltinLibrary.toString())
+        } else listOf()
 
     override fun getImportRoot(): Path {
         return Path.of(settings.rootFolder)

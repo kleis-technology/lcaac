@@ -37,14 +37,14 @@ class EcospoldMethodMapperTest {
                 "kg",
                 "Emissions to air",
                 "Emissions to air, unspecified (long-term)",
-                "Ecoinvent ID: 584ffb1c-036d-417b-a9d1-1ec694dc2cdc"
+                "Ecoinvent ID: 584ffb1c-036d-417b-a9d1-1ec694dc2cdc. Flow, compartment status: mapped, mapped"
             ),
             mapping.first().value
         )
     }
 
     @Test
-    fun test_buildMapping_whenOrphan_thenNoMap() {
+    fun test_buildMapping_whenOrphan_thenMap() {
         // given when
         val mapping = this::class.java.getResourceAsStream("orphan.csv")?.use {
             EcospoldMethodMapper.buildMapping(InputStreamReader(it))
@@ -52,29 +52,10 @@ class EcospoldMethodMapperTest {
 
         // then
         assertNotNull(mapping)
-        assert(mapping.isEmpty())
-    }
-
-    @Test
-    fun test_buildMapping_whenMixed_thenOnlyMapped() {
-        // given when
-        val mapping = this::class.java.getResourceAsStream("one-valid-one-invalid.csv")?.use {
-            EcospoldMethodMapper.buildMapping(InputStreamReader(it))
-        }
-        // then
-        assertNotNull(mapping)
-        assertEquals(1, mapping.size)
-        assertEquals("584ffb1c-036d-417b-a9d1-1ec694dc2cdc", mapping.first().key)
-        assertEquals(
-            MappingExchange(
-                "584ffb1c-036d-417b-a9d1-1ec694dc2cdc",
-                null,
-                "1,2-dichlorobenzene",
-                "kg",
-                "Emissions to air",
-                "Emissions to air, unspecified (long-term)",
-                "Ecoinvent ID: 584ffb1c-036d-417b-a9d1-1ec694dc2cdc"
-            ),
+        assertEquals(MappingExchange(
+            "d21da01e-f96f-4db5-9746-7b70db8a1f2c",
+            null, null, null, null, null,
+            "Ecoinvent orphan. Ecoinvent ID: d21da01e-f96f-4db5-9746-7b70db8a1f2c"),
             mapping.first().value
         )
     }

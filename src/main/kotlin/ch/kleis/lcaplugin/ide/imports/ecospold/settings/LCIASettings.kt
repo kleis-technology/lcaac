@@ -1,6 +1,5 @@
-package ch.kleis.lcaplugin.ide.imports.ecospold
+package ch.kleis.lcaplugin.ide.imports.ecospold.settings
 
-import ch.kleis.lcaplugin.imports.ecospold.EcospoldLibraryType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
 import com.intellij.openapi.components.State
@@ -9,41 +8,35 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.util.xmlb.XmlSerializerUtil
 
 
-@State(name = "EcospoldImportSettings", storages = [Storage("EcospoldImportSettings.xml")], reportStatistic = false)
-class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.State> {
+@State(name = "EcospoldImportLCIASettings", storages = [Storage("EcospoldImportLCIASettings.xml")], reportStatistic = false)
+class LCIASettings : EcospoldImportSettings, PersistentStateComponent<LCIASettings.State> {
     companion object {
         @JvmStatic
-        val instance: EcospoldImportSettings
-            get() = ApplicationManager.getApplication().getService(EcospoldImportSettings::class.java)
+        val instance: LCIASettings
+            get() = ApplicationManager.getApplication().getService(LCIASettings::class.java)
     }
 
     private val state: State = State()
 
-    var rootPackage: String
+    override var rootPackage: String
         get() = state.ROOT_PACKAGE
         set(value) {
             state.ROOT_PACKAGE = value
         }
 
-    var libraryFile: String
+    override var libraryFile: String
         get() = state.LIBRARY_FILE
         set(value) {
             state.LIBRARY_FILE = value
         }
 
-    var libraryType: EcospoldLibraryType
-        get() = state.LIBRARY_TYPE
-        set(value) {
-            state.LIBRARY_TYPE = value
-        }
-
-    var rootFolder: String
+    override var rootFolder: String
         get() = state.ROOT_FOLDER
         set(value) {
             state.ROOT_FOLDER = value
         }
 
-    var importUnits: Boolean
+    override var importUnits: Boolean
         get() = state.IMPORT_UNITS
         set(value) {
             state.IMPORT_UNITS = value
@@ -53,12 +46,6 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
         get() = state.METHOD_NAME
         set(value) {
             state.METHOD_NAME = value
-        }
-
-    var mappingFile: String
-        get() = state.MAPPING_FILE
-        set(value) {
-            state.MAPPING_FILE = value
         }
 
     override fun getState(): State = state
@@ -76,9 +63,6 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
         var LIBRARY_FILE: String = ""
 
         @JvmField
-        var LIBRARY_TYPE: EcospoldLibraryType = EcospoldLibraryType.LCI
-
-        @JvmField
         var ROOT_FOLDER: String = ProjectManager.getInstance().openProjects.firstOrNull()?.basePath ?: ""
 
         @JvmField
@@ -86,8 +70,5 @@ class EcospoldImportSettings : PersistentStateComponent<EcospoldImportSettings.S
 
         @JvmField
         var METHOD_NAME: String = ""
-
-        @JvmField
-        var MAPPING_FILE: String = ""
     }
 }

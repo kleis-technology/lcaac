@@ -116,7 +116,10 @@
                            bundle="messages.MyBundle"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ui.toolwindow.SaveSettings"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings"/>
-        <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings"/>
+        <applicationService
+                serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings"/>
+        <applicationService
+                serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings"/>
 
         <defaultLiveTemplates file="/liveTemplates/lca.xml"/>
         <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext" contextId="LCARoot"/>
@@ -136,8 +139,13 @@
                 text="Simapro Library">
             <add-to-group group-id="ImportLibrary"/>
         </action>
-        <action id="ImportEcospold" class="ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportMenuAction"
+        <action id="ImportEcospoldLCIA"
+                class="ch.kleis.lcaplugin.ide.imports.ecospold.lcia.EcospoldLCIAImportMenuAction"
                 text="EcoSpold LCIA Library">
+            <add-to-group group-id="ImportLibrary"/>
+        </action>
+        <action id="ImportEcospoldLCI" class="ch.kleis.lcaplugin.ide.imports.ecospold.lci.EcospoldLCIImportMenuAction"
+                text="EcoSpold LCI Library">
             <add-to-group group-id="ImportLibrary"/>
         </action>
     </actions>
