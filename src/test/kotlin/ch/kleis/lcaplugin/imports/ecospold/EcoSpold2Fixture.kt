@@ -72,11 +72,7 @@ class EcoSpold2Fixture {
                     null
                 ),
             )
-            return ActivityDataset.Builder()
-                .description(description)
-                .flowData(FlowData(listOf(prod), impacts, emissions))
-                .build()
+            return ActivityDataset(description, FlowData(listOf(prod), impacts, emissions))
         }
-
     }
 }

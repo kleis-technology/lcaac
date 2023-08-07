@@ -30,6 +30,7 @@ import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
 class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
+    
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
 
@@ -103,45 +104,74 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         processRenderer.processDict = readProcessDict(f, entries)
 
         if (settings.importUnits) {
-            val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
-            val fromMeta = f.getInputStream(unitConversionFile).use {
-                val unitConvs = Parser.readUnits(it)
-                unitConvs.asSequence()
-                    .map { u ->
-                        ImportedUnit(
-                            u.dimension, u.fromUnit, u.factor,
-                            unitToStr(u.toUnit)
-                        )
-                    }
-                    .filter { u -> u.name != "foot-candle" }
-            }
-            val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
-            val fromMethod = f.getInputStream(methodsFile).use {
-                val unitConvs = Parser.readMethodUnits(it, methodName)
-                unitConvs.asSequence()
-                    .map { u ->
-                        ImportedUnit(
-                            u.dimension, u.fromUnit, u.factor,
-                            unitToStr(u.toUnit)
-                        )
-                    }
-                    .filter { u -> u.name != "foot-candle" }
-                    .filter { u -> !predefinedUnits.containsKey(u.name) }
-            }
-
-
-            (fromMeta + fromMethod)
-                .distinctBy { it.name }
-                .forEach { unitRenderer.render(it, writer) }
+            importUnits(entries, f, writer)
         }
-        entries.asSequence()
+
+        val parsedEntries = entries.asSequence()
             .filter { it.hasStream() }
             .filter { it.name.endsWith(".spold") }
-            .forEach {
-                importEntry(it.name, f.getInputStream(it), writer, controller, watcher)
+            .map {
+                (it.name to importEntry(f.getInputStream(it), controller, watcher))
             }
+
+        val methodMappedEntries = methodMapping?.let { methodMapping ->
+            parsedEntries
+                .map { (fileName, activityDataset) ->
+                    fileName to activityDataset.copy(
+                        flowData = activityDataset.flowData.copy(
+                            elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
+                                methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
+                                    mapping.copy(
+                                        amount = originalExchange.amount * mapping.amount,
+                                        substanceType = originalExchange.substanceType,
+                                        comment = originalExchange.comment
+                                    )
+                                } ?: originalExchange
+                            }
+                        )
+                    )
+                }
+        }
+
+        (methodMappedEntries ?: parsedEntries).forEach { it: Pair<String, ActivityDataset> ->
+            writeImportedDataset(it.second, writer, it.first)
+        }
+
         val duration = Duration.between(start, Instant.now())
         renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
+    }
+
+    private fun importUnits(entries: List<SevenZArchiveEntry>, f: SevenZFile, writer: ModelWriter) {
+        val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
+        val fromMeta = f.getInputStream(unitConversionFile).use {
+            val unitConvs = Parser.readUnits(it)
+            unitConvs.asSequence()
+                .map { u ->
+                    ImportedUnit(
+                        u.dimension, u.fromUnit, u.factor,
+                        unitToStr(u.toUnit)
+                    )
+                }
+                .filter { u -> u.name != "foot-candle" }
+        }
+
+        val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
+        val fromMethod = f.getInputStream(methodsFile).use {
+            val unitConvs = Parser.readMethodUnits(it, methodName)
+            unitConvs.asSequence()
+                .map { u ->
+                    ImportedUnit(
+                        u.dimension, u.fromUnit, u.factor,
+                        unitToStr(u.toUnit)
+                    )
+                }
+                .filter { u -> u.name != "foot-candle" }
+                .filter { u -> !predefinedUnits.containsKey(u.name) }
+        }
+
+        (fromMeta + fromMethod)
+            .distinctBy { it.name }
+            .forEach { unitRenderer.render(it, writer) }
     }
 
     private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
@@ -184,29 +214,24 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     }
 
     private fun importEntry(
-        path: String,
         input: InputStream,
-        w: ModelWriter,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
-    ) {
+    ): ActivityDataset {
         if (!controller.isActive()) throw ImportInterruptedException()
-        val eco: ActivityDataset = Parser.readDataset(input)
+        val activityDataset: ActivityDataset = Parser.readDataset(input)
 
         currentValue++
         watcher.notifyProgress((100.0 * currentValue / totalValue).roundToInt())
-        importDataSet(eco, w, path)
+        return activityDataset
     }
 
-    private fun importDataSet(
+    private fun writeImportedDataset(
         dataSet: ActivityDataset,
         w: ModelWriter,
         path: String
     ) {
         LOG.info("Read dataset from $path")
         processRenderer.render(dataSet, w, "from $path", methodName)
-
     }
-
-
 }

@@ -57,10 +57,10 @@ object Parser {
         val root = rootElt(builder, stream)
         val xmlDataset = root.getChild("activityDataset") ?: root.getChild("childActivityDataset")
 
-        return ActivityDataset.Builder()
-            .description(readDescription(xmlDataset.getChild("activityDescription")))
-            .flowData(readFlowData(xmlDataset.getChild("flowData")))
-            .build()
+        return ActivityDataset(
+            readDescription(xmlDataset.getChild("activityDescription")),
+            readFlowData(xmlDataset.getChild("flowData"))
+        )
     }
 
     fun readMethodName(stream: InputStream): List<String> {
