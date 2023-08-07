@@ -37,12 +37,13 @@ object EcospoldMethodMapper {
             if (validateHeaders(parser.headerMap)) {
                 parser.stream().asSequence().mapNotNull { record ->
                     when (record["flow_status"]) {
-                        "mapped" -> mappedElement(record)
                         "ecoinvent orphan" -> {
                             record["id"] to MappingExchange.orphan(record["id"])
                         }
 
-                        else -> null
+                        // Can be 'mapped', 'mapped: proxy' or 'mapped: compartment overwrite'.
+                        // In all three cases, nullable fields sometimes exist and can be filled in.
+                        else -> mappedElement(record)
                     }
                 }.toMap()
             } else {
@@ -52,6 +53,7 @@ object EcospoldMethodMapper {
 
     private fun validateHeaders(headers: Map<String, Int>): Boolean =
         headers.containsKey("flow_status")
+            && headers.containsKey("compartment_status")
             && headers.containsKey("id")
             && headers.containsKey("conversion_factor")
             && headers.containsKey("name")
@@ -67,11 +69,11 @@ object EcospoldMethodMapper {
             id to MappingExchange(
                 id,
                 getConversionFactor(record["conversion_factor"]),
-                record["method_name"].let { it.ifEmpty { record["name"] } },
-                record["method_unit"].let { it.ifEmpty { record["unitName"] } },
-                record["method_compartment"],
-                record["method_subcompartment"].let { it.ifEmpty { null } },
-                "Ecoinvent ID: $id",
+                record["method_name"].nullIfEmpty(),
+                record["method_unit"].nullIfEmpty(),
+                record["method_compartment"].nullIfEmpty(),
+                record["method_subcompartment"].nullIfEmpty(),
+                "Ecoinvent ID: $id. Flow, compartment status: ${record["flow_status"]}, ${record["compartment_status"]}",
             )
         } catch (_: IllegalArgumentException) {
             null
@@ -84,4 +86,8 @@ object EcospoldMethodMapper {
             ?.let {
                 if (it == 1.0) null else it
             }
+
+    private fun String.nullIfEmpty(): String? {
+        return this.ifEmpty { null }
+    }
 }
