@@ -1,7 +1,5 @@
 package ch.kleis.lcaplugin.imports.ecospold.lci
 
-import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
-import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import com.jetbrains.rd.util.first
 import java.io.InputStreamReader
 import java.io.StringReader
@@ -32,15 +30,14 @@ class EcospoldMethodMapperTest {
         assertNotNull(mapping)
         assertEquals("584ffb1c-036d-417b-a9d1-1ec694dc2cdc", mapping.first().key)
         assertEquals(
-            ElementaryExchange(
+            MappingExchange(
                 "584ffb1c-036d-417b-a9d1-1ec694dc2cdc",
-                1.0,
+                null,
                 "1,2-dichlorobenzene",
                 "kg",
                 "Emissions to air",
                 "Emissions to air, unspecified (long-term)",
-                SubstanceType.EMISSION,
-                "Mapped exchange"
+                "Ecoinvent ID: 584ffb1c-036d-417b-a9d1-1ec694dc2cdc"
             ),
             mapping.first().value
         )
@@ -69,15 +66,14 @@ class EcospoldMethodMapperTest {
         assertEquals(1, mapping.size)
         assertEquals("584ffb1c-036d-417b-a9d1-1ec694dc2cdc", mapping.first().key)
         assertEquals(
-            ElementaryExchange(
+            MappingExchange(
                 "584ffb1c-036d-417b-a9d1-1ec694dc2cdc",
-                1.0,
+                null,
                 "1,2-dichlorobenzene",
                 "kg",
                 "Emissions to air",
                 "Emissions to air, unspecified (long-term)",
-                SubstanceType.EMISSION,
-                "Mapped exchange"
+                "Ecoinvent ID: 584ffb1c-036d-417b-a9d1-1ec694dc2cdc"
             ),
             mapping.first().value
         )

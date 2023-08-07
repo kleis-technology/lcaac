@@ -7,8 +7,8 @@ import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.lci.EcospoldMethodMapper
+import ch.kleis.lcaplugin.imports.ecospold.lci.MappingExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.shared.serializer.UnitRenderer
@@ -30,7 +30,7 @@ import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
 class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
-    
+
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
 
@@ -56,7 +56,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = EcospoldProcessRenderer()
-    private var methodMapping: Map<String, ElementaryExchange>? = null
+    private var methodMapping: Map<String, MappingExchange>? = null
     private val predefinedUnits = Prelude.unitMap.values
         .map { it.toUnitValue() }
         .associateBy { it.symbol.toString() }
@@ -121,10 +121,16 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
                         flowData = activityDataset.flowData.copy(
                             elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
                                 methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
-                                    mapping.copy(
-                                        amount = originalExchange.amount * mapping.amount,
-                                        substanceType = originalExchange.substanceType,
-                                        comment = originalExchange.comment
+                                    originalExchange.copy(
+                                        amount = mapping.conversionFactor?.let { it * originalExchange.amount }
+                                            ?: originalExchange.amount,
+                                        name = mapping.name ?: originalExchange.name,
+                                        unit = mapping.unit ?: originalExchange.unit,
+                                        compartment = mapping.compartment ?: originalExchange.compartment,
+                                        subCompartment = mapping.subCompartment
+                                            ?: originalExchange.subCompartment?.ifEmpty { null },
+                                        comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
+                                            ?: mapping.comment
                                     )
                                 } ?: originalExchange
                             }
