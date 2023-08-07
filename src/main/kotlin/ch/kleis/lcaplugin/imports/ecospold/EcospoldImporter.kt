@@ -114,29 +114,8 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
                 (it.name to importEntry(f.getInputStream(it), controller, watcher))
             }
 
-        val methodMappedEntries = methodMapping?.let { methodMapping ->
-            parsedEntries
-                .map { (fileName, activityDataset) ->
-                    fileName to activityDataset.copy(
-                        flowData = activityDataset.flowData.copy(
-                            elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
-                                methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
-                                    originalExchange.copy(
-                                        amount = mapping.conversionFactor?.let { it * originalExchange.amount }
-                                            ?: originalExchange.amount,
-                                        name = mapping.name ?: originalExchange.name,
-                                        unit = mapping.unit ?: originalExchange.unit,
-                                        compartment = mapping.compartment ?: originalExchange.compartment,
-                                        subCompartment = mapping.subCompartment
-                                            ?: originalExchange.subCompartment?.ifEmpty { null },
-                                        comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
-                                            ?: mapping.comment
-                                    )
-                                } ?: originalExchange
-                            }
-                        )
-                    )
-                }
+        val methodMappedEntries = methodMapping?.let {
+            getMethodMappedEntries(it, parsedEntries)
         }
 
         (methodMappedEntries ?: parsedEntries).forEach { it: Pair<String, ActivityDataset> ->
@@ -146,6 +125,32 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         val duration = Duration.between(start, Instant.now())
         renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
     }
+
+    private fun getMethodMappedEntries(
+        methodMapping: Map<String, MappingExchange>,
+        parsedEntries: Sequence<Pair<String, ActivityDataset>>
+    ) = parsedEntries
+        .map { (fileName, activityDataset) ->
+            fileName to activityDataset.copy(
+                flowData = activityDataset.flowData.copy(
+                    elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
+                        methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
+                            originalExchange.copy(
+                                amount = mapping.conversionFactor?.let { it * originalExchange.amount }
+                                    ?: originalExchange.amount,
+                                name = mapping.name ?: originalExchange.name,
+                                unit = mapping.unit ?: originalExchange.unit,
+                                compartment = mapping.compartment ?: originalExchange.compartment,
+                                subCompartment = mapping.subCompartment
+                                    ?: originalExchange.subCompartment?.ifEmpty { null },
+                                comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
+                                    ?: mapping.comment
+                            )
+                        } ?: originalExchange
+                    }
+                )
+            )
+        }
 
     private fun importUnits(entries: List<SevenZArchiveEntry>, f: SevenZFile, writer: ModelWriter) {
         val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }

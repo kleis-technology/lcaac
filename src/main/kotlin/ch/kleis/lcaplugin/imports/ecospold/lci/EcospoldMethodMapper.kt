@@ -16,7 +16,18 @@ data class MappingExchange(
     val compartment: String?,
     val subCompartment: String?,
     val comment: String,
-)
+) {
+    companion object {
+        fun orphan(id: ID) = MappingExchange(
+            id,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "Ecoinvent orphan. Ecoinvent ID: $id")
+    }
+}
 
 object EcospoldMethodMapper {
     private val csvFormat: CSVFormat = CSVFormat.Builder.create().setHeader().build()
@@ -27,6 +38,10 @@ object EcospoldMethodMapper {
                 parser.stream().asSequence().mapNotNull { record ->
                     when (record["flow_status"]) {
                         "mapped" -> mappedElement(record)
+                        "ecoinvent orphan" -> {
+                            record["id"] to MappingExchange.orphan(record["id"])
+                        }
+
                         else -> null
                     }
                 }.toMap()
