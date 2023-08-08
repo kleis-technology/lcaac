@@ -23,7 +23,8 @@ class CompleteTerminalsTest {
                 inputs = emptyList(),
                 biosphere = listOf(
                     EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
-                )
+                ),
+                impacts = emptyList(),
             )
         )
         val completeTerminals = CompleteTerminals()
@@ -47,6 +48,7 @@ class CompleteTerminalsTest {
                         )
                     )
                 ),
+                impacts = emptyList(),
             )
         )
         Assert.assertEquals(expected, actual)

@@ -25,6 +25,7 @@ class ProcessResolverTest {
                 ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
             ),
             biosphere = emptyList(),
+            impacts = emptyList(),
         )
         val carrotProductionFR = EProcessTemplate(
             emptyMap(),
@@ -84,6 +85,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -127,6 +129,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
@@ -142,6 +145,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -185,6 +189,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
@@ -200,6 +205,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -237,6 +243,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val carrotProductionUK = EProcessTemplate(
@@ -252,6 +259,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
@@ -267,6 +275,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(

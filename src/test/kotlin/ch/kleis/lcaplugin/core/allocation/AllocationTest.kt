@@ -19,9 +19,8 @@ class AllocationTest {
     fun apply_when_no_allocation_should_change_nothing() {
         // Given
         val system = SystemValueFixture.carrotSystem()
-        val allocation = Allocation()
         // When
-        val actual = allocation.apply(SystemValueFixture.carrotSystem())
+        val actual = Allocation.apply(SystemValueFixture.carrotSystem())
         // Then
         Assert.assertEquals(system, actual)
     }
@@ -46,15 +45,16 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    listOf(),
-                    listOf()
+                    emptyList(),
+                    emptyList(),
+                    emptyList(),
                 )
             ),
             mutableSetOf()
         )
-        val allocation = Allocation()
+
         // When
-        val actual = allocation.apply(system).processes.size
+        val actual = Allocation.apply(system).processes.size
         // Then
         Assert.assertEquals(2, actual)
     }
@@ -79,15 +79,16 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    listOf(),
-                    listOf()
+                    emptyList(),
+                    emptyList(),
+                    emptyList(),
                 )
             ),
             mutableSetOf()
         )
-        val allocation = Allocation()
+
         // When
-        val actual = allocation.apply(system).processes.toList()[0].products.size
+        val actual = Allocation.apply(system).processes.toList()[0].products.size
         // Then
         Assert.assertEquals(1, actual)
     }
@@ -118,14 +119,15 @@ class AllocationTest {
                             ProductValueFixture.water
                         )
                     ),
-                    listOf()
+                    emptyList(),
+                    emptyList(),
                 )
             ),
             mutableSetOf()
         )
-        val allocation = Allocation()
+
         // When
-        val actual = allocation.apply(system).processes.toList()[0].inputs[0].quantity
+        val actual = Allocation.apply(system).processes.toList()[0].inputs[0].quantity
         // Then
         val expected = QuantityValueFixture.oneLitre
         Assert.assertEquals(expected, actual)
@@ -151,20 +153,21 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    listOf(),
+                    emptyList(),
                     listOf(
                         BioExchangeValue(
                             QuantityValueFixture.twoKilograms,
                             FullyQualifiedSubstanceValueFixture.propanol
                         )
-                    )
+                    ),
+                    emptyList(),
                 )
             ),
             mutableSetOf()
         )
-        val allocation = Allocation()
+
         // when
-        val actual = allocation.apply(system).processes.toList()[0].biosphere[0].quantity
+        val actual = Allocation.apply(system).processes.toList()[0].biosphere[0].quantity
         // then
         val expected = QuantityValueFixture.oneKilogram
         Assert.assertEquals(expected, actual)
@@ -173,7 +176,7 @@ class AllocationTest {
     @Test
     fun totalAmount_whenOneProduct_shouldReturnOne() {
         // given
-        val allocation = Allocation()
+
         val processValue = ProcessValue(
             "carrot",
             emptyMap(),
@@ -183,11 +186,12 @@ class AllocationTest {
                     ProductValueFixture.carrot
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when
-        val actual = allocation.totalAmount(processValue)
+        val actual = Allocation.totalAmount(processValue)
         // then
         val delta = 1E-9
         Assert.assertEquals(1.0, actual, delta)
@@ -196,7 +200,7 @@ class AllocationTest {
     @Test
     fun totalAmount_whenTwoProduct_shouldSumAllocation() {
         // given
-        val allocation = Allocation()
+
         val processValue = ProcessValue(
             "carrot",
             emptyMap(),
@@ -212,11 +216,12 @@ class AllocationTest {
                     QuantityValueFixture.twentyPercent
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when
-        val actual = allocation.totalAmount(processValue)
+        val actual = Allocation.totalAmount(processValue)
         // then
         val delta = 1E-9
         Assert.assertEquals(1.0, actual, delta)
@@ -225,7 +230,7 @@ class AllocationTest {
     @Test
     fun allocationUnitCheck_whenConsistentUnits_shouldNotThrowAnError() {
         // given
-        val allocation = Allocation()
+
         val processValue = ProcessValue(
             "carrot",
             emptyMap(),
@@ -241,11 +246,12 @@ class AllocationTest {
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when
-        allocation.allocationUnitCheck(processValue)
+        Allocation.allocationUnitCheck(processValue)
 
         // then should not throw.
     }
@@ -253,7 +259,7 @@ class AllocationTest {
     @Test
     fun applyAllocation_whenTwoProduct_shouldWeightAllocations() {
         // given
-        val allocation = Allocation()
+
         val system = SystemValue(
             mutableSetOf(
                 ProcessValue(
@@ -277,13 +283,14 @@ class AllocationTest {
                             ProductValueFixture.water
                         )
                     ),
-                    listOf()
+                    emptyList(),
+                    emptyList(),
                 ),
             ),
             mutableSetOf()
         )
         // when
-        val actual = allocation.apply(system).processes.first().inputs.first().quantity.amount
+        val actual = Allocation.apply(system).processes.first().inputs.first().quantity.amount
 
         // then
         val delta = 1E-9
@@ -297,11 +304,13 @@ class AllocationTest {
     fun apply_shouldKeepAllocation() {
         // given
         val system = SystemValue(
-            mutableSetOf(ProcessValue("", emptyMap(), listOf(), listOf(), listOf())),
+            mutableSetOf(ProcessValue(
+                "", emptyMap(), emptyList(), emptyList(), emptyList(), emptyList(),
+            )),
             mutableSetOf(propanolCharacterization)
         )
         // when
-        val actual = Allocation().apply(system).substanceCharacterizations
+        val actual = Allocation.apply(system).substanceCharacterizations
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
     }
@@ -319,14 +328,15 @@ class AllocationTest {
                     QuantityValueFixture.hundredPiece
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when + then
         assertFailsWith(
             EvaluatorException::class,
             "Only percent is allowed for allocation unit (process: ${processValue.name})"
-        ) { Allocation().allocationUnitCheck(processValue) }
+        ) { Allocation.allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -342,11 +352,12 @@ class AllocationTest {
                     QuantityValueFixture.hundredPercent
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when, then should not throw
-        Allocation().allocationUnitCheck(processValue)
+        Allocation.allocationUnitCheck(processValue)
     }
 
     @Test
@@ -362,14 +373,15 @@ class AllocationTest {
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when + then
         assertFailsWith(
             EvaluatorException::class,
             "The sum of the allocations should be hundred percent (process: ${processValue.name})"
-        ) { Allocation().allocationUnitCheck(processValue) }
+        ) { Allocation.allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -390,11 +402,12 @@ class AllocationTest {
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when V then should not throw.
-        Allocation().allocationUnitCheck(processValue)
+        Allocation.allocationUnitCheck(processValue)
     }
 
     @Test
@@ -415,13 +428,14 @@ class AllocationTest {
                     QuantityValueFixture.twentyPiece
                 )
             ),
-            listOf(),
-            listOf()
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
         // when + then
         assertFailsWith(
             EvaluatorException::class,
             "Only percent is allowed for allocation unit (process: ${processValue.name})"
-        ) { Allocation().allocationUnitCheck(processValue) }
+        ) { Allocation.allocationUnitCheck(processValue) }
     }
 }

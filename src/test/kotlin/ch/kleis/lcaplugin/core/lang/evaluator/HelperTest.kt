@@ -32,6 +32,7 @@ class HelperTest {
                 )
             ),
             biosphere = emptyList(),
+            impacts = emptyList(),
         )
         val helper = Helper()
 
@@ -58,6 +59,7 @@ class HelperTest {
                 )
             ),
             biosphere = emptyList(),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -79,6 +81,7 @@ class HelperTest {
             biosphere = listOf(
                 EBioExchange(ref, SubstanceFixture.propanol)
             ),
+            impacts = emptyList(),
         )
         val helper = Helper()
 
@@ -98,6 +101,7 @@ class HelperTest {
             biosphere = listOf(
                 EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol)
             ),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -127,6 +131,7 @@ class HelperTest {
             ),
             inputs = emptyList(),
             biosphere = emptyList(),
+            impacts = emptyList(),
         )
         val helper = Helper()
 
@@ -155,6 +160,7 @@ class HelperTest {
             ),
             inputs = emptyList(),
             biosphere = emptyList(),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -167,25 +173,26 @@ class HelperTest {
                 EProcess(
                     name = "p",
                     labels = emptyMap(),
-                    listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
-                    listOf(
+                    products = listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
+                    inputs = listOf(
                         ETechnoExchange(
                             EQuantityScale(
                                 1.0,
                                 EQuantityMul(EDataRef("ua"), EDataRef("ub"))
                             ), EProductSpec(
-                                "product",
-                            )
+                            "product",
+                        )
                         ),
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EProductSpec(
-                                "water",
-                                UnitFixture.l,
-                                FromProcess("template", MatchLabels.EMPTY, emptyMap())
-                            )
+                            "water",
+                            UnitFixture.l,
+                            FromProcess("template", MatchLabels.EMPTY, emptyMap())
+                        )
                         ),
                     ),
-                    emptyList(),
+                    biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             listOf(

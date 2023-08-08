@@ -35,6 +35,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             mapOf("geo" to EStringLiteral("FR")),
@@ -68,6 +69,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             mapOf("geo" to EStringLiteral("FR")),
@@ -101,6 +103,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -134,6 +137,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -167,6 +171,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -200,6 +205,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -233,6 +239,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -270,6 +277,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -303,6 +311,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),
@@ -336,6 +345,7 @@ class ReduceLabelSelectorsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ),
             emptyMap(),

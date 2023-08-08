@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
-import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
@@ -36,6 +35,7 @@ class ProcessTemplateExpressionReducerTest {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val arguments: Map<String, DataExpression> = mapOf(
@@ -75,6 +75,7 @@ class ProcessTemplateExpressionReducerTest {
                     ),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         assertEquals(expected, actual)
@@ -106,6 +107,7 @@ class ProcessTemplateExpressionReducerTest {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val arguments: Map<String, DataExpression> = mapOf(

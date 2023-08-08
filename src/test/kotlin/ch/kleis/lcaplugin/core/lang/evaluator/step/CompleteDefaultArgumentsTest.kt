@@ -58,6 +58,7 @@ class CompleteDefaultArgumentsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ), emptyMap()
         )
@@ -125,6 +126,7 @@ class CompleteDefaultArgumentsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ), emptyMap()
         )
@@ -189,6 +191,7 @@ class CompleteDefaultArgumentsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ), emptyMap()
         )
@@ -248,6 +251,7 @@ class CompleteDefaultArgumentsTest {
                         )
                     ),
                     biosphere = emptyList(),
+                    impacts = emptyList(),
                 )
             ), emptyMap()
         )

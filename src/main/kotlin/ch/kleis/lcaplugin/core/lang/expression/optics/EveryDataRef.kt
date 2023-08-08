@@ -140,6 +140,7 @@ val everyDataRefInProcess: PEvery<EProcess, EProcess, EDataRef, DataExpression> 
             EProcess.products compose Every.list() compose everyDataRefInETechnoExchange,
             EProcess.inputs compose Every.list() compose everyDataRefInETechnoExchange,
             EProcess.biosphere compose Every.list() compose everyDataRefInEBioExchange,
+            EProcess.impacts compose Every.list() compose everyDataRefInEImpact,
         )
     )
 

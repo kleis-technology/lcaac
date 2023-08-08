@@ -62,6 +62,7 @@ class LcaExpressionReducerTest {
             biosphere = listOf(
                 EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol),
             ),
+            impacts = emptyList(),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -98,6 +99,7 @@ class LcaExpressionReducerTest {
                     SubstanceFixture.propanol
                 ),
             ),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }

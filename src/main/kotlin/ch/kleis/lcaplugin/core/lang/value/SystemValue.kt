@@ -8,11 +8,9 @@ data class SystemValue(
     val substanceCharacterizations: Set<SubstanceCharacterizationValue>,
 ) : Value, HasUID {
 
-    val productToProcessMap: Map<ProductValue, ProcessValue>
+    val productToProcessMap: Map<ProductValue, ProcessValue> =
+        processes.flatMap { process -> process.products.map { it.product to process } }.toMap()
 
-    init {
-        productToProcessMap = processes.flatMap { process -> process.products.map { it.product to process } }.toMap()
-    }
 }
 
 data class CharacterizationFactorValue(

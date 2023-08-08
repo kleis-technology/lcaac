@@ -1,6 +1,9 @@
 package ch.kleis.lcaplugin.core.lang.fixture
 
-import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.EDataRef
+import ch.kleis.lcaplugin.core.lang.expression.EProcess
+import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
+import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 
 class TemplateFixture {
     companion object {
@@ -21,6 +24,7 @@ class TemplateFixture {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         val withUnboundedRef = EProcessTemplate(
@@ -36,6 +40,7 @@ class TemplateFixture {
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
     }

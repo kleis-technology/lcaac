@@ -180,6 +180,7 @@ LBRACE (
     | block_land_use
     | block_resources
     | block_meta
+    | block_impacts
     )* RBRACE {
     implements=["ch.kleis.lcaplugin.language.psi.type.PsiProcess"]
     mixin="ch.kleis.lcaplugin.language.psi.mixin.PsiProcessMixin"

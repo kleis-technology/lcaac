@@ -38,6 +38,7 @@ class LcaExpressionReducer(
             expression.products.map { reduceTechnoExchange(it) },
             expression.inputs.map { reduceTechnoExchange(it) },
             expression.biosphere.map { reduceBioExchange(it) },
+            expression.impacts.map(::reduceImpact)
         )
     }
 

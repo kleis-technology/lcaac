@@ -99,6 +99,7 @@ data class EProcess(
     val products: List<ETechnoExchange>,
     val inputs: List<ETechnoExchange>,
     val biosphere: List<EBioExchange>,
+    val impacts: List<EImpact>,
 ) : LcaExpression {
     companion object
 }

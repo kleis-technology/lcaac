@@ -25,13 +25,13 @@ class ReduceTest {
         val template = TemplateFixture.carrotProduction
         val instance = EProcessTemplateApplication(
             template, mapOf(
-                Pair(
-                    "q_water", EQuantityAdd(
-                        QuantityFixture.oneLitre,
-                        QuantityFixture.oneLitre,
-                    )
-                )
+            Pair(
+                "q_water", EQuantityAdd(
+                QuantityFixture.oneLitre,
+                QuantityFixture.oneLitre,
             )
+            )
+        )
         )
         val reduceAndComplete = Reduce(SymbolTable.empty())
 
@@ -61,6 +61,7 @@ class ReduceTest {
                 )
             ),
             emptyList(),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -97,6 +98,7 @@ class ReduceTest {
                 )
             ),
             emptyList(),
+            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }

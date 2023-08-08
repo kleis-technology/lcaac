@@ -22,7 +22,7 @@ class Assessment(
     val allocatedSystem: SystemValue
 
     init {
-        allocatedSystem = Allocation().apply(system)
+        allocatedSystem = Allocation.apply(system)
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 

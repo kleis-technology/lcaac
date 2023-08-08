@@ -128,12 +128,14 @@ class LcaLangAbstractParser(
         val landUse = psiProcess.getLandUse().map { bioExchange(it, symbolTable) }
         val resources = psiProcess.getResources().map { bioExchange(it, symbolTable) }
         val biosphere = emissions.plus(resources).plus(landUse)
+        val impacts = psiProcess.getImpacts().map(::impact)
         val body = EProcess(
             name = name,
             labels = labels,
             products = products,
             inputs = inputs,
             biosphere = biosphere,
+            impacts = impacts,
         )
         return EProcessTemplate(
             params,

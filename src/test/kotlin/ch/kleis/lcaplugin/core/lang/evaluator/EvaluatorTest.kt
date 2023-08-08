@@ -20,10 +20,11 @@ class EvaluatorTest {
         val instance = EProcessTemplateApplication(EProcessTemplate(
             params = mapOf(),
             locals = mapOf(),
-            body = EProcess("eProcess",
-                products = listOf(),
+            body = EProcess(
+                "eProcess",
+                products = emptyList(),
                 labels = emptyMap(),
-                inputs = listOf(),
+                inputs = emptyList(),
                 biosphere = listOf(
                     EBioExchange(
                         EQuantityScale(1.0, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass)),
@@ -34,7 +35,8 @@ class EvaluatorTest {
                             "sea water"
                         )
                     )
-                )
+                ),
+                impacts = emptyList(),
             )
         ), emptyMap())
         val evaluator = Evaluator(symbolTable)
@@ -102,7 +104,8 @@ class EvaluatorTest {
                         )
                     )
                 ),
-                biosphere = emptyList()
+                biosphere = emptyList(),
+                impacts = emptyList(),
             )
         ), emptyMap())
         val recursiveEvaluator = Evaluator(symbolTable)
@@ -136,6 +139,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             ),
             ProcessValue(
                 name = "salad_production",
@@ -167,6 +171,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             ),
         ).naturalSorted()
         assertEquals(expected, actual)
@@ -209,6 +214,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
                 labels = emptyMap(),
             )
         ), emptyMap())
@@ -249,6 +255,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             ),
             ProcessValue(
                 name = "carrot_production",
@@ -274,6 +281,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             ),
         ).naturalSorted()
         assertEquals(expected, actual)
@@ -315,6 +323,7 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
                 labels = emptyMap(),
             )
         ), emptyMap())
@@ -352,12 +361,13 @@ class EvaluatorTest {
                 biosphere = listOf(
                     EBioExchange(
                         QuantityFixture.oneKilogram, ESubstanceSpec(
-                            "propanol",
-                            compartment = "air",
-                            type = SubstanceType.RESOURCE,
-                        )
+                        "propanol",
+                        compartment = "air",
+                        type = SubstanceType.RESOURCE,
+                    )
                     )
                 ),
+                impacts = emptyList(),
                 labels = emptyMap(),
             )
         ), emptyMap())

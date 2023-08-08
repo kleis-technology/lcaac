@@ -10,6 +10,7 @@ data class ProcessValue(
     val products: List<TechnoExchangeValue>,
     val inputs: List<TechnoExchangeValue>,
     val biosphere: List<BioExchangeValue>,
+    val impacts: List<ImpactValue>
 ) : Value, MatrixRowIndex
 
 data class SubstanceCharacterizationValue(

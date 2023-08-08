@@ -41,6 +41,7 @@ fun EProcess.toValue(): ProcessValue {
         this.products.map { it.toValue() },
         this.inputs.map { it.toValue() },
         this.biosphere.map { it.toValue() },
+        impacts.map(EImpact::toValue)
     )
 }
 
@@ -102,13 +103,14 @@ private fun FromProcess.toValue(): FromProcessRefValue {
 }
 
 fun DataExpression.toValue(): DataValue {
-    return when(this) {
+    return when (this) {
         is EStringLiteral -> StringValue(this.value)
         is EUnitLiteral -> QuantityValue(1.0, this.toUnitValue())
         is EQuantityScale -> when (val b = this.base) {
             is EUnitLiteral -> QuantityValue(
                 this.scale, b.toUnitValue(),
             )
+
             else -> throw EvaluatorException("$b is not reduced")
         }
 

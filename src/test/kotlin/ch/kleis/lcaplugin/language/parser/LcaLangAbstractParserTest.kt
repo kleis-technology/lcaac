@@ -526,6 +526,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                     ),
                 ),
                 biosphere = emptyList(),
+                impacts = emptyList(),
             )
         )
         assertEquals(expected, actual)
@@ -979,6 +980,33 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val actual = symbolTable.data["r"]!!
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_whenProcessHasImpacts_thenParses() {
+        // given
+        val file = parseFile(
+            "processWithImpacts", """
+                package testParse_whenProcessHasImpacts_thenParses
+                
+                process p1 {
+                    products {
+                        1 kg prod1
+                    }
+                    impacts {
+                        1 unit climate_change
+                    }
+                }
+            """.trimIndent()) as LcaFile
+
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+
+        // when then
+        try {
+            val symbolTable = parser.load()
+        } catch (e: Exception) {
+            fail("threw! $e")
+        }
     }
 
     override fun getTestDataPath(): String {
