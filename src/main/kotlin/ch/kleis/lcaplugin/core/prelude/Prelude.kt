@@ -55,6 +55,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("ha"), 1.0e4, area),
             EUnitLiteral(UnitSymbol.of("km2"), 1.0e6, area),
             EUnitLiteral(UnitSymbol.of("m3"), 1.0, volume),
+            EUnitLiteral(UnitSymbol.of("Sm3"), 1.0, volume),
             EUnitLiteral(UnitSymbol.of("l"), 1.0e-3, volume),
             EUnitLiteral(UnitSymbol.of("cl"), 1.0e-5, volume),
             EUnitLiteral(UnitSymbol.of("ml"), 1.0e-6, volume),
