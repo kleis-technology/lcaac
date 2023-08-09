@@ -395,8 +395,7 @@ class EvaluatorTest {
                         "propanol",
                         compartment = "air",
                         type = SubstanceType.RESOURCE,
-                    )
-                    )
+                    ))
                 ),
                 impacts = emptyList(),
                 labels = emptyMap(),
