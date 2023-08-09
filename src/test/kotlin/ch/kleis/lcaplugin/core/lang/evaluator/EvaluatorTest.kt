@@ -14,6 +14,37 @@ import kotlin.test.assertFailsWith
 
 class EvaluatorTest {
     @Test
+    fun eval_processWithImpacts_shouldReduceImpacts() {
+        // given
+        val symbolTable = SymbolTable.empty()
+        val instance = EProcessTemplateApplication(EProcessTemplate(
+            params = mapOf(),
+            locals = mapOf(),
+            body = EProcess(
+                "eProcess",
+                products = emptyList(),
+                labels = emptyMap(),
+                inputs = emptyList(),
+                biosphere = emptyList(),
+                impacts = listOf(
+                    ImpactFixture.oneClimateChange
+                ),
+            )
+        ), emptyMap())
+        val evaluator = Evaluator(symbolTable)
+        val expected = ImpactValue(
+            QuantityValueFixture.oneUnit,
+            IndicatorValueFixture.climateChange,
+        )
+
+        // when
+        val actual = evaluator.eval(instance).processes.first().impacts.first()
+
+        // then
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun eval_unresolvedSubstance_shouldBeTreatedAsTerminal() {
         // given
         val symbolTable = SymbolTable.empty()

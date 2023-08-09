@@ -41,6 +41,13 @@ class ControllableMatrix(
                     val col = ports.indexOf(it.substance)
                     matrix.add(row, col, -it.quantity.referenceValue())
                 }
+
+            process.impacts
+                .filter { ports.contains(it.indicator) }
+                .forEach {
+                    val col = ports.indexOf(it.indicator)
+                    matrix.add(row, col, -it.quantity.referenceValue())
+                }
         }
 
         substanceCharacterizations.forEach { characterization ->

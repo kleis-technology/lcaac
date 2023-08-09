@@ -2,7 +2,10 @@ package ch.kleis.lcaplugin.language.ide.style
 
 import com.intellij.psi.formatter.FormatterTestCase
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
+@RunWith(JUnit4::class)
 class LcaIndentBlockTest : FormatterTestCase() {
     @Test
     fun test_formattingLabels() {
@@ -542,6 +545,25 @@ labels     {
                  alias_for = 1000 kg
              }
 """.trimIndent()
+        )
+    }
+
+    @Test
+    fun test_impactBlockInProcess_shouldIndent() {
+        doTextTest("""
+            process p1 {
+        impacts {
+                                    1 u         climate_change
+                              }
+     }
+        """.trimIndent(),
+            """
+        process p1 {
+            impacts {
+                1 u climate_change
+            }
+        }
+        """.trimIndent()
         )
     }
 

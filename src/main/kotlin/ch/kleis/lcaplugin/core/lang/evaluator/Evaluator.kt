@@ -24,7 +24,6 @@ class Evaluator(
     private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val reduce = Reduce(symbolTable)
-    private val completeTerminals = CompleteTerminals()
 
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
@@ -73,7 +72,7 @@ class Evaluator(
                 .let(reduceLabelSelectors::apply)
                 .let(completeDefaultArguments::apply)
                 .let(reduce::apply)
-                .let(completeTerminals::apply)
+                .let(CompleteTerminals::apply)
 
             val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
                 resolveProcessTemplateByProductSpec(spec)?.let { template ->
@@ -97,7 +96,7 @@ class Evaluator(
                 resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
                     val substanceCharacterization = it
                         .let(reduce::apply)
-                        .let(completeTerminals::apply)
+                        .let(CompleteTerminals::apply)
                     trace.add(substanceCharacterization.toValue())
                     substanceCharacterization.referenceExchange.substance
                 } ?: spec

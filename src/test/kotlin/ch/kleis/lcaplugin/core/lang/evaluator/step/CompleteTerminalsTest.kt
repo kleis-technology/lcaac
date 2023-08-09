@@ -27,10 +27,9 @@ class CompleteTerminalsTest {
                 impacts = emptyList(),
             )
         )
-        val completeTerminals = CompleteTerminals()
 
         // when
-        val actual = completeTerminals.apply(process)
+        val actual = CompleteTerminals.apply(process)
 
         // then
         val expected = EProcessFinal(
@@ -63,10 +62,9 @@ class CompleteTerminalsTest {
                 EImpact(QuantityFixture.oneKilogram, EIndicatorSpec("cc"))
             )
         )
-        val completeTerminals = CompleteTerminals()
 
         // when
-        val actual = completeTerminals.apply(expression).toValue()
+        val actual = CompleteTerminals.apply(expression).toValue()
 
         // then
         val expected = SubstanceCharacterizationValue(

@@ -983,30 +983,35 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     }
 
     @Test
-    fun testParse_whenProcessHasImpacts_thenParses() {
-        // given
+    fun testParse_processWithImpacts_shouldParse() {
+        val pkgName = {}.javaClass.enclosingMethod.name
         val file = parseFile(
-            "processWithImpacts", """
-                package testParse_whenProcessHasImpacts_thenParses
+            "$pkgName.lca", """
+                package $pkgName
                 
-                process p1 {
+                process a {
                     products {
-                        1 kg prod1
+                        1 kg x
                     }
                     impacts {
-                        1 unit climate_change
+                        1 u cc
                     }
                 }
-            """.trimIndent()) as LcaFile
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+        val symbolTable = parser.load()
 
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        // when
+        val template = symbolTable.getTemplate("a") as ProcessTemplateExpression
+        val actual =
+            (ProcessTemplateExpression.eProcessTemplate.body.impacts compose
+                Every.list() compose EImpact.indicator).firstOrNull(template)
 
-        // when then
-        try {
-            val symbolTable = parser.load()
-        } catch (e: Exception) {
-            fail("threw! $e")
-        }
+        // then
+        assertEquals("cc", actual?.name)
     }
 
     override fun getTestDataPath(): String {

@@ -12,5 +12,6 @@ class UnitValueFixture {
         val l = UnitValue(UnitSymbol.of("l"), 1.0e-3, DimensionFixture.volume)
         val percent = UnitValue(UnitSymbol.of("percent"), 1.0e-2, Dimension.None)
         val piece = UnitValue(UnitSymbol.of("piece"), 1.0, Dimension.None)
+        val unit = UnitValue(UnitSymbol.of("unit"), 1.0, Dimension.None)
     }
 }
