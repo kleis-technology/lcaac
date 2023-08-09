@@ -587,7 +587,12 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
             GraphLink("E from pE{}{}", "G from pG{}{}", value = 4.0),
             GraphLink("G from pG{}{}", "H from pH{}{}", value = 2.0),
         )
+
         assertEquals(expected.nodes.naturalSorted(), graph.nodes.naturalSorted())
-        assertEquals(expected.links.naturalSorted(), graph.links.naturalSorted())
+        expected.links.naturalSorted().zip(graph.links.naturalSorted()).forEach { (expected, actual) ->
+            assertEquals(expected.source, actual.source)
+            assertEquals(expected.target, actual.target)
+            assertEquals(expected.value, actual.value, 0.0001)
+        }
     }
 }

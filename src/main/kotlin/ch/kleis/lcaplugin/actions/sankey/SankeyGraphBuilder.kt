@@ -89,10 +89,8 @@ class SankeyGraphBuilder(
             else -> inventory.impactFactors.valueRatio(exchange.port(), observed).amount
         }
 
-        val retVal = valueRatioForObservedImpact *
+        return valueRatioForObservedImpact *
             inventory.supply.quantityOf(product).amount *
             exchange.quantity().amount
-
-        return retVal
     }
 }
