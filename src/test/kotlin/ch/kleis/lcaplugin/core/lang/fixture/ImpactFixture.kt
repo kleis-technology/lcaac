@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.expression.EImpact
 
 object ImpactFixture {
     val oneClimateChange: EImpact = EImpact(
-        quantity = QuantityFixture.oneUnit,
+        quantity = QuantityFixture.oneKilogram,
         indicator = IndicatorFixture.climateChange
     )
 }

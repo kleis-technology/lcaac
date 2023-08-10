@@ -38,10 +38,10 @@ fun EProcess.toValue(): ProcessValue {
     return ProcessValue(
         this.name,
         this.labels.mapValues { it.value.toValue() as StringValue },
-        this.products.map { it.toValue() },
-        this.inputs.map { it.toValue() },
-        this.biosphere.map { it.toValue() },
-        impacts.map(EImpact::toValue)
+        this.products.map(ETechnoExchange::toValue),
+        this.inputs.map(ETechnoExchange::toValue),
+        this.biosphere.map(EBioExchange::toValue),
+        this.impacts.map(EImpact::toValue)
     )
 }
 

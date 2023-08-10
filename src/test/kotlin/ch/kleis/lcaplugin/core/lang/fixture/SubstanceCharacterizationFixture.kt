@@ -10,7 +10,7 @@ class SubstanceCharacterizationFixture {
         val propanolCharacterization = ESubstanceCharacterization(
             referenceExchange = EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             impacts = listOf(
-                EImpact(QuantityFixture.oneUnit, IndicatorFixture.climateChange),
+                EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange),
             ),
         )
 
@@ -18,7 +18,7 @@ class SubstanceCharacterizationFixture {
             ESubstanceCharacterization(
                 referenceExchange = EBioExchange(QuantityFixture.oneKilogram, substance),
                 impacts = listOf(
-                    EImpact(QuantityFixture.oneUnit, IndicatorFixture.climateChange)
+                    EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange)
                 )
             )
     }

@@ -28,7 +28,7 @@ class EvaluatorTest {
             ))
         val evaluator = Evaluator(symbolTable)
         val expected = ImpactValue(
-            QuantityValueFixture.oneUnit,
+            QuantityValueFixture.oneKilogram,
             IndicatorValueFixture.climateChange,
         )
 

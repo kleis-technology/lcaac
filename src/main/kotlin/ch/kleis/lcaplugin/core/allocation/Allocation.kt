@@ -23,8 +23,8 @@ object Allocation {
             name = processValue.name,
             labels = processValue.labels,
             products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation.copy(amount = 100.0))),
-            inputs = applyAllocationToInputs(processValue.inputs, technoExchangeValue.allocation, totalAllocation),
-            biosphere = applyAllocationToBioSphere(processValue.biosphere, technoExchangeValue.allocation, totalAllocation),
+            inputs = processValue.inputs.map(applyAllocationToInput(technoExchangeValue.allocation, totalAllocation)),
+            biosphere = processValue.biosphere.map(applyAllocationToBioExchange(technoExchangeValue.allocation, totalAllocation)),
             impacts = processValue.impacts.map(applyAllocationToImpact(technoExchangeValue.allocation, totalAllocation))
         )
     }
@@ -47,32 +47,43 @@ object Allocation {
         return processValue.products.sumOf { it.allocation.amount }
     }
 
-    private fun applyAllocationToInputs(inputs: List<TechnoExchangeValue>, allocation: QuantityValue, totalAllocation: Double): List<TechnoExchangeValue> {
-        return inputs.map { applyAllocationToInput(it, allocation, totalAllocation) }
+    private fun applyAllocationToInput(
+        allocation: QuantityValue,
+        totalAllocation: Double
+    ): (TechnoExchangeValue) -> TechnoExchangeValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { technoExchangeValue: TechnoExchangeValue ->
+            technoExchangeValue.copy(
+                quantity = technoExchangeValue.quantity.copy(
+                    amount = technoExchangeValue.quantity.amount * ratio
+                )
+            )
+        }
     }
 
-    private fun applyAllocationToInput(technoExchangeValue: TechnoExchangeValue, allocation: QuantityValue, totalAllocation: Double): TechnoExchangeValue {
-        return TechnoExchangeValue(
-            QuantityValue(technoExchangeValue.quantity.amount * allocation.referenceValue() / totalAllocation, technoExchangeValue.quantity.unit),
-            technoExchangeValue.product,
-            technoExchangeValue.allocation,
-        )
-    }
-
-    private fun applyAllocationToBioSphere(biosphere: List<BioExchangeValue>, allocation: QuantityValue, totalAllocation: Double): List<BioExchangeValue> {
-        return biosphere.map { applyAllocationToBioExchange(it, allocation, totalAllocation) }
-    }
-
-    private fun applyAllocationToBioExchange(bioExchange: BioExchangeValue, allocation: QuantityValue, totalAllocation: Double): BioExchangeValue {
-        return BioExchangeValue(QuantityValue(bioExchange.quantity.amount * allocation.referenceValue() / totalAllocation, bioExchange.quantity.unit), bioExchange.substance)
+    private fun applyAllocationToBioExchange(
+        allocation: QuantityValue,
+        totalAllocation: Double
+    ): (BioExchangeValue) -> BioExchangeValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { bioExchange: BioExchangeValue ->
+            bioExchange.copy(
+                quantity = bioExchange.quantity.copy(
+                    amount = bioExchange.quantity.amount * ratio
+                ),
+            )
+        }
     }
 
     private fun applyAllocationToImpact(
         allocation: QuantityValue,
         totalAllocation: Double,
-    ): (ImpactValue) -> ImpactValue = { impactValue ->
-        impactValue.copy(quantity = impactValue.quantity.copy(
-            amount = impactValue.quantity.amount * allocation.referenceValue() / totalAllocation,
-        ))
+    ): (ImpactValue) -> ImpactValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { impactValue ->
+            impactValue.copy(quantity = impactValue.quantity.copy(
+                amount = impactValue.quantity.amount * ratio
+            ))
+        }
     }
 }

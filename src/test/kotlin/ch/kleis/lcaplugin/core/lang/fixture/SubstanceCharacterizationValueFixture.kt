@@ -12,7 +12,7 @@ class SubstanceCharacterizationValueFixture {
                 FullyQualifiedSubstanceValueFixture.propanol
             ),
             impacts = listOf(
-                ImpactValue(QuantityValueFixture.oneUnit, IndicatorValueFixture.climateChange),
+                ImpactValue(QuantityValueFixture.oneKilogram, IndicatorValueFixture.climateChange),
             ),
         )
     }

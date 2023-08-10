@@ -4,6 +4,6 @@ import ch.kleis.lcaplugin.core.lang.value.IndicatorValue
 
 class IndicatorValueFixture {
     companion object {
-        val climateChange = IndicatorValue("Climate Change", UnitValueFixture.unit)
+        val climateChange = IndicatorValue("Climate Change", UnitValueFixture.kg)
     }
 }
