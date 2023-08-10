@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.actions
 
-import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluationTrace
+import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -29,7 +29,7 @@ fun traceSystemWithIndicator(
     indicator.text = "Solving system"
     val template =
         symbolTable.getTemplate(processName, matchLabels)!! // We are called from a process, so it must exist
-    val entryPoint = EProcessTemplateApplication(template, emptyMap())
+    val entryPoint = EProcessTemplateApplication(template = template)
 
     return Evaluator(symbolTable).trace(entryPoint)
 }

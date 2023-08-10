@@ -4,8 +4,8 @@ import ch.kleis.lcaplugin.core.HasUID
 
 
 data class SystemValue(
-    val processes: Set<ProcessValue>,
-    val substanceCharacterizations: Set<SubstanceCharacterizationValue>,
+    val processes: Set<ProcessValue> = emptySet(),
+    val substanceCharacterizations: Set<SubstanceCharacterizationValue> = emptySet(),
 ) : Value, HasUID {
 
     val productToProcessMap: Map<ProductValue, ProcessValue> =

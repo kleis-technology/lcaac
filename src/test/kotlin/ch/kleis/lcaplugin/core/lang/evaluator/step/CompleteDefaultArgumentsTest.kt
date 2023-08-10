@@ -26,7 +26,6 @@ class CompleteDefaultArgumentsTest {
                 mapOf(
                     "carrot_production" to EProcessTemplate(
                         params = params,
-                        locals = emptyMap(),
                         body = ProcessFixture.carrotProduction,
                     )
                 )
@@ -34,13 +33,9 @@ class CompleteDefaultArgumentsTest {
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
+            template = EProcessTemplate(
                 body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -57,10 +52,8 @@ class CompleteDefaultArgumentsTest {
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
-            ), emptyMap()
+            ),
         )
         val everyInputProduct = ProcessTemplateExpression
             .eProcessTemplateApplication
@@ -94,7 +87,6 @@ class CompleteDefaultArgumentsTest {
                 mapOf(
                     "carrot_production" to EProcessTemplate(
                         params = params,
-                        locals = emptyMap(),
                         body = ProcessFixture.carrotProduction,
                     )
                 )
@@ -102,13 +94,9 @@ class CompleteDefaultArgumentsTest {
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
+            template = EProcessTemplate(
                 body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -125,11 +113,10 @@ class CompleteDefaultArgumentsTest {
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
-            ), emptyMap()
+            ),
         )
+
         val everyInputProduct = EProcessTemplateApplication
             .template
             .body
@@ -161,7 +148,6 @@ class CompleteDefaultArgumentsTest {
                 mapOf(
                     "carrot_production" to EProcessTemplate(
                         params = params,
-                        locals = emptyMap(),
                         body = ProcessFixture.carrotProduction,
                     )
                 )
@@ -169,13 +155,9 @@ class CompleteDefaultArgumentsTest {
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
+            template = EProcessTemplate(
                 body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -183,18 +165,16 @@ class CompleteDefaultArgumentsTest {
                                 "carrot",
                                 UnitFixture.kg,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels.EMPTY,
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels.EMPTY,
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
-            ), emptyMap()
+            ),
         )
+
         val everyInputProduct = EProcessTemplateApplication
             .template
             .body
@@ -226,7 +206,6 @@ class CompleteDefaultArgumentsTest {
                 mapOf(
                     "carrot_production" to EProcessTemplate(
                         params = params,
-                        locals = emptyMap(),
                         body = ProcessFixture.carrotProduction,
                     )
                 )
@@ -234,13 +213,9 @@ class CompleteDefaultArgumentsTest {
         )
         val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
         val expression = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
+            template = EProcessTemplate(
                 body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -250,11 +225,10 @@ class CompleteDefaultArgumentsTest {
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
-            ), emptyMap()
+            ),
         )
+
         val everyInputProduct = EProcessTemplateApplication
             .template
             .body

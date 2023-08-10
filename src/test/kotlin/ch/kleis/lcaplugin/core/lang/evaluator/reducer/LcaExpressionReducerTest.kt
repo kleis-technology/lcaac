@@ -16,9 +16,8 @@ class LcaExpressionReducerTest {
                 "a",
                 UnitFixture.kg,
                 FromProcess(
-                    "p",
-                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                    emptyMap(),
+                    name = "p",
+                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                 )
             )
         )
@@ -38,9 +37,8 @@ class LcaExpressionReducerTest {
                 "a",
                 QuantityFixture.oneKilogram,
                 FromProcess(
-                    "p",
-                    MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
-                    emptyMap(),
+                    name = "p",
+                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
                 )
             )
         )
@@ -52,7 +50,6 @@ class LcaExpressionReducerTest {
         // given
         val expression = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
             ),
@@ -62,7 +59,6 @@ class LcaExpressionReducerTest {
             biosphere = listOf(
                 EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol),
             ),
-            impacts = emptyList(),
         )
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
@@ -80,7 +76,6 @@ class LcaExpressionReducerTest {
         // then
         val expected = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
@@ -99,7 +94,6 @@ class LcaExpressionReducerTest {
                     SubstanceFixture.propanol
                 ),
             ),
-            impacts = emptyList(),
         )
         assertEquals(expected, actual)
     }

@@ -8,21 +8,14 @@ import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 class ProcessValueFixture {
     companion object {
         val carrotProcessValue = ProcessValue(
-            "carrot",
-            labels = emptyMap(),
+            name = "carrot",
             products = listOf(carrotTechnoExchangeValue),
-            inputs = emptyList(),
-            biosphere = emptyList(),
-            impacts = emptyList(),
         )
 
         val carrotProcessValueWithAllocation = ProcessValue(
-            "carrot",
-            labels = emptyMap(),
+            name = "carrot",
             products = listOf(carrotTechnoExchangeValueWithAllocation),
             inputs = listOf(waterTechnoExchangeValueWithAllocation),
-            biosphere = emptyList(),
-            impacts = emptyList(),
         )
     }
 }

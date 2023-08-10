@@ -29,11 +29,10 @@ class AllocationTest {
     fun apply_when_coProducts_should_duplicate_process() {
         // Given
         val system = SystemValue(
-            mutableSetOf(
+            processes = mutableSetOf(
                 ProcessValue(
-                    "carrot",
-                    emptyMap(),
-                    listOf(
+                    name = "carrot",
+                    products = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
@@ -45,12 +44,8 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    emptyList(),
-                    emptyList(),
-                    emptyList(),
                 )
             ),
-            mutableSetOf()
         )
 
         // When
@@ -63,11 +58,10 @@ class AllocationTest {
     fun apply_when_coProducts_should_keep_only_one_product_per_process() {
         // Given
         val system = SystemValue(
-            mutableSetOf(
+            processes = mutableSetOf(
                 ProcessValue(
-                    "carrot",
-                    emptyMap(),
-                    listOf(
+                    name = "carrot",
+                    products = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
@@ -79,12 +73,8 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    emptyList(),
-                    emptyList(),
-                    emptyList(),
                 )
             ),
-            mutableSetOf()
         )
 
         // When
@@ -97,11 +87,10 @@ class AllocationTest {
     fun apply_when_allocation_should_divide_inputs_quantities() {
         // Given
         val system = SystemValue(
-            mutableSetOf(
+            processes = mutableSetOf(
                 ProcessValue(
-                    "carrot",
-                    emptyMap(),
-                    listOf(
+                    name = "carrot",
+                    products = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
@@ -113,17 +102,14 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    listOf(
+                    inputs = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.twoLitres,
                             ProductValueFixture.water
                         )
                     ),
-                    emptyList(),
-                    emptyList(),
                 )
             ),
-            mutableSetOf()
         )
 
         // When
@@ -137,11 +123,10 @@ class AllocationTest {
     fun apply_when_allocation_should_divide_biosphere_quantities() {
         // given
         val system = SystemValue(
-            mutableSetOf(
+            processes = mutableSetOf(
                 ProcessValue(
-                    "carrot",
-                    emptyMap(),
-                    listOf(
+                    name = "carrot",
+                    products = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
@@ -153,17 +138,14 @@ class AllocationTest {
                             QuantityValueFixture.fiftyPercent
                         )
                     ),
-                    emptyList(),
-                    listOf(
+                    biosphere = listOf(
                         BioExchangeValue(
                             QuantityValueFixture.twoKilograms,
                             FullyQualifiedSubstanceValueFixture.propanol
                         )
                     ),
-                    emptyList(),
                 )
             ),
-            mutableSetOf()
         )
 
         // when
@@ -178,17 +160,13 @@ class AllocationTest {
         // given
 
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
         // when
         val actual = Allocation.totalAmount(processValue)
@@ -202,9 +180,8 @@ class AllocationTest {
         // given
 
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
@@ -216,9 +193,6 @@ class AllocationTest {
                     QuantityValueFixture.twentyPercent
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
         // when
         val actual = Allocation.totalAmount(processValue)
@@ -232,9 +206,8 @@ class AllocationTest {
         // given
 
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
@@ -246,9 +219,6 @@ class AllocationTest {
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
         // when
         Allocation.allocationUnitCheck(processValue)
@@ -261,11 +231,10 @@ class AllocationTest {
         // given
 
         val system = SystemValue(
-            mutableSetOf(
+            processes = mutableSetOf(
                 ProcessValue(
-                    "carrot",
-                    emptyMap(),
-                    listOf(
+                    name = "carrot",
+                    products = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.oneKilogram,
                             ProductValueFixture.carrot,
@@ -277,18 +246,16 @@ class AllocationTest {
                             QuantityValueFixture.eightyPercent
                         )
                     ),
-                    listOf(
+                    inputs = listOf(
                         TechnoExchangeValue(
                             QuantityValueFixture.twoLitres,
                             ProductValueFixture.water
                         )
                     ),
-                    emptyList(),
-                    emptyList(),
                 ),
             ),
-            mutableSetOf()
         )
+
         // when
         val actual = Allocation.apply(system).processes.first().inputs.first().quantity.amount
 
@@ -304,13 +271,13 @@ class AllocationTest {
     fun apply_shouldKeepAllocation() {
         // given
         val system = SystemValue(
-            mutableSetOf(ProcessValue(
-                "", emptyMap(), emptyList(), emptyList(), emptyList(), emptyList(),
-            )),
+            mutableSetOf(ProcessValue(name = "")),
             mutableSetOf(propanolCharacterization)
         )
+
         // when
         val actual = Allocation.apply(system).substanceCharacterizations
+
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
     }
@@ -319,19 +286,16 @@ class AllocationTest {
     fun allocationUnitCheck_whenAllocationUnitIsNotPercentage_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
                     QuantityValueFixture.hundredPiece
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
+
         // when + then
         assertFailsWith(
             EvaluatorException::class,
@@ -343,19 +307,16 @@ class AllocationTest {
     fun allocationUnitCheck_whenAllocationUnitIsPercentage_shouldNotThrowAnError() {
         // given
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
                     QuantityValueFixture.hundredPercent
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
+
         // when, then should not throw
         Allocation.allocationUnitCheck(processValue)
     }
@@ -364,19 +325,16 @@ class AllocationTest {
     fun allocationUnitCheck_whenSumOfAllocationAreNotHundredPercent_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
+
         // when + then
         assertFailsWith(
             EvaluatorException::class,
@@ -388,9 +346,8 @@ class AllocationTest {
     fun allocationUnitCheck_whenSumOfAllocationAreHundredPercent_shouldNotThrowAnError() {
         // given
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
@@ -402,10 +359,8 @@ class AllocationTest {
                     QuantityValueFixture.fiftyPercent
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
+
         // when V then should not throw.
         Allocation.allocationUnitCheck(processValue)
     }
@@ -414,9 +369,8 @@ class AllocationTest {
     fun allocationUnitCheck_whenNonConsistentUnits_shouldThrowAnError() {
         // given
         val processValue = ProcessValue(
-            "carrot",
-            emptyMap(),
-            listOf(
+            name = "carrot",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot,
@@ -428,10 +382,8 @@ class AllocationTest {
                     QuantityValueFixture.twentyPiece
                 )
             ),
-            emptyList(),
-            emptyList(),
-            emptyList(),
         )
+
         // when + then
         assertFailsWith(
             EvaluatorException::class,

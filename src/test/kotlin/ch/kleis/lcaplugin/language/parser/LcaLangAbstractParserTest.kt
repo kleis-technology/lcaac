@@ -500,11 +500,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             data = Prelude.units
         )
         val expected = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
-            EProcess(
+            body = EProcess(
                 name = "a",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(1.0, EDataRef("kg")),
@@ -525,8 +522,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                         EProductSpec("water"),
                     ),
                 ),
-                biosphere = emptyList(),
-                impacts = emptyList(),
             )
         )
         assertEquals(expected, actual)

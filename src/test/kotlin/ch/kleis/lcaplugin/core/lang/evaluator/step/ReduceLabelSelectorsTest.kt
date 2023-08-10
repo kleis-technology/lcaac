@@ -13,29 +13,23 @@ class ReduceLabelSelectorsTest {
     fun reduce_whenPassingByArguments() {
         // given
         val instance = EProcessTemplateApplication(
-            EProcessTemplate(
+            template = EProcessTemplate(
                 params = mapOf("geo" to EStringLiteral("GLO")),
-                locals = emptyMap(),
-                EProcess(
-                    "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
+                body = EProcess(
+                    name = "salad_production",
                     inputs = listOf(
                         ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
-                                QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                                    emptyMap(),
+                            quantity = QuantityFixture.oneKilogram,
+                            product = EProductSpec(
+                                name = "carrot",
+                                referenceUnit = QuantityFixture.oneKilogram,
+                                fromProcess = FromProcess(
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
             mapOf("geo" to EStringLiteral("FR")),
@@ -49,11 +43,8 @@ class ReduceLabelSelectorsTest {
         val expected = EProcessTemplateApplication(
             EProcessTemplate(
                 params = mapOf("geo" to EStringLiteral("GLO")),
-                locals = emptyMap(),
-                EProcess(
+                body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -61,15 +52,12 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
             mapOf("geo" to EStringLiteral("FR")),
@@ -81,13 +69,10 @@ class ReduceLabelSelectorsTest {
     fun reduce_whenPassingByDefaultParams() {
         // given
         val instance = EProcessTemplateApplication(
-            EProcessTemplate(
+            template = EProcessTemplate(
                 params = mapOf("geo" to EStringLiteral("GLO")),
-                locals = emptyMap(),
-                EProcess(
-                    "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
+                body = EProcess(
+                    name = "salad_production",
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -95,18 +80,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
 
@@ -115,13 +96,10 @@ class ReduceLabelSelectorsTest {
 
         // then
         val expected = EProcessTemplateApplication(
-            EProcessTemplate(
+            template = EProcessTemplate(
                 params = mapOf("geo" to EStringLiteral("GLO")),
-                locals = emptyMap(),
-                EProcess(
-                    "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
+                body = EProcess(
+                    name = "salad_production",
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -129,18 +107,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         assertEquals(expected, actual)
     }
@@ -149,13 +123,10 @@ class ReduceLabelSelectorsTest {
     fun reduce_whenPassingByLocals() {
         // given
         val instance = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
+            template = EProcessTemplate(
                 locals = mapOf("geo" to EStringLiteral("GLO")),
-                EProcess(
+                body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -163,18 +134,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
 
@@ -183,13 +150,10 @@ class ReduceLabelSelectorsTest {
 
         // then
         val expected = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
+            template = EProcessTemplate(
                 locals = mapOf("geo" to EStringLiteral("GLO")),
-                EProcess(
-                    "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
+                body = EProcess(
+                    name = "salad_production",
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -197,18 +161,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         assertEquals(expected, actual)
     }
@@ -217,13 +177,9 @@ class ReduceLabelSelectorsTest {
     fun reduce_whenPassingByGlobalVariables() {
         // given
         val instance = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
-                EProcess(
-                    "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
+            template = EProcessTemplate(
+                body = EProcess(
+                    name = "salad_production",
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -231,19 +187,16 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
+
         val reduceLabelSelectors = ReduceLabelSelectors(
             SymbolTable(
                 data = Register.from(mapOf("geo" to EStringLiteral("FR")))
@@ -255,13 +208,9 @@ class ReduceLabelSelectorsTest {
 
         // then
         val expected = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
-                EProcess(
+            template = EProcessTemplate(
+                body = EProcess(
                     "salad_production",
-                    labels = emptyMap(),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -269,18 +218,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         assertEquals(expected, actual)
     }
@@ -289,13 +234,10 @@ class ReduceLabelSelectorsTest {
     fun reduce_whenPassingByProcessLabels() {
         // given
         val instance = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
-                EProcess(
+            template = EProcessTemplate(
+                body = EProcess(
                     "salad_production",
                     labels = mapOf("geo" to EStringLiteral("FR")),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -303,18 +245,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EDataRef("geo"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
 
@@ -323,13 +261,10 @@ class ReduceLabelSelectorsTest {
 
         // then
         val expected = EProcessTemplateApplication(
-            EProcessTemplate(
-                params = emptyMap(),
-                locals = emptyMap(),
-                EProcess(
+            template = EProcessTemplate(
+                body = EProcess(
                     "salad_production",
                     labels = mapOf("geo" to EStringLiteral("FR")),
-                    products = emptyList(),
                     inputs = listOf(
                         ETechnoExchange(
                             QuantityFixture.oneKilogram,
@@ -337,18 +272,14 @@ class ReduceLabelSelectorsTest {
                                 "carrot",
                                 QuantityFixture.oneKilogram,
                                 FromProcess(
-                                    "carrot_production",
-                                    MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
-                                    emptyMap(),
+                                    name = "carrot_production",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
                                 )
                             )
                         )
                     ),
-                    biosphere = emptyList(),
-                    impacts = emptyList(),
                 )
             ),
-            emptyMap(),
         )
         assertEquals(expected, actual)
     }

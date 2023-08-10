@@ -36,7 +36,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate(process)!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate(process)!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint())
         val inventory = assessment.inventory()

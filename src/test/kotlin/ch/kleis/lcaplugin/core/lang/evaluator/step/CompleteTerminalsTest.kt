@@ -18,13 +18,9 @@ class CompleteTerminalsTest {
         val process = EProcessFinal(
             EProcess(
                 name = "process",
-                labels = emptyMap(),
-                products = emptyList(),
-                inputs = emptyList(),
                 biosphere = listOf(
                     EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
                 ),
-                impacts = emptyList(),
             )
         )
 
@@ -35,9 +31,6 @@ class CompleteTerminalsTest {
         val expected = EProcessFinal(
             EProcess(
                 name = "process",
-                labels = emptyMap(),
-                products = emptyList(),
-                inputs = emptyList(),
                 biosphere = listOf(
                     EBioExchange(
                         QuantityFixture.oneKilogram,
@@ -47,7 +40,6 @@ class CompleteTerminalsTest {
                         )
                     )
                 ),
-                impacts = emptyList(),
             )
         )
         Assert.assertEquals(expected, actual)
@@ -78,5 +70,4 @@ class CompleteTerminalsTest {
         )
         Assert.assertEquals(expected, actual)
     }
-
 }
