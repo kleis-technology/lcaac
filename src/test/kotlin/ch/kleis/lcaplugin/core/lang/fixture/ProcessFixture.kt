@@ -18,6 +18,9 @@ class ProcessFixture {
             biosphere = listOf(
                 EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             ),
+            impacts = listOf(
+                ImpactFixture.oneClimateChange
+            )
         )
     }
 }

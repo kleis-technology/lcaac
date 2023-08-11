@@ -500,11 +500,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             data = Prelude.units
         )
         val expected = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
-            EProcess(
+            body = EProcess(
                 name = "a",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(1.0, EDataRef("kg")),
@@ -525,7 +522,6 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                         EProductSpec("water"),
                     ),
                 ),
-                biosphere = emptyList(),
             )
         )
         assertEquals(expected, actual)
@@ -979,6 +975,38 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         // then
         val actual = symbolTable.data["r"]!!
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testParse_processWithImpacts_shouldParse() {
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val file = parseFile(
+            "$pkgName.lca", """
+                package $pkgName
+                
+                process a {
+                    products {
+                        1 kg x
+                    }
+                    impacts {
+                        1 u cc
+                    }
+                }
+        """.trimIndent()
+        ) as LcaFile
+        val parser = LcaLangAbstractParser(
+            sequenceOf(file)
+        )
+        val symbolTable = parser.load()
+
+        // when
+        val template = symbolTable.getTemplate("a") as ProcessTemplateExpression
+        val actual =
+            (ProcessTemplateExpression.eProcessTemplate.body.impacts compose
+                Every.list() compose EImpact.indicator).firstOrNull(template)
+
+        // then
+        assertEquals("cc", actual?.name)
     }
 
     override fun getTestDataPath(): String {

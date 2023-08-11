@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
-import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
@@ -23,7 +22,6 @@ class ProcessTemplateExpressionReducerTest {
             ),
             body = EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
@@ -35,7 +33,6 @@ class ProcessTemplateExpressionReducerTest {
                 inputs = listOf(
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val arguments: Map<String, DataExpression> = mapOf(
@@ -51,7 +48,6 @@ class ProcessTemplateExpressionReducerTest {
         val expected = EProcessFinal(
             EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityScale(3.0, UnitFixture.kg),
@@ -74,7 +70,6 @@ class ProcessTemplateExpressionReducerTest {
                         ProductFixture.water
                     ),
                 ),
-                biosphere = emptyList(),
             )
         )
         assertEquals(expected, actual)
@@ -93,7 +88,6 @@ class ProcessTemplateExpressionReducerTest {
             ),
             body = EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(
                         EQuantityAdd(
@@ -105,7 +99,6 @@ class ProcessTemplateExpressionReducerTest {
                 inputs = listOf(
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val arguments: Map<String, DataExpression> = mapOf(

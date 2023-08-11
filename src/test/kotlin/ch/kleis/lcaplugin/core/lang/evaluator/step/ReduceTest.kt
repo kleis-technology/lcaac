@@ -25,13 +25,13 @@ class ReduceTest {
         val template = TemplateFixture.carrotProduction
         val instance = EProcessTemplateApplication(
             template, mapOf(
-                Pair(
-                    "q_water", EQuantityAdd(
-                        QuantityFixture.oneLitre,
-                        QuantityFixture.oneLitre,
-                    )
-                )
+            Pair(
+                "q_water", EQuantityAdd(
+                QuantityFixture.oneLitre,
+                QuantityFixture.oneLitre,
             )
+            )
+        )
         )
         val reduceAndComplete = Reduce(SymbolTable.empty())
 
@@ -40,27 +40,24 @@ class ReduceTest {
 
         // then
         val expected = ProcessValue(
-            "carrot_production",
-            emptyMap(),
-            listOf(
+            name = "carrot_production",
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
-                            "carrot_production",
-                            emptyMap(),
-                            mapOf("q_water" to QuantityValueFixture.twoLitres),
+                            name = "carrot_production",
+                            arguments = mapOf("q_water" to QuantityValueFixture.twoLitres),
                         )
                     ),
                 )
             ),
-            listOf(
+            inputs = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.twoLitres,
                     ProductValueFixture.water,
                 )
             ),
-            emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -77,26 +74,23 @@ class ReduceTest {
         // then
         val expected = ProcessValue(
             name = "carrot_production",
-            emptyMap(),
-            listOf(
+            products = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneKilogram,
                     ProductValueFixture.carrot.withFromProcessRef(
                         FromProcessRefValue(
-                            "carrot_production",
-                            emptyMap(),
-                            mapOf("q_water" to QuantityValueFixture.oneLitre),
+                            name = "carrot_production",
+                            arguments = mapOf("q_water" to QuantityValueFixture.oneLitre),
                         )
                     )
                 )
             ),
-            listOf(
+            inputs = listOf(
                 TechnoExchangeValue(
                     QuantityValueFixture.oneLitre,
                     ProductValueFixture.water
                 )
             ),
-            emptyList(),
         )
         assertEquals(expected, actual)
     }

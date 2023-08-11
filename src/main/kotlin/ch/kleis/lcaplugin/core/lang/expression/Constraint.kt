@@ -6,7 +6,7 @@ import arrow.optics.optics
 data class FromProcess(
     val name: String,
     val matchLabels: MatchLabels,
-    val arguments: Map<String, DataExpression>,
+    val arguments: Map<String, DataExpression> = emptyMap(),
 ) {
     override fun toString(): String {
         return "from $name$matchLabels$arguments"

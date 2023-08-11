@@ -4,15 +4,20 @@ import ch.kleis.lcaplugin.core.HasUID
 
 sealed interface MatrixRowIndex : Value, HasUID
 
+sealed interface HasImpactList {
+    val impacts: List<ImpactValue>
+}
+
 data class ProcessValue(
     val name: String,
-    val labels: Map<String, StringValue>,
-    val products: List<TechnoExchangeValue>,
-    val inputs: List<TechnoExchangeValue>,
-    val biosphere: List<BioExchangeValue>,
-) : Value, MatrixRowIndex
+    val labels: Map<String, StringValue> = emptyMap(),
+    val products: List<TechnoExchangeValue> = emptyList(),
+    val inputs: List<TechnoExchangeValue> = emptyList(),
+    val biosphere: List<BioExchangeValue> = emptyList(),
+    override val impacts: List<ImpactValue> = emptyList(),
+) : Value, HasImpactList, MatrixRowIndex
 
 data class SubstanceCharacterizationValue(
     val referenceExchange: BioExchangeValue,
-    val impacts: List<ImpactValue>,
-) : Value, MatrixRowIndex
+    override val impacts: List<ImpactValue> = emptyList(),
+) : Value, HasImpactList, MatrixRowIndex

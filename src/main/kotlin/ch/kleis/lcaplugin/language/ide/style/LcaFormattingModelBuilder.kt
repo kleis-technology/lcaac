@@ -64,6 +64,8 @@ class LcaFormattingModelBuilder : FormattingModelBuilder {
                 .spacing(0, 0, 0, true, 1)
                 .beforeInside(BLOCK_META, PROCESS)
                 .spacing(0, 0, 0, true, 1)
+                .beforeInside(BLOCK_IMPACTS, PROCESS)
+                .spacing(0, 0, 0, true, 1)
                 // Comments
                 .before(COMMENT_CONTENT)
                 .spaces(0)

@@ -75,6 +75,12 @@ interface PsiProcess : StubBasedPsiElement<ProcessStub>, PsiNameIdentifierOwner,
             .flatMap { it.bioExchangeList }
     }
 
+    fun getImpacts(): Collection<LcaImpactExchange> {
+        return node.getChildren(TokenSet.create(LcaTypes.BLOCK_IMPACTS))
+            .map { it.psi as LcaBlockImpacts }
+            .flatMap { it.impactExchangeList }
+    }
+
     fun getVariables(): Map<String, LcaDataExpression> {
         return PsiTreeUtil.findChildrenOfType(this, LcaVariables::class.java)
             .flatMap {

@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 import kotlin.math.absoluteValue
 
-class Allocation {
+object Allocation {
     fun apply(system: SystemValue): SystemValue {
         val processes = system.processes.flatMap { processValue ->
             processValue.products.map { allocateProduct(it, processValue) }
@@ -16,11 +16,12 @@ class Allocation {
     private fun allocateProduct(technoExchangeValue: TechnoExchangeValue, processValue: ProcessValue): ProcessValue {
         val totalAllocation = totalAmount(processValue)
         return ProcessValue(
-            processValue.name,
-            processValue.labels,
-            listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation.copy(amount = 100.0))),
-            applyAllocationToInputs(processValue.inputs, technoExchangeValue.allocation, totalAllocation),
-            applyAllocationToBioSphere(processValue.biosphere, technoExchangeValue.allocation, totalAllocation)
+            name = processValue.name,
+            labels = processValue.labels,
+            products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation.copy(amount = 100.0))),
+            inputs = processValue.inputs.map(applyAllocationToInput(technoExchangeValue.allocation, totalAllocation)),
+            biosphere = processValue.biosphere.map(applyAllocationToBioExchange(technoExchangeValue.allocation, totalAllocation)),
+            impacts = processValue.impacts.map(applyAllocationToImpact(technoExchangeValue.allocation, totalAllocation))
         )
     }
 
@@ -42,48 +43,43 @@ class Allocation {
         return processValue.products.sumOf { it.allocation.amount }
     }
 
-    private fun applyAllocationToInputs(
-        inputs: List<TechnoExchangeValue>,
-        allocation: QuantityValue,
-        totalAllocation: Double
-    ): List<TechnoExchangeValue> {
-        return inputs.map { applyAllocationToInput(it, allocation, totalAllocation) }
-    }
-
     private fun applyAllocationToInput(
-        technoExchangeValue: TechnoExchangeValue,
         allocation: QuantityValue,
         totalAllocation: Double
-    ): TechnoExchangeValue {
-        return TechnoExchangeValue(
-            QuantityValue(
-                technoExchangeValue.quantity.amount * allocation.referenceValue() / totalAllocation,
-                technoExchangeValue.quantity.unit
-            ),
-            technoExchangeValue.product,
-            technoExchangeValue.allocation,
-        )
-    }
-
-    private fun applyAllocationToBioSphere(
-        biosphere: List<BioExchangeValue>,
-        allocation: QuantityValue,
-        totalAllocation: Double
-    ): List<BioExchangeValue> {
-        return biosphere.map { applyAllocationToBioExchange(it, allocation, totalAllocation) }
+    ): (TechnoExchangeValue) -> TechnoExchangeValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { technoExchangeValue: TechnoExchangeValue ->
+            technoExchangeValue.copy(
+                quantity = technoExchangeValue.quantity.copy(
+                    amount = technoExchangeValue.quantity.amount * ratio
+                )
+            )
+        }
     }
 
     private fun applyAllocationToBioExchange(
-        bioExchange: BioExchangeValue,
         allocation: QuantityValue,
         totalAllocation: Double
-    ): BioExchangeValue {
-        return BioExchangeValue(
-            QuantityValue(
-                bioExchange.quantity.amount * allocation.referenceValue() / totalAllocation,
-                bioExchange.quantity.unit
-            ),
-            bioExchange.substance
-        )
+    ): (BioExchangeValue) -> BioExchangeValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { bioExchange: BioExchangeValue ->
+            bioExchange.copy(
+                quantity = bioExchange.quantity.copy(
+                    amount = bioExchange.quantity.amount * ratio
+                ),
+            )
+        }
+    }
+
+    private fun applyAllocationToImpact(
+        allocation: QuantityValue,
+        totalAllocation: Double,
+    ): (ImpactValue) -> ImpactValue {
+        val ratio = allocation.referenceValue() / totalAllocation
+        return { impactValue ->
+            impactValue.copy(quantity = impactValue.quantity.copy(
+                amount = impactValue.quantity.amount * ratio
+            ))
+        }
     }
 }

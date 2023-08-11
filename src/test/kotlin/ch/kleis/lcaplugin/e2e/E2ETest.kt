@@ -14,6 +14,7 @@ import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
@@ -83,7 +84,7 @@ class E2ETest : BasePlatformTestCase() {
         val symbolTable = parser.load()
 
         // when
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -158,7 +159,7 @@ class E2ETest : BasePlatformTestCase() {
         val symbolTable = parser.load()
 
         // when
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -213,7 +214,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when/then does not throw
         symbolTable.getTemplate("p")
-            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(it, emptyMap())) }!!
+            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(template = it)) }!!
     }
 
     @Test
@@ -249,7 +250,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when/then does not throw
         symbolTable.getTemplate("p")
-            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(it, emptyMap())) }!!
+            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(template = it)) }!!
     }
 
     @Test
@@ -295,9 +296,8 @@ class E2ETest : BasePlatformTestCase() {
         val out = ProductValue(
             "out", kg,
             FromProcessRefValue(
-                "p",
-                emptyMap(),
-                mapOf(
+                name = "p",
+                arguments = mapOf(
                     "a" to QuantityValue(1.0, kg),
                     "b" to QuantityValue(1.0, kg),
                     "c" to QuantityValue(1.0, kg),
@@ -387,7 +387,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -459,7 +459,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -516,7 +516,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -580,7 +580,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -643,7 +643,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("office")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -685,7 +685,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -777,7 +777,7 @@ class E2ETest : BasePlatformTestCase() {
 
         // when
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable).trace(entryPoint)
         val system = trace.getSystemValue()
         val assessment = Assessment(system, trace.getEntryPoint())
@@ -819,7 +819,7 @@ class E2ETest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val evaluator = Evaluator(symbolTable)
 
         // when + then
@@ -855,7 +855,7 @@ class E2ETest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val evaluator = Evaluator(symbolTable)
 
         // when + then
@@ -891,7 +891,7 @@ class E2ETest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val evaluator = Evaluator(symbolTable)
 
         // when, then does not throw
@@ -926,9 +926,50 @@ class E2ETest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
-        val entryPoint = EProcessTemplateApplication(symbolTable.getTemplate("p")!!, emptyMap())
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
 
         // when/then
         Evaluator(symbolTable).eval(entryPoint)
+    }
+
+    @Test
+    fun test_processImpact_whenImpactBlockInProcess_shouldEvaluate() {
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
+            process p {
+                products {
+                    1 kg out
+                }
+                impacts {
+                    1 u climate_change
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+
+        // when
+        val symbolTable = parser.load()
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
+        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val system = trace.getSystemValue()
+        val assessment = Assessment(system, trace.getEntryPoint())
+
+        // then
+        val result = assessment.inventory().impactFactors
+        val output = result.observablePorts.getElements().first()
+        val input = result.controllablePorts.get("climate_change")
+        val cf = result.value(output, input)
+
+        val delta = 1E-9
+        val expected = 1.0
+
+        assertEquals("climate_change", input.getDisplayName())
+        assertEquals(expected, cf.input.quantity().amount, delta)
+        assertEquals(UnitValueFixture.unit, cf.input.quantity().unit)
     }
 }

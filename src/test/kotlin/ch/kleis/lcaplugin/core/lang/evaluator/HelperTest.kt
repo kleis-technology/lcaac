@@ -15,7 +15,6 @@ class HelperTest {
         val ref = EDataRef("class")
         val body = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
@@ -24,14 +23,12 @@ class HelperTest {
                     QuantityFixture.oneKilogram,
                     ProductFixture.carrot.copy(
                         fromProcess = FromProcess(
-                            "another_process",
-                            MatchLabels(mapOf("class" to ref)),
-                            emptyMap(),
+                            name = "another_process",
+                            matchLabels = MatchLabels(mapOf("class" to ref)),
                         ),
                     )
                 )
             ),
-            biosphere = emptyList(),
         )
         val helper = Helper()
 
@@ -41,7 +38,6 @@ class HelperTest {
         // then
         val expected = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
@@ -50,14 +46,12 @@ class HelperTest {
                     QuantityFixture.oneKilogram,
                     ProductFixture.carrot.copy(
                         fromProcess = FromProcess(
-                            "another_process",
-                            MatchLabels(mapOf("class" to EStringLiteral("foo"))),
-                            emptyMap(),
+                            name = "another_process",
+                            matchLabels = MatchLabels(mapOf("class" to EStringLiteral("foo"))),
                         ),
                     )
                 )
             ),
-            biosphere = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -69,7 +63,6 @@ class HelperTest {
         val ref = EDataRef("q")
         val body = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(ref, ProductFixture.carrot)
             ),
@@ -88,7 +81,6 @@ class HelperTest {
         // then
         val expected = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
@@ -108,7 +100,6 @@ class HelperTest {
         val ref = EDataRef("q")
         val body = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     ref,
@@ -125,8 +116,6 @@ class HelperTest {
                     )
                 )
             ),
-            inputs = emptyList(),
-            biosphere = emptyList(),
         )
         val helper = Helper()
 
@@ -136,7 +125,6 @@ class HelperTest {
         // then
         val expected = EProcess(
             name = "p",
-            labels = emptyMap(),
             products = listOf(
                 ETechnoExchange(
                     QuantityFixture.oneKilogram,
@@ -153,8 +141,6 @@ class HelperTest {
                     )
                 )
             ),
-            inputs = emptyList(),
-            biosphere = emptyList(),
         )
         assertEquals(expected, actual)
     }
@@ -166,26 +152,24 @@ class HelperTest {
             listOf(
                 EProcess(
                     name = "p",
-                    labels = emptyMap(),
-                    listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
-                    listOf(
+                    products = listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
+                    inputs = listOf(
                         ETechnoExchange(
                             EQuantityScale(
                                 1.0,
                                 EQuantityMul(EDataRef("ua"), EDataRef("ub"))
                             ), EProductSpec(
-                                "product",
-                            )
+                            "product",
+                        )
                         ),
                         ETechnoExchange(
                             QuantityFixture.oneLitre, EProductSpec(
-                                "water",
-                                UnitFixture.l,
-                                FromProcess("template", MatchLabels.EMPTY, emptyMap())
-                            )
+                            "water",
+                            UnitFixture.l,
+                            FromProcess(name = "template", matchLabels = MatchLabels.EMPTY),
+                        )
                         ),
                     ),
-                    emptyList(),
                 )
             ),
             listOf(

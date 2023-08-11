@@ -22,7 +22,7 @@ class Assessment(
     val allocatedSystem: SystemValue
 
     init {
-        allocatedSystem = Allocation().apply(system)
+        allocatedSystem = Allocation.apply(system)
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
@@ -47,7 +47,7 @@ class Assessment(
             .flatMap { it.biosphere }
             .map { it.substance }
             .filter { !observableSubstances.contains(it) }
-        val indicators = substanceCharacterizations
+        val indicators = (processes + substanceCharacterizations)
             .flatMap { it.impacts }
             .map { it.indicator }
         controllablePorts = IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))

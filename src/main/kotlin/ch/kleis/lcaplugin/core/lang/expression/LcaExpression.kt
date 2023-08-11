@@ -95,10 +95,11 @@ data class EImpact(val quantity: DataExpression, val indicator: EIndicatorSpec) 
 @optics
 data class EProcess(
     val name: String,
-    val labels: Map<String, EStringLiteral>,
-    val products: List<ETechnoExchange>,
-    val inputs: List<ETechnoExchange>,
-    val biosphere: List<EBioExchange>,
+    val labels: Map<String, EStringLiteral> = emptyMap(),
+    val products: List<ETechnoExchange> = emptyList(),
+    val inputs: List<ETechnoExchange> = emptyList(),
+    val biosphere: List<EBioExchange> = emptyList(),
+    val impacts: List<EImpact> = emptyList(),
 ) : LcaExpression {
     companion object
 }

@@ -24,20 +24,15 @@ class ProcessResolverTest {
             inputs = listOf(
                 ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
             ),
-            biosphere = emptyList(),
         )
         val carrotProductionFR = EProcessTemplate(
-            emptyMap(),
-            emptyMap(),
-            carrotProductionBodyFR,
+            body = carrotProductionBodyFR,
         )
         val carrotProductionBodyUK = carrotProductionBodyFR.copy(
             labels = mapOf("geo" to EStringLiteral("UK")),
         )
         val carrotProductionUK = EProcessTemplate(
-            emptyMap(),
-            emptyMap(),
-            carrotProductionBodyUK,
+            body = carrotProductionBodyUK,
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
             mapOf(
@@ -76,14 +71,12 @@ class ProcessResolverTest {
             ),
             body = EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -119,29 +112,23 @@ class ProcessResolverTest {
             ),
             body = EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
             body = EProcess(
                 name = "salad_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
                 inputs = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
-                biosphere = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -177,29 +164,23 @@ class ProcessResolverTest {
             ),
             body = EProcess(
                 name = "carrot_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
                     ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
             body = EProcess(
                 name = "salad_production",
-                labels = emptyMap(),
                 products = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
                 inputs = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
-                biosphere = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(
@@ -225,8 +206,6 @@ class ProcessResolverTest {
     fun resolve_whenNameOnly_multipleMatch_shouldReturnNull() {
         // given
         val carrotProductionFR = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
             body = EProcess(
                 name = "carrot_production",
                 labels = mapOf("geo" to EStringLiteral("FR")),
@@ -236,12 +215,9 @@ class ProcessResolverTest {
                 inputs = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val carrotProductionUK = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
             body = EProcess(
                 name = "carrot_production",
                 labels = mapOf("geo" to EStringLiteral("UK")),
@@ -251,12 +227,9 @@ class ProcessResolverTest {
                 inputs = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
                 ),
-                biosphere = emptyList(),
             )
         )
         val saladProduction = EProcessTemplate(
-            params = emptyMap(),
-            locals = emptyMap(),
             body = EProcess(
                 name = "salad_production",
                 labels = emptyMap(),
@@ -266,7 +239,6 @@ class ProcessResolverTest {
                 inputs = listOf(
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
-                biosphere = emptyList(),
             )
         )
         val processTemplates: Register<EProcessTemplate> = Register.from(

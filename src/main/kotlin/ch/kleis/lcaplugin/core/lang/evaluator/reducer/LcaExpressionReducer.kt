@@ -26,7 +26,7 @@ class LcaExpressionReducer(
     fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization): ESubstanceCharacterization {
         return ESubstanceCharacterization(
             reduceBioExchange(expression.referenceExchange),
-            expression.impacts.map { reduceImpact(it) },
+            expression.impacts.map(::reduceImpact),
         )
     }
 
@@ -35,9 +35,10 @@ class LcaExpressionReducer(
         return EProcess(
             expression.name,
             expression.labels,
-            expression.products.map { reduceTechnoExchange(it) },
-            expression.inputs.map { reduceTechnoExchange(it) },
-            expression.biosphere.map { reduceBioExchange(it) },
+            expression.products.map(::reduceTechnoExchange),
+            expression.inputs.map(::reduceTechnoExchange),
+            expression.biosphere.map(::reduceBioExchange),
+            expression.impacts.map(::reduceImpact)
         )
     }
 
