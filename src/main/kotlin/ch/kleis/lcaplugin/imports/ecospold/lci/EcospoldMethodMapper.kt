@@ -70,7 +70,7 @@ object EcospoldMethodMapper {
                 id,
                 getConversionFactor(record["conversion_factor"]),
                 record["method_name"].nullIfEmpty(),
-                record["method_unit"].nullIfEmpty(),
+                record["method_unit"].nullIfEmpty()?.let { pefUnitException(it, record["unitName"]) },
                 record["method_compartment"].nullIfEmpty(),
                 record["method_subcompartment"].nullIfEmpty(),
                 "Ecoinvent ID: $id. Flow, compartment status: ${record["flow_status"]}, ${record["compartment_status"]}",
@@ -87,7 +87,16 @@ object EcospoldMethodMapper {
                 if (it == 1.0) null else it
             }
 
-    private fun String.nullIfEmpty(): String? {
+    private fun pefUnitException(methodUnit: String, unitName: String): String =
+        if (unitName == "m2*year" && methodUnit == "m2*a") {
+            "m2a"
+        } else {
+            methodUnit
+        }
+
+    private
+
+    fun String.nullIfEmpty(): String? {
         return this.ifEmpty { null }
     }
 }

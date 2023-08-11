@@ -22,9 +22,12 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import java.io.FileReader
+import org.apache.commons.io.input.BOMInputStream
+import java.io.FileInputStream
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
@@ -60,7 +63,6 @@ class EcospoldImporter(
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = EcospoldProcessRenderer()
-    private var methodMapping: Map<String, MappingExchange>? = null
     private val methodName: String = when (settings) {
         is LCISettings -> "Ecospold LCI library file."
         is LCIASettings -> settings.methodName
@@ -71,25 +73,33 @@ class EcospoldImporter(
     private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
-        if (settings is LCISettings) {
-            if (settings.mappingFile.isNotEmpty()) {
-                watcher.notifyCurrentWork("Building requested method map")
-                FileReader(settings.mappingFile).use {
-                    methodMapping = EcospoldMethodMapper.buildMapping(it)
-                }
+        val methodMapping =
+            if (settings is LCISettings && settings.mappingFile.isNotEmpty()) {
+                buildMapping(watcher, settings)
+            } else {
+                null
             }
-        }
 
         val path = Path.of(settings.libraryFile)
         val pkg = settings.rootPackage.ifBlank { "default" }
         SevenZFile(path.toFile()).use { f ->
-            ModelWriter(pkg, settings.rootFolder, buildImports(settings), watcher).use { w ->
-                importEntries(f, w, controller, watcher)
+            ModelWriter(pkg, settings.rootFolder, builtinLibraryImports(settings), watcher).use { w ->
+                importEntries(f, methodMapping, w, controller, watcher)
             }
         }
     }
 
-    private fun buildImports(settings: EcospoldImportSettings): List<String> =
+    private fun buildMapping(watcher: AsynchronousWatcher, settings: LCISettings): Map<String, MappingExchange> {
+        watcher.notifyCurrentWork("Building requested method map")
+        FileInputStream(settings.mappingFile).use {
+            val bomIS = BOMInputStream(it)
+            val isr = InputStreamReader(bomIS, StandardCharsets.UTF_8)
+
+            return EcospoldMethodMapper.buildMapping(isr)
+        }
+    }
+
+    private fun builtinLibraryImports(settings: EcospoldImportSettings): List<String> =
         if (settings is LCISettings && settings.importBuiltinLibrary != null) {
             listOf(settings.importBuiltinLibrary.toString())
         } else listOf()
@@ -108,6 +118,7 @@ class EcospoldImporter(
 
     private fun importEntries(
         f: SevenZFile,
+        methodMapping: Map<String, MappingExchange>?,
         writer: ModelWriter,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
@@ -144,8 +155,8 @@ class EcospoldImporter(
     private fun getMethodMappedEntries(
         methodMapping: Map<String, MappingExchange>,
         parsedEntries: Sequence<Pair<String, ActivityDataset>>
-    ) = parsedEntries
-        .map { (fileName, activityDataset) ->
+    ): Sequence<Pair<String, ActivityDataset>> =
+        parsedEntries.map { (fileName, activityDataset) ->
             fileName to activityDataset.copy(
                 flowData = activityDataset.flowData.copy(
                     elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->

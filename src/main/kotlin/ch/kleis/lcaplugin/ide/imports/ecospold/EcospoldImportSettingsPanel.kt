@@ -166,12 +166,25 @@ class EcospoldImportSettingsPanel(
         myLocationField.addBrowseFolderListener(MyBundle.message("lca.dialog.import.library.file.label"), MyBundle.message("lca.dialog.import.library.file.desc"), null, descriptor)
         fun checkLibName() {
             val name = myLocationField.textField.text.lowercase()
-            if (name.contains("lcia") || name.contains("lci")) {
-                warning.text = ""
+            if (name.takeLast(2) != "7z") {
+                warning.text = MyBundle.message("lca.dialog.import.ecospold.7zwarning")
             } else {
-                warning.text = MyBundle.message("lca.dialog.import.ecospold.warning")
-            }
+                when (settings) {
+                    is LCIASettings ->
+                        if (name.contains("lcia")) {
+                            warning.text = ""
+                        } else {
+                            warning.text = MyBundle.message("lca.dialog.import.ecospold.lcia.warning")
+                        }
 
+                    is LCISettings ->
+                        if (name.contains("lci")) {
+                            warning.text = ""
+                        } else {
+                            warning.text = MyBundle.message("lca.dialog.import.ecospold.lci.warning")
+                        }
+                }
+            }
         }
         myLocationField.textField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
