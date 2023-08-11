@@ -9,6 +9,7 @@ import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
 import com.intellij.BundleBase
+import com.intellij.icons.AllIcons
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -80,6 +81,9 @@ class EcospoldImportSettingsPanel(
                 methodNameField = null
 
                 val mappingFile = createMappingFileComponent(settings)
+                mappingFile.label.icon = AllIcons.General.ContextHelp
+                mappingFile.label.toolTipText = MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.toolTip")
+                mappingFile.label.horizontalTextPosition = JBLabel.LEFT
                 mappingFileField = mappingFile.component
                 builder.addLabeledComponent(mappingFile.label, mappingFile.component)
 
@@ -89,11 +93,18 @@ class EcospoldImportSettingsPanel(
         }
 
 
-        builder.addComponent(CheckBoxWithDescription(JBCheckBox(BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.units.label")), settings.importUnits).apply {
-            addItemListener { e ->
-                settings.importUnits = e.stateChange == ItemEvent.SELECTED
-            }
-        }, MyBundle.message("lca.dialog.import.units.desc")))
+        builder.addComponent(
+            CheckBoxWithDescription(
+                JBCheckBox(
+                    BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.units.label")),
+                    settings.importUnits
+                ).apply {
+                    addItemListener { e ->
+                        settings.importUnits = e.stateChange == ItemEvent.SELECTED
+                    }
+                }, MyBundle.message("lca.dialog.import.units.desc")
+            )
+        )
         this.add(builder.panel)
     }
 
@@ -132,7 +143,11 @@ class EcospoldImportSettingsPanel(
             }
         })
 
-        return LabeledComponent.create(pack, BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.package.label")), BorderLayout.WEST)
+        return LabeledComponent.create(
+            pack,
+            BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.package.label")),
+            BorderLayout.WEST
+        )
     }
 
     private fun createLocationComponent(): LabeledComponent<TextFieldWithBrowseButton> {
@@ -147,14 +162,23 @@ class EcospoldImportSettingsPanel(
         val projectLocation: String = myProjectDirectory.toString()
         myLocationField.text = projectLocation
         val descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
-        myLocationField.addBrowseFolderListener(MyBundle.message("lca.dialog.import.root.folder.label"), MyBundle.message("lca.dialog.import.root.folder.desc"), null, descriptor)
+        myLocationField.addBrowseFolderListener(
+            MyBundle.message("lca.dialog.import.root.folder.label"),
+            MyBundle.message("lca.dialog.import.root.folder.desc"),
+            null,
+            descriptor
+        )
         myLocationField.textField.addFocusListener(object : FocusAdapter() {
             override fun focusLost(e: FocusEvent?) {
                 settings.rootFolder = myLocationField.textField.text
             }
         })
 
-        return LabeledComponent.create(myLocationField, BundleBase.replaceMnemonicAmpersand(IdeBundle.message("directory.project.location.label")), BorderLayout.WEST)
+        return LabeledComponent.create(
+            myLocationField,
+            BundleBase.replaceMnemonicAmpersand(IdeBundle.message("directory.project.location.label")),
+            BorderLayout.WEST
+        )
     }
 
 
@@ -163,26 +187,29 @@ class EcospoldImportSettingsPanel(
         val file = Path.of(settings.libraryFile)
         myLocationField.text = if (file.isRegularFile() && file.exists()) file.toString() else ""
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
-        myLocationField.addBrowseFolderListener(MyBundle.message("lca.dialog.import.library.file.label"), MyBundle.message("lca.dialog.import.library.file.desc"), null, descriptor)
+        myLocationField.addBrowseFolderListener(
+            MyBundle.message("lca.dialog.import.library.file.label"),
+            MyBundle.message("lca.dialog.import.library.file.desc"),
+            null,
+            descriptor
+        )
         fun checkLibName() {
             val name = myLocationField.textField.text.lowercase()
             if (name.takeLast(2) != "7z") {
                 warning.text = MyBundle.message("lca.dialog.import.ecospold.7zwarning")
             } else {
                 when (settings) {
-                    is LCIASettings ->
-                        if (name.contains("lcia")) {
-                            warning.text = ""
-                        } else {
-                            warning.text = MyBundle.message("lca.dialog.import.ecospold.lcia.warning")
-                        }
+                    is LCIASettings -> if (name.contains("lcia")) {
+                        warning.text = ""
+                    } else {
+                        warning.text = MyBundle.message("lca.dialog.import.ecospold.lcia.warning")
+                    }
 
-                    is LCISettings ->
-                        if (name.contains("lci")) {
-                            warning.text = ""
-                        } else {
-                            warning.text = MyBundle.message("lca.dialog.import.ecospold.lci.warning")
-                        }
+                    is LCISettings -> if (name.contains("lci")) {
+                        warning.text = ""
+                    } else {
+                        warning.text = MyBundle.message("lca.dialog.import.ecospold.lci.warning")
+                    }
                 }
             }
         }
@@ -197,7 +224,11 @@ class EcospoldImportSettingsPanel(
         checkLibName()
         updateMethodModelFromLib()
 
-        return LabeledComponent.create(myLocationField, BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.library.file.label")), BorderLayout.WEST)
+        return LabeledComponent.create(
+            myLocationField,
+            BundleBase.replaceMnemonicAmpersand(MyBundle.message("lca.dialog.import.library.file.label")),
+            BorderLayout.WEST
+        )
     }
 
     private fun createMappingFileComponent(settings: LCISettings): LabeledComponent<TextFieldWithBrowseButton> {
@@ -206,7 +237,12 @@ class EcospoldImportSettingsPanel(
         myMappingFileField.text = if (file.exists() && file.isRegularFile()) file.toString() else ""
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
 
-        myMappingFileField.addBrowseFolderListener(MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.label"), MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.desc"), null, descriptor)
+        myMappingFileField.addBrowseFolderListener(
+            MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.label"),
+            MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.desc"),
+            null,
+            descriptor
+        )
 
         myMappingFileField.textField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
@@ -244,7 +280,8 @@ class EcospoldImportSettingsPanel(
     }
 
     override fun doValidate(): ValidationInfo? {
-        val genericValidations = listOf({ LcaImportDialog.validateRegularFile(settings.libraryFile, libField) }, { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+        val genericValidations = listOf({ LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
 
         @Suppress("MoveLambdaOutsideParentheses") val specificValidations = when (settings) {
             is LCIASettings -> listOf(
