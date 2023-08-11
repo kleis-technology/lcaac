@@ -120,7 +120,7 @@ class SimaproImporterTest {
 
         // Then
         assertTrue(result is SummaryInError)
-        assertEquals("", result.getResourcesAsString())
+        assertEquals("nothing imported", result.getResourcesAsString())
         assertThat((result as SummaryInError).errorMessage, CoreMatchers.containsString("Unexpected"))
         assertTrue(result.durationInSec >= 0)
     }
@@ -141,7 +141,7 @@ class SimaproImporterTest {
 
         // Then
         assertTrue(result is SummaryInterrupted)
-        assertEquals("", result.getResourcesAsString())
+        assertEquals("nothing imported", result.getResourcesAsString())
         assertTrue(result.durationInSec >= 0)
     }
 

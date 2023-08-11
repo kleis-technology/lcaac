@@ -3,10 +3,13 @@ package ch.kleis.lcaplugin.ide.imports.ecospold
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.ide.imports.ImportHandler
 import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.EcospoldImportSettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
-import ch.kleis.lcaplugin.imports.ecospold.EcospoldLibraryType
 import com.intellij.BundleBase
+import com.intellij.icons.AllIcons
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
@@ -32,45 +35,60 @@ import kotlin.io.path.exists
 import kotlin.io.path.isRegularFile
 
 
-class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) : JPanel(VerticalFlowLayout()),
-    ImportHandler {
+class EcospoldImportSettingsPanel(
+    private val settings: EcospoldImportSettings,
+) : JPanel(VerticalFlowLayout()), ImportHandler {
 
     private val libField: JComponent
     private val packageField: JComponent
-    private val methodNameField: JComponent
     private val methodNameModel = DefaultComboBoxModel<String>()
     private val warning = JBLabel()
 
-    // FIXME
-    private val libType: EcospoldLibraryType = EcospoldLibraryType.LCIA
+    // LCIA specific field
+    private val methodNameField: JComponent?
+
+    // LCI specific field
+    private val mappingFileField: JComponent?
 
     init {
         val builder = FormBuilder()
+
         val locComp = createLocationComponent()
         builder.addLabeledComponent(locComp.label, locComp.component)
+
         val packCom = createPackageComponent()
         packageField = packCom.component
         builder.addLabeledComponent(packCom.label, packCom.component)
+
         val libComp = createLibraryFileComponent()
         libField = libComp.component.textField
         builder.addLabeledComponent(libComp.label, libComp.component)
+
         warning.foreground = JBColor.ORANGE
-        val warningLabelled = LabeledComponent.create(
-            warning, "",
-            BorderLayout.WEST
-        )
+        val warningLabelled = LabeledComponent.create(warning, "", BorderLayout.WEST)
         builder.addLabeledComponent(warningLabelled.label, warningLabelled.component)
 
-        val methodLabelled = createMethodComponent()
-        methodNameField = methodLabelled.component
+        when (settings) {
+            is LCIASettings -> {
+                mappingFileField = null
 
-        when (libType) {
-            EcospoldLibraryType.LCIA -> {
+                val methodLabelled = createMethodComponent(settings)
+                methodNameField = methodLabelled.component
                 builder.addLabeledComponent(methodLabelled.label, methodLabelled.component)
             }
 
-            EcospoldLibraryType.LCI -> {
-                // TODO: add component letting user choose the substance mapping
+            is LCISettings -> {
+                methodNameField = null
+
+                val mappingFile = createMappingFileComponent(settings)
+                mappingFile.label.icon = AllIcons.General.ContextHelp
+                mappingFile.label.toolTipText = MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.toolTip")
+                mappingFile.label.horizontalTextPosition = JBLabel.LEFT
+                mappingFileField = mappingFile.component
+                builder.addLabeledComponent(mappingFile.label, mappingFile.component)
+
+                val importBuiltin = createImportBuiltinLibraryComponent(settings)
+                builder.addLabeledComponent(importBuiltin.label, importBuiltin.component)
             }
         }
 
@@ -84,14 +102,13 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
                     addItemListener { e ->
                         settings.importUnits = e.stateChange == ItemEvent.SELECTED
                     }
-                },
-                MyBundle.message("lca.dialog.import.units.desc")
+                }, MyBundle.message("lca.dialog.import.units.desc")
             )
         )
         this.add(builder.panel)
     }
 
-    private fun createMethodComponent(): LabeledComponent<JComponent> {
+    private fun createMethodComponent(settings: LCIASettings): LabeledComponent<JComponent> {
         val comp = ComboBox(methodNameModel, 300)
         comp.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
@@ -99,10 +116,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
             }
         }
         methodNameModel.selectedItem = settings.methodName
-        return LabeledComponent.create(
-            comp, MyBundle.message("lca.dialog.import.ecospold.method"),
-            BorderLayout.WEST
-        )
+        return LabeledComponent.create(comp, MyBundle.message("lca.dialog.import.ecospold.method"), BorderLayout.WEST)
     }
 
     private fun updateMethodModelFromLib() {
@@ -121,8 +135,7 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
     }
 
     private fun createPackageComponent(): LabeledComponent<JBTextField> {
-        val pack = object : ExtendableTextField(20) {
-        }
+        val pack = object : ExtendableTextField(20) {}
         pack.text = settings.rootPackage
         pack.addFocusListener(object : FocusAdapter() {
             override fun focusLost(e: FocusEvent?) {
@@ -136,7 +149,6 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
             BorderLayout.WEST
         )
     }
-
 
     private fun createLocationComponent(): LabeledComponent<TextFieldWithBrowseButton> {
         val myLocationField = TextFieldWithBrowseButton()
@@ -152,7 +164,9 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         val descriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
         myLocationField.addBrowseFolderListener(
             MyBundle.message("lca.dialog.import.root.folder.label"),
-            MyBundle.message("lca.dialog.import.root.folder.desc"), null, descriptor
+            MyBundle.message("lca.dialog.import.root.folder.desc"),
+            null,
+            descriptor
         )
         myLocationField.textField.addFocusListener(object : FocusAdapter() {
             override fun focusLost(e: FocusEvent?) {
@@ -175,15 +189,29 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
         myLocationField.addBrowseFolderListener(
             MyBundle.message("lca.dialog.import.library.file.label"),
-            MyBundle.message("lca.dialog.import.library.file.desc"), null, descriptor
+            MyBundle.message("lca.dialog.import.library.file.desc"),
+            null,
+            descriptor
         )
         fun checkLibName() {
-            if (myLocationField.textField.text.lowercase().contains("lcia")) {
-                warning.text = ""
+            val name = myLocationField.textField.text.lowercase()
+            if (name.takeLast(2) != "7z") {
+                warning.text = MyBundle.message("lca.dialog.import.ecospold.7zwarning")
             } else {
-                warning.text = MyBundle.message("lca.dialog.import.ecospold.warning")
-            }
+                when (settings) {
+                    is LCIASettings -> if (name.contains("lcia")) {
+                        warning.text = ""
+                    } else {
+                        warning.text = MyBundle.message("lca.dialog.import.ecospold.lcia.warning")
+                    }
 
+                    is LCISettings -> if (name.contains("lci")) {
+                        warning.text = ""
+                    } else {
+                        warning.text = MyBundle.message("lca.dialog.import.ecospold.lci.warning")
+                    }
+                }
+            }
         }
         myLocationField.textField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
@@ -203,16 +231,69 @@ class EcospoldImportSettingsPanel(private val settings: EcospoldImportSettings) 
         )
     }
 
+    private fun createMappingFileComponent(settings: LCISettings): LabeledComponent<TextFieldWithBrowseButton> {
+        val myMappingFileField = TextFieldWithBrowseButton()
+        val file = Path.of(settings.mappingFile)
+        myMappingFileField.text = if (file.exists() && file.isRegularFile()) file.toString() else ""
+        val descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor()
+
+        myMappingFileField.addBrowseFolderListener(
+            MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.label"),
+            MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.desc"),
+            null,
+            descriptor
+        )
+
+        myMappingFileField.textField.document.addDocumentListener(object : DocumentAdapter() {
+            override fun textChanged(e: DocumentEvent) {
+                Logger.getInstance(this::class.java).info(e.toString())
+                settings.mappingFile = myMappingFileField.textField.text
+            }
+        })
+
+        @Suppress("DialogTitleCapitalization") return LabeledComponent.create(
+            myMappingFileField,
+            MyBundle.message("lca.dialog.import.ecospold.lci.mappingFile.label"),
+            BorderLayout.WEST,
+        )
+    }
+
+    private fun createImportBuiltinLibraryComponent(settings: LCISettings): LabeledComponent<ComboBox<LCISettings.Companion.BuiltinLibrary?>> {
+        val myComboBox = ComboBox<LCISettings.Companion.BuiltinLibrary?>()
+        myComboBox.addItem(null)
+        LCISettings.Companion.BuiltinLibrary.values().forEach(myComboBox::addItem)
+        myComboBox.addActionListener {
+            if (it.actionCommand == "comboBoxChanged") {
+                settings.importBuiltinLibrary = myComboBox.selectedItem as LCISettings.Companion.BuiltinLibrary?
+            }
+        }
+
+        return LabeledComponent.create(
+            myComboBox,
+            MyBundle.message("lca.dialog.import.ecospold.lci.builtinLibrary.label"),
+            BorderLayout.WEST,
+        )
+    }
+
     override fun importer(): Importer {
-        return EcospoldImporter(settings, methodNameModel.selectedItem.toString())
+        return EcospoldImporter(settings)
     }
 
     override fun doValidate(): ValidationInfo? {
-        return listOf(
-            { LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
-            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) },
-            { LcaImportDialog.validateNonEmpty(settings.methodName, methodNameField) })
-            .firstNotNullOfOrNull { it.invoke() }
+        val genericValidations = listOf({ LcaImportDialog.validateRegularFile(settings.libraryFile, libField) },
+            { LcaImportDialog.validatePackageIsValid(settings.rootPackage, packageField) })
+
+        @Suppress("MoveLambdaOutsideParentheses") val specificValidations = when (settings) {
+            is LCIASettings -> listOf(
+                { LcaImportDialog.validateNonEmpty(settings.methodName, methodNameField!!) },
+            )
+
+            is LCISettings -> if (settings.mappingFile.isNotEmpty()) {
+                listOf({ LcaImportDialog.validateRegularFile(settings.mappingFile, mappingFileField!!) })
+            } else listOf()
+        }
+
+        return (genericValidations + specificValidations).firstNotNullOfOrNull { it.invoke() }
     }
 
 }

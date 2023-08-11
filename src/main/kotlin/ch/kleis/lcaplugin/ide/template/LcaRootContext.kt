@@ -6,7 +6,7 @@ import com.intellij.psi.PsiFile
 
 
 @Suppress("DialogTitleCapitalization")
-class LcaRootContext : TemplateContextType("LCARoot", "LCA File Root") {
+class LcaRootContext : TemplateContextType("LCA File Root") {
 
 
     override fun isInContext(ctx: TemplateActionContext): Boolean {

@@ -1,7 +1,10 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
-import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.asComment
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.compactAndPad
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.compactText
+import ch.kleis.lcaplugin.imports.ModelWriter.Companion.sanitizeAndCompact
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.Companion.unitToStr
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
@@ -28,7 +31,7 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         }
 
         private fun datasetUid(activityName: String, geo: String): String {
-            return ModelWriter.sanitizeAndCompact(activityName + "_" + geo)
+            return sanitizeAndCompact(activityName + "_" + geo)
         }
     }
 
@@ -83,8 +86,8 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         ImportedBioExchange(
             comments = elementaryExchange.comment?.let { listOf(it) } ?: listOf(),
             qty = elementaryExchange.amount.toString(),
-            unit = elementaryExchange.unit,
-            uid = ModelWriter.sanitizeAndCompact(elementaryExchange.name),
+            unit = unitToStr(elementaryExchange.unit),
+            uid = sanitizeAndCompact(elementaryExchange.name),
             compartment = elementaryExchange.compartment,
             subCompartment = elementaryExchange.subCompartment,
         )
@@ -93,21 +96,21 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         val metas = result.meta
         process.description.let { description ->
             description.activity.let { activity ->
-                activity.id?.let { metas["id"] = ModelWriter.compactText(it) }
-                activity.name.let { metas["name"] = ModelWriter.compactText(it) }
+                activity.id?.let { metas["id"] = compactText(it) }
+                activity.name.let { metas["name"] = compactText(it) }
                 activity.type.let { metas["type"] = it }
                 activity.generalComment?.let {
-                    metas["description"] = ModelWriter.compactAndPad(toStr(it), 12)
+                    metas["description"] = compactAndPad(toStr(it), 12)
                 }
                 activity.energyValues?.let { metas["energyValues"] = it }
                 activity.includedActivitiesStart?.let {
-                    metas["includedActivitiesStart"] = ModelWriter.compactText(it)
+                    metas["includedActivitiesStart"] = compactText(it)
                 }
-                activity.includedActivitiesEnd?.let { metas["includedActivitiesEnd"] = ModelWriter.compactText(it) }
+                activity.includedActivitiesEnd?.let { metas["includedActivitiesEnd"] = compactText(it) }
             }
-            description.classifications.forEach { metas[it.system] = ModelWriter.compactText(it.value) }
-            description.geography?.shortName?.let { metas["geography-shortname"] = ModelWriter.compactText(it) }
-            description.geography?.comment?.let { metas["geography-comment"] = ModelWriter.compactText(toStr(it)) }
+            description.classifications.forEach { metas[it.system] = compactText(it.value) }
+            description.geography?.shortName?.let { metas["geography-shortname"] = compactText(it) }
+            description.geography?.comment?.let { metas["geography-comment"] = compactText(toStr(it)) }
         }
     }
 
@@ -118,9 +121,9 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         e.uncertainty?.let { uncertaintyToStr(initComments, it) }
         e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
         val amount = e.amount.toString()
-        val unit = sanitizeSymbol(unitToStr(e.unit))
+        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit)))
 
-        val uid = ModelWriter.sanitizeAndCompact("${e.name}_$geo")
+        val uid = sanitizeAndCompact("${e.name}_$geo")
         if (e.outputGroup != 0) {
             throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
         }
@@ -136,7 +139,7 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         it.uniform?.let { comments.add("// uncertainty: uniform minValue=${it.minValue}, maxValue=${it.maxValue}") }
         it.triangular?.let { comments.add("// uncertainty: triangular minValue=${it.minValue}, maxValue=${it.maxValue}, mostLikelyValue=${it.mostLikelyValue}, ") }
         it.comment?.let { comments.add("// uncertainty: comment") }
-        it.comment?.let { comments.addAll(ModelWriter.asComment(it)) }
+        it.comment?.let { comments.addAll(asComment(it)) }
     }
 
 

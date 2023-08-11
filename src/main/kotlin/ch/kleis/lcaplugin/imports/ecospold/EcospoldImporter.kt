@@ -2,10 +2,14 @@ package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
 import ch.kleis.lcaplugin.core.prelude.Prelude
-import ch.kleis.lcaplugin.ide.imports.ecospold.EcospoldImportSettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.EcospoldImportSettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
 import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
+import ch.kleis.lcaplugin.imports.ecospold.lci.EcospoldMethodMapper
+import ch.kleis.lcaplugin.imports.ecospold.lci.MappingExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
@@ -18,15 +22,22 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
+import org.apache.commons.io.input.BOMInputStream
+import java.io.FileInputStream
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
-class EcospoldImporter(private val settings: EcospoldImportSettings, private val methodName: String) : Importer() {
+class EcospoldImporter(
+    private val settings: EcospoldImportSettings,
+) : Importer() {
+
     companion object {
         private val LOG = Logger.getInstance(EcospoldImporter::class.java)
 
@@ -52,21 +63,46 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     private var totalValue = 1
     private var currentValue = 0
     private val processRenderer = EcospoldProcessRenderer()
+    private val methodName: String = when (settings) {
+        is LCISettings -> "Ecospold LCI library file."
+        is LCIASettings -> settings.methodName
+    }
     private val predefinedUnits = Prelude.unitMap.values
         .map { it.toUnitValue() }
         .associateBy { it.symbol.toString() }
     private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
     override fun importAll(controller: AsyncTaskController, watcher: AsynchronousWatcher) {
-        val path = Path.of(settings.libraryFile)
+        val methodMapping =
+            if (settings is LCISettings && settings.mappingFile.isNotEmpty()) {
+                buildMapping(watcher, settings)
+            } else {
+                null
+            }
 
+        val path = Path.of(settings.libraryFile)
         val pkg = settings.rootPackage.ifBlank { "default" }
         SevenZFile(path.toFile()).use { f ->
-            ModelWriter(pkg, settings.rootFolder, listOf(), watcher).use { w ->
-                importEntries(f, w, controller, watcher)
+            ModelWriter(pkg, settings.rootFolder, builtinLibraryImports(settings), watcher).use { w ->
+                importEntries(f, methodMapping, w, controller, watcher)
             }
         }
     }
+
+    private fun buildMapping(watcher: AsynchronousWatcher, settings: LCISettings): Map<String, MappingExchange> {
+        watcher.notifyCurrentWork("Building requested method map")
+        FileInputStream(settings.mappingFile).use {
+            val bomIS = BOMInputStream(it)
+            val isr = InputStreamReader(bomIS, StandardCharsets.UTF_8)
+
+            return EcospoldMethodMapper.buildMapping(isr)
+        }
+    }
+
+    private fun builtinLibraryImports(settings: EcospoldImportSettings): List<String> =
+        if (settings is LCISettings && settings.importBuiltinLibrary != null) {
+            listOf(settings.importBuiltinLibrary.toString())
+        } else listOf()
 
     override fun getImportRoot(): Path {
         return Path.of(settings.rootFolder)
@@ -82,6 +118,7 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
 
     private fun importEntries(
         f: SevenZFile,
+        methodMapping: Map<String, MappingExchange>?,
         writer: ModelWriter,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
@@ -93,45 +130,85 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
         processRenderer.processDict = readProcessDict(f, entries)
 
         if (settings.importUnits) {
-            val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
-            val fromMeta = f.getInputStream(unitConversionFile).use {
-                val unitConvs = Parser.readUnits(it)
-                unitConvs.asSequence()
-                    .map { u ->
-                        ImportedUnit(
-                            u.dimension, u.fromUnit, u.factor,
-                            unitToStr(u.toUnit)
-                        )
-                    }
-                    .filter { u -> u.name != "foot-candle" }
-            }
-            val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
-            val fromMethod = f.getInputStream(methodsFile).use {
-                val unitConvs = Parser.readMethodUnits(it, methodName)
-                unitConvs.asSequence()
-                    .map { u ->
-                        ImportedUnit(
-                            u.dimension, u.fromUnit, u.factor,
-                            unitToStr(u.toUnit)
-                        )
-                    }
-                    .filter { u -> u.name != "foot-candle" }
-                    .filter { u -> !predefinedUnits.containsKey(u.name) }
-            }
-
-
-            (fromMeta + fromMethod)
-                .distinctBy { it.name }
-                .forEach { unitRenderer.render(it, writer) }
+            importUnits(entries, f, writer)
         }
-        entries.asSequence()
+
+        val parsedEntries = entries.asSequence()
             .filter { it.hasStream() }
             .filter { it.name.endsWith(".spold") }
-            .forEach {
-                importEntry(it.name, f.getInputStream(it), writer, controller, watcher)
+            .map {
+                (it.name to importEntry(f.getInputStream(it), controller, watcher))
             }
+
+        val methodMappedEntries = methodMapping?.let {
+            getMethodMappedEntries(it, parsedEntries)
+        }
+
+        (methodMappedEntries ?: parsedEntries).forEach { it: Pair<String, ActivityDataset> ->
+            writeImportedDataset(it.second, writer, it.first)
+        }
+
         val duration = Duration.between(start, Instant.now())
         renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
+    }
+
+    private fun getMethodMappedEntries(
+        methodMapping: Map<String, MappingExchange>,
+        parsedEntries: Sequence<Pair<String, ActivityDataset>>
+    ): Sequence<Pair<String, ActivityDataset>> =
+        parsedEntries.map { (fileName, activityDataset) ->
+            fileName to activityDataset.copy(
+                flowData = activityDataset.flowData.copy(
+                    elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
+                        methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
+                            originalExchange.copy(
+                                amount = mapping.conversionFactor?.let { it * originalExchange.amount }
+                                    ?: originalExchange.amount,
+                                name = mapping.name ?: originalExchange.name,
+                                unit = mapping.unit ?: originalExchange.unit,
+                                compartment = mapping.compartment ?: originalExchange.compartment,
+                                subCompartment = mapping.subCompartment
+                                    ?: originalExchange.subCompartment?.ifEmpty { null },
+                                comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
+                                    ?: mapping.comment
+                            )
+                        } ?: originalExchange
+                    }
+                )
+            )
+        }
+
+    private fun importUnits(entries: List<SevenZArchiveEntry>, f: SevenZFile, writer: ModelWriter) {
+        val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
+        val fromMeta = f.getInputStream(unitConversionFile).use {
+            val unitConvs = Parser.readUnits(it)
+            unitConvs.asSequence()
+                .map { u ->
+                    ImportedUnit(
+                        u.dimension, u.fromUnit, u.factor,
+                        unitToStr(u.toUnit)
+                    )
+                }
+                .filter { u -> u.name != "foot-candle" }
+        }
+
+        val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
+        val fromMethod = f.getInputStream(methodsFile).use {
+            val unitConvs = Parser.readMethodUnits(it, methodName)
+            unitConvs.asSequence()
+                .map { u ->
+                    ImportedUnit(
+                        u.dimension, u.fromUnit, u.factor,
+                        unitToStr(u.toUnit)
+                    )
+                }
+                .filter { u -> u.name != "foot-candle" }
+                .filter { u -> !predefinedUnits.containsKey(u.name) }
+        }
+
+        (fromMeta + fromMethod)
+            .distinctBy { it.name }
+            .forEach { unitRenderer.render(it, writer) }
     }
 
     private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
@@ -174,28 +251,24 @@ class EcospoldImporter(private val settings: EcospoldImportSettings, private val
     }
 
     private fun importEntry(
-        path: String,
         input: InputStream,
-        w: ModelWriter,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher
-    ) {
+    ): ActivityDataset {
         if (!controller.isActive()) throw ImportInterruptedException()
-        val eco = Parser.readDataset(input)
+        val activityDataset: ActivityDataset = Parser.readDataset(input)
+
         currentValue++
         watcher.notifyProgress((100.0 * currentValue / totalValue).roundToInt())
-        importDataSet(eco.activityDataset, w, path)
+        return activityDataset
     }
 
-    private fun importDataSet(
+    private fun writeImportedDataset(
         dataSet: ActivityDataset,
         w: ModelWriter,
         path: String
     ) {
         LOG.info("Read dataset from $path")
         processRenderer.render(dataSet, w, "from $path", methodName)
-
     }
-
-
 }

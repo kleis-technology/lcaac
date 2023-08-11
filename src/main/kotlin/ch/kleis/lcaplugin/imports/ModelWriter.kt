@@ -22,16 +22,16 @@ import kotlin.io.path.exists
 
 private const val MAX_FILE_SIZE = 2000000
 typealias Line = CharSequence
-typealias Text = List<CharSequence>
+typealias Text = List<Line>
 
 data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var currentSize: Int = 0) :
     Closeable {
 
     constructor(path: Path, currentSize: Int) :
-            this(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentSize)
+        this(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentSize)
 
 
-    fun write(block: CharSequence) {
+    fun write(block: Line) {
         val str = "$block\n"
         writer.write(str)
         currentSize += str.length
@@ -83,7 +83,7 @@ class ModelWriter(
                 .trimEnd('_')
         }
 
-        fun compactText(s: CharSequence): String {
+        fun compactText(s: Line): String {
             if (s.isBlank()) {
                 return ""
             }
@@ -93,24 +93,24 @@ class ModelWriter(
                 .trimEnd()
         }
 
-        fun pad(text: List<CharSequence>, number: Int = BASE_PAD): CharSequence {
+        fun pad(text: Text, number: Int = BASE_PAD): Line {
             val sep = " ".repeat(number)
             return text.joinToString("\n") { "$sep$it" }
         }
 
-        fun compactAndPad(s: CharSequence, number: Int = BASE_PAD): String {
+        fun compactAndPad(s: Line, number: Int = BASE_PAD): String {
             val text = s.split("\n")
                 .map { compactText(it) }
                 .filter { it.isNotBlank() }
             return padButFirst(text, number)
         }
 
-        fun padButFirst(text: List<CharSequence>, number: Int = BASE_PAD): String {
+        fun padButFirst(text: Text, number: Int = BASE_PAD): String {
             val sep = " ".repeat(number)
             return text.joinToString("\n$sep")
         }
 
-        private fun padList(text: List<CharSequence>, pad: Int): List<CharSequence> {
+        private fun padList(text: Text, pad: Int): Text {
             val sep = " ".repeat(pad)
             return text.map { "$sep$it" }
         }
@@ -124,15 +124,15 @@ class ModelWriter(
                 .toImmutableList()
         }
 
-        fun block(title: CharSequence, blockLines: List<CharSequence>, pad: Int = BASE_PAD): CharSequence {
-            val lines: MutableList<CharSequence> = mutableListOf(title)
+        fun block(title: Line, blockLines: Text, pad: Int = BASE_PAD): Line {
+            val lines = mutableListOf(title)
             val elements = padList(blockLines, pad)
             lines.addAll(elements)
             lines.add("}")
             return pad(lines, pad)
         }
 
-        fun blockKeyValue(metas: MutableSet<MutableMap.MutableEntry<String, String?>>, pad: Int): CharSequence {
+        fun blockKeyValue(metas: MutableSet<MutableMap.MutableEntry<String, String?>>, pad: Int): Line {
             val builder = StringBuilder()
             metas.forEach { (k, v) ->
                 val split = v
@@ -154,7 +154,7 @@ class ModelWriter(
 
     private val openedFiles: MutableMap<String, FileWriterWithSize> = mutableMapOf()
 
-    fun write(relativePath: String, block: CharSequence, index: Boolean = true, closeAfterWrite: Boolean = false) {
+    fun write(relativePath: String, block: Line, index: Boolean = true, closeAfterWrite: Boolean = false) {
         if (block.isNotBlank()) {
             watcher.notifyCurrentWork(relativePath)
             val file = recreateIfNeeded(relativePath, index)
@@ -185,7 +185,7 @@ class ModelWriter(
         Files.createDirectories(path.parent)
         val new = FileWriterWithSize(path, currentIndex)
         openedFiles[relativePath] = new
-        new.write("package $packageName")
+        new.write("package $packageName\n")
         imports.forEach { new.write("import $it") }
         return new
     }

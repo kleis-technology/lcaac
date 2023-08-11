@@ -32,8 +32,8 @@ class ParserTest {
             val dataset = Parser.readDataset(it)
 
             // Then
-            assertEqualsToDescription(dataset.activityDataset.description)
-            assertEqualsToFlow(dataset.activityDataset.flowData)
+            assertEqualsToDescription(dataset.description)
+            assertEqualsToFlow(dataset.flowData)
         }
     }
 
