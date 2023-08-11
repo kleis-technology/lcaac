@@ -9,17 +9,18 @@ object CompleteTerminals {
         EProcessFinal.expression.inputs compose
             Every.list()
 
-    fun apply(expression: EProcessFinal): EProcessFinal {
-        return completeProcessIndicators(completeSubstances(completeInputs(expression)))
-    }
+    fun apply(expression: EProcessFinal): EProcessFinal =
+        expression
+            .completeInputs()
+            .completeSubstances()
+            .completeProcessIndicators()
 
-    fun apply(expression: ESubstanceCharacterization): ESubstanceCharacterization {
-        return completeSubstanceIndicators(expression)
-    }
+    fun apply(expression: ESubstanceCharacterization): ESubstanceCharacterization =
+        expression.completeSubstanceIndicators()
 
-    private fun completeInputs(reduced: EProcessFinal): EProcessFinal {
+    private fun EProcessFinal.completeInputs(): EProcessFinal {
         return everyInputExchange
-            .modify(reduced) { exchange ->
+            .modify(this) { exchange ->
                 val quantityExpression = exchange.quantity
                 val referenceUnit = when {
                     quantityExpression is EUnitLiteral ->
@@ -38,9 +39,9 @@ object CompleteTerminals {
             }
     }
 
-    private fun completeSubstances(reduced: EProcessFinal): EProcessFinal {
+    private fun EProcessFinal.completeSubstances(): EProcessFinal {
         return (EProcessFinal.expression.biosphere compose Every.list())
-            .modify(reduced) { exchange ->
+            .modify(this) { exchange ->
                 val quantityExpression = exchange.quantity
                 val referenceUnit = when {
                     quantityExpression is EUnitLiteral ->
@@ -80,13 +81,13 @@ object CompleteTerminals {
                 }
         }
 
-    private fun completeProcessIndicators(reduced: EProcessFinal): EProcessFinal =
-        reduced.copy(
-            expression = reduced.expression.copy(
-                impacts = completeIndicators(reduced.expression.impacts)
+    private fun EProcessFinal.completeProcessIndicators(): EProcessFinal =
+        this.copy(
+            expression = this.expression.copy(
+                impacts = completeIndicators(this.expression.impacts)
             )
         )
 
-    private fun completeSubstanceIndicators(reduced: ESubstanceCharacterization): ESubstanceCharacterization =
-        reduced.copy(impacts = completeIndicators(reduced.impacts))
+    private fun ESubstanceCharacterization.completeSubstanceIndicators(): ESubstanceCharacterization =
+        this.copy(impacts = completeIndicators(this.impacts))
 }

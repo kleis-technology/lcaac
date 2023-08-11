@@ -8,11 +8,7 @@ import kotlin.math.absoluteValue
 object Allocation {
     fun apply(system: SystemValue): SystemValue {
         val processes = system.processes.flatMap { processValue ->
-            if (processValue.products.size > 1) {
-                processValue.products.map { allocateProduct(it, processValue) }
-            } else {
-                listOf(processValue)
-            }
+            processValue.products.map { allocateProduct(it, processValue) }
         }.toMutableSet()
         return SystemValue(processes, system.substanceCharacterizations)
     }
