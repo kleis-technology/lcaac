@@ -34,34 +34,36 @@ object EcospoldMethodMapper {
 
     fun buildMapping(mapData: Reader): Map<ID, MappingExchange> =
         CSVParser.parse(mapData, csvFormat).use { parser ->
-            if (validateHeaders(parser.headerMap)) {
-                parser.stream().asSequence().mapNotNull { record ->
-                    when (record["flow_status"]) {
-                        "ecoinvent orphan" -> {
-                            record["id"] to MappingExchange.orphan(record["id"])
-                        }
-
-                        // Can be 'mapped', 'mapped: proxy' or 'mapped: compartment overwrite'.
-                        // In all three cases, nullable fields sometimes exist and can be filled in.
-                        else -> mappedElement(record)
+            validateHeaders(parser.headerMap)
+            parser.stream().asSequence().mapNotNull { record ->
+                when (record["flow_status"]) {
+                    "ecoinvent orphan" -> {
+                        record["id"] to MappingExchange.orphan(record["id"])
                     }
-                }.toMap()
-            } else {
-                throw IllegalArgumentException("Header validation failed.")
-            }
+
+                    // Can be 'mapped', 'mapped: proxy' or 'mapped: compartment overwrite'.
+                    // In all three cases, nullable fields sometimes exist and can be filled in.
+                    else -> mappedElement(record)
+                }
+            }.toMap()
         }
 
-    private fun validateHeaders(headers: Map<String, Int>): Boolean =
-        headers.containsKey("flow_status")
-            && headers.containsKey("compartment_status")
-            && headers.containsKey("id")
-            && headers.containsKey("conversion_factor")
-            && headers.containsKey("name")
-            && headers.containsKey("method_name")
-            && headers.containsKey("unitName")
-            && headers.containsKey("method_unit")
-            && headers.containsKey("method_compartment")
-            && headers.containsKey("method_subcompartment")
+    private fun validateHeaders(headers: Map<String, Int>) =
+        sequenceOf("compartment_status",
+            "conversion_factor",
+            "flow_status",
+            "id",
+            "method_compartment",
+            "method_name",
+            "method_subcompartment",
+            "method_unit",
+            "name",
+            "unitName")
+            .forEach { header ->
+                if (!headers.containsKey(header)) {
+                    throw IllegalArgumentException("could not find $header in file headers. Is it a valid mapping file ?")
+                }
+            }
 
     private fun mappedElement(record: CSVRecord): Pair<ID, MappingExchange>? =
         try {
@@ -79,9 +81,9 @@ object EcospoldMethodMapper {
             null
         }
 
-    private fun getConversionFactor(factor: String): Double? =
+    fun getConversionFactor(factor: String): Double? =
         factor
-            .ifEmpty { null }
+            .nullIfEmpty()
             ?.toDoubleOrNull()
             ?.let {
                 if (it == 1.0) null else it
@@ -89,14 +91,10 @@ object EcospoldMethodMapper {
 
     private fun pefUnitException(methodUnit: String, unitName: String): String =
         if (unitName == "m2*year" && methodUnit == "m2*a") {
-            "m2a"
+            unitName
         } else {
             methodUnit
         }
 
-    private
-
-    fun String.nullIfEmpty(): String? {
-        return this.ifEmpty { null }
-    }
+    private fun String.nullIfEmpty(): String? = this.ifEmpty { null }
 }
