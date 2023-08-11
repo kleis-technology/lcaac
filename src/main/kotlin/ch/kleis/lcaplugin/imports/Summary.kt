@@ -9,7 +9,7 @@ sealed class Summary(
     fun getResourcesAsString(): String {
         return importedResources.filter { it.qty > 0 }
             .joinToString(", ") { "${it.qty} ${it.name}" }
-            .ifEmpty { "nothing imported." }
+            .ifEmpty { "nothing imported" }
     }
 }
 
