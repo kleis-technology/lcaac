@@ -19,10 +19,7 @@ import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import ch.kleis.lcaplugin.imports.util.ImportInterruptedException
 import com.intellij.openapi.diagnostic.Logger
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
@@ -139,15 +136,15 @@ class EcospoldImporter(
             importUnits(entries, f, writer)
         }
 
-        val methodMappingFunction = methodMapping?.let { getMethodMappedEntries(it) } ?: { it }
-
+        val methodMappingFunction = methodMapping?.let { buildMethodMappingFunction(it) } ?: { it }
         val parsedEntries = entries.asFlow()
             .filter { it.hasStream() }
             .filter { it.name.endsWith(".spold") }
             .map {
                 (it.name to importEntry(f.getInputStream(it), controller, watcher))
-            }
-            .map(methodMappingFunction)
+            }.map {
+                methodMappingFunction(it)
+            }.buffer()
             .flowOn(Dispatchers.Default)
 
         runBlocking {
@@ -160,7 +157,7 @@ class EcospoldImporter(
         renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
     }
 
-    private fun getMethodMappedEntries(
+    private fun buildMethodMappingFunction(
         methodMapping: Map<String, MappingExchange>,
     ): (Pair<String, ActivityDataset>) -> Pair<String, ActivityDataset> =
         { (fileName, activityDataset) ->
@@ -257,7 +254,7 @@ class EcospoldImporter(
         }.associateBy { it.processId }
     }
 
-    private suspend fun importEntry(
+    private fun importEntry(
         input: InputStream,
         controller: AsyncTaskController,
         watcher: AsynchronousWatcher

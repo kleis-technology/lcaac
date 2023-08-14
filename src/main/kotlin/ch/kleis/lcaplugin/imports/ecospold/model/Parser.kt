@@ -1,10 +1,6 @@
 package ch.kleis.lcaplugin.imports.ecospold.model
 
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import org.jdom2.Element
 import org.jdom2.JDOMFactory
 import org.jdom2.input.SAXBuilder
@@ -56,16 +52,14 @@ object Parser {
     }
 
 
-    suspend fun readDataset(stream: InputStream): ActivityDataset = coroutineScope {
+    fun readDataset(stream: InputStream): ActivityDataset {
         val builder = getSAXBuilder()
         val root = rootElt(builder, stream)
         val xmlDataset = root.getChild("activityDataset") ?: root.getChild("childActivityDataset")
 
-        val description = async { readDescription(xmlDataset.getChild("activityDescription")) }
-        val flowData = async { readFlowData(xmlDataset.getChild("flowData")) }
-        ActivityDataset(
-            description.await(),
-            flowData.await(),
+        return ActivityDataset(
+            readDescription(xmlDataset.getChild("activityDescription")),
+            readFlowData(xmlDataset.getChild("flowData"))
         )
     }
 
@@ -79,143 +73,114 @@ object Parser {
     }
 
 
-    private suspend fun readIndicators(indicators: List<Element>): List<ImpactIndicator> = coroutineScope {
-        indicators.map {
-            async {
-                ImpactIndicator.Builder()
-                    .amount(it.getAttributeValue("amount").toDouble())
-                    .name(it.getChildText("name"))
-                    .unitName(it.getChildText("unitName"))
-                    .categoryName(it.getChildText("impactCategoryName"))
-                    .methodName(it.getChildText("impactMethodName"))
-                    .build()
-            }
-        }.awaitAll()
+    private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
+        return indicators.map {
+            ImpactIndicator.Builder()
+                .amount(it.getAttributeValue("amount").toDouble())
+                .name(it.getChildText("name"))
+                .unitName(it.getChildText("unitName"))
+                .categoryName(it.getChildText("impactCategoryName"))
+                .methodName(it.getChildText("impactMethodName"))
+                .build()
+        }
     }
 
-    private suspend fun readElementaryExchanges(elementaryExchangeList: List<Element>): List<ElementaryExchange> =
-        coroutineScope {
-            elementaryExchangeList.map {
-                async {
-                    ElementaryExchange(
-                        elementaryExchangeId = it.getAttributeValue("elementaryExchangeId")!!,
-                        amount = it.getAttributeValue("amount")!!.toDouble(),
-                        name = it.getChildText("name")!!,
-                        unit = it.getChildText("unitName")!!,
-                        compartment = it.getChild("compartment")!!.getChildText("compartment")!!,
-                        subCompartment = it.getChild("compartment")!!.getChildText("subcompartment"),
-                        substanceType = readSubstanceType(it),
-                        comment = it.getChildText("comment")
-                    )
-                }
-            }.awaitAll()
+    private fun readElementaryExchanges(elementaryExchangeList: List<Element>): Sequence<ElementaryExchange> =
+        elementaryExchangeList.asSequence().map {
+            ElementaryExchange(
+                elementaryExchangeId = it.getAttributeValue("elementaryExchangeId")!!,
+                amount = it.getAttributeValue("amount")!!.toDouble(),
+                name = it.getChildText("name")!!,
+                unit = it.getChildText("unitName")!!,
+                compartment = it.getChild("compartment")!!.getChildText("compartment")!!,
+                subCompartment = it.getChild("compartment")!!.getChildText("subcompartment"),
+                substanceType = readSubstanceType(it),
+                comment = it.getChildText("comment")
+            )
         }
 
-    private suspend fun readSubstanceType(elementaryExchange: Element): SubstanceType = coroutineScope {
-        val outputGroup = async { elementaryExchange.getChildText("outputGroup") }
-        val inputGroup = async { elementaryExchange.getChildText("inputGroup") }
-        val subCompartment: Deferred<String?> =
-            async { elementaryExchange.getChild("compartment")!!.getChildText("subcompartment") }
-        when {
-            subCompartment.await()?.equals("land") ?: false -> SubstanceType.LAND_USE
-            outputGroup.await()?.equals("4") ?: false -> SubstanceType.EMISSION
-            inputGroup.await()?.equals("4") ?: false -> SubstanceType.RESOURCE
+    private fun readSubstanceType(elementaryExchange: Element): SubstanceType {
+        val outputGroup = elementaryExchange.getChildText("outputGroup")
+        val inputGroup = elementaryExchange.getChildText("inputGroup")
+        val subCompartment: String? = elementaryExchange.getChild("compartment")!!.getChildText("subcompartment")
+        return when {
+            subCompartment?.equals("land") ?: false -> SubstanceType.LAND_USE
+            outputGroup?.equals("4") ?: false -> SubstanceType.EMISSION
+            inputGroup?.equals("4") ?: false -> SubstanceType.RESOURCE
             else -> throw Error("Invalid input and output group for exchange ${elementaryExchange.getChildText("name")}")
         }
     }
 
 
-    private suspend fun readFlowData(xmlDesc: Element): FlowData = coroutineScope {
+    private fun readFlowData(xmlDesc: Element): FlowData {
         val intermediateExchangeList = xmlDesc.getChildren("intermediateExchange")
             .map {
-                async {
-                    IntermediateExchange(
-                        amount = it.getAttributeValue("amount").toDouble(),
-                        name = it.getChildText("name"),
-                        unit = it.getChildText("unitName"),
-                        synonyms = it.getChildren("synonym").map { n -> n.value },
-                        uncertainty = readUncertainty(it.getChild("uncertainty")),
-                        outputGroup = it.getChildText("outputGroup").toInt(),
-                        classifications = readClassifications(it.getChildren("classification")),
-                        properties = readProperties(it.getChildren("property")),
-                    )
-                }
+                val builder = IntermediateExchange.Builder()
+                    .amount(it.getAttributeValue("amount").toDouble())
+                    .name(it.getChildText("name"))
+                    .unit(it.getChildText("unitName"))
+                    .synonyms(it.getChildren("synonym").map { n -> n.value })
+                    .uncertainty(readUncertainty(it.getChild("uncertainty")))
+                    .outputGroup(it.getChildText("outputGroup").toInt())
+                    .classifications(readClassifications(it.getChildren("classification")))
+                    .properties(readProperties(it.getChildren("property")))
+                builder.build()
             }
         val indicators = readIndicators(xmlDesc.getChildren("impactIndicator"))
         val elementaryExchangeList = readElementaryExchanges(xmlDesc.getChildren("elementaryExchange"))
 
-        FlowData(
-            intermediateExchangeList.awaitAll(),
-            indicators,
-            elementaryExchangeList
+        return FlowData(intermediateExchangeList, indicators, elementaryExchangeList)
+    }
+
+
+    private fun readProperties(children: List<Element>): List<Property> {
+        return children.map {
+            Property(
+                it.getChildText("name"),
+                it.getAttributeValue("amount").toDouble(),
+                it.getChildText("unitName"),
+                it.getAttributeValue("isDefiningValue"),
+                it.getAttributeValue("isCalculatedAmount"),
+            )
+        }
+
+    }
+
+    private fun readDescription(xmlDesc: Element): ActivityDescription {
+        return ActivityDescription.Builder()
+            .activity(readActivity(xmlDesc.getChild("activity")))
+            .classifications(readClassifications(xmlDesc.getChildren("classification")))
+            .geography(readGeography(xmlDesc.getChild("geography")))
+            .build()
+    }
+
+    private fun readClassifications(children: List<Element>): List<Classification> {
+        return children.map {
+            Classification(
+                it.getChildText("classificationSystem"),
+                it.getChildText("classificationValue")
+            )
+        }
+    }
+
+    private fun readGeography(xml: Element): Geography {
+        return Geography(
+            xml.getChildText("shortname"),
+            readMultiline(xml.getChild("comment"))
         )
     }
 
 
-    private suspend fun readProperties(children: List<Element>): List<Property> = coroutineScope {
-        children.map {
-            async {
-                Property(
-                    it.getChildText("name"),
-                    it.getAttributeValue("amount").toDouble(),
-                    it.getChildText("unitName"),
-                    it.getAttributeValue("isDefiningValue"),
-                    it.getAttributeValue("isCalculatedAmount"),
-                )
-            }
-        }.awaitAll()
-    }
-
-    private suspend fun readDescription(xmlDesc: Element): ActivityDescription = coroutineScope {
-        val activity = async { readActivity(xmlDesc.getChild("activity")) }
-        val classifications = async { readClassifications(xmlDesc.getChildren("classification")) }
-        val geography = async { readGeography(xmlDesc.getChild("geography")) }
-        ActivityDescription(
-            activity.await(),
-            classifications.await(),
-            geography.await()
-        )
-    }
-
-    private suspend fun readClassifications(children: List<Element>): List<Classification> = coroutineScope {
-        children.map {
-            async {
-                Classification(
-                    it.getChildText("classificationSystem"),
-                    it.getChildText("classificationValue")
-                )
-            }
-        }.awaitAll()
-    }
-
-    private suspend fun readGeography(xml: Element): Geography = coroutineScope {
-        val shortName = async { xml.getChildText("shortname") }
-        val comment = async { readMultiline(xml.getChild("comment")) }
-        Geography(
-            shortName.await(),
-            comment.await()
-        )
-    }
-
-
-    private suspend fun readActivity(xml: Element): Activity = coroutineScope {
-        val id = async { xml.getAttributeValue("id") }
-        val type = async { xml.getAttributeValue("type") }
-        val energyValues = async { xml.getAttributeValue("energyValues") }
-        val name = async { xml.getChildText("activityName") }
-        val includedActivitiesStart = async { xml.getChildText("includedActivitiesStart") }
-        val includedActivitiesEnd = async { xml.getChildText("includedActivitiesEnd") }
-        val generalComment = async { readMultiline(xml.getChild("generalComment")) }
-
-        Activity(
-            id.await(),
-            type.await(),
-            energyValues.await(),
-            name.await(),
-            includedActivitiesStart.await(),
-            includedActivitiesEnd.await(),
-            generalComment.await()
-        )
+    private fun readActivity(xml: Element): Activity {
+        return Activity.Builder()
+            .id(xml.getAttributeValue("id"))
+            .type(xml.getAttributeValue("type"))
+            .energyValues(xml.getAttributeValue("energyValues"))
+            .name(xml.getChildText("activityName"))
+            .includedActivitiesStart(xml.getChildText("includedActivitiesStart"))
+            .includedActivitiesEnd(xml.getChildText("includedActivitiesEnd"))
+            .generalComment(readMultiline(xml.getChild("generalComment")))
+            .build()
     }
 
     private fun readMultiline(xml: Element?): List<String> {
@@ -256,77 +221,55 @@ object Parser {
         }
     }
 
-    private suspend fun readUncertainty(maybeXML: Element?): Uncertainty? = maybeXML?.let { xml ->
-        coroutineScope {
+    private fun readUncertainty(xml: Element?): Uncertainty? {
+        if (xml == null) return null
 
-            val logNormal: Deferred<LogNormal?> = async {
-                xml.getChild("lognormal")?.let {
-                    LogNormal(
-                        it.getAttributeValue("meanValue").toDouble(),
-                        it.getAttributeValue("mu").toDouble(),
-                        it.getAttributeValue("variance").toDouble(),
-                        it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble()
-                    )
-                }
-            }
-            val normal: Deferred<Normal?> = async {
-                xml.getChild("normal")?.let {
-                    Normal(
-                        it.getAttributeValue("meanValue").toDouble(),
-                        it.getAttributeValue("variance").toDouble(),
-                        it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble(),
-                    )
-                }
-            }
-            val triangular: Deferred<Triangular?> = async {
-                xml.getChild("triangular")?.let {
-                    Triangular(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("mostLikelyValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
-                    )
-                }
-            }
-            val uniform: Deferred<Uniform?> = async {
-                xml.getChild("uniform")?.let {
-                    Uniform(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
-                    )
-                }
-            }
-            val undefined: Deferred<UndefinedUncertainty?> = async {
-                xml.getChild("undefined")?.let {
-                    UndefinedUncertainty(
-                        it.getAttributeValue("minValue").toDouble(),
-                        it.getAttributeValue("maxValue").toDouble(),
-                        it.getAttributeValue("standardDeviation95").toDouble(),
-                    )
-                }
-            }
-            val pedigreeMatrix: Deferred<PedigreeMatrix?> = async {
-                xml.getChild("pedigreeMatrix")?.let {
-                    PedigreeMatrix(
-                        it.getAttributeValue("reliability").toInt(),
-                        it.getAttributeValue("completeness").toInt(),
-                        it.getAttributeValue("temporalCorrelation").toInt(),
-                        it.getAttributeValue("geographicalCorrelation").toInt(),
-                        it.getAttributeValue("furtherTechnologyCorrelation").toInt()
-                    )
-                }
-            }
-            val comment: String? = xml.getChildText("comment")
-
-            Uncertainty(
-                logNormal.await(),
-                normal.await(),
-                triangular.await(),
-                uniform.await(),
-                undefined.await(),
-                pedigreeMatrix.await(),
-                comment
+        val logNormal: LogNormal? = xml.getChild("lognormal")?.let {
+            LogNormal(
+                it.getAttributeValue("meanValue").toDouble(),
+                it.getAttributeValue("mu").toDouble(),
+                it.getAttributeValue("variance").toDouble(),
+                it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble()
             )
         }
+        val normal: Normal? = xml.getChild("normal")?.let {
+            Normal(
+                it.getAttributeValue("meanValue").toDouble(),
+                it.getAttributeValue("variance").toDouble(),
+                it.getAttributeValue("varianceWithPedigreeUncertainty").toDouble(),
+            )
+        }
+        val triangular: Triangular? = xml.getChild("triangular")?.let {
+            Triangular(
+                it.getAttributeValue("minValue").toDouble(),
+                it.getAttributeValue("mostLikelyValue").toDouble(),
+                it.getAttributeValue("maxValue").toDouble(),
+            )
+        }
+        val uniform: Uniform? = xml.getChild("uniform")?.let {
+            Uniform(
+                it.getAttributeValue("minValue").toDouble(),
+                it.getAttributeValue("maxValue").toDouble(),
+            )
+        }
+        val undefined: UndefinedUncertainty? = xml.getChild("undefined")?.let {
+            UndefinedUncertainty(
+                it.getAttributeValue("minValue").toDouble(),
+                it.getAttributeValue("maxValue").toDouble(),
+                it.getAttributeValue("standardDeviation95").toDouble(),
+            )
+        }
+        val pedigreeMatrix: PedigreeMatrix? = xml.getChild("pedigreeMatrix")?.let {
+            PedigreeMatrix(
+                it.getAttributeValue("reliability").toInt(),
+                it.getAttributeValue("completeness").toInt(),
+                it.getAttributeValue("temporalCorrelation").toInt(),
+                it.getAttributeValue("geographicalCorrelation").toInt(),
+                it.getAttributeValue("furtherTechnologyCorrelation").toInt()
+            )
+        }
+        val comment: String? = xml.getChildText("comment")
+        return Uncertainty(logNormal, normal, triangular, uniform, undefined, pedigreeMatrix, comment)
     }
 
 }

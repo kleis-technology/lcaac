@@ -12,6 +12,7 @@ class ImportedProcess(
     var emissionBlocks: MutableList<ExchangeBlock<ImportedBioExchange>> = mutableListOf()
     var resourceBlocks: MutableList<ExchangeBlock<ImportedBioExchange>> = mutableListOf()
     var landUseBlocks: MutableList<ExchangeBlock<ImportedBioExchange>> = mutableListOf()
+    var impactBlocks: MutableList<ImportedImpact> = mutableListOf()
 
 }
 

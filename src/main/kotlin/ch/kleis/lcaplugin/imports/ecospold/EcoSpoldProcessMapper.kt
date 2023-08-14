@@ -10,14 +10,14 @@ import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.IntermediateExchange
 import ch.kleis.lcaplugin.imports.ecospold.model.Uncertainty
-import ch.kleis.lcaplugin.imports.model.ExchangeBlock
-import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
-import ch.kleis.lcaplugin.imports.model.ImportedProcess
-import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
+import ch.kleis.lcaplugin.imports.model.*
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
-class EcoSpoldProcessMapper(val process: ActivityDataset) {
+class EcoSpoldProcessMapper(
+    val process: ActivityDataset,
+    private val methodName: String?
+) {
     private val pUid = uid(process)
     val result = ImportedProcess(pUid)
 
@@ -42,6 +42,7 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         mapLandUse()
         mapResources()
         mapEmissions()
+        mapImpacts()
 
         return result
     }
@@ -59,11 +60,6 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
                 .filter { it.substanceType == SubstanceType.EMISSION }
                 .map(::elementaryExchangeToImportedBioExchange).toMutableList()
         )
-
-        // TODO: Remove when closing #261
-        val bio = ImportedBioExchange(listOf(), "1.0", "u", pUid, "")
-        result.emissionBlocks += ExchangeBlock("Virtual Substance for Impact Factors", mutableListOf(bio))
-
     }
 
     private fun mapLandUse() {
@@ -80,6 +76,21 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
                 .filter { it.substanceType == SubstanceType.RESOURCE }
                 .map(::elementaryExchangeToImportedBioExchange).toMutableList()
         ))
+    }
+
+    private fun mapImpacts() {
+        methodName?.let { methodName ->
+            result.impactBlocks += process.flowData.impactIndicators
+                .filter { it.methodName == methodName }
+                .map {
+                    ImportedImpact(
+                        it.amount,
+                        it.unitName,
+                        it.categoryName,
+                        it.name
+                    )
+                }.toMutableList()
+        }
     }
 
     private fun elementaryExchangeToImportedBioExchange(elementaryExchange: ElementaryExchange): ImportedBioExchange =
