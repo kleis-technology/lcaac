@@ -9,7 +9,7 @@ data class Property(
     val isCalculatedAmount: String?
 )
 
-class IntermediateExchange private constructor(
+data class IntermediateExchange(
     val amount: Double,
     val name: String?,
     val unit: String,
