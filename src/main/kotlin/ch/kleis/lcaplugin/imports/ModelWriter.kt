@@ -28,7 +28,7 @@ data class FileWriterWithSize(val writer: FileWriter, val currentIndex: Int, var
     Closeable {
 
     constructor(path: Path, currentSize: Int) :
-        this(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentSize)
+            this(FileWriter(Files.createFile(path).toFile(), Charset.forName("UTF-8")), currentSize)
 
 
     fun write(block: Line) {
@@ -132,7 +132,7 @@ class ModelWriter(
             return pad(lines, pad)
         }
 
-        fun blockKeyValue(metas: MutableSet<MutableMap.MutableEntry<String, String?>>, pad: Int): Line {
+        fun blockKeyValue(metas: Set<Map.Entry<String, String?>>, pad: Int): Line {
             val builder = StringBuilder()
             metas.forEach { (k, v) ->
                 val split = v

@@ -73,7 +73,7 @@ object Parser {
     }
 
 
-    private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
+    private fun readIndicators(indicators: Sequence<Element>): Sequence<ImpactIndicator> {
         return indicators.map {
             ImpactIndicator(
                 amount = it.getAttributeValue("amount").toDouble(),
@@ -114,19 +114,20 @@ object Parser {
 
     private fun readFlowData(xmlDesc: Element): FlowData {
         val intermediateExchangeList = xmlDesc.getChildren("intermediateExchange")
+            .asSequence()
             .map {
-                val builder = IntermediateExchange.Builder()
-                    .amount(it.getAttributeValue("amount").toDouble())
-                    .name(it.getChildText("name"))
-                    .unit(it.getChildText("unitName"))
-                    .synonyms(it.getChildren("synonym").map { n -> n.value })
-                    .uncertainty(readUncertainty(it.getChild("uncertainty")))
-                    .outputGroup(it.getChildText("outputGroup").toInt())
-                    .classifications(readClassifications(it.getChildren("classification")))
-                    .properties(readProperties(it.getChildren("property")))
-                builder.build()
+                IntermediateExchange(
+                    amount = it.getAttributeValue("amount").toDouble(),
+                    name = it.getChildText("name"),
+                    unit = it.getChildText("unitName"),
+                    synonyms = it.getChildren("synonym").map { n -> n.value },
+                    uncertainty = readUncertainty(it.getChild("uncertainty")),
+                    outputGroup = it.getChildText("outputGroup").toInt(),
+                    classifications = readClassifications(it.getChildren("classification")),
+                    properties = readProperties(it.getChildren("property")),
+                )
             }
-        val indicators = readIndicators(xmlDesc.getChildren("impactIndicator"))
+        val indicators = readIndicators(xmlDesc.getChildren("impactIndicator").asSequence())
         val elementaryExchangeList = readElementaryExchanges(xmlDesc.getChildren("elementaryExchange"))
 
         return FlowData(intermediateExchangeList, indicators, elementaryExchangeList)

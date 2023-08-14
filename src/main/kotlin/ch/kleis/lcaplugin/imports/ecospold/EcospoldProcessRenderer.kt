@@ -18,7 +18,7 @@ class EcospoldProcessRenderer {
         val category = category(data)
 
         val subFolder = if (category == null) "" else "${category}${File.separatorChar}"
-        val process = EcoSpoldProcessMapper(data, methodName).map()
+        val process = EcoSpoldProcessMapper.map(data, methodName)
         process.comments.add(processComment)
         val strProcess = ProcessSerializer.serialize(process)
 

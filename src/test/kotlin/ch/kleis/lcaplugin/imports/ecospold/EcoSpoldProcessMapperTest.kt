@@ -17,7 +17,7 @@ class EcoSpoldProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper.map(sub)
 
         // Then
         assertEquals("aname_ch", result.uid)
@@ -36,12 +36,12 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapEmissions() {
         // given
         // when
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper.map(sub)
 
         // then
         assertEquals(1, result.emissionBlocks.size)
-        assertEquals(1, result.emissionBlocks[0].exchanges.size)
-        val e = result.emissionBlocks[0].exchanges[0]
+        assertEquals(1, result.emissionBlocks[0].exchanges.count())
+        val e = result.emissionBlocks[0].exchanges.first()
         assertEquals("1.8326477008541038E-8", e.qty)
         assertEquals("_1_2_dichlorobenzene", e.uid)
         assertEquals("kg", e.unit)
@@ -54,12 +54,12 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapLandUse() {
         // given
         // when
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper.map(sub)
 
         // then
         assertEquals(1, result.landUseBlocks.size)
-        assertEquals(1, result.landUseBlocks[0].exchanges.size)
-        val lu = result.landUseBlocks[0].exchanges[0]
+        assertEquals(1, result.landUseBlocks[0].exchanges.count())
+        val lu = result.landUseBlocks[0].exchanges.first()
         assertEquals("0.04997982922431679", lu.qty)
         assertEquals("occupation_annual_crop_irrigated", lu.uid)
         assertEquals("m2*year", lu.unit)
@@ -72,12 +72,12 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapResource() {
         // given
         // when
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper.map(sub)
 
         // then
         assertEquals(1, result.resourceBlocks.size)
-        assertEquals(1, result.resourceBlocks[0].exchanges.size)
-        val res = result.resourceBlocks[0].exchanges[0]
+        assertEquals(1, result.resourceBlocks[0].exchanges.count())
+        val res = result.resourceBlocks[0].exchanges.first()
         assertEquals("0.004413253823373581", res.qty)
         assertEquals("nitrogen", res.uid)
         assertEquals("kg", res.unit)
@@ -91,13 +91,12 @@ class EcoSpoldProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper.map(sub)
 
         // Then
         assertEquals(1, result.productBlocks.size)
-        assertEquals("Products", result.productBlocks[0].comment)
-        assertEquals(1, result.productBlocks[0].exchanges.size)
-        val p = result.productBlocks[0].exchanges[0]
+        assertEquals(1, result.productBlocks[0].exchanges.count())
+        val p = result.productBlocks[0].exchanges.first()
         assertEquals("pname_ch", p.uid)
         assertEquals("1.0", p.qty)
         assertEquals("km", p.unit)
@@ -117,12 +116,13 @@ class EcoSpoldProcessMapperTest {
     fun map_ShouldThrowAnError_WhenInvalidProduct() {
         // Given
         val falseSub = EcoSpold2Fixture.buildData(1)
+        assertEquals(1, falseSub.flowData.intermediateExchanges.first().outputGroup)
 
         // When
         assertThrows(
             ImportException::class.java,
             "Invalid outputGroup for product, expected 0, found 1"
-        ) { EcoSpoldProcessMapper(falseSub).map() }
+        ) { EcoSpoldProcessMapper.map(falseSub).productBlocks[0].exchanges.count() }
     }
 
     @Test
@@ -131,11 +131,11 @@ class EcoSpoldProcessMapperTest {
         val methodName = "EF v3.1"
 
         // When
-        val result = EcoSpoldProcessMapper(sub, methodName).map()
+        val result = EcoSpoldProcessMapper.map(sub, methodName)
 
         // Then
         assertEquals(1, result.impactBlocks.size)
-        assertEquals(2, result.impactBlocks[0].exchanges.size)
+        assertEquals(2, result.impactBlocks[0].exchanges.count())
 
         // First impact in fixture - not included, wrong method
         assertNotEquals(
@@ -145,7 +145,7 @@ class EcoSpoldProcessMapperTest {
                 uid = "deprivation",
                 comments = listOf("water use"),
             ),
-            result.impactBlocks[0].exchanges[0]
+            result.impactBlocks[0].exchanges.first()
         )
 
         // Second impact in fixture - included, good method
@@ -156,8 +156,7 @@ class EcoSpoldProcessMapperTest {
                 uid = "accumulated_exceedance_ae",
                 comments = listOf("acidification"),
             ),
-            result.impactBlocks[0].exchanges[0]
+            result.impactBlocks[0].exchanges.first()
         )
     }
-
 }

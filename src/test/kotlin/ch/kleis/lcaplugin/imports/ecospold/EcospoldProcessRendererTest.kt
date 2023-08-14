@@ -35,7 +35,7 @@ class EcospoldProcessRendererTest {
         every { activity.description.classifications } returns listOf(Classification("EcoSpold01Categories", "cat"))
         mockkObject(EcoSpoldProcessMapper)
         val importedProcess = mockk<ImportedProcess>()
-        every { EcoSpoldProcessMapper(activity).map() } returns importedProcess
+        every { EcoSpoldProcessMapper.map(activity) } returns importedProcess
         val comments = mutableListOf<String>()
         every { importedProcess.comments } returns comments
         every { importedProcess.uid } returns "uid"

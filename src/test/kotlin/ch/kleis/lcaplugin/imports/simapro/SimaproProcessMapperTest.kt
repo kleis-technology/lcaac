@@ -92,10 +92,10 @@ class SimaproProcessMapperTest {
         val actual = sut.map(process)
 
         // Then
-        assertEquals(2, actual.productBlocks.size)
+        assertEquals(2, actual.productBlocks.count())
         assertEquals("Products", actual.productBlocks[0].comment)
-        assertEquals(1, actual.productBlocks[0].exchanges.size)
-        val pi = actual.productBlocks[0].exchanges[0]
+        assertEquals(1, actual.productBlocks[0].exchanges.count())
+        val pi = actual.productBlocks[0].exchanges.first()
         assertEquals(
             listOf(
                 "name: Acai berry, at farm (WFLDB 3.7)/BR U",
@@ -109,8 +109,8 @@ class SimaproProcessMapperTest {
         assertEquals("kg", pi.unit)
         assertEquals("acai_berry_at_farm_wfldb_3_7_sl_br_u", pi.uid)
 
-        assertEquals("Avoid Products", actual.productBlocks[1].comment)
-        assertEquals(0, actual.productBlocks[1].exchanges.size)
+        assertEquals("Avoided Products", actual.productBlocks[1].comment)
+        assertEquals(0, actual.productBlocks[1].exchanges.count())
 
     }
 
@@ -122,15 +122,15 @@ class SimaproProcessMapperTest {
         val actual = sut.map(process)
 
         // Then
-        assertEquals(3, actual.inputBlocks.size)
+        assertEquals(3, actual.inputBlocks.count())
         assertEquals("inputsMatAndFuel", actual.inputBlocks[0].comment)
-        assertEquals(0, actual.inputBlocks[0].exchanges.size)
+        assertEquals(0, actual.inputBlocks[0].exchanges.count())
 
         assertEquals("inputsElectricity", actual.inputBlocks[1].comment)
-        assertEquals(0, actual.inputBlocks[1].exchanges.size)
+        assertEquals(0, actual.inputBlocks[1].exchanges.count())
 
         assertEquals("wasteToTreatment", actual.inputBlocks[2].comment)
-        assertEquals(0, actual.inputBlocks[2].exchanges.size)
+        assertEquals(0, actual.inputBlocks[2].exchanges.count())
     }
 
     @Test
@@ -141,10 +141,10 @@ class SimaproProcessMapperTest {
         val actual = sut.map(process)
 
         // Then
-        assertEquals(7, actual.emissionBlocks.size)
+        assertEquals(7, actual.emissionBlocks.count())
         fun assertEmptyWithComment(pos: Int, comment: String) {
             assertEquals(comment, actual.emissionBlocks[pos].comment)
-            assertEquals(0, actual.emissionBlocks[pos].exchanges.size)
+            assertEquals(0, actual.emissionBlocks[pos].exchanges.count())
         }
         assertEmptyWithComment(0, "Emission to air")
         assertEmptyWithComment(1, "Emission to water")
@@ -163,9 +163,9 @@ class SimaproProcessMapperTest {
         val actual = sut.map(process)
 
         // Then
-        assertEquals(1, actual.resourceBlocks.size)
+        assertEquals(1, actual.resourceBlocks.count())
         assertEquals("", actual.resourceBlocks[0].comment)
-        assertEquals(3, actual.resourceBlocks[0].exchanges.size)
+        assertEquals(3, actual.resourceBlocks[0].exchanges.count())
         fun assertResEquals(
             pos: Int,
             comments: List<String>,
@@ -175,12 +175,12 @@ class SimaproProcessMapperTest {
             comp: String,
             sub: String?
         ) {
-            assertEquals(comments, actual.resourceBlocks[0].exchanges[pos].comments)
-            assertEquals(qty, actual.resourceBlocks[0].exchanges[pos].qty)
-            assertEquals(unit, actual.resourceBlocks[0].exchanges[pos].unit)
-            assertEquals(uid, actual.resourceBlocks[0].exchanges[pos].uid)
-            assertEquals(comp, actual.resourceBlocks[0].exchanges[pos].compartment)
-            assertEquals(sub, actual.resourceBlocks[0].exchanges[pos].subCompartment)
+            assertEquals(comments, actual.resourceBlocks[0].exchanges.elementAt(pos).comments)
+            assertEquals(qty, actual.resourceBlocks[0].exchanges.elementAt(pos).qty)
+            assertEquals(unit, actual.resourceBlocks[0].exchanges.elementAt(pos).unit)
+            assertEquals(uid, actual.resourceBlocks[0].exchanges.elementAt(pos).uid)
+            assertEquals(comp, actual.resourceBlocks[0].exchanges.elementAt(pos).compartment)
+            assertEquals(sub, actual.resourceBlocks[0].exchanges.elementAt(pos).subCompartment)
         }
         assertResEquals(
             0, listOf("(2,2,1,1,1,na)", "Formula=[145.56 * 67E6 / (1 -4E-6)]"),
@@ -204,10 +204,10 @@ class SimaproProcessMapperTest {
         val actual = sut.map(process)
 
         // Then
-        assertEquals(1, actual.landUseBlocks.size)
+        assertEquals(1, actual.landUseBlocks.count())
         assertEquals("", actual.landUseBlocks[0].comment)
-        assertEquals(1, actual.landUseBlocks[0].exchanges.size)
-        val lu = actual.landUseBlocks[0].exchanges[0]
+        assertEquals(1, actual.landUseBlocks[0].exchanges.count())
+        val lu = actual.landUseBlocks[0].exchanges.first()
         assertEquals(listOf("(2,1,1,1,1,na)"), lu.comments)
         assertEquals("10000.0", lu.qty)
         assertEquals("m2a", lu.unit)

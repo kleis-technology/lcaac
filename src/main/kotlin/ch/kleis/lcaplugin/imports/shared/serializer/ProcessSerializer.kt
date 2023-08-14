@@ -20,7 +20,7 @@ object ProcessSerializer {
         return comments + txt
     }
 
-    fun serialize(block: List<ImportedExchange>, pad: Int): CharSequence {
+    fun serialize(block: Sequence<ImportedExchange>, pad: Int): CharSequence {
         val prefix = " ".repeat(pad)
         return block.flatMap { serialize(it) }
             .joinTo(StringBuilder(), "\n$prefix", prefix)
@@ -64,12 +64,12 @@ $metaBloc
             "impacts" to p.impactBlocks,
         )
 
-        blocks.forEach { blockGrp ->
-            blockGrp.second.forEach { block ->
+        blocks.forEach { (keyword, blockList) ->
+            blockList.forEach { block ->
                 val doc = if (block.comment?.isNotBlank() == true) " // ${block.comment}" else ""
                 builder.append(
                     """
-    ${blockGrp.first} {$doc
+    $keyword {$doc
 ${serialize(block.exchanges, 8)}
     }
 """

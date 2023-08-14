@@ -7,17 +7,16 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class ProcessSerializerTest {
-    @Suppress("JoinDeclarationAndAssignment")
     private val proc: ImportedProcess
 
     init {
-        proc = ImportedProcess("uid")
-        proc.meta["name"] = "name_value"
-        proc.meta["description"] = "The \"module\" reflects.\n[This dataset ]\nProduction volume: 0.15000000596046448 p"
-        proc.meta["category"] = "energy"
-        proc.meta["identifier"] = "EI1519605797"
-        proc.meta["literatures"] =
-            "\n    * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.\n    * Another Methodological."
+        val meta = mapOf(
+            "name" to "name_value",
+            "description" to "The \"module\" reflects.\n[This dataset ]\nProduction volume: 0.15000000596046448 p",
+            "category" to "energy",
+            "identifier" to "EI1519605797",
+            "literatures" to "\n    * Methodological Guidelines for the Life Cycle Inventory of Agricultural Products.\n    * Another Methodological.",
+        )
 
         val prod1 = ImportedProductExchange(
             "1.0",
@@ -38,13 +37,11 @@ class ProcessSerializerTest {
                 "name: Absorption chiller, 50kW {RoW}",
             ),
         )
-        val products = ExchangeBlock("Products", mutableListOf(prod1, prod2))
-        proc.productBlocks.add(products)
-
-        proc.inputBlocks.add(
+        val products = listOf(ExchangeBlock("Products", sequenceOf(prod1, prod2)))
+        val inputs = listOf(
             ExchangeBlock(
                 "materialsAndFuels",
-                mutableListOf(
+                sequenceOf(
                     ImportedInputExchange(
                         "420.0", "kg", "aluminium_glo_market",
                         listOf("Estimation based on few references"),
@@ -52,22 +49,19 @@ class ProcessSerializerTest {
                 )
             )
         )
-
-        proc.emissionBlocks.add(
+        val emissions = listOf(
             ExchangeBlock(
                 "To Air",
-                mutableListOf(
+                sequenceOf(
                     ImportedBioExchange(
                         "0.9915", "m3", "water_m3", "air", null,
                         listOf("Calculated value based on expertise"),
                     )
                 )
-            )
-        )
-        proc.emissionBlocks.add(
+            ),
             ExchangeBlock(
                 "To Water with sub",
-                mutableListOf(
+                sequenceOf(
                     ImportedBioExchange(
                         "0.9915", "m3", "water_m3", "water", "river",
                         listOf("Calculated value based on expertise"),
@@ -75,10 +69,10 @@ class ProcessSerializerTest {
                 )
             )
         )
-        proc.resourceBlocks.add(
+        val resources = listOf(
             ExchangeBlock(
                 "Natural",
-                mutableListOf(
+                sequenceOf(
                     ImportedBioExchange(
                         "5.9", "m3", "water", "water", "in river",
                         listOf("Approximation"),
@@ -86,11 +80,10 @@ class ProcessSerializerTest {
                 )
             )
         )
-
-        proc.landUseBlocks.add(
+        val landUse = listOf(
             ExchangeBlock(
                 "",
-                mutableListOf(
+                sequenceOf(
                     ImportedBioExchange(
                         "42.17", "m2a", "occupation_industrial_area", "raw", "land",
                         listOf("Rough estimation"),
@@ -98,17 +91,30 @@ class ProcessSerializerTest {
                 )
             )
         )
-        proc.impactBlocks.add(
+
+        val impacts = listOf(
             ExchangeBlock(
                 "",
-                mutableListOf(
+                sequenceOf(
                     ImportedImpactExchange(
                         "0.0013", "mol_H_p_Eq", "accumulated_exceedance_ae", listOf("acidification")
                     )
                 )
             )
         )
+
+        proc = ImportedProcess(
+            uid = "uid",
+            meta = meta,
+            productBlocks = products,
+            inputBlocks = inputs,
+            emissionBlocks = emissions,
+            resourceBlocks = resources,
+            landUseBlocks = landUse,
+            impactBlocks = impacts,
+        )
     }
+
 
     @Test
     fun testRender() {
