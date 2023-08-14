@@ -4,7 +4,6 @@ import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.ProcessDictRecord
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.shared.serializer.ProcessSerializer
-import ch.kleis.lcaplugin.imports.shared.serializer.SubstanceSerializer
 import java.io.File
 
 class EcospoldProcessRenderer {
@@ -19,22 +18,14 @@ class EcospoldProcessRenderer {
         val category = category(data)
 
         val subFolder = if (category == null) "" else "${category}${File.separatorChar}"
-        val process = EcoSpoldProcessMapper(data).map()
+        val process = EcoSpoldProcessMapper(data, methodName).map()
         process.comments.add(processComment)
         val strProcess = ProcessSerializer.serialize(process)
 
         w.write(
             "processes${File.separatorChar}$subFolder${process.uid}.lca",
-            strProcess, index = false, closeAfterWrite = false
+            strProcess, index = false, closeAfterWrite = true
         )
-        val substance = EcoSpoldSubstanceMapper.map(data, methodName)
-        val strSubstance = SubstanceSerializer.serialize(substance)
-        w.write(
-            "processes${File.separatorChar}$subFolder${process.uid}.lca",
-            strSubstance, index = false, closeAfterWrite = true
-        )
-
-
     }
 
     private fun category(data: ActivityDataset): String? {

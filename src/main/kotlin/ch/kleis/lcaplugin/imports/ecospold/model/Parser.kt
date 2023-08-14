@@ -75,13 +75,13 @@ object Parser {
 
     private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
         return indicators.map {
-            ImpactIndicator.Builder()
-                .amount(it.getAttributeValue("amount").toDouble())
-                .name(it.getChildText("name"))
-                .unitName(it.getChildText("unitName"))
-                .categoryName(it.getChildText("impactCategoryName"))
-                .methodName(it.getChildText("impactMethodName"))
-                .build()
+            ImpactIndicator(
+                amount = it.getAttributeValue("amount").toDouble(),
+                name = it.getChildText("name"),
+                unitName = it.getChildText("unitName"),
+                categoryName = it.getChildText("impactCategoryName"),
+                methodName = it.getChildText("impactMethodName"),
+            )
         }
     }
 

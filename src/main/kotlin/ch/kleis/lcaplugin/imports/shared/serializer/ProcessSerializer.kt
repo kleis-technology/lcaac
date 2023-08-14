@@ -11,7 +11,7 @@ object ProcessSerializer {
             .map { "// $it" }
         val txt = when (e) {
             is ImportedProductExchange -> "${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
-            is ImportedInputExchange -> "${e.qty} ${e.unit} ${e.uid}"
+            is ImportedInputExchange, is ImportedImpactExchange -> "${e.qty} ${e.unit} ${e.uid}"
             is ImportedBioExchange -> {
                 val sub = e.subCompartment?.let { ", sub_compartment = \"$it\"" } ?: ""
                 """${e.qty} ${e.unit} ${e.uid}(compartment = "${e.compartment}"$sub)"""
@@ -61,6 +61,7 @@ $metaBloc
             "emissions" to p.emissionBlocks,
             "resources" to p.resourceBlocks,
             "land_use" to p.landUseBlocks,
+            "impacts" to p.impactBlocks,
         )
 
         blocks.forEach { blockGrp ->

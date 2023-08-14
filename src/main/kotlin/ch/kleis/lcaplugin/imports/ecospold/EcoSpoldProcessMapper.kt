@@ -16,7 +16,7 @@ import ch.kleis.lcaplugin.imports.util.ImportException
 
 class EcoSpoldProcessMapper(
     val process: ActivityDataset,
-    private val methodName: String?
+    private val methodName: String? = null,
 ) {
     private val pUid = uid(process)
     val result = ImportedProcess(pUid)
@@ -80,16 +80,19 @@ class EcoSpoldProcessMapper(
 
     private fun mapImpacts() {
         methodName?.let { methodName ->
-            result.impactBlocks += process.flowData.impactIndicators
-                .filter { it.methodName == methodName }
-                .map {
-                    ImportedImpact(
-                        it.amount,
-                        it.unitName,
-                        it.categoryName,
-                        it.name
-                    )
-                }.toMutableList()
+            result.impactBlocks += mutableListOf(ExchangeBlock(null,
+                process.flowData.impactIndicators
+                    .filter { it.methodName == methodName }
+                    .map {
+                        ImportedImpactExchange(
+                            it.amount.toString(),
+                            sanitizeSymbol(sanitizeAndCompact(it.unitName, toLowerCase = false)),
+                            sanitizeAndCompact(it.name),
+                            listOf(it.categoryName),
+                        )
+                    }.toMutableList()
+            )
+            )
         }
     }
 
@@ -139,7 +142,7 @@ class EcoSpoldProcessMapper(
             throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
         }
         e.properties.forEach { initComments.add("${it.name} ${it.amount} ${it.unit} isCalculatedAmount=${it.isCalculatedAmount ?: ""} isDefiningValue=${it.isDefiningValue ?: ""}") }
-        return ImportedProductExchange(initComments, amount, unit, uid, 100.0)
+        return ImportedProductExchange(amount, unit, uid, 100.0, initComments)
     }
 
 

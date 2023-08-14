@@ -1,11 +1,12 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
+import ch.kleis.lcaplugin.imports.model.ImportedImpactExchange
 import ch.kleis.lcaplugin.imports.util.ImportException
 import com.intellij.testFramework.UsefulTestCase.assertThrows
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import kotlin.test.assertNotEquals
 
 class EcoSpoldProcessMapperTest {
 
@@ -38,7 +39,7 @@ class EcoSpoldProcessMapperTest {
         val result = EcoSpoldProcessMapper(sub).map()
 
         // then
-        assertEquals(2, result.emissionBlocks.size)
+        assertEquals(1, result.emissionBlocks.size)
         assertEquals(1, result.emissionBlocks[0].exchanges.size)
         val e = result.emissionBlocks[0].exchanges[0]
         assertEquals("1.8326477008541038E-8", e.qty)
@@ -125,22 +126,38 @@ class EcoSpoldProcessMapperTest {
     }
 
     @Test
-    fun map_ShouldReturn_AnEmissionWithSameName() {
+    fun map_shouldMapImpacts() {
         // Given
+        val methodName = "EF v3.1"
 
         // When
-        val result = EcoSpoldProcessMapper(sub).map()
+        val result = EcoSpoldProcessMapper(sub, methodName).map()
 
         // Then
-        assertEquals(2, result.emissionBlocks.size)
-        assertEquals("Virtual Substance for Impact Factors", result.emissionBlocks[1].comment)
-        assertEquals(1, result.emissionBlocks[1].exchanges.size)
-        val substance = result.emissionBlocks[1].exchanges[0]
-        assertEquals("aname_ch", substance.uid)
-        assertEquals("1.0", substance.qty)
-        assertEquals("u", substance.unit)
-        assertEquals("", substance.compartment)
-        assertNull(substance.subCompartment)
+        assertEquals(1, result.impactBlocks.size)
+        assertEquals(2, result.impactBlocks[0].exchanges.size)
+
+        // First impact in fixture - not included, wrong method
+        assertNotEquals(
+            ImportedImpactExchange(
+                qty = "0.1188",
+                unit = "m3_world_eq_deprived",
+                uid = "deprivation",
+                comments = listOf("water use"),
+            ),
+            result.impactBlocks[0].exchanges[0]
+        )
+
+        // Second impact in fixture - included, good method
+        assertEquals(
+            ImportedImpactExchange(
+                qty = "0.0013",
+                unit = "mol_H_p_Eq",
+                uid = "accumulated_exceedance_ae",
+                comments = listOf("acidification"),
+            ),
+            result.impactBlocks[0].exchanges[0]
+        )
     }
 
 }
