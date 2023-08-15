@@ -11,7 +11,7 @@ object ProcessSerializer {
             .map { "// $it" }
         val txt = when (e) {
             is ImportedProductExchange -> "${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
-            is ImportedInputExchange -> "${e.qty} ${e.unit} ${e.uid}"
+            is ImportedInputExchange, is ImportedImpactExchange -> "${e.qty} ${e.unit} ${e.uid}"
             is ImportedBioExchange -> {
                 val sub = e.subCompartment?.let { ", sub_compartment = \"$it\"" } ?: ""
                 """${e.qty} ${e.unit} ${e.uid}(compartment = "${e.compartment}"$sub)"""
@@ -20,7 +20,7 @@ object ProcessSerializer {
         return comments + txt
     }
 
-    fun serialize(block: List<ImportedExchange>, pad: Int): CharSequence {
+    fun serialize(block: Sequence<ImportedExchange>, pad: Int): CharSequence {
         val prefix = " ".repeat(pad)
         return block.flatMap { serialize(it) }
             .joinTo(StringBuilder(), "\n$prefix", prefix)
@@ -61,14 +61,15 @@ $metaBloc
             "emissions" to p.emissionBlocks,
             "resources" to p.resourceBlocks,
             "land_use" to p.landUseBlocks,
+            "impacts" to p.impactBlocks,
         )
 
-        blocks.forEach { blockGrp ->
-            blockGrp.second.forEach { block ->
+        blocks.forEach { (keyword, blockList) ->
+            blockList.forEach { block ->
                 val doc = if (block.comment?.isNotBlank() == true) " // ${block.comment}" else ""
                 builder.append(
                     """
-    ${blockGrp.first} {$doc
+    $keyword {$doc
 ${serialize(block.exchanges, 8)}
     }
 """

@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.imports.simapro
 
-import arrow.core.toNonEmptyListOrNull
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.*
@@ -60,93 +59,100 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
 
     fun map(process: ProcessBlock): ImportedProcess {
 
-        val result = ImportedProcess(process.uid())
-        val metas = result.meta
-        process.comment()?.let { metas["description"] = it }
-        process.category()?.let { metas["category"] = it.toString() }
-        process.identifier()?.let { metas["identifier"] = it }
-        process.date()?.let {
-            metas["date"] = dateFormatter.format(it.toInstant().atZone(ZoneId.of("UTC")).toLocalDate())
-        }
-        process.generator()?.let { metas["generator"] = it }
-        process.collectionMethod()?.let { metas["collectionMethod"] = it }
-        process.dataTreatment()?.let { metas["dataTreatment"] = it }
-        process.verification()?.let { metas["verification"] = it }
-        process.systemDescription()
-            ?.let { metas["systemDescription"] = "${it.name()}: ${it.comment()}" }
-        process.allocationRules()?.let { metas["allocationRules"] = it }
-        process.processType()?.let { metas["processType"] = it.toString() }
-        process.status()?.let { metas["status"] = it.toString() }
-        process.infrastructure()?.let { metas["infrastructure"] = it.toString() }
-        process.record()?.let { metas["record"] = it }
-        process.platformId()?.let { metas["platformId"] = it }
-        process.literatures()?.toNonEmptyListOrNull()
-            ?.let {
-                metas["literatures"] =
-                    it.map { s -> renderLiterature(s) }
-                        .joinToString("\n", "\n")
-            }
 
         // Products
-        val baseProducts = process.products().map { renderProduct(it) }
-        result.productBlocks.add(ExchangeBlock("Products", baseProducts.toMutableList()))
-
-        if (process.wasteTreatment() != null) {
-            val exchanges = listOf(renderWasteTreatment(process.wasteTreatment())).toMutableList()
-            result.productBlocks.add(ExchangeBlock("Waste treatment", exchanges))
+        val baseProducts = ExchangeBlock("Products", process.products().map { renderProduct(it) }.asSequence())
+        val wasteTreatement = process.wasteTreatment()?.let {
+            ExchangeBlock("Waste treatment", sequenceOf(renderWasteTreatment(it)))
         }
-        if (process.wasteScenario() != null) {
-            val exchanges = listOf(renderWasteTreatment(process.wasteScenario()))
-            result.productBlocks.add(ExchangeBlock("Waste scenario", exchanges.toMutableList()))
+        val wasteScenario = process.wasteScenario()?.let {
+            ExchangeBlock("Waste scenario", sequenceOf(renderWasteTreatment(it)))
         }
+        val avoidedProducts = ExchangeBlock(
+            "Avoided Products",
+            process.avoidedProducts().asSequence().map { render(it) }
+        )
 
-        val avoidProducts = process.avoidedProducts().map { render(it) }
-        result.productBlocks.add(ExchangeBlock("Avoid Products", avoidProducts.toMutableList()))
 
-        // Inputs
-        result.inputBlocks.add(mapInputs(process.materialsAndFuels(), "inputsMatAndFuel"))
-        result.inputBlocks.add(mapInputs(process.electricityAndHeat(), "inputsElectricity"))
-        result.inputBlocks.add(mapInputs(process.wasteToTreatment(), "wasteToTreatment"))
+        // Resources & Landuse
+        val allRes = process.resources().groupBy { if (it.subCompartment() == "land") "land_use" else "resources" }
+        val resources = mapResourcesOrLanduse(allRes["resources"]?.asSequence(), "Resource")
+        val landUse = mapResourcesOrLanduse(allRes["land_use"]?.asSequence(), "Land_use")
 
-        result.emissionBlocks.add(mapEmissions(process.emissionsToAir(), "air"))
-        result.emissionBlocks.add(mapEmissions(process.emissionsToWater(), "water"))
-        result.emissionBlocks.add(mapEmissions(process.emissionsToSoil(), "soil"))
-        result.emissionBlocks.add(mapEmissions(process.economicIssues(), "economic"))
-        result.emissionBlocks.add(mapEmissions(process.nonMaterialEmissions(), "non_mat"))
-        result.emissionBlocks.add(mapEmissions(process.socialIssues(), "social"))
-        result.emissionBlocks.add(mapEmissions(process.finalWasteFlows(), "Final Waste Flows"))
+        val result = ImportedProcess(
+            uid = process.uid(),
+            meta = mapMetas(process),
+            productBlocks = listOfNotNull(baseProducts, wasteTreatement, wasteScenario, avoidedProducts),
+            inputBlocks = listOf(
+                mapInputs(process.materialsAndFuels().asSequence(), "inputsMatAndFuel"),
+                mapInputs(process.electricityAndHeat().asSequence(), "inputsElectricity"),
+                mapInputs(process.wasteToTreatment().asSequence(), "wasteToTreatment"),
+            ),
+            emissionBlocks = listOf(
+                mapEmissions(process.emissionsToAir().asSequence(), "air"),
+                mapEmissions(process.emissionsToWater().asSequence(), "water"),
+                mapEmissions(process.emissionsToSoil().asSequence(), "soil"),
+                mapEmissions(process.economicIssues().asSequence(), "economic"),
+                mapEmissions(process.nonMaterialEmissions().asSequence(), "non_mat"),
+                mapEmissions(process.socialIssues().asSequence(), "social"),
+                mapEmissions(process.finalWasteFlows().asSequence(), "Final Waste Flows"),
+            ),
+            resourceBlocks = listOf(resources),
+            landUseBlocks = listOf(landUse),
+        )
+
         // Unsupported
         result.comments.addAll(process.remainingWaste().map { "// QQQ Unsupported ${it.wasteTreatment()}" })
         result.comments.addAll(process.separatedWaste().map { "// QQQ Unsupported ${it.wasteTreatment()}" })
 
-        // Resources & Landuse
-        val allRes = process.resources().groupBy { if (it.subCompartment() == "land") "land_use" else "resources" }
-        result.resourceBlocks.add(mapResourcesOrLanduse(allRes["resources"], "Resource"))
-        result.landUseBlocks.add(mapResourcesOrLanduse(allRes["land_use"], "Land_use"))
-
         return result
     }
 
-    private fun mapInputs(lst: List<TechExchangeRow>, type: String): ExchangeBlock<ImportedInputExchange> {
-        val exchanges = lst.map { render(it).asInput() }
-        return ExchangeBlock(type, exchanges.toMutableList())
-    }
+    private fun mapMetas(process: ProcessBlock) = mapOf(
+        "description" to process.comment(),
+        "category" to process.category()?.toString(),
+        "identifier" to process.identifier(),
+        "date" to process.date()?.let {
+            dateFormatter.format(it.toInstant().atZone(ZoneId.of("UTC")).toLocalDate())
+        },
+        "generator" to process.generator(),
+        "collectionMethod" to process.collectionMethod(),
+        "dataTreatment" to process.dataTreatment(),
+        "verification" to process.verification(),
+        "systemDescription" to process.systemDescription()?.let { "${it.name()}: ${it.comment()}" },
+        "allocationRules" to process.allocationRules(),
+        "processType" to process.processType()?.toString(),
+        "status" to process.status()?.toString(),
+        "infrastructure" to process.infrastructure()?.toString(),
+        "record" to process.record(),
+        "platformId" to process.platformId(),
+        "literatures" to process.literatures()?.joinToString("\n", "\n") { s ->
+            renderLiterature(s)
+        }
+    )
+
+    private fun mapInputs(
+        techExchangeRows: Sequence<TechExchangeRow>,
+        type: String
+    ): ExchangeBlock<ImportedInputExchange> =
+        ExchangeBlock(type, techExchangeRows.map { render(it).asInput() })
 
     private fun mapEmissions(
-        lst: List<ElementaryExchangeRow>?,
+        elementaryExchangeRows: Sequence<ElementaryExchangeRow>?,
         comp: String
-    ): ExchangeBlock<ImportedBioExchange> {
-        val exchanges = lst?.map { renderElementary(it, "Emission", comp) } ?: listOf()
-        return ExchangeBlock("Emission to $comp", exchanges.toMutableList())
-    }
+    ): ExchangeBlock<ImportedBioExchange> =
+        ExchangeBlock(
+            "Emission to $comp",
+            elementaryExchangeRows?.map { renderElementary(it, "Emission", comp) } ?: emptySequence()
+        )
 
     private fun mapResourcesOrLanduse(
-        lst: List<ElementaryExchangeRow>?,
+        elementaryExchangeRows: Sequence<ElementaryExchangeRow>?,
         type: String
-    ): ExchangeBlock<ImportedBioExchange> {
-        val exchanges = lst?.map { renderElementary(it, type, "raw") } ?: listOf()
-        return ExchangeBlock("", exchanges.toMutableList())
-    }
+    ): ExchangeBlock<ImportedBioExchange> =
+        ExchangeBlock("",
+            elementaryExchangeRows?.map { renderElementary(it, type, "raw") } ?: emptySequence()
+        )
 
     private fun renderLiterature(s: LiteratureRow): String {
         val sep = " ".repeat(ModelWriter.BASE_PAD)
@@ -165,7 +171,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         val unit = sanitizeSymbol(product.unit())
         val allocation = product.allocation().value()
         val amount = FormulaConverter.compute(product.amount().toString(), comments)
-        return ImportedProductExchange(comments, amount, unit, product.uid(), allocation)
+        return ImportedProductExchange(amount, unit, product.uid(), allocation, comments)
     }
 
     private fun renderWasteTreatment(exchange: WasteTreatmentRow): ImportedProductExchange {
@@ -186,7 +192,7 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         val unit = sanitizeSymbol(exchange.unit())
         val uid = ModelWriter.sanitizeAndCompact(exchange.name()) + suffix
         val amount = FormulaConverter.compute(exchange.amount().toString(), comments)
-        return ImportedProductExchange(comments, amount, unit, uid)
+        return ImportedProductExchange(amount, unit, uid, comments = comments)
     }
 
     private fun createComments(text: String, existingComments: List<String> = listOf()): MutableList<String> {
@@ -214,8 +220,6 @@ class SimaproProcessMapper(mode: SubstanceImportMode) {
         }
 
         val uid = realKey.uid()
-        return ImportedBioExchange(comments, amount, unit, uid, compartment, sub)
+        return ImportedBioExchange(amount, unit, uid, compartment, sub, comments)
     }
-
-
 }

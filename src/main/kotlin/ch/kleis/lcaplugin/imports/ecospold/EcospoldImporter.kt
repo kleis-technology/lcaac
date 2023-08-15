@@ -18,6 +18,9 @@ import ch.kleis.lcaplugin.imports.util.AsyncTaskController
 import ch.kleis.lcaplugin.imports.util.AsynchronousWatcher
 import ch.kleis.lcaplugin.imports.util.ImportInterruptedException
 import com.intellij.openapi.diagnostic.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.csv.CSVFormat
@@ -133,30 +136,31 @@ class EcospoldImporter(
             importUnits(entries, f, writer)
         }
 
-        val parsedEntries = entries.asSequence()
+        val methodMappingFunction = methodMapping?.let { buildMethodMappingFunction(it) } ?: { it }
+        val parsedEntries = entries.asFlow()
             .filter { it.hasStream() }
             .filter { it.name.endsWith(".spold") }
             .map {
                 (it.name to importEntry(f.getInputStream(it), controller, watcher))
+            }.map {
+                methodMappingFunction(it)
+            }.buffer()
+            .flowOn(Dispatchers.Default)
+
+        runBlocking {
+            parsedEntries.collect { it: Pair<String, ActivityDataset> ->
+                writeImportedDataset(it.second, writer, it.first)
             }
-
-        val methodMappedEntries = methodMapping?.let {
-            getMethodMappedEntries(it, parsedEntries)
-        }
-
-        (methodMappedEntries ?: parsedEntries).forEach { it: Pair<String, ActivityDataset> ->
-            writeImportedDataset(it.second, writer, it.first)
         }
 
         val duration = Duration.between(start, Instant.now())
         renderMain(writer, unitRenderer.nbUnit, processRenderer.nbProcesses, methodName, duration)
     }
 
-    private fun getMethodMappedEntries(
+    private fun buildMethodMappingFunction(
         methodMapping: Map<String, MappingExchange>,
-        parsedEntries: Sequence<Pair<String, ActivityDataset>>
-    ): Sequence<Pair<String, ActivityDataset>> =
-        parsedEntries.map { (fileName, activityDataset) ->
+    ): (Pair<String, ActivityDataset>) -> Pair<String, ActivityDataset> =
+        { (fileName, activityDataset) ->
             fileName to activityDataset.copy(
                 flowData = activityDataset.flowData.copy(
                     elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->

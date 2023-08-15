@@ -73,15 +73,15 @@ object Parser {
     }
 
 
-    private fun readIndicators(indicators: List<Element>): List<ImpactIndicator> {
+    private fun readIndicators(indicators: Sequence<Element>): Sequence<ImpactIndicator> {
         return indicators.map {
-            ImpactIndicator.Builder()
-                .amount(it.getAttributeValue("amount").toDouble())
-                .name(it.getChildText("name"))
-                .unitName(it.getChildText("unitName"))
-                .categoryName(it.getChildText("impactCategoryName"))
-                .methodName(it.getChildText("impactMethodName"))
-                .build()
+            ImpactIndicator(
+                amount = it.getAttributeValue("amount").toDouble(),
+                name = it.getChildText("name"),
+                unitName = it.getChildText("unitName"),
+                categoryName = it.getChildText("impactCategoryName"),
+                methodName = it.getChildText("impactMethodName"),
+            )
         }
     }
 
@@ -114,19 +114,20 @@ object Parser {
 
     private fun readFlowData(xmlDesc: Element): FlowData {
         val intermediateExchangeList = xmlDesc.getChildren("intermediateExchange")
+            .asSequence()
             .map {
-                val builder = IntermediateExchange.Builder()
-                    .amount(it.getAttributeValue("amount").toDouble())
-                    .name(it.getChildText("name"))
-                    .unit(it.getChildText("unitName"))
-                    .synonyms(it.getChildren("synonym").map { n -> n.value })
-                    .uncertainty(readUncertainty(it.getChild("uncertainty")))
-                    .outputGroup(it.getChildText("outputGroup").toInt())
-                    .classifications(readClassifications(it.getChildren("classification")))
-                    .properties(readProperties(it.getChildren("property")))
-                builder.build()
+                IntermediateExchange(
+                    amount = it.getAttributeValue("amount").toDouble(),
+                    name = it.getChildText("name"),
+                    unit = it.getChildText("unitName"),
+                    synonyms = it.getChildren("synonym").map { n -> n.value },
+                    uncertainty = readUncertainty(it.getChild("uncertainty")),
+                    outputGroup = it.getChildText("outputGroup").toInt(),
+                    classifications = readClassifications(it.getChildren("classification")),
+                    properties = readProperties(it.getChildren("property")),
+                )
             }
-        val indicators = readIndicators(xmlDesc.getChildren("impactIndicator"))
+        val indicators = readIndicators(xmlDesc.getChildren("impactIndicator").asSequence())
         val elementaryExchangeList = readElementaryExchanges(xmlDesc.getChildren("elementaryExchange"))
 
         return FlowData(intermediateExchangeList, indicators, elementaryExchangeList)
@@ -147,11 +148,11 @@ object Parser {
     }
 
     private fun readDescription(xmlDesc: Element): ActivityDescription {
-        return ActivityDescription.Builder()
-            .activity(readActivity(xmlDesc.getChild("activity")))
-            .classifications(readClassifications(xmlDesc.getChildren("classification")))
-            .geography(readGeography(xmlDesc.getChild("geography")))
-            .build()
+        return ActivityDescription(
+            activity = readActivity(xmlDesc.getChild("activity")),
+            classifications = readClassifications(xmlDesc.getChildren("classification")),
+            geography = readGeography(xmlDesc.getChild("geography")),
+        )
     }
 
     private fun readClassifications(children: List<Element>): List<Classification> {
@@ -172,15 +173,15 @@ object Parser {
 
 
     private fun readActivity(xml: Element): Activity {
-        return Activity.Builder()
-            .id(xml.getAttributeValue("id"))
-            .type(xml.getAttributeValue("type"))
-            .energyValues(xml.getAttributeValue("energyValues"))
-            .name(xml.getChildText("activityName"))
-            .includedActivitiesStart(xml.getChildText("includedActivitiesStart"))
-            .includedActivitiesEnd(xml.getChildText("includedActivitiesEnd"))
-            .generalComment(readMultiline(xml.getChild("generalComment")))
-            .build()
+        return Activity(
+            id = xml.getAttributeValue("id"),
+            type = xml.getAttributeValue("type"),
+            energyValues = xml.getAttributeValue("energyValues"),
+            name = xml.getChildText("activityName"),
+            includedActivitiesStart = xml.getChildText("includedActivitiesStart"),
+            includedActivitiesEnd = xml.getChildText("includedActivitiesEnd"),
+            generalComment = readMultiline(xml.getChild("generalComment")),
+        )
     }
 
     private fun readMultiline(xml: Element?): List<String> {

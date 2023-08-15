@@ -6,80 +6,117 @@ import ch.kleis.lcaplugin.imports.ModelWriter.Companion.compactAndPad
 import ch.kleis.lcaplugin.imports.ModelWriter.Companion.compactText
 import ch.kleis.lcaplugin.imports.ModelWriter.Companion.sanitizeAndCompact
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter.Companion.unitToStr
-import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
-import ch.kleis.lcaplugin.imports.ecospold.model.ElementaryExchange
-import ch.kleis.lcaplugin.imports.ecospold.model.IntermediateExchange
-import ch.kleis.lcaplugin.imports.ecospold.model.Uncertainty
-import ch.kleis.lcaplugin.imports.model.ExchangeBlock
-import ch.kleis.lcaplugin.imports.model.ImportedBioExchange
-import ch.kleis.lcaplugin.imports.model.ImportedProcess
-import ch.kleis.lcaplugin.imports.model.ImportedProductExchange
+import ch.kleis.lcaplugin.imports.ecospold.model.*
+import ch.kleis.lcaplugin.imports.model.*
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
-class EcoSpoldProcessMapper(val process: ActivityDataset) {
-    private val pUid = uid(process)
-    val result = ImportedProcess(pUid)
+object EcoSpoldProcessMapper {
+    fun map(process: ActivityDataset, methodName: String? = null): ImportedProcess {
+        val elementaryExchangeGrouping =
+            process.flowData.elementaryExchanges.groupingBy {
+                it.substanceType
+            }.aggregate { _, accumulator: MutableList<ImportedBioExchange>?, element: ElementaryExchange, _ ->
+                val mappedExchange = elementaryExchangeToImportedBioExchange(element)
+                accumulator?.let {
+                    accumulator.add(mappedExchange)
+                    accumulator
+                } ?: mutableListOf(mappedExchange)
+            }
 
-    companion object {
-        fun uid(data: ActivityDataset): String {
-            return datasetUid(data.description.activity.name, data.description.geography?.shortName ?: "")
-        }
-
-        private fun toStr(txt: List<String>): CharSequence {
-            return txt.joinToString("\n")
-        }
-
-        private fun datasetUid(activityName: String, geo: String): String {
-            return sanitizeAndCompact(activityName + "_" + geo)
-        }
-    }
-
-    fun map(): ImportedProcess {
-
-        mapMetas()
-        mapProducts()
-        mapLandUse()
-        mapResources()
-        mapEmissions()
-
-        return result
-    }
-
-    private fun mapProducts() {
-        val geo = if (process.description.geography?.shortName == "GLO") ""
-        else process.description.geography?.shortName ?: ""
-        val products = process.flowData.intermediateExchanges.map { mapProduct(it, geo) }.toMutableList()
-        result.productBlocks = mutableListOf(ExchangeBlock("Products", products))
-    }
-
-    private fun mapEmissions() {
-        result.emissionBlocks += ExchangeBlock(null,
-            process.flowData.elementaryExchanges
-                .filter { it.substanceType == SubstanceType.EMISSION }
-                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
+        return ImportedProcess(
+            uid = uid(process),
+            meta = mapMetas(process.description),
+            productBlocks = listOf(mapProducts(process.description.geography, process.flowData.intermediateExchanges)),
+            emissionBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.EMISSION]?.asSequence() ?: emptySequence()
+                )
+            ),
+            resourceBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.RESOURCE]?.asSequence() ?: emptySequence()
+                )
+            ),
+            landUseBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.LAND_USE]?.asSequence() ?: emptySequence()
+                )
+            ),
+            impactBlocks = listOf(mapImpacts(methodName, process.flowData.impactIndicators)),
         )
-
-        // TODO: Remove when closing #261
-        val bio = ImportedBioExchange(listOf(), "1.0", "u", pUid, "")
-        result.emissionBlocks += ExchangeBlock("Virtual Substance for Impact Factors", mutableListOf(bio))
-
     }
 
-    private fun mapLandUse() {
-        result.landUseBlocks = mutableListOf(ExchangeBlock(null,
-            process.flowData.elementaryExchanges
-                .filter { it.substanceType == SubstanceType.LAND_USE }
-                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
-        ))
+    fun uid(data: ActivityDataset): String {
+        return datasetUid(data.description.activity.name, data.description.geography?.shortName ?: "")
     }
 
-    private fun mapResources() {
-        result.resourceBlocks = mutableListOf(ExchangeBlock(null,
-            process.flowData.elementaryExchanges
-                .filter { it.substanceType == SubstanceType.RESOURCE }
-                .map(::elementaryExchangeToImportedBioExchange).toMutableList()
-        ))
+    private fun mapMetas(description: ActivityDescription): Map<String, String?> =
+        mapOf(
+            "id" to description.activity.id?.let { compactText(it) },
+            "name" to description.activity.name.let { compactText(it) },
+            "type" to description.activity.type,
+            "description" to description.activity.generalComment?.let { compactAndPad(toStr(it), 12) },
+            "energyValues" to description.activity.energyValues,
+            "includedActivitiesStart" to description.activity.includedActivitiesStart?.let { compactText(it) },
+            "includedActivitiesEnd" to description.activity.includedActivitiesEnd?.let { compactText(it) },
+            "geography-shortname" to description.geography?.shortName?.let { compactText(it) },
+            "geography-comment" to description.geography?.comment?.let { compactText(toStr(it)) }
+        ) + description.classifications.associate { it.system to compactText(it.value) }
+
+    private fun mapProducts(
+        geography: Geography?,
+        intermediateExchanges: Sequence<IntermediateExchange>
+    ): ExchangeBlock<ImportedProductExchange> =
+        ExchangeBlock(null,
+            intermediateExchanges.map { intermediateExchange ->
+                intermediateExchangeToImportedProductExchange(
+                    intermediateExchange,
+                    geography?.takeIf { it.shortName != "GLO" }?.shortName ?: ""
+                )
+            })
+
+    private fun mapImpacts(
+        maybeMethodName: String?,
+        impactIndicatorList: Sequence<ImpactIndicator>
+    ): ExchangeBlock<ImportedImpactExchange> = maybeMethodName?.let { methodName ->
+        ExchangeBlock(
+            "Impacts for method $methodName",
+            impactIndicatorList
+                .filter { it.methodName == methodName }
+                .map {
+                    ImportedImpactExchange(
+                        it.amount.toString(),
+                        sanitizeSymbol(sanitizeAndCompact(it.unitName, toLowerCase = false)),
+                        sanitizeAndCompact(it.name),
+                        listOf(it.categoryName),
+                    )
+                }
+        )
+    } ?: ExchangeBlock()
+
+    private fun intermediateExchangeToImportedProductExchange(
+        e: IntermediateExchange,
+        geo: String
+    ): ImportedProductExchange {
+        val initComments = ArrayList<String>()
+        e.name?.let { initComments.add(it) }
+        e.classifications.forEach { initComments.add("${it.system} = ${it.value}") }
+        e.uncertainty?.let { uncertaintyToStr(initComments, it) }
+        e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
+
+        val amount = e.amount.toString()
+        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit)))
+        val uid = sanitizeAndCompact("${e.name}_$geo")
+
+        if (e.outputGroup != 0) {
+            throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
+        }
+        e.properties.forEach { initComments.add("${it.name} ${it.amount} ${it.unit} isCalculatedAmount=${it.isCalculatedAmount ?: ""} isDefiningValue=${it.isDefiningValue ?: ""}") }
+        return ImportedProductExchange(amount, unit, uid, 100.0, initComments)
     }
 
     private fun elementaryExchangeToImportedBioExchange(elementaryExchange: ElementaryExchange): ImportedBioExchange =
@@ -92,45 +129,10 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
             subCompartment = elementaryExchange.subCompartment,
         )
 
-    private fun mapMetas() {
-        val metas = result.meta
-        process.description.let { description ->
-            description.activity.let { activity ->
-                activity.id?.let { metas["id"] = compactText(it) }
-                activity.name.let { metas["name"] = compactText(it) }
-                activity.type.let { metas["type"] = it }
-                activity.generalComment?.let {
-                    metas["description"] = compactAndPad(toStr(it), 12)
-                }
-                activity.energyValues?.let { metas["energyValues"] = it }
-                activity.includedActivitiesStart?.let {
-                    metas["includedActivitiesStart"] = compactText(it)
-                }
-                activity.includedActivitiesEnd?.let { metas["includedActivitiesEnd"] = compactText(it) }
-            }
-            description.classifications.forEach { metas[it.system] = compactText(it.value) }
-            description.geography?.shortName?.let { metas["geography-shortname"] = compactText(it) }
-            description.geography?.comment?.let { metas["geography-comment"] = compactText(toStr(it)) }
-        }
-    }
 
-    private fun mapProduct(e: IntermediateExchange, geo: String): ImportedProductExchange {
-        val initComments = ArrayList<String>()
-        e.name?.let { initComments.add(it) }
-        e.classifications.forEach { initComments.add("${it.system} = ${it.value}") }
-        e.uncertainty?.let { uncertaintyToStr(initComments, it) }
-        e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
-        val amount = e.amount.toString()
-        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit)))
+    private fun datasetUid(activityName: String, geo: String): String = sanitizeAndCompact(activityName + "_" + geo)
 
-        val uid = sanitizeAndCompact("${e.name}_$geo")
-        if (e.outputGroup != 0) {
-            throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
-        }
-        e.properties.forEach { initComments.add("${it.name} ${it.amount} ${it.unit} isCalculatedAmount=${it.isCalculatedAmount ?: ""} isDefiningValue=${it.isDefiningValue ?: ""}") }
-        return ImportedProductExchange(initComments, amount, unit, uid, 100.0)
-    }
-
+    private fun toStr(txt: List<String>): CharSequence = txt.joinToString("\n")
 
     private fun uncertaintyToStr(comments: ArrayList<String>, it: Uncertainty) {
         it.logNormal?.let { comments.add("// uncertainty: logNormal mean=${it.meanValue}, variance=${it.variance}, mu=${it.mu}") }
@@ -141,6 +143,4 @@ class EcoSpoldProcessMapper(val process: ActivityDataset) {
         it.comment?.let { comments.add("// uncertainty: comment") }
         it.comment?.let { comments.addAll(asComment(it)) }
     }
-
-
 }

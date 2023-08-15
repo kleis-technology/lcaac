@@ -110,8 +110,8 @@ class ParserTest {
     }
 
     private fun assertEqualsToFlow(flowData: FlowData) {
-        assertEquals(1, flowData.intermediateExchanges.size)
-        val exchange = flowData.intermediateExchanges[0]
+        assertEquals(1, flowData.intermediateExchanges.count())
+        val exchange = flowData.intermediateExchanges.first()
         assertEquals("electricity, high voltage", exchange.name)
         assertEquals(1.0, exchange.amount)
         assertEquals("kWh", exchange.unit)
@@ -134,13 +134,13 @@ class ParserTest {
 
     }
 
-    private fun assertEqualsToIndicators(impactIndicators: List<ImpactIndicator>) {
-        assertEquals(1, impactIndicators.size)
-        assertEquals("acidification (incl. fate, average Europe total, A&B)", impactIndicators[0].name)
-        assertEquals(0.0011083933659871714, impactIndicators[0].amount, 1E-20)
-        assertEquals("kg SO2-Eq", impactIndicators[0].unitName)
-        assertEquals("CML v4.8 2016", impactIndicators[0].methodName)
-        assertEquals("acidification", impactIndicators[0].categoryName)
+    private fun assertEqualsToIndicators(impactIndicators: Sequence<ImpactIndicator>) {
+        assertEquals(1, impactIndicators.count())
+        assertEquals("acidification (incl. fate, average Europe total, A&B)", impactIndicators.first().name)
+        assertEquals(0.0011083933659871714, impactIndicators.first().amount, 1E-20)
+        assertEquals("kg SO2-Eq", impactIndicators.first().unitName)
+        assertEquals("CML v4.8 2016", impactIndicators.first().methodName)
+        assertEquals("acidification", impactIndicators.first().categoryName)
     }
 
 
