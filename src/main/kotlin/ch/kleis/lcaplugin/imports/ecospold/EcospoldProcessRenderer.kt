@@ -23,7 +23,7 @@ class EcospoldProcessRenderer {
         val strProcess = ProcessSerializer.serialize(process)
 
         w.write(
-            "processes${File.separatorChar}$subFolder${process.uid}.lca",
+            "processes${File.separatorChar}$subFolder${process.uid}",
             strProcess, index = false, closeAfterWrite = true
         )
     }

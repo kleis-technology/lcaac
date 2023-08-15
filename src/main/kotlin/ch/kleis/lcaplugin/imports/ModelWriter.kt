@@ -205,6 +205,4 @@ class ModelWriter(
             }
         }
     }
-
-
 }
