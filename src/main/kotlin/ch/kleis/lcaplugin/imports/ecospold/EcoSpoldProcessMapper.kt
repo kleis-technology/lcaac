@@ -12,15 +12,40 @@ import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
 object EcoSpoldProcessMapper {
-    // FIXME: all elementaryExchange block functions go through the whole list. Should probably group by or something to iterate once.
     fun map(process: ActivityDataset, methodName: String? = null): ImportedProcess {
+        val elementaryExchangeGrouping =
+            process.flowData.elementaryExchanges.groupingBy {
+                it.substanceType
+            }.aggregate { _, accumulator: MutableList<ImportedBioExchange>?, element: ElementaryExchange, _ ->
+                val mappedExchange = elementaryExchangeToImportedBioExchange(element)
+                accumulator?.let {
+                    accumulator.add(mappedExchange)
+                    accumulator
+                } ?: mutableListOf(mappedExchange)
+            }
+
         return ImportedProcess(
             uid = uid(process),
             meta = mapMetas(process.description),
             productBlocks = listOf(mapProducts(process.description.geography, process.flowData.intermediateExchanges)),
-            emissionBlocks = listOf(mapEmissions(process.flowData.elementaryExchanges)),
-            resourceBlocks = listOf(mapResources(process.flowData.elementaryExchanges)),
-            landUseBlocks = listOf(mapLandUse(process.flowData.elementaryExchanges)),
+            emissionBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.EMISSION]?.asSequence() ?: emptySequence()
+                )
+            ),
+            resourceBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.RESOURCE]?.asSequence() ?: emptySequence()
+                )
+            ),
+            landUseBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    elementaryExchangeGrouping[SubstanceType.LAND_USE]?.asSequence() ?: emptySequence()
+                )
+            ),
             impactBlocks = listOf(mapImpacts(methodName, process.flowData.impactIndicators)),
         )
     }
@@ -53,27 +78,6 @@ object EcoSpoldProcessMapper {
                     geography?.takeIf { it.shortName != "GLO" }?.shortName ?: ""
                 )
             })
-
-    private fun mapEmissions(elementaryExchanges: Sequence<ElementaryExchange>): ExchangeBlock<ImportedBioExchange> =
-        ExchangeBlock(null,
-            elementaryExchanges
-                .filter { it.substanceType == SubstanceType.EMISSION }
-                .map(::elementaryExchangeToImportedBioExchange)
-        )
-
-    private fun mapResources(elementaryExchanges: Sequence<ElementaryExchange>): ExchangeBlock<ImportedBioExchange> =
-        ExchangeBlock(null,
-            elementaryExchanges
-                .filter { it.substanceType == SubstanceType.RESOURCE }
-                .map(::elementaryExchangeToImportedBioExchange)
-        )
-
-    private fun mapLandUse(elementaryExchanges: Sequence<ElementaryExchange>): ExchangeBlock<ImportedBioExchange> =
-        ExchangeBlock(null,
-            elementaryExchanges
-                .filter { it.substanceType == SubstanceType.LAND_USE }
-                .map(::elementaryExchangeToImportedBioExchange)
-        )
 
     private fun mapImpacts(
         maybeMethodName: String?,
