@@ -10,46 +10,66 @@ typealias ID = String
 
 data class MappingExchange(
     val elementaryExchangeId: String,
-    val conversionFactor: Double?,
-    val name: String?,
-    val unit: String?,
-    val compartment: String?,
-    val subCompartment: String?,
-    val comment: String,
+    val conversionFactor: Double? = null,
+    val name: String? = null,
+    val unit: String? = null,
+    val compartment: String? = null,
+    val subCompartment: String? = null,
+    val comment: String = "",
 ) {
     companion object {
         fun orphan(id: ID) = MappingExchange(
-            id,
-            null,
-            null,
-            null,
-            null,
-            null,
-            "Ecoinvent orphan. Ecoinvent ID: $id")
+            elementaryExchangeId = id,
+            comment = "Ecoinvent orphan. Ecoinvent ID: $id"
+        )
+
+        fun unknown(id: ID) = MappingExchange(
+            elementaryExchangeId = id,
+            comment = "Empty method mapping. Ecoinvent ID: $id"
+        )
     }
 }
 
 object EcospoldMethodMapper {
     private val csvFormat: CSVFormat = CSVFormat.Builder.create().setHeader().build()
 
+    /* Flow status, compartment status values:
+     * mapped, mapped -> all fields exist (when different from EcoInvent) and should be filled
+     *
+     * mapped, "" -> sometimes a method_compartment, no method_subcompartment though the substance in our library and
+     *               in PEF nomenclature requires it.
+     *
+     * mapped[,:] overwrite, mapped -> all fields exist (when different from EcoInvent) and should be filled
+     *
+     * mapped[,:] overwrite, mapped: compartment overwrite -> all fields exist etc...
+     *
+     * mapped[,:] overwrite, mapped: proxy -> all fields exist etc...
+     *
+     * mapped[,:] overwrite, "" -> sometimes a method_compartment, no method_subcompartment though the substance in our
+     *                             library and in PEF nomenclature requires it.
+     */
+
     fun buildMapping(mapData: Reader): Map<ID, MappingExchange> =
         CSVParser.parse(mapData, csvFormat).use { parser ->
             validateHeaders(parser.headerMap)
             parser.stream().asSequence().mapNotNull { record ->
-                when (record["flow_status"]) {
-                    "ecoinvent orphan" -> {
+                when {
+                    record["flow_status"] == "ecoinvent orphan" -> {
                         record["id"] to MappingExchange.orphan(record["id"])
                     }
 
-                    // Can be 'mapped', 'mapped: proxy' or 'mapped: compartment overwrite'.
-                    // In all three cases, nullable fields sometimes exist and can be filled in.
+                    record["compartment_status"].isEmpty() -> {
+                        record["id"] to MappingExchange.unknown(record["id"])
+                    }
+
                     else -> mappedElement(record)
                 }
             }.toMap()
         }
 
     private fun validateHeaders(headers: Map<String, Int>) =
-        sequenceOf("compartment_status",
+        sequenceOf(
+            "compartment_status",
             "conversion_factor",
             "flow_status",
             "id",
@@ -58,7 +78,8 @@ object EcospoldMethodMapper {
             "method_subcompartment",
             "method_unit",
             "name",
-            "unitName")
+            "unitName"
+        )
             .forEach { header ->
                 if (!headers.containsKey(header)) {
                     throw IllegalArgumentException("could not find $header in file headers. Is it a valid mapping file ?")
