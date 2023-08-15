@@ -25,7 +25,8 @@ class EvaluatorTest {
                         ImpactFixture.oneClimateChange
                     ),
                 )
-            ))
+            )
+        )
         val evaluator = Evaluator(symbolTable)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
@@ -50,7 +51,8 @@ class EvaluatorTest {
                     biosphere = listOf(
                         EBioExchange(
                             QuantityFixture.oneKilogram,
-                            ESubstanceSpec("doesNotExist",
+                            ESubstanceSpec(
+                                "doesNotExist",
                                 "doesNotExist",
                                 SubstanceType.EMISSION,
                                 "water",
@@ -59,9 +61,11 @@ class EvaluatorTest {
                         )
                     ),
                 )
-            ))
+            )
+        )
         val evaluator = Evaluator(symbolTable)
-        val expected = FullyQualifiedSubstanceValue("doesNotExist",
+        val expected = FullyQualifiedSubstanceValue(
+            "doesNotExist",
             type = SubstanceType.EMISSION,
             compartment = "water",
             subcompartment = "sea water",
@@ -124,7 +128,8 @@ class EvaluatorTest {
                         )
                     ),
                 )
-            ))
+            )
+        )
         val recursiveEvaluator = Evaluator(symbolTable)
 
         // when
@@ -350,10 +355,11 @@ class EvaluatorTest {
                     biosphere = listOf(
                         EBioExchange(
                             QuantityFixture.oneKilogram, ESubstanceSpec(
-                            "propanol",
-                            compartment = "air",
-                            type = SubstanceType.RESOURCE,
-                        ))
+                                "propanol",
+                                compartment = "air",
+                                type = SubstanceType.RESOURCE,
+                            )
+                        )
                     ),
                 )
             )
@@ -368,5 +374,43 @@ class EvaluatorTest {
             SubstanceCharacterizationValueFixture.propanolCharacterization
         )
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun eval_whenProductUnitNotMatchProcess_shouldThrow() {
+        // given
+        val symbolTable = SymbolTable(
+            processTemplates = Register.from(
+                mapOf(
+                    "carrot_production" to TemplateFixture.carrotProduction
+                )
+            )
+        )
+        val expression = EProcessTemplateApplication(
+            template = EProcessTemplate(
+                body = EProcess(
+                    name = "salad_production",
+                    products = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            ProductFixture.salad,
+                        )
+                    ),
+                    inputs = listOf(
+                        ETechnoExchange(
+                            QuantityFixture.oneLitre,
+                            ProductFixture.carrot,
+                        )
+                    ),
+                )
+            )
+        )
+        val recursiveEvaluator = Evaluator(symbolTable)
+
+        // when/then
+        val e = assertFailsWith(
+            EvaluatorException::class,
+        ) { recursiveEvaluator.eval(expression) }
+        assertEquals("incompatible dimensions: length³ vs mass for product carrot", e.message)
     }
 }
