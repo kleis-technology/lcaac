@@ -148,11 +148,11 @@ object Parser {
     }
 
     private fun readDescription(xmlDesc: Element): ActivityDescription {
-        return ActivityDescription.Builder()
-            .activity(readActivity(xmlDesc.getChild("activity")))
-            .classifications(readClassifications(xmlDesc.getChildren("classification")))
-            .geography(readGeography(xmlDesc.getChild("geography")))
-            .build()
+        return ActivityDescription(
+            activity = readActivity(xmlDesc.getChild("activity")),
+            classifications = readClassifications(xmlDesc.getChildren("classification")),
+            geography = readGeography(xmlDesc.getChild("geography")),
+        )
     }
 
     private fun readClassifications(children: List<Element>): List<Classification> {
@@ -173,15 +173,15 @@ object Parser {
 
 
     private fun readActivity(xml: Element): Activity {
-        return Activity.Builder()
-            .id(xml.getAttributeValue("id"))
-            .type(xml.getAttributeValue("type"))
-            .energyValues(xml.getAttributeValue("energyValues"))
-            .name(xml.getChildText("activityName"))
-            .includedActivitiesStart(xml.getChildText("includedActivitiesStart"))
-            .includedActivitiesEnd(xml.getChildText("includedActivitiesEnd"))
-            .generalComment(readMultiline(xml.getChild("generalComment")))
-            .build()
+        return Activity(
+            id = xml.getAttributeValue("id"),
+            type = xml.getAttributeValue("type"),
+            energyValues = xml.getAttributeValue("energyValues"),
+            name = xml.getChildText("activityName"),
+            includedActivitiesStart = xml.getChildText("includedActivitiesStart"),
+            includedActivitiesEnd = xml.getChildText("includedActivitiesEnd"),
+            generalComment = readMultiline(xml.getChild("generalComment")),
+        )
     }
 
     private fun readMultiline(xml: Element?): List<String> {

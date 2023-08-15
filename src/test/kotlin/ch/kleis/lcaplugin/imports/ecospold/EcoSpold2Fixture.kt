@@ -5,22 +5,22 @@ import ch.kleis.lcaplugin.imports.ecospold.model.*
 
 object EcoSpold2Fixture {
     fun buildData(outputGroup: Int = 0): ActivityDataset {
-        val activity = Activity.Builder()
-            .id("aId")
-            .name("aName")
-            .type("1")
-            .generalComment(listOf("ageneralComment"))
-            .energyValues("123")
-            .includedActivitiesStart("includedActivitiesStart")
-            .includedActivitiesEnd("includedActivitiesEnd")
-            .build()
+        val activity = Activity(
+            id = "aId",
+            name = "aName",
+            type = "1",
+            generalComment = listOf("ageneralComment"),
+            energyValues = "123",
+            includedActivitiesStart = "includedActivitiesStart",
+            includedActivitiesEnd = "includedActivitiesEnd",
+        )
         val c = Classification("System", "Value")
         val geo = Geography("ch", listOf("comment"))
-        val description = ActivityDescription.Builder()
-            .activity(activity)
-            .geography(geo)
-            .classifications(listOf(c))
-            .build()
+        val description = ActivityDescription(
+            activity = activity,
+            geography = geo,
+            classifications = listOf(c),
+            )
         val prod = IntermediateExchange(
             name = "pName",
             outputGroup = outputGroup,
