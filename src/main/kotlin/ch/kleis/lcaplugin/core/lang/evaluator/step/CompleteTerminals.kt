@@ -7,7 +7,7 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 object CompleteTerminals {
     private val everyInputExchange =
         EProcessFinal.expression.inputs compose
-            Every.list()
+                Every.list()
 
     fun apply(expression: EProcessFinal): EProcessFinal =
         expression
@@ -34,7 +34,9 @@ object CompleteTerminals {
 
                 ETechnoExchange.product
                     .modify(exchange) {
-                        it.copy(referenceUnit = referenceUnit)
+                        if (it.referenceUnit == null) {
+                            it.copy(referenceUnit = referenceUnit)
+                        } else it
                     }
             }
     }
