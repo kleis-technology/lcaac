@@ -175,12 +175,13 @@ class SimaproProcessMapperTest {
             comp: String,
             sub: String?
         ) {
-            assertEquals(comments, actual.resourceBlocks[0].exchanges.elementAt(pos).comments)
-            assertEquals(qty, actual.resourceBlocks[0].exchanges.elementAt(pos).qty)
-            assertEquals(unit, actual.resourceBlocks[0].exchanges.elementAt(pos).unit)
-            assertEquals(uid, actual.resourceBlocks[0].exchanges.elementAt(pos).uid)
-            assertEquals(comp, actual.resourceBlocks[0].exchanges.elementAt(pos).compartment)
-            assertEquals(sub, actual.resourceBlocks[0].exchanges.elementAt(pos).subCompartment)
+            val resultExchange = actual.resourceBlocks[0].exchanges.elementAt(pos)
+            assertEquals(comments, resultExchange.comments)
+            assertEquals(qty, resultExchange.qty)
+            assertEquals(unit, resultExchange.unit)
+            assertEquals(uid, resultExchange.uid)
+            assertEquals(comp, resultExchange.compartment)
+            assertEquals(sub, resultExchange.subCompartment)
         }
         assertResEquals(
             0, listOf("(2,2,1,1,1,na)", "Formula=[145.56 * 67E6 / (1 -4E-6)]"),
