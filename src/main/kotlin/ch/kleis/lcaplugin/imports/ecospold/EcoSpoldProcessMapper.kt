@@ -109,7 +109,7 @@ object EcoSpoldProcessMapper {
         e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
 
         val amount = e.amount.toString()
-        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit)))
+        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit), false))
         val uid = sanitizeAndCompact("${e.name}_$geo")
 
         if (e.outputGroup != 0) {
