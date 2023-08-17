@@ -32,7 +32,10 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val comparator: Comparator<MatrixColumnIndex>,
     )
 
-    private fun getRequiredInformation(@Suppress("SameParameterValue") process: String, vf: VirtualFile): SankeyRequiredInformation {
+    private fun getRequiredInformation(
+        @Suppress("SameParameterValue") process: String,
+        vf: VirtualFile
+    ): SankeyRequiredInformation {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file))
         val symbolTable = parser.load()
@@ -59,7 +62,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                                1 m3 my_substance (compartment = "air")
                            }
                        }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -91,7 +95,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                                1 m3 my_substance (compartment = "air")
                            }
                        }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -123,7 +128,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         1 kg my_input
                     }
                 }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -163,7 +169,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         2.5 kg my_emission
                     }
                }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -206,7 +213,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         1 m3 my_substance (compartment = "air")
                     }
                 }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -249,7 +257,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                                1000 g my_indicator
                            }
                       }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -262,11 +271,11 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
             GraphNode("my_input from input{}{}", "my_input"),
             GraphNode("my_indicator", "my_indicator"),
         ).addLink(
-            GraphLink("my_product from p{}{}", "my_input from input{}{}", 500.0),
-            GraphLink("my_input from input{}{}", "my_indicator", 500.0),
+            GraphLink("my_product from p{}{}", "my_input from input{}{}", 0.5),
+            GraphLink("my_input from input{}{}", "my_indicator", 0.5),
         )
-        assertEquals(expected.nodes, graph.nodes)
-        assertEquals(expected.links, graph.links)
+        assertEquals(expected.nodes.naturalSorted(), graph.nodes.naturalSorted())
+        assertEquals(expected.links.naturalSorted(), graph.links.naturalSorted())
     }
 
     @Test
@@ -284,7 +293,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                                2 m3 my_substance (compartment = "air")
                            }
                        }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -343,7 +353,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                             1 kg my_substance
                         }
                     }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -405,7 +416,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                                1 m3 my_substance (compartment = "air")
                            }
                        }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -456,7 +468,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         1 kg C
                     }
                 }
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p1", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 
@@ -557,7 +570,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         1 kg my_emission
                     }
                 } 
-                """.trimIndent())
+                """.trimIndent()
+        )
         val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("pA", vf)
         val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
 

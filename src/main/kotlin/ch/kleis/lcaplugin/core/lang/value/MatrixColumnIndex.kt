@@ -18,8 +18,8 @@ data class ProductValue(
     val name: String,
     val referenceUnit: UnitValue,
     val fromProcessRef: FromProcessRefValue? = null
-) :
-    Value, MatrixColumnIndex {
+) : Value, MatrixColumnIndex {
+
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }

@@ -18,8 +18,8 @@ class EvaluationTrace {
     fun getObservableOrder(): Comparator<MatrixColumnIndex> {
         return object : Comparator<MatrixColumnIndex> {
             override fun compare(o1: MatrixColumnIndex, o2: MatrixColumnIndex): Int {
-                val d1 = observableDepthMap[o1] ?: throw EvaluatorException("unknown ${o1}")
-                val d2 = observableDepthMap[o2] ?: throw EvaluatorException("unknown ${o2}")
+                val d1 = observableDepthMap[o1] ?: throw EvaluatorException("unknown $o1")
+                val d2 = observableDepthMap[o2] ?: throw EvaluatorException("unknown $o2")
                 if (d1 < d2) {
                     return -1
                 }
