@@ -75,14 +75,20 @@ class Evaluator(
                 .let(CompleteTerminals::apply)
 
             val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
-                resolveProcessTemplateByProductSpec(spec)?.let { template ->
+                processResolver.resolve(spec)?.let { template ->
                     val body = template.body
                     val labels = spec.fromProcess?.matchLabels
                         ?: MatchLabels(template.body.labels)
                     val arguments = spec.fromProcess?.arguments
                         ?: template.params.mapValues { entry -> dataReducer.reduce(entry.value) }
+                    val unit = body.products.firstOrNull {
+                        it.product.name == spec.name
+                    }?.product?.referenceUnit?.let {
+                        dataReducer.reduce(it)
+                    } ?: spec.referenceUnit
                     nextBatch.add(EProcessTemplateApplication(template, arguments))
                     spec.copy(
+                        referenceUnit = unit,
                         fromProcess =
                         FromProcess(
                             body.name,
@@ -121,10 +127,6 @@ class Evaluator(
 
     private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
         return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
-    }
-
-    private fun resolveProcessTemplateByProductSpec(spec: EProductSpec): EProcessTemplate? {
-        return processResolver.resolve(spec)
     }
 }
 

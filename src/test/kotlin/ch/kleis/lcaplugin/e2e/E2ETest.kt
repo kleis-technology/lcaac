@@ -972,4 +972,40 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(expected, cf.input.quantity().amount, delta)
         assertEquals(UnitValueFixture.unit, cf.input.quantity().unit)
     }
+
+    @Test
+    fun test_processInput_whenWrongUnit_thenShouldThrow() {
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            
+            process p1 {
+                products {
+                    1 kg out
+                }
+                inputs {
+                    1 l in
+                }
+            }
+            process p2 {
+                products {
+                    1 kg in
+                }
+            }
+        """.trimIndent()
+        )
+        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
+        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val symbolTable = parser.load()
+        val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p1")!!)
+
+        // when/then
+        val e = assertFailsWith(
+            EvaluatorException::class,
+        ) {
+            Evaluator(symbolTable).trace(entryPoint)
+        }
+        assertEquals("incompatible dimensions: length³ vs mass for product in", e.message)
+    }
 }

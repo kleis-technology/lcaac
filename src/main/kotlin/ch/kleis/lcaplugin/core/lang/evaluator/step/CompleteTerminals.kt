@@ -34,9 +34,7 @@ object CompleteTerminals {
 
                 ETechnoExchange.product
                     .modify(exchange) {
-                        if (it.referenceUnit == null) {
-                            it.copy(referenceUnit = referenceUnit)
-                        } else it
+                        it.copy(referenceUnit = referenceUnit)
                     }
             }
     }

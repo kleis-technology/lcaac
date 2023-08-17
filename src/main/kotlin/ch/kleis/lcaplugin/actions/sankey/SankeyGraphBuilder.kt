@@ -32,16 +32,25 @@ class SankeyGraphBuilder(
                 is ProductValue -> {
                     val parentProcess = allocatedSystem.productToProcessMap[port]!!
 
-                    val linksWithObservedImpact = (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
-                        portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == sankeyIndicator
-                    }
+                    val linksWithObservedImpact =
+                        (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
+                            portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == sankeyIndicator
+                        }
 
-                    linksWithObservedImpact.fold(graph.addNode(GraphNode(port.getUID(), port.getShortName()))) { accumulatorGraph, exchange ->
+                    linksWithObservedImpact.fold(
+                        graph.addNode(
+                            GraphNode(
+                                port.getUID(),
+                                port.getShortName()
+                            )
+                        )
+                    ) { accumulatorGraph, exchange ->
                         accumulatorGraph.addLinkIfNoCycle(
                             observableOrder,
                             port,
                             exchange.port(),
-                            impactAmountForExchange(sankeyIndicator, inventory, port, exchange))
+                            impactAmountForExchange(sankeyIndicator, inventory, port, exchange)
+                        )
                     }
                 }
 
@@ -73,9 +82,14 @@ class SankeyGraphBuilder(
         }
     }
 
-    private fun impactAmountForSubstance(observed: MatrixColumnIndex, inventory: Inventory, substance: SubstanceValue): Double {
-        return inventory.impactFactors.valueRatio(substance, observed).amount *
-            inventory.supply.quantityOf(substance).amount
+    private fun impactAmountForSubstance(
+        observed: MatrixColumnIndex,
+        inventory: Inventory,
+        substance: SubstanceValue
+    ): Double {
+        val a = inventory.impactFactors.valueRatio(substance, observed).referenceValue()
+        val b = inventory.supply.quantityOf(substance).referenceValue()
+        return a * b
     }
 
     private fun impactAmountForExchange(
@@ -86,11 +100,11 @@ class SankeyGraphBuilder(
     ): Double {
         val valueRatioForObservedImpact = when {
             (exchange.port() == observed) -> 1.0
-            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).amount
+            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).referenceValue()
         }
 
         return valueRatioForObservedImpact *
-            inventory.supply.quantityOf(product).amount *
-            exchange.quantity().amount
+                inventory.supply.quantityOf(product).referenceValue() *
+                exchange.quantity().referenceValue()
     }
 }
