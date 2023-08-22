@@ -8,9 +8,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <moduleType
-                id="LCA_MODULE_TYPE"
-                implementationClass="ch.kleis.lcaplugin.project.LcaModuleType"/>
+        <completion.contributor
+                language="LCA"
+                implementationClass="ch.kleis.lcaplugin.language.ide.syntax.LanguageCompletion"/>
 
         <fileType
                 name="LCA Definition File"
