@@ -22,7 +22,7 @@
       TYPE_RESOURCE_KEYWORD = 'Resource'
       TYPE_LAND_USE_KEYWORD = 'Land_use'
       COMPARTMENT_KEYWORD = 'compartment'
-      SUB_COMPARTMENT_KEYWORD = 'sub-compartment'
+      SUB_COMPARTMENT_KEYWORD = 'sub_compartment'
       IMPACTS_KEYWORD = 'impacts'
       META_KEYWORD = "meta"
       FROM_KEYWORD = "from"
@@ -31,12 +31,12 @@
       INDICATOR_KEYWORD = 'indicator'
       VARIABLES_KEYWORD = 'variables'
       UNIT_KEYWORD = 'unit'
-      REFERENCE_UNIT_KEYWORD = 'reference-unit'
+      REFERENCE_UNIT_KEYWORD = 'reference_unit'
       ALIAS_FOR_KEYWORD = 'alias_for'
       ALLOCATE_KEYWORD = 'allocate'
       NAME_KEYWORD = 'name'
       DIMENSION_KEYWORD = 'dimension'
-      PARAMETERS_KEYWORD = 'parameters'
+      PARAMETERS_KEYWORD = 'params'
       INPUTS_KEYWORD = 'inputs'
       EMISSIONS_KEYWORD = 'emissions'
       RESOURCES_KEYWORD = 'resources'

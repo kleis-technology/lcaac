@@ -1,8 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.syntax
 
-import ch.kleis.lcaplugin.ide.template.ErrorHelper.Companion.containsAllErrors
-import ch.kleis.lcaplugin.ide.template.ErrorHelper.Companion.isInErrorInRootBlock
-import ch.kleis.lcaplugin.ide.template.ErrorHelper.Companion.isInErrorInSubBlock
 import com.intellij.codeInsight.completion.CompletionContributor
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionResultSet
@@ -10,44 +7,47 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.PsiErrorElement
 
 
-private val ALL_MANDATORY_SUB_BLOCK_KEYWORD = listOf(
-    "name", "type", "compartment", "sub_compartment", "reference_unit", // Substance
-    "symbol" // Unit
-)
-
 class LanguageCompletion : CompletionContributor() {
 
 
     override fun fillCompletionVariants(parameters: CompletionParameters, result: CompletionResultSet) {
         super.fillCompletionVariants(parameters, result)
 
-        if (isInErrorInRootBlock(parameters.position)) { // Root Block
-            result.addElements("package", "import", "process", "variables", "substance", "unit")
-        } else if (isInErrorInSubBlock(parameters.position)) { // Substance or Unit block
+        if (parameters.position.parent is PsiErrorElement) {
             val parent = parameters.position.parent as PsiErrorElement
-            val expected = findExpectedToken(parent)
-            if (expected != null && expected in ALL_MANDATORY_SUB_BLOCK_KEYWORD) {
-                result.addElements(expected)
-            } else if (containsAllErrors(parent, "impacts", "meta")) { // Substance optional blocks
-                result.addElements("impacts", "meta")
-            } else if (containsAllErrors(parent, "Emission", "Resource", "Land_use")) { // Substance.type
-                result.addElements("Emission", "Resource", "Land_use")
-            } else if (containsAllErrors(parent, "dimension", "alias_for")) { // Unit exclusive alternatives
-                result.addElements("dimension", "alias_for")
-            } else {
-                // Nothing to complete
-            }
-        } else {
-            // Nothing to complete
+            result.addElements(*extractKeyWordFromError(parent).toTypedArray())
         }
     }
 
-    private val expectedPattern = Regex("LcaTokenType\\.(.*) expected, got")
 
-    private fun findExpectedToken(elt: PsiErrorElement): String? {
-        val grp = expectedPattern.find(elt.errorDescription)?.groupValues
-        return if (grp?.size == 2) grp[1] else null
+    private fun extractKeyWordFromError(elt: PsiErrorElement): List<String> {
+        val grp = listOfKeywordPattern.find(elt.errorDescription)?.groupValues
+        return if (grp?.size == 2) {
+            val errors = grp[1]
+            keywordsPattern.findAll(errors)
+                .map { it.groupValues }
+                .filter { it.size >= 2 }
+                .map { it[1] }
+                .filter { it in keywordWhiteList }
+                .toList()
+        } else {
+            listOf()
+        }
     }
+
+    private val keywordWhiteList =
+        hashSetOf(
+            "meta", // All Blocks
+            "unit", "process", "substance", "import", "package", "variables", // Root
+            "name", "type", "compartment", "sub_compartment", "reference_unit", "impacts", // Substance block
+            "Emission", "Resource", "Land_use", // Substance types
+            "description", "author", "other", // Meta default keys
+            "reference_unit", "symbol", "dimension", "alias_for", // Unit block
+            "variables", "params", "labels", // Process Block
+            "products", "inputs", "resources", "emissions", "land_use", "impacts" // Process SubBlocks
+        )
+    private val listOfKeywordPattern = Regex("(LcaTokenType.*) expected, got")
+    private val keywordsPattern = Regex("LcaTokenType\\.([^ ,]*)(, | or |)")
 
     private fun CompletionResultSet.addElements(vararg strings: String) {
         strings.forEach { this.addElement(LookupElementBuilder.create(it)) }

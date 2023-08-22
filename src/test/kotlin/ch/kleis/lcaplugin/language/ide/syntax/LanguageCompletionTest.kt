@@ -174,6 +174,30 @@ substance mySubstance {
     }
 
     @Test
+    fun lookup_ShouldReturnMetaAndSubstance_ForSubstanceMetaBlock() {
+        // Given
+        fixture.configureByText(
+            "sampleShouldReturnEmpty_ForSubstanceMetaBlock.lca", """
+substance mySubstance {
+    name = "mySubstanceName"
+    type = Emission
+    compartment = "water"
+    sub_compartment = "sea water"
+    reference_unit = kg
+    <caret>
+}
+"""
+        )
+        fixture.complete(CompletionType.BASIC)
+
+        // When
+        val lookupElementStrings = fixture.lookupElementStrings
+
+        // Then
+        assertNotNull(lookupElementStrings)
+        assertSameElements(lookupElementStrings!!, "meta", "impacts")
+    }
+
     fun lookup_ShouldReturnEmpty_ForSubstanceMetaBlock() {
         // Given
         fixture.configureByText(
@@ -221,6 +245,29 @@ substance mySubstance {
     }
 
     @Test
+    fun lookup_ShouldReturnSubstanceSubCompartment_ForSubstance() {
+        // Given
+        fixture.configureByText(
+            "sampleShouldReturnEmpty_ForSubstanceMetaBlock.lca", """
+substance mySubstance {
+    name = "myname"
+    type = Emission
+    compartment = "water"
+    <caret>
+}
+"""
+        )
+        fixture.complete(CompletionType.BASIC)
+
+        // When
+        val lookupElementStrings = fixture.lookupElementStrings
+
+        // Then
+        assertNotNull(lookupElementStrings)
+        assertSameElements(lookupElementStrings!!, "reference_unit", "sub_compartment")
+    }
+
+    @Test
     fun lookup_ShouldReturnEmpty_ForSubstanceImpactBlock() {
         // Given
         fixture.configureByText(
@@ -242,5 +289,33 @@ substance name {
         assertNotNull(lookupElementStrings)
         assertSameElements(lookupElementStrings!!)
     }
+
+    @Test
+    fun lookup_ShouldReturnProcess_ForProcess() {
+        // Given
+        fixture.configureByText(
+            "sampleShouldReturnEmpty_ForSubstanceImpactBlock.lca", """
+process p3 {
+
+       <caret>
+    
+}
+"""
+        )
+        fixture.complete(CompletionType.BASIC)
+
+        // When
+        val lookupElementStrings = fixture.lookupElementStrings
+
+        // Then
+        assertNotNull(lookupElementStrings)
+        assertSameElements(
+            lookupElementStrings!!,
+            "emissions", "impacts", "inputs", "labels", "land_use", "meta", "params",
+            "products", "resources", "variables",
+
+            )
+    }
+
 
 }
