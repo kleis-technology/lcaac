@@ -39,20 +39,9 @@ abstract class LcaCompletionTestCase : UsefulTestCase() {
 
     val fixture: CodeInsightTestFixture
         get() = myFixture!!
-//    public fun getFixture(): CodeInsightTestFixture = myFixture!!
 
     protected open fun getTestDataPath(): String {
         return this.javaClass.getResource("testData")?.path ?: ""
-//        this.javaClass.getResource("testData").path
-    }
-//    protected open fun getTestDataPath(): String {
-//        val communityPath = PlatformTestUtil.getCommunityPath().replace(File.separatorChar, '/')
-//        val path = communityPath + getBasePath()
-//        return if (File(path).exists()) path else communityPath + "/../" + getBasePath()
-//    }
-
-    private fun getBasePath(): String {
-        return ""
     }
 
     private fun getProjectDescriptor(): LightProjectDescriptor {
