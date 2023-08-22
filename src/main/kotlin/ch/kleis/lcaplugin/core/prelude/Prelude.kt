@@ -74,11 +74,16 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("MJ"), 1.0e6 / 3600.0, energy),
             EUnitLiteral(UnitSymbol.of("W"), 1.0 / 3600.0, power),
             EUnitLiteral(UnitSymbol.of("m2a"), 1.0 * 365 * 24 * 3600, land_occupation),
+            EUnitLiteral(UnitSymbol.of("__kgm"), 1.0, transport),
             EUnitLiteral(UnitSymbol.of("tkm"), 1e3 * 1e3, transport),
+            EUnitLiteral(UnitSymbol.of("__meterseconde"), 1.0, length_time),
             EUnitLiteral(UnitSymbol.of("my"), 365 * 24 * 3600.0, length_time),
+            EUnitLiteral(UnitSymbol.of("__personm"), 1.0, person_distance),
             EUnitLiteral(UnitSymbol.of("personkm"), 1000.0, person_distance),
+            EUnitLiteral(UnitSymbol.of("__kgs"), 1.0, mass_time),
             EUnitLiteral(UnitSymbol.of("kgy"), 365 * 24 * 3600.0, mass_time),
             EUnitLiteral(UnitSymbol.of("kga"), 365 * 24 * 3600.0, mass_time),
+            EUnitLiteral(UnitSymbol.of("__m3seconde"), 1.0, volume_time),
             EUnitLiteral(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol.toString() }
 

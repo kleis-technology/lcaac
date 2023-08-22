@@ -123,6 +123,7 @@
 
         <defaultLiveTemplates file="/liveTemplates/lca.xml"/>
         <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext" contextId="LCARoot"/>
+        <preloadingActivity implementation="ch.kleis.lcaplugin.core.prelude.UnitLcaFileGeneration"/>
     </extensions>
 
     <applicationListeners>
