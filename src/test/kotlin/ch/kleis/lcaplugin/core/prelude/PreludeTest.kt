@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class PreludeTest {
     private val ops = BasicOperations
@@ -55,5 +56,31 @@ class PreludeTest {
         with(QuantityValueOperations(ops)) {
             assertEquals((oneSquareMeter * oneYear).absoluteScaleValue(), oneSquareMeterYear.absoluteScaleValue())
         }
+    }
+
+    @Test
+    fun unitAlias_ShouldMergeSubList_ForReferenceUnits() {
+        // Given
+
+        // When
+        val kg = Prelude.unitMap<BasicNumber>()["kg"]
+
+        // Then
+        assertNotNull(kg)
+        assertEquals("mass", kg.dimension.toString())
+
+    }
+
+    @Test
+    fun unitAlias_ShouldMergeSubList_ForAliasUnits() {
+        // Given
+
+        // When
+        val tkm = Prelude.unitMap<BasicNumber>()["tkm"]
+
+        // Then
+        assertNotNull(tkm)
+        assertEquals("length.mass", tkm.dimension.toString())
+
     }
 }

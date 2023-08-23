@@ -29,18 +29,31 @@ class UnitLcaFileFromPreludeGenerator<Q> {
                 jar.putNextEntry(je)
                 OutputStreamWriter(jar, StandardCharsets.UTF_8)
                     .use { w ->
-                        Prelude.unitMap<Q>().values
+                        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
                             .filter { it.scale == 1.0 }
                             .mapNotNull { mapUnitWithNewDimension(it) }
                             .forEach { w.write(it.toString()) }
-                        Prelude.unitMap<Q>().values
+                        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
                             .mapNotNull { mapUnitAsAlias(it) }
+                            .forEach { w.write(it.toString()) }
+                        Prelude.unitWithCompositeDimensionWithoutReferenceUnit<Q>()
+                            .map { mapUnitWithAlias(it.key, it.value) }
                             .forEach { w.write(it.toString()) }
                     }
             }
 
     }
 
+
+    private fun mapUnitWithAlias(unit: EUnitLiteral<Q>, alias: String): UnitBlock {
+        return """
+
+unit ${unit.symbol} {
+    symbol = "${unit.symbol}"
+    alias_for = $alias
+}
+"""
+    }
 
     private fun mapUnitAsAlias(unit: EUnitLiteral<Q>): UnitBlock? {
         val refUnit = existingRefUnit[unit.dimension]!!
