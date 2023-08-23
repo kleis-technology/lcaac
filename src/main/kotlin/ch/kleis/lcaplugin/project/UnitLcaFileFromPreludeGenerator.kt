@@ -7,10 +7,8 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-import java.util.jar.Attributes
-import java.util.jar.JarEntry
-import java.util.jar.JarOutputStream
-import java.util.jar.Manifest
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.io.path.deleteExisting
 
 typealias UnitBlock = CharSequence
@@ -25,13 +23,8 @@ class UnitLcaFileFromPreludeGenerator<Q> {
         file.createNewFile()
         FileOutputStream(file)
             .use { fileOut ->
-                val jar = JarOutputStream(fileOut)
-                val manifest = Manifest()
-                val global: Attributes = manifest.mainAttributes
-                global[Attributes.Name.MANIFEST_VERSION] = version
-                global[Attributes.Name("Created-By")] = "Lca Team"
-                global[Attributes.Name.CONTENT_TYPE] = "application/lca"
-                val je = JarEntry("unit/built_in_units.lca")
+                val jar = ZipOutputStream(fileOut)
+                val je = ZipEntry("built_in_units.lca")
                 je.comment = "built_in_units";
                 jar.putNextEntry(je)
                 OutputStreamWriter(jar, StandardCharsets.UTF_8)

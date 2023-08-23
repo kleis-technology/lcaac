@@ -1,7 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
-import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.annotateWarnWithMessage
 import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.isAssignementReciever
 import ch.kleis.lcaplugin.language.ide.insight.LcaDataAnnotator.ResolveResult.*
@@ -32,9 +30,7 @@ class LcaDataAnnotator : Annotator {
     }
 
     private fun tryResolve(psiDataRef: PsiDataRef): ResolveResult {
-        val fromPrelude = Prelude.unitMap<BasicNumber>()[psiDataRef.name]?.let { 1 } ?: 0
-        val fromCode = psiDataRef.reference.multiResolve(false).size
-        return when (fromPrelude + fromCode) {
+        return when (psiDataRef.reference.multiResolve(false).size) {
             0 -> NORESOLVE
             1 -> ONERESOLVE
             else -> MANYRESOLVE

@@ -8,8 +8,6 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.math.QuantityOperations
-import ch.kleis.lcaplugin.core.prelude.Prelude
-import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.units
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
 import ch.kleis.lcaplugin.language.psi.type.PsiSubstance
@@ -29,7 +27,7 @@ class LcaLangAbstractParser<Q>(
         val substanceDefinitions = files.flatMap { it.getSubstances() }
 
         val dimensions: Register<Dimension> = try {
-            Register(Prelude.primitiveDimensions)
+            Register.empty<Dimension>()
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.LITERAL }
@@ -52,7 +50,7 @@ class LcaLangAbstractParser<Q>(
         }
 
         val globals: Register<DataExpression<Q>> = try {
-            Register(units<Q>())
+            Register.empty<DataExpression<Q>>()
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.LITERAL }
@@ -259,7 +257,7 @@ class LcaLangAbstractParser<Q>(
             psiExchange.outputProductSpec.allocateField?.let { allocation(it) }
                 ?: EQuantityScale(
                     ops.pure(100.0),
-                    units<Q>()["percent"]!!
+                    EDataRef("percent")
                 )
         )
 
