@@ -1,8 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.dimension.Dimension
-import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 @optics
@@ -68,15 +66,8 @@ sealed interface LcaExchangeExpression : LcaExpression {
 data class ETechnoExchange(
     val quantity: DataExpression,
     val product: EProductSpec,
-    val allocation: DataExpression
-) :
-    LcaExchangeExpression {
-    constructor(quantity: DataExpression, product: EProductSpec) : this(
-        quantity,
-        product,
-        EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
-    )
-
+    val allocation: DataExpression? = null,
+) : LcaExchangeExpression {
     companion object
 }
 

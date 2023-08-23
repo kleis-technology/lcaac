@@ -18,20 +18,28 @@ object Allocation {
         return ProcessValue(
             name = processValue.name,
             labels = processValue.labels,
-            products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation.copy(amount = 100.0))),
+            products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation?.copy(amount = 100.0))),
             inputs = processValue.inputs.map(applyAllocationToInput(technoExchangeValue.allocation, totalAllocation)),
-            biosphere = processValue.biosphere.map(applyAllocationToBioExchange(technoExchangeValue.allocation, totalAllocation)),
+            biosphere = processValue.biosphere.map(
+                applyAllocationToBioExchange(
+                    technoExchangeValue.allocation,
+                    totalAllocation
+                )
+            ),
             impacts = processValue.impacts.map(applyAllocationToImpact(technoExchangeValue.allocation, totalAllocation))
         )
     }
 
     fun totalAmount(processValue: ProcessValue): Double {
         allocationUnitCheck(processValue)
-        return processValue.products.sumOf { it.allocation.referenceValue() }
+        return processValue.products.sumOf { it.allocation?.referenceValue() ?: 1.0 }
     }
 
     fun allocationUnitCheck(processValue: ProcessValue) {
-        if (processValue.products.any { it.allocation.unit.symbol != UnitSymbol.of("percent") }) {
+        if (processValue.products
+                .mapNotNull { it.allocation }
+                .any { it.unit.symbol != UnitSymbol.of("percent") }
+        ) {
             throw EvaluatorException("Only percent is allowed for allocation unit (process: ${processValue.name})")
         }
         if ((totalAllocationAmounts(processValue) - 100).absoluteValue > 10E-3) {
@@ -40,14 +48,14 @@ object Allocation {
     }
 
     private fun totalAllocationAmounts(processValue: ProcessValue): Double {
-        return processValue.products.sumOf { it.allocation.amount }
+        return processValue.products.sumOf { it.allocation?.amount ?: 100.0 }
     }
 
     private fun applyAllocationToInput(
-        allocation: QuantityValue,
+        allocation: QuantityValue?,
         totalAllocation: Double
     ): (TechnoExchangeValue) -> TechnoExchangeValue {
-        val ratio = allocation.referenceValue() / totalAllocation
+        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
         return { technoExchangeValue: TechnoExchangeValue ->
             technoExchangeValue.copy(
                 quantity = technoExchangeValue.quantity.copy(
@@ -58,10 +66,10 @@ object Allocation {
     }
 
     private fun applyAllocationToBioExchange(
-        allocation: QuantityValue,
+        allocation: QuantityValue?,
         totalAllocation: Double
     ): (BioExchangeValue) -> BioExchangeValue {
-        val ratio = allocation.referenceValue() / totalAllocation
+        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
         return { bioExchange: BioExchangeValue ->
             bioExchange.copy(
                 quantity = bioExchange.quantity.copy(
@@ -72,14 +80,16 @@ object Allocation {
     }
 
     private fun applyAllocationToImpact(
-        allocation: QuantityValue,
+        allocation: QuantityValue?,
         totalAllocation: Double,
     ): (ImpactValue) -> ImpactValue {
-        val ratio = allocation.referenceValue() / totalAllocation
+        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
         return { impactValue ->
-            impactValue.copy(quantity = impactValue.quantity.copy(
-                amount = impactValue.quantity.amount * ratio
-            ))
+            impactValue.copy(
+                quantity = impactValue.quantity.copy(
+                    amount = impactValue.quantity.amount * ratio
+                )
+            )
         }
     }
 }

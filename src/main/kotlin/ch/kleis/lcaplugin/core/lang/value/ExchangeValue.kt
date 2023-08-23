@@ -1,7 +1,5 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-import ch.kleis.lcaplugin.core.lang.dimension.Dimension
-import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
 sealed interface ExchangeValue : Value {
@@ -21,14 +19,11 @@ data class GenericExchangeValue(
     }
 }
 
-data class TechnoExchangeValue(val quantity: QuantityValue, val product: ProductValue, val allocation: QuantityValue) :
-    ExchangeValue {
-    constructor(quantity: QuantityValue, product: ProductValue) : this(
-        quantity,
-        product,
-        QuantityValue(100.0, UnitValue(UnitSymbol.of("percent"), 1E-2, Dimension.None))
-    )
-
+data class TechnoExchangeValue(
+    val quantity: QuantityValue,
+    val product: ProductValue,
+    val allocation: QuantityValue? = null,
+) : ExchangeValue {
     init {
         if (quantity.unit.dimension != product.referenceUnit.dimension) {
             throw EvaluatorException("incompatible dimensions: ${quantity.unit.dimension} vs ${product.referenceUnit.dimension} for product ${product.name}")

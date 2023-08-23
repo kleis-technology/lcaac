@@ -514,6 +514,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                                 )
                             )
                         ),
+                        EQuantityScale(100.0, Prelude.units["percent"]!!)
                     ),
                 ),
                 inputs = listOf(
