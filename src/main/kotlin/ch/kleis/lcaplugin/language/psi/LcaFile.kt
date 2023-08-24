@@ -25,8 +25,8 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
             ?: "default"
     }
 
-    fun getImports(): Collection<LcaImport> {
-        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java)
+    fun getImportNames(): Collection<String> {
+        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java).map { it.name } + "internal"
     }
 
     fun getProcesses(): Collection<LcaProcess> {

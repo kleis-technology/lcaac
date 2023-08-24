@@ -49,7 +49,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         val folder = cacheFolder()
         val fullPath = Path.of(folder.toString(), jarName)
         val generator = UnitLcaFileFromPreludeGenerator<BasicNumber>()
-        generator.recreate(fullPath, version)
+        generator.recreate(fullPath)
         val virtualFile = VfsUtil.findFile(fullPath, false)!!
         val jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile)!!
         return LcaLibrary(jarRoot, "built_in_units.jar")

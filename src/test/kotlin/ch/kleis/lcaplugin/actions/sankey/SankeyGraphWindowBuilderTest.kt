@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
@@ -40,7 +41,7 @@ class SankeyGraphWindowBuilderTest : BasePlatformTestCase() {
         vf: VirtualFile
     ): SankeyRequiredInformation {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
+        val parser = LcaLangAbstractParser(sequenceOf(UnitFixture.getInternalUnitFile(myFixture), file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate(process)!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
@@ -95,7 +96,11 @@ class SankeyGraphWindowBuilderTest : BasePlatformTestCase() {
             GraphNode("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "truck"),
             GraphNode("fuel_emissions from combustion{}{}", "fuel_emissions"),
         ).addLink(
-            GraphLink("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "fuel_emissions from combustion{}{}", 1.2),
+            GraphLink(
+                "truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}",
+                "fuel_emissions from combustion{}{}",
+                1.2
+            ),
             GraphLink("fuel_emissions from combustion{}{}", "co2", 1.2),
         )
         assertEquals(expected.nodes, graph.nodes)

@@ -17,7 +17,7 @@ class UnitLcaFileFromPreludeGenerator<Q> {
 
     private val existingRefUnit = mutableMapOf<Dimension, EUnitLiteral<Q>>()
 
-    fun recreate(path: Path, version: String) {
+    fun recreate(path: Path) {
         path.deleteExisting()
         val file = path.toFile()
         file.createNewFile()
@@ -29,6 +29,8 @@ class UnitLcaFileFromPreludeGenerator<Q> {
                 jar.putNextEntry(je)
                 OutputStreamWriter(jar, StandardCharsets.UTF_8)
                     .use { w ->
+                        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
+                        w.write("package internal\n")
                         Prelude.unitWithDimensionWithReferenceUnit<Q>().values
                             .filter { it.scale == 1.0 }
                             .mapNotNull { mapUnitWithNewDimension(it) }
@@ -76,7 +78,7 @@ unit ${unit.symbol} {
         } else {
             existingRefUnit[unit.dimension] = unit
             """
-    
+
 unit ${unit.symbol} {
     symbol = "${unit.symbol}"
     dimension = "${unit.dimension}"
