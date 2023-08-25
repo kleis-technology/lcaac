@@ -7,13 +7,17 @@ import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.QuantityOperations
 
 class ToValue<Q>(
-    private val ops: QuantityOperations<Q>
+    private val ops: QuantityOperations<Q>,
 ) {
     fun ProcessTemplateExpression<Q>.toValue(): ProcessValue<Q> {
         return when (this) {
             is EProcessFinal -> this.expression.toValue()
             else -> throw EvaluatorException("$this is not final")
         }
+    }
+
+    private fun Q.toDoubleValue(): Double {
+            return ops.toDouble(this)
     }
 
     private fun EProcess<Q>.toValue(): ProcessValue<Q> {
@@ -30,9 +34,6 @@ class ToValue<Q>(
     private fun DataExpression<Q>.toValue(): DataValue<Q> {
         return when (this) {
             is EStringLiteral -> StringValue(this.value)
-            is EUnitLiteral -> with(ops) {
-                return QuantityValue(pure(1.0), toUnitValue())
-            }
 
             is EQuantityScale -> when (val b = this.base) {
                 is EUnitLiteral -> QuantityValue(
@@ -83,13 +84,12 @@ class ToValue<Q>(
 
     fun QuantityExpression<Q>.toUnitValue(): UnitValue<Q> =
         when {
-            this is EQuantityScale && this.base is EUnitLiteral -> with(ops) {
+            this is EQuantityScale && this.base is EUnitLiteral ->
                 UnitValue(
-                    base.symbol.scale(toDouble(scale)),
-                    toDouble(scale) * base.scale,
+                    base.symbol.scale(scale.toDoubleValue()),
+                    scale.toDoubleValue() * base.scale,
                     base.dimension,
                 )
-            }
 
             this is EUnitLiteral ->
                 UnitValue(

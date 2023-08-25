@@ -15,7 +15,7 @@ class DemandMatrix<Q, M>(
         with(ops) {
             targetProcess.products.forEach {
                 val col = observablePorts.indexOf(it.product)
-                data[0, col] = data[0, col] + referenceValue(ops, it.quantity)
+                data[0, col] = data[0, col] + absoluteScaleValue(ops, it.quantity)
             }
         }
     }

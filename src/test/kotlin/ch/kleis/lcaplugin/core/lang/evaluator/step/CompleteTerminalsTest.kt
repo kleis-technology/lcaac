@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.ImpactValue
 import ch.kleis.lcaplugin.core.lang.value.IndicatorValue
 import ch.kleis.lcaplugin.core.lang.value.SubstanceCharacterizationValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert
 import org.junit.Test
@@ -59,7 +60,7 @@ class CompleteTerminalsTest {
         )
 
         // when
-        val actual = with(ToValue(ops)) { CompleteTerminals(ops).apply(expression).toValue() }
+        val actual = with(ToValue(BasicOperations.INSTANCE)) { CompleteTerminals(ops).apply(expression).toValue() }
 
         // then
         val expected = SubstanceCharacterizationValue(

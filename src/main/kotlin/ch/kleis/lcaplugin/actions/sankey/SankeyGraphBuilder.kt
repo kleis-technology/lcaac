@@ -9,6 +9,7 @@ import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
+import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 
 class SankeyGraphBuilder(
     private val allocatedSystem: SystemValue<BasicNumber>,
@@ -90,8 +91,9 @@ class SankeyGraphBuilder(
         inventory: Inventory<BasicNumber, BasicMatrix>,
         substance: SubstanceValue<BasicNumber>,
     ): Double {
-        val a = inventory.impactFactors.valueRatio(substance, observed).doubleValue(BasicOperations.INSTANCE)
-        val b = inventory.supply.quantityOf(substance).doubleValue(BasicOperations.INSTANCE)
+        val ops = BasicOperations.INSTANCE
+        val a = absoluteScaleValue(ops, inventory.impactFactors.valueRatio(substance, observed)).value
+        val b = absoluteScaleValue(ops, inventory.supply.quantityOf(substance)).value
         return a * b
     }
 
@@ -101,13 +103,16 @@ class SankeyGraphBuilder(
         product: ProductValue<BasicNumber>,
         exchange: ExchangeValue<BasicNumber>,
     ): Double {
+        val ops = BasicOperations.INSTANCE
         val valueRatioForObservedImpact = when {
             (exchange.port() == observed) -> 1.0
-            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).doubleValue(BasicOperations.INSTANCE)
+            else -> absoluteScaleValue(
+                BasicOperations.INSTANCE,
+                inventory.impactFactors.valueRatio(exchange.port(), observed)
+            ).value
         }
-
         return valueRatioForObservedImpact *
-                inventory.supply.quantityOf(product).doubleValue(BasicOperations.INSTANCE) *
-                exchange.quantity().doubleValue(BasicOperations.INSTANCE)
+            absoluteScaleValue(ops, inventory.supply.quantityOf(product)).value *
+            absoluteScaleValue(ops, exchange.quantity()).value
     }
 }

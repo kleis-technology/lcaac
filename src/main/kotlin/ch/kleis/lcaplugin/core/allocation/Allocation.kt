@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.QuantityOperations
+import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 import kotlin.math.absoluteValue
 
 class Allocation<Q>(
@@ -14,6 +15,10 @@ class Allocation<Q>(
             processValue.products.map { allocateProduct(it, processValue) }
         }.toMutableSet()
         return SystemValue(processes, system.substanceCharacterizations)
+    }
+
+    private fun QuantityValue<Q>.absoluteScaleDoubleValue(): Double {
+        return ops.toDouble(absoluteScaleValue(ops, this@absoluteScaleDoubleValue))
     }
 
     private fun allocateProduct(technoExchangeValue: TechnoExchangeValue<Q>, processValue: ProcessValue<Q>): ProcessValue<Q> {
@@ -35,7 +40,7 @@ class Allocation<Q>(
 
     fun totalAmount(processValue: ProcessValue<Q>): Double {
         allocationUnitCheck(processValue)
-        return processValue.products.sumOf { it.allocation?.doubleValue(ops) ?: 1.0 }
+        return processValue.products.sumOf { it.allocation?.absoluteScaleDoubleValue() ?: 1.0 }
     }
 
     fun allocationUnitCheck(processValue: ProcessValue<Q>) {
@@ -45,20 +50,20 @@ class Allocation<Q>(
         ) {
             throw EvaluatorException("Only percent is allowed for allocation unit (process: ${processValue.name})")
         }
-        if ((totalAllocationAmounts(processValue) - 100).absoluteValue > 10E-3) {
+        if ((totalAllocationAmounts(processValue) - 1.0).absoluteValue > 1E-3) {
             throw EvaluatorException("The sum of the allocations should be hundred percent (process: ${processValue.name})")
         }
     }
 
     private fun totalAllocationAmounts(processValue: ProcessValue<Q>): Double {
-        return processValue.products.sumOf { exchange -> exchange.allocation?.amount?.let { ops.toDouble(it) } ?: 100.0 }
+        return processValue.products.sumOf { exchange -> exchange.allocation?.absoluteScaleDoubleValue() ?: 1.0 }
     }
 
     private fun applyAllocationToInput(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double
     ): (TechnoExchangeValue<Q>) -> TechnoExchangeValue<Q> {
-        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.absoluteScaleDoubleValue() ?: 1.0) / totalAllocation
         return { technoExchangeValue: TechnoExchangeValue<Q> ->
             technoExchangeValue.copy(
                 quantity = technoExchangeValue.quantity.copy(
@@ -72,7 +77,7 @@ class Allocation<Q>(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double
     ): (BioExchangeValue<Q>) -> BioExchangeValue<Q> {
-        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.absoluteScaleDoubleValue() ?: totalAllocation) / totalAllocation
         return { bioExchange: BioExchangeValue<Q> ->
             bioExchange.copy(
                 quantity = bioExchange.quantity.copy(
@@ -86,7 +91,7 @@ class Allocation<Q>(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double,
     ): (ImpactValue<Q>) -> ImpactValue<Q> {
-        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.absoluteScaleDoubleValue() ?: totalAllocation) / totalAllocation
         return { impactValue ->
             impactValue.copy(
                 quantity = impactValue.quantity.copy(

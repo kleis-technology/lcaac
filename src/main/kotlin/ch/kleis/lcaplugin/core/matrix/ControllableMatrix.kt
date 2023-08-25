@@ -28,28 +28,28 @@ class ControllableMatrix<Q, M>(
                     .filter { ports.contains(it.product) }
                     .forEach {
                         val col = ports.indexOf(it.product)
-                        data[row, col] = data[row, col] + referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] + absoluteScaleValue(ops, it.quantity)
                     }
 
                 process.inputs
                     .filter { ports.contains(it.product) }
                     .forEach {
                         val col = ports.indexOf(it.product)
-                        data[row, col] = data[row, col] - referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] - absoluteScaleValue(ops, it.quantity)
                     }
 
                 process.biosphere
                     .filter { ports.contains(it.substance) }
                     .forEach {
                         val col = ports.indexOf(it.substance)
-                        data[row, col] = data[row, col] - referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] - absoluteScaleValue(ops, it.quantity)
                     }
 
                 process.impacts
                     .filter { ports.contains(it.indicator) }
                     .forEach {
                         val col = ports.indexOf(it.indicator)
-                        data[row, col] = data[row, col] - referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] - absoluteScaleValue(ops, it.quantity)
                     }
             }
 
@@ -60,14 +60,14 @@ class ControllableMatrix<Q, M>(
                     .filter { ports.contains(it.substance) }
                     .forEach {
                         val col = ports.indexOf(it.substance)
-                        data[row, col] = data[row, col] + referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] + absoluteScaleValue(ops, it.quantity)
                     }
 
                 characterization.impacts
                     .filter { ports.contains(it.indicator) }
                     .forEach {
                         val col = ports.indexOf(it.indicator)
-                        data[row, col] = data[row, col] - referenceValue(ops, it.quantity)
+                        data[row, col] = data[row, col] - absoluteScaleValue(ops, it.quantity)
                     }
             }
         }

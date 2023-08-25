@@ -9,9 +9,9 @@ import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
+import ch.kleis.lcaplugin.core.math.basic.MatrixFixture
 import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
-import ch.kleis.lcaplugin.core.math.basic.MatrixFixture
 import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
@@ -25,7 +25,7 @@ import java.awt.datatransfer.DataFlavor
 
 class LcaProcessAssessResultTest {
     private val ops = BasicOperations.INSTANCE
-    private val mapper = ToValue(ops)
+    private val mapper = ToValue(BasicOperations.INSTANCE)
 
     @Test
     fun test_getContent_AndPaste() {

@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -18,7 +19,7 @@ class ToValueTest {
         val allocation = EQuantityScale(ops.pure(10.0), UnitFixture.percent)
         val expression = ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot, allocation)
         // when
-        val actual = with(ToValue(ops)) { expression.toValue() }
+        val actual = with(ToValue(BasicOperations.INSTANCE)) { expression.toValue() }
         // then
         val allocationValue = QuantityValue(ops.pure(10.0), UnitValueFixture.percent)
         val expected =
