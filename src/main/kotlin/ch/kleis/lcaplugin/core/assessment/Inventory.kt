@@ -6,9 +6,9 @@ import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
 import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 
-data class Inventory<Q>(
-    val impactFactors: ImpactFactorMatrix<Q>,
-    val supply: SupplyMatrix<Q>,
+data class Inventory<Q, M>(
+    val impactFactors: ImpactFactorMatrix<Q, M>,
+    val supply: SupplyMatrix<Q, M>,
 ) {
     fun getObservablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.observablePorts

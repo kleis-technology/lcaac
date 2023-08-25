@@ -2,12 +2,13 @@ package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(
-    private val inventory: Inventory<BasicNumber>,
+    private val inventory: Inventory<BasicNumber, BasicMatrix>,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
     private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)

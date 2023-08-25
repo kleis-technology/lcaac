@@ -5,12 +5,12 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.math.QuantityOperations
+import ch.kleis.lcaplugin.core.math.Operations
 import java.lang.Double.parseDouble
 
-class CsvProcessor<Q>(
+class CsvProcessor<Q, M>(
     private val symbolTable: SymbolTable<Q>,
-    private val ops: QuantityOperations<Q>,
+    private val ops: Operations<Q, M>,
 ) {
     private val evaluator = Evaluator(symbolTable, ops)
 

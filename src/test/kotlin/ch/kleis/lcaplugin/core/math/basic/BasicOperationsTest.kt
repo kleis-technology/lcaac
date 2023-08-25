@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.core.math.basic
 
-import ch.kleis.lcaplugin.core.matrix.BasicMatrixFixture
 import org.junit.Assert
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -89,13 +88,13 @@ class BasicOperationsTest {
     fun test_matDiv() {
         with(ops) {
             // given
-            val lhs = BasicMatrixFixture.make(
+            val lhs = MatrixFixture.basic(
                 2, 2, arrayOf(
                     2.0, 0.0,
                     0.0, 4.0,
                 )
             )
-            val rhs = BasicMatrixFixture.make(
+            val rhs = MatrixFixture.basic(
                 2, 3, arrayOf(
                     1.0, 0.0, 0.0,
                     0.0, 2.0, 0.0,
@@ -120,7 +119,7 @@ class BasicOperationsTest {
         with(ops) {
             // given
             val lhs = zeros(3, 0)
-            val rhs = BasicMatrixFixture.make(
+            val rhs = MatrixFixture.basic(
                 3, 1, arrayOf(
                     1.0,
                     2.0,
@@ -141,14 +140,14 @@ class BasicOperationsTest {
     fun test_matDiv_whenNonInvertible() {
         with(ops) {
             // given
-            val lhs = BasicMatrixFixture.make(
+            val lhs = MatrixFixture.basic(
                 3, 3, arrayOf(
                     1.0, -2.0, 0.0,
                     0.0, 1.0, 0.0,
                     0.0, 0.0, 0.0,
                 )
             )
-            val rhs = BasicMatrixFixture.make(
+            val rhs = MatrixFixture.basic(
                 3, 2, arrayOf(
                     1.0, 4.0,
                     1.0, 2.0,
@@ -168,14 +167,14 @@ class BasicOperationsTest {
     fun test_matMul() {
         with(ops) {
             // given
-            val a = BasicMatrixFixture.make(
+            val a = MatrixFixture.basic(
                 3, 3, arrayOf(
                     1.0, 1.0, 0.0,
                     0.0, 1.0, 0.0,
                     0.0, 0.0, 1.0,
                 )
             )
-            val b = BasicMatrixFixture.make(
+            val b = MatrixFixture.basic(
                 3, 2, arrayOf(
                     1.0, 0.0,
                     0.0, 1.0,
@@ -201,7 +200,7 @@ class BasicOperationsTest {
     fun test_negate() {
         with(ops) {
             // given
-            val a = BasicMatrixFixture.make(
+            val a = MatrixFixture.basic(
                 2, 2, arrayOf(
                     1.0, 2.0,
                     3.0, 4.0,
@@ -225,7 +224,7 @@ class BasicOperationsTest {
     fun test_setAndGet() {
         with(ops) {
             // given
-            val a = BasicMatrixFixture.make(
+            val a = MatrixFixture.basic(
                 2, 2, arrayOf(
                     1.0, 2.0,
                     3.0, 4.0,
@@ -245,7 +244,7 @@ class BasicOperationsTest {
     fun test_transpose() {
         with(ops) {
             // given
-            val a = BasicMatrixFixture.make(
+            val a = MatrixFixture.basic(
                 2, 2, arrayOf(
                     1.0, 2.0,
                     3.0, 4.0,

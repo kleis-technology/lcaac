@@ -35,7 +35,7 @@ class Allocation<Q>(
 
     fun totalAmount(processValue: ProcessValue<Q>): Double {
         allocationUnitCheck(processValue)
-        return processValue.products.sumOf { it.allocation?.referenceValue(ops) ?: 1.0 }
+        return processValue.products.sumOf { it.allocation?.doubleValue(ops) ?: 1.0 }
     }
 
     fun allocationUnitCheck(processValue: ProcessValue<Q>) {
@@ -58,7 +58,7 @@ class Allocation<Q>(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double
     ): (TechnoExchangeValue<Q>) -> TechnoExchangeValue<Q> {
-        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
         return { technoExchangeValue: TechnoExchangeValue<Q> ->
             technoExchangeValue.copy(
                 quantity = technoExchangeValue.quantity.copy(
@@ -72,7 +72,7 @@ class Allocation<Q>(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double
     ): (BioExchangeValue<Q>) -> BioExchangeValue<Q> {
-        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
         return { bioExchange: BioExchangeValue<Q> ->
             bioExchange.copy(
                 quantity = bioExchange.quantity.copy(
@@ -86,7 +86,7 @@ class Allocation<Q>(
         allocation: QuantityValue<Q>?,
         totalAllocation: Double,
     ): (ImpactValue<Q>) -> ImpactValue<Q> {
-        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
+        val ratio = (allocation?.doubleValue(ops) ?: 100.0) / totalAllocation
         return { impactValue ->
             impactValue.copy(
                 quantity = impactValue.quantity.copy(

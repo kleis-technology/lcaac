@@ -9,6 +9,7 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -32,7 +33,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
     private data class SankeyRequiredInformation(
         val observedPort: MatrixColumnIndex<BasicNumber>,
         val allocatedSystem: SystemValue<BasicNumber>,
-        val inventory: Inventory<BasicNumber>,
+        val inventory: Inventory<BasicNumber, BasicMatrix>,
         val comparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     )
 

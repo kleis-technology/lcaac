@@ -6,12 +6,13 @@ import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 
 class SankeyGraphBuilder(
     private val allocatedSystem: SystemValue<BasicNumber>,
-    private val inventory: Inventory<BasicNumber>,
+    private val inventory: Inventory<BasicNumber, BasicMatrix>,
     private val observableOrder: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) {
     fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex<BasicNumber>): Graph {
@@ -86,27 +87,27 @@ class SankeyGraphBuilder(
 
     private fun impactAmountForSubstance(
         observed: MatrixColumnIndex<BasicNumber>,
-        inventory: Inventory<BasicNumber>,
+        inventory: Inventory<BasicNumber, BasicMatrix>,
         substance: SubstanceValue<BasicNumber>,
     ): Double {
-        val a = inventory.impactFactors.valueRatio(substance, observed).referenceValue(BasicOperations.INSTANCE)
-        val b = inventory.supply.quantityOf(substance).referenceValue(BasicOperations.INSTANCE)
+        val a = inventory.impactFactors.valueRatio(substance, observed).doubleValue(BasicOperations.INSTANCE)
+        val b = inventory.supply.quantityOf(substance).doubleValue(BasicOperations.INSTANCE)
         return a * b
     }
 
     private fun impactAmountForExchange(
         observed: MatrixColumnIndex<BasicNumber>,
-        inventory: Inventory<BasicNumber>,
+        inventory: Inventory<BasicNumber, BasicMatrix>,
         product: ProductValue<BasicNumber>,
         exchange: ExchangeValue<BasicNumber>,
     ): Double {
         val valueRatioForObservedImpact = when {
             (exchange.port() == observed) -> 1.0
-            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).referenceValue(BasicOperations.INSTANCE)
+            else -> inventory.impactFactors.valueRatio(exchange.port(), observed).doubleValue(BasicOperations.INSTANCE)
         }
 
         return valueRatioForObservedImpact *
-                inventory.supply.quantityOf(product).referenceValue(BasicOperations.INSTANCE) *
-                exchange.quantity().referenceValue(BasicOperations.INSTANCE)
+                inventory.supply.quantityOf(product).doubleValue(BasicOperations.INSTANCE) *
+                exchange.quantity().doubleValue(BasicOperations.INSTANCE)
     }
 }

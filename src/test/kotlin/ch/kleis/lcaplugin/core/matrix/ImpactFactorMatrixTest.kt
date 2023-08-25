@@ -4,7 +4,7 @@ import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
-import ch.kleis.lcaplugin.core.matrix.impl.Matrix
+import ch.kleis.lcaplugin.core.math.basic.MatrixFixture
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -22,32 +22,8 @@ class ImpactFactorMatrixTest {
     private val input2 = ProductValue("water", literValue, null)
     private val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
         IndexedCollection(listOf(input1, input2))
-    private val matrix = object : Matrix {
-        override fun value(row: Int, col: Int): Double {
-            return 2E-3 // 2 liter in m3
-        }
-
-        override fun set(row: Int, col: Int, value: Double) { // Ignore
-        }
-
-        override fun negate(): Matrix {// Ignore
-            return this
-        }
-
-        override fun transpose(): Matrix { // Ignore
-            return this
-        }
-
-        override fun rowDim(): Int {
-            return 1
-        }
-
-        override fun colDim(): Int {
-            return 1
-        }
-
-    }
-    val sut = ImpactFactorMatrix(outputs, inputs, matrix, ops)
+    private val data = MatrixFixture.basic(3, 2, Array(3 * 2) { 2E-3 })
+    val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
     @Test
     fun value_shouldReturnExchange() {

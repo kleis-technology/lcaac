@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.core.math.basic
 
-import ch.kleis.lcaplugin.core.math.MatrixOperations
-import ch.kleis.lcaplugin.core.math.QuantityOperations
+import ch.kleis.lcaplugin.core.math.Operations
 import com.intellij.openapi.diagnostic.Logger
 import org.ejml.data.DMatrixSparseCSC
 import org.ejml.data.MatrixType
@@ -9,7 +8,7 @@ import org.ejml.simple.SimpleMatrix
 import org.ejml.sparse.csc.CommonOps_DSCC
 import kotlin.math.pow
 
-class BasicOperations : QuantityOperations<BasicNumber>, MatrixOperations<BasicNumber, BasicMatrix> {
+class BasicOperations : Operations<BasicNumber, BasicMatrix> {
     companion object {
         val INSTANCE = BasicOperations()
         private val LOG = Logger.getInstance(BasicOperations::class.java)

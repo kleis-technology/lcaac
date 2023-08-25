@@ -11,7 +11,7 @@ import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
-import ch.kleis.lcaplugin.core.matrix.MatrixFixture
+import ch.kleis.lcaplugin.core.math.basic.MatrixFixture
 import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBViewport
@@ -37,8 +37,8 @@ class LcaProcessAssessResultTest {
             val product = ProductFixture.water.toValue()
 
             val observablePorts: IndexedCollection<MatrixColumnIndex<BasicNumber>> = IndexedCollection(listOf(p1, p2))
-            val impactFactorsData = MatrixFixture.make(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
-            val supplyData = MatrixFixture.make(1, 2, arrayOf(1.0, 2.0))
+            val impactFactorsData = MatrixFixture.basic(2, 2, arrayOf(1.0, 10.0, 1.0, 10.0))
+            val supplyData = MatrixFixture.basic(1, 2, arrayOf(1.0, 2.0))
             val inv = Inventory(
                 impactFactors = ImpactFactorMatrix(
                     observablePorts, IndexedCollection(listOf(substance, product)), impactFactorsData, ops,

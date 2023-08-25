@@ -11,7 +11,7 @@ data class StringValue<Q>(val s: String) : DataValue<Q> {
 }
 
 data class QuantityValue<Q>(val amount: Q, val unit: UnitValue<Q>) : DataValue<Q> {
-    fun referenceValue(ops: QuantityOperations<Q>): Double {
+    fun doubleValue(ops: QuantityOperations<Q>): Double {
         with(ops) {
             return toDouble(amount) * unit.scale
         }
