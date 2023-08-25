@@ -92,9 +92,9 @@ class SankeyGraphBuilder(
         substance: SubstanceValue<BasicNumber>,
     ): Double {
         val ops = BasicOperations.INSTANCE
-        val a = absoluteScaleValue(ops, inventory.impactFactors.valueRatio(substance, observed)).value
-        val b = absoluteScaleValue(ops, inventory.supply.quantityOf(substance)).value
-        return a * b
+        val supply = absoluteScaleValue(ops, inventory.supply.quantityOf(substance)).value
+        val characterizationFactor = absoluteScaleValue(ops, inventory.impactFactors.valueRatio(substance, observed)).value
+        return supply * characterizationFactor
     }
 
     private fun impactAmountForExchange(
@@ -104,15 +104,19 @@ class SankeyGraphBuilder(
         exchange: ExchangeValue<BasicNumber>,
     ): Double {
         val ops = BasicOperations.INSTANCE
-        val valueRatioForObservedImpact = when {
+
+        val supply = inventory.supply.quantityOf(product)
+        val absoluteSupply = absoluteScaleValue(ops, supply).value
+        val exchangeFactor = absoluteScaleValue(ops, exchange.quantity()).value  / supply.unit.scale
+        val emissionFactor = when {
             (exchange.port() == observed) -> 1.0
-            else -> absoluteScaleValue(
-                BasicOperations.INSTANCE,
-                inventory.impactFactors.valueRatio(exchange.port(), observed)
-            ).value
+            else -> {
+                absoluteScaleValue(
+                    ops,
+                    inventory.impactFactors.valueRatio(exchange.port(), observed)
+                ).value
+            }
         }
-        return valueRatioForObservedImpact *
-            absoluteScaleValue(ops, inventory.supply.quantityOf(product)).value *
-            absoluteScaleValue(ops, exchange.quantity()).value
+        return absoluteSupply * exchangeFactor * emissionFactor
     }
 }

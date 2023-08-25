@@ -54,6 +54,58 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
     }
 
     @Test
+    fun test_weird() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                        process transport_truck {
+                            params {
+                                weight = 2 ton
+                                ratio = 2 kg/ton
+                                fuel = "diesel"
+                            }
+                            products {
+                                1 ton*km truck
+                            }
+                            variables {
+                                fuel_amount = weight * ratio
+                            }
+                            inputs {
+                                fuel_amount fuel_emissions from combustion
+                            }
+                        }
+
+                        process combustion {
+                            products {
+                                1 kg fuel_emissions
+                            }
+                            emissions {
+                                0.3 kg co2
+                            }
+                        }
+                """.trimIndent()
+        )
+        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("transport_truck", vf)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+
+        // when
+        val graph = sut.buildContributionGraph(sankeyPort)
+
+        // then
+        val expected = Graph.empty().addNode(
+            GraphNode("co2", "co2"),
+            GraphNode("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "truck"),
+            GraphNode("fuel_emissions from combustion{}{}", "fuel_emissions"),
+        ).addLink(
+            GraphLink("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "fuel_emissions from combustion{}{}", 1.2),
+            GraphLink("fuel_emissions from combustion{}{}", "co2", 1.2),
+        )
+        assertEquals(expected.nodes, graph.nodes)
+        assertEquals(expected.links, graph.links)
+    }
+
+    @Test
     fun test_whenEmission_thenSankey() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name

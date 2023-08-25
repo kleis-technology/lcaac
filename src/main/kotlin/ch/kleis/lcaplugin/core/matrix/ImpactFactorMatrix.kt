@@ -40,8 +40,8 @@ class ImpactFactorMatrix<Q, M>(
             val cf = value(outputPort, inputPort)
             val input = cf.input
             val output = cf.output
-            val numerator = input.quantity().amount / pure(inputPort.referenceUnit().scale)
-            val denominator = output.quantity().amount / pure(outputPort.referenceUnit().scale)
+            val numerator = absoluteScaleValue(ops, input.quantity()) / pure(inputPort.referenceUnit().scale)
+            val denominator = absoluteScaleValue(ops, output.quantity()) / pure(outputPort.referenceUnit().scale)
             return QuantityValue(numerator / denominator, inputPort.referenceUnit())
         }
     }
