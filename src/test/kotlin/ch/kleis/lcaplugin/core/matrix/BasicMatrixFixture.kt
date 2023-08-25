@@ -11,8 +11,8 @@ class BasicMatrixFixture {
                 val a = zeros(rows, cols)
                 for (row in 0 until rows) {
                     for (col in 0 until cols) {
-                        if(data[cols * row + col] != 0.0) {
-                            a.add(row, col, pure(data[cols * row + col]))
+                        if (data[cols * row + col] != 0.0) {
+                            a[row, col] = a[row, col] + pure(data[cols * row + col])
                         }
                     }
                 }

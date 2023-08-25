@@ -10,17 +10,20 @@ import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class AllocationTest {
+    private val ops = BasicOperations.INSTANCE
+    
     @Test
     fun apply_when_no_allocation_should_change_nothing() {
         // Given
         val system = SystemValueFixture.carrotSystem()
         // When
-        val actual = Allocation.apply(SystemValueFixture.carrotSystem())
+        val actual = Allocation(ops).apply(SystemValueFixture.carrotSystem())
         // Then
         Assert.assertEquals(system, actual)
     }
@@ -49,7 +52,7 @@ class AllocationTest {
         )
 
         // When
-        val actual = Allocation.apply(system).processes.size
+        val actual = Allocation(ops).apply(system).processes.size
         // Then
         Assert.assertEquals(2, actual)
     }
@@ -78,7 +81,7 @@ class AllocationTest {
         )
 
         // When
-        val actual = Allocation.apply(system).processes.toList()[0].products.size
+        val actual = Allocation(ops).apply(system).processes.toList()[0].products.size
         // Then
         Assert.assertEquals(1, actual)
     }
@@ -113,7 +116,7 @@ class AllocationTest {
         )
 
         // When
-        val actual = Allocation.apply(system).processes.toList()[0].inputs[0].quantity
+        val actual = Allocation(ops).apply(system).processes.toList()[0].inputs[0].quantity
         // Then
         val expected = QuantityValueFixture.oneLitre
         Assert.assertEquals(expected, actual)
@@ -149,7 +152,7 @@ class AllocationTest {
         )
 
         // when
-        val actual = Allocation.apply(system).processes.toList()[0].biosphere[0].quantity
+        val actual = Allocation(ops).apply(system).processes.toList()[0].biosphere[0].quantity
         // then
         val expected = QuantityValueFixture.oneKilogram
         Assert.assertEquals(expected, actual)
@@ -169,7 +172,7 @@ class AllocationTest {
             ),
         )
         // when
-        val actual = Allocation.totalAmount(processValue)
+        val actual = Allocation(ops).totalAmount(processValue)
         // then
         val delta = 1E-9
         Assert.assertEquals(1.0, actual, delta)
@@ -195,7 +198,7 @@ class AllocationTest {
             ),
         )
         // when
-        val actual = Allocation.totalAmount(processValue)
+        val actual = Allocation(ops).totalAmount(processValue)
         // then
         val delta = 1E-9
         Assert.assertEquals(1.0, actual, delta)
@@ -221,7 +224,7 @@ class AllocationTest {
             ),
         )
         // when
-        Allocation.allocationUnitCheck(processValue)
+        Allocation(ops).allocationUnitCheck(processValue)
 
         // then should not throw.
     }
@@ -257,14 +260,16 @@ class AllocationTest {
         )
 
         // when
-        val actual = Allocation.apply(system).processes.first().inputs.first().quantity.amount
+        val actual = Allocation(ops).apply(system).processes.first().inputs.first().quantity.amount
 
         // then
         val delta = 1E-9
-        val totalAllocation = QuantityValueFixture.twentyPercent.amount + QuantityValueFixture.eightyPercent.amount
-        val expected =
-            QuantityValueFixture.twoLitres.amount * QuantityValueFixture.twentyPercent.amount / totalAllocation
-        Assert.assertEquals(expected, actual, delta)
+        with (BasicOperations.INSTANCE) {
+            val totalAllocation = QuantityValueFixture.twentyPercent.amount + QuantityValueFixture.eightyPercent.amount
+            val expected =
+                QuantityValueFixture.twoLitres.amount * QuantityValueFixture.twentyPercent.amount / totalAllocation
+            Assert.assertEquals(expected.value, actual.value, delta)
+        }
     }
 
     @Test
@@ -276,7 +281,7 @@ class AllocationTest {
         )
 
         // when
-        val actual = Allocation.apply(system).substanceCharacterizations
+        val actual = Allocation(ops).apply(system).substanceCharacterizations
 
         // then
         Assert.assertEquals(setOf(propanolCharacterization), actual)
@@ -300,7 +305,7 @@ class AllocationTest {
         assertFailsWith(
             EvaluatorException::class,
             "Only percent is allowed for allocation unit (process: ${processValue.name})"
-        ) { Allocation.allocationUnitCheck(processValue) }
+        ) { Allocation(ops).allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -318,7 +323,7 @@ class AllocationTest {
         )
 
         // when, then should not throw
-        Allocation.allocationUnitCheck(processValue)
+        Allocation(ops).allocationUnitCheck(processValue)
     }
 
     @Test
@@ -339,7 +344,7 @@ class AllocationTest {
         assertFailsWith(
             EvaluatorException::class,
             "The sum of the allocations should be hundred percent (process: ${processValue.name})"
-        ) { Allocation.allocationUnitCheck(processValue) }
+        ) { Allocation(ops).allocationUnitCheck(processValue) }
     }
 
     @Test
@@ -362,7 +367,7 @@ class AllocationTest {
         )
 
         // when V then should not throw.
-        Allocation.allocationUnitCheck(processValue)
+        Allocation(ops).allocationUnitCheck(processValue)
     }
 
     @Test
@@ -388,6 +393,6 @@ class AllocationTest {
         assertFailsWith(
             EvaluatorException::class,
             "Only percent is allowed for allocation unit (process: ${processValue.name})"
-        ) { Allocation.allocationUnitCheck(processValue) }
+        ) { Allocation(ops).allocationUnitCheck(processValue) }
     }
 }

@@ -46,7 +46,7 @@ class ToValue<Q>(
         }
     }
 
-    private fun ETechnoExchange<Q>.toValue(): TechnoExchangeValue<Q> {
+    fun ETechnoExchange<Q>.toValue(): TechnoExchangeValue<Q> {
         return TechnoExchangeValue(
             this.quantity.toValue() as QuantityValue<Q>,
             this.product.toValue(),
@@ -68,7 +68,7 @@ class ToValue<Q>(
         )
     }
 
-    private fun EProductSpec<Q>.toValue(): ProductValue<Q> {
+    fun EProductSpec<Q>.toValue(): ProductValue<Q> {
         val name = this.name
         val referenceUnitValue = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
@@ -101,7 +101,7 @@ class ToValue<Q>(
             else -> throw EvaluatorException("$this is not reduced")
         }
 
-    private fun ESubstanceSpec<Q>.toValue(): SubstanceValue<Q> {
+    fun ESubstanceSpec<Q>.toValue(): SubstanceValue<Q> {
         val referenceUnit = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
             ?: throw EvaluatorException("$this has no reference unit")

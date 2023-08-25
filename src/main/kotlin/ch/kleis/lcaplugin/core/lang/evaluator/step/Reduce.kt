@@ -19,8 +19,8 @@ class Reduce<Q>(
         ops
     )
     private val templateReducer = TemplateExpressionReducer(
-        symbolTable.data,
         ops,
+        symbolTable.data,
     )
 
     fun apply(expression: EProcessTemplateApplication<Q>): EProcessFinal<Q> {

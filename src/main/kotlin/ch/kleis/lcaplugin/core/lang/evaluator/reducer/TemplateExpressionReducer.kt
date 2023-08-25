@@ -8,8 +8,8 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.math.QuantityOperations
 
 class TemplateExpressionReducer<Q>(
-    dataRegister: Register<DataExpression<Q>> = Register.empty(),
     private val ops: QuantityOperations<Q>,
+    dataRegister: Register<DataExpression<Q>> = Register.empty(),
 ) : Reducer<ProcessTemplateExpression<Q>> {
     private val dataRegister = Register(dataRegister)
     private val helper = Helper<Q>()

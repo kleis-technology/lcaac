@@ -19,6 +19,8 @@ import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -32,6 +34,7 @@ import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class E2ETest : BasePlatformTestCase() {
+    private val ops = BasicOperations.INSTANCE
 
     override fun getTestDataPath(): String {
         return "testdata"
@@ -80,24 +83,24 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
 
         // when
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
-        assertEquals(10.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(10.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -155,24 +158,24 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
 
         // when
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
-        assertEquals(10.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(10.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -209,12 +212,12 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
 
         // when/then does not throw
         symbolTable.getTemplate("p")
-            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(template = it)) }!!
+            ?.let { Evaluator(symbolTable, ops).eval(EProcessTemplateApplication(template = it)) }!!
     }
 
     @Test
@@ -245,12 +248,12 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
 
         // when/then does not throw
         symbolTable.getTemplate("p")
-            ?.let { Evaluator(symbolTable).eval(EProcessTemplateApplication(template = it)) }!!
+            ?.let { Evaluator(symbolTable, ops).eval(EProcessTemplateApplication(template = it)) }!!
     }
 
     @Test
@@ -276,11 +279,11 @@ class E2ETest : BasePlatformTestCase() {
                 }
             """.trimIndent()
         )
-        val kg = UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
+        val kg = UnitValue<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
-        val csvProcessor = CsvProcessor(symbolTable)
+        val csvProcessor = CsvProcessor(symbolTable, ops)
         val request = CsvRequest(
             "p",
             emptyMap(),
@@ -298,9 +301,9 @@ class E2ETest : BasePlatformTestCase() {
             FromProcessRefValue(
                 name = "p",
                 arguments = mapOf(
-                    "a" to QuantityValue(1.0, kg),
-                    "b" to QuantityValue(1.0, kg),
-                    "c" to QuantityValue(1.0, kg),
+                    "a" to QuantityValue(ops.pure(1.0), kg),
+                    "b" to QuantityValue(ops.pure(1.0), kg),
+                    "c" to QuantityValue(ops.pure(1.0), kg),
                 )
             )
         )
@@ -311,7 +314,7 @@ class E2ETest : BasePlatformTestCase() {
             "in", kg,
         )
         assertEquals(
-            QuantityValue(3.0, kg), actual.impacts[key]
+            QuantityValue(ops.pure(3.0), kg), actual.impacts[key]
         )
     }
 
@@ -338,18 +341,18 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
-        val reducer = DataExpressionReducer(symbolTable.data)
+        val reducer = DataExpressionReducer(symbolTable.data, ops)
         val expr = symbolTable.getTemplate("p")!!.body.inputs.first().quantity
 
         // when
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityScale(200.0, EUnitLiteral(UnitSymbol.of("m").pow(4.0), 1.0, Prelude.length.pow(4.0)))
+        val expected = EQuantityScale(ops.pure(200.0), EUnitLiteral(UnitSymbol.of("m").pow(4.0), 1.0, Prelude.length.pow(4.0)))
         TestCase.assertEquals(expected, actual)
     }
 
@@ -383,26 +386,26 @@ class E2ETest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
 
         assertEquals("a from p{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
         assertEquals("co2", input.getDisplayName())
-        assertEquals(1.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(1.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -455,26 +458,26 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
 
         assertEquals("out from p{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
         assertEquals("in", input.getDisplayName())
-        assertEquals(6.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.length.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(6.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.length.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -512,33 +515,33 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
         assertEquals("co2", input.getDisplayName())
-        assertEquals(3.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(3.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
 
-        fun asValue(unit: EUnitLiteral): UnitValue {
+        fun asValue(unit: EUnitLiteral<BasicNumber>): UnitValue<BasicNumber> {
             return UnitValue(unit.symbol, unit.scale, unit.dimension)
         }
 
         val ratio = result.valueRatio(output, input)
-        assertEquals(QuantityValue(3.0, asValue(UnitFixture.kg)), ratio)
+        assertEquals(QuantityValue(ops.pure(3.0), asValue(UnitFixture.kg)), ratio)
     }
 
     @Test
@@ -576,26 +579,26 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
         assertEquals("co2", input.getDisplayName())
-        assertEquals(3.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(3.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -639,26 +642,26 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount)
-        assertEquals(Dimension.None.getDefaultUnitValue(), cf.output.quantity().unit)
+        assertEquals(1.0, cf.output.quantity().amount.value)
+        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
 
         assertEquals("co2", input.getDisplayName())
-        assertEquals(13.0, cf.input.quantity().amount)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue(), cf.input.quantity().unit)
+        assertEquals(13.0, cf.input.quantity().amount.value)
+        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
     }
 
     @Test
@@ -681,14 +684,14 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
         val result = assessment.inventory().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
@@ -697,8 +700,8 @@ class E2ETest : BasePlatformTestCase() {
         val cf2 = result.value(output2, input)
 
         val delta = 1E-9
-        assertEquals(0.9, cf1.input.quantity().amount, delta)
-        assertEquals(0.1, cf2.input.quantity().amount, delta)
+        assertEquals(0.9, cf1.input.quantity().amount.value, delta)
+        assertEquals(0.1, cf2.input.quantity().amount.value, delta)
     }
 
     @Test
@@ -717,13 +720,13 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         // when
         val symbolTable = parser.load()
         val actual =
             (((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
         // then
-        assertEquals(100.0, actual)
+        assertEquals(100.0, actual.value)
     }
 
     @Test
@@ -744,13 +747,13 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         // when
         val symbolTable = parser.load()
         val actual =
             (((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
         // then
-        assertEquals(100.0, actual)
+        assertEquals(100.0, actual.value)
     }
 
     @Test
@@ -773,14 +776,14 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
 
         // then
         val result = assessment.inventory().impactFactors
@@ -793,8 +796,8 @@ class E2ETest : BasePlatformTestCase() {
         val delta = 1E-9
         val expected1 = 1.0 * 20 / 100
         val expected2 = 1.0 * 80 / 100
-        assertEquals(expected1, cf1.input.quantity().amount, delta)
-        assertEquals(expected2, cf2.input.quantity().amount, delta)
+        assertEquals(expected1, cf1.input.quantity().amount.value, delta)
+        assertEquals(expected2, cf2.input.quantity().amount.value, delta)
     }
 
     @Test
@@ -817,10 +820,10 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val evaluator = Evaluator(symbolTable)
+        val evaluator = Evaluator(symbolTable, ops)
 
         // when + then
         val e = assertFailsWith(EvaluatorException::class, null) { evaluator.eval(entryPoint) }
@@ -853,10 +856,10 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val evaluator = Evaluator(symbolTable)
+        val evaluator = Evaluator(symbolTable, ops)
 
         // when + then
         val e = assertFailsWith(EvaluatorException::class, null) { evaluator.eval(entryPoint) }
@@ -889,10 +892,10 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val evaluator = Evaluator(symbolTable)
+        val evaluator = Evaluator(symbolTable, ops)
 
         // when, then does not throw
         evaluator.eval(entryPoint)
@@ -924,12 +927,12 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
 
         // when/then
-        Evaluator(symbolTable).eval(entryPoint)
+        Evaluator(symbolTable, ops).eval(entryPoint)
     }
 
     @Test
@@ -950,14 +953,14 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
 
         // when
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint())
+        val assessment = Assessment(system, trace.getEntryPoint(), ops)
 
         // then
         val result = assessment.inventory().impactFactors
@@ -969,7 +972,7 @@ class E2ETest : BasePlatformTestCase() {
         val expected = 1.0
 
         assertEquals("climate_change", input.getDisplayName())
-        assertEquals(expected, cf.input.quantity().amount, delta)
+        assertEquals(expected, cf.input.quantity().amount.value, delta)
         assertEquals(UnitValueFixture.unit, cf.input.quantity().unit)
     }
 
@@ -996,7 +999,7 @@ class E2ETest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p1")!!)
 
@@ -1004,7 +1007,7 @@ class E2ETest : BasePlatformTestCase() {
         val e = assertFailsWith(
             EvaluatorException::class,
         ) {
-            Evaluator(symbolTable).trace(entryPoint)
+            Evaluator(symbolTable, ops).trace(entryPoint)
         }
         assertEquals("incompatible dimensions: length³ vs mass for product in", e.message)
     }

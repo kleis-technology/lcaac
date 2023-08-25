@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixture
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -24,7 +25,7 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -51,7 +52,7 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = EvaluationTrace.empty()
+        val trace = EvaluationTrace.empty<BasicNumber>()
         trace.add(p1)
         trace.add(p2)
         trace.commit()
@@ -66,7 +67,7 @@ class EvaluationTraceTest {
     @Test
     fun trace_getEntryPoint_whenEmptyTrace_shouldThrow() {
         // given
-        val trace = EvaluationTrace.empty()
+        val trace = EvaluationTrace.empty<BasicNumber>()
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class) { trace.getEntryPoint() }
@@ -92,7 +93,7 @@ class EvaluationTraceTest {
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
         val substance = sc.referenceExchange.substance
 
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -134,7 +135,7 @@ class EvaluationTraceTest {
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
         val substance = sc.referenceExchange.substance
 
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -163,7 +164,7 @@ class EvaluationTraceTest {
         val p1 = ProcessValueFixture.carrotProcessValue
         val p2 = p1.copy(name = "another_carrot_production")
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
 
         // when
         trace.add(p1)
@@ -182,7 +183,7 @@ class EvaluationTraceTest {
         val p1 = ProcessValueFixture.carrotProcessValue
         val p2 = p1.copy(name = "another_carrot_production")
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
         trace.add(p1)
         trace.commit()
         trace.add(p2)
@@ -201,7 +202,7 @@ class EvaluationTraceTest {
     fun trace_emptyCommit_shouldNotAddStages() {
         // given
         val p = ProcessValueFixture.carrotProcessValue
-        val trace = EvaluationTrace()
+        val trace = EvaluationTrace<BasicNumber>()
 
         // when
         trace.commit()

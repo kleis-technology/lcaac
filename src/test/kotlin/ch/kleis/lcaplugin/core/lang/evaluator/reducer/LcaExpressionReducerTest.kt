@@ -3,10 +3,14 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LcaExpressionReducerTest {
+    private val ops = BasicOperations.INSTANCE
+
     @Test
     fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {
         // given
@@ -24,7 +28,8 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             Register.from(
                 mapOf("geo" to EStringLiteral("FR"))
-            )
+            ),
+            ops,
         )
 
         // when
@@ -67,7 +72,8 @@ class LcaExpressionReducerTest {
                     Pair("q_water", QuantityFixture.oneLitre),
                     Pair("q_propanol", QuantityFixture.oneKilogram),
                 )
-            )
+            ),
+            ops,
         )
 
         // when
@@ -101,7 +107,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenImpact_shouldReduceQuantityAndIndicator() {
         // given
-        val expression = EImpact(
+        val expression = EImpact<BasicNumber>(
             EDataRef("q"),
             EIndicatorSpec("cc")
         )
@@ -111,6 +117,7 @@ class LcaExpressionReducerTest {
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
+            ops,
         )
 
         // when
@@ -127,7 +134,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenTechnoExchange_shouldReduceQuantity() {
         // given
-        val expression = ETechnoExchange(
+        val expression = ETechnoExchange<BasicNumber>(
             EDataRef("q"),
             EProductSpec("carrot"),
         )
@@ -137,6 +144,7 @@ class LcaExpressionReducerTest {
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
+            ops,
         )
 
         // when
@@ -153,7 +161,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenBioExchange_shouldReduceQuantityAndSubstance() {
         // given
-        val expression = EBioExchange(
+        val expression = EBioExchange<BasicNumber>(
             EDataRef("q"),
             ESubstanceSpec("propanol"),
         )
@@ -163,6 +171,7 @@ class LcaExpressionReducerTest {
                     Pair("q", QuantityFixture.oneKilogram),
                 )
             ),
+            ops,
         )
 
         // when
@@ -179,7 +188,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenIndicator_shouldReduceUnit() {
         // given
-        val expression = EIndicatorSpec(
+        val expression = EIndicatorSpec<BasicNumber>(
             "cc",
             EDataRef("kg"),
         )
@@ -189,6 +198,7 @@ class LcaExpressionReducerTest {
                     Pair("kg", UnitFixture.kg)
                 )
             ),
+            ops,
         )
 
         // when
@@ -205,7 +215,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenSubstance_shouldReduceUnit() {
         // given
-        val expression = ESubstanceSpec(
+        val expression = ESubstanceSpec<BasicNumber>(
             "propanol",
             "propanol",
             type = SubstanceType.RESOURCE,
@@ -218,7 +228,8 @@ class LcaExpressionReducerTest {
                 hashMapOf(
                     Pair("kg", UnitFixture.kg)
                 )
-            )
+            ),
+            ops,
         )
 
         // when
@@ -239,7 +250,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_whenProduct_shouldReduceUnit() {
         // given
-        val expression = EProductSpec(
+        val expression = EProductSpec<BasicNumber>(
             "carrot",
             EDataRef("kg"),
         )
@@ -249,6 +260,7 @@ class LcaExpressionReducerTest {
                     Pair("kg", UnitFixture.kg)
                 )
             ),
+            ops,
         )
 
         // when
@@ -265,7 +277,7 @@ class LcaExpressionReducerTest {
     @Test
     fun reduce_withoutFromProcessRef_shouldReduceProduct() {
         // given
-        val expression = EProductSpec(
+        val expression = EProductSpec<BasicNumber>(
             "carrot",
             EDataRef("kg"),
         )
@@ -275,6 +287,7 @@ class LcaExpressionReducerTest {
                     Pair("kg", UnitFixture.kg)
                 )
             ),
+            ops,
         )
 
         // when
@@ -296,7 +309,7 @@ class LcaExpressionReducerTest {
             UnitFixture.kg,
             FromProcess(
                 "p",
-                MatchLabels.EMPTY,
+                MatchLabels(emptyMap()),
                 mapOf(
                     Pair("x", EDataRef("q"))
                 )
@@ -305,10 +318,11 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             dataRegister = Register.from(
                 hashMapOf(
-                    Pair("q", EQuantityScale(3.0, EDataRef("kg"))),
+                    Pair("q", EQuantityScale(ops.pure(3.0), EDataRef("kg"))),
                     Pair("kg", UnitFixture.kg)
                 )
-            )
+            ),
+            ops,
         )
 
         // when
@@ -320,9 +334,9 @@ class LcaExpressionReducerTest {
             QuantityFixture.oneKilogram,
             FromProcess(
                 "p",
-                MatchLabels.EMPTY,
+                MatchLabels(emptyMap()),
                 mapOf(
-                    Pair("x", EQuantityScale(3.0, UnitFixture.kg))
+                    Pair("x", EQuantityScale(ops.pure(3.0), UnitFixture.kg))
                 )
             ),
         )
@@ -350,7 +364,8 @@ class LcaExpressionReducerTest {
                     Pair("q_propanol", QuantityFixture.oneKilogram),
                     Pair("q_cc", QuantityFixture.oneKilogram),
                 )
-            )
+            ),
+            ops,
         )
 
         // when

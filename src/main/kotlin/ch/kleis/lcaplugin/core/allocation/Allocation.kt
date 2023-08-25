@@ -33,12 +33,12 @@ class Allocation<Q>(
         )
     }
 
-    private fun totalAmount(processValue: ProcessValue<Q>): Double {
+    fun totalAmount(processValue: ProcessValue<Q>): Double {
         allocationUnitCheck(processValue)
         return processValue.products.sumOf { it.allocation?.referenceValue(ops) ?: 1.0 }
     }
 
-    private fun allocationUnitCheck(processValue: ProcessValue<Q>) {
+    fun allocationUnitCheck(processValue: ProcessValue<Q>) {
         if (processValue.products
                 .mapNotNull { it.allocation }
                 .any { it.unit.symbol != UnitSymbol.of("percent") }

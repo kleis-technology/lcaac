@@ -5,14 +5,18 @@ import ch.kleis.lcaplugin.core.lang.fixture.ProductFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class HelperTest {
+    private val ops = BasicOperations.INSTANCE
+
     @Test
     fun substitute_whenProcessWithStringRef_shouldSubstitute() {
         // given
-        val ref = EDataRef("class")
+        val ref = EDataRef<BasicNumber>("class")
         val body = EProcess(
             name = "p",
             products = listOf(
@@ -30,7 +34,7 @@ class HelperTest {
                 )
             ),
         )
-        val helper = Helper()
+        val helper = Helper<BasicNumber>()
 
         // when
         val actual = helper.substitute("class", EStringLiteral("foo"), body)
@@ -60,7 +64,7 @@ class HelperTest {
     @Test
     fun substitute_whenProcess_shouldSubstitute() {
         // given
-        val ref = EDataRef("q")
+        val ref = EDataRef<BasicNumber>("q")
         val body = EProcess(
             name = "p",
             products = listOf(
@@ -73,7 +77,7 @@ class HelperTest {
                 EBioExchange(ref, SubstanceFixture.propanol)
             ),
         )
-        val helper = Helper()
+        val helper = Helper<BasicNumber>()
 
         // when
         val actual = helper.substitute("q", QuantityFixture.oneKilogram, body)
@@ -97,7 +101,7 @@ class HelperTest {
     @Test
     fun substitute_whenProcessWithConstrainedProduct_shouldSubstitute() {
         // given
-        val ref = EDataRef("q")
+        val ref = EDataRef<BasicNumber>("q")
         val body = EProcess(
             name = "p",
             products = listOf(
@@ -108,7 +112,7 @@ class HelperTest {
                         UnitFixture.kg,
                         FromProcess(
                             "carrot_production",
-                            MatchLabels.EMPTY,
+                            MatchLabels(emptyMap()),
                             mapOf(
                                 Pair("x", ref)
                             ),
@@ -117,7 +121,7 @@ class HelperTest {
                 )
             ),
         )
-        val helper = Helper()
+        val helper = Helper<BasicNumber>()
 
         // when
         val actual = helper.substitute("q", QuantityFixture.oneKilogram, body)
@@ -133,7 +137,7 @@ class HelperTest {
                         UnitFixture.kg,
                         FromProcess(
                             "carrot_production",
-                            MatchLabels.EMPTY,
+                            MatchLabels(emptyMap()),
                             mapOf(
                                 Pair("x", QuantityFixture.oneKilogram)
                             ),
@@ -156,7 +160,7 @@ class HelperTest {
                     inputs = listOf(
                         ETechnoExchange(
                             EQuantityScale(
-                                1.0,
+                                ops.pure(1.0),
                                 EQuantityMul(EDataRef("ua"), EDataRef("ub"))
                             ), EProductSpec(
                             "product",
@@ -166,7 +170,7 @@ class HelperTest {
                             QuantityFixture.oneLitre, EProductSpec(
                             "water",
                             UnitFixture.l,
-                            FromProcess(name = "template", matchLabels = MatchLabels.EMPTY),
+                            FromProcess(name = "template", matchLabels = MatchLabels(emptyMap())),
                         )
                         ),
                     ),
@@ -178,7 +182,7 @@ class HelperTest {
                     listOf(
                         EImpact(
                             EQuantityAdd(
-                                EQuantityScale(3.0, EDataRef("qa")),
+                                EQuantityScale(ops.pure(3.0), EDataRef("qa")),
                                 EDataRef("qb")
                             ), EIndicatorSpec("indicator")
                         )
@@ -186,7 +190,7 @@ class HelperTest {
                 )
             ),
         )
-        val helper = Helper()
+        val helper = Helper<BasicNumber>()
 
         // when
         val actual = helper.allRequiredRefs(expression)

@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang
 
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import com.intellij.openapi.ui.naturalSorted
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -12,8 +13,8 @@ class RegisterTest {
     fun set_and_get() {
         // given
         val key = "abc.x"
-        val a = EDataRef("a")
-        val register = Register.empty<DataExpression>()
+        val a = EDataRef<BasicNumber>("a")
+        val register = Register.empty<DataExpression<BasicNumber>>()
 
         // when
         val actual = register.plus(listOf(key to a))
@@ -26,9 +27,9 @@ class RegisterTest {
     fun set_whenDuplicate_atOnce() {
         // given
         val key = "abc.x"
-        val a = EDataRef("a")
-        val b = EDataRef("b")
-        val register = Register.empty<DataExpression>()
+        val a = EDataRef<BasicNumber>("a")
+        val b = EDataRef<BasicNumber>("b")
+        val register = Register.empty<DataExpression<BasicNumber>>()
         val duplicateKeys = listOf(
             key to a,
             key to b
@@ -44,9 +45,9 @@ class RegisterTest {
     fun set_whenDuplicate_successive() {
         // given
         val key = "abc.x"
-        val a = EDataRef("a")
-        val b = EDataRef("b")
-        val register = Register.empty<DataExpression>().plus(listOf(key to a))
+        val a = EDataRef<BasicNumber>("a")
+        val b = EDataRef<BasicNumber>("b")
+        val register = Register.empty<DataExpression<BasicNumber>>().plus(listOf(key to a))
         val message = "[$key] is already bound"
         val duplicateKey = listOf(key to b)
 
@@ -89,14 +90,14 @@ class RegisterTest {
     fun getEntries_ShouldReturnIndex() {
         // Given
         val key = "abc.x"
-        val a = EDataRef("a")
+        val a = EDataRef<BasicNumber>("a")
 
         val key2 = "abc.y"
-        val b = EDataRef("b")
-        val sut = Register.empty<EDataRef>().plus(listOf(key to a, key2 to b))
+        val b = EDataRef<BasicNumber>("b")
+        val sut = Register.empty<EDataRef<BasicNumber>>().plus(listOf(key to a, key2 to b))
 
         // When
-        val actual = sut.getEntries(EDataRef.name)["a"]!!
+        val actual = sut.getEntries(EDataRef.name())["a"]!!
 
         // Then
         assertEquals(1, actual.size)
@@ -108,11 +109,13 @@ class RegisterTest {
         // given
         val keyA = "abc.a"
         val keyB = "abc.b"
-        val kg = EDataRef("kg")
+        val kg = EDataRef<BasicNumber>("kg")
         val a = EUnitAlias("a", kg)
         val b = EUnitAlias("b", kg)
-        val optics = EUnitAlias.aliasFor compose DataExpression.eDataRef.name
-        val register = Register.empty<EUnitAlias>()
+        val optics =
+            EUnitAlias.aliasFor<BasicNumber>() compose
+                DataExpression.eDataRef<BasicNumber>().name()
+        val register = Register.empty<EUnitAlias<BasicNumber>>()
             .plus(listOf(keyA to a, keyB to b))
 
 
