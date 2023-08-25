@@ -1,4 +1,4 @@
 package ch.kleis.lcaplugin.core.lang.value
 
-sealed interface Value
+sealed interface Value<Q>
 

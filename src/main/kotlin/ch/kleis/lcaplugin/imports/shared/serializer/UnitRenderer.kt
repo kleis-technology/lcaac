@@ -3,13 +3,14 @@ package ch.kleis.lcaplugin.imports.shared.serializer
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.imports.ModelWriter
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
 import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
-class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
+class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue<BasicNumber>>) {
     data class AliasFor(val alias: Dimension, val aliasFor: Dimension) {
         constructor(alias: String, aliasFor: Dimension) : this(Dimension.of(alias), aliasFor)
     }
@@ -29,7 +30,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
     var nbUnit = 0
 
     companion object {
-        fun of(existingUnits: Map<String, UnitValue>): UnitRenderer {
+        fun of(existingUnits: Map<String, UnitValue<BasicNumber>>): UnitRenderer {
             val newMap = existingUnits.entries.map { (k, v) -> k to v }.associate { it }
             return UnitRenderer(newMap.toMutableMap())
         }
@@ -97,12 +98,12 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue>) {
         }""".trimIndent()
     }
 
-    private fun getUnit(symbolName: String): UnitValue? {
+    private fun getUnit(symbolName: String): UnitValue<BasicNumber>? {
         val symbol = ModelWriter.sanitizeAndCompact(symbolName, false)
         return knownUnits[symbol]
     }
 
-    private fun addUnit(value: UnitValue) {
+    private fun addUnit(value: UnitValue<BasicNumber>) {
         knownUnits[value.symbol.toString().lowercase()] = value
     }
 

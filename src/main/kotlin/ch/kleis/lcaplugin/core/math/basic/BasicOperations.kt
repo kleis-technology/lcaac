@@ -11,6 +11,7 @@ import kotlin.math.pow
 
 class BasicOperations : QuantityOperations<BasicNumber>, MatrixOperations<BasicNumber, BasicMatrix> {
     companion object {
+        val INSTANCE = BasicOperations()
         private val LOG = Logger.getInstance(BasicOperations::class.java)
     }
 

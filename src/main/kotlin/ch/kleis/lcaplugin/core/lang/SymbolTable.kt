@@ -23,14 +23,14 @@ private data class SubstanceKey(
     val subCompartment: String?,
 )
 
-data class SymbolTable(
-    val data: Register<DataExpression> = Register.empty(),
+data class SymbolTable<Q>(
+    val data: Register<DataExpression<Q>> = Register.empty(),
     val dimensions: Register<Dimension> = Register.empty(),
-    val processTemplates: Register<EProcessTemplate> = Register.empty(),
-    val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.empty(),
+    val processTemplates: Register<EProcessTemplate<Q>> = Register.empty(),
+    val substanceCharacterizations: Register<ESubstanceCharacterization<Q>> = Register.empty(),
 ) {
     companion object {
-        fun empty() = SymbolTable()
+        fun <Q> empty() = SymbolTable<Q>()
     }
 
 
@@ -48,8 +48,8 @@ data class SymbolTable(
             return Json.encodeToString(key)
         }
     }
-    private val processKeyOptics = object : Fold<EProcess, ProcessKey> {
-        override fun <R> foldMap(M: Monoid<R>, source: EProcess, map: (focus: ProcessKey) -> R): R {
+    private val processKeyOptics = object : Fold<EProcess<Q>, ProcessKey> {
+        override fun <R> foldMap(M: Monoid<R>, source: EProcess<Q>, map: (focus: ProcessKey) -> R): R {
             return map(
                 ProcessKey(
                     source.name,
@@ -59,10 +59,10 @@ data class SymbolTable(
         }
 
     }
-    private val templatesIndexedByProcessKey: Index<ProcessKey, EProcessTemplate> = Index(
+    private val templatesIndexedByProcessKey: Index<ProcessKey, EProcessTemplate<Q>> = Index(
         processTemplates,
         processKeyDescriptor,
-        EProcessTemplate.body compose processKeyOptics,
+        EProcessTemplate.body<Q>() compose processKeyOptics,
     )
 
     private val stringDescriptor = object : IndexKeySerializer<String> {
@@ -70,16 +70,16 @@ data class SymbolTable(
             return key
         }
     }
-    private val templatesIndexedByProductName: Index<String, EProcessTemplate> = Index(
+    private val templatesIndexedByProductName: Index<String, EProcessTemplate<Q>> = Index(
         processTemplates,
         stringDescriptor,
-        EProcessTemplate.body.products compose
+        EProcessTemplate.body<Q>().products() compose
             Every.list() compose
-            ETechnoExchange.product compose
-            EProductSpec.name
+            ETechnoExchange.product() compose
+            EProductSpec.name()
     )
 
-    fun getTemplate(name: String): EProcessTemplate? {
+    fun getTemplate(name: String): EProcessTemplate<Q>? {
         return templatesIndexedByProcessKey.firstOrNull(
             ProcessKey(
                 name,
@@ -88,7 +88,7 @@ data class SymbolTable(
         )
     }
 
-    fun getTemplate(name: String, labels: Map<String, String>): EProcessTemplate? {
+    fun getTemplate(name: String, labels: Map<String, String>): EProcessTemplate<Q>? {
         return templatesIndexedByProcessKey.firstOrNull(
             ProcessKey(
                 name, labels
@@ -96,7 +96,7 @@ data class SymbolTable(
         )
     }
 
-    fun getAllTemplatesByProductName(name: String): List<EProcessTemplate> {
+    fun getAllTemplatesByProductName(name: String): List<EProcessTemplate<Q>> {
         return templatesIndexedByProductName.getAll(name)
     }
 
@@ -109,8 +109,8 @@ data class SymbolTable(
             return Json.encodeToString(key)
         }
     }
-    private val substanceKeyOptics = object : Fold<ESubstanceSpec, SubstanceKey> {
-        override fun <R> foldMap(M: Monoid<R>, source: ESubstanceSpec, map: (focus: SubstanceKey) -> R): R {
+    private val substanceKeyOptics = object : Fold<ESubstanceSpec<Q>, SubstanceKey> {
+        override fun <R> foldMap(M: Monoid<R>, source: ESubstanceSpec<Q>, map: (focus: SubstanceKey) -> R): R {
             return map(
                 SubstanceKey(
                     source.name,
@@ -121,15 +121,15 @@ data class SymbolTable(
             )
         }
     }
-    private val substanceCharacterizationsIndexedBySubstanceKey: Index<SubstanceKey, ESubstanceCharacterization> =
+    private val substanceCharacterizationsIndexedBySubstanceKey: Index<SubstanceKey, ESubstanceCharacterization<Q>> =
         Index(
             substanceCharacterizations,
             substanceKeyDescriptor,
-            ESubstanceCharacterization.referenceExchange.substance compose substanceKeyOptics,
+            ESubstanceCharacterization.referenceExchange<Q>().substance() compose substanceKeyOptics,
         )
 
 
-    fun getData(name: String): DataExpression? {
+    fun getData(name: String): DataExpression<Q>? {
         return data[name]
     }
 
@@ -137,7 +137,7 @@ data class SymbolTable(
         name: String,
         type: SubstanceType,
         compartment: String
-    ): ESubstanceCharacterization? {
+    ): ESubstanceCharacterization<Q>? {
         return substanceCharacterizationsIndexedBySubstanceKey.firstOrNull(
             SubstanceKey(
                 name,
@@ -153,7 +153,7 @@ data class SymbolTable(
         type: SubstanceType,
         compartment: String,
         subCompartment: String
-    ): ESubstanceCharacterization? {
+    ): ESubstanceCharacterization<Q>? {
         return substanceCharacterizationsIndexedBySubstanceKey.firstOrNull(
             SubstanceKey(
                 name,

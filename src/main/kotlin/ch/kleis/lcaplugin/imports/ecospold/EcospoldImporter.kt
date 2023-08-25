@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.imports.ecospold
 
-import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
+import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.ecospold.settings.EcospoldImportSettings
 import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings
@@ -70,8 +72,9 @@ class EcospoldImporter(
         is LCISettings -> "Ecospold LCI library file."
         is LCIASettings -> settings.methodName
     }
-    private val predefinedUnits = Prelude.unitMap.values
-        .map { it.toUnitValue() }
+    private val mapper = ToValue(BasicOperations.INSTANCE)
+    private val predefinedUnits = Prelude.unitMap<BasicNumber>().values
+        .map { with(mapper) { it.toUnitValue() } }
         .associateBy { it.symbol.toString() }
     private val unitRenderer = UnitRenderer.of(predefinedUnits)
 
@@ -185,8 +188,8 @@ class EcospoldImporter(
     private fun importUnits(entries: List<SevenZArchiveEntry>, f: SevenZFile, writer: ModelWriter) {
         val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
         val fromMeta = f.getInputStream(unitConversionFile).use {
-            val unitConvs = Parser.readUnits(it)
-            unitConvs.asSequence()
+            val unitConversions = Parser.readUnits(it)
+            unitConversions.asSequence()
                 .map { u ->
                     ImportedUnit(
                         u.dimension, u.fromUnit, u.factor,
@@ -198,8 +201,8 @@ class EcospoldImporter(
 
         val methodsFile = entries.firstOrNull { it.name.endsWith("ImpactMethods.xml") }
         val fromMethod = f.getInputStream(methodsFile).use {
-            val unitConvs = Parser.readMethodUnits(it, methodName)
-            unitConvs.asSequence()
+            val unitConversions = Parser.readMethodUnits(it, methodName)
+            unitConversions.asSequence()
                 .map { u ->
                     ImportedUnit(
                         u.dimension, u.fromUnit, u.factor,

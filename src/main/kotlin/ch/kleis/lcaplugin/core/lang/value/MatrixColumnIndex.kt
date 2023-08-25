@@ -4,21 +4,21 @@ import ch.kleis.lcaplugin.core.HasUID
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 
-sealed interface MatrixColumnIndex : Value, HasUID {
+sealed interface MatrixColumnIndex<Q> : Value<Q>, HasUID {
     fun getDimension(): Dimension
     fun getDisplayName(): String
     fun getShortName(): String
-    fun referenceUnit(): UnitValue
+    fun referenceUnit(): UnitValue<Q>
     override fun getUID(): String {
         return getDisplayName()
     }
 }
 
-data class ProductValue(
+data class ProductValue<Q>(
     val name: String,
-    val referenceUnit: UnitValue,
-    val fromProcessRef: FromProcessRefValue? = null
-) : Value, MatrixColumnIndex {
+    val referenceUnit: UnitValue<Q>,
+    val fromProcessRef: FromProcessRefValue<Q>? = null
+) : Value<Q>, MatrixColumnIndex<Q> {
 
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
@@ -35,11 +35,11 @@ data class ProductValue(
         return name
     }
 
-    override fun referenceUnit(): UnitValue {
+    override fun referenceUnit(): UnitValue<Q> {
         return referenceUnit
     }
 
-    fun withFromProcessRef(fromProcessRef: FromProcessRefValue): ProductValue {
+    fun withFromProcessRef(fromProcessRef: FromProcessRefValue<Q>): ProductValue<Q> {
         return ProductValue(name, referenceUnit, fromProcessRef)
     }
 
@@ -51,7 +51,7 @@ data class ProductValue(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as ProductValue
+        other as ProductValue<Q>
 
         if (name != other.name) return false
         if (referenceUnit.dimension != other.referenceUnit.dimension) return false
@@ -66,12 +66,12 @@ data class ProductValue(
     }
 }
 
-sealed interface SubstanceValue : Value, MatrixColumnIndex
+sealed interface SubstanceValue<Q> : Value<Q>, MatrixColumnIndex<Q>
 
-data class PartiallyQualifiedSubstanceValue(
+data class PartiallyQualifiedSubstanceValue<Q>(
     val name: String,
-    val referenceUnit: UnitValue,
-) : SubstanceValue {
+    val referenceUnit: UnitValue<Q>,
+) : SubstanceValue<Q> {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
@@ -84,7 +84,7 @@ data class PartiallyQualifiedSubstanceValue(
         return name
     }
 
-    override fun referenceUnit(): UnitValue {
+    override fun referenceUnit(): UnitValue<Q> {
         return referenceUnit
     }
 
@@ -96,7 +96,7 @@ data class PartiallyQualifiedSubstanceValue(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as PartiallyQualifiedSubstanceValue
+        other as PartiallyQualifiedSubstanceValue<Q>
 
         if (name != other.name) return false
         return referenceUnit.dimension == other.referenceUnit.dimension
@@ -109,13 +109,13 @@ data class PartiallyQualifiedSubstanceValue(
     }
 }
 
-data class FullyQualifiedSubstanceValue(
+data class FullyQualifiedSubstanceValue<Q>(
     val name: String,
     val type: SubstanceType,
     val compartment: String,
     val subcompartment: String?,
-    val referenceUnit: UnitValue,
-) : SubstanceValue {
+    val referenceUnit: UnitValue<Q>,
+) : SubstanceValue<Q> {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
@@ -136,7 +136,7 @@ data class FullyQualifiedSubstanceValue(
         return """[${type.value}] $name($args)"""
     }
 
-    override fun referenceUnit(): UnitValue {
+    override fun referenceUnit(): UnitValue<Q> {
         return referenceUnit
     }
 
@@ -148,7 +148,7 @@ data class FullyQualifiedSubstanceValue(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as FullyQualifiedSubstanceValue
+        other as FullyQualifiedSubstanceValue<Q>
 
         if (name != other.name) return false
         if (type != other.type) return false
@@ -167,7 +167,7 @@ data class FullyQualifiedSubstanceValue(
     }
 }
 
-data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Value, MatrixColumnIndex {
+data class IndicatorValue<Q>(val name: String, val referenceUnit: UnitValue<Q>) : Value<Q>, MatrixColumnIndex<Q> {
     override fun getDimension(): Dimension {
         return referenceUnit.dimension
     }
@@ -180,7 +180,7 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         return name
     }
 
-    override fun referenceUnit(): UnitValue {
+    override fun referenceUnit(): UnitValue<Q> {
         return referenceUnit
     }
 
@@ -192,7 +192,7 @@ data class IndicatorValue(val name: String, val referenceUnit: UnitValue) : Valu
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as IndicatorValue
+        other as IndicatorValue<Q>
 
         if (name != other.name) return false
         return referenceUnit.dimension == other.referenceUnit.dimension

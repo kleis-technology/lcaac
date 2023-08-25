@@ -6,12 +6,12 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 
 @optics
-sealed interface DataExpression : Expression {
+sealed interface DataExpression<Q> : Expression<Q> {
     companion object
 }
 
 @optics
-data class EDataRef(val name: String) : DataExpression, RefExpression {
+data class EDataRef<Q>(val name: String) : DataExpression<Q>, RefExpression {
     override fun name(): String {
         return name
     }
@@ -28,8 +28,8 @@ data class EDataRef(val name: String) : DataExpression, RefExpression {
  */
 
 @optics
-data class EUnitLiteral(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : DataExpression,
-    QuantityExpression {
+data class EUnitLiteral<Q>(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : DataExpression<Q>,
+    QuantityExpression<Q> {
     override fun toString(): String {
         return symbol.toString()
     }
@@ -38,12 +38,12 @@ data class EUnitLiteral(val symbol: UnitSymbol, val scale: Double, val dimension
 }
 
 @optics
-data class EUnitAlias(val symbol: String, val aliasFor: DataExpression) : DataExpression, QuantityExpression {
+data class EUnitAlias<Q>(val symbol: String, val aliasFor: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityScale(val scale: Double, val base: DataExpression) : DataExpression, QuantityExpression {
+data class EQuantityScale<Q>(val scale: Q, val base: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     override fun toString(): String {
         return "$scale $base"
     }
@@ -52,39 +52,39 @@ data class EQuantityScale(val scale: Double, val base: DataExpression) : DataExp
 }
 
 @optics
-data class EUnitOf(val expression: DataExpression) : DataExpression, QuantityExpression {
+data class EUnitOf<Q>(val expression: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityAdd(val left: DataExpression, val right: DataExpression) : DataExpression, QuantityExpression {
+data class EQuantityAdd<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantitySub(val left: DataExpression, val right: DataExpression) : DataExpression, QuantityExpression {
+data class EQuantitySub<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityMul(val left: DataExpression, val right: DataExpression) : DataExpression, QuantityExpression {
+data class EQuantityMul<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityDiv(val left: DataExpression, val right: DataExpression) : DataExpression, QuantityExpression {
+data class EQuantityDiv<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityPow(val quantity: DataExpression, val exponent: Double) : DataExpression, QuantityExpression {
+data class EQuantityPow<Q>(val quantity: DataExpression<Q>, val exponent: Double) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityClosure(
-    val symbolTable: SymbolTable, val expression: DataExpression
-) : DataExpression, QuantityExpression {
+data class EQuantityClosure<Q>(
+    val symbolTable: SymbolTable<Q>, val expression: DataExpression<Q>
+) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
@@ -93,7 +93,7 @@ data class EQuantityClosure(
  */
 
 @optics
-data class EStringLiteral(val value: String) : DataExpression, StringExpression {
+data class EStringLiteral<Q>(val value: String) : DataExpression<Q>, StringExpression {
     override fun toString(): String {
         return value
     }

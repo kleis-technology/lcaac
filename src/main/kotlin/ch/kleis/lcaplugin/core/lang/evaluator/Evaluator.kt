@@ -1,7 +1,6 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import arrow.optics.Every
-import arrow.optics.PEvery
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.evaluator.step.CompleteDefaultArguments
@@ -12,35 +11,39 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaplugin.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.math.QuantityOperations
 import com.intellij.openapi.diagnostic.Logger
 
-class Evaluator(
-    symbolTable: SymbolTable,
+class Evaluator<Q>(
+    symbolTable: SymbolTable<Q>,
+    ops: QuantityOperations<Q>,
 ) {
     companion object {
         private val LOG = Logger.getInstance(Evaluator::class.java)
     }
 
-    private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable)
+    private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable, ops)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
-    private val reduce = Reduce(symbolTable)
+    private val reduce = Reduce(symbolTable, ops)
+    private val completeTerminals = CompleteTerminals(ops)
 
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
-    private val dataReducer = DataExpressionReducer(symbolTable.data)
+    private val dataReducer = DataExpressionReducer(symbolTable.data, ops)
     private val everyInputProduct =
-        ProcessTemplateExpression.eProcessFinal.expression.inputs
+        ProcessTemplateExpression.eProcessFinal<Q>().expression().inputs()
             .compose(Every.list())
-            .compose(ETechnoExchange.product)
-    private val everySubstance: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, ESubstanceSpec, ESubstanceSpec> =
-        ProcessTemplateExpression.eProcessFinal.expression.biosphere
+            .compose(ETechnoExchange.product())
+    private val everySubstance =
+        ProcessTemplateExpression.eProcessFinal<Q>().expression().biosphere()
             .compose(Every.list())
-            .compose(EBioExchange.substance)
+            .compose(EBioExchange.substance())
+    private val mapper = ToValue(ops)
 
-    fun trace(expression: EProcessTemplateApplication): EvaluationTrace {
+    fun trace(expression: EProcessTemplateApplication<Q>): EvaluationTrace<Q> {
         LOG.info("Start recursive Compile")
         try {
-            val result = EvaluationTrace.empty()
+            val result = EvaluationTrace.empty<Q>()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
             LOG.info("End recursive Compile, found ${result.getNumberOfProcesses()} processes and ${result.getNumberOfSubstanceCharacterizations()} substances")
             return result
@@ -50,20 +53,20 @@ class Evaluator(
         }
     }
 
-    fun eval(expression: EProcessTemplateApplication): SystemValue {
+    fun eval(expression: EProcessTemplateApplication<Q>): SystemValue<Q> {
         return trace(expression).getSystemValue()
     }
 
     private tailrec fun recursiveCompile(
-        trace: EvaluationTrace,
-        visited: HashSet<EProcessTemplateApplication>,
-        batch: HashSet<EProcessTemplateApplication>,
+        trace: EvaluationTrace<Q>,
+        visited: HashSet<EProcessTemplateApplication<Q>>,
+        batch: HashSet<EProcessTemplateApplication<Q>>,
     ) {
         // termination condition
         if (batch.isEmpty()) return
 
         // eval : breadth-first strategy
-        val nextBatch = HashSet<EProcessTemplateApplication>()
+        val nextBatch = HashSet<EProcessTemplateApplication<Q>>()
         batch.forEach loop@{ expression ->
             if (visited.contains(expression)) {
                 LOG.warn("Should not be present in already processed expressions $expression")
@@ -75,9 +78,9 @@ class Evaluator(
                 .let(reduceLabelSelectors::apply)
                 .let(completeDefaultArguments::apply)
                 .let(reduce::apply)
-                .let(CompleteTerminals::apply)
+                .let(completeTerminals::apply)
 
-            val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec ->
+            val inputProductsModified = everyInputProduct.modify(reduced) { spec: EProductSpec<Q> ->
                 processResolver.resolve(spec)?.let { template ->
                     val body = template.body
                     val labels = spec.fromProcess?.matchLabels
@@ -105,12 +108,12 @@ class Evaluator(
                 resolveSubstanceCharacterizationBySubstanceSpec(spec)?.let {
                     val substanceCharacterization = it
                         .let(reduce::apply)
-                        .let(CompleteTerminals::apply)
-                    trace.add(substanceCharacterization.toValue())
+                        .let(completeTerminals::apply)
+                    trace.add(with(mapper) { substanceCharacterization.toValue() })
                     substanceCharacterization.referenceExchange.substance
                 } ?: spec
             }
-            val v = substancesModified.toValue()
+            val v = with(mapper) { substancesModified.toValue() }
 
             if (trace.contains(v)) {
                 LOG.warn("This expression should not be present in accumulator $expression and $v")
@@ -128,7 +131,7 @@ class Evaluator(
         recursiveCompile(trace, visited, nextBatch)
     }
 
-    private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec): ESubstanceCharacterization? {
+    private fun resolveSubstanceCharacterizationBySubstanceSpec(spec: ESubstanceSpec<Q>): ESubstanceCharacterization<Q>? {
         return substanceCharacterizationResolver.resolve(spec)?.takeIf { it.hasImpacts() }
     }
 }

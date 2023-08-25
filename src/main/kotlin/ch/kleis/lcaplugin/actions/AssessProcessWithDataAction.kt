@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.actions.csv.CsvProcessor
 import ch.kleis.lcaplugin.actions.csv.CsvRequestReader
 import ch.kleis.lcaplugin.actions.csv.CsvResultWriter
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.parser.LcaFileCollector
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -54,10 +55,10 @@ class AssessProcessWithDataAction(
                     // process
                     val symbolTable = runReadAction {
                         val collector = LcaFileCollector(file.project)
-                        val parser = LcaLangAbstractParser(collector.collect(file))
+                        val parser = LcaLangAbstractParser(collector.collect(file), BasicOperations.INSTANCE)
                         parser.load()
                     }
-                    val csvProcessor = CsvProcessor(symbolTable)
+                    val csvProcessor = CsvProcessor(symbolTable, BasicOperations.INSTANCE)
                     val results = requests.map { request ->
                         ProgressManager.checkCanceled()
                         indicator.text = "Processing using ${request.arguments()}"

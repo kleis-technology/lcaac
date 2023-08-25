@@ -5,24 +5,26 @@ import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.math.QuantityOperations
 import ch.kleis.lcaplugin.core.matrix.*
 import ch.kleis.lcaplugin.core.matrix.impl.Solver
 
-class Assessment(
-    system: SystemValue,
-    targetProcess: ProcessValue,
-    private val solver: Solver = Solver.INSTANCE
+class Assessment<Q>(
+    system: SystemValue<Q>,
+    targetProcess: ProcessValue<Q>,
+    private val ops: QuantityOperations<Q>,
+    private val solver: Solver = Solver.INSTANCE // TODO: use ops instead of solver stuff here
 ) {
-    private val observableMatrix: ObservableMatrix
-    private val controllableMatrix: ControllableMatrix
-    private val demandMatrix: DemandMatrix
-    private val observablePorts: IndexedCollection<MatrixColumnIndex>
-    private val controllablePorts: IndexedCollection<MatrixColumnIndex>
+    private val observableMatrix: ObservableMatrix<Q>
+    private val controllableMatrix: ControllableMatrix<Q>
+    private val demandMatrix: DemandMatrix<Q>
+    private val observablePorts: IndexedCollection<MatrixColumnIndex<Q>>
+    private val controllablePorts: IndexedCollection<MatrixColumnIndex<Q>>
 
-    val allocatedSystem: SystemValue
+    val allocatedSystem: SystemValue<Q>
 
     init {
-        allocatedSystem = Allocation.apply(system)
+        allocatedSystem = Allocation(ops).apply(system)
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
@@ -36,7 +38,8 @@ class Assessment(
             processes,
             substanceCharacterizations,
             observableProducts,
-            observableSubstances
+            observableSubstances,
+            ops,
         )
 
         val terminalProducts = processes
@@ -56,22 +59,24 @@ class Assessment(
             substanceCharacterizations,
             terminalProducts,
             terminalSubstances,
-            indicators
+            indicators,
+            ops,
         )
 
         demandMatrix = DemandMatrix(
             targetProcess,
             observablePorts,
+            ops,
         )
     }
 
-    fun inventory(): Inventory {
+    fun inventory(): Inventory<Q> {
         val impactFactorMatrix = solver.solve(this.observableMatrix.matrix, this.controllableMatrix.matrix.negate())
-            ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it) }
+            ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it, ops) }
             ?: throw EvaluatorException("The system cannot be solved")
         val supplyMatrix = solver.solve(this.observableMatrix.matrix.transpose(), demandMatrix.matrix.transpose())
             ?.transpose()
-            ?.let { SupplyMatrix(observablePorts, it) }
+            ?.let { SupplyMatrix(observablePorts, it, ops) }
             ?: throw EvaluatorException("The system cannot be solved")
         return Inventory(impactFactorMatrix, supplyMatrix)
     }

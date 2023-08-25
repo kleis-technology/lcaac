@@ -1,41 +1,40 @@
 package ch.kleis.lcaplugin.core.lang.expression.optics
 
 import arrow.optics.Every
-import arrow.optics.Fold
 import arrow.optics.PEvery
 import arrow.typeclasses.Monoid
 import ch.kleis.lcaplugin.core.lang.expression.*
 
-val everyDataRefInDataExpression =
-    object : PEvery<DataExpression, DataExpression, EDataRef, DataExpression> {
-        override fun <R> foldMap(M: Monoid<R>, source: DataExpression, map: (focus: EDataRef) -> R): R {
+fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
+    object : PEvery<DataExpression<Q>, DataExpression<Q>, EDataRef<Q>, DataExpression<Q>> {
+        override fun <R> foldMap(M: Monoid<R>, source: DataExpression<Q>, map: (focus: EDataRef<Q>) -> R): R {
             return when (source) {
                 is EDataRef -> map(source)
                 is EQuantityAdd -> M.fold(
                     listOf(
-                        foldMap(M, source.left, map),
-                        foldMap(M, source.right, map),
+                        foldMap(M, source.lhs, map),
+                        foldMap(M, source.rhs, map),
                     )
                 )
 
                 is EQuantitySub -> M.fold(
                     listOf(
-                        foldMap(M, source.left, map),
-                        foldMap(M, source.right, map),
+                        foldMap(M, source.lhs, map),
+                        foldMap(M, source.rhs, map),
                     )
                 )
 
                 is EQuantityMul -> M.fold(
                     listOf(
-                        foldMap(M, source.left, map),
-                        foldMap(M, source.right, map),
+                        foldMap(M, source.lhs, map),
+                        foldMap(M, source.rhs, map),
                     )
                 )
 
                 is EQuantityDiv -> M.fold(
                     listOf(
-                        foldMap(M, source.left, map),
-                        foldMap(M, source.right, map),
+                        foldMap(M, source.lhs, map),
+                        foldMap(M, source.rhs, map),
                     )
                 )
 
@@ -49,27 +48,30 @@ val everyDataRefInDataExpression =
             }
         }
 
-        override fun modify(source: DataExpression, map: (focus: EDataRef) -> DataExpression): DataExpression {
+        override fun modify(
+            source: DataExpression<Q>,
+            map: (focus: EDataRef<Q>) -> DataExpression<Q>
+        ): DataExpression<Q> {
             return when (source) {
                 is EDataRef -> map(source)
                 is EQuantityAdd -> EQuantityAdd(
-                    modify(source.left, map),
-                    modify(source.right, map),
+                    modify(source.lhs, map),
+                    modify(source.rhs, map),
                 )
 
                 is EQuantitySub -> EQuantitySub(
-                    modify(source.left, map),
-                    modify(source.right, map),
+                    modify(source.lhs, map),
+                    modify(source.rhs, map),
                 )
 
                 is EQuantityMul -> EQuantityMul(
-                    modify(source.left, map),
-                    modify(source.right, map),
+                    modify(source.lhs, map),
+                    modify(source.rhs, map),
                 )
 
                 is EQuantityDiv -> EQuantityDiv(
-                    modify(source.left, map),
-                    modify(source.right, map),
+                    modify(source.lhs, map),
+                    modify(source.rhs, map),
                 )
 
                 is EQuantityClosure -> EQuantityClosure(
@@ -102,106 +104,106 @@ val everyDataRefInDataExpression =
         }
     }
 
-private val everyDataRefInConstraint: PEvery<FromProcess, FromProcess, EDataRef, DataExpression> =
-    FromProcess.arguments compose
-        Every.map() compose
-        everyDataRefInDataExpression
+private fun <Q> everyDataRefInConstraint(): PEvery<FromProcess<Q>, FromProcess<Q>, EDataRef<Q>, DataExpression<Q>> =
+    FromProcess.arguments<Q>() compose
+        Every.map() compose everyDataRefInDataExpression<Q>()
 
-private val everyDataRefInEProductSpec: PEvery<EProductSpec, EProductSpec, EDataRef, DataExpression> =
+private fun <Q> everyDataRefInEProductSpec(): PEvery<EProductSpec<Q>, EProductSpec<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            EProductSpec.fromProcess compose everyDataRefInConstraint,
-            EProductSpec.fromProcess.arguments compose
+            EProductSpec.fromProcess<Q>() compose everyDataRefInConstraint(),
+            EProductSpec.fromProcess<Q>().arguments() compose
                 Every.map() compose
-                everyDataRefInDataExpression,
-            EProductSpec.fromProcess.matchLabels.elements compose
+                everyDataRefInDataExpression(),
+            EProductSpec.fromProcess<Q>().matchLabels().elements() compose
                 Every.map() compose
-                everyDataRefInDataExpression,
+                everyDataRefInDataExpression(),
         )
     )
 
-private val everyDataRefInETechnoExchange: PEvery<ETechnoExchange, ETechnoExchange, EDataRef, DataExpression> =
+private fun <Q> everyDataRefInETechnoExchange(): PEvery<ETechnoExchange<Q>, ETechnoExchange<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            ETechnoExchange.quantity compose everyDataRefInDataExpression,
-            ETechnoExchange.product compose everyDataRefInEProductSpec,
+            ETechnoExchange.quantity<Q>() compose everyDataRefInDataExpression(),
+            ETechnoExchange.product<Q>() compose everyDataRefInEProductSpec(),
         )
     )
 
-private val everyDataRefInEBioExchange: PEvery<EBioExchange, EBioExchange, EDataRef, DataExpression> =
-    EBioExchange.quantity compose everyDataRefInDataExpression
+private fun <Q> everyDataRefInEBioExchange(): PEvery<EBioExchange<Q>, EBioExchange<Q>, EDataRef<Q>, DataExpression<Q>> =
+    EBioExchange.quantity<Q>() compose everyDataRefInDataExpression<Q>()
 
-private val everyDataRefInEImpact: PEvery<EImpact, EImpact, EDataRef, DataExpression> =
-    EImpact.quantity compose everyDataRefInDataExpression
+private fun <Q> everyDataRefInEImpact(): PEvery<EImpact<Q>, EImpact<Q>, EDataRef<Q>, DataExpression<Q>> =
+    EImpact.quantity<Q>() compose everyDataRefInDataExpression<Q>()
 
-val everyDataRefInProcess: PEvery<EProcess, EProcess, EDataRef, DataExpression> =
+fun <Q> everyDataRefInProcess(): PEvery<EProcess<Q>, EProcess<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            EProcess.products compose Every.list() compose everyDataRefInETechnoExchange,
-            EProcess.inputs compose Every.list() compose everyDataRefInETechnoExchange,
-            EProcess.biosphere compose Every.list() compose everyDataRefInEBioExchange,
-            EProcess.impacts compose Every.list() compose everyDataRefInEImpact,
+            EProcess.products<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
+            EProcess.inputs<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
+            EProcess.biosphere<Q>() compose Every.list() compose everyDataRefInEBioExchange(),
+            EProcess.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
         )
     )
 
-private val everyDataRefInSubstanceCharacterization: PEvery<ESubstanceCharacterization, ESubstanceCharacterization, EDataRef, out DataExpression> =
+private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceCharacterization<Q>, ESubstanceCharacterization<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            ESubstanceCharacterization.referenceExchange compose everyDataRefInEBioExchange,
-            ESubstanceCharacterization.impacts compose Every.list() compose everyDataRefInEImpact,
+            ESubstanceCharacterization.referenceExchange<Q>() compose everyDataRefInEBioExchange(),
+            ESubstanceCharacterization.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
         )
     )
 
 
-private val everyDataRefInSystemExpression: PEvery<SystemExpression, SystemExpression, EDataRef, out DataExpression> =
-    Merge(
+private fun <Q> everyDataRefInSystemExpression(): PEvery<SystemExpression<Q>, SystemExpression<Q>, EDataRef<Q>, DataExpression<Q>> {
+    return Merge(
         listOf(
-            SystemExpression.eSystem.processes compose
+            SystemExpression.eSystem<Q>().processes() compose
+                PEvery.list() compose
+                everyDataRefInProcess(),
+            SystemExpression.eSystem<Q>().substanceCharacterizations() compose
                 Every.list() compose
-                everyDataRefInProcess,
-            SystemExpression.eSystem.substanceCharacterizations compose
-                Every.list() compose
-                everyDataRefInSubstanceCharacterization,
+                everyDataRefInSubstanceCharacterization(),
         )
     )
+}
 
-private val everyDataRefInLcaExpression: PEvery<LcaExpression, LcaExpression, EDataRef, out DataExpression> =
+private fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            LcaExpression.eProcess compose
-                everyDataRefInProcess,
-            LcaExpression.lcaExchangeExpression.eTechnoExchange compose
-                everyDataRefInETechnoExchange,
-            LcaExpression.lcaExchangeExpression.eBioExchange compose
-                everyDataRefInEBioExchange,
-            LcaExpression.eProductSpec.fromProcess.arguments compose
+            LcaExpression.eProcess<Q>() compose
+                everyDataRefInProcess(),
+            LcaExpression.lcaExchangeExpression<Q>().eTechnoExchange() compose
+                everyDataRefInETechnoExchange(),
+            LcaExpression.lcaExchangeExpression<Q>().eBioExchange() compose
+                everyDataRefInEBioExchange(),
+            LcaExpression.eProductSpec<Q>().fromProcess().arguments() compose
                 Every.map() compose
-                everyDataRefInDataExpression
+                everyDataRefInDataExpression()
         )
     )
 
-private val everyDataRefInTemplateExpression: PEvery<ProcessTemplateExpression, ProcessTemplateExpression, EDataRef, out DataExpression> =
+private fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
-            everyProcessTemplateInTemplateExpression compose Merge(
+            everyProcessTemplateInTemplateExpression<Q>() compose Merge(
                 listOf(
-                    EProcessTemplate.params compose Every.map() compose
-                        everyDataRefInDataExpression,
-                    EProcessTemplate.locals compose Every.map() compose
-                        everyDataRefInDataExpression,
-                    EProcessTemplate.body compose everyDataRefInProcess,
+                    EProcessTemplate.params<Q>() compose Every.map() compose
+                        everyDataRefInDataExpression(),
+                    EProcessTemplate.locals<Q>() compose Every.map() compose
+                        everyDataRefInDataExpression(),
+                    EProcessTemplate.body<Q>() compose everyDataRefInProcess(),
                 )
             ),
-            ProcessTemplateExpression.eProcessFinal.expression compose everyDataRefInProcess,
+            ProcessTemplateExpression.eProcessFinal<Q>().expression() compose everyDataRefInProcess(),
         ),
     )
 
-val everyDataRef: Fold<Expression, EDataRef> =
+fun <Q> everyDataRef(): PEvery<Expression<Q>, Expression<Q>, EDataRef<Q>, EDataRef<Q>> =
     Merge(
         listOf(
-            Expression.dataExpression compose everyDataRefInDataExpression,
-            Expression.lcaExpression compose everyDataRefInLcaExpression,
-            Expression.processTemplateExpression compose everyDataRefInTemplateExpression,
-            Expression.systemExpression compose everyDataRefInSystemExpression,
+            Expression.lcaExpression<Q>() compose everyDataRefInLcaExpression(),
+            Expression.dataExpression<Q>() compose everyDataRefInDataExpression(),
+            Expression.processTemplateExpression<Q>() compose everyDataRefInTemplateExpression(),
+            Expression.systemExpression<Q>() compose everyDataRefInSystemExpression(),
         )
     )

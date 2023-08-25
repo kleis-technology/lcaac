@@ -3,22 +3,25 @@ package ch.kleis.lcaplugin.core.allocation
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.math.QuantityOperations
 import kotlin.math.absoluteValue
 
-object Allocation {
-    fun apply(system: SystemValue): SystemValue {
+class Allocation<Q>(
+    private val ops: QuantityOperations<Q>,
+) {
+    fun apply(system: SystemValue<Q>): SystemValue<Q> {
         val processes = system.processes.flatMap { processValue ->
             processValue.products.map { allocateProduct(it, processValue) }
         }.toMutableSet()
         return SystemValue(processes, system.substanceCharacterizations)
     }
 
-    private fun allocateProduct(technoExchangeValue: TechnoExchangeValue, processValue: ProcessValue): ProcessValue {
+    private fun allocateProduct(technoExchangeValue: TechnoExchangeValue<Q>, processValue: ProcessValue<Q>): ProcessValue<Q> {
         val totalAllocation = totalAmount(processValue)
         return ProcessValue(
             name = processValue.name,
             labels = processValue.labels,
-            products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation?.copy(amount = 100.0))),
+            products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation)),
             inputs = processValue.inputs.map(applyAllocationToInput(technoExchangeValue.allocation, totalAllocation)),
             biosphere = processValue.biosphere.map(
                 applyAllocationToBioExchange(
@@ -30,12 +33,12 @@ object Allocation {
         )
     }
 
-    fun totalAmount(processValue: ProcessValue): Double {
+    private fun totalAmount(processValue: ProcessValue<Q>): Double {
         allocationUnitCheck(processValue)
-        return processValue.products.sumOf { it.allocation?.referenceValue() ?: 1.0 }
+        return processValue.products.sumOf { it.allocation?.referenceValue(ops) ?: 1.0 }
     }
 
-    fun allocationUnitCheck(processValue: ProcessValue) {
+    private fun allocationUnitCheck(processValue: ProcessValue<Q>) {
         if (processValue.products
                 .mapNotNull { it.allocation }
                 .any { it.unit.symbol != UnitSymbol.of("percent") }
@@ -47,47 +50,47 @@ object Allocation {
         }
     }
 
-    private fun totalAllocationAmounts(processValue: ProcessValue): Double {
-        return processValue.products.sumOf { it.allocation?.amount ?: 100.0 }
+    private fun totalAllocationAmounts(processValue: ProcessValue<Q>): Double {
+        return processValue.products.sumOf { exchange -> exchange.allocation?.amount?.let { ops.toDouble(it) } ?: 100.0 }
     }
 
     private fun applyAllocationToInput(
-        allocation: QuantityValue?,
+        allocation: QuantityValue<Q>?,
         totalAllocation: Double
-    ): (TechnoExchangeValue) -> TechnoExchangeValue {
-        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
-        return { technoExchangeValue: TechnoExchangeValue ->
+    ): (TechnoExchangeValue<Q>) -> TechnoExchangeValue<Q> {
+        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
+        return { technoExchangeValue: TechnoExchangeValue<Q> ->
             technoExchangeValue.copy(
                 quantity = technoExchangeValue.quantity.copy(
-                    amount = technoExchangeValue.quantity.amount * ratio
+                    amount = with(ops) { technoExchangeValue.quantity.amount * pure(ratio) }
                 )
             )
         }
     }
 
     private fun applyAllocationToBioExchange(
-        allocation: QuantityValue?,
+        allocation: QuantityValue<Q>?,
         totalAllocation: Double
-    ): (BioExchangeValue) -> BioExchangeValue {
-        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
-        return { bioExchange: BioExchangeValue ->
+    ): (BioExchangeValue<Q>) -> BioExchangeValue<Q> {
+        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
+        return { bioExchange: BioExchangeValue<Q> ->
             bioExchange.copy(
                 quantity = bioExchange.quantity.copy(
-                    amount = bioExchange.quantity.amount * ratio
+                    amount = with(ops) { bioExchange.quantity.amount * pure(ratio) }
                 ),
             )
         }
     }
 
     private fun applyAllocationToImpact(
-        allocation: QuantityValue?,
+        allocation: QuantityValue<Q>?,
         totalAllocation: Double,
-    ): (ImpactValue) -> ImpactValue {
-        val ratio = (allocation?.referenceValue() ?: 100.0) / totalAllocation
+    ): (ImpactValue<Q>) -> ImpactValue<Q> {
+        val ratio = (allocation?.referenceValue(ops) ?: 100.0) / totalAllocation
         return { impactValue ->
             impactValue.copy(
                 quantity = impactValue.quantity.copy(
-                    amount = impactValue.quantity.amount * ratio
+                    amount = with(ops) { impactValue.quantity.amount * pure(ratio) }
                 )
             )
         }

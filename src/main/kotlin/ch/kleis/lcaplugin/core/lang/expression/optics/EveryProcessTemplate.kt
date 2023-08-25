@@ -2,18 +2,18 @@ package ch.kleis.lcaplugin.core.lang.expression.optics
 
 import ch.kleis.lcaplugin.core.lang.expression.*
 
-val everyProcessTemplateInTemplateExpression = Merge(
+fun <Q> everyProcessTemplateInTemplateExpression() = Merge(
     listOf(
-        ProcessTemplateExpression.eProcessTemplate,
-        ProcessTemplateExpression.eProcessTemplateApplication.template,
+        ProcessTemplateExpression.eProcessTemplateApplication<Q>().template(),
+        ProcessTemplateExpression.eProcessTemplate(),
     )
 )
 
-val everyEProcessInProcessTemplateExpression = Merge(
+fun <Q> everyEProcessInProcessTemplateExpression() = Merge(
     listOf(
-        ProcessTemplateExpression.eProcessTemplate.body,
-        ProcessTemplateExpression.eProcessTemplateApplication.template.body,
-        ProcessTemplateExpression.eProcessFinal.expression,
+        ProcessTemplateExpression.eProcessTemplate<Q>().body(),
+        ProcessTemplateExpression.eProcessTemplateApplication<Q>().template().body(),
+        ProcessTemplateExpression.eProcessFinal<Q>().expression(),
     )
 )
 

@@ -2,12 +2,13 @@ package ch.kleis.lcaplugin.ui.toolwindow
 
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class InventoryTableModel(
-    private val inventory: Inventory,
-    observablePortComparator: Comparator<MatrixColumnIndex>,
+    private val inventory: Inventory<BasicNumber>,
+    observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
     private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
     private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
@@ -58,7 +59,7 @@ class InventoryTableModel(
 
         val quantity = inventory.supply.quantityOf(outputProduct)
         if (columnIndex == 1) {
-            return FloatingPointRepresentation.of(quantity.amount).toString()
+            return FloatingPointRepresentation.of(quantity.amount.value).toString()
         }
         if (columnIndex == 2) {
             return "${quantity.unit.symbol}"
@@ -66,7 +67,7 @@ class InventoryTableModel(
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
         val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
-        return FloatingPointRepresentation.of(quantity.amount * ratio).toString()
+        return FloatingPointRepresentation.of(quantity.amount.value * ratio.value).toString()
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

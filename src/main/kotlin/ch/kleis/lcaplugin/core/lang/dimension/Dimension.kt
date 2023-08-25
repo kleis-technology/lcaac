@@ -33,7 +33,7 @@ class Dimension(
         }
     }
 
-    fun getDefaultUnitValue(): UnitValue {
+    fun <Q> getDefaultUnitValue(): UnitValue<Q> {
         return UnitValue(UnitSymbol(elements), 1.0, this)
     }
 
