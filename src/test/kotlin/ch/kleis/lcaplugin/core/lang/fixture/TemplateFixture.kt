@@ -24,6 +24,20 @@ class TemplateFixture {
                 ),
             )
         )
+        val cyclicProduction = EProcessTemplate(
+            params = mapOf(
+                Pair("q_water", QuantityFixture.oneLitre)
+            ),
+            body = EProcess(
+                name = "carrot_production",
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.twoKilograms, ProductFixture.carrot),
+                ),
+                inputs = listOf(
+                    ETechnoExchange(QuantityFixture.oneGram, ProductFixture.carrot),
+                ),
+            )
+        )
         val withUnboundedRef = EProcessTemplate(
             body = EProcess(
                 name = "with_unbounded_ref",

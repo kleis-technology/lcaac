@@ -98,6 +98,24 @@ class EvaluatorTest {
         assertNotEquals(p1, p2)
     }
 
+    @Test(timeout = 2000)
+    fun eval_whenAProductAsACycle_thenItShouldEnd() {
+        // given
+        val template = TemplateFixture.cyclicProduction
+        val appli = EProcessTemplateApplication(template)
+        val register = Register.empty<EProcessTemplate>().plus(mapOf("carrot_production" to template))
+
+        val symbolTable = SymbolTable(processTemplates = register)
+        val recursiveEvaluator = Evaluator(symbolTable)
+
+        // when
+
+        val p1 = recursiveEvaluator.eval(appli).processes.first().products.first().product
+
+        // then
+        assertEquals("carrot", p1.name)
+    }
+
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given

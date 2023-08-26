@@ -64,8 +64,11 @@ class Evaluator(
 
         // eval : breadth-first strategy
         val nextBatch = HashSet<EProcessTemplateApplication>()
-        batch.forEach { expression ->
-            if (visited.contains(expression)) LOG.warn("Should not be present in already processed expressions $expression")
+        batch.forEach loop@{ expression ->
+            if (visited.contains(expression)) {
+                LOG.warn("Should not be present in already processed expressions $expression")
+                return@loop
+            }
             visited.add(expression)
 
             val reduced = expression
@@ -114,8 +117,8 @@ class Evaluator(
             } else {
                 // accumulate evaluated process
                 trace.add(v)
-                nextBatch.removeIf { visited.contains(it) }
             }
+            nextBatch.removeIf { visited.contains(it) }
         }
 
         // end stage
