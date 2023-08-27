@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
@@ -9,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@Suppress("DialogTitleCapitalization")
 @RunWith(JUnit4::class)
 class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
 
@@ -31,6 +33,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        UnitFixture.getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()
@@ -73,6 +76,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        UnitFixture.getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()

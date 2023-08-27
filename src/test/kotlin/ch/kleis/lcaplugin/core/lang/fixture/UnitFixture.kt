@@ -4,6 +4,9 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.language.psi.LcaFile
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 object DimensionFixture {
     val mass = Dimension.of("mass")
@@ -24,6 +27,11 @@ object UnitFixture {
     val s = EUnitLiteral<BasicNumber>(UnitSymbol.of("s"), 1.0, DimensionFixture.time)
     val hour = EUnitLiteral<BasicNumber>(UnitSymbol.of("hour"), 3600.0, DimensionFixture.time)
     val percent = EUnitLiteral<BasicNumber>(UnitSymbol.of("percent"), 1.0e-2, Dimension.None)
+
+    fun getInternalUnitFile(myFixture: CodeInsightTestFixture): LcaFile {
+        val unitFile = myFixture.createFile("unit-file.lca", basicUnits)
+        return PsiManager.getInstance(myFixture.project).findFile(unitFile) as LcaFile
+    }
 
     val basicUnits = """
         package internal
@@ -50,7 +58,7 @@ object UnitFixture {
         }
         unit l {
             symbol = "l"
-            alias_for = 0.001  m3
+            alias_for = 0.001 m3
         }
         unit u {
             symbol = "u"
@@ -58,11 +66,11 @@ object UnitFixture {
         }
         unit piece {
             symbol = "piece"
-            alias_for = 1.0  u
+            alias_for = 1.0 u
         }
         unit percent {
             symbol = "percent"
-            alias_for = 0.01  u
+            alias_for = 0.01 u
         }
     """.trimIndent()
 }

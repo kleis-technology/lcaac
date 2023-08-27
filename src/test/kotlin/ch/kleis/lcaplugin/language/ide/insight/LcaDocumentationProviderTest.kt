@@ -146,13 +146,8 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
             "testQuantityRef_whenUnit_ShouldRender.lca", """
             process b {
                 params {
-                    yield = 100 g
+                    yield = 100 kg
                 }
-            }
-            
-            unit g {
-                symbol = "g"
-                dimension = "mass"
             }
         """.trimIndent()
         )
@@ -171,13 +166,13 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         TestCase.assertEquals(
             """
         <div class='definition'><pre>
-        <span style="color:#ffc800;font-style:italic;">Unit</span> <span style="color:#0000ff;font-weight:bold;">g</span>
+        <span style="color:#ffc800;font-style:italic;">Unit</span> <span style="color:#0000ff;font-weight:bold;">kg</span>
         </pre></div>
         <div class='content'>
         <table class='sections'>
         <tr>
         <td valign='top' class='section'>Symbol</td>
-        <td valign='top'>g</td>
+        <td valign='top'>kg</td>
         </tr>
         <tr>
         <td valign='top' class='section'>Dimension</td>
@@ -199,11 +194,6 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
                 params {
                     yield = 100 g
                 }
-            }
-            
-            unit g {
-                symbol = "g"
-                alias_for = 1e-3 kg
             }
         """.trimIndent()
         )
@@ -232,7 +222,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         </tr>
         <tr>
         <td valign='top' class='section'>Alias for</td>
-        <td valign='top'>1e-3 kg</td>
+        <td valign='top'>0.001 kg</td>
         </tr>
         </table>
         </div>

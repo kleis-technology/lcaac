@@ -66,7 +66,7 @@ unit ${unit.symbol} {
 
 unit ${unit.symbol} {
     symbol = "${unit.symbol}"
-    alias_for = ${unit.scale}  ${refUnit.symbol}
+    alias_for = ${unit.scale} ${refUnit.symbol}
 }
 """
         }

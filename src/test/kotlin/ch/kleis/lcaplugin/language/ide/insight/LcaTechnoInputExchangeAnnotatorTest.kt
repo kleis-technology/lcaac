@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture.getInternalUnitFile
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
@@ -9,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@Suppress("DialogTitleCapitalization")
 @RunWith(JUnit4::class)
 class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
 
@@ -68,6 +70,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -108,6 +111,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -153,6 +157,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -189,6 +194,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
+        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
