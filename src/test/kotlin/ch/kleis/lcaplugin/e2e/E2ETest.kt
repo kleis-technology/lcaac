@@ -34,7 +34,7 @@ import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class E2ETest : BasePlatformTestCase() {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     override fun getTestDataPath(): String {
         return "testdata"

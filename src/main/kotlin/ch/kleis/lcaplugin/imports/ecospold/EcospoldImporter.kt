@@ -72,7 +72,7 @@ class EcospoldImporter(
         is LCISettings -> "Ecospold LCI library file."
         is LCIASettings -> settings.methodName
     }
-    private val mapper = ToValue(BasicOperations.INSTANCE)
+    private val mapper = ToValue(BasicOperations)
     private val predefinedUnits = Prelude.unitMap<BasicNumber>().values
         .map { with(mapper) { it.toUnitValue() } }
         .associateBy { it.symbol.toString() }

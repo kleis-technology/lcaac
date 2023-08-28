@@ -8,7 +8,7 @@ import kotlin.test.assertNull
 
 class BasicOperationsTest {
     private val precision = 1e-6
-    private val ops = BasicOperations()
+    private val ops = BasicOperations
 
     @Test
     fun test_pure() {

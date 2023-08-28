@@ -8,11 +8,8 @@ import org.ejml.simple.SimpleMatrix
 import org.ejml.sparse.csc.CommonOps_DSCC
 import kotlin.math.pow
 
-class BasicOperations : Operations<BasicNumber, BasicMatrix> {
-    companion object {
-        val INSTANCE = BasicOperations()
-        private val LOG = Logger.getInstance(BasicOperations::class.java)
-    }
+object BasicOperations : Operations<BasicNumber, BasicMatrix> {
+    private val LOG = Logger.getInstance(BasicOperations::class.java)
 
     override fun BasicNumber.plus(other: BasicNumber): BasicNumber {
         return BasicNumber(value + other.value)

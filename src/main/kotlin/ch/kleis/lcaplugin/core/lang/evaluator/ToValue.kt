@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.expression.*

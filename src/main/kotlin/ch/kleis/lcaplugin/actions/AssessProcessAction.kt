@@ -44,9 +44,9 @@ class AssessProcessAction(
             private var data: Pair<Inventory<BasicNumber, BasicMatrix>, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels, BasicOperations.INSTANCE)
+                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels, BasicOperations)
                 val order = trace.getObservableOrder()
-                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations.INSTANCE).inventory()
+                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations).inventory()
                 this.data = Pair(inventory, order)
             }
 

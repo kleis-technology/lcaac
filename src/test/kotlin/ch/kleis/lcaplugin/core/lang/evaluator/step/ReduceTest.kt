@@ -20,7 +20,7 @@ import kotlin.test.assertFailsWith
 
 
 class ReduceTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
     
     @Test
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
@@ -39,7 +39,7 @@ class ReduceTest {
         val reduceAndComplete = Reduce(SymbolTable.empty(), ops)
 
         // when
-        val actual = with(ToValue(BasicOperations.INSTANCE)) { reduceAndComplete.apply(instance).toValue() }
+        val actual = with(ToValue(BasicOperations)) { reduceAndComplete.apply(instance).toValue() }
 
         // then
         val expected = ProcessValue(
@@ -72,7 +72,7 @@ class ReduceTest {
         val reduceAndComplete = Reduce(SymbolTable.empty(), ops)
 
         // when
-        val actual = with(ToValue(BasicOperations.INSTANCE)) { reduceAndComplete.apply(template).toValue() }
+        val actual = with(ToValue(BasicOperations)) { reduceAndComplete.apply(template).toValue() }
 
         // then
         val expected = ProcessValue(

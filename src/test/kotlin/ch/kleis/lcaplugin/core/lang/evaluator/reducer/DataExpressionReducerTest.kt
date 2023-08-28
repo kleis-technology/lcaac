@@ -17,7 +17,7 @@ import kotlin.math.pow
 import kotlin.test.assertFailsWith
 
 class DataExpressionReducerTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     /*
         QUANTITIES

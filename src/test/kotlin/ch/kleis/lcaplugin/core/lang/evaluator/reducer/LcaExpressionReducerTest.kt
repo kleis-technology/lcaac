@@ -9,7 +9,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class LcaExpressionReducerTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     @Test
     fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {

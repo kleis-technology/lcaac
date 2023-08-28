@@ -91,7 +91,7 @@ class SankeyGraphBuilder(
         inventory: Inventory<BasicNumber, BasicMatrix>,
         substance: SubstanceValue<BasicNumber>,
     ): Double {
-        val ops = BasicOperations.INSTANCE
+        val ops = BasicOperations
         val supply = absoluteScaleValue(ops, inventory.supply.quantityOf(substance)).value
         val characterizationFactor = absoluteScaleValue(ops, inventory.impactFactors.valueRatio(substance, observed)).value
         return supply * characterizationFactor
@@ -103,7 +103,7 @@ class SankeyGraphBuilder(
         product: ProductValue<BasicNumber>,
         exchange: ExchangeValue<BasicNumber>,
     ): Double {
-        val ops = BasicOperations.INSTANCE
+        val ops = BasicOperations
 
         val supply = inventory.supply.quantityOf(product)
         val absoluteSupply = absoluteScaleValue(ops, supply).value

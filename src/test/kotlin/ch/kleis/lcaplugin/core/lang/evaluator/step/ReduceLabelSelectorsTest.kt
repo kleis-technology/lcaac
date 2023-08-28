@@ -10,7 +10,7 @@ import org.junit.Test
 
 
 class ReduceLabelSelectorsTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     @Test
     fun reduce_whenPassingByArguments() {

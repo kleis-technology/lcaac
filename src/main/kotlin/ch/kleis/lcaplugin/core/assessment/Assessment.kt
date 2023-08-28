@@ -69,13 +69,17 @@ class Assessment<Q, M>(
     }
 
     fun inventory(): Inventory<Q, M> {
+        val controllableMatrix = controllableMatrix
+        val observableMatrix = observableMatrix
+        val demandMatrix = demandMatrix
+
         with(ops) {
-            val impactFactorMatrix = this@Assessment.controllableMatrix.data.negate()
-                .matDiv(this@Assessment.observableMatrix.data)
+            val impactFactorMatrix = controllableMatrix.data.negate()
+                .matDiv(observableMatrix.data)
                 ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            val supplyMatrix = this@Assessment.demandMatrix.data
-                .matTransposeDiv(this@Assessment.observableMatrix.data)
+            val supplyMatrix = demandMatrix.data
+                .matTransposeDiv(observableMatrix.data)
                 ?.let { SupplyMatrix(observablePorts, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
             return Inventory(impactFactorMatrix, supplyMatrix)

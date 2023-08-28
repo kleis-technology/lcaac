@@ -10,7 +10,7 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class ProcessTemplateExpressionReducerTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     @Test
     fun reduce_whenInstance_shouldReduce() {

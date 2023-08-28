@@ -16,7 +16,7 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class AllocationTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
     
     @Test
     fun apply_when_no_allocation_should_change_nothing() {
@@ -264,7 +264,7 @@ class AllocationTest {
 
         // then
         val delta = 1E-9
-        with (BasicOperations.INSTANCE) {
+        with (BasicOperations) {
             val totalAllocation = QuantityValueFixture.twentyPercent.amount + QuantityValueFixture.eightyPercent.amount
             val expected =
                 QuantityValueFixture.twoLitres.amount * QuantityValueFixture.twentyPercent.amount / totalAllocation

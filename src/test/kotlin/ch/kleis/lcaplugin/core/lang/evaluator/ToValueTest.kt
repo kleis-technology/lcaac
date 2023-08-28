@@ -11,7 +11,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class ToValueTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     @Test
     fun toValue_whenETechnoExchange() {
@@ -19,7 +19,7 @@ class ToValueTest {
         val allocation = EQuantityScale(ops.pure(10.0), UnitFixture.percent)
         val expression = ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot, allocation)
         // when
-        val actual = with(ToValue(BasicOperations.INSTANCE)) { expression.toValue() }
+        val actual = with(ToValue(BasicOperations)) { expression.toValue() }
         // then
         val allocationValue = QuantityValue(ops.pure(10.0), UnitValueFixture.percent)
         val expected =

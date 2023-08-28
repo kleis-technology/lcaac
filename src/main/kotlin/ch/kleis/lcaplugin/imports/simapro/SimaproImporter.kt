@@ -41,7 +41,7 @@ class SimaproImporter(
     private val simaproSubstanceRenderer = SimaproSubstanceRenderer()
     private val inputParameterRenderer = InputParameterRenderer()
     private var counting: CountingInputStream? = null
-    private val mapper = ToValue(BasicOperations.INSTANCE)
+    private val mapper = ToValue(BasicOperations)
     private val unitRenderer = UnitRenderer.of(
         Prelude.unitMap<BasicNumber>().values
             .map { with(mapper) { it.toUnitValue() } }

@@ -49,8 +49,8 @@ class SankeyGraphAction(
             private var graph: Graph? = null
 
             override fun run(progress: ProgressIndicator) {
-                val trace = traceSystemWithIndicator(progress, file, processName, matchLabels, BasicOperations.INSTANCE)
-                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations.INSTANCE)
+                val trace = traceSystemWithIndicator(progress, file, processName, matchLabels, BasicOperations)
+                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations)
                 val inventory = assessment.inventory()
                 val allocatedSystem = assessment.allocatedSystem
                 indicatorList = inventory.getControllablePorts().getElements()

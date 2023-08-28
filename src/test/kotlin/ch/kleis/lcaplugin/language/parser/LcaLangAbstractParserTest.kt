@@ -20,7 +20,7 @@ import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition()) {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
     
     @Test
     fun test_stringVariables() {

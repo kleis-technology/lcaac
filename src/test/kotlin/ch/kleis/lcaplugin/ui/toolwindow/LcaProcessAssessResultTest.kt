@@ -24,8 +24,8 @@ import org.junit.Test
 import java.awt.datatransfer.DataFlavor
 
 class LcaProcessAssessResultTest {
-    private val ops = BasicOperations.INSTANCE
-    private val mapper = ToValue(BasicOperations.INSTANCE)
+    private val ops = BasicOperations
+    private val mapper = ToValue(BasicOperations)
 
     @Test
     fun test_getContent_AndPaste() {

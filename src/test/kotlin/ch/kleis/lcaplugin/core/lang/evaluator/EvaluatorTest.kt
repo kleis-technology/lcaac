@@ -15,7 +15,7 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class EvaluatorTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     @Test
     fun eval_processWithImpacts_shouldReduceImpacts() {

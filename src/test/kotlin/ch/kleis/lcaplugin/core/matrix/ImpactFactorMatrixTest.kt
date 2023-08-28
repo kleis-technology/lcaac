@@ -9,7 +9,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class ImpactFactorMatrixTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
 
     private val kgValue = UnitValue<BasicNumber>(UnitFixture.kg.symbol, UnitFixture.kg.scale, UnitFixture.kg.dimension)
     private val literValue = UnitValue<BasicNumber>(UnitFixture.l.symbol, UnitFixture.l.scale, UnitFixture.l.dimension)

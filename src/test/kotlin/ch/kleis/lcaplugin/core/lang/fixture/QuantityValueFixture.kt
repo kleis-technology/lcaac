@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 
 class QuantityValueFixture {
     companion object {
-        private val ops = BasicOperations.INSTANCE
+        private val ops = BasicOperations
         val oneUnit = QuantityValue(ops.pure(1.0), UnitValueFixture.unit)
         val oneKilogram = QuantityValue(ops.pure(1.0), UnitValueFixture.kg)
         val twoKilograms = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)

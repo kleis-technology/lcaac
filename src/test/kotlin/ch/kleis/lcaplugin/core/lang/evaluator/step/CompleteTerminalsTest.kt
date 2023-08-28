@@ -14,7 +14,7 @@ import org.junit.Test
 
 
 class CompleteTerminalsTest {
-    private val ops = BasicOperations.INSTANCE
+    private val ops = BasicOperations
     
     @Test
     fun eval_withUnknownSubstances_shouldCompleteSubstances() {
@@ -60,7 +60,7 @@ class CompleteTerminalsTest {
         )
 
         // when
-        val actual = with(ToValue(BasicOperations.INSTANCE)) { CompleteTerminals(ops).apply(expression).toValue() }
+        val actual = with(ToValue(BasicOperations)) { CompleteTerminals(ops).apply(expression).toValue() }
 
         // then
         val expected = SubstanceCharacterizationValue(
