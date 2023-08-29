@@ -1,14 +1,14 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
-class InventoryTableModel(
-    private val inventory: Inventory<BasicNumber, BasicMatrix>,
+class ContributionTableModel(
+    private val inventory: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
     private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)

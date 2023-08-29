@@ -1,4 +1,4 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent

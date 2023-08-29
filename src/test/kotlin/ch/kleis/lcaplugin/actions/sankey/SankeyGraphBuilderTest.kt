@@ -1,15 +1,13 @@
 package ch.kleis.lcaplugin.actions.sankey
 
-import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
@@ -32,8 +30,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
 
     private data class SankeyRequiredInformation(
         val observedPort: MatrixColumnIndex<BasicNumber>,
-        val allocatedSystem: SystemValue<BasicNumber>,
-        val inventory: Inventory<BasicNumber, BasicMatrix>,
+        val analysis: ContributionAnalysis,
         val comparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     )
 
@@ -46,11 +43,11 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate(process)!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
-        val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), ops)
-        val inventory = assessment.inventory()
-        val allocatedSystem = assessment.allocatedSystem
-        val sankeyPort = inventory.getControllablePorts().getElements().first()
-        return SankeyRequiredInformation(sankeyPort, allocatedSystem, inventory, trace.getObservableOrder())
+        val assessment = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), ops)
+        val analysis = assessment.run()
+        val allocatedSystem = analysis.allocatedSystem
+        val sankeyPort = analysis.getControllablePorts().getElements().first()
+        return SankeyRequiredInformation(sankeyPort, analysis, trace.getObservableOrder())
     }
 
     @Test
@@ -86,8 +83,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                         }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("transport_truck", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("transport_truck", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -121,8 +118,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -154,8 +151,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -187,8 +184,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -228,8 +225,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -272,8 +269,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -316,8 +313,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                       }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -352,8 +349,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -412,8 +409,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                     }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -475,8 +472,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                        }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -527,8 +524,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 }
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("p1", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("p1", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)
@@ -629,8 +626,8 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
                 } 
                 """.trimIndent()
         )
-        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("pA", vf)
-        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+        val (sankeyPort, analysis, comparator) = getRequiredInformation("pA", vf)
+        val sut = SankeyGraphBuilder(analysis, comparator)
 
         // when
         val graph = sut.buildContributionGraph(sankeyPort)

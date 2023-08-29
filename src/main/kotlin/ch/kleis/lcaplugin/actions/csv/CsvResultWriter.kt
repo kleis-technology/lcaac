@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.actions.csv
 
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.Closeable
@@ -19,7 +18,7 @@ class CsvResultWriter(
         .build()
     private val csvPrinter = CSVPrinter(writer, format)
 
-    fun write(results: List<CsvResult<BasicNumber>>) {
+    fun write(results: List<CsvResult>) {
         val first = results.firstOrNull() ?: return
         val header = first.request.columns()
             .plus(listOf("product", "reference unit"))

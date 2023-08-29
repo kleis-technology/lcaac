@@ -1,14 +1,13 @@
 package ch.kleis.lcaplugin.actions
 
-import ch.kleis.lcaplugin.core.assessment.Assessment
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessHugeResult
-import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
+import ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.ContributionAnalysisHugeWindow
+import ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.ContributionAnalysisWindow
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
@@ -41,13 +40,13 @@ class AssessProcessAction(
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Run") {
-            private var data: Pair<Inventory<BasicNumber, BasicMatrix>, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
+            private var data: Pair<ContributionAnalysis, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
 
             override fun run(indicator: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels, BasicOperations)
                 val order = trace.getObservableOrder()
-                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations).inventory()
-                this.data = Pair(inventory, order)
+                val analysis = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint()).run()
+                this.data = Pair(analysis, order)
             }
 
             override fun onSuccess() {
@@ -65,12 +64,12 @@ class AssessProcessAction(
                 LOG.warn("Unable to process computation", e)
             }
 
-            private fun displayInventory(project: Project, inventory: Inventory<BasicNumber, BasicMatrix>, order: Comparator<MatrixColumnIndex<BasicNumber>>) {
+            private fun displayInventory(project: Project, analysis: ContributionAnalysis, order: Comparator<MatrixColumnIndex<BasicNumber>>) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-                val assessResultContent = if (inventory.impactFactors.nbCells() <= DISPLAY_MAX_CELLS) {
-                    LcaProcessAssessResult(inventory, order, project, processName).getContent()
+                val assessResultContent = if (analysis.impactFactors.nbCells() <= DISPLAY_MAX_CELLS) {
+                    ContributionAnalysisWindow(analysis, order, project, processName).getContent()
                 } else {
-                    LcaProcessAssessHugeResult(inventory, order, "lca.dialog.export.warning", project).getContent()
+                    ContributionAnalysisHugeWindow(analysis, order, "lca.dialog.export.warning", project).getContent()
                 }
                 val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
                 toolWindow.contentManager.addContent(content)

@@ -1,9 +1,10 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.jcef.JBCefBrowser
@@ -16,7 +17,7 @@ import javax.swing.JComponent
 import javax.swing.JMenuBar
 import javax.swing.JPanel
 
-class SankeyGraphResult(
+class SankeyGraph(
     private val processName: String,
     private val graphData: Graph,
     private val indicatorList: List<MatrixColumnIndex<BasicNumber>>,

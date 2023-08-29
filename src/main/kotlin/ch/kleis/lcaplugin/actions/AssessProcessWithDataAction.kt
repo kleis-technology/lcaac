@@ -58,7 +58,7 @@ class AssessProcessWithDataAction(
                         val parser = LcaLangAbstractParser(collector.collect(file), BasicOperations)
                         parser.load()
                     }
-                    val csvProcessor = CsvProcessor(symbolTable, BasicOperations)
+                    val csvProcessor = CsvProcessor(symbolTable)
                     val results = requests.map { request ->
                         ProgressManager.checkCanceled()
                         indicator.text = "Processing using ${request.arguments()}"

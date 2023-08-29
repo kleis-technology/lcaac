@@ -1,23 +1,24 @@
 package ch.kleis.lcaplugin.actions.sankey
 
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.value.*
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
+import ch.kleis.lcaplugin.core.lang.value.ExchangeValue
+import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.SubstanceValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 
 class SankeyGraphBuilder(
-    private val allocatedSystem: SystemValue<BasicNumber>,
-    private val inventory: Inventory<BasicNumber, BasicMatrix>,
+    private val analysis: ContributionAnalysis,
     private val observableOrder: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) {
     fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex<BasicNumber>): Graph {
-        val portsWithObservedImpact = inventory.getObservablePorts().getElements().toSet()
+        val portsWithObservedImpact = analysis.getObservablePorts().getElements().toSet()
 
         val completeGraph = portsWithObservedImpact.fold(
             Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getShortName()))
@@ -29,12 +30,12 @@ class SankeyGraphBuilder(
                             observableOrder,
                             port,
                             sankeyIndicator,
-                            impactAmountForSubstance(sankeyIndicator, inventory, port)
+                            impactAmountForSubstance(sankeyIndicator, analysis, port)
                         )
                 }
 
                 is ProductValue<BasicNumber> -> {
-                    val parentProcess = allocatedSystem.productToProcessMap[port]!!
+                    val parentProcess = analysis.allocatedSystem.productToProcessMap[port]!!
 
                     val linksWithObservedImpact =
                         (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
@@ -53,7 +54,7 @@ class SankeyGraphBuilder(
                             observableOrder,
                             port,
                             exchange.port(),
-                            impactAmountForExchange(sankeyIndicator, inventory, port, exchange)
+                            impactAmountForExchange(sankeyIndicator, analysis, port, exchange)
                         )
                     }
                 }
@@ -88,7 +89,7 @@ class SankeyGraphBuilder(
 
     private fun impactAmountForSubstance(
         observed: MatrixColumnIndex<BasicNumber>,
-        inventory: Inventory<BasicNumber, BasicMatrix>,
+        inventory: ContributionAnalysis,
         substance: SubstanceValue<BasicNumber>,
     ): Double {
         val ops = BasicOperations
@@ -99,7 +100,7 @@ class SankeyGraphBuilder(
 
     private fun impactAmountForExchange(
         observed: MatrixColumnIndex<BasicNumber>,
-        inventory: Inventory<BasicNumber, BasicMatrix>,
+        inventory: ContributionAnalysis,
         product: ProductValue<BasicNumber>,
         exchange: ExchangeValue<BasicNumber>,
     ): Double {

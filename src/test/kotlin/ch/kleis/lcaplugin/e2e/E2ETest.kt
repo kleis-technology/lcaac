@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.e2e
 
 import ch.kleis.lcaplugin.actions.csv.CsvProcessor
 import ch.kleis.lcaplugin.actions.csv.CsvRequest
-import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
@@ -90,8 +90,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -165,8 +165,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -283,7 +283,7 @@ class E2ETest : BasePlatformTestCase() {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
         val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
-        val csvProcessor = CsvProcessor(symbolTable, ops)
+        val csvProcessor = CsvProcessor(symbolTable)
         val request = CsvRequest(
             "p",
             emptyMap(),
@@ -393,8 +393,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
@@ -465,8 +465,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
         val cf = result.value(output, input)
@@ -522,8 +522,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -586,8 +586,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -649,8 +649,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
         val cf = result.value(output, input)
@@ -691,8 +691,8 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
-        val result = assessment.inventory().impactFactors
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val result = assessment.run().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()
@@ -783,10 +783,10 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
 
         // then
-        val result = assessment.inventory().impactFactors
+        val result = assessment.run().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()
@@ -960,10 +960,10 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = Assessment(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
 
         // then
-        val result = assessment.inventory().impactFactors
+        val result = assessment.run().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.get("climate_change")
         val cf = result.value(output, input)

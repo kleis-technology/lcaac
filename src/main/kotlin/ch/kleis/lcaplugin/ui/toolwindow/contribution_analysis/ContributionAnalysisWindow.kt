@@ -1,10 +1,10 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import ch.kleis.lcaplugin.MyBundle
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.components.JBScrollPane
@@ -23,8 +23,8 @@ import javax.swing.plaf.UIResource
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
  */
 
-class LcaProcessAssessResult(
-    inventory: Inventory<BasicNumber, BasicMatrix>,
+class ContributionAnalysisWindow(
+    inventory: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     val project: Project,
     val name: String,
@@ -33,7 +33,7 @@ class LcaProcessAssessResult(
     private val content: JPanel
 
     init {
-        val tableModel = InventoryTableModel(inventory, observablePortComparator)
+        val tableModel = ContributionTableModel(inventory, observablePortComparator)
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
         table.addMouseListener(SaveListener(project, inventory, observablePortComparator, name))
@@ -46,7 +46,7 @@ class LcaProcessAssessResult(
     }
 
     private class SaveListener(val project: Project,
-                               val inventory: Inventory<BasicNumber, BasicMatrix>,
+                               val inventory: ContributionAnalysis,
                                val observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
                                val name: String) :
         MouseAdapter() {
@@ -56,7 +56,7 @@ class LcaProcessAssessResult(
 
                 val content = ContentFactory.getInstance()
                     .createContent(
-                        LcaProcessAssessHugeResult(inventory, observablePortComparator, "lca.dialog.export.info", project).getContent(),
+                        ContributionAnalysisHugeWindow(inventory, observablePortComparator, "lca.dialog.export.info", project).getContent(),
                         name,
                         false
                     )
