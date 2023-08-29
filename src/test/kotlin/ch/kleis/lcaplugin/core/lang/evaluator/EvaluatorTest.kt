@@ -107,10 +107,10 @@ class EvaluatorTest {
         // given
         val template = TemplateFixture.cyclicProduction
         val appli = EProcessTemplateApplication(template)
-        val register = Register.empty<EProcessTemplate>().plus(mapOf("carrot_production" to template))
+        val register = Register.empty<EProcessTemplate<BasicNumber>>().plus(mapOf("carrot_production" to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
 
