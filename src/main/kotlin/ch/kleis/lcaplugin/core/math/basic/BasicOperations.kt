@@ -58,6 +58,10 @@ object BasicOperations : Operations<BasicNumber, BasicMatrix> {
         return quantity.value
     }
 
+    override fun BasicNumber.unaryMinus(): BasicNumber {
+        return BasicNumber(-this.value)
+    }
+
     override fun pure(value: Double): BasicNumber {
         return BasicNumber(value)
     }

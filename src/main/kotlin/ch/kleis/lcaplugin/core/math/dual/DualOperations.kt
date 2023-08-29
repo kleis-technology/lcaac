@@ -3,13 +3,10 @@ package ch.kleis.lcaplugin.core.math.dual
 import ch.kleis.lcaplugin.core.math.Operations
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.zeros
-import org.jetbrains.kotlinx.multik.ndarray.data.asDNArray
+import org.jetbrains.kotlinx.multik.ndarray.data.D1Array
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 import org.jetbrains.kotlinx.multik.ndarray.data.set
-import org.jetbrains.kotlinx.multik.ndarray.operations.div
-import org.jetbrains.kotlinx.multik.ndarray.operations.minus
-import org.jetbrains.kotlinx.multik.ndarray.operations.plus
-import org.jetbrains.kotlinx.multik.ndarray.operations.times
+import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import kotlin.math.pow
 
 class DualOperations(
@@ -83,13 +80,18 @@ class DualOperations(
         return quantity.zeroth
     }
 
+    override fun DualNumber.unaryMinus(): DualNumber {
+        return DualNumber(
+            zeroth = -this.zeroth,
+            first = -this.first
+        )
+    }
+
     override fun pure(value: Double): DualNumber {
-        with(kernels) {
-            return DualNumber(
-                zeroth = value,
-                first = mk.zeros(nParams),
-            )
-        }
+        return DualNumber(
+            zeroth = value,
+            first = mk.zeros(nParams),
+        )
     }
 
     override fun zeros(rowDim: Int, colDim: Int): DualMatrix {
@@ -145,7 +147,7 @@ class DualOperations(
     override fun DualMatrix.get(row: Int, col: Int): DualNumber {
         return DualNumber(
             zeroth = this.zeroth[row, col],
-            first = this.first[row, col].asDNArray().asD1Array(),
+            first = this.first[row, col].flatten() as D1Array<Double>,
         )
     }
 
@@ -158,8 +160,8 @@ class DualOperations(
 
     override fun DualMatrix.negate(): DualMatrix {
         return DualMatrix(
-            zeroth = (-1.0) * this@negate.zeroth,
-            first = (-1.0) * this@negate.first,
+            zeroth = -this.zeroth,
+            first = -this.first,
         )
     }
 
