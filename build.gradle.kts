@@ -50,6 +50,9 @@ dependencies {
         builtBy("generateEmissionFactors30")
     })
     implementation("org.ejml:ejml-simple:0.43")
+    implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
+    implementation("org.jetbrains.kotlinx:multik-default:0.2.2")
+
 
     val arrowVersion = "1.1.5"
     val olcaSimaproVersion = "3.0.5"
