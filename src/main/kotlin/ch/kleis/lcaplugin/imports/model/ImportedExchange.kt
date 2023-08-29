@@ -5,6 +5,7 @@ sealed interface ImportedExchange {
     val unit: String
     val uid: String
     val comments: List<String>
+    val printAsComment: Boolean
 }
 
 data class ImportedBioExchange(
@@ -14,6 +15,7 @@ data class ImportedBioExchange(
     val compartment: String,
     var subCompartment: String? = null,
     override val comments: List<String>,
+    override val printAsComment: Boolean = false,
 ) : ImportedExchange
 
 data class ImportedInputExchange(
@@ -21,6 +23,7 @@ data class ImportedInputExchange(
     override val unit: String,
     override val uid: String,
     override val comments: List<String>,
+    override val printAsComment: Boolean = false,
 ) : ImportedExchange
 
 data class ImportedProductExchange(
@@ -29,6 +32,7 @@ data class ImportedProductExchange(
     override val uid: String,
     val allocation: Double = 100.0,
     override val comments: List<String>,
+    override val printAsComment: Boolean = false,
 ) : ImportedExchange {
     fun asInput(): ImportedInputExchange = ImportedInputExchange(qty, unit, uid, comments)
 }
@@ -38,4 +42,5 @@ data class ImportedImpactExchange(
     override val unit: String,
     override val uid: String,
     override val comments: List<String>,
+    override val printAsComment: Boolean = false,
 ) : ImportedExchange

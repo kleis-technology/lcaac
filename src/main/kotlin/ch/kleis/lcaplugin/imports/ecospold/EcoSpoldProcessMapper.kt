@@ -127,6 +127,7 @@ object EcoSpoldProcessMapper {
             uid = sanitizeAndCompact(elementaryExchange.name),
             compartment = elementaryExchange.compartment,
             subCompartment = elementaryExchange.subCompartment,
+            printAsComment = elementaryExchange.printAsComment,
         )
 
 

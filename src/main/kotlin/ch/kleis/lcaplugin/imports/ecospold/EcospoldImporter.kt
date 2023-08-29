@@ -10,8 +10,7 @@ import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
 import ch.kleis.lcaplugin.imports.Imported
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ModelWriter
-import ch.kleis.lcaplugin.imports.ecospold.lci.EcospoldMethodMapper
-import ch.kleis.lcaplugin.imports.ecospold.lci.MappingExchange
+import ch.kleis.lcaplugin.imports.ecospold.lci.*
 import ch.kleis.lcaplugin.imports.ecospold.model.ActivityDataset
 import ch.kleis.lcaplugin.imports.ecospold.model.Parser
 import ch.kleis.lcaplugin.imports.model.ImportedUnit
@@ -168,24 +167,37 @@ class EcospoldImporter(
                 flowData = activityDataset.flowData.copy(
                     elementaryExchanges = activityDataset.flowData.elementaryExchanges.map { originalExchange ->
                         methodMapping[originalExchange.elementaryExchangeId]?.let { mapping ->
-                            originalExchange.copy(
-                                amount = mapping.conversionFactor?.let { it * originalExchange.amount }
-                                    ?: originalExchange.amount,
-                                name = mapping.name ?: originalExchange.name,
-                                unit = mapping.unit ?: originalExchange.unit,
-                                compartment = mapping.compartment ?: originalExchange.compartment,
-                                subCompartment = mapping.subCompartment
-                                    ?: originalExchange.subCompartment?.ifEmpty { null },
-                                comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
-                                    ?: mapping.comment
-                            )
+                            when (mapping) {
+                                is OrphanMappingExchange, is UnkownMappingExchange -> originalExchange.copy(
+                                    comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
+                                        ?: mapping.comment,
+                                    printAsComment = true,
+                                )
+
+                                is FoundMappingExchange -> {
+                                    originalExchange.copy(
+                                        amount = mapping.conversionFactor?.let { it * originalExchange.amount }
+                                            ?: originalExchange.amount,
+                                        name = mapping.name ?: originalExchange.name,
+                                        unit = mapping.unit ?: originalExchange.unit,
+                                        compartment = mapping.compartment ?: originalExchange.compartment,
+                                        subCompartment = mapping.subCompartment
+                                            ?: originalExchange.subCompartment?.ifEmpty { null },
+                                        comment = originalExchange.comment?.let { it + "\n" + mapping.comment }
+                                            ?: mapping.comment
+                                    )
+                                }
+                            }
                         } ?: originalExchange
-                    }
-                )
+                    })
             )
         }
 
-    private fun importUnits(entries: List<SevenZArchiveEntry>, f: SevenZFile, writer: ModelWriter) {
+    private fun importUnits(
+        entries: List<SevenZArchiveEntry>,
+        f: SevenZFile,
+        writer: ModelWriter
+    ) {
         val unitConversionFile = entries.firstOrNull { it.name.endsWith("UnitConversions.xml") }
         val fromMeta = f.getInputStream(unitConversionFile).use {
             val unitConversions = Parser.readUnits(it)
@@ -218,7 +230,13 @@ class EcospoldImporter(
             .forEach { unitRenderer.render(it, writer) }
     }
 
-    private fun renderMain(writer: ModelWriter, nbUnits: Int, nbProcess: Int, methodName: String, duration: Duration) {
+    private fun renderMain(
+        writer: ModelWriter,
+        nbUnits: Int,
+        nbProcess: Int,
+        methodName: String,
+        duration: Duration
+    ) {
         val s = duration.seconds
         val durAsStr = String.format("%02dm %02ds", s / 60, (s % 60))
         val block = """
@@ -242,7 +260,10 @@ class EcospoldImporter(
         val productName: String
     )
 
-    private fun readProcessDict(f: SevenZFile, entries: List<SevenZArchiveEntry>): Map<String, ProcessDictRecord> {
+    private fun readProcessDict(
+        f: SevenZFile,
+        entries: List<SevenZArchiveEntry>
+    ): Map<String, ProcessDictRecord> {
         val dictEntry = entries.first { it.name.endsWith("FilenameToActivityLookup.csv") }
         val csvFormat = CSVFormat.Builder.create().setDelimiter(";").setHeader().build()
         val records = CSVParser.parse(f.getInputStream(dictEntry), Charset.defaultCharset(), csvFormat)

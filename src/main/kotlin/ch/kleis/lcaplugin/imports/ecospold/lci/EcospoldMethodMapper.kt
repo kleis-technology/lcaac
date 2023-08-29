@@ -8,27 +8,40 @@ import kotlin.streams.asSequence
 
 typealias ID = String
 
-data class MappingExchange(
-    val elementaryExchangeId: String,
+sealed interface MappingExchange {
+    val elementaryExchangeId: String
+    val comment: String
+}
+
+data class OrphanMappingExchange(
+    override val elementaryExchangeId: String,
+    override val comment: String = "",
+) : MappingExchange {
+    constructor(elementaryExchangeId: String) : this(
+        elementaryExchangeId,
+        "Ecoinvent orphan. Ecoinvent ID: $elementaryExchangeId"
+    )
+}
+
+data class UnkownMappingExchange(
+    override val elementaryExchangeId: String,
+    override val comment: String = "",
+) : MappingExchange {
+    constructor(elementaryExchangeId: String) : this(
+        elementaryExchangeId,
+        "Flow has no characterization factor and is therefore not mapped by Ecoinvent. Ecoinvent ID: $elementaryExchangeId"
+    )
+}
+
+data class FoundMappingExchange(
+    override val elementaryExchangeId: String,
     val conversionFactor: Double? = null,
     val name: String? = null,
     val unit: String? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
-    val comment: String = "",
-) {
-    companion object {
-        fun orphan(id: ID) = MappingExchange(
-            elementaryExchangeId = id,
-            comment = "Ecoinvent orphan. Ecoinvent ID: $id"
-        )
-
-        fun unknown(id: ID) = MappingExchange(
-            elementaryExchangeId = id,
-            comment = "Empty method mapping. Ecoinvent ID: $id"
-        )
-    }
-}
+    override val comment: String = "",
+) : MappingExchange
 
 object EcospoldMethodMapper {
     private val csvFormat: CSVFormat = CSVFormat.Builder.create().setHeader().build()
@@ -55,11 +68,11 @@ object EcospoldMethodMapper {
             parser.stream().asSequence().mapNotNull { record ->
                 when {
                     record["flow_status"] == "ecoinvent orphan" -> {
-                        record["id"] to MappingExchange.orphan(record["id"])
+                        record["id"] to OrphanMappingExchange(record["id"])
                     }
 
                     record["compartment_status"].isEmpty() -> {
-                        record["id"] to MappingExchange.unknown(record["id"])
+                        record["id"] to UnkownMappingExchange(record["id"])
                     }
 
                     else -> mappedElement(record)
@@ -86,10 +99,10 @@ object EcospoldMethodMapper {
                 }
             }
 
-    private fun mappedElement(record: CSVRecord): Pair<ID, MappingExchange>? =
+    private fun mappedElement(record: CSVRecord): Pair<ID, FoundMappingExchange>? =
         try {
             val id = record["id"]
-            id to MappingExchange(
+            id to FoundMappingExchange(
                 id,
                 getConversionFactor(record["conversion_factor"]),
                 record["method_name"].nullIfEmpty(),

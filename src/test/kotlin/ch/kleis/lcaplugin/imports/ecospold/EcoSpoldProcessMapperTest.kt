@@ -31,7 +31,6 @@ class EcoSpoldProcessMapperTest {
         assertEquals("comment", result.meta["geography-comment"])
     }
 
-    // When closing #261, this test is going to fail - change the number of blocks to 1 then.
     @Test
     fun map_shouldMapEmissions() {
         // given
