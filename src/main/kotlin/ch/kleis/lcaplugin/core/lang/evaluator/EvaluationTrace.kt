@@ -10,6 +10,7 @@ class EvaluationTrace<Q> {
     private val observableDepthMap = HashMap<MatrixColumnIndex<Q>, Int>()
 
     companion object {
+        // TODO: Arguments here
         fun <Q> empty(): EvaluationTrace<Q> {
             return EvaluationTrace()
         }

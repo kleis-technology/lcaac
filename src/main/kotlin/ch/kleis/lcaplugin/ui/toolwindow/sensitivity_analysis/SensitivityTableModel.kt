@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ui.toolwindow.sensitivity_analysis
 import ch.kleis.lcaplugin.core.assessment.SensitivityAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
+import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
@@ -18,7 +19,7 @@ class SensitivityTableModel(
         .first()
 
     override fun getRowCount(): Int {
-        return 1 + analysis.getParameters().size()
+        return analysis.getParameters().size()
     }
 
     override fun getColumnCount(): Int {
@@ -52,14 +53,14 @@ class SensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> analysis.getParameters().getName(rowIndex).uid
-            1 -> analysis.getParameters().getValue(rowIndex).amount.zeroth
+            1 -> FloatingPointRepresentation.of(analysis.getParameters().getValue(rowIndex).amount.zeroth)
             2 -> analysis.getParameters().getValue(rowIndex).unit.symbol
             else -> {
                 val parameterValue = analysis.getParameters().getValue(rowIndex).amount.zeroth
                 val impactFactor = analysis.getImpactFactors().valueRatio(target, sortedControllablePorts[columnIndex - 3]).amount
                 val base = impactFactor.zeroth
                 val absoluteSensibility = impactFactor.first[rowIndex]
-                return absoluteSensibility * parameterValue / base
+                return FloatingPointRepresentation.of(absoluteSensibility * parameterValue / base)
             }
         }
     }

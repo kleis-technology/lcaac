@@ -43,7 +43,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate(process)!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
-        val assessment = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = assessment.run()
         val allocatedSystem = analysis.allocatedSystem
         val sankeyPort = analysis.getControllablePorts().getElements().first()

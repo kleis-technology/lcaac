@@ -22,6 +22,7 @@ class SensitivityAnalysisWindow(
     init {
         val tableModel = SensitivityTableModel(analysis, observablePortComparator)
         val table = JBTable(tableModel)
+        table.autoCreateRowSorter = true
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)
         content = JPanel(BorderLayout())

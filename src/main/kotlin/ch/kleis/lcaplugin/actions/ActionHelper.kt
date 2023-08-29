@@ -31,7 +31,10 @@ fun <Q> traceSystemWithIndicator(
     indicator.text = "Solving system"
     val template =
         symbolTable.getTemplate(processName, matchLabels)!! // We are called from a process, so it must exist
-    val entryPoint = EProcessTemplateApplication(template = template)
+    val entryPoint = EProcessTemplateApplication(
+        template = template,
+        arguments = template.params,
+    )
 
     return Evaluator(symbolTable, ops).trace(entryPoint)
 }

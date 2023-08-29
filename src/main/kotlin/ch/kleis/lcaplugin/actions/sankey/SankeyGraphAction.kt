@@ -50,7 +50,7 @@ class SankeyGraphAction(
 
             override fun run(progress: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(progress, file, processName, matchLabels, BasicOperations)
-                val analysisProgram = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations)
+                val analysisProgram = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
                 val analysis = analysisProgram.run()
                 indicatorList = analysis.getControllablePorts().getElements()
 

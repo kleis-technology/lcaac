@@ -90,7 +90,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
@@ -165,7 +165,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
@@ -393,7 +393,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
@@ -465,7 +465,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
@@ -522,7 +522,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
@@ -586,7 +586,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
@@ -649,7 +649,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("office")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
@@ -691,7 +691,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
         val result = assessment.run().impactFactors
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
@@ -783,7 +783,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
 
         // then
         val result = assessment.run().impactFactors
@@ -960,7 +960,7 @@ class E2ETest : BasePlatformTestCase() {
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate("p")!!)
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val system = trace.getSystemValue()
-        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint(), ops)
+        val assessment = ContributionAnalysisProgram(system, trace.getEntryPoint())
 
         // then
         val result = assessment.run().impactFactors

@@ -29,7 +29,7 @@ class ToValue<Q>(
         )
     }
 
-    private fun DataExpression<Q>.toValue(): DataValue<Q> {
+    fun DataExpression<Q>.toValue(): DataValue<Q> {
         return when (this) {
             is EStringLiteral -> StringValue(this.value)
 
