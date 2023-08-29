@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.allocation.Allocation
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.core.math.dual.DualOperations
@@ -9,6 +10,7 @@ import ch.kleis.lcaplugin.core.matrix.*
 
 class SensitivityAnalysisProgram(
     private val system: SystemValue<DualNumber>,
+    private val targetProcess: ProcessValue<DualNumber>,
     private val parameters: ParameterVector<DualNumber>,
 ) {
     private val ops = DualOperations(parameters.size())
@@ -54,12 +56,22 @@ class SensitivityAnalysisProgram(
             ops,
         )
 
+        val demandMatrix = DemandMatrix(
+            targetProcess,
+            observablePorts,
+            ops,
+        )
+
         with(ops) {
             val impactFactorMatrix = controllableMatrix.data.negate()
                 .matDiv(observableMatrix.data)
                 ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            return SensitivityAnalysis(impactFactorMatrix, parameters)
+            val supplyMatrix = demandMatrix.data
+                .matTransposeDiv(observableMatrix.data)
+                ?.let { SupplyMatrix(observablePorts, it, ops) }
+                ?: throw EvaluatorException("The system cannot be solved")
+            return SensitivityAnalysis(impactFactorMatrix, supplyMatrix, parameters, ops)
         }
     }
 }

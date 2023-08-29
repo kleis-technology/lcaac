@@ -8,11 +8,11 @@ import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class ContributionTableModel(
-    private val inventory: ContributionAnalysis,
+    private val analysis: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
-    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = analysis.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = analysis.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     override fun getRowCount(): Int {
         return sortedObservablePorts.size
@@ -53,12 +53,11 @@ class ContributionTableModel(
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         val outputProduct = sortedObservablePorts[rowIndex]
-
         if (columnIndex == 0) {
             return outputProduct.getDisplayName()
         }
 
-        val quantity = inventory.supply.quantityOf(outputProduct)
+        val quantity = analysis.supplyOf(outputProduct)
         if (columnIndex == 1) {
             return FloatingPointRepresentation.of(quantity.amount.value).toString()
         }
@@ -67,8 +66,8 @@ class ContributionTableModel(
         }
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
-        val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
-        return FloatingPointRepresentation.of(quantity.amount.value * ratio.value).toString()
+        val contribution = analysis.getContribution(outputProduct, inputProduct).amount.value
+        return FloatingPointRepresentation.of(contribution).toString()
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

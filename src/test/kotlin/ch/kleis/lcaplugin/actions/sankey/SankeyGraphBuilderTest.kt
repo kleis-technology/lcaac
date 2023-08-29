@@ -45,7 +45,6 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
         val assessment = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = assessment.run()
-        val allocatedSystem = analysis.allocatedSystem
         val sankeyPort = analysis.getControllablePorts().getElements().first()
         return SankeyRequiredInformation(sankeyPort, analysis, trace.getObservableOrder())
     }

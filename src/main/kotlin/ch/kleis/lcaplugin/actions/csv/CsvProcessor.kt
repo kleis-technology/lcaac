@@ -37,13 +37,13 @@ class CsvProcessor(
         val trace = evaluator.trace(EProcessTemplateApplication(template, arguments))
         val systemValue = trace.getSystemValue()
         val firstProcess = trace.getEntryPoint()
-        val assessment = ContributionAnalysisProgram(systemValue, firstProcess)
-        val inventory = assessment.run()
+        val program = ContributionAnalysisProgram(systemValue, firstProcess)
+        val analysis = program.run()
         val outputPort =
             firstProcess.products.firstOrNull()
                 ?.product
                 ?: throw EvaluatorException("$processName has no products")
-        val impacts = inventory.impactFactors.rowAsMap(outputPort)
+        val impacts = analysis.getImpactFactorsOf(outputPort)
         return CsvResult(
             request,
             outputPort,

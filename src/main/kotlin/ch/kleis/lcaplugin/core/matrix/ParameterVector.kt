@@ -18,4 +18,12 @@ data class ParameterVector<Q>(
     fun getValue(index: Int): QuantityValue<Q> {
         return data[index]
     }
+
+    fun getValue(name: ParameterName): QuantityValue<Q> {
+        return data[indexOf(name)]
+    }
+
+    fun indexOf(name: ParameterName): Int {
+        return names.indexOf(name)
+    }
 }

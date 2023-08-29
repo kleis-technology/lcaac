@@ -91,7 +91,7 @@ class SensitivityAnalysisAction(
                 )
                 val trace = Evaluator(symbolTable, ops).trace(entryPoint)
                 val order = trace.getObservableOrder()
-                val analysis = SensitivityAnalysisProgram(trace.getSystemValue(), parameters).run()
+                val analysis = SensitivityAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), parameters).run()
                 this.data = Pair(analysis, order)
             }
 

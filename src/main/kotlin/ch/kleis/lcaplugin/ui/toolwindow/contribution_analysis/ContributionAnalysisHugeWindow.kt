@@ -115,9 +115,9 @@ class ContributionAnalysisHugeWindow(
 
     private fun getRow(outputProduct: MatrixColumnIndex<BasicNumber>): Array<String> {
         val cells = sortedControllablePorts
-            .map { inventory.impactFactors.valueRatio(outputProduct, it).amount.toString() }
+            .map { inventory.getImpactFactors().valueRatio(outputProduct, it).amount.toString() }
 
-        val quantity = inventory.supply.quantityOf(outputProduct)
+        val quantity = inventory.supplyOf(outputProduct)
         return (listOf(
             outputProduct.getDisplayName(),
             "${quantity.amount}",

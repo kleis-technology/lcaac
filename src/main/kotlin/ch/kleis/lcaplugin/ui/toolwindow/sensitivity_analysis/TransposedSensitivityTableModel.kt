@@ -7,7 +7,8 @@ import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
-class SensitivityTableModel(
+
+class TransposedSensitivityTableModel(
     private val analysis: SensitivityAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<DualNumber>>,
 ) : TableModel {
@@ -18,11 +19,11 @@ class SensitivityTableModel(
         .first()
 
     override fun getRowCount(): Int {
-        return analysis.getParameters().size()
+        return analysis.getControllablePorts().size()
     }
 
     override fun getColumnCount(): Int {
-        return 3 + analysis.getControllablePorts().size()
+        return 3 + analysis.getParameters().size()
     }
 
     override fun getColumnName(columnIndex: Int): String {
@@ -32,7 +33,7 @@ class SensitivityTableModel(
             2 -> "unit"
             else -> {
                 val index = columnIndex - 3
-                sortedControllablePorts[index].getDisplayName()
+                analysis.getParameters().getName(index).uid
             }
         }
     }
@@ -54,14 +55,19 @@ class SensitivityTableModel(
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
-            0 -> analysis.getParameters().getName(rowIndex).uid
-            1 -> repr(analysis.getParameters().getValue(rowIndex).amount.zeroth).toString()
-            2 -> analysis.getParameters().getValue(rowIndex).unit.symbol
+            0 -> sortedControllablePorts[rowIndex].getDisplayName()
+            1 -> {
+                val indicator = sortedControllablePorts[rowIndex]
+                val contribution = analysis.getContribution(target, indicator)
+                repr(contribution.zeroth).toString()
+            }
+
+            2 -> sortedControllablePorts[rowIndex].referenceUnit().symbol
             else -> {
                 val relativeSensibility = analysis.getRelativeSensibility(
                     target,
-                    sortedControllablePorts[columnIndex - 3],
-                    analysis.getParameters().getName(rowIndex),
+                    sortedControllablePorts[rowIndex],
+                    analysis.getParameters().getName(columnIndex - 3)
                 )
                 return repr(relativeSensibility, " %")
             }

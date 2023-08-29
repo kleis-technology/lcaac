@@ -66,7 +66,7 @@ class AssessProcessAction(
 
             private fun displayInventory(project: Project, analysis: ContributionAnalysis, order: Comparator<MatrixColumnIndex<BasicNumber>>) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-                val assessResultContent = if (analysis.impactFactors.nbCells() <= DISPLAY_MAX_CELLS) {
+                val assessResultContent = if (analysis.getNumberOfImpactFactors() <= DISPLAY_MAX_CELLS) {
                     ContributionAnalysisWindow(analysis, order, project, processName).getContent()
                 } else {
                     ContributionAnalysisHugeWindow(analysis, order, "lca.dialog.export.warning", project).getContent()

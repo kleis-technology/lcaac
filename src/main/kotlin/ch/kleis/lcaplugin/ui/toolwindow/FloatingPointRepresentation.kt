@@ -10,15 +10,19 @@ data class FloatingPointRepresentation(
     val digits: List<Int>,
     val positionalExponent: Int,
     val nbSignificantDigits: Int,
-) {
+    val original: Double,
+    val suffix: String? = null,
+) : Comparable<FloatingPointRepresentation> {
     companion object {
-        fun of(value: Double, nbSignificantDigits: Int = 3): FloatingPointRepresentation {
+        fun of(value: Double, nbSignificantDigits: Int = 3, suffix: String? = null): FloatingPointRepresentation {
             if (value == 0.0) {
                 return FloatingPointRepresentation(
                     true,
                     IntRange(1, nbSignificantDigits).map { 0 },
                     0,
-                    nbSignificantDigits
+                    nbSignificantDigits,
+                    value,
+                    suffix,
                 )
             }
             val isPositive = value > 0.0
@@ -44,7 +48,9 @@ data class FloatingPointRepresentation(
                         isPositive,
                         listOf(1, 0) + zeros,
                         positionalExponent + 1,
-                        nbSignificantDigits
+                        nbSignificantDigits,
+                        value,
+                        suffix,
                     )
                 }
                 val zeros = listOf(0).replicate(nbSignificantDigits - 1).flatten()
@@ -52,14 +58,25 @@ data class FloatingPointRepresentation(
                     isPositive,
                     listOf(hd + 1) + zeros,
                     positionalExponent,
-                    nbSignificantDigits
+                    nbSignificantDigits,
+                    value,
+                    suffix,
                 )
             }
-            return FloatingPointRepresentation(isPositive, digits, positionalExponent, nbSignificantDigits)
+            return FloatingPointRepresentation(isPositive, digits, positionalExponent, nbSignificantDigits, value, suffix)
         }
     }
 
+    override fun compareTo(other: FloatingPointRepresentation): Int {
+        return original.compareTo(other.original)
+    }
+
     override fun toString(): String {
+        val s = strRep()
+        return suffix?.let { "$s$it" } ?: s
+    }
+
+    private fun strRep(): String {
         return when (positionalExponent) {
             in -2..-1 -> {
                 val hd = listOf(0).replicate(-positionalExponent - 1).flatten()

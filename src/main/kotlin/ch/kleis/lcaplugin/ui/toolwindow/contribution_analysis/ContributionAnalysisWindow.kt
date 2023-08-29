@@ -45,18 +45,24 @@ class ContributionAnalysisWindow(
         content.updateUI()
     }
 
-    private class SaveListener(val project: Project,
-                               val inventory: ContributionAnalysis,
-                               val observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
-                               val name: String) :
-        MouseAdapter() {
+    private class SaveListener(
+        val project: Project,
+        val analysis: ContributionAnalysis,
+        val observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
+        val name: String,
+    ) : MouseAdapter() {
         override fun mouseReleased(e: MouseEvent?) {
             if (SwingUtilities.isRightMouseButton(e)) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
 
                 val content = ContentFactory.getInstance()
                     .createContent(
-                        ContributionAnalysisHugeWindow(inventory, observablePortComparator, "lca.dialog.export.info", project).getContent(),
+                        ContributionAnalysisHugeWindow(
+                            analysis,
+                            observablePortComparator,
+                            "lca.dialog.export.info",
+                            project
+                        ).getContent(),
                         name,
                         false
                     )

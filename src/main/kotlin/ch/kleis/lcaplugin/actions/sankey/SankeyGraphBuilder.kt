@@ -35,7 +35,7 @@ class SankeyGraphBuilder(
                 }
 
                 is ProductValue<BasicNumber> -> {
-                    val parentProcess = analysis.allocatedSystem.productToProcessMap[port]!!
+                    val parentProcess = analysis.getAllocatedSystem().productToProcessMap[port]!!
 
                     val linksWithObservedImpact =
                         (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
@@ -93,8 +93,8 @@ class SankeyGraphBuilder(
         substance: SubstanceValue<BasicNumber>,
     ): Double {
         val ops = BasicOperations
-        val supply = absoluteScaleValue(ops, inventory.supply.quantityOf(substance)).value
-        val characterizationFactor = absoluteScaleValue(ops, inventory.impactFactors.valueRatio(substance, observed)).value
+        val supply = absoluteScaleValue(ops, inventory.supplyOf(substance)).value
+        val characterizationFactor = absoluteScaleValue(ops, inventory.getImpactFactors().valueRatio(substance, observed)).value
         return supply * characterizationFactor
     }
 
@@ -106,7 +106,7 @@ class SankeyGraphBuilder(
     ): Double {
         val ops = BasicOperations
 
-        val supply = inventory.supply.quantityOf(product)
+        val supply = inventory.supplyOf(product)
         val absoluteSupply = absoluteScaleValue(ops, supply).value
         val exchangeFactor = absoluteScaleValue(ops, exchange.quantity()).value  / supply.unit.scale
         val emissionFactor = when {
@@ -114,7 +114,7 @@ class SankeyGraphBuilder(
             else -> {
                 absoluteScaleValue(
                     ops,
-                    inventory.impactFactors.valueRatio(exchange.port(), observed)
+                    inventory.getImpactFactors().valueRatio(exchange.port(), observed)
                 ).value
             }
         }
