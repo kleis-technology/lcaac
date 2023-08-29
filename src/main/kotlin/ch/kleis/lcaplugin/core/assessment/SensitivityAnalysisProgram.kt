@@ -1,21 +1,20 @@
 package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.allocation.Allocation
-import ch.kleis.lcaplugin.core.lang.value.ProcessValue
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
-import ch.kleis.lcaplugin.core.math.basic.BasicOperations
+import ch.kleis.lcaplugin.core.math.dual.DualNumber
+import ch.kleis.lcaplugin.core.math.dual.DualOperations
 import ch.kleis.lcaplugin.core.matrix.*
-import org.mozilla.javascript.EvaluatorException
 
-class ContributionAnalysisProgram(
-    private val system: SystemValue<BasicNumber>,
-    private val targetProcess: ProcessValue<BasicNumber>,
+class SensitivityAnalysisProgram(
+    private val system: SystemValue<DualNumber>,
+    private val parameters: ParameterVector<DualNumber>,
 ) {
-    private val ops = BasicOperations
+    private val ops = DualOperations(parameters.size())
 
     @Suppress("DuplicatedCode")
-    fun run(): ContributionAnalysis {
+    fun run(): SensitivityAnalysis {
         val allocatedSystem = Allocation(ops).apply(system)
 
         val processes = allocatedSystem.processes
@@ -55,22 +54,12 @@ class ContributionAnalysisProgram(
             ops,
         )
 
-        val demandMatrix = DemandMatrix(
-            targetProcess,
-            observablePorts,
-            ops,
-        )
-
         with(ops) {
             val impactFactorMatrix = controllableMatrix.data.negate()
                 .matDiv(observableMatrix.data)
                 ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            val supplyMatrix = demandMatrix.data
-                .matTransposeDiv(observableMatrix.data)
-                ?.let { SupplyMatrix(observablePorts, it, ops) }
-                ?: throw EvaluatorException("The system cannot be solved")
-            return ContributionAnalysis(impactFactorMatrix, supplyMatrix, system, allocatedSystem)
+            return SensitivityAnalysis(impactFactorMatrix, parameters)
         }
     }
 }
