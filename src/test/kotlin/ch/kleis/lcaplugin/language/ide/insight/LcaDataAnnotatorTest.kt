@@ -224,7 +224,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
 //            .first()
 //            .assignmentList
 //            .first()
-//            .getDataRef()
+            .dataRef
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -235,7 +235,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         verify {
             mock.holder.newAnnotation(
                 HighlightSeverity.ERROR,
-                "Quantity reference kg is already defined in the unit prelude."
+                "This name is already defined."
             )
         }
         verify { mock.builder.range(element) }

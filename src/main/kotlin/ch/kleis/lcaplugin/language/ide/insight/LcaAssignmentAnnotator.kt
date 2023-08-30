@@ -11,7 +11,7 @@ class LcaAssignmentAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiDataRef && isAssignmentReceiver(element)) {
             if (element.reference.multiResolve(false).size > 1) {
-                annotateErrWithMessage(element, holder, "This name is already defined")
+                annotateErrWithMessage(element, holder, "This name is already defined.")
             }
         }
     }
