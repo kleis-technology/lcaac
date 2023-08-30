@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -202,4 +203,44 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
         verify(exactly = 0) { mock.builder.create() }
     }
+
+    @Test
+    fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
+        // given
+        val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
+        UnitFixture.getInternalUnitFile(myFixture)
+        myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            unit g {
+                symbol = "grm"
+                alias_for = 0.001 kg
+            }
+        """.trimIndent()
+        )
+        val element = UnitStubKeyIndex.findUnits(project, "$pkgName.g")
+            .first()
+//            .variablesList
+//            .first()
+//            .assignmentList
+//            .first()
+//            .getDataRef()
+        val mock = AnnotationHolderMock()
+        val annotator = LcaAssignmentAnnotator()
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify {
+            mock.holder.newAnnotation(
+                HighlightSeverity.ERROR,
+                "Quantity reference kg is already defined in the unit prelude."
+            )
+        }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
 }
