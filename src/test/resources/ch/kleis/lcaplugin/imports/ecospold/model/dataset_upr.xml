@@ -1,0 +1,708 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ecoSpold xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.EcoInvent.org/EcoSpold02"
+          xsi:schemaLocation="http://www.EcoInvent.org/EcoSpold02 ../../schemas/datasets/EcoSpold02.xsd http://www.EcoInvent.org/UsedUserMasterData ../../schemas/datasets/EcoSpold02UserMasterData.xsd">
+    <childActivityDataset>
+        <activityDescription>
+            <activity specialActivityType="1" id="0fce055e-fae5-5313-a883-3e5fc3a035ad"
+                      activityNameId="ba55ed9d-5136-4b35-920f-7f45304be4e3"
+                      parentActivityId="46d7d3f5-0322-51e0-a253-ada2ee832650" inheritanceDepth="-1" type="1">
+                <activityName xml:lang="en">market for electricity, high voltage</activityName>
+                <includedActivitiesStart xml:lang="en">This activity starts from 1kWh of electricity fed into the high
+                    voltage transmission network.
+                </includedActivitiesStart>
+                <includedActivitiesEnd xml:lang="en">This activity ends with the transport of 1 kWh of high voltage
+                    electricity in the transmission network over aerial lines and cables. This dataset includes: -
+                    electricity inputs produced in this country and from imports - the transmission network - direct
+                    emissions to air (ozone and N2O). - electricity losses during transmission This dataset doesn't
+                    include - electricity losses during transformation, as these are included in the dataset for
+                    transformation - Zinc emissions from steel masts. Steel masts used for aerial lines are coated in
+                    order to prevent corrosion. The commonly used process is hot-dip galvanising using zinc as
+                    anticorrosive. In general a duplex process is used applying a zinc and paint coating to further
+                    improve the corrosion protection. In addition, the selection of the colour can improve the embedding
+                    into the landscape &lt;van Oeteren 1988&gt;. With this additional protection the zinc emissions into
+                    soil can be neglected &lt;van Oeteren 1988&gt;. - leakage of insulation oil from cables and electro
+                    technical equipment (transformers, switchgear, circuit breakers) because this only happens in case
+                    of accidental release - data for electromagnetic fields - SF6 emissions during the transmission, as
+                    these are allocated to the market dataset for medium voltage. - SF6 emissions during production and
+                    deconstruction of the switchgear, as these are accounted for in the transmission network dataset.
+                    K.-A. van Oeteren, 'Feuerverzinkung', expert-Verlag, Ehningen 1988
+                </includedActivitiesEnd>
+                <generalComment>
+                    <text xml:lang="en" index="0">This is a market activity. Each market represents the consumption mix
+                        of a product in a given geography, connecting suppliers with consumers of the same product in
+                        the same geographical area. Markets group the producers and also the imports of the product (if
+                        relevant) within the same geographical area. They also account for transport to the consumer and
+                        for the losses during that process, when relevant.
+                    </text>
+                    <text xml:lang="en" index="1">This dataset describes the electricity available on the high voltage
+                        level in Iran (Islamic Republic of). This is done by showing the transmission of 1kWh
+                        electricity at high voltage.
+                    </text>
+                </generalComment>
+            </activity>
+            <classification classificationId="4c3b7870-d05d-41cf-9a2f-d901c183b0d8">
+                <classificationSystem xml:lang="en">ISIC rev.4 ecoinvent</classificationSystem>
+                <classificationValue xml:lang="en">3510:Electric power generation, transmission and distribution
+                </classificationValue>
+            </classification>
+            <geography geographyId="0ea9e766-7d7e-11de-9ae2-0019e336be3a">
+                <shortname xml:lang="en">IR</shortname>
+            </geography>
+            <technology>
+                <comment>
+                    <text xml:lang="en" index="0">Average technology used to transmit and distribute electricity.
+                        Includes underground and overhead lines. Electricity production according to related technology
+                        datasets.
+                    </text>
+                    <text xml:lang="en" index="1">Definition of the voltage levels:</text>
+                    <text xml:lang="en" index="2">- High voltage level above 24 kV (large scale industry)</text>
+                    <text xml:lang="en" index="3">- Medium voltage level between 1 kV and 24 kV (medium to small scale
+                        industry, service sector
+                    </text>
+                    <text xml:lang="en" index="4">and public buildings)</text>
+                    <text xml:lang="en" index="5">- Low voltage level below 1 kV (Households)</text>
+                </comment>
+            </technology>
+            <timePeriod startDate="2014-01-01" endDate="2022-12-31" isDataValidForEntirePeriod="true">
+                <comment>
+                    <text xml:lang="en" index="0">The 'Start of Period' and 'End of Period' do not refer to the year for
+                        which this market is valid. See general comment for the year for which the shares are based on.
+                    </text>
+                </comment>
+            </timePeriod>
+            <macroEconomicScenario macroEconomicScenarioId="d9f57f0a-a01f-42eb-a57b-8f18d6635801">
+                <name xml:lang="en">Business-as-Usual</name>
+            </macroEconomicScenario>
+        </activityDescription>
+        <flowData>
+            <intermediateExchange id="8f7e31c3-1528-5e66-beb2-4dde0d132f92"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="1.0"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  productionVolumeAmount="280339915242.444">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977"
+                          unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                    <comment xml:lang="en">Temporary price data. Calculated as 90% of purchasers price based on: 94% of
+                        the average price (to account for a 6% loss in transformation and transmission) for electricity
+                        for industrial consumersin 2005 (excluded taxes). From IEA.
+                    </comment>
+                </property>
+                <productionVolumeComment xml:lang="en">The shares of electricity technologies on this market are valid
+                    for the year 2019. They have been calculated by the data provider and don't correspond with the
+                    production volumes entered in the undefined datasets of the different electricity supplying
+                    technologies. The shares have been calculated based on statistics from 2019: IEA World Energy
+                    Statistics and Balances. OECD iLibrary, eISSN: 1683-4240, DOI: 10.1787/enestats-data-en. Grid losses
+                    are based on data from 2019 (also IEA World Energy Statistics and Balances).
+                </productionVolumeComment>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <outputGroup>0</outputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="64b84d3c-f4ac-536e-b583-504c7b54fd1c"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.0438648496533131"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="0fce055e-fae5-5313-a883-3e5fc3a035ad">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="2f9fdd3c-f06d-5db6-8e42-f6ecf835c3d6"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.00162107710314191"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="26005d7a-6633-5d24-b0db-5f7796b2740a">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="9bf46626-9ce6-532d-9950-21da142d42d8"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.00915546599208927"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="413ef35a-2c29-5939-a649-2860786d1f9b">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="405b22d5-a4cf-5bec-ad05-8e78a21a441e"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.0224711559510731"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="511b903b-773c-58ae-b64b-f6b2d1948a56">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="52cb75ab-f1ed-515b-964a-a0066f0fc3ef"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.299889983918267"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="615e650d-7bbd-5901-9a96-04bb034eb66b">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="9010af42-8e98-5c7e-8b17-e8edb1f6d672"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.0866501348675061"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="73575312-461e-55cb-a642-9eb8b8bb56a4">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="8acd9ba9-d242-5c4d-a20b-378e5d02a40a"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.000217524722782227"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="7c44ffb5-5119-5c66-bfc0-62fee469ea66">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="755d624f-93fd-58f0-b5dc-672e047e3342"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.0525283414223626"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="9b9887d7-937f-5c20-9a0f-f99944341c24">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="01df36b3-fd54-5607-bf99-b084b7e97747"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="6.72115639655037E-05"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="b3ceebfa-4923-5801-9141-a6d8b268b70e">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="9b14f020-ce8d-4929-a3b5-d6e44624e6bf" amount="0.804471860429623"
+                          isDefiningValue="false" isCalculatedAmount="false"
+                          unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">allocation factor</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="b0a4d18f-2eb1-4f63-96b3-b8ea31a42bb3" amount="3.6" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="980b811e-3905-4797-82a5-173f5568bc7e">
+                    <name xml:lang="en">exergy</name>
+                    <unitName xml:lang="en">MJ</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <property propertyId="2dec5fcb-b303-4bfa-8e30-0e043c523163" amount="0.2863420322082029"
+                          isDefiningValue="false" isCalculatedAmount="false"
+                          unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">true value</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="7a3978ea-3e26-4329-bc8b-0915d58a7e6f" amount="3.6" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">true value relation</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="ac5d216a-4310-5977-a31e-583fd2b77ee4"
+                                  unitId="77ae64fa-7e74-4252-9c3b-889c1cd20bfc" amount="0.527399104458812"
+                                  intermediateExchangeId="66c93e71-f32b-4591-901c-55395db5c132"
+                                  activityLinkId="bc47228e-c762-5260-8193-ad730d2af531">
+                <name xml:lang="en">electricity, high voltage</name>
+                <unitName xml:lang="en">kWh</unitName>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="38f94dd1-d5aa-41b8-b182-c0c42985d9dc" amount="0.0977" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="7b75baf0-cbee-45e6-bf66-af119da06553">
+                    <name xml:lang="en">price</name>
+                    <unitName xml:lang="en">EUR2005</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="8c58a77e-289e-4069-bd0f-413c4f45e21b">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">17100: Electrical energy</classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <intermediateExchange id="e99cdfd9-abcc-57b7-ac69-52da58bfe7fd"
+                                  unitId="ae252091-811b-461b-8e89-8f3075639eb1" amount="8.29061557353665E-09"
+                                  intermediateExchangeId="55defeeb-f85a-4264-8ce9-80eac3a28de4"
+                                  activityLinkId="fba1d66b-f42d-50e3-be7f-8fd2b919753c">
+                <name xml:lang="en">transmission network, electricity, high voltage direct current aerial line</name>
+                <unitName xml:lang="en">km</unitName>
+                <comment xml:lang="en">Estimation. The amount of required infrastructure is based on a weighted average
+                    of the countries in Asia for which data in the Global Transmission Report (2022) is available. In
+                    the case of Asia this refers to:
+                    Australia, Bangladesh, Cambodia, China, India, Indonesia, Japan, Kazakhstan , Malaysia , Nepal , New
+                    Zealand, Pakistan, Philippines, South Korea, Sri Lanka, Thailand, Vietnam
+                    - Global Electricity Transmission Report and Database, 2022-2031, Global Transmission Research,
+                    accessed March 2022
+                </comment>
+                <uncertainty>
+                    <lognormal meanValue="8.29061557353665E-09" mu="-18.6081" variance="0.3"
+                               varianceWithPedigreeUncertainty="0.310725"/>
+                    <pedigreeMatrix reliability="3" completeness="2" temporalCorrelation="4" geographicalCorrelation="2"
+                                    furtherTechnologyCorrelation="2"/>
+                </uncertainty>
+                <synonym xml:lang="en">HVDC</synonym>
+                <synonym xml:lang="en">overhead transmission line</synonym>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="964f8b50-ce16-4364-835a-a3db5fb760b0" amount="40.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="2cf92850-0f92-4004-9dba-a6ceb6a414c2">
+                    <name xml:lang="en">lifetime</name>
+                    <unitName xml:lang="en">year</unitName>
+                </property>
+                <classification classificationId="39b0f0ab-1a2f-401b-9f4d-6e39400760a4">
+                    <classificationSystem xml:lang="en">By-product classification</classificationSystem>
+                    <classificationValue xml:lang="en">allocatable product</classificationValue>
+                </classification>
+                <classification classificationId="f3c0b25d-f090-41fa-a4b8-5ea769827ec8">
+                    <classificationSystem xml:lang="en">CPC</classificationSystem>
+                    <classificationValue xml:lang="en">53242: Long-distance communication and power lines (cables)
+                    </classificationValue>
+                </classification>
+                <inputGroup>5</inputGroup>
+            </intermediateExchange>
+            <elementaryExchange id="dabb1fad-715d-56c5-a4a5-03a30ac82cba" unitId="487df68b-4994-4027-8fdc-a4dc298257b7"
+                                casNumber="010024-97-2" amount="5E-06" isCalculatedAmount="false"
+                                sourceId="3d823cf6-96d6-4a29-8ab0-ca98337d574e" sourceYear="1984"
+                                sourceFirstAuthor="R.D. Hill"
+                                elementaryExchangeId="20185046-64bb-4c09-a8e7-e8a9e144ca98">
+                <name xml:lang="en">Dinitrogen monoxide</name>
+                <unitName xml:lang="en">kg</unitName>
+                <comment xml:lang="en">Literatur value/estimation. The electro-magnetic field near high voltage aerial
+                    lines can lead to the ionisation of air molecules and to the formation of nitrous oxide and ozone.
+                    This reaction happens in a boundary layer called corona. The formation of pollutants depends on the
+                    weather and the surface of the conductor. Therefore, only a few general assumptions can be made.
+                    Hill et al. 1984 report a nitrous oxide formation rate between 0.01 and 0.21 g per kWh of
+                    electricity transmitted, valid for North American conditions. The geometric mean of 0.05 g/kWh. The
+                    emission rates are reduced by a factor of 10 to account for the shorter transmission distances in
+                    this country.
+                </comment>
+                <uncertainty>
+                    <lognormal meanValue="5E-06" mu="-12.2061" variance="0.35"
+                               varianceWithPedigreeUncertainty="0.5599999999999999"/>
+                    <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5"
+                                    furtherTechnologyCorrelation="5"/>
+                </uncertainty>
+                <synonym xml:lang="en">nitrous oxide</synonym>
+                <synonym xml:lang="en">dinitrogen oxide</synonym>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content, fossil</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content, non-fossil</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">dry mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a9358458-9724-4f03-b622-106eda248916" variableName="water_content" amount="0.0"
+                          unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45" sourceId="3d823cf6-96d6-4a29-8ab0-ca98337d574e"
+                          sourceYear="1984" sourceFirstAuthor="R.D. Hill">
+                    <name xml:lang="en">water content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                    <comment xml:lang="en">['water mass/dry mass']</comment>
+                </property>
+                <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">water in wet mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">wet mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <compartment subcompartmentId="7011f0aa-f5f9-4901-8c10-884ad8296812">
+                    <compartment xml:lang="en">air</compartment>
+                    <subcompartment xml:lang="en">unspecified</subcompartment>
+                </compartment>
+                <outputGroup>4</outputGroup>
+            </elementaryExchange>
+            <elementaryExchange id="aeb3132e-b9b0-5ce8-a9cf-37dc77173874" unitId="487df68b-4994-4027-8fdc-a4dc298257b7"
+                                casNumber="010028-15-6" amount="4.15772755242894E-06" isCalculatedAmount="false"
+                                mathematicalRelation="250000/60129000000"
+                                sourceId="4962d5cd-0189-4fad-8cbc-4b6e1f627451" sourceYear="1995"
+                                sourceFirstAuthor="Knoepfel I."
+                                elementaryExchangeId="2058d91e-bb9f-4fce-8e53-131825b14a23">
+                <name xml:lang="en">Ozone</name>
+                <unitName xml:lang="en">kg</unitName>
+                <comment xml:lang="en">Literatur value/estimation. The electro-magnetic field near high voltage aerial
+                    lines can lead to the ionisation of air molecules and to the formation of nitrous oxide and ozone.
+                    This reaction happens in a boundary layer called corona. The formation of pollutants depends on the
+                    weather and the surface of the conductor. Therefore, only a few general assumptions can be made.
+                    Bohlin et al. 1991 and Böhringer et al. 1988 report very low ozone concentrations near the corona,
+                    which hardly can be measured. The value here is estimated from Swiss data: - annual ozone emissions:
+                    50-1250 tons (Knoepfel 1995, p. 99). The geometric mean of 250 t/year is used for calculations. -
+                    annual amount of electricity transported in Switzerland: 60129 GWh. S. Bohlin, K. Eriksson, G.
+                    Flisberg, 'Electrical transmission', World Clean Energy Conf., Geneva, Nov. 1991 A. Böhringer et
+                    al., 'Ozonbildung an Hochspannungsfreileitungen', Elektrizitätswirtschaft 87(1988) Nr. 21, S.
+                    1017-1022
+                </comment>
+                <uncertainty>
+                    <lognormal meanValue="4.15772755242894E-06" mu="-12.3905" variance="0.5"
+                               varianceWithPedigreeUncertainty="0.7100000000000001"/>
+                    <pedigreeMatrix reliability="5" completeness="5" temporalCorrelation="5" geographicalCorrelation="5"
+                                    furtherTechnologyCorrelation="5"/>
+                </uncertainty>
+                <property propertyId="f2283db2-62e4-467f-b9ac-c4f45be563b4" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">carbon allocation</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a301a838-7975-4d89-9e74-8eb77ad03cd1" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="c74c3729-e577-4081-b572-a283d2561a75" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content, fossil</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="6393c14b-db78-445d-a47b-c0cb866a1b25" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45">
+                    <name xml:lang="en">carbon content, non-fossil</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                </property>
+                <property propertyId="3a0af1d6-04c3-41c6-a3da-92c4f61e0eaa" amount="1.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">dry mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="a9358458-9724-4f03-b622-106eda248916" amount="0.0"
+                          unitId="577e242a-461f-44a7-922c-d8e1c3d2bf45" sourceId="4962d5cd-0189-4fad-8cbc-4b6e1f627451"
+                          sourceYear="1995" sourceFirstAuthor="Knoepfel I.">
+                    <name xml:lang="en">water content</name>
+                    <unitName xml:lang="en">dimensionless</unitName>
+                    <comment xml:lang="en">['water mass/dry mass']</comment>
+                </property>
+                <property propertyId="6d9e1462-80e3-4f10-b3f4-71febd6f1168" amount="0.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">water in wet mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <property propertyId="67f102e2-9cb6-4d20-aa16-bf74d8a03326" amount="1.0" isDefiningValue="false"
+                          isCalculatedAmount="false" unitId="487df68b-4994-4027-8fdc-a4dc298257b7">
+                    <name xml:lang="en">wet mass</name>
+                    <unitName xml:lang="en">kg</unitName>
+                </property>
+                <compartment subcompartmentId="7011f0aa-f5f9-4901-8c10-884ad8296812">
+                    <compartment xml:lang="en">air</compartment>
+                    <subcompartment xml:lang="en">unspecified</subcompartment>
+                </compartment>
+                <outputGroup>4</outputGroup>
+            </elementaryExchange>
+        </flowData>
+        <!--    <modellingAndValidation>-->
+        <!--      <representativeness systemModelId="290c1f85-4cc4-4fa1-b0c8-2cb7f4276dce">-->
+        <!--        <systemModelName xml:lang="en">Allocation, cut-off by classification</systemModelName>-->
+        <!--        <samplingProcedure xml:lang="en">Literature, statistics</samplingProcedure>-->
+        <!--        <extrapolations xml:lang="en">Ozone- and NO2-emission factors are based on published measurements made in various countries. Assumptions for the amount of transmission network per kWh transported and emissions per kWh are based on Swiss data. Electricity losses data are based on IEA data and on data from Switzerland.</extrapolations>-->
+        <!--      </representativeness>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="2" reviewedMajorRevision="1" reviewedMinorRevision="155" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]" reviewerEmail="support@ecoinvent.org" reviewDate="2015-05-25">-->
+        <!--        <otherDetails xml:lang="en">Validation warnings:-->
+
+        <!-- - Property 'lifetime=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'.-->
+        <!--Property 'total length of network=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'.-->
+
+        <!-- - Non-global market activities should have a geography comment.-->
+        <!-- - Uncertainty shall always be provided for all primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products.-->
+        <!-- &#45;&#45; Property(ies): water content=0, carbon content, non-fossil=0, water in wet mass=0, dry mass=1, carbon content, fossil=0, wet mass=1, water content=0, carbon content, non-fossil=0, water in wet mass=0, dry mass=1, carbon content, fossil=0, wet mass=1-->
+
+        <!-- - Pedigree information shall always be provided for all uncertainties of primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products.-->
+        <!-- &#45;&#45; Property(ies): water content=0, carbon content, non-fossil=0, water in wet mass=0, dry mass=1, carbon content, fossil=0, wet mass=1, water content=0, carbon content, non-fossil=0, water in wet mass=0, dry mass=1, carbon content, fossil=0, wet mass=1</otherDetails>-->
+        <!--      </review>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0" reviewedMinorRevision="1" reviewerId="35d091e9-38c2-4037-9efe-a73673c57123" reviewerName="Emilia Moreno Ruiz" reviewerEmail="moreno@ecoinvent.org" reviewDate="2017-06-22"/>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="1" reviewedMinorRevision="0" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]" reviewerEmail="support@ecoinvent.org" reviewDate="2017-06-22">-->
+        <!--        <otherDetails xml:lang="en">Validation warnings: - Property 'lifetime=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'. Property 'total length of network=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'. - Non-global market activities should have a geography comment. - Uncertainty shall always be provided for all primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products. &#45;&#45; Property(ies): water content=0, wet mass=1, carbon content, non-fossil=0, carbon content, fossil=0, water in wet mass=0, dry mass=1, water content=0, dry mass=1, carbon content, non-fossil=0, water in wet mass=0, carbon content, fossil=0, wet mass=1 - Pedigree information shall always be provided for all uncertainties of primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products. &#45;&#45; Property(ies): water content=0, wet mass=1, carbon content, non-fossil=0, carbon content, fossil=0, water in wet mass=0, dry mass=1, water content=0, dry mass=1, carbon content, non-fossil=0, water in wet mass=0, carbon content, fossil=0, wet mass=1</otherDetails>-->
+        <!--      </review>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="0" reviewedMinorRevision="1" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]" reviewerEmail="support@ecoinvent.org" reviewDate="2017-06-22">-->
+        <!--        <otherDetails xml:lang="en">Validation warnings: - Property 'total length of network=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'. Property 'lifetime=0' of master data exchange was removed from exchange 'transmission network, electricity, high voltage'. - Non-global market activities should have a geography comment. - Uncertainty shall always be provided for all primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products. &#45;&#45; Property(ies): water content=0, wet mass=1, carbon content, non-fossil=0, carbon content, fossil=0, water in wet mass=0, dry mass=1, water content=0, dry mass=1, carbon content, non-fossil=0, water in wet mass=0, carbon content, fossil=0, wet mass=1 - Pedigree information shall always be provided for all uncertainties of primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products. &#45;&#45; Property(ies): water content=0, wet mass=1, carbon content, non-fossil=0, carbon content, fossil=0, water in wet mass=0, dry mass=1, water content=0, dry mass=1, carbon content, non-fossil=0, water in wet mass=0, carbon content, fossil=0, wet mass=1</otherDetails>-->
+        <!--      </review>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="2" reviewedMinorRevision="1" reviewerId="44a0bdd8-6624-4a73-a661-7190ddf070b3" reviewerName="David FitzGerald" reviewerEmail="fitzgerald@ecoinvent.org" reviewDate="2022-08-03">-->
+        <!--        <details>-->
+        <!--          <text xml:lang="en" index="0">None</text>-->
+        <!--        </details>-->
+        <!--        <otherDetails xml:lang="en"/>-->
+        <!--      </review>-->
+        <!--      <review reviewedMajorRelease="3" reviewedMinorRelease="0" reviewedMajorRevision="2" reviewedMinorRevision="1" reviewerId="c4597934-ecac-422c-b431-382e85fdcb83" reviewerName="[System]" reviewerEmail="support@ecoinvent.org" reviewDate="2022-08-03">-->
+        <!--        <details>-->
+        <!--          <text xml:lang="en" index="0">Validation failed with errors:</text>-->
+        <!--          <text xml:lang="en" index="1">None</text>-->
+        <!--          <text xml:lang="en" index="2">- The use of tags starting with 'ei_project' is not allowed in undefined datasets. Please rename or remove the below tags:</text>-->
+        <!--          <text xml:lang="en" index="3">ei_project_production_DB</text>-->
+        <!--        </details>-->
+        <!--        <otherDetails xml:lang="en">Validation warnings:-->
+
+        <!-- - Property 'lifetime=40' of master data exchange was removed from exchange 'transmission network, electricity, high voltage direct current aerial line'.-->
+
+        <!-- - Non-global market activities should have a geography comment.-->
+        <!-- - Uncertainty shall always be provided for all primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products.-->
+        <!-- &#45;&#45; Property(ies): dry mass=1, carbon content, fossil=0, wet mass=1, carbon content, non-fossil=0, water content=0, water in wet mass=0, carbon content, fossil=0, wet mass=1, water in wet mass=0, carbon content, non-fossil=0, water content=0, dry mass=1-->
+
+        <!-- - Pedigree information shall always be provided for all uncertainties of primary data inputs (exchange amounts, properties and parameters), except for the amount and properties of reference products.-->
+        <!-- &#45;&#45; Property(ies): dry mass=1, carbon content, fossil=0, wet mass=1, carbon content, non-fossil=0, water content=0, water in wet mass=0, carbon content, fossil=0, wet mass=1, water in wet mass=0, carbon content, non-fossil=0, water content=0, dry mass=1-->
+
+        <!--</otherDetails>-->
+        <!--      </review>-->
+        <!--    </modellingAndValidation>-->
+        <!--    <administrativeInformation>-->
+        <!--      <dataEntryBy personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" isActiveAuthor="true" personName="Karin Treyer" personEmail="karin.treyer@psi.ch"/>-->
+        <!--      <dataGeneratorAndPublication personId="610bd1b2-fec3-4e8e-84a6-76fef8b6b7b8" personName="Karin Treyer" personEmail="karin.treyer@psi.ch" dataPublishedIn="0" isCopyrightProtected="true"/>-->
+        <!--      <fileAttributes majorRelease="3" minorRelease="0" majorRevision="4" minorRevision="0" internalSchemaVersion="2.0.12" defaultLanguage="en" creationTimestamp="2022-08-03T10:05:45" lastEditTimestamp="2022-08-03T10:05:45" fileTimestamp="2022-08-03T10:05:45" contextId="de659012-50c4-4e96-b54a-fc781bf987ab">-->
+        <!--        <contextName xml:lang="en">ecoinvent</contextName>-->
+        <!--      </fileAttributes>-->
+        <!--    </administrativeInformation>-->
+    </childActivityDataset>
+</ecoSpold>

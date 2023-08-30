@@ -7,7 +7,7 @@ import kotlin.test.assertNotNull
 class ParserTest {
 
     @Test
-    fun readUnits_ShouldParceUnitConversionFile() {
+    fun readUnits_ShouldParseUnitConversionFile() {
         // Given
         this::class.java.getResourceAsStream("units.xml")!!.use {
 
@@ -24,9 +24,9 @@ class ParserTest {
     }
 
     @Test
-    fun readDataset_Parse() {
+    fun readDatasetLCIA_Parse() {
         // Given
-        this::class.java.getResourceAsStream("dataset.xml")!!.use {
+        this::class.java.getResourceAsStream("dataset_lcia.xml")!!.use {
 
             // When
             val dataset = Parser.readDataset(it)
@@ -34,6 +34,23 @@ class ParserTest {
             // Then
             assertEqualsToDescription(dataset.description)
             assertEqualsToFlow(dataset.flowData)
+        }
+    }
+
+    @Test
+    fun readDataSet_UPR_Parse() {
+        // Given
+        this::class.java.getResourceAsStream("dataset_upr.xml")!!.use { istream ->
+
+            // When
+            val dataset = Parser.readDataset(istream)
+
+            // Then
+            assertEquals(12, dataset.flowData.intermediateExchanges.count())
+            assertEquals(1, dataset.flowData.intermediateExchanges.count {
+                it.outputGroup?.let { true } ?: false
+            })
+            assertEquals(2, dataset.flowData.elementaryExchanges.count())
         }
     }
 

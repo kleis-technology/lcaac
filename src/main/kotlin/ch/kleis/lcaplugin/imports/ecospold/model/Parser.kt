@@ -122,7 +122,8 @@ object Parser {
                     unit = it.getChildText("unitName"),
                     synonyms = it.getChildren("synonym").map { n -> n.value },
                     uncertainty = readUncertainty(it.getChild("uncertainty")),
-                    outputGroup = it.getChildText("outputGroup").toInt(),
+                    outputGroup = it.getChildText("outputGroup")?.toInt(),
+                    inputGroup = it.getChildText("inputGroup")?.toInt(),
                     classifications = readClassifications(it.getChildren("classification")),
                     properties = readProperties(it.getChildren("property")),
                 )
