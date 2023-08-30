@@ -51,8 +51,8 @@ class DataExpressionReducer<Q>(
 
     private fun reduceAdd(expression: EQuantityAdd<Q>): DataExpression<Q> {
         with(ops) {
-            val left = reduce(expression.lhs)
-            val right = reduce(expression.rhs)
+            val left = reduce(expression.leftHandSide)
+            val right = reduce(expression.rightHandSide)
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral -> {
                     val resultUnit = checkAndReturnUnitForAddition(left.base, right.base)
@@ -71,8 +71,8 @@ class DataExpressionReducer<Q>(
 
     private fun reduceDiv(expression: EQuantityDiv<Q>): DataExpression<Q> {
         with(ops) {
-            val left = reduce(expression.lhs)
-            val right = reduce(expression.rhs)
+            val left = reduce(expression.leftHandSide)
+            val right = reduce(expression.rightHandSide)
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
 
@@ -93,8 +93,8 @@ class DataExpressionReducer<Q>(
 
     private fun reduceMul(expression: EQuantityMul<Q>): DataExpression<Q> {
         with(ops) {
-            val left = reduce(expression.lhs)
-            val right = reduce(expression.rhs)
+            val left = reduce(expression.leftHandSide)
+            val right = reduce(expression.rightHandSide)
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
 
@@ -146,8 +146,8 @@ class DataExpressionReducer<Q>(
 
     private fun reduceSub(expression: EQuantitySub<Q>): DataExpression<Q> {
         with(ops) {
-            val left = reduce(expression.lhs)
-            val right = reduce(expression.rhs)
+            val left = reduce(expression.leftHandSide)
+            val right = reduce(expression.rightHandSide)
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral -> {
                     val resultUnit = checkAndReturnUnitForAddition(left.base, right.base)

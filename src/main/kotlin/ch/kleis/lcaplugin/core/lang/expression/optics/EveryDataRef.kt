@@ -12,29 +12,29 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 is EDataRef -> map(source)
                 is EQuantityAdd -> M.fold(
                     listOf(
-                        foldMap(M, source.lhs, map),
-                        foldMap(M, source.rhs, map),
+                        foldMap(M, source.leftHandSide, map),
+                        foldMap(M, source.rightHandSide, map),
                     )
                 )
 
                 is EQuantitySub -> M.fold(
                     listOf(
-                        foldMap(M, source.lhs, map),
-                        foldMap(M, source.rhs, map),
+                        foldMap(M, source.leftHandSide, map),
+                        foldMap(M, source.rightHandSide, map),
                     )
                 )
 
                 is EQuantityMul -> M.fold(
                     listOf(
-                        foldMap(M, source.lhs, map),
-                        foldMap(M, source.rhs, map),
+                        foldMap(M, source.leftHandSide, map),
+                        foldMap(M, source.rightHandSide, map),
                     )
                 )
 
                 is EQuantityDiv -> M.fold(
                     listOf(
-                        foldMap(M, source.lhs, map),
-                        foldMap(M, source.rhs, map),
+                        foldMap(M, source.leftHandSide, map),
+                        foldMap(M, source.rightHandSide, map),
                     )
                 )
 
@@ -55,23 +55,23 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
             return when (source) {
                 is EDataRef -> map(source)
                 is EQuantityAdd -> EQuantityAdd(
-                    modify(source.lhs, map),
-                    modify(source.rhs, map),
+                    modify(source.leftHandSide, map),
+                    modify(source.rightHandSide, map),
                 )
 
                 is EQuantitySub -> EQuantitySub(
-                    modify(source.lhs, map),
-                    modify(source.rhs, map),
+                    modify(source.leftHandSide, map),
+                    modify(source.rightHandSide, map),
                 )
 
                 is EQuantityMul -> EQuantityMul(
-                    modify(source.lhs, map),
-                    modify(source.rhs, map),
+                    modify(source.leftHandSide, map),
+                    modify(source.rightHandSide, map),
                 )
 
                 is EQuantityDiv -> EQuantityDiv(
-                    modify(source.lhs, map),
-                    modify(source.rhs, map),
+                    modify(source.leftHandSide, map),
+                    modify(source.rightHandSide, map),
                 )
 
                 is EQuantityClosure -> EQuantityClosure(

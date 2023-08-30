@@ -57,22 +57,22 @@ data class EUnitOf<Q>(val expression: DataExpression<Q>) : DataExpression<Q>, Qu
 }
 
 @optics
-data class EQuantityAdd<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
+data class EQuantityAdd<Q>(val leftHandSide: DataExpression<Q>, val rightHandSide: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantitySub<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
+data class EQuantitySub<Q>(val leftHandSide: DataExpression<Q>, val rightHandSide: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityMul<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
+data class EQuantityMul<Q>(val leftHandSide: DataExpression<Q>, val rightHandSide: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
 @optics
-data class EQuantityDiv<Q>(val lhs: DataExpression<Q>, val rhs: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
+data class EQuantityDiv<Q>(val leftHandSide: DataExpression<Q>, val rightHandSide: DataExpression<Q>) : DataExpression<Q>, QuantityExpression<Q> {
     companion object
 }
 
