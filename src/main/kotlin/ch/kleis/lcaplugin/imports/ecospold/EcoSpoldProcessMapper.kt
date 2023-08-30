@@ -24,10 +24,39 @@ object EcoSpoldProcessMapper {
                 } ?: mutableListOf(mappedExchange)
             }
 
+        val mappedIntermediateExchanges = process.flowData.intermediateExchanges.map { intermediateExchange ->
+            intermediateExchangeToImportedTechnosphereExchange(
+                intermediateExchange,
+                shortGeographyName(process.description.geography)
+            )
+        }.groupBy {
+            when (it) {
+                is ImportedProductExchange -> ImportedProductExchange
+                is ImportedInputExchange -> ImportedInputExchange
+            }
+        }
+
         return ImportedProcess(
             uid = uid(process),
             meta = mapMetas(process.description),
-            productBlocks = listOf(mapProducts(process.description.geography, process.flowData.intermediateExchanges)),
+            productBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    mappedIntermediateExchanges[ImportedProductExchange]
+                        ?.asSequence()
+                        ?.map { it as ImportedProductExchange }
+                        ?: emptySequence()
+                )
+            ),
+            inputBlocks = listOf(
+                ExchangeBlock(
+                    null,
+                    mappedIntermediateExchanges[ImportedInputExchange]
+                        ?.asSequence()
+                        ?.map { it as ImportedInputExchange }
+                        ?: emptySequence()
+                )
+            ),
             emissionBlocks = listOf(
                 ExchangeBlock(
                     null,
@@ -67,17 +96,9 @@ object EcoSpoldProcessMapper {
             "geography-comment" to description.geography?.comment?.let { compactText(toStr(it)) }
         ) + description.classifications.associate { it.system to compactText(it.value) }
 
-    private fun mapProducts(
-        geography: Geography?,
-        intermediateExchanges: Sequence<IntermediateExchange>
-    ): ExchangeBlock<ImportedProductExchange> =
-        ExchangeBlock(null,
-            intermediateExchanges.map { intermediateExchange ->
-                intermediateExchangeToImportedProductExchange(
-                    intermediateExchange,
-                    geography?.takeIf { it.shortName != "GLO" }?.shortName ?: ""
-                )
-            })
+
+    private fun shortGeographyName(geography: Geography?) =
+        geography?.takeIf { it.shortName != "GLO" }?.shortName ?: ""
 
     private fun mapImpacts(
         maybeMethodName: String?,
@@ -98,25 +119,48 @@ object EcoSpoldProcessMapper {
         )
     } ?: ExchangeBlock()
 
-    private fun intermediateExchangeToImportedProductExchange(
+    private fun intermediateExchangeToImportedTechnosphereExchange(
         e: IntermediateExchange,
         geo: String
-    ): ImportedProductExchange {
+    ): ImportedTechnosphereExchange {
+        val uid = sanitizeAndCompact("${e.name}_$geo")
+        val amount = e.amount.toString()
+        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit), false))
+        val comments = buildIntermediateExchangeComments(e)
+
+        when {
+            e.outputGroup != null -> {
+                if (e.outputGroup != 0) {
+                    throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
+                }
+
+                return ImportedProductExchange(amount, unit, uid, 100.0, comments)
+            }
+
+            e.inputGroup != null -> {
+                when (e.inputGroup) {
+                    1, 2, 3, 5 ->
+                        return ImportedInputExchange(amount, unit, uid, comments)
+
+                    else ->
+                        throw ImportException("Invalid inputGroup for intermediateExchange, expected in {1, 2, 3, 5}, found ${e.inputGroup}")
+                }
+            }
+
+            else -> throw ImportException("Intermediate exchange without inputGroup or outputGroup")
+        }
+    }
+
+    private fun buildIntermediateExchangeComments(
+        e: IntermediateExchange,
+    ): List<String> {
         val initComments = ArrayList<String>()
         e.name?.let { initComments.add(it) }
         e.classifications.forEach { initComments.add("${it.system} = ${it.value}") }
         e.uncertainty?.let { uncertaintyToStr(initComments, it) }
         e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
-
-        val amount = e.amount.toString()
-        val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit), false))
-        val uid = sanitizeAndCompact("${e.name}_$geo")
-
-        if (e.outputGroup != 0) {
-            throw ImportException("Invalid outputGroup for product, expected 0, found ${e.outputGroup}")
-        }
         e.properties.forEach { initComments.add("${it.name} ${it.amount} ${it.unit} isCalculatedAmount=${it.isCalculatedAmount ?: ""} isDefiningValue=${it.isDefiningValue ?: ""}") }
-        return ImportedProductExchange(amount, unit, uid, 100.0, initComments)
+        return initComments
     }
 
     private fun elementaryExchangeToImportedBioExchange(elementaryExchange: ElementaryExchange): ImportedBioExchange =

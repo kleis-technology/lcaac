@@ -6,6 +6,7 @@ import ch.kleis.lcaplugin.imports.util.ImportException
 import com.intellij.testFramework.UsefulTestCase.assertThrows
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
 class EcoSpoldProcessMapperTest {
@@ -109,6 +110,34 @@ class EcoSpoldProcessMapperTest {
             ), p.comments
         )
 
+    }
+
+    @Test
+    fun map_ShouldMapInputs() {
+        // given
+        // when
+        val result = EcoSpoldProcessMapper.map(sub)
+
+        // then
+        assertEquals(1, result.inputBlocks.size)
+        assertEquals(2, result.inputBlocks[0].exchanges.count())
+        val i = result.inputBlocks[0].exchanges.first()
+        assertEquals("iname_ch", i.uid)
+        assertEquals("3.0", i.qty)
+        assertEquals("kg", i.unit)
+        assertEquals(listOf("iName"), i.comments)
+    }
+
+    @Test
+    fun map_ShouldThrowAnError_WhenInvalidInput() {
+        // Given
+        val falseSub = EcoSpold2Fixture.buildData(inputGroup = 4)
+
+        // When
+        val e = assertFailsWith(
+            ImportException::class,
+        ) { EcoSpoldProcessMapper.map(falseSub).productBlocks[0].exchanges.count() }
+        assertEquals("Invalid inputGroup for intermediateExchange, expected in {1, 2, 3, 5}, found 4", e.message)
     }
 
     @Test

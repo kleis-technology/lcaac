@@ -8,6 +8,8 @@ sealed interface ImportedExchange {
     val printAsComment: Boolean
 }
 
+sealed interface ImportedTechnosphereExchange
+
 data class ImportedBioExchange(
     override val qty: String,
     override val unit: String,
@@ -24,7 +26,9 @@ data class ImportedInputExchange(
     override val uid: String,
     override val comments: List<String>,
     override val printAsComment: Boolean = false,
-) : ImportedExchange
+) : ImportedTechnosphereExchange, ImportedExchange {
+    companion object
+}
 
 data class ImportedProductExchange(
     override val qty: String,
@@ -33,7 +37,9 @@ data class ImportedProductExchange(
     val allocation: Double = 100.0,
     override val comments: List<String>,
     override val printAsComment: Boolean = false,
-) : ImportedExchange {
+) : ImportedTechnosphereExchange, ImportedExchange {
+    companion object
+
     fun asInput(): ImportedInputExchange = ImportedInputExchange(qty, unit, uid, comments)
 }
 
