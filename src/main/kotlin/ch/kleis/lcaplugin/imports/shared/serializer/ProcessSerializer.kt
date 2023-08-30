@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.imports.model.*
 object ProcessSerializer {
     fun serialize(e: ImportedExchange): List<CharSequence> {
         val comments = e.comments
+            .flatMap(CharSequence::lines)
             .filter { it.isNotBlank() }
             .map { "// $it" }
         val printCommented = if (e.printAsComment) "// " else ""

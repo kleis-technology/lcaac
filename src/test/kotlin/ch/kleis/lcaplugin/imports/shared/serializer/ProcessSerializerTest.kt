@@ -75,7 +75,13 @@ class ProcessSerializerTest {
                 sequenceOf(
                     ImportedBioExchange(
                         "5.9", "m3", "water", "water", "in river",
-                        listOf("Approximation"),
+                        listOf(
+                            """
+                        Approximation this is a first paragraph
+                        
+                        And this is a second paragraph, which should also be commented.
+                        """.trimIndent()
+                        ),
                     )
                 )
             )
@@ -164,7 +170,8 @@ process uid {
     }
 
     resources { // Natural
-        // Approximation
+        // Approximation this is a first paragraph
+        // And this is a second paragraph, which should also be commented.
         5.9 m3 water(compartment = "water", sub_compartment = "in river")
     }
 
