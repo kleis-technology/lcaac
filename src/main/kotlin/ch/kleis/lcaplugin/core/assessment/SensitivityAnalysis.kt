@@ -29,21 +29,16 @@ class SensitivityAnalysis(
         return parameters
     }
 
-    fun getImpactFactors(): ImpactFactorMatrix<DualNumber, DualMatrix> {
-        return impactFactors
-    }
-
     fun getRelativeSensibility(
         target: MatrixColumnIndex<DualNumber>,
         indicator: MatrixColumnIndex<DualNumber>,
         parameter: ParameterName,
     ): Double {
         val parameterIndex = parameters.indexOf(parameter)
-        val parameterValue = parameters.getValue(parameter).amount.zeroth
         val impactFactor = impactFactors.valueRatio(target, indicator).amount
         val base = impactFactor.zeroth
         val absoluteSensibility = impactFactor.first[parameterIndex]
-        return absoluteSensibility * parameterValue / base
+        return absoluteSensibility / base
     }
 
     fun getContribution(
