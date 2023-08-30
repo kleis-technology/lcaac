@@ -87,6 +87,7 @@ class SankeyGraphBuilder(
         }
     }
 
+    // TODO: Move the relevant code to ContributionAnalysis
     private fun impactAmountForSubstance(
         observed: MatrixColumnIndex<BasicNumber>,
         inventory: ContributionAnalysis,
@@ -98,6 +99,7 @@ class SankeyGraphBuilder(
         return supply * characterizationFactor
     }
 
+    // TODO: Move the relevant code to ContributionAnalysis
     private fun impactAmountForExchange(
         observed: MatrixColumnIndex<BasicNumber>,
         inventory: ContributionAnalysis,
