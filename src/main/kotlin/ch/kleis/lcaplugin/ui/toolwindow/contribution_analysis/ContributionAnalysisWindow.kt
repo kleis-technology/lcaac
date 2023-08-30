@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
@@ -18,6 +19,7 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.plaf.UIResource
+import javax.swing.table.DefaultTableCellRenderer
 
 /*
     https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/tool_window
@@ -34,10 +36,16 @@ class ContributionAnalysisWindow(
 
     init {
         val tableModel = ContributionTableModel(inventory, observablePortComparator)
+
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
         table.addMouseListener(SaveListener(project, inventory, observablePortComparator, name))
         table.toolTipText = MyBundle.message("lca.dialog.export.tooltip")
+
+        val cellRenderer = DefaultTableCellRenderer()
+        cellRenderer.horizontalAlignment = JLabel.RIGHT
+        table.setDefaultRenderer(FloatingPointRepresentation::class.java, cellRenderer)
+
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)
         content = JPanel(BorderLayout())

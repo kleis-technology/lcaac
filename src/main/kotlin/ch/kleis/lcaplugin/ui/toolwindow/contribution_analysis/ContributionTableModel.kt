@@ -40,11 +40,11 @@ class ContributionTableModel(
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        if (columnIndex < 3) {
-            return String::class.java
+        return when (columnIndex) {
+            0 -> String::class.java
+            2 -> String::class.java
+            else -> FloatingPointRepresentation::class.java
         }
-
-        return sortedControllablePorts[columnIndex - 3]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -59,7 +59,7 @@ class ContributionTableModel(
 
         val quantity = analysis.supplyOf(outputProduct)
         if (columnIndex == 1) {
-            return FloatingPointRepresentation.of(quantity.amount.value).toString()
+            return FloatingPointRepresentation.of(quantity.amount.value)
         }
         if (columnIndex == 2) {
             return "${quantity.unit.symbol}"
@@ -67,7 +67,7 @@ class ContributionTableModel(
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
         val contribution = analysis.getContribution(outputProduct, inputProduct).amount.value
-        return FloatingPointRepresentation.of(contribution).toString()
+        return FloatingPointRepresentation.of(contribution)
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

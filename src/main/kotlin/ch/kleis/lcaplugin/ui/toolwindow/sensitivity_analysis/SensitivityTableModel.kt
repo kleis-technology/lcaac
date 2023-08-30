@@ -38,10 +38,11 @@ class SensitivityTableModel(
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        if (columnIndex < 3) {
-            return String::class.java
+        return when (columnIndex) {
+            0 -> String::class.java
+            2 -> String::class.java
+            else -> FloatingPointRepresentation::class.java
         }
-        return FloatingPointRepresentation::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -55,7 +56,7 @@ class SensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> analysis.getParameters().getName(rowIndex).uid
-            1 -> repr(analysis.getParameters().getValue(rowIndex).amount.zeroth).toString()
+            1 -> repr(analysis.getParameters().getValue(rowIndex).amount.zeroth)
             2 -> analysis.getParameters().getValue(rowIndex).unit.symbol
             else -> {
                 val relativeSensibility = analysis.getRelativeSensibility(

@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ui.toolwindow.sensitivity_analysis
 import ch.kleis.lcaplugin.core.assessment.SensitivityAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
+import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
@@ -13,8 +14,10 @@ import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableModel
 
 class SensitivityAnalysisWindow(
@@ -35,6 +38,10 @@ class SensitivityAnalysisWindow(
 
         table.addKeyListener(TransposeListener(sensitivityTableModel, transposedSensitivityTableModel, table))
         table.toolTipText = "Press 't' to transpose data."
+
+        val cellRenderer = DefaultTableCellRenderer()
+        cellRenderer.horizontalAlignment = JLabel.RIGHT
+        table.setDefaultRenderer(FloatingPointRepresentation::class.java, cellRenderer)
 
         val defaultScrollPane = JBScrollPane(table)
         defaultScrollPane.border = JBEmptyBorder(0)
