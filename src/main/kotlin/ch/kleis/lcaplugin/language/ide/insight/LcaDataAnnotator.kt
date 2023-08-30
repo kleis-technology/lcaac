@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.annotateWarnWithMessage
-import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.isAssignementReciever
+import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.isAssignmentReceiver
 import ch.kleis.lcaplugin.language.ide.insight.LcaDataAnnotator.ResolveResult.*
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiDataRef
 import com.intellij.lang.annotation.AnnotationHolder
@@ -14,7 +14,7 @@ class LcaDataAnnotator : Annotator {
     }
 
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
-        if (element is PsiDataRef && !isAssignementReciever(element)) {
+        if (element is PsiDataRef && !isAssignmentReceiver(element)) {
             val name = element.name
             when (tryResolve(element)) {
                 ONERESOLVE -> Unit
