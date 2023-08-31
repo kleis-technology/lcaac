@@ -52,19 +52,19 @@ class ContributionAnalysisWindowTest {
                 mockk<SystemValue<BasicNumber>>(),
             )
 
-            val lcaProcessAssessResult = ContributionAnalysisWindow(
+            val window = ContributionAnalysisWindow(
                 analysis,
                 Comparator.comparing { it.getUID() },
                 mockk(),
                 "name"
             )
-            val panel = lcaProcessAssessResult.getContent()
-            val scrollPanel = panel.getComponent(0) as JBScrollPane
-            val viewPort = scrollPanel.getComponent(0) as JBViewport
+            val panel = window.getContent()
+            val tablePane = panel.getComponent(1) as JBScrollPane
+            val viewPort = tablePane.getComponent(0) as JBViewport
             val table = viewPort.getComponent(0) as JBTable
             table.setRowSelectionInterval(0, 0)
 
-            val sut = table.transferHandler as ContributionAnalysisWindow.WithHeaderTransferableHandler
+            val sut = table.transferHandler as WithHeaderTransferableHandler
 
             // When
             val result = sut.createTransferable(table) as BasicTransferable

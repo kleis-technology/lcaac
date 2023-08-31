@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
+import ch.kleis.lcaplugin.ui.toolwindow.WithHeaderTransferableHandler
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
@@ -37,6 +38,7 @@ class SensitivityAnalysisWindow(
 
         table.model = sensitivityTableModel
         table.autoCreateRowSorter = true
+        table.transferHandler = WithHeaderTransferableHandler()
 
         val cellRenderer = DefaultTableCellRenderer()
         cellRenderer.horizontalAlignment = JLabel.RIGHT
