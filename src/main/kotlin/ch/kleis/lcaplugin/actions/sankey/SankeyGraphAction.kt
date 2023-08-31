@@ -8,7 +8,7 @@ import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.SankeyGraph
+import ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.SankeyGraphWindow
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
@@ -31,9 +31,9 @@ class SankeyGraphAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Generate Graph",
-    "Generate graph",
-    AllIcons.Graph.Layout,
+    "Visualize flows",
+    "Visualize flows",
+    AllIcons.Actions.Execute,
 ) {
     companion object {
         private val LOG = Logger.getInstance(SankeyGraphAction::class.java)
@@ -90,13 +90,13 @@ class SankeyGraphAction(
 
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    SankeyGraph(
+                    SankeyGraphWindow(
                         processName,
                         graph,
                         indicatorList!!,
                         graphBuilder!!,
                     ).getContent(),
-                    "Contribution analysis of $processName",
+                    "Contribution flows of $processName",
                     false
                 )
 

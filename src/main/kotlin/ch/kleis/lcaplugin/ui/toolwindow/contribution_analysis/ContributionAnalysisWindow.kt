@@ -1,13 +1,15 @@
 package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
-import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.ui.components.JBBox
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.table.JBTable
@@ -15,8 +17,6 @@ import com.intellij.util.ui.JBEmptyBorder
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable
 import java.awt.BorderLayout
 import java.awt.datatransfer.Transferable
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.*
 import javax.swing.plaf.UIResource
 import javax.swing.table.DefaultTableCellRenderer
@@ -26,7 +26,7 @@ import javax.swing.table.DefaultTableCellRenderer
  */
 
 class ContributionAnalysisWindow(
-    inventory: ContributionAnalysis,
+    analysis: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     val project: Project,
     val name: String,
@@ -35,51 +35,55 @@ class ContributionAnalysisWindow(
     private val content: JPanel
 
     init {
-        val tableModel = ContributionTableModel(inventory, observablePortComparator)
+        /*
+            Table pane
+         */
+        val tableModel = ContributionTableModel(analysis, observablePortComparator)
 
         val table = JBTable(tableModel)
         table.transferHandler = WithHeaderTransferableHandler()
-        table.addMouseListener(SaveListener(project, inventory, observablePortComparator, name))
-        table.toolTipText = MyBundle.message("lca.dialog.export.tooltip")
 
         val cellRenderer = DefaultTableCellRenderer()
         cellRenderer.horizontalAlignment = JLabel.RIGHT
         table.setDefaultRenderer(FloatingPointRepresentation::class.java, cellRenderer)
 
-        val defaultScrollPane = JBScrollPane(table)
-        defaultScrollPane.border = JBEmptyBorder(0)
-        content = JPanel(BorderLayout())
-        content.add(defaultScrollPane, BorderLayout.CENTER)
-        content.updateUI()
-    }
+        val tablePane = JBScrollPane(table)
+        tablePane.border = JBEmptyBorder(0)
 
-    private class SaveListener(
-        val project: Project,
-        val analysis: ContributionAnalysis,
-        val observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
-        val name: String,
-    ) : MouseAdapter() {
-        override fun mouseReleased(e: MouseEvent?) {
-            if (SwingUtilities.isRightMouseButton(e)) {
-                val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-
-                val content = ContentFactory.getInstance()
-                    .createContent(
-                        ContributionAnalysisHugeWindow(
-                            analysis,
-                            observablePortComparator,
-                            "lca.dialog.export.info",
-                            project
-                        ).getContent(),
-                        name,
-                        false
-                    )
-                toolWindow.contentManager.addContent(content)
-                toolWindow.contentManager.setSelectedContent(content)
-                toolWindow.show()
-
-            }
+        /*
+            Menu bar
+         */
+        val button = JButton(AllIcons.Actions.MenuSaveall)
+        button.addActionListener {
+            val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return@addActionListener
+            val content = ContentFactory.getInstance()
+                .createContent(
+                    ContributionAnalysisHugeWindow(
+                        analysis,
+                        observablePortComparator,
+                        "lca.dialog.export.info",
+                        project
+                    ).getContent(),
+                    name,
+                    false
+                )
+            toolWindow.contentManager.addContent(content)
+            toolWindow.contentManager.setSelectedContent(content)
+            toolWindow.show()
         }
+
+        val menuBar = JMenuBar()
+        menuBar.add(JBLabel("Contribution analysis"), BorderLayout.LINE_START)
+        menuBar.add(JBBox.createHorizontalGlue())
+        menuBar.add(button, BorderLayout.LINE_END)
+
+        /*
+            Content
+         */
+        content = JPanel(BorderLayout())
+        content.add(menuBar, BorderLayout.PAGE_START)
+        content.add(tablePane, BorderLayout.CENTER)
+        content.updateUI()
     }
 
     override fun getContent(): JPanel {

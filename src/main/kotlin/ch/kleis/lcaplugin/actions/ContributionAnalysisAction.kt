@@ -28,8 +28,8 @@ class AssessProcessAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Run",
-    "Run",
+    "Assess",
+    "Assess",
     AllIcons.Actions.Execute,
 ) {
     companion object {
@@ -64,14 +64,22 @@ class AssessProcessAction(
                 LOG.warn("Unable to process computation", e)
             }
 
-            private fun displayInventory(project: Project, analysis: ContributionAnalysis, order: Comparator<MatrixColumnIndex<BasicNumber>>) {
+            private fun displayInventory(
+                project: Project,
+                analysis: ContributionAnalysis,
+                order: Comparator<MatrixColumnIndex<BasicNumber>>
+            ) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
                 val assessResultContent = if (analysis.getNumberOfImpactFactors() <= DISPLAY_MAX_CELLS) {
                     ContributionAnalysisWindow(analysis, order, project, processName).getContent()
                 } else {
                     ContributionAnalysisHugeWindow(analysis, order, "lca.dialog.export.warning", project).getContent()
                 }
-                val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
+                val content = ContentFactory.getInstance().createContent(
+                    assessResultContent,
+                    "Contribution analysis of $processName",
+                    false,
+                )
                 toolWindow.contentManager.addContent(content)
                 toolWindow.contentManager.setSelectedContent(content)
                 toolWindow.show()

@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.actions.AssessProcessAction
-import ch.kleis.lcaplugin.actions.AssessProcessWithDataAction
+import ch.kleis.lcaplugin.actions.ContributionAnalysisWithDataAction
 import ch.kleis.lcaplugin.actions.SensitivityAnalysisAction
 import ch.kleis.lcaplugin.actions.sankey.SankeyGraphAction
 import ch.kleis.lcaplugin.language.psi.isProcess
@@ -21,7 +21,7 @@ class AssessProcessMarkerContributor : RunLineMarkerContributor() {
             val target = process.getProcessRef().getUID().name
             val labels = process.getLabels()
             val assessProcessAction = AssessProcessAction(target, labels)
-            val assessProcessWithExternalDataAction = AssessProcessWithDataAction(target, labels)
+            val assessProcessWithExternalDataAction = ContributionAnalysisWithDataAction(target, labels)
             val sankeyGraphAction = SankeyGraphAction(target, labels)
             val sensitivityAnalysisAction = SensitivityAnalysisAction(target, labels)
             return Info(

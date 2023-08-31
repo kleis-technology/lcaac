@@ -12,8 +12,8 @@ class SensitivityAnalysisAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Sensitivity analysis",
-    "Sensitivity analysis",
+    "Analyze sensitivity",
+    "Analyze sensitivity",
     AllIcons.Actions.Execute,
 ) {
     override fun actionPerformed(e: AnActionEvent) {

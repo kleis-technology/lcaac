@@ -37,7 +37,7 @@ class SensitivityAnalysisTask(
     private val file: LcaFile,
     private val processName: String,
     private val matchLabels: Map<String, String>,
-) : Task.Backgroundable(project, "Sensitivity analysis"){
+) : Task.Backgroundable(project, "Sensitivity analysis") {
     private var analysis: SensitivityAnalysis? = null
 
     companion object {
@@ -105,7 +105,11 @@ class SensitivityAnalysisTask(
     ) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
         val assessResultContent = SensitivityAnalysisWindow(analysis, project, processName).getContent()
-        val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
+        val content = ContentFactory.getInstance().createContent(
+            assessResultContent,
+            "Sensitivity analysis of $processName",
+            false,
+        )
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
         toolWindow.show()

@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class SankeyGraphBuilderTest : BasePlatformTestCase() {
+class SankeyGraphWindowBuilderTest : BasePlatformTestCase() {
     private val ops = BasicOperations
 
     override fun getTestDataPath(): String {

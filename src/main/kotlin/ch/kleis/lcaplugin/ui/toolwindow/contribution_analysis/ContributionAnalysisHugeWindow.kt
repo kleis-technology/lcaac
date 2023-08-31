@@ -27,13 +27,13 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class ContributionAnalysisHugeWindow(
-    private val inventory: ContributionAnalysis,
+    private val analysis: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     messageKey: String,
     val project: Project,
 ) : LcaToolWindowContent {
-    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = analysis.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = analysis.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     companion object {
         private val LOG = Logger.getInstance(ContributionAnalysisHugeWindow::class.java)
@@ -115,9 +115,9 @@ class ContributionAnalysisHugeWindow(
 
     private fun getRow(outputProduct: MatrixColumnIndex<BasicNumber>): Array<String> {
         val cells = sortedControllablePorts
-            .map { inventory.getImpactFactors().valueRatio(outputProduct, it).amount.toString() }
+            .map { analysis.getImpactFactors().valueRatio(outputProduct, it).amount.toString() }
 
-        val quantity = inventory.supplyOf(outputProduct)
+        val quantity = analysis.supplyOf(outputProduct)
         return (listOf(
             outputProduct.getDisplayName(),
             "${quantity.amount}",

@@ -8,17 +8,14 @@ import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.ui.components.JBBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
-import javax.swing.JButton
-import javax.swing.JLabel
-import javax.swing.JMenuBar
-import javax.swing.JPanel
-import javax.swing.ListCellRenderer
+import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 
 class SensitivityAnalysisWindow(
@@ -78,6 +75,7 @@ class SensitivityAnalysisWindow(
 
         val menuBar = JMenuBar()
         menuBar.add(JBLabel("Sensitivity analysis"))
+        menuBar.add(JBBox.createHorizontalGlue())
         menuBar.add(comboBox, BorderLayout.LINE_END)
         menuBar.add(button, BorderLayout.LINE_END)
 

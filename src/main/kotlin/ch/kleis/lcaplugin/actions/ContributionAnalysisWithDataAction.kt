@@ -23,16 +23,16 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import java.io.FileNotFoundException
 import kotlin.io.path.Path
 
-class AssessProcessWithDataAction(
+class ContributionAnalysisWithDataAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Run with ${processName}.csv",
-    "Run with ${processName}.csv",
+    "Assess with ${processName}.csv",
+    "Assess with ${processName}.csv",
     AllIcons.Actions.Execute,
 ) {
     companion object {
-        private val LOG = Logger.getInstance(AssessProcessWithDataAction::class.java)
+        private val LOG = Logger.getInstance(ContributionAnalysisWithDataAction::class.java)
     }
 
     override fun actionPerformed(e: AnActionEvent) {
