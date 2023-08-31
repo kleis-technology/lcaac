@@ -9,13 +9,9 @@ import javax.swing.table.TableModel
 
 class SensitivityTableModel(
     private val analysis: SensitivityAnalysis,
-    observablePortComparator: Comparator<MatrixColumnIndex<DualNumber>>,
+    var target: MatrixColumnIndex<DualNumber>,
 ) : TableModel {
     private val sortedControllablePorts = analysis.getControllablePorts().getElements().sortedBy { it.getUID() }
-    private val target = analysis
-        .getObservablePorts().getElements()
-        .sortedWith(observablePortComparator)
-        .first()
 
     override fun getRowCount(): Int {
         return analysis.getParameters().size()

@@ -71,7 +71,7 @@ class SensitivityAnalysisProgram(
                 .matTransposeDiv(observableMatrix.data)
                 ?.let { SupplyMatrix(observablePorts, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            return SensitivityAnalysis(impactFactorMatrix, supplyMatrix, parameters, ops)
+            return SensitivityAnalysis(targetProcess, impactFactorMatrix, supplyMatrix, parameters, ops)
         }
     }
 }

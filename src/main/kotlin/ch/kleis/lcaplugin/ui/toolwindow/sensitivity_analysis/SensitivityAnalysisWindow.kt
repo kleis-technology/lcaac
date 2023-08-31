@@ -1,28 +1,28 @@
 package ch.kleis.lcaplugin.ui.toolwindow.sensitivity_analysis
 
 import ch.kleis.lcaplugin.core.assessment.SensitivityAnalysis
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.ComboBox
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
+import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
-import java.awt.event.KeyAdapter
-import java.awt.event.KeyEvent
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
+import javax.swing.JButton
 import javax.swing.JLabel
+import javax.swing.JMenuBar
 import javax.swing.JPanel
-import javax.swing.SwingUtilities
+import javax.swing.ListCellRenderer
 import javax.swing.table.DefaultTableCellRenderer
-import javax.swing.table.TableModel
 
 class SensitivityAnalysisWindow(
     analysis: SensitivityAnalysis,
-    observablePortComparator: Comparator<MatrixColumnIndex<DualNumber>>,
     val project: Project,
     val name: String,
 ) : LcaToolWindowContent {
@@ -30,44 +30,67 @@ class SensitivityAnalysisWindow(
     private val table = JBTable()
 
     init {
-        val sensitivityTableModel = SensitivityTableModel(analysis, observablePortComparator)
-        val transposedSensitivityTableModel = TransposedSensitivityTableModel(analysis, observablePortComparator)
+        /*
+            Table pane
+         */
+
+        val firstProduct = analysis.getEntryPointProducts().first()
+        val sensitivityTableModel = SensitivityTableModel(analysis, firstProduct)
+        val transposedSensitivityTableModel = TransposedSensitivityTableModel(analysis, firstProduct)
 
         table.model = sensitivityTableModel
         table.autoCreateRowSorter = true
-
-        table.addKeyListener(TransposeListener(sensitivityTableModel, transposedSensitivityTableModel, table))
-        table.toolTipText = "Press 't' to transpose data."
 
         val cellRenderer = DefaultTableCellRenderer()
         cellRenderer.horizontalAlignment = JLabel.RIGHT
         table.setDefaultRenderer(FloatingPointRepresentation::class.java, cellRenderer)
 
-        val defaultScrollPane = JBScrollPane(table)
-        defaultScrollPane.border = JBEmptyBorder(0)
+        val tablePane = JBScrollPane(table)
+        tablePane.border = JBEmptyBorder(0)
+
+        /*
+            Menu bar
+         */
+        val comboBox = ComboBox<ProductValue<DualNumber>>()
+        analysis.getEntryPointProducts().forEach { comboBox.addItem(it) }
+        comboBox.addActionListener {
+            if (it.actionCommand == "comboBoxChanged") {
+                val target = comboBox.selectedItem as ProductValue<DualNumber>
+                sensitivityTableModel.target = target
+                transposedSensitivityTableModel.target = target
+            }
+            table.updateUI()
+        }
+        comboBox.renderer = ListCellRenderer { list, value, index, isSelected, cellHasFocus ->
+            JBLabel(value.getShortName())
+        }
+
+        val button = JButton(AllIcons.Actions.BuildLoadChanges)
+        button.addActionListener {
+            table.model = when (table.model) {
+                sensitivityTableModel -> transposedSensitivityTableModel
+                transposedSensitivityTableModel -> sensitivityTableModel
+                else -> sensitivityTableModel
+            }
+            table.updateUI()
+        }
+        button.margin = JBUI.emptyInsets()
+
+        val menuBar = JMenuBar()
+        menuBar.add(JBLabel("Sensitivity analysis"))
+        menuBar.add(comboBox, BorderLayout.LINE_END)
+        menuBar.add(button, BorderLayout.LINE_END)
+
+        /*
+            Content
+         */
         content = JPanel(BorderLayout())
-        content.add(defaultScrollPane, BorderLayout.CENTER)
+        content.add(menuBar, BorderLayout.PAGE_START)
+        content.add(tablePane, BorderLayout.CENTER)
         content.updateUI()
     }
 
     override fun getContent(): JPanel {
         return content
-    }
-
-    private class TransposeListener(
-        private val model1: TableModel,
-        private val model2: TableModel,
-        val table: JBTable,
-    ) : KeyAdapter() {
-        override fun keyReleased(e: KeyEvent?) {
-            if (e?.keyChar == 't') {
-                if (table.model == model1) {
-                    table.model = model2
-                } else if (table.model == model2) {
-                    table.model = model1
-                }
-                table.updateUI()
-            }
-        }
     }
 }

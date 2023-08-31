@@ -2,6 +2,8 @@ package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.ParameterName
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
+import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.math.dual.DualMatrix
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.core.math.dual.DualOperations
@@ -12,11 +14,16 @@ import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 
 class SensitivityAnalysis(
+    private val entryPoint: ProcessValue<DualNumber>,
     private val impactFactors: ImpactFactorMatrix<DualNumber, DualMatrix>,
     private val supply: SupplyMatrix<DualNumber, DualMatrix>,
     private val parameters: ParameterVector<DualNumber>,
     private val ops: DualOperations
 ) {
+    fun getEntryPointProducts(): List<ProductValue<DualNumber>> {
+        return entryPoint.products.map { it.product }
+    }
+
     fun getControllablePorts(): IndexedCollection<MatrixColumnIndex<DualNumber>> {
         return impactFactors.controllablePorts
     }

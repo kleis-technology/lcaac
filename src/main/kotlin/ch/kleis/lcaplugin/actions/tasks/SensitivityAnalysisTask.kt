@@ -11,7 +11,6 @@ import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.DataExpression
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.core.math.dual.DualOperations
@@ -39,14 +38,14 @@ class SensitivityAnalysisTask(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : Task.Backgroundable(project, "Sensitivity analysis"){
-    private var data: Pair<SensitivityAnalysis, Comparator<MatrixColumnIndex<DualNumber>>>? = null
+    private var analysis: SensitivityAnalysis? = null
 
     companion object {
         private val LOG = Logger.getInstance(SensitivityAnalysisTask::class.java)
     }
 
     fun getAnalysis(): SensitivityAnalysis? {
-        return data?.first
+        return analysis
     }
 
     override fun run(indicator: ProgressIndicator) {
@@ -82,14 +81,12 @@ class SensitivityAnalysisTask(
             arguments,
         )
         val trace = Evaluator(symbolTable, ops).trace(entryPoint)
-        val order = trace.getObservableOrder()
-        val analysis = SensitivityAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), parameters).run()
-        this.data = Pair(analysis, order)
+        this.analysis = SensitivityAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint(), parameters).run()
     }
 
     override fun onSuccess() {
-        this.data?.let {
-            displayAnalysis(project, it.first, it.second)
+        this.analysis?.let {
+            displayAnalysis(project, it)
         }
     }
 
@@ -105,10 +102,9 @@ class SensitivityAnalysisTask(
     private fun displayAnalysis(
         project: Project,
         analysis: SensitivityAnalysis,
-        order: Comparator<MatrixColumnIndex<DualNumber>>
     ) {
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-        val assessResultContent = SensitivityAnalysisWindow(analysis, order, project, processName).getContent()
+        val assessResultContent = SensitivityAnalysisWindow(analysis, project, processName).getContent()
         val content = ContentFactory.getInstance().createContent(assessResultContent, processName, false)
         toolWindow.contentManager.addContent(content)
         toolWindow.contentManager.setSelectedContent(content)
