@@ -12,22 +12,25 @@ import ch.kleis.lcaplugin.imports.simapro.sanitizeSymbol
 import ch.kleis.lcaplugin.imports.util.ImportException
 
 object EcoSpoldProcessMapper {
-    fun map(process: ActivityDataset, methodName: String? = null): ImportedProcess {
-        val elementaryExchangeGrouping =
-            process.flowData.elementaryExchanges.groupingBy {
-                it.substanceType
-            }.aggregate { _, accumulator: MutableList<ImportedBioExchange>?, element: ElementaryExchange, _ ->
-                val mappedExchange = elementaryExchangeToImportedBioExchange(element)
-                accumulator?.let {
-                    accumulator.add(mappedExchange)
-                    accumulator
-                } ?: mutableListOf(mappedExchange)
-            }
+    fun map(
+        process: ActivityDataset,
+        processDict: Map<String, EcospoldImporter.ProcessDictRecord>,
+        methodName: String? = null
+    ): ImportedProcess {
+        val elementaryExchangeGrouping = process.flowData.elementaryExchanges.groupingBy {
+            it.substanceType
+        }.aggregate { _, accumulator: MutableList<ImportedBioExchange>?, element: ElementaryExchange, _ ->
+            val mappedExchange = elementaryExchangeToImportedBioExchange(element)
+            accumulator?.let {
+                accumulator.add(mappedExchange)
+                accumulator
+            } ?: mutableListOf(mappedExchange)
+        }
 
         val mappedIntermediateExchanges = process.flowData.intermediateExchanges.map { intermediateExchange ->
             intermediateExchangeToImportedTechnosphereExchange(
                 intermediateExchange,
-                shortGeographyName(process.description.geography)
+                processDict,
             )
         }.groupBy {
             when (it) {
@@ -36,46 +39,35 @@ object EcoSpoldProcessMapper {
             }
         }
 
+        val (mappedImpactsComment, mappedImpactsExchanges) = methodName?.let {
+            mapImpacts(methodName, process.flowData.impactIndicators)
+        } ?: (null to emptySequence())
+
         return ImportedProcess(
             uid = uid(process),
             meta = mapMetas(process.description),
-            productBlocks = listOf(
-                ExchangeBlock(
-                    null,
-                    mappedIntermediateExchanges[ImportedProductExchange]
-                        ?.asSequence()
-                        ?.map { it as ImportedProductExchange }
-                        ?: emptySequence()
-                )
+            productBlocks = listOfNonEmptyExchangeBlock(
+                mappedIntermediateExchanges[ImportedProductExchange]
+                    ?.asSequence()
+                    ?.map { it as ImportedProductExchange }
             ),
-            inputBlocks = listOf(
-                ExchangeBlock(
-                    null,
-                    mappedIntermediateExchanges[ImportedInputExchange]
-                        ?.asSequence()
-                        ?.map { it as ImportedInputExchange }
-                        ?: emptySequence()
-                )
+            inputBlocks = listOfNonEmptyExchangeBlock(
+                mappedIntermediateExchanges[ImportedInputExchange]
+                    ?.asSequence()
+                    ?.map { it as ImportedInputExchange }
             ),
-            emissionBlocks = listOf(
-                ExchangeBlock(
-                    null,
-                    elementaryExchangeGrouping[SubstanceType.EMISSION]?.asSequence() ?: emptySequence()
-                )
+            emissionBlocks = listOfNonEmptyExchangeBlock(
+                elementaryExchangeGrouping[SubstanceType.EMISSION]?.asSequence()
             ),
-            resourceBlocks = listOf(
-                ExchangeBlock(
-                    null,
-                    elementaryExchangeGrouping[SubstanceType.RESOURCE]?.asSequence() ?: emptySequence()
-                )
+            resourceBlocks = listOfNonEmptyExchangeBlock(
+                elementaryExchangeGrouping[SubstanceType.RESOURCE]?.asSequence()
             ),
-            landUseBlocks = listOf(
-                ExchangeBlock(
-                    null,
-                    elementaryExchangeGrouping[SubstanceType.LAND_USE]?.asSequence() ?: emptySequence()
-                )
+            landUseBlocks = listOfNonEmptyExchangeBlock(
+                elementaryExchangeGrouping[SubstanceType.LAND_USE]?.asSequence()
             ),
-            impactBlocks = listOf(mapImpacts(methodName, process.flowData.impactIndicators)),
+            impactBlocks = listOfNonEmptyExchangeBlock(
+                mappedImpactsExchanges, mappedImpactsComment
+            ),
         )
     }
 
@@ -84,8 +76,7 @@ object EcoSpoldProcessMapper {
     }
 
     private fun mapMetas(description: ActivityDescription): Map<String, String?> =
-        mapOf(
-            "id" to description.activity.id?.let { compactText(it) },
+        mapOf("id" to description.activity.id?.let { compactText(it) },
             "name" to description.activity.name.let { compactText(it) },
             "type" to description.activity.type,
             "description" to description.activity.generalComment?.let { compactAndPad(toStr(it), 12) },
@@ -93,37 +84,31 @@ object EcoSpoldProcessMapper {
             "includedActivitiesStart" to description.activity.includedActivitiesStart?.let { compactText(it) },
             "includedActivitiesEnd" to description.activity.includedActivitiesEnd?.let { compactText(it) },
             "geography-shortname" to description.geography?.shortName?.let { compactText(it) },
-            "geography-comment" to description.geography?.comment?.let { compactText(toStr(it)) }
-        ) + description.classifications.associate { it.system to compactText(it.value) }
-
-
-    private fun shortGeographyName(geography: Geography?) =
-        geography?.takeIf { it.shortName != "GLO" }?.shortName ?: ""
+            "geography-comment" to description.geography?.comment?.let { compactText(toStr(it)) }) + description.classifications.associate {
+            it.system to compactText(
+                it.value
+            )
+        }
 
     private fun mapImpacts(
-        maybeMethodName: String?,
-        impactIndicatorList: Sequence<ImpactIndicator>
-    ): ExchangeBlock<ImportedImpactExchange> = maybeMethodName?.let { methodName ->
-        ExchangeBlock(
-            "Impacts for method $methodName",
-            impactIndicatorList
-                .filter { it.methodName == methodName }
-                .map {
-                    ImportedImpactExchange(
-                        it.amount.toString(),
-                        sanitizeSymbol(sanitizeAndCompact(it.unitName, toLowerCase = false)),
-                        sanitizeAndCompact(it.name),
-                        listOf(it.categoryName),
-                    )
-                }
-        )
-    } ?: ExchangeBlock()
+        methodName: String,
+        impactIndicatorList: Sequence<ImpactIndicator>,
+    ): Pair<String, Sequence<ImportedImpactExchange>> =
+        Pair("Impacts for method $methodName",
+            impactIndicatorList.filter { it.methodName == methodName }.map {
+                ImportedImpactExchange(
+                    it.amount.toString(),
+                    sanitizeSymbol(sanitizeAndCompact(it.unitName, toLowerCase = false)),
+                    sanitizeAndCompact(it.name),
+                    listOf(it.categoryName),
+                )
+            })
 
     private fun intermediateExchangeToImportedTechnosphereExchange(
         e: IntermediateExchange,
-        geo: String
+        processDict: Map<String, EcospoldImporter.ProcessDictRecord>,
     ): ImportedTechnosphereExchange {
-        val uid = sanitizeAndCompact("${e.name}_$geo")
+        val uid = sanitizeAndCompact(e.name)
         val amount = e.amount.toString()
         val unit = sanitizeSymbol(sanitizeAndCompact(unitToStr(e.unit), false))
         val comments = buildIntermediateExchangeComments(e)
@@ -139,11 +124,23 @@ object EcoSpoldProcessMapper {
 
             e.inputGroup != null -> {
                 when (e.inputGroup) {
-                    1, 2, 3, 5 ->
-                        return ImportedInputExchange(amount, unit, uid, comments)
+                    1, 2, 3, 5 -> {
+                        val fromProcess = e.activityLinkId?.let {
+                            processDict[e.activityLinkId]
+                        }
+                        val fromProcessName = fromProcess?.let {
+                            sanitizeAndCompact("${it.processName}_${it.geo}")
+                        }
+                        return ImportedInputExchange(
+                            uid = uid,
+                            qty = amount,
+                            unit = unit,
+                            fromProcess = fromProcessName,
+                            comments = comments,
+                        )
+                    }
 
-                    else ->
-                        throw ImportException("Invalid inputGroup for intermediateExchange, expected in {1, 2, 3, 5}, found ${e.inputGroup}")
+                    else -> throw ImportException("Invalid inputGroup for intermediateExchange, expected in {1, 2, 3, 5}, found ${e.inputGroup}")
                 }
             }
 
@@ -155,7 +152,7 @@ object EcoSpoldProcessMapper {
         e: IntermediateExchange,
     ): List<String> {
         val initComments = ArrayList<String>()
-        e.name?.let { initComments.add(it) }
+        initComments.add(e.name)
         e.classifications.forEach { initComments.add("${it.system} = ${it.value}") }
         e.uncertainty?.let { uncertaintyToStr(initComments, it) }
         e.synonyms.forEachIndexed { i, it -> initComments.add("synonym_$i = $it") }
@@ -174,6 +171,19 @@ object EcoSpoldProcessMapper {
             printAsComment = elementaryExchange.printAsComment,
         )
 
+    private fun <E : ImportedExchange> listOfNonEmptyExchangeBlock(
+        exchanges: Sequence<E>?,
+        comment: String? = null,
+    ): List<ExchangeBlock<E>> =
+        // Testing if a sequence is empty is weird. count() will collect it, and there is no isEmpty ...
+        exchanges?.firstOrNull()?.let {
+            listOf(
+                ExchangeBlock(
+                    comment = comment,
+                    exchanges = exchanges
+                )
+            )
+        } ?: listOf()
 
     private fun datasetUid(activityName: String, geo: String): String = sanitizeAndCompact(activityName + "_" + geo)
 

@@ -124,6 +124,7 @@ object Parser {
                     uncertainty = readUncertainty(it.getChild("uncertainty")),
                     outputGroup = it.getChildText("outputGroup")?.toInt(),
                     inputGroup = it.getChildText("inputGroup")?.toInt(),
+                    activityLinkId = it.getAttributeValue("activityLinkId"),
                     classifications = readClassifications(it.getChildren("classification")),
                     properties = readProperties(it.getChildren("property")),
                 )

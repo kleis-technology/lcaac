@@ -10,13 +10,14 @@ data class Property(
 )
 
 data class IntermediateExchange(
+    val name: String,
     val amount: Double,
-    val name: String?,
     val unit: String,
     val synonyms: List<String> = emptyList(),
     val uncertainty: Uncertainty? = null,
     val outputGroup: Int? = null,
     val inputGroup: Int? = null,
+    val activityLinkId: String? = null,
     val classifications: List<Classification> = emptyList(),
     val properties: List<Property> = emptyList(),
 )

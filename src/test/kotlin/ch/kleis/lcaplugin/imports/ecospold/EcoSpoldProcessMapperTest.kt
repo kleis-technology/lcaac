@@ -12,13 +12,14 @@ import kotlin.test.assertNotEquals
 class EcoSpoldProcessMapperTest {
 
     private val sub: ActivityDataset = EcoSpold2Fixture.buildData()
+    private val processDict: Map<String, EcospoldImporter.ProcessDictRecord> = EcoSpold2Fixture.buildProcessDict()
 
     @Test
     fun map_ShouldMapMeta() {
         // Given
 
         // When
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // Then
         assertEquals("aname_ch", result.uid)
@@ -36,7 +37,7 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapEmissions() {
         // given
         // when
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // then
         assertEquals(1, result.emissionBlocks.size)
@@ -54,7 +55,7 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapLandUse() {
         // given
         // when
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // then
         assertEquals(1, result.landUseBlocks.size)
@@ -72,7 +73,7 @@ class EcoSpoldProcessMapperTest {
     fun map_shouldMapResource() {
         // given
         // when
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // then
         assertEquals(1, result.resourceBlocks.size)
@@ -91,13 +92,13 @@ class EcoSpoldProcessMapperTest {
         // Given
 
         // When
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // Then
         assertEquals(1, result.productBlocks.size)
         assertEquals(1, result.productBlocks[0].exchanges.count())
         val p = result.productBlocks[0].exchanges.first()
-        assertEquals("pname_ch", p.uid)
+        assertEquals("pname", p.uid)
         assertEquals("1.0", p.qty)
         assertEquals("km", p.unit)
         assertEquals(100.0, p.allocation)
@@ -116,16 +117,25 @@ class EcoSpoldProcessMapperTest {
     fun map_ShouldMapInputs() {
         // given
         // when
-        val result = EcoSpoldProcessMapper.map(sub)
+        val result = EcoSpoldProcessMapper.map(sub, processDict)
 
         // then
         assertEquals(1, result.inputBlocks.size)
         assertEquals(2, result.inputBlocks[0].exchanges.count())
-        val i = result.inputBlocks[0].exchanges.first()
-        assertEquals("iname_ch", i.uid)
-        assertEquals("3.0", i.qty)
-        assertEquals("kg", i.unit)
-        assertEquals(listOf("iName"), i.comments)
+
+        val i1 = result.inputBlocks[0].exchanges.first()
+        assertEquals("iname", i1.uid)
+        assertEquals("3.0", i1.qty)
+        assertEquals("kg", i1.unit)
+        assertEquals("iname_producing_process_glo", i1.fromProcess)
+        assertEquals(listOf("iName"), i1.comments)
+
+        val i2 = result.inputBlocks[0].exchanges.elementAt(1)
+        assertEquals("iname2", i2.uid)
+        assertEquals("25.0", i2.qty)
+        assertEquals("m3", i2.unit)
+        assertEquals("iname2_producing_process_ch", i2.fromProcess)
+        assertEquals(listOf("iName2"), i2.comments)
     }
 
     @Test
@@ -136,7 +146,7 @@ class EcoSpoldProcessMapperTest {
         // When
         val e = assertFailsWith(
             ImportException::class,
-        ) { EcoSpoldProcessMapper.map(falseSub).productBlocks[0].exchanges.count() }
+        ) { EcoSpoldProcessMapper.map(falseSub, processDict).productBlocks[0].exchanges.count() }
         assertEquals("Invalid inputGroup for intermediateExchange, expected in {1, 2, 3, 5}, found 4", e.message)
     }
 
@@ -150,7 +160,7 @@ class EcoSpoldProcessMapperTest {
         assertThrows(
             ImportException::class.java,
             "Invalid outputGroup for product, expected 0, found 1"
-        ) { EcoSpoldProcessMapper.map(falseSub).productBlocks[0].exchanges.count() }
+        ) { EcoSpoldProcessMapper.map(falseSub, processDict).productBlocks[0].exchanges.count() }
     }
 
     @Test
@@ -159,7 +169,7 @@ class EcoSpoldProcessMapperTest {
         val methodName = "EF v3.1"
 
         // When
-        val result = EcoSpoldProcessMapper.map(sub, methodName)
+        val result = EcoSpoldProcessMapper.map(sub, processDict, methodName)
 
         // Then
         assertEquals(1, result.impactBlocks.size)

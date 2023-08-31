@@ -55,6 +55,34 @@ class ParserTest {
     }
 
     @Test
+    fun readDataset_UPR_inputExchange_ShouldParseActivityLinkId() {
+        // Given
+        val inputIDs = sequenceOf(
+            "0fce055e-fae5-5313-a883-3e5fc3a035ad",
+            "26005d7a-6633-5d24-b0db-5f7796b2740a",
+            "413ef35a-2c29-5939-a649-2860786d1f9b",
+            "511b903b-773c-58ae-b64b-f6b2d1948a56",
+            "615e650d-7bbd-5901-9a96-04bb034eb66b",
+            "73575312-461e-55cb-a642-9eb8b8bb56a4",
+            "7c44ffb5-5119-5c66-bfc0-62fee469ea66",
+            "9b9887d7-937f-5c20-9a0f-f99944341c24",
+            "b3ceebfa-4923-5801-9141-a6d8b268b70e",
+            "bc47228e-c762-5260-8193-ad730d2af531",
+            "fba1d66b-f42d-50e3-be7f-8fd2b919753c",
+        )
+        this::class.java.getResourceAsStream("dataset_upr.xml")!!.use { istream ->
+            // When
+            val dataset = Parser.readDataset(istream)
+            val inputExchanges = dataset.flowData.intermediateExchanges.filter { it.inputGroup != null }
+
+            // Then
+            inputExchanges.zip(inputIDs).forEach { (exchange, expectedID) ->
+                assertEquals(expectedID, exchange.activityLinkId)
+            }
+        }
+    }
+
+    @Test
     fun readDataset_ShouldParse_WithOnlyMandatoryFields() {
         // Given
         this::class.java.getResourceAsStream("dataset_min.xml")!!.use {

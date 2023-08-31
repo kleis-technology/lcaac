@@ -21,9 +21,10 @@ data class ImportedBioExchange(
 ) : ImportedExchange
 
 data class ImportedInputExchange(
+    override val uid: String,
     override val qty: String,
     override val unit: String,
-    override val uid: String,
+    val fromProcess: String? = null,
     override val comments: List<String>,
     override val printAsComment: Boolean = false,
 ) : ImportedTechnosphereExchange, ImportedExchange {
@@ -40,7 +41,7 @@ data class ImportedProductExchange(
 ) : ImportedTechnosphereExchange, ImportedExchange {
     companion object
 
-    fun asInput(): ImportedInputExchange = ImportedInputExchange(qty, unit, uid, comments)
+    fun asInput(): ImportedInputExchange = ImportedInputExchange(qty, unit, uid, comments = comments)
 }
 
 data class ImportedImpactExchange(

@@ -10,15 +10,20 @@ class EcospoldProcessRenderer {
 
     var nbProcesses: Int = 0
         private set
-    var processDict: Map<String, ProcessDictRecord>? = null
 
-    fun render(data: ActivityDataset, w: ModelWriter, processComment: String, methodName: String) {
+    fun render(
+        data: ActivityDataset,
+        w: ModelWriter,
+        processDict: Map<String, ProcessDictRecord>,
+        processComment: String,
+        methodName: String
+    ) {
         nbProcesses++
 
         val category = category(data)
 
         val subFolder = if (category == null) "" else "${category}${File.separatorChar}"
-        val process = EcoSpoldProcessMapper.map(data, methodName)
+        val process = EcoSpoldProcessMapper.map(data, processDict, methodName)
         process.comments.add(processComment)
         val strProcess = ProcessSerializer.serialize(process)
 

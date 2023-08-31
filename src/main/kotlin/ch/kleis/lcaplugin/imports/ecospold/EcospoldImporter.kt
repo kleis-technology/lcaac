@@ -87,6 +87,7 @@ class EcospoldImporter(
 
         val path = Path.of(settings.libraryFile)
         val pkg = settings.rootPackage.ifBlank { "default" }
+
         SevenZFile(path.toFile()).use { f ->
             ModelWriter(pkg, settings.rootFolder, builtinLibraryImports(settings), watcher).use { w ->
                 importEntries(f, methodMapping, w, controller, watcher)
@@ -129,17 +130,16 @@ class EcospoldImporter(
         watcher: AsynchronousWatcher
     ) {
         val start = Instant.now()
-        val entries = f.entries.toList()
-        totalValue = entries.size
+        totalValue = f.entries.count()
 
-        processRenderer.processDict = readProcessDict(f, entries)
+        val processDict = readProcessDict(f, f.entries)
 
         if (settings.importUnits) {
-            importUnits(entries, f, writer)
+            importUnits(f.entries, f, writer)
         }
 
         val methodMappingFunction = methodMapping?.let { buildMethodMappingFunction(it) } ?: { it }
-        val parsedEntries = entries.asFlow()
+        val parsedEntries = f.entries.asFlow()
             .filter { it.hasStream() }
             .filter { it.name.endsWith(".spold") }
             .map {
@@ -151,7 +151,7 @@ class EcospoldImporter(
 
         runBlocking {
             parsedEntries.collect { it: Pair<String, ActivityDataset> ->
-                writeImportedDataset(it.second, writer, it.first)
+                writeImportedDataset(it.second, processDict, writer, it.first)
             }
         }
 
@@ -194,7 +194,7 @@ class EcospoldImporter(
         }
 
     private fun importUnits(
-        entries: List<SevenZArchiveEntry>,
+        entries: Iterable<SevenZArchiveEntry>,
         f: SevenZFile,
         writer: ModelWriter
     ) {
@@ -262,7 +262,7 @@ class EcospoldImporter(
 
     private fun readProcessDict(
         f: SevenZFile,
-        entries: List<SevenZArchiveEntry>
+        entries: Iterable<SevenZArchiveEntry>
     ): Map<String, ProcessDictRecord> {
         val dictEntry = entries.first { it.name.endsWith("FilenameToActivityLookup.csv") }
         val csvFormat = CSVFormat.Builder.create().setDelimiter(";").setHeader().build()
@@ -293,10 +293,11 @@ class EcospoldImporter(
 
     private fun writeImportedDataset(
         dataSet: ActivityDataset,
+        processDict: Map<String, ProcessDictRecord>,
         w: ModelWriter,
         path: String
     ) {
         LOG.info("Read dataset from $path")
-        processRenderer.render(dataSet, w, "from $path", methodName)
+        processRenderer.render(dataSet, w, processDict, "from $path", methodName)
     }
 }
