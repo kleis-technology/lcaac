@@ -4,44 +4,49 @@ import ch.kleis.lcaplugin.core.lang.value.CharacterizationFactorValue
 import ch.kleis.lcaplugin.core.lang.value.GenericExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
-import ch.kleis.lcaplugin.core.matrix.impl.Matrix
+import ch.kleis.lcaplugin.core.math.Operations
 
 
-class ImpactFactorMatrix(
-    val observablePorts: IndexedCollection<MatrixColumnIndex>,
-    val controllablePorts: IndexedCollection<MatrixColumnIndex>,
-    private val data: Matrix,
+class ImpactFactorMatrix<Q, M>(
+    val observablePorts: IndexedCollection<MatrixColumnIndex<Q>>,
+    val controllablePorts: IndexedCollection<MatrixColumnIndex<Q>>,
+    private val data: M,
+    private val ops: Operations<Q, M>,
 ) {
-    fun value(outputPort: MatrixColumnIndex, inputPort: MatrixColumnIndex): CharacterizationFactorValue {
-        val outputUnit = outputPort.getDimension().getDefaultUnitValue()
-        val output = GenericExchangeValue(
-            QuantityValue(1.0, outputUnit),
-            outputPort
-        )
+    fun value(outputPort: MatrixColumnIndex<Q>, inputPort: MatrixColumnIndex<Q>): CharacterizationFactorValue<Q> {
+        with(ops) {
+            val outputUnit = outputPort.getDimension().getDefaultUnitValue<Q>()
+            val output = GenericExchangeValue(
+                QuantityValue(ops.pure(1.0), outputUnit),
+                outputPort
+            )
 
-        val inputUnit = inputPort.getDimension().getDefaultUnitValue()
-        val amount = data.value(
-            observablePorts.indexOf(outputPort),
-            controllablePorts.indexOf(inputPort),
-        )
-        val input = GenericExchangeValue(
-            QuantityValue(amount, inputUnit),
-            inputPort
-        )
+            val inputUnit = inputPort.getDimension().getDefaultUnitValue<Q>()
+            val amount = data[
+                observablePorts.indexOf(outputPort),
+                controllablePorts.indexOf(inputPort),
+            ]
+            val input = GenericExchangeValue(
+                QuantityValue(amount, inputUnit),
+                inputPort
+            )
 
-        return CharacterizationFactorValue(output, input)
+            return CharacterizationFactorValue(output, input)
+        }
     }
 
-    fun valueRatio(outputPort: MatrixColumnIndex, inputPort: MatrixColumnIndex): QuantityValue {
-        val cf = value(outputPort, inputPort)
-        val input = cf.input
-        val output = cf.output
-        val numerator = input.quantity().referenceValue() / inputPort.referenceUnit().scale
-        val denominator = output.quantity().referenceValue() / outputPort.referenceUnit().scale
-        return QuantityValue(numerator / denominator, inputPort.referenceUnit())
+    fun valueRatio(outputPort: MatrixColumnIndex<Q>, inputPort: MatrixColumnIndex<Q>): QuantityValue<Q> {
+        with(ops) {
+            val cf = value(outputPort, inputPort)
+            val input = cf.input
+            val output = cf.output
+            val numerator = absoluteScaleValue(ops, input.quantity()) / pure(inputPort.referenceUnit().scale)
+            val denominator = absoluteScaleValue(ops, output.quantity()) / pure(outputPort.referenceUnit().scale)
+            return QuantityValue(numerator / denominator, inputPort.referenceUnit())
+        }
     }
     
-    fun rowAsMap(outputPort: MatrixColumnIndex): Map<MatrixColumnIndex, QuantityValue> {
+    fun rowAsMap(outputPort: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
         return controllablePorts.getElements().associateWith { this.valueRatio(outputPort, it) }
     }
 

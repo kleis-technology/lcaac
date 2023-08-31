@@ -4,11 +4,14 @@ import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 
 class ReduceLabelSelectorsTest {
+    private val ops = BasicOperations
+
     @Test
     fun reduce_whenPassingByArguments() {
         // given
@@ -34,7 +37,7 @@ class ReduceLabelSelectorsTest {
             ),
             mapOf("geo" to EStringLiteral("FR")),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -89,7 +92,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -143,7 +146,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -200,7 +203,8 @@ class ReduceLabelSelectorsTest {
         val reduceLabelSelectors = ReduceLabelSelectors(
             SymbolTable(
                 data = Register.from(mapOf("geo" to EStringLiteral("FR")))
-            )
+            ),
+            ops,
         )
 
         // when
@@ -254,7 +258,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable())
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)

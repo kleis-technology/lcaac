@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ui.toolwindow
 import ch.kleis.lcaplugin.actions.sankey.SankeyGraphBuilder
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.jcef.JBCefBrowser
@@ -18,7 +19,7 @@ import javax.swing.JPanel
 class SankeyGraphResult(
     private val processName: String,
     private val graphData: Graph,
-    private val indicatorList: List<MatrixColumnIndex>,
+    private val indicatorList: List<MatrixColumnIndex<BasicNumber>>,
     private val graphBuilder: SankeyGraphBuilder,
 ) : LcaToolWindowContent {
 
@@ -40,10 +41,10 @@ class SankeyGraphResult(
     }
 
     private fun buildIndicatorChoiceMenu(
-        indicatorList: List<MatrixColumnIndex>,
+        indicatorList: List<MatrixColumnIndex<BasicNumber>>,
         browser: JBCefBrowser,
     ): JComponent {
-        val myCombo = ComboBox<MatrixColumnIndex>()
+        val myCombo = ComboBox<MatrixColumnIndex<BasicNumber>>()
 
         indicatorList.forEach(myCombo::addItem)
 
@@ -51,7 +52,7 @@ class SankeyGraphResult(
 
         myCombo.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
-                val newIndicator = myCombo.selectedItem as MatrixColumnIndex
+                val newIndicator = myCombo.selectedItem as MatrixColumnIndex<BasicNumber>
                 browser.loadHTML(
                     buildWebPage(Json.encodeToString(
                         graphBuilder.buildContributionGraph(newIndicator)),

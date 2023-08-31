@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.core.lang.expression.EBioExchange
 import ch.kleis.lcaplugin.core.lang.expression.EImpact
 import ch.kleis.lcaplugin.core.lang.expression.ESubstanceCharacterization
 import ch.kleis.lcaplugin.core.lang.expression.ESubstanceSpec
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 
 class SubstanceCharacterizationFixture {
     companion object {
@@ -14,7 +15,7 @@ class SubstanceCharacterizationFixture {
             ),
         )
 
-        fun substanceCharacterizationFor(substance: ESubstanceSpec): ESubstanceCharacterization =
+        fun substanceCharacterizationFor(substance: ESubstanceSpec<BasicNumber>): ESubstanceCharacterization<BasicNumber> =
             ESubstanceCharacterization(
                 referenceExchange = EBioExchange(QuantityFixture.oneKilogram, substance),
                 impacts = listOf(

@@ -5,6 +5,8 @@ import ch.kleis.lcaplugin.actions.traceSystemWithIndicator
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.SankeyGraphResult
 import com.intellij.icons.AllIcons
@@ -42,13 +44,13 @@ class SankeyGraphAction(
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generate sankey graph") {
-            private var indicatorList: List<MatrixColumnIndex>? = null
+            private var indicatorList: List<MatrixColumnIndex<BasicNumber>>? = null
             private var graphBuilder: SankeyGraphBuilder? = null
             private var graph: Graph? = null
 
             override fun run(progress: ProgressIndicator) {
-                val trace = traceSystemWithIndicator(progress, file, processName, matchLabels)
-                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint())
+                val trace = traceSystemWithIndicator(progress, file, processName, matchLabels, BasicOperations)
+                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations)
                 val inventory = assessment.inventory()
                 val allocatedSystem = assessment.allocatedSystem
                 indicatorList = inventory.getControllablePorts().getElements()

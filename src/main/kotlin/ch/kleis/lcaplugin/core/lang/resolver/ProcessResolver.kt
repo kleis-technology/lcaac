@@ -6,10 +6,10 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EProductSpec
 import ch.kleis.lcaplugin.core.lang.expression.EStringLiteral
 
-class ProcessResolver(
-    private val symbolTable: SymbolTable
+class ProcessResolver<Q>(
+    private val symbolTable: SymbolTable<Q>
 ) {
-    fun resolve(spec: EProductSpec): EProcessTemplate? {
+    fun resolve(spec: EProductSpec<Q>): EProcessTemplate<Q>? {
         if (spec.fromProcess == null) {
             val matches = symbolTable.getAllTemplatesByProductName(spec.name)
             return if (matches.isEmpty() || matches.size > 1) null else matches.firstOrNull()

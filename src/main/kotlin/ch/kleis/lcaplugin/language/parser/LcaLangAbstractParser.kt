@@ -7,6 +7,7 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.math.QuantityOperations
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.core.prelude.Prelude.Companion.units
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -18,10 +19,11 @@ import ch.kleis.lcaplugin.language.psi.type.unit.PsiUnitDefinition
 import ch.kleis.lcaplugin.language.psi.type.unit.UnitDefinitionType
 import ch.kleis.lcaplugin.psi.*
 
-class LcaLangAbstractParser(
+class LcaLangAbstractParser<Q>(
     private val files: Sequence<LcaFile>,
+    private val ops: QuantityOperations<Q>,
 ) {
-    fun load(): SymbolTable {
+    fun load(): SymbolTable<Q> {
         val unitDefinitions = files.flatMap { it.getUnitDefinitions() }
         val processDefinitions = files.flatMap { it.getProcesses() }
         val substanceDefinitions = files.flatMap { it.getSubstances() }
@@ -39,7 +41,7 @@ class LcaLangAbstractParser(
         }
 
         val substanceCharacterizations = try {
-            Register.empty<ESubstanceCharacterization>()
+            Register.empty<ESubstanceCharacterization<Q>>()
                 .plus(
                     substanceDefinitions
                         .map { Pair(it.buildUniqueKey(), substanceCharacterization(it)) }
@@ -49,8 +51,8 @@ class LcaLangAbstractParser(
             throw EvaluatorException("Duplicate substance ${e.duplicates} defined")
         }
 
-        val globals: Register<DataExpression> = try {
-            Register(units)
+        val globals: Register<DataExpression<Q>> = try {
+            Register(units<Q>())
                 .plus(
                     unitDefinitions
                         .filter { it.getType() == UnitDefinitionType.LITERAL }
@@ -74,7 +76,7 @@ class LcaLangAbstractParser(
         }
 
         val processTemplates = try {
-            Register.empty<EProcessTemplate>()
+            Register.empty<EProcessTemplate<Q>>()
                 .plus(
                     processDefinitions
                         .map { Pair(it.buildUniqueKey(), process(it, globals)) }
@@ -92,7 +94,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): DataExpression {
+    private fun unitLiteral(psiUnitDefinition: PsiUnitDefinition): DataExpression<Q> {
         return EUnitLiteral(
             UnitSymbol.of(psiUnitDefinition.getSymbolField().getValue()),
             1.0,
@@ -100,7 +102,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): DataExpression {
+    private fun unitAlias(psiUnitAlias: PsiUnitDefinition): DataExpression<Q> {
         return EUnitAlias(
             psiUnitAlias.getSymbolField().getValue(),
             parseDataExpression(psiUnitAlias.getAliasForField().dataExpression)
@@ -109,10 +111,10 @@ class LcaLangAbstractParser(
 
     private fun process(
         psiProcess: PsiProcess,
-        globals: Register<DataExpression>,
-    ): EProcessTemplate {
+        globals: Register<DataExpression<Q>>,
+    ): EProcessTemplate<Q> {
         val name = psiProcess.name
-        val labels = psiProcess.getLabels().mapValues { EStringLiteral(it.value) }
+        val labels = psiProcess.getLabels().mapValues { EStringLiteral<Q>(it.value) }
         val locals = psiProcess.getVariables().mapValues { parseDataExpression(it.value) }
         val params = psiProcess.getParameters().mapValues { parseDataExpression(it.value) }
         val symbolTable = SymbolTable(
@@ -146,12 +148,12 @@ class LcaLangAbstractParser(
 
     private fun generateTechnoProductExchanges(
         psiProcess: PsiProcess,
-        symbolTable: SymbolTable,
-    ): List<ETechnoExchange> {
+        symbolTable: SymbolTable<Q>,
+    ): List<ETechnoExchange<Q>> {
         return psiProcess.getProducts().map { technoProductExchange(it, symbolTable) }
     }
 
-    private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization {
+    private fun substanceCharacterization(psiSubstance: PsiSubstance): ESubstanceCharacterization<Q> {
         val substanceSpec = substanceSpec(psiSubstance)
         val quantity = parseDataExpression(psiSubstance.getReferenceUnitField().dataExpression)
         val referenceExchange = EBioExchange(quantity, substanceSpec)
@@ -163,7 +165,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun substanceSpec(psiSubstance: PsiSubstance): ESubstanceSpec {
+    private fun substanceSpec(psiSubstance: PsiSubstance): ESubstanceSpec<Q> {
         return ESubstanceSpec(
             name = psiSubstance.getSubstanceRef().name,
             displayName = psiSubstance.getNameField().getValue(),
@@ -176,9 +178,9 @@ class LcaLangAbstractParser(
 
     private fun substanceSpec(
         substanceSpec: PsiSubstanceSpec,
-        quantity: DataExpression,
-        symbolTable: SymbolTable
-    ): ESubstanceSpec =
+        quantity: DataExpression<Q>,
+        symbolTable: SymbolTable<Q>
+    ): ESubstanceSpec<Q> =
         ESubstanceSpec(
             name = substanceSpec.name,
             compartment = substanceSpec.getCompartmentField()?.getValue(),
@@ -188,20 +190,20 @@ class LcaLangAbstractParser(
         )
 
 
-    private fun impact(exchange: LcaImpactExchange): EImpact {
+    private fun impact(exchange: LcaImpactExchange): EImpact<Q> {
         return EImpact(
             parseDataExpression(exchange.dataExpression),
             indicatorSpec(exchange.indicatorRef),
         )
     }
 
-    private fun indicatorSpec(variable: PsiIndicatorRef): EIndicatorSpec {
+    private fun indicatorSpec(variable: PsiIndicatorRef): EIndicatorSpec<Q> {
         return EIndicatorSpec(
             variable.name
         )
     }
 
-    private fun technoInputExchange(psiExchange: LcaTechnoInputExchange): ETechnoExchange {
+    private fun technoInputExchange(psiExchange: LcaTechnoInputExchange): ETechnoExchange<Q> {
         return ETechnoExchange(
             parseDataExpression(psiExchange.dataExpression),
             inputProductSpec(psiExchange.inputProductSpec),
@@ -210,7 +212,7 @@ class LcaLangAbstractParser(
 
     private fun outputProductSpec(
         outputProductSpec: LcaOutputProductSpec,
-    ): EProductSpec {
+    ): EProductSpec<Q> {
         return EProductSpec(
             outputProductSpec.name
         )
@@ -218,14 +220,14 @@ class LcaLangAbstractParser(
 
     private fun inputProductSpec(
         inputProductSpec: LcaInputProductSpec,
-    ): EProductSpec {
+    ): EProductSpec<Q> {
         return EProductSpec(
             inputProductSpec.name,
             fromProcess = inputProductSpec.getProcessTemplateSpec()?.let { fromProcess(it) },
         )
     }
 
-    private fun fromProcess(spec: LcaProcessTemplateSpec): FromProcess {
+    private fun fromProcess(spec: LcaProcessTemplateSpec): FromProcess<Q> {
         val arguments = spec.argumentList
         val labelSelectors = spec.getMatchLabels()?.labelSelectorList ?: emptyList()
         return FromProcess(
@@ -241,8 +243,8 @@ class LcaLangAbstractParser(
 
     private fun technoProductExchange(
         psiExchange: LcaTechnoProductExchange,
-        symbolTable: SymbolTable
-    ): ETechnoExchange =
+        symbolTable: SymbolTable<Q>,
+    ): ETechnoExchange<Q> =
         ETechnoExchange(
             parseDataExpression(psiExchange.dataExpression),
             outputProductSpec(psiExchange.outputProductSpec)
@@ -256,16 +258,16 @@ class LcaLangAbstractParser(
                 ),
             psiExchange.outputProductSpec.allocateField?.let { allocation(it) }
                 ?: EQuantityScale(
-                    100.0,
-                    units["percent"]!!
+                    ops.pure(100.0),
+                    units<Q>()["percent"]!!
                 )
         )
 
-    private fun allocation(element: LcaAllocateField): DataExpression {
+    private fun allocation(element: LcaAllocateField): DataExpression<Q> {
         return parseDataExpression(element.dataExpression)
     }
 
-    private fun bioExchange(psiExchange: LcaBioExchange, symbolTable: SymbolTable): EBioExchange {
+    private fun bioExchange(psiExchange: LcaBioExchange, symbolTable: SymbolTable<Q>): EBioExchange<Q> {
         val quantity = parseDataExpression(psiExchange.dataExpression)
         return EBioExchange(
             quantity,
@@ -273,7 +275,7 @@ class LcaLangAbstractParser(
         )
     }
 
-    private fun parseDataExpression(dataExpression: LcaDataExpression): DataExpression {
+    private fun parseDataExpression(dataExpression: LcaDataExpression): DataExpression<Q> {
         fun getBinaryBranches(expr: LcaBinaryOperatorExpression) = Pair(
             parseDataExpression(expr.left),
             parseDataExpression(expr.right!!)
@@ -283,7 +285,7 @@ class LcaLangAbstractParser(
             is LcaDataRef -> EDataRef(dataExpression.name)
 
             is LcaScaleQuantityExpression -> EQuantityScale(
-                dataExpression.scale.text.toDouble(),
+                ops.pure(dataExpression.scale.text.toDouble()),
                 parseDataExpression(dataExpression.dataExpression!!)
             )
 

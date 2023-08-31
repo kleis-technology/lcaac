@@ -3,11 +3,14 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class ProcessTemplateExpressionReducerTest {
+    private val ops = BasicOperations
 
     @Test
     fun reduce_whenInstance_shouldReduce() {
@@ -35,11 +38,11 @@ class ProcessTemplateExpressionReducerTest {
                 ),
             )
         )
-        val arguments: Map<String, DataExpression> = mapOf(
+        val arguments: Map<String, DataExpression<BasicNumber>> = mapOf(
             Pair("q_carrot", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
-        val reducer = TemplateExpressionReducer()
+        val reducer = TemplateExpressionReducer(ops)
 
         // when
         val actual = reducer.reduce(expression)
@@ -50,12 +53,12 @@ class ProcessTemplateExpressionReducerTest {
                 name = "carrot_production",
                 products = listOf(
                     ETechnoExchange(
-                        EQuantityScale(3.0, UnitFixture.kg),
+                        EQuantityScale(ops.pure(3.0), UnitFixture.kg),
                         ProductFixture.carrot.copy(
                             fromProcess =
                             FromProcess(
                                 "carrot_production",
-                                MatchLabels.EMPTY,
+                                MatchLabels(emptyMap()),
                                 mapOf(
                                     "q_carrot" to QuantityFixture.twoKilograms,
                                     "q_water" to QuantityFixture.oneLitre,
@@ -101,11 +104,11 @@ class ProcessTemplateExpressionReducerTest {
                 ),
             )
         )
-        val arguments: Map<String, DataExpression> = mapOf(
+        val arguments: Map<String, DataExpression<BasicNumber>> = mapOf(
             Pair("foo", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
-        val reducer = TemplateExpressionReducer()
+        val reducer = TemplateExpressionReducer(ops)
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { reducer.reduce(expression) }
@@ -116,7 +119,7 @@ class ProcessTemplateExpressionReducerTest {
     fun reduce_whenProcessFinal_shouldRemainUnchanged() {
         // given
         val expression = EProcessFinal(ProcessFixture.carrotProduction)
-        val reducer = TemplateExpressionReducer()
+        val reducer = TemplateExpressionReducer(ops)
 
         // when
         val actual = reducer.reduce(expression)
@@ -129,7 +132,7 @@ class ProcessTemplateExpressionReducerTest {
     fun reduce_whenTemplate_shouldRemainUnchanged() {
         // given
         val expression = TemplateFixture.carrotProduction
-        val reducer = TemplateExpressionReducer()
+        val reducer = TemplateExpressionReducer(ops)
 
         // when
         val actual = reducer.reduce(expression)

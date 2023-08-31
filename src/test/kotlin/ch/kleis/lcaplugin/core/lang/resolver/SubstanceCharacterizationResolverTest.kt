@@ -5,6 +5,7 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.expression.ESubstanceCharacterization
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceFixture
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertNull
@@ -14,7 +15,7 @@ class SubstanceCharacterizationResolverTest {
     @Test
     fun resolve_whenEmptyTable_thenNull() {
         // given
-        val symbolTable = SymbolTable.empty()
+        val symbolTable = SymbolTable.empty<BasicNumber>()
         val resolver = SubstanceCharacterizationResolver(symbolTable)
         val substance = SubstanceFixture.propanol
 
@@ -91,7 +92,7 @@ class SubstanceCharacterizationResolverTest {
         val propanolWater = SubstanceFixture.propanol.copy(compartment = "water")
         val propanolWaterCharacterization = SubstanceCharacterizationFixture.substanceCharacterizationFor(propanolWater)
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.from(
+        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
             mapOf(
                 "a" to propanolAirCharacterization,
                 "b" to propanolWaterCharacterization,
@@ -121,7 +122,7 @@ class SubstanceCharacterizationResolverTest {
 
         val query = propanolAir.copy(subCompartment = "airspace G")
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.from(
+        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
             mapOf(
                 "G" to propanolAirCharacterization,
                 "E" to propanolAirECharacterization
@@ -151,7 +152,7 @@ class SubstanceCharacterizationResolverTest {
         val propanolAirSpaceECharacterization =
             SubstanceCharacterizationFixture.substanceCharacterizationFor(propanolAirSpaceE)
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization> = Register.from(
+        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
             mapOf(
                 "a" to propanolAirSpaceGCharacterization,
                 "b" to propanolAirSpaceECharacterization,

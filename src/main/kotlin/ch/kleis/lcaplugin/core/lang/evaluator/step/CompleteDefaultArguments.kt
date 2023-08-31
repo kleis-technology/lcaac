@@ -5,15 +5,15 @@ import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
 
-class CompleteDefaultArguments(
-    private val symbolTable: SymbolTable,
+class CompleteDefaultArguments<Q>(
+    private val symbolTable: SymbolTable<Q>,
 ) {
     private val everyInputProduct =
-        EProcessTemplateApplication.template.body.inputs compose
+        EProcessTemplateApplication.template<Q>().body().inputs() compose
             Every.list() compose
-            ETechnoExchange.product
+            ETechnoExchange.product()
 
-    fun apply(expression: EProcessTemplateApplication): EProcessTemplateApplication {
+    fun apply(expression: EProcessTemplateApplication<Q>): EProcessTemplateApplication<Q> {
         return everyInputProduct.modify(expression) {
             it.fromProcess?.let { ref ->
                 val name = ref.name
@@ -31,7 +31,7 @@ class CompleteDefaultArguments(
         }
     }
 
-    private fun evalLabel(entry: Map.Entry<String, DataExpression>): String {
+    private fun evalLabel(entry: Map.Entry<String, DataExpression<Q>>): String {
         val key = entry.key
         return when (val expression = entry.value) {
             is EStringLiteral -> expression.value

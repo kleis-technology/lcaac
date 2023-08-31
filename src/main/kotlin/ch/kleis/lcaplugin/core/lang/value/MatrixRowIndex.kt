@@ -2,22 +2,22 @@ package ch.kleis.lcaplugin.core.lang.value
 
 import ch.kleis.lcaplugin.core.HasUID
 
-sealed interface MatrixRowIndex : Value, HasUID
+sealed interface MatrixRowIndex<Q> : Value<Q>, HasUID
 
-sealed interface HasImpactList {
-    val impacts: List<ImpactValue>
+sealed interface HasImpactList<Q> {
+    val impacts: List<ImpactValue<Q>>
 }
 
-data class ProcessValue(
+data class ProcessValue<Q>(
     val name: String,
-    val labels: Map<String, StringValue> = emptyMap(),
-    val products: List<TechnoExchangeValue> = emptyList(),
-    val inputs: List<TechnoExchangeValue> = emptyList(),
-    val biosphere: List<BioExchangeValue> = emptyList(),
-    override val impacts: List<ImpactValue> = emptyList(),
-) : Value, HasImpactList, MatrixRowIndex
+    val labels: Map<String, StringValue<Q>> = emptyMap(),
+    val products: List<TechnoExchangeValue<Q>> = emptyList(),
+    val inputs: List<TechnoExchangeValue<Q>> = emptyList(),
+    val biosphere: List<BioExchangeValue<Q>> = emptyList(),
+    override val impacts: List<ImpactValue<Q>> = emptyList(),
+) : Value<Q>, HasImpactList<Q>, MatrixRowIndex<Q>
 
-data class SubstanceCharacterizationValue(
-    val referenceExchange: BioExchangeValue,
-    override val impacts: List<ImpactValue> = emptyList(),
-) : Value, HasImpactList, MatrixRowIndex
+data class SubstanceCharacterizationValue<Q>(
+    val referenceExchange: BioExchangeValue<Q>,
+    override val impacts: List<ImpactValue<Q>> = emptyList(),
+) : Value<Q>, HasImpactList<Q>, MatrixRowIndex<Q>

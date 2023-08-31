@@ -9,12 +9,16 @@ import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.pow
 import kotlin.test.assertFailsWith
 
 class DataExpressionReducerTest {
+    private val ops = BasicOperations
+
     /*
         QUANTITIES
      */
@@ -22,16 +26,17 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenUnitLiteral_shouldSetToNormalForm() {
         // given
-        val unit = EUnitLiteral(UnitSymbol.of("a"), 123.0, Dimension.of("a"))
+        val unit = EUnitLiteral<BasicNumber>(UnitSymbol.of("a"), 123.0, Dimension.of("a"))
         val reducer = DataExpressionReducer(
-            Register.empty()
+            Register.empty(),
+            ops,
         )
 
         // when
         val actual = reducer.reduce(unit)
 
         // then
-        val expected = EQuantityScale(1.0, unit)
+        val expected = EQuantityScale(ops.pure(1.0), unit)
         assertEquals(expected, actual)
     }
 
@@ -39,9 +44,10 @@ class DataExpressionReducerTest {
     fun reduce_whenScale_shouldReduce() {
         // given
         val innerQuantity = QuantityFixture.oneKilogram
-        val quantity = EQuantityScale(2.0, innerQuantity)
+        val quantity = EQuantityScale(ops.pure(2.0), innerQuantity)
         val reducer = DataExpressionReducer(
-            Register.empty()
+            Register.empty(),
+            ops,
         )
 
         // when
@@ -55,9 +61,9 @@ class DataExpressionReducerTest {
     @Test
     fun test_reduce_whenScaleOfScale_shouldReduce() {
         // given
-        val quantity = EQuantityScale(1.0, QuantityFixture.twoKilograms)
-        val reducer = DataExpressionReducer(Register.empty())
-        val expected = EQuantityScale(2.0, UnitFixture.kg)
+        val quantity = EQuantityScale(ops.pure(1.0), QuantityFixture.twoKilograms)
+        val reducer = DataExpressionReducer(Register.empty(), ops)
+        val expected = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
 
         // when
         val actual = reducer.reduce(quantity)
@@ -69,10 +75,11 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenScaleAndUnboundRef_shouldDoNothing() {
         // given
-        val innerQuantity = EDataRef("a")
-        val quantity = EQuantityScale(2.0, innerQuantity)
+        val innerQuantity = EDataRef<BasicNumber>("a")
+        val quantity = EQuantityScale(ops.pure(2.0), innerQuantity)
         val reducer = DataExpressionReducer(
-            Register.empty()
+            Register.empty(),
+            ops,
         )
 
         // when
@@ -85,13 +92,13 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenLiteral_shouldReduceUnit() {
         // given
-        val quantityEnvironment: Register<DataExpression> = Register.from(
+        val quantityEnvironment: Register<DataExpression<BasicNumber>> = Register.from(
             hashMapOf(
                 Pair("kg", UnitFixture.kg)
             )
         )
-        val quantity = EQuantityScale(1.0, EDataRef("kg"))
-        val reducer = DataExpressionReducer(quantityEnvironment)
+        val quantity = EQuantityScale(ops.pure(1.0), EDataRef("kg"))
+        val reducer = DataExpressionReducer(quantityEnvironment, ops)
 
         // when
         val actual = reducer.reduce(quantity)
@@ -104,17 +111,18 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_add_whenSameDimension_shouldAddAndSelectBiggestScale() {
         // given
-        val a = EQuantityScale(2.0, UnitFixture.kg)
-        val b = EQuantityScale(1000.0, UnitFixture.g)
+        val a = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
+        val b = EQuantityScale(ops.pure(1000.0), UnitFixture.g)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
         val actual = reducer.reduce(EQuantityAdd(a, b))
 
         // then
-        val expected = EQuantityScale(3.0, UnitFixture.kg)
+        val expected = EQuantityScale(ops.pure(3.0), UnitFixture.kg)
         assertEquals(expected, actual)
     }
 
@@ -123,8 +131,8 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.kg
         val b = UnitFixture.kg
-        val expected = EQuantityScale(2.0, UnitFixture.kg)
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityAdd(a, b))
@@ -136,11 +144,12 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_add_whenNotSameDimension_shouldThrowEvaluatorException() {
         // given
-        val a = EQuantityScale(2.0, UnitFixture.kg)
-        val b = EQuantityScale(1000.0, UnitFixture.m)
+        val a = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
+        val b = EQuantityScale(ops.pure(1000.0), UnitFixture.m)
         val quantity = EQuantityAdd(a, b)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when/then
@@ -155,8 +164,8 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.g
         val b = UnitFixture.kg
-        val expected = EQuantityScale(1.001, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(1.001), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityAdd(a, b))
@@ -170,8 +179,8 @@ class DataExpressionReducerTest {
         // given
         val a = QuantityFixture.twoKilograms
         val b = UnitFixture.kg
-        val expected = EQuantityScale(3.0, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(3.0), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityAdd(a, b))
@@ -185,8 +194,8 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.kg
         val b = QuantityFixture.twoKilograms
-        val expected = EQuantityScale(3.0, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(3.0), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityAdd(a, b))
@@ -198,27 +207,29 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_sub_whenSameDimension_shouldSubAndSelectBiggestScale() {
         // given
-        val a = EQuantityScale(2.0, UnitFixture.kg)
-        val b = EQuantityScale(1000.0, UnitFixture.g)
+        val a = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
+        val b = EQuantityScale(ops.pure(1000.0), UnitFixture.g)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
         val actual = reducer.reduce(EQuantitySub(a, b))
 
         // then
-        val expected = EQuantityScale(1.0, UnitFixture.kg)
+        val expected = EQuantityScale(ops.pure(1.0), UnitFixture.kg)
         assertEquals(expected, actual)
     }
 
     @Test
     fun reduce_sub_whenNotSameDimension_shouldThrowEvaluatorException() {
         // given
-        val a = EQuantityScale(2.0, UnitFixture.kg)
-        val b = EQuantityScale(1000.0, UnitFixture.m)
+        val a = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
+        val b = EQuantityScale(ops.pure(1000.0), UnitFixture.m)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
         val eQuantitySub = EQuantitySub(a, b)
 
@@ -234,8 +245,8 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.kg
         val b = UnitFixture.kg
-        val expected = EQuantityScale(0.0, UnitFixture.kg)
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(0.0), UnitFixture.kg)
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantitySub(a, b))
@@ -249,8 +260,8 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.kg
         val b = UnitFixture.g
-        val expected = EQuantityScale(0.999, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(0.999), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantitySub(a, b))
@@ -264,8 +275,8 @@ class DataExpressionReducerTest {
         // given
         val a = QuantityFixture.twoKilograms
         val b = UnitFixture.kg
-        val expected = EQuantityScale(1.0, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expected = EQuantityScale(ops.pure(1.0), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantitySub(a, b))
@@ -278,9 +289,9 @@ class DataExpressionReducerTest {
     fun reduce_sub_whenOnlyOneScaleRight_shouldSubAsScale() {
         // given
         val a = UnitFixture.kg
-        val b = EQuantityScale(0.5, UnitFixture.kg)
-        val expected = EQuantityScale(0.5, EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
-        val reducer = DataExpressionReducer(Register.empty())
+        val b = EQuantityScale(ops.pure(0.5), UnitFixture.kg)
+        val expected = EQuantityScale(ops.pure(0.5), EUnitLiteral(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantitySub(a, b))
@@ -292,10 +303,11 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_mul_whenTwoScales_shouldMultiply() {
         // given
-        val a = EQuantityScale(2.0, UnitFixture.person)
-        val b = EQuantityScale(2.0, UnitFixture.km)
+        val a = EQuantityScale(ops.pure(2.0), UnitFixture.person)
+        val b = EQuantityScale(ops.pure(2.0), UnitFixture.km)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -303,7 +315,7 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            4.0,
+            ops.pure(4.0),
             EUnitLiteral(
                 UnitSymbol.of("person").multiply(UnitSymbol.of("km")),
                 1.0 * 1000.0,
@@ -320,6 +332,7 @@ class DataExpressionReducerTest {
         val b = UnitFixture.km
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -327,7 +340,8 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            1.0, EUnitLiteral(
+            ops.pure(1.0),
+            EUnitLiteral(
                 UnitSymbol.of("person").multiply(UnitSymbol.of("km")),
                 1.0 * 1000.0,
                 Dimension.None.multiply(DimensionFixture.length)
@@ -343,13 +357,14 @@ class DataExpressionReducerTest {
         val b = QuantityFixture.twoKilograms
         val expected =
             EQuantityScale(
-                2.0,
+                ops.pure(2.0),
                 EUnitLiteral(UnitSymbol.of("kg").pow(2.0), 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass))
             )
 
         // when
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -366,13 +381,14 @@ class DataExpressionReducerTest {
         val b = UnitFixture.kg
         val expected =
             EQuantityScale(
-                2.0,
+                ops.pure(2.0),
                 EUnitLiteral(UnitSymbol.of("kg").pow(2.0), 1.0, DimensionFixture.mass.multiply(DimensionFixture.mass))
             )
 
         // when
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -385,10 +401,11 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_div_whenTwoScales_shouldDiv() {
         // given
-        val a = EQuantityScale(4.0, UnitFixture.km)
-        val b = EQuantityScale(2.0, UnitFixture.hour)
+        val a = EQuantityScale(ops.pure(4.0), UnitFixture.km)
+        val b = EQuantityScale(ops.pure(2.0), UnitFixture.hour)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -396,7 +413,7 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            2.0,
+            ops.pure(2.0),
             EUnitLiteral(
                 UnitSymbol.of("km").divide(UnitSymbol.of("hour")),
                 1000.0 / 3600.0,
@@ -411,14 +428,15 @@ class DataExpressionReducerTest {
         // given
         val a = UnitFixture.km
         val b = UnitFixture.hour
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityDiv(a, b))
 
         // then
         val expected = EQuantityScale(
-            1.0, EUnitLiteral(
+            ops.pure(1.0),
+            EUnitLiteral(
                 UnitSymbol.of("km").divide(UnitSymbol.of("hour")),
                 1000.0 / 3600.0,
                 DimensionFixture.length.divide(DimensionFixture.time)
@@ -430,10 +448,10 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_div_whenOnlyOneScaleLeft_shouldDiv() {
         // given
-        val a = EQuantityScale(4.0, UnitFixture.km)
+        val a = EQuantityScale(ops.pure(4.0), UnitFixture.km)
         val b = UnitFixture.hour
         val expected = EQuantityScale(
-            4.0,
+            ops.pure(4.0),
             EUnitLiteral(
                 UnitSymbol.of("km").divide(UnitSymbol.of("hour")),
                 1000.0 / 3600.0,
@@ -441,7 +459,7 @@ class DataExpressionReducerTest {
             )
         )
 
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(EQuantityDiv(a, b))
@@ -454,9 +472,10 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_pow_shouldExponentiate() {
         // given
-        val a = EQuantityScale(4.0, UnitFixture.km)
+        val a = EQuantityScale(ops.pure(4.0), UnitFixture.km)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -464,7 +483,7 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            16.0,
+            ops.pure(16.0),
             EUnitLiteral(
                 UnitSymbol.of("km").pow(2.0),
                 1e6,
@@ -477,13 +496,14 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenRef_shouldReadEnvironment() {
         // given
-        val a = EDataRef("a")
+        val a = EDataRef<BasicNumber>("a")
         val reducer = DataExpressionReducer(
             Register.from(
                 hashMapOf(
-                    Pair("a", EQuantityScale(1.0, UnitFixture.kg))
+                    Pair("a", EQuantityScale(ops.pure(1.0), UnitFixture.kg))
                 )
             ),
+            ops,
         )
 
         // when
@@ -501,17 +521,18 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenUnitComposition_shouldReturnNormalForm() {
         // given
-        val kg = EUnitLiteral(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
-        val quantityConversion = EQuantityScale(2.2, kg)
+        val kg = EUnitLiteral<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
+        val quantityConversion = EQuantityScale(ops.pure(2.2), kg)
         val unitComposition = EUnitAlias("lbs", quantityConversion)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
         // when
         val actual = reducer.reduce(unitComposition)
         // then
         val expect = EQuantityScale(
-            1.0,
+            ops.pure(1.0),
             EUnitLiteral(UnitSymbol.of("lbs"), scale = 2.2, Dimension.of("mass"))
         )
         assertEquals(actual, expect)
@@ -520,17 +541,18 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenUnitComposition_shouldRespectScaling() {
         // given
-        val g = EUnitLiteral(UnitSymbol.of("g"), 1.0E-3, Dimension.of("mass"))
-        val quantityConversion = EQuantityScale(2200.0, g)
+        val g = EUnitLiteral<BasicNumber>(UnitSymbol.of("g"), 1.0E-3, Dimension.of("mass"))
+        val quantityConversion = EQuantityScale(ops.pure(2200.0), g)
         val unitComposition = EUnitAlias("lbs", quantityConversion)
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
         // when
         val actual = reducer.reduce(unitComposition)
         // then
         val expect = EQuantityScale(
-            1.0,
+            ops.pure(1.0),
             EUnitLiteral(UnitSymbol.of("lbs"), scale = 2.2, Dimension.of("mass"))
         )
         assertEquals(actual, expect)
@@ -540,13 +562,13 @@ class DataExpressionReducerTest {
     fun reduce_whenUnitCompositionComposition_shouldDeepReduce() {
         // given
         val expr = EUnitAlias("foo", EUnitAlias("bar", UnitFixture.kg))
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityScale(1.0, EUnitLiteral(UnitSymbol.of("foo"), 1.0, DimensionFixture.mass))
+        val expected = EQuantityScale(ops.pure(1.0), EUnitLiteral(UnitSymbol.of("foo"), 1.0, DimensionFixture.mass))
         assertEquals(expected, actual)
     }
 
@@ -556,13 +578,14 @@ class DataExpressionReducerTest {
         val symbolTable = SymbolTable(
             data = Register.from(
                 mapOf("a" to UnitFixture.kg)
-            )
+            ),
         )
         val unit = EQuantityClosure(symbolTable, EDataRef("a"))
         val reducer = DataExpressionReducer(
             Register.from(
                 mapOf("a" to UnitFixture.l)
-            )
+            ),
+            ops,
         )
 
         // when
@@ -579,6 +602,7 @@ class DataExpressionReducerTest {
         val kg = UnitFixture.kg
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -594,7 +618,7 @@ class DataExpressionReducerTest {
         // given
         val expr = EUnitOf(UnitFixture.l)
         val expected = QuantityFixture.oneLitre
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
@@ -606,8 +630,8 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenUnitOfRef_shouldReturnAsIs() {
         // given
-        val expr = EUnitOf(EDataRef("beer"))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expr = EUnitOf(EDataRef<BasicNumber>("beer"))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
@@ -622,14 +646,14 @@ class DataExpressionReducerTest {
         val expr = EUnitOf(EQuantityMul(UnitFixture.kg, QuantityFixture.twoLitres))
         val expected =
             EQuantityScale(
-                1.0,
+                ops.pure(1.0),
                 EUnitLiteral(
                     UnitSymbol.of("kg").multiply(UnitSymbol.of("l")),
                     1.0e-3,
                     DimensionFixture.mass.multiply(DimensionFixture.volume)
                 )
             )
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
@@ -644,14 +668,14 @@ class DataExpressionReducerTest {
         val expr = EUnitOf(EQuantityMul(QuantityFixture.twoLitres, UnitFixture.kg))
         val expected =
             EQuantityScale(
-                1.0,
+                ops.pure(1.0),
                 EUnitLiteral(
                     UnitSymbol.of("l").multiply(UnitSymbol.of("kg")),
                     1.0e-3,
                     DimensionFixture.mass.multiply(DimensionFixture.volume)
                 )
             )
-        val reducer = DataExpressionReducer(Register.empty())
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
@@ -663,14 +687,14 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenUnitOfUnitOfRef_shouldMerge() {
         // given
-        val expr = EUnitOf(EUnitOf(EDataRef("beer")))
-        val reducer = DataExpressionReducer(Register.empty())
+        val expr = EUnitOf(EUnitOf(EDataRef<BasicNumber>("beer")))
+        val reducer = DataExpressionReducer(Register.empty(), ops)
 
         // when
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EUnitOf(EDataRef("beer"))
+        val expected = EUnitOf(EDataRef<BasicNumber>("beer"))
         assertEquals(expected, actual)
     }
 
@@ -681,6 +705,7 @@ class DataExpressionReducerTest {
         val l = UnitFixture.l
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -688,7 +713,8 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            1.0, EUnitLiteral(
+            ops.pure(1.0),
+            EUnitLiteral(
                 UnitSymbol.of("kg").divide(UnitSymbol.of("l")),
                 1.0 / 1.0e-3,
                 DimensionFixture.mass.divide(DimensionFixture.volume),
@@ -704,6 +730,7 @@ class DataExpressionReducerTest {
         val l = UnitFixture.l
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -711,7 +738,8 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            1.0, EUnitLiteral(
+            ops.pure(1.0),
+            EUnitLiteral(
                 UnitSymbol.of("kg").multiply(UnitSymbol.of("l")),
                 1.0 * 1.0e-3,
                 DimensionFixture.mass.multiply(DimensionFixture.volume),
@@ -726,6 +754,7 @@ class DataExpressionReducerTest {
         val m = UnitFixture.m
         val reducer = DataExpressionReducer(
             Register.empty(),
+            ops,
         )
 
         // when
@@ -733,7 +762,8 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EQuantityScale(
-            1.0, EUnitLiteral(
+            ops.pure(1.0),
+            EUnitLiteral(
                 UnitSymbol.of("m").pow(2.0),
                 1.0.pow(2.0),
                 DimensionFixture.length.pow(2.0),
@@ -745,14 +775,15 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenRef_shouldReadEnv() {
         // given
-        val ref = EDataRef("kg")
-        val units: Register<DataExpression> = Register.from(
+        val ref = EDataRef<BasicNumber>("kg")
+        val units: Register<DataExpression<BasicNumber>> = Register.from(
             hashMapOf(
                 Pair("kg", UnitFixture.kg)
             )
         )
         val reducer = DataExpressionReducer(
             units,
+            ops,
         )
 
         // when
@@ -771,9 +802,10 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenStringLiteral() {
         // given
-        val expression = EStringLiteral("FR")
+        val expression = EStringLiteral<BasicNumber>("FR")
         val reducer = DataExpressionReducer(
-            Register.empty<DataExpression>()
+            Register.empty<DataExpression<BasicNumber>>(),
+            ops,
         )
 
         // when
@@ -786,35 +818,37 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_refToString_whenFound() {
         // given
-        val expression = EDataRef("geo")
+        val expression = EDataRef<BasicNumber>("geo")
         val reducer = DataExpressionReducer(
             Register.from(
                 mapOf(
                     "geo" to EDataRef("geo2"),
                     "geo2" to EStringLiteral("FR"),
                 )
-            )
+            ),
+            ops,
         )
 
         // when
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EStringLiteral("FR")
+        val expected = EStringLiteral<BasicNumber>("FR")
         kotlin.test.assertEquals(expected, actual)
     }
 
     @Test
     fun reduce_refToString_whenNotFound() {
         // given
-        val expression = EDataRef("foo")
+        val expression = EDataRef<BasicNumber>("foo")
         val reducer = DataExpressionReducer(
             Register.from(
                 mapOf(
                     "geo" to EDataRef("geo2"),
                     "geo2" to EStringLiteral("FR"),
                 )
-            )
+            ),
+            ops,
         )
 
         // when

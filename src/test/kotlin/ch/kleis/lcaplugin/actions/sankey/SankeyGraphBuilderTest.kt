@@ -9,6 +9,9 @@ import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.parser.LcaLangAbstractParser
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.openapi.ui.naturalSorted
@@ -21,15 +24,17 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class SankeyGraphBuilderTest : BasePlatformTestCase() {
+    private val ops = BasicOperations
+
     override fun getTestDataPath(): String {
         return "testdata"
     }
 
     private data class SankeyRequiredInformation(
-        val observedPort: MatrixColumnIndex,
-        val allocatedSystem: SystemValue,
-        val inventory: Inventory,
-        val comparator: Comparator<MatrixColumnIndex>,
+        val observedPort: MatrixColumnIndex<BasicNumber>,
+        val allocatedSystem: SystemValue<BasicNumber>,
+        val inventory: Inventory<BasicNumber, BasicMatrix>,
+        val comparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     )
 
     private fun getRequiredInformation(
@@ -37,15 +42,67 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
         vf: VirtualFile
     ): SankeyRequiredInformation {
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file))
+        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
         val symbolTable = parser.load()
         val entryPoint = EProcessTemplateApplication(template = symbolTable.getTemplate(process)!!)
-        val trace = Evaluator(symbolTable).trace(entryPoint)
-        val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint())
+        val trace = Evaluator(symbolTable, ops).trace(entryPoint)
+        val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), ops)
         val inventory = assessment.inventory()
         val allocatedSystem = assessment.allocatedSystem
         val sankeyPort = inventory.getControllablePorts().getElements().first()
         return SankeyRequiredInformation(sankeyPort, allocatedSystem, inventory, trace.getObservableOrder())
+    }
+
+    @Test
+    fun test_weird() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        val vf = myFixture.createFile(
+            "$pkgName.lca", """
+                        process transport_truck {
+                            params {
+                                weight = 2 ton
+                                ratio = 2 kg/ton
+                                fuel = "diesel"
+                            }
+                            products {
+                                1 ton*km truck
+                            }
+                            variables {
+                                fuel_amount = weight * ratio
+                            }
+                            inputs {
+                                fuel_amount fuel_emissions from combustion
+                            }
+                        }
+
+                        process combustion {
+                            products {
+                                1 kg fuel_emissions
+                            }
+                            emissions {
+                                0.3 kg co2
+                            }
+                        }
+                """.trimIndent()
+        )
+        val (sankeyPort, allocatedSystem, inventory, comparator) = getRequiredInformation("transport_truck", vf)
+        val sut = SankeyGraphBuilder(allocatedSystem, inventory, comparator)
+
+        // when
+        val graph = sut.buildContributionGraph(sankeyPort)
+
+        // then
+        val expected = Graph.empty().addNode(
+            GraphNode("co2", "co2"),
+            GraphNode("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "truck"),
+            GraphNode("fuel_emissions from combustion{}{}", "fuel_emissions"),
+        ).addLink(
+            GraphLink("truck from transport_truck{}{weight=2.0 ton, ratio=2.0 kg.ton⁻¹, fuel=diesel}", "fuel_emissions from combustion{}{}", 1.2),
+            GraphLink("fuel_emissions from combustion{}{}", "co2", 1.2),
+        )
+        assertEquals(expected.nodes, graph.nodes)
+        assertEquals(expected.links, graph.links)
     }
 
     @Test
@@ -82,7 +139,7 @@ class SankeyGraphBuilderTest : BasePlatformTestCase() {
     }
 
     @Test
-    fun test_whenRessource_thenSankey() {
+    fun test_whenResource_thenSankey() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(

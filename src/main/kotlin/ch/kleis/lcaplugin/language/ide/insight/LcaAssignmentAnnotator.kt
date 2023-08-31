@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.annotateErrWithMessage
 import ch.kleis.lcaplugin.language.ide.insight.AnnotatorHelper.isAssignementReciever
@@ -12,7 +13,7 @@ class LcaAssignmentAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiDataRef && isAssignementReciever(element)) {
             when {
-                Prelude.unitMap[element.name] != null ->
+                Prelude.unitMap<BasicNumber>()[element.name] != null ->
                     annotateErrWithMessage(element, holder, "Quantity reference ${element.name} is already defined in the unit prelude.")
 
                 element.reference.multiResolve(false).size > 1 ->

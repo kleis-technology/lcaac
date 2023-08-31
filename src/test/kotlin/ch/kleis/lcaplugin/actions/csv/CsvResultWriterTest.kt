@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.actions.csv
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import io.mockk.mockk
 import org.apache.commons.io.output.AppendableWriter
 import org.junit.Test
@@ -25,8 +26,8 @@ class CsvResultWriterTest {
             request,
             ProductValue("out", UnitValueFixture.kg),
             mapOf(
-                ProductValue("in1", UnitValueFixture.kg) to QuantityValueFixture.oneKilogram,
-                ProductValue("in2", UnitValueFixture.l) to QuantityValueFixture.oneLitre,
+                ProductValue<BasicNumber>("in1", UnitValueFixture.kg) to QuantityValueFixture.oneKilogram,
+                ProductValue<BasicNumber>("in2", UnitValueFixture.l) to QuantityValueFixture.oneLitre,
             )
         )
         val outputStream = mockk<OutputStream>()

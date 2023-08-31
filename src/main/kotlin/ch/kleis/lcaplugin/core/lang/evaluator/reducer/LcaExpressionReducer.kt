@@ -2,13 +2,15 @@ package ch.kleis.lcaplugin.core.lang.evaluator.reducer
 
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.math.QuantityOperations
 
-class LcaExpressionReducer(
-    dataRegister: Register<DataExpression> = Register.empty(),
-) : Reducer<LcaExpression> {
-    private val dataExpressionReducer = DataExpressionReducer(dataRegister)
+class LcaExpressionReducer<Q>(
+    dataRegister: Register<DataExpression<Q>> = Register.empty(),
+    ops: QuantityOperations<Q>,
+) : Reducer<LcaExpression<Q>> {
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister, ops)
 
-    override fun reduce(expression: LcaExpression): LcaExpression {
+    override fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
         return when (expression) {
             is EProcess -> reduceProcess(expression)
             is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)
@@ -23,7 +25,7 @@ class LcaExpressionReducer(
         }
     }
 
-    fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization): ESubstanceCharacterization {
+    fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
         return ESubstanceCharacterization(
             reduceBioExchange(expression.referenceExchange),
             expression.impacts.map(::reduceImpact),
@@ -31,7 +33,7 @@ class LcaExpressionReducer(
     }
 
 
-    private fun reduceProcess(expression: EProcess): EProcess {
+    private fun reduceProcess(expression: EProcess<Q>): EProcess<Q> {
         return EProcess(
             expression.name,
             expression.labels,
@@ -42,25 +44,25 @@ class LcaExpressionReducer(
         )
     }
 
-    private fun reduceImpact(expression: EImpact) = EImpact(
+    private fun reduceImpact(expression: EImpact<Q>) = EImpact(
         dataExpressionReducer.reduce(expression.quantity),
         reduceIndicatorSpec(expression.indicator),
     )
 
-    private fun reduceBioExchange(expression: EBioExchange) = EBioExchange(
+    private fun reduceBioExchange(expression: EBioExchange<Q>) = EBioExchange(
         dataExpressionReducer.reduce(expression.quantity),
         reduceSubstanceSpec(expression.substance),
     )
 
-    private fun reduceTechnoExchange(expression: ETechnoExchange): ETechnoExchange {
+    private fun reduceTechnoExchange(expression: ETechnoExchange<Q>): ETechnoExchange<Q> {
         return ETechnoExchange(
             dataExpressionReducer.reduce(expression.quantity),
             reduceProductSpec(expression.product),
-            dataExpressionReducer.reduce(expression.allocation)
+            expression.allocation?.let { dataExpressionReducer.reduce(it) }
         )
     }
 
-    private fun reduceProductSpec(expression: EProductSpec): EProductSpec {
+    private fun reduceProductSpec(expression: EProductSpec<Q>): EProductSpec<Q> {
         return EProductSpec(
             expression.name,
             expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },
@@ -73,7 +75,7 @@ class LcaExpressionReducer(
         )
     }
 
-    private fun reduceSubstanceSpec(expression: ESubstanceSpec): ESubstanceSpec {
+    private fun reduceSubstanceSpec(expression: ESubstanceSpec<Q>): ESubstanceSpec<Q> {
         return ESubstanceSpec(
             expression.name,
             expression.displayName,
@@ -84,7 +86,7 @@ class LcaExpressionReducer(
         )
     }
 
-    private fun reduceIndicatorSpec(expression: EIndicatorSpec): EIndicatorSpec {
+    private fun reduceIndicatorSpec(expression: EIndicatorSpec<Q>): EIndicatorSpec<Q> {
         return EIndicatorSpec(
             expression.name,
             expression.referenceUnit?.let { dataExpressionReducer.reduce(it) },

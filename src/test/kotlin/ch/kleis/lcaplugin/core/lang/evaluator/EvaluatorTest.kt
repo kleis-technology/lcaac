@@ -6,6 +6,8 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.expression.*
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import com.intellij.openapi.ui.naturalSorted
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -13,10 +15,12 @@ import org.junit.Test
 import kotlin.test.assertFailsWith
 
 class EvaluatorTest {
+    private val ops = BasicOperations
+
     @Test
     fun eval_processWithImpacts_shouldReduceImpacts() {
         // given
-        val symbolTable = SymbolTable.empty()
+        val symbolTable = SymbolTable.empty<BasicNumber>()
         val instance = EProcessTemplateApplication(
             template = EProcessTemplate(
                 body = EProcess(
@@ -27,7 +31,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable)
+        val evaluator = Evaluator(symbolTable, ops)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
             IndicatorValueFixture.climateChange,
@@ -43,7 +47,7 @@ class EvaluatorTest {
     @Test
     fun eval_unresolvedSubstance_shouldBeTreatedAsTerminal() {
         // given
-        val symbolTable = SymbolTable.empty()
+        val symbolTable = SymbolTable.empty<BasicNumber>()
         val instance = EProcessTemplateApplication(
             template = EProcessTemplate(
                 body = EProcess(
@@ -63,8 +67,8 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable)
-        val expected = FullyQualifiedSubstanceValue(
+        val evaluator = Evaluator(symbolTable, ops)
+        val expected = FullyQualifiedSubstanceValue<BasicNumber>(
             "doesNotExist",
             type = SubstanceType.EMISSION,
             compartment = "water",
@@ -85,8 +89,8 @@ class EvaluatorTest {
         val template = TemplateFixture.carrotProduction
         val i1 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.oneLitre))
         val i2 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.twoLitres))
-        val symbolTable = SymbolTable.empty()
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val symbolTable = SymbolTable.empty<BasicNumber>()
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when
         val p1 = recursiveEvaluator.eval(i1).processes.first().products.first().product
@@ -103,10 +107,10 @@ class EvaluatorTest {
         // given
         val template = TemplateFixture.cyclicProduction
         val appli = EProcessTemplateApplication(template)
-        val register = Register.empty<EProcessTemplate>().plus(mapOf("carrot_production" to template))
+        val register = Register.empty<EProcessTemplate<BasicNumber>>().plus(mapOf("carrot_production" to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
 
@@ -119,7 +123,7 @@ class EvaluatorTest {
     @Test
     fun eval_withImplicitProcessResolution_thenCorrectSystem() {
         // given
-        val processTemplates: Register<EProcessTemplate> = Register.from(
+        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -148,7 +152,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when
         val actual = recursiveEvaluator.eval(expression).processes.naturalSorted()
@@ -210,7 +214,7 @@ class EvaluatorTest {
     @Test
     fun eval_whenExistsFromProcessRef_thenCorrectSystem() {
         // given
-        val processTemplates: Register<EProcessTemplate> = Register.from(
+        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
             mapOf(
                 "carrot_production" to TemplateFixture.carrotProduction
             )
@@ -236,7 +240,7 @@ class EvaluatorTest {
                                 UnitFixture.kg,
                                 FromProcess(
                                     "carrot_production",
-                                    MatchLabels.EMPTY,
+                                    MatchLabels(emptyMap()),
                                     mapOf("q_water" to QuantityFixture.twoLitres),
                                 ),
                             )
@@ -245,7 +249,7 @@ class EvaluatorTest {
                 ),
             )
         )
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when
         val actual = recursiveEvaluator.eval(expression).processes.naturalSorted()
@@ -332,7 +336,7 @@ class EvaluatorTest {
                                 UnitFixture.kg,
                                 FromProcess(
                                     "carrot_production",
-                                    MatchLabels.EMPTY,
+                                    MatchLabels(emptyMap()),
                                     mapOf("q_water" to QuantityFixture.twoLitres),
                                 ),
                             )
@@ -341,7 +345,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when/then
         val e = assertFailsWith(
@@ -382,7 +386,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when
         val actual = recursiveEvaluator.eval(expression).substanceCharacterizations.toSet()
@@ -423,7 +427,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val recursiveEvaluator = Evaluator(symbolTable)
+        val recursiveEvaluator = Evaluator(symbolTable, ops)
 
         // when/then
         val e = assertFailsWith(

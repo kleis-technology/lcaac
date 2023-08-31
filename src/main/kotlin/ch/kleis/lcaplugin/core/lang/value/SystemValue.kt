@@ -3,17 +3,17 @@ package ch.kleis.lcaplugin.core.lang.value
 import ch.kleis.lcaplugin.core.HasUID
 
 
-data class SystemValue(
-    val processes: Set<ProcessValue> = emptySet(),
-    val substanceCharacterizations: Set<SubstanceCharacterizationValue> = emptySet(),
-) : Value, HasUID {
+data class SystemValue<Q>(
+    val processes: Set<ProcessValue<Q>> = emptySet(),
+    val substanceCharacterizations: Set<SubstanceCharacterizationValue<Q>> = emptySet(),
+) : Value<Q>, HasUID {
 
-    val productToProcessMap: Map<ProductValue, ProcessValue> =
+    val productToProcessMap: Map<ProductValue<Q>, ProcessValue<Q>> =
         processes.flatMap { process -> process.products.map { it.product to process } }.toMap()
 
 }
 
-data class CharacterizationFactorValue(
-    val output: ExchangeValue,
-    val input: ExchangeValue,
-) : Value
+data class CharacterizationFactorValue<Q>(
+    val output: ExchangeValue<Q>,
+    val input: ExchangeValue<Q>,
+) : Value<Q>

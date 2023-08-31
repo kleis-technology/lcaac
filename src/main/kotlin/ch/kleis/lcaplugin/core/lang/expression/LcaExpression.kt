@@ -1,22 +1,19 @@
 package ch.kleis.lcaplugin.core.lang.expression
 
 import arrow.optics.optics
-import ch.kleis.lcaplugin.core.lang.dimension.Dimension
-import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 
-@optics
-sealed interface LcaExpression : Expression {
+sealed interface LcaExpression<Q> : Expression<Q> {
     companion object
 }
 
 // Product
 @optics
-data class EProductSpec(
+data class EProductSpec<Q>(
     val name: String,
-    val referenceUnit: DataExpression? = null,
-    val fromProcess: FromProcess? = null,
-) : LcaExpression {
+    val referenceUnit: DataExpression<Q>? = null,
+    val fromProcess: FromProcess<Q>? = null,
+) : LcaExpression<Q> {
     companion object
 }
 
@@ -38,82 +35,75 @@ enum class SubstanceType(val value: String) {
 }
 
 @optics
-data class ESubstanceSpec(
+data class ESubstanceSpec<Q>(
     val name: String,
     val displayName: String = name,
     val type: SubstanceType? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
-    val referenceUnit: DataExpression? = null,
-) : LcaExpression {
+    val referenceUnit: DataExpression<Q>? = null,
+) : LcaExpression<Q> {
     companion object
 }
 
 // Indicator
 @optics
-data class EIndicatorSpec(
+data class EIndicatorSpec<Q>(
     val name: String,
-    val referenceUnit: DataExpression? = null,
-) : LcaExpression {
+    val referenceUnit: DataExpression<Q>? = null,
+) : LcaExpression<Q> {
     companion object
 }
 
 // Exchange
 @optics
-sealed interface LcaExchangeExpression : LcaExpression {
+sealed interface LcaExchangeExpression<Q> : LcaExpression<Q> {
     companion object
 }
 
 @optics
-data class ETechnoExchange(
-    val quantity: DataExpression,
-    val product: EProductSpec,
-    val allocation: DataExpression
-) :
-    LcaExchangeExpression {
-    constructor(quantity: DataExpression, product: EProductSpec) : this(
-        quantity,
-        product,
-        EQuantityScale(100.0, EUnitLiteral(UnitSymbol.of("percent"), 0.01, Dimension.None))
-    )
-
+data class ETechnoExchange<Q>(
+    val quantity: DataExpression<Q>,
+    val product: EProductSpec<Q>,
+    val allocation: DataExpression<Q>? = null,
+) : LcaExchangeExpression<Q> {
     companion object
 }
 
 @optics
-data class EBioExchange(val quantity: DataExpression, val substance: ESubstanceSpec) :
-    LcaExchangeExpression {
+data class EBioExchange<Q>(val quantity: DataExpression<Q>, val substance: ESubstanceSpec<Q>) :
+    LcaExchangeExpression<Q> {
     companion object
 }
 
 @optics
-data class EImpact(val quantity: DataExpression, val indicator: EIndicatorSpec) : LcaExchangeExpression {
+data class EImpact<Q>(val quantity: DataExpression<Q>, val indicator: EIndicatorSpec<Q>) : LcaExchangeExpression<Q> {
     companion object
 }
 
 // Process
 @optics
-data class EProcess(
+data class EProcess<Q>(
     val name: String,
-    val labels: Map<String, EStringLiteral> = emptyMap(),
-    val products: List<ETechnoExchange> = emptyList(),
-    val inputs: List<ETechnoExchange> = emptyList(),
-    val biosphere: List<EBioExchange> = emptyList(),
-    val impacts: List<EImpact> = emptyList(),
-) : LcaExpression {
+    val labels: Map<String, EStringLiteral<Q>> = emptyMap(),
+    val products: List<ETechnoExchange<Q>> = emptyList(),
+    val inputs: List<ETechnoExchange<Q>> = emptyList(),
+    val biosphere: List<EBioExchange<Q>> = emptyList(),
+    val impacts: List<EImpact<Q>> = emptyList(),
+) : LcaExpression<Q> {
     companion object
 }
 
 // Substance Characterization
 @optics
-data class ESubstanceCharacterization(
-    val referenceExchange: EBioExchange,
-    val impacts: List<EImpact>
-) : LcaExpression {
+data class ESubstanceCharacterization<Q>(
+    val referenceExchange: EBioExchange<Q>,
+    val impacts: List<EImpact<Q>>
+) : LcaExpression<Q> {
+    companion object
+
     fun hasImpacts(): Boolean {
         return impacts.isNotEmpty()
     }
-
-    companion object
 }
 

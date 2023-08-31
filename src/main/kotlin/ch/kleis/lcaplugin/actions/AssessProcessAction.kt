@@ -3,6 +3,9 @@ package ch.kleis.lcaplugin.actions
 import ch.kleis.lcaplugin.core.assessment.Assessment
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessHugeResult
 import ch.kleis.lcaplugin.ui.toolwindow.LcaProcessAssessResult
@@ -38,12 +41,12 @@ class AssessProcessAction(
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Run") {
-            private var data: Pair<Inventory, Comparator<MatrixColumnIndex>>? = null
+            private var data: Pair<Inventory<BasicNumber, BasicMatrix>, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
 
             override fun run(indicator: ProgressIndicator) {
-                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels)
+                val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels, BasicOperations)
                 val order = trace.getObservableOrder()
-                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint()).inventory()
+                val inventory = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations).inventory()
                 this.data = Pair(inventory, order)
             }
 
@@ -62,7 +65,7 @@ class AssessProcessAction(
                 LOG.warn("Unable to process computation", e)
             }
 
-            private fun displayInventory(project: Project, inventory: Inventory, order: Comparator<MatrixColumnIndex>) {
+            private fun displayInventory(project: Project, inventory: Inventory<BasicNumber, BasicMatrix>, order: Comparator<MatrixColumnIndex<BasicNumber>>) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
                 val assessResultContent = if (inventory.impactFactors.nbCells() <= DISPLAY_MAX_CELLS) {
                     LcaProcessAssessResult(inventory, order, project, processName).getContent()

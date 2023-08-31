@@ -3,6 +3,8 @@ package ch.kleis.lcaplugin.ui.toolwindow
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.assessment.Inventory
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createLocationComponent
 import com.intellij.notification.NotificationGroupManager
@@ -25,8 +27,8 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class LcaProcessAssessHugeResult(
-    private val inventory: Inventory,
-    observablePortComparator: Comparator<MatrixColumnIndex>,
+    private val inventory: Inventory<BasicNumber, BasicMatrix>,
+    observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     messageKey: String,
     val project: Project,
 ) : LcaToolWindowContent {
@@ -111,7 +113,7 @@ class LcaProcessAssessHugeResult(
         return (listOf("Product", "Quantity", "Unit") + cols).toTypedArray()
     }
 
-    private fun getRow(outputProduct: MatrixColumnIndex): Array<String> {
+    private fun getRow(outputProduct: MatrixColumnIndex<BasicNumber>): Array<String> {
         val cells = sortedControllablePorts
             .map { inventory.impactFactors.valueRatio(outputProduct, it).amount.toString() }
 

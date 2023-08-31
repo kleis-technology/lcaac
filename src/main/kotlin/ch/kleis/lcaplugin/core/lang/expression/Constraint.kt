@@ -3,10 +3,10 @@ package ch.kleis.lcaplugin.core.lang.expression
 import arrow.optics.optics
 
 @optics
-data class FromProcess(
+data class FromProcess<Q>(
     val name: String,
-    val matchLabels: MatchLabels,
-    val arguments: Map<String, DataExpression> = emptyMap(),
+    val matchLabels: MatchLabels<Q>,
+    val arguments: Map<String, DataExpression<Q>> = emptyMap(),
 ) {
     override fun toString(): String {
         return "from $name$matchLabels$arguments"
@@ -16,14 +16,12 @@ data class FromProcess(
 }
 
 @optics
-data class MatchLabels(
-    val elements: Map<String, DataExpression>,
+data class MatchLabels<Q>(
+    val elements: Map<String, DataExpression<Q>>,
 ) {
     override fun toString(): String {
         return if (elements.isEmpty()) "" else "$elements"
     }
 
-    companion object {
-        val EMPTY = MatchLabels(emptyMap())
-    }
+    companion object
 }

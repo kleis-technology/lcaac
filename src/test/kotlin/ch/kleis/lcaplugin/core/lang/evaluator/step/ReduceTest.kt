@@ -2,7 +2,7 @@ package ch.kleis.lcaplugin.core.lang.evaluator.step
 
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.evaluator.toValue
+import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityAdd
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
@@ -12,13 +12,16 @@ import ch.kleis.lcaplugin.core.lang.fixture.TemplateFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.test.assertFailsWith
 
 
 class ReduceTest {
-
+    private val ops = BasicOperations
+    
     @Test
     fun eval_whenInstanceOfProcessTemplate_shouldEvaluateToProcessValue() {
         // given
@@ -33,10 +36,10 @@ class ReduceTest {
             )
         )
         )
-        val reduceAndComplete = Reduce(SymbolTable.empty())
+        val reduceAndComplete = Reduce(SymbolTable.empty(), ops)
 
         // when
-        val actual = reduceAndComplete.apply(instance).toValue()
+        val actual = with(ToValue(BasicOperations)) { reduceAndComplete.apply(instance).toValue() }
 
         // then
         val expected = ProcessValue(
@@ -66,10 +69,10 @@ class ReduceTest {
     fun eval_whenProcessTemplate_shouldAutomaticallyInstantiateWithoutArguments() {
         // given
         val template = EProcessTemplateApplication(TemplateFixture.carrotProduction, emptyMap())
-        val reduceAndComplete = Reduce(SymbolTable.empty())
+        val reduceAndComplete = Reduce(SymbolTable.empty(), ops)
 
         // when
-        val actual = reduceAndComplete.apply(template).toValue()
+        val actual = with(ToValue(BasicOperations)) { reduceAndComplete.apply(template).toValue() }
 
         // then
         val expected = ProcessValue(
@@ -99,7 +102,7 @@ class ReduceTest {
     fun eval_whenContainsUnboundedReference_shouldThrow() {
         // given
         val template = EProcessTemplateApplication(TemplateFixture.withUnboundedRef, emptyMap())
-        val reduceAndComplete = Reduce(SymbolTable.empty())
+        val reduceAndComplete = Reduce(SymbolTable.empty(), ops)
 
         // when/then
         assertFailsWith(

@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.imports.simapro
 
-import ch.kleis.lcaplugin.core.lang.evaluator.toUnitValue
+import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings
 import ch.kleis.lcaplugin.ide.imports.simapro.SubstanceImportMode
@@ -39,9 +41,10 @@ class SimaproImporter(
     private val simaproSubstanceRenderer = SimaproSubstanceRenderer()
     private val inputParameterRenderer = InputParameterRenderer()
     private var counting: CountingInputStream? = null
+    private val mapper = ToValue(BasicOperations)
     private val unitRenderer = UnitRenderer.of(
-        Prelude.unitMap.values
-            .map { it.toUnitValue() }
+        Prelude.unitMap<BasicNumber>().values
+            .map { with(mapper) { it.toUnitValue() } }
             .associateBy { it.symbol.toString() }
     )
 

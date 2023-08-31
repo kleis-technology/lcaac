@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.math.DoubleComparator
 
 
-data class UnitValue(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : Value {
+data class UnitValue<Q>(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : Value<Q> {
     override fun toString(): String {
         return symbol.toString()
     }
@@ -14,7 +14,7 @@ data class UnitValue(val symbol: UnitSymbol, val scale: Double, val dimension: D
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as UnitValue
+        other as UnitValue<Q>
 
         if (dimension != other.dimension) return false
         return DoubleComparator.nzEquals(scale, other.scale)

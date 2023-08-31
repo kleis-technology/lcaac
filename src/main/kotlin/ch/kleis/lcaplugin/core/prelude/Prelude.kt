@@ -36,8 +36,8 @@ class Prelude {
         ).associateBy { it.toString() }
         val primitiveDimensions = Register.from(primitiveDimensionMap)
 
-        val unitMap = listOf(
-            EUnitLiteral(UnitSymbol.of("u"), 1.0, none),
+        fun <Q> unitMap(): Map<String, EUnitLiteral<Q>> = listOf(
+            EUnitLiteral<Q>(UnitSymbol.of("u"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("dimensionless"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("piece"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("person"), 1.0, none),
@@ -83,6 +83,6 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol.toString() }
 
-        val units: Register<DataExpression> = Register.from(unitMap)
+        fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
     }
 }
