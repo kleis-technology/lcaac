@@ -14,7 +14,6 @@ import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 class ContributionAnalysis(
     private val impactFactors: ImpactFactorMatrix<BasicNumber, BasicMatrix>,
     private val supply: SupplyMatrix<BasicNumber, BasicMatrix>,
-    private val system: SystemValue<BasicNumber>,
     private val allocatedSystem: SystemValue<BasicNumber>,
 ) {
     fun getImpactFactors(): ImpactFactorMatrix<BasicNumber, BasicMatrix> {

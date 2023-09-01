@@ -18,7 +18,6 @@ class SensitivityAnalysis(
     private val impactFactors: ImpactFactorMatrix<DualNumber, DualMatrix>,
     private val supply: SupplyMatrix<DualNumber, DualMatrix>,
     private val parameters: ParameterVector<DualNumber>,
-    private val ops: DualOperations
 ) {
     fun getEntryPointProducts(): List<ProductValue<DualNumber>> {
         return entryPoint.products.map { it.product }
@@ -54,7 +53,7 @@ class SensitivityAnalysis(
     ): DualNumber {
         val quantity = supply.quantityOf(target).amount
         val ratio = impactFactors.valueRatio(target, indicator).amount
-        return with(ops) {
+        return with(DualOperations(parameters.size())) {
             quantity * ratio
         }
     }

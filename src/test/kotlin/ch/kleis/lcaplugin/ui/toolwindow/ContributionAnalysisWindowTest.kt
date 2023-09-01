@@ -49,7 +49,6 @@ class ContributionAnalysisWindowTest {
                     observablePorts, supplyData, ops,
                 ),
                 mockk<SystemValue<BasicNumber>>(),
-                mockk<SystemValue<BasicNumber>>(),
             )
 
             val window = ContributionAnalysisWindow(
