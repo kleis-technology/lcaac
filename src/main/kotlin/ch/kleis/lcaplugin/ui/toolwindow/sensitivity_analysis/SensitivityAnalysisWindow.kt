@@ -54,13 +54,14 @@ class SensitivityAnalysisWindow(
         analysis.getEntryPointProducts().forEach { comboBox.addItem(it) }
         comboBox.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
+                @Suppress("UNCHECKED_CAST")
                 val target = comboBox.selectedItem as ProductValue<DualNumber>
                 sensitivityTableModel.target = target
                 transposedSensitivityTableModel.target = target
             }
             table.updateUI()
         }
-        comboBox.renderer = ListCellRenderer { list, value, index, isSelected, cellHasFocus ->
+        comboBox.renderer = ListCellRenderer { _, value, _, _, _ ->
             JBLabel(value.getShortName())
         }
 

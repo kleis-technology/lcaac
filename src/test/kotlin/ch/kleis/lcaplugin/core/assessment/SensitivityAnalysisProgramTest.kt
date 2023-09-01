@@ -54,7 +54,6 @@ class SensitivityAnalysisProgramTest {
     @Test
     fun run_whenNoParameters_shouldThrow() {
         // given
-        val ops = DualOperations(1)
         val system = SystemValue<DualNumber>(
             processes = setOf(ProcessValue("p"))
         )
