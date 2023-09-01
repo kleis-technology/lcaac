@@ -13,31 +13,68 @@ class ImpactFactorMatrix<Q, M>(
     private val data: M,
     private val ops: Operations<Q, M>,
 ) {
-    fun value(outputPort: MatrixColumnIndex<Q>, inputPort: MatrixColumnIndex<Q>): CharacterizationFactorValue<Q> {
+    fun characterizationFactor(
+        outputPort: MatrixColumnIndex<Q>,
+        inputPort: MatrixColumnIndex<Q>
+    ): CharacterizationFactorValue<Q> {
         with(ops) {
-            val outputUnit = outputPort.getDimension().getDefaultUnitValue<Q>()
-            val output = GenericExchangeValue(
-                QuantityValue(ops.pure(1.0), outputUnit),
-                outputPort
-            )
+            return when {
+                observablePorts.contains(outputPort) -> {
+                    val outputUnit = outputPort.getDimension().getDefaultUnitValue<Q>()
+                    val output = GenericExchangeValue(
+                        QuantityValue(ops.pure(1.0), outputUnit),
+                        outputPort
+                    )
 
-            val inputUnit = inputPort.getDimension().getDefaultUnitValue<Q>()
-            val amount = data[
-                observablePorts.indexOf(outputPort),
-                controllablePorts.indexOf(inputPort),
-            ]
-            val input = GenericExchangeValue(
-                QuantityValue(amount, inputUnit),
-                inputPort
-            )
+                    val inputUnit = inputPort.getDimension().getDefaultUnitValue<Q>()
+                    val amount = data[
+                        observablePorts.indexOf(outputPort),
+                        controllablePorts.indexOf(inputPort),
+                    ]
+                    val input = GenericExchangeValue(
+                        QuantityValue(amount, inputUnit),
+                        inputPort
+                    )
+                    CharacterizationFactorValue(output, input)
+                }
 
-            return CharacterizationFactorValue(output, input)
+                // TODO: Test me
+                controllablePorts.contains(outputPort) && outputPort == inputPort -> {
+                    CharacterizationFactorValue(
+                        GenericExchangeValue(
+                            QuantityValue(ops.pure(1.0),inputPort.referenceUnit()),
+                            inputPort,
+                        ),
+                        GenericExchangeValue(
+                            QuantityValue(ops.pure(1.0),inputPort.referenceUnit()),
+                            inputPort,
+                        ),
+                    )
+                }
+
+                // TODO: Test me
+                controllablePorts.contains(outputPort) && outputPort != inputPort -> {
+                    CharacterizationFactorValue(
+                        GenericExchangeValue(
+                            QuantityValue(ops.pure(1.0),inputPort.referenceUnit()),
+                            inputPort,
+                        ),
+                        GenericExchangeValue(
+                            QuantityValue(ops.pure(0.0),inputPort.referenceUnit()),
+                            inputPort,
+                        ),
+                    )
+                }
+
+                else -> throw IllegalStateException()
+            }
         }
     }
 
-    fun valueRatio(outputPort: MatrixColumnIndex<Q>, inputPort: MatrixColumnIndex<Q>): QuantityValue<Q> {
+    @Deprecated("remove me")
+    fun unitaryImpact(outputPort: MatrixColumnIndex<Q>, inputPort: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(ops) {
-            val cf = value(outputPort, inputPort)
+            val cf = characterizationFactor(outputPort, inputPort)
             val input = cf.input
             val output = cf.output
             val numerator = absoluteScaleValue(ops, input.quantity()) / pure(inputPort.referenceUnit().scale)
@@ -45,9 +82,10 @@ class ImpactFactorMatrix<Q, M>(
             return QuantityValue(numerator / denominator, inputPort.referenceUnit())
         }
     }
-    
+
+    @Deprecated("remove me")
     fun rowAsMap(outputPort: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
-        return controllablePorts.getElements().associateWith { this.valueRatio(outputPort, it) }
+        return controllablePorts.getElements().associateWith { this.unitaryImpact(outputPort, it) }
     }
 
     fun nbCells(): Int {

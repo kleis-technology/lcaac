@@ -94,7 +94,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals(1.0, cf.output.quantity().amount.value)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
@@ -169,7 +169,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.get("carrot from p{}{}")
         val input = result.controllablePorts.get("co2")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals(1.0, cf.output.quantity().amount.value)
         assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
@@ -397,7 +397,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals("a from p{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount.value)
@@ -469,7 +469,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.getElements().first()
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals("out from p{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount.value)
@@ -526,7 +526,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount.value)
@@ -540,7 +540,7 @@ class E2ETest : BasePlatformTestCase() {
             return UnitValue(unit.symbol, unit.scale, unit.dimension)
         }
 
-        val ratio = result.valueRatio(output, input)
+        val ratio = result.unitaryImpact(output, input)
         assertEquals(QuantityValue(ops.pure(3.0), asValue(UnitFixture.kg)), ratio)
     }
 
@@ -590,7 +590,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount.value)
@@ -653,7 +653,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.get("office from office{}{}")
         val input = result.controllablePorts.get("co2")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         assertEquals("office from office{}{}", output.getDisplayName())
         assertEquals(1.0, cf.output.quantity().amount.value)
@@ -696,8 +696,8 @@ class E2ETest : BasePlatformTestCase() {
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()
-        val cf1 = result.value(output1, input)
-        val cf2 = result.value(output2, input)
+        val cf1 = result.characterizationFactor(output1, input)
+        val cf2 = result.characterizationFactor(output2, input)
 
         val delta = 1E-9
         assertEquals(0.9, cf1.input.quantity().amount.value, delta)
@@ -790,8 +790,8 @@ class E2ETest : BasePlatformTestCase() {
         val output1 = result.observablePorts.getElements()[0]
         val output2 = result.observablePorts.getElements()[1]
         val input = result.controllablePorts.getElements().first()
-        val cf1 = result.value(output1, input)
-        val cf2 = result.value(output2, input)
+        val cf1 = result.characterizationFactor(output1, input)
+        val cf2 = result.characterizationFactor(output2, input)
 
         val delta = 1E-9
         val expected1 = 1.0 * 20 / 100
@@ -966,7 +966,7 @@ class E2ETest : BasePlatformTestCase() {
         val result = assessment.run().getImpactFactors()
         val output = result.observablePorts.getElements().first()
         val input = result.controllablePorts.get("climate_change")
-        val cf = result.value(output, input)
+        val cf = result.characterizationFactor(output, input)
 
         val delta = 1E-9
         val expected = 1.0

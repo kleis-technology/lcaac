@@ -15,7 +15,7 @@ class ControllableMatrix<Q, M>(
 ) {
     private val connections: IndexedCollection<MatrixRowIndex<Q>> =
         IndexedCollection(processes.plus(substanceCharacterizations))
-    private val ports: IndexedCollection<MatrixColumnIndex<Q>> =
+    val ports: IndexedCollection<MatrixColumnIndex<Q>> =
         IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))
     val data: M = ops.zeros(connections.size(), ports.size())
 

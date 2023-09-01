@@ -34,7 +34,7 @@ class UnitSymbol(
         fun of(name: String): UnitSymbol {
             return UnitSymbol(mapOf(name to 1.0))
         }
-        val u = of("u")
+        val None = UnitSymbol(emptyMap())
     }
 
     fun multiply(other: UnitSymbol): UnitSymbol {

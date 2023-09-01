@@ -8,6 +8,7 @@ class QuantityValueFixture {
         private val ops = BasicOperations
         val oneUnit = QuantityValue(ops.pure(1.0), UnitValueFixture.unit)
         val oneKilogram = QuantityValue(ops.pure(1.0), UnitValueFixture.kg)
+        val oneGram = QuantityValue(ops.pure(1.0), UnitValueFixture.g)
         val twoKilograms = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
         val oneLitre = QuantityValue(ops.pure(1.0), UnitValueFixture.l)
         val twoLitres = QuantityValue(ops.pure(2.0), UnitValueFixture.l)

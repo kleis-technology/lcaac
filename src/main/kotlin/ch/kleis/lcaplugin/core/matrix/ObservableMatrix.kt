@@ -13,9 +13,9 @@ class ObservableMatrix<Q, M>(
 
     ops: Operations<Q, M>,
 ) {
-    private val connections: IndexedCollection<MatrixRowIndex<Q>> =
+    val connections: IndexedCollection<MatrixRowIndex<Q>> =
         IndexedCollection(processes.plus(substanceCharacterizations))
-    private val ports: IndexedCollection<MatrixColumnIndex<Q>> =
+    val ports: IndexedCollection<MatrixColumnIndex<Q>> =
         IndexedCollection(observableProducts.plus(observableSubstances))
     val data: M = ops.zeros(connections.size(), ports.size())
 

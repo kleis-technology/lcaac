@@ -85,7 +85,7 @@ class QuantityValueOperations<Q>(
         with(ops) {
             return QuantityValue(
                 pure(value),
-                UnitValue.u(),
+                UnitValue.none(),
             )
         }
     }

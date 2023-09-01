@@ -27,7 +27,7 @@ class SensitivityAnalysisProgram(
         return SensitivityAnalysis(
             targetProcess,
             results.impactFactors,
-            results.supply,
+            results.intensity,
             parameters,
         )
     }

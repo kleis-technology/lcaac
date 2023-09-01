@@ -66,7 +66,7 @@ class ContributionTableModel(
         }
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
-        val contribution = analysis.getContribution(outputProduct, inputProduct).amount.value
+        val contribution = analysis.getPortContribution(outputProduct, inputProduct).amount.value
         return FloatingPointRepresentation.of(contribution)
     }
 

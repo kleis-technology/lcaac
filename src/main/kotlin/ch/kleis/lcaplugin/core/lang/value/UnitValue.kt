@@ -8,7 +8,7 @@ import kotlin.math.pow
 
 data class UnitValue<Q>(val symbol: UnitSymbol, val scale: Double, val dimension: Dimension) : Value<Q> {
     companion object {
-        fun <Q> u() = UnitValue<Q>(UnitSymbol.u, 1.0, Dimension.None)
+        fun <Q> none() = UnitValue<Q>(UnitSymbol.None, 1.0, Dimension.None)
     }
 
     override fun toString(): String {
@@ -19,6 +19,7 @@ data class UnitValue<Q>(val symbol: UnitSymbol, val scale: Double, val dimension
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
+        @Suppress("UNCHECKED_CAST")
         other as UnitValue<Q>
 
         if (dimension != other.dimension) return false

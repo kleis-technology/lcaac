@@ -13,7 +13,7 @@ class ContributionAnalysisProgram(
         val results = AnalysisProgram(system, targetProcess, BasicOperations).run()
         return ContributionAnalysis(
             results.impactFactors,
-            results.supply,
+            results.intensity,
             results.allocatedSystem,
         )
     }

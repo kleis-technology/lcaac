@@ -15,7 +15,10 @@ data class ProcessValue<Q>(
     val inputs: List<TechnoExchangeValue<Q>> = emptyList(),
     val biosphere: List<BioExchangeValue<Q>> = emptyList(),
     override val impacts: List<ImpactValue<Q>> = emptyList(),
-) : Value<Q>, HasImpactList<Q>, MatrixRowIndex<Q>
+) : Value<Q>, HasImpactList<Q>, MatrixRowIndex<Q> {
+    val outputExchangesByProduct = products
+        .associateBy { it.product }
+}
 
 data class SubstanceCharacterizationValue<Q>(
     val referenceExchange: BioExchangeValue<Q>,

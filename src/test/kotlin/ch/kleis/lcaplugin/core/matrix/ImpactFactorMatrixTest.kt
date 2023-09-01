@@ -28,7 +28,7 @@ class ImpactFactorMatrixTest {
     @Test
     fun value_shouldReturnExchange() {
         // When
-        val result = sut.value(output1, input1)
+        val result = sut.characterizationFactor(output1, input1)
 
         // Then
         assertEquals(
@@ -40,7 +40,7 @@ class ImpactFactorMatrixTest {
     @Test
     fun valueRatio_shouldReturnTheRatioWithScale_UnitIsNotTheReferenceForDimension() {
         // When
-        val result = sut.valueRatio(output1, input1)
+        val result = sut.unitaryImpact(output1, input1)
 
         // Then
         assertEquals(QuantityValue(ops.pure(2.0), literValue), result)
