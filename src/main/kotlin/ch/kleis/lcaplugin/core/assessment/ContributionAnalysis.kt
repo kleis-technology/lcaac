@@ -68,7 +68,7 @@ class ContributionAnalysis(
         val supply = supplyOf(port)
         val factor = impactFactors.characterizationFactor(port, indicator)
         with(QuantityValueOperations(BasicOperations)) {
-            return supply * factor.input.quantity() / factor.output.quantity()
+            return supply * factor
         }
     }
 
@@ -81,7 +81,7 @@ class ContributionAnalysis(
         val intensity = intensity.intensityOf(process)
         val factor = impactFactors.characterizationFactor(exchange.port(), indicator)
         with(QuantityValueOperations(BasicOperations)) {
-            return intensity * exchange.quantity() * factor.input.quantity() / factor.output.quantity()
+            return intensity * exchange.quantity() * factor
         }
     }
 }

@@ -7,14 +7,12 @@ import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
 import ch.kleis.lcaplugin.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
-import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
@@ -35,6 +33,7 @@ import kotlin.test.assertFailsWith
 @RunWith(JUnit4::class)
 class E2ETest : BasePlatformTestCase() {
     private val ops = BasicOperations
+    private val umap = Prelude.unitValue(ToValue(BasicOperations))
 
     override fun getTestDataPath(): String {
         return "testdata"
@@ -96,11 +95,11 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("co2")
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals(10.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(
+            QuantityValue(ops.pure(10.0), umap["kg"]!! / umap["kg"]!!),
+            cf,
+        )
     }
 
     @Test
@@ -171,11 +170,11 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("co2")
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals(10.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(
+            QuantityValue(ops.pure(10.0), umap["kg"]!! / umap["kg"]!!),
+            cf,
+        )
     }
 
     @Test
@@ -352,7 +351,8 @@ class E2ETest : BasePlatformTestCase() {
         val actual = reducer.reduce(expr)
 
         // then
-        val expected = EQuantityScale(ops.pure(200.0), EUnitLiteral(UnitSymbol.of("m").pow(4.0), 1.0, Prelude.length.pow(4.0)))
+        val expected =
+            EQuantityScale(ops.pure(200.0), EUnitLiteral(UnitSymbol.of("m").pow(4.0), 1.0, Prelude.length.pow(4.0)))
         TestCase.assertEquals(expected, actual)
     }
 
@@ -399,13 +399,8 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.getElements().first()
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals("a from p{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals("co2", input.getDisplayName())
-        assertEquals(1.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(QuantityValue(ops.pure(1.0), UnitValue.none()), cf)
     }
 
     @Test
@@ -471,13 +466,16 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.getElements().first()
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals("out from p{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals("in", input.getDisplayName())
-        assertEquals(6.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.length.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(
+            QuantityValue(
+                ops.pure(6.0),
+                with(ToValue(ops)) {
+                    umap["m"]!! / umap["kg"]!!
+                }
+            ),
+            cf,
+        )
     }
 
     @Test
@@ -528,20 +526,11 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("co2")
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals("co2", input.getDisplayName())
-        assertEquals(3.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
-
-        fun asValue(unit: EUnitLiteral<BasicNumber>): UnitValue<BasicNumber> {
-            return UnitValue(unit.symbol, unit.scale, unit.dimension)
-        }
-
-        val ratio = result.unitaryImpact(output, input)
-        assertEquals(QuantityValue(ops.pure(3.0), asValue(UnitFixture.kg)), ratio)
+        // then
+        assertEquals(
+            QuantityValue(ops.pure(3.0), umap["kg"]!! / umap["piece"]!!),
+            cf,
+        )
     }
 
     @Test
@@ -592,13 +581,11 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("co2")
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals("co2", input.getDisplayName())
-        assertEquals(3.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(
+            QuantityValue(ops.pure(3.0), umap["kg"]!! / umap["piece"]!!),
+            cf,
+        )
     }
 
     @Test
@@ -655,13 +642,11 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("co2")
         val cf = result.characterizationFactor(output, input)
 
-        assertEquals("office from office{}{}", output.getDisplayName())
-        assertEquals(1.0, cf.output.quantity().amount.value)
-        assertEquals(Dimension.None.getDefaultUnitValue<BasicNumber>(), cf.output.quantity().unit)
-
-        assertEquals("co2", input.getDisplayName())
-        assertEquals(13.0, cf.input.quantity().amount.value)
-        assertEquals(DimensionFixture.mass.getDefaultUnitValue<BasicNumber>(), cf.input.quantity().unit)
+        // then
+        assertEquals(
+            QuantityValue(ops.pure(13.0), umap["kg"]!! / umap["piece"]!!),
+            cf,
+        )
     }
 
     @Test
@@ -699,9 +684,10 @@ class E2ETest : BasePlatformTestCase() {
         val cf1 = result.characterizationFactor(output1, input)
         val cf2 = result.characterizationFactor(output2, input)
 
+        // then
         val delta = 1E-9
-        assertEquals(0.9, cf1.input.quantity().amount.value, delta)
-        assertEquals(0.1, cf2.input.quantity().amount.value, delta)
+        assertEquals(0.9, cf1.amount.value, delta)
+        assertEquals(0.1, cf2.amount.value, delta)
     }
 
     @Test
@@ -793,11 +779,12 @@ class E2ETest : BasePlatformTestCase() {
         val cf1 = result.characterizationFactor(output1, input)
         val cf2 = result.characterizationFactor(output2, input)
 
+        // then
         val delta = 1E-9
         val expected1 = 1.0 * 20 / 100
         val expected2 = 1.0 * 80 / 100
-        assertEquals(expected1, cf1.input.quantity().amount.value, delta)
-        assertEquals(expected2, cf2.input.quantity().amount.value, delta)
+        assertEquals(expected1, cf1.amount.value, delta)
+        assertEquals(expected2, cf2.amount.value, delta)
     }
 
     @Test
@@ -968,12 +955,12 @@ class E2ETest : BasePlatformTestCase() {
         val input = result.controllablePorts.get("climate_change")
         val cf = result.characterizationFactor(output, input)
 
-        val delta = 1E-9
-        val expected = 1.0
-
+        // then
         assertEquals("climate_change", input.getDisplayName())
-        assertEquals(expected, cf.input.quantity().amount.value, delta)
-        assertEquals(UnitValueFixture.unit, cf.input.quantity().unit)
+        assertEquals(
+            QuantityValue(ops.pure(1.0), umap["u"]!! / umap["kg"]!!),
+            cf,
+        )
     }
 
     @Test

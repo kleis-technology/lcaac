@@ -28,6 +28,7 @@ class SensitivityAnalysisProgram(
             targetProcess,
             results.impactFactors,
             results.intensity,
+            results.allocatedSystem,
             parameters,
         )
     }

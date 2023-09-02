@@ -22,28 +22,33 @@ class ImpactFactorMatrixTest {
     private val input2 = ProductValue("water", literValue, null)
     private val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
         IndexedCollection(listOf(input1, input2))
-    private val data = MatrixFixture.basic(3, 2, Array(3 * 2) { 2E-3 })
+    private val data = MatrixFixture.basic(
+        3, 2,
+        arrayOf(
+            2E-3, 2E-3,
+            2E-3, 2E-3,
+            2E-3, 2E-3,
+        )
+    )
     val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
     @Test
-    fun value_shouldReturnExchange() {
+    fun characterizationFactor() {
         // When
-        val result = sut.characterizationFactor(output1, input1)
+        val actual = sut.characterizationFactor(output1, input1)
 
         // Then
+        val expected = with(BasicOperations) {
+            val numerator = QuantityValue(pure(2.0), literValue)
+            val denominator = QuantityValue(pure(1.0), kgValue)
+            with(QuantityValueOperations(BasicOperations)) {
+                numerator / denominator
+            }
+        }
         assertEquals(
-            GenericExchangeValue(QuantityValue(ops.pure(2E-3), literValue.dimension.getDefaultUnitValue()), input1),
-            result.input
+            absoluteScaleValue(BasicOperations, expected),
+            absoluteScaleValue(BasicOperations, actual),
         )
-    }
-
-    @Test
-    fun valueRatio_shouldReturnTheRatioWithScale_UnitIsNotTheReferenceForDimension() {
-        // When
-        val result = sut.unitaryImpact(output1, input1)
-
-        // Then
-        assertEquals(QuantityValue(ops.pure(2.0), literValue), result)
     }
 
     @Test

@@ -35,10 +35,10 @@ class TransposedSensitivityTableModel(
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        if (columnIndex < 3) {
-            return String::class.java
+        return when (columnIndex) {
+            0, 2 -> String::class.java
+            else -> FloatingPointRepresentation::class.java
         }
-        return FloatingPointRepresentation::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -52,13 +52,16 @@ class TransposedSensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> sortedControllablePorts[rowIndex].getDisplayName()
-            1 -> {
+            1, 2 -> {
                 val indicator = sortedControllablePorts[rowIndex]
-                val contribution = analysis.getContribution(target, indicator)
-                repr(contribution.zeroth).toString()
+                val contribution = analysis.getPortContribution(target, indicator)
+                if (columnIndex == 1) {
+                    repr(contribution.amount.zeroth)
+                } else {
+                    contribution.unit.symbol
+                }
             }
 
-            2 -> sortedControllablePorts[rowIndex].referenceUnit().symbol
             else -> {
                 val relativeSensibility = analysis.getRelativeSensibility(
                     target,

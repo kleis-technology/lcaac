@@ -3,8 +3,10 @@ package ch.kleis.lcaplugin.core.prelude
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
 import ch.kleis.lcaplugin.core.lang.expression.DataExpression
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
+import ch.kleis.lcaplugin.core.lang.value.UnitValue
 
 
 class Prelude {
@@ -81,6 +83,13 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("kga"), 365 * 24 * 3600.0, mass_time),
             EUnitLiteral(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol.toString() }
+
+        fun <Q> unitValue(to: ToValue<Q>): Map<String, UnitValue<Q>> {
+            with(to) {
+                return unitMap<Q>().map { it.value.toUnitValue() }
+                    .associateBy { it.symbol.toString() }
+            }
+        }
 
         fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
     }

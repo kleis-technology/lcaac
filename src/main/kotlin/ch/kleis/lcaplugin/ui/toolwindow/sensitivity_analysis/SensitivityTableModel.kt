@@ -35,8 +35,7 @@ class SensitivityTableModel(
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
         return when (columnIndex) {
-            0 -> String::class.java
-            2 -> String::class.java
+            0, 2 -> String::class.java
             else -> FloatingPointRepresentation::class.java
         }
     }
@@ -52,8 +51,15 @@ class SensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> analysis.getParameters().getName(rowIndex).uid
-            1 -> repr(analysis.getParameters().getValue(rowIndex).amount.zeroth)
-            2 -> analysis.getParameters().getValue(rowIndex).unit.symbol
+            1, 2 -> {
+                val value = analysis.getParameters().getValue(rowIndex)
+                if (columnIndex == 1) {
+                    repr(value.amount.zeroth)
+                } else {
+                    value.unit.symbol
+                }
+            }
+
             else -> {
                 val relativeSensibility = analysis.getRelativeSensibility(
                     target,
