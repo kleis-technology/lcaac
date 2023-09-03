@@ -23,9 +23,8 @@ class ContributionAnalysis<Q, M>(
         return allocatedSystem.productToProcessMap[product]
     }
 
-    @Deprecated("remove me")
-    fun getImpactFactorsOf(target: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
-        return impactFactors.rowAsMap(target)
+    fun getUnitaryImpacts(target: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
+        return impactFactors.unitaryImpacts(target)
     }
 
     fun getNbCells(): Int {

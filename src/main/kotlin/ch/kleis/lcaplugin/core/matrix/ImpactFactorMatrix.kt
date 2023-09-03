@@ -49,7 +49,7 @@ class ImpactFactorMatrix<Q, M>(
         }
     }
 
-    fun rowAsMap(outputPort: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
+    fun unitaryImpacts(outputPort: MatrixColumnIndex<Q>): Map<MatrixColumnIndex<Q>, QuantityValue<Q>> {
         return controllablePorts.getElements().associateWith { this.unitaryImpact(outputPort, it) }
     }
 

@@ -58,7 +58,7 @@ class ImpactFactorMatrixTest {
     @Test
     fun rowAsMap() {
         // When
-        val result = sut.rowAsMap(output1)
+        val result = sut.unitaryImpacts(output1)
 
         // Then
         val expected: Map<MatrixColumnIndex<BasicNumber>, QuantityValue<BasicNumber>> = mapOf(

@@ -46,7 +46,7 @@ class CsvProcessor(
             firstProcess.products.firstOrNull()
                 ?.product
                 ?: throw EvaluatorException("$processName has no products")
-        val impacts = analysis.getImpactFactorsOf(outputPort)
+        val impacts = analysis.getUnitaryImpacts(outputPort)
         return CsvResult(
             request,
             outputPort,
