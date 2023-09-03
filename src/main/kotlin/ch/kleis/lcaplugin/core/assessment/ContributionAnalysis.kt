@@ -27,8 +27,7 @@ class ContributionAnalysis(
         return impactFactors.rowAsMap(target)
     }
 
-    @Deprecated("remove me")
-    fun getNumberOfImpactFactors(): Int {
+    fun getNbCells(): Int {
         return impactFactors.nbCells()
     }
 

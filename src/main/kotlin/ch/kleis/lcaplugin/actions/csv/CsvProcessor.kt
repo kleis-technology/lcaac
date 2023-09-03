@@ -15,6 +15,9 @@ class CsvProcessor(
     private val ops = BasicOperations
     private val evaluator = Evaluator(symbolTable, ops)
 
+    /*
+        TODO: Handle multi-product process
+     */
     fun process(request: CsvRequest): CsvResult {
         val processName = request.processName
         val template = symbolTable.getTemplate(processName)!!
