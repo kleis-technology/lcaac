@@ -33,7 +33,10 @@ import kotlin.test.assertFailsWith
 @RunWith(JUnit4::class)
 class E2ETest : BasePlatformTestCase() {
     private val ops = BasicOperations
-    private val umap = Prelude.unitValue(ToValue(BasicOperations))
+    private val umap = with(ToValue(BasicOperations)) {
+        Prelude.unitMap<BasicNumber>().map { it.value.toUnitValue() }
+            .associateBy { it.symbol.toString() }
+    }
 
     override fun getTestDataPath(): String {
         return "testdata"
@@ -470,9 +473,7 @@ class E2ETest : BasePlatformTestCase() {
         assertEquals(
             QuantityValue(
                 ops.pure(6.0),
-                with(ToValue(ops)) {
-                    umap["m"]!! / umap["kg"]!!
-                }
+                umap["m"]!! / umap["kg"]!!
             ),
             cf,
         )

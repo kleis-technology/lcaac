@@ -84,13 +84,6 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time),
         ).associateBy { it.symbol.toString() }
 
-        fun <Q> unitValue(to: ToValue<Q>): Map<String, UnitValue<Q>> {
-            with(to) {
-                return unitMap<Q>().map { it.value.toUnitValue() }
-                    .associateBy { it.symbol.toString() }
-            }
-        }
-
         fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
     }
 }
