@@ -9,11 +9,12 @@ import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValueOperations
 import ch.kleis.lcaplugin.core.lang.value.SubstanceValue
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 
 class SankeyGraphBuilder(
-    private val analysis: ContributionAnalysis,
+    private val analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     private val observableOrder: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) {
     private val quantityOps = QuantityValueOperations(BasicOperations)

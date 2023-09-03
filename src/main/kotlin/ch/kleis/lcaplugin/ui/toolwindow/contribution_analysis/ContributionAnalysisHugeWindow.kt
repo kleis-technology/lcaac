@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createLocationComponent
@@ -27,7 +28,7 @@ import javax.swing.JButton
 import javax.swing.JPanel
 
 class ContributionAnalysisHugeWindow(
-    private val analysis: ContributionAnalysis,
+    private val analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     messageKey: String,
     val project: Project,

@@ -86,6 +86,7 @@ class ContributionAnalysisWindowTest {
                     ops,
                 ),
                 system,
+                BasicOperations,
             )
 
             /*

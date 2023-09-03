@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.assessment
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -13,9 +14,9 @@ class AnalysisProgramTest {
     fun run_thenCorrectIntensity() {
         with(BasicOperations) {
             // given
-            val a = ProductValue("a", UnitValueFixture.kg)
-            val b = ProductValue("b", UnitValueFixture.kg)
-            val c = ProductValue("c", UnitValueFixture.kg)
+            val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+            val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+            val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
             val pa = ProcessValue(
                 name = "pa",
                 products = listOf(
@@ -57,11 +58,11 @@ class AnalysisProgramTest {
 
             // then
             assertEquals(
-                QuantityValue(pure(1.0), UnitValueFixture.unit),
+                QuantityValue(pure(1.0), UnitValueFixture.unit()),
                 actual.intensityOf(pa),
             )
             assertEquals(
-                QuantityValue(pure(2.0), UnitValueFixture.unit),
+                QuantityValue(pure(2.0), UnitValueFixture.unit()),
                 actual.intensityOf(pb),
             )
         }
@@ -71,9 +72,9 @@ class AnalysisProgramTest {
     fun run_thenCorrectImpact() {
         with(BasicOperations) {
             // given
-            val a = ProductValue("a", UnitValueFixture.kg)
-            val b = ProductValue("b", UnitValueFixture.kg)
-            val c = ProductValue("c", UnitValueFixture.kg)
+            val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+            val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+            val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
             val pa = ProcessValue(
                 name = "pa",
                 products = listOf(
@@ -117,7 +118,7 @@ class AnalysisProgramTest {
             assertEquals(
                 QuantityValue(
                     pure(1.0),
-                    UnitValueFixture.kg,
+                    UnitValueFixture.kg(),
                 ),
                 actual.unitaryImpact(a, c),
             )

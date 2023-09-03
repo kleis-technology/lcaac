@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
@@ -27,7 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer
  */
 
 class ContributionAnalysisWindow(
-    analysis: ContributionAnalysis,
+    analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     val project: Project,
     val name: String,

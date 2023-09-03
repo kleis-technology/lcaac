@@ -2,13 +2,14 @@ package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
 class ContributionTableModel(
-    private val analysis: ContributionAnalysis,
+    private val analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
     private val sortedObservablePorts = analysis.getObservablePorts().getElements().sortedWith(observablePortComparator)

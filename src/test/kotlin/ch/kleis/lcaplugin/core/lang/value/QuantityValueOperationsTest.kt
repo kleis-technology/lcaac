@@ -17,15 +17,15 @@ class QuantityValueOperationsTest {
     @Test
     fun plus() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.g)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.g())
 
         // when
         with(quantityOps) {
             val actual = a + b
 
             // then
-            val expected = QuantityValue(ops.pure(3.0), UnitValueFixture.kg)
+            val expected = QuantityValue(ops.pure(3.0), UnitValueFixture.kg())
             assertEquals(expected, actual)
         }
     }
@@ -33,15 +33,15 @@ class QuantityValueOperationsTest {
     @Test
     fun minus() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.g)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.g())
 
         // when
         with(quantityOps) {
             val actual = a - b
 
             // then
-            val expected = QuantityValue(ops.pure(1.0), UnitValueFixture.kg)
+            val expected = QuantityValue(ops.pure(1.0), UnitValueFixture.kg())
             assertEquals(expected, actual)
         }
     }
@@ -49,8 +49,8 @@ class QuantityValueOperationsTest {
     @Test
     fun plus_whenIncompatibleDims() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l())
 
         // when
         val e = assertThrows(EvaluatorException::class.java) { with(quantityOps) { a + b } }
@@ -60,8 +60,8 @@ class QuantityValueOperationsTest {
     @Test
     fun minus_whenIncompatibleDims() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l())
 
         // when
         val e = assertThrows(EvaluatorException::class.java) { with(quantityOps) { a - b } }
@@ -71,15 +71,15 @@ class QuantityValueOperationsTest {
     @Test
     fun times() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l())
 
         // when
         with(quantityOps) {
             val actual = a * b
 
             // then
-            val expected = QuantityValue(ops.pure(2000.0), UnitValueFixture.kg * UnitValueFixture.l)
+            val expected = QuantityValue(ops.pure(2000.0), UnitValueFixture.kg<BasicNumber>() * UnitValueFixture.l())
             assertEquals(expected, actual)
         }
     }
@@ -87,15 +87,15 @@ class QuantityValueOperationsTest {
     @Test
     fun div() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
-        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val b = QuantityValue(ops.pure(1000.0), UnitValueFixture.l())
 
         // when
         with(quantityOps) {
             val actual = a / b
 
             // then
-            val expected = QuantityValue(ops.pure(2E-3), UnitValueFixture.kg / UnitValueFixture.l)
+            val expected = QuantityValue(ops.pure(2E-3), UnitValueFixture.kg<BasicNumber>() / UnitValueFixture.l())
             assertEquals(expected, actual)
         }
     }
@@ -103,14 +103,14 @@ class QuantityValueOperationsTest {
     @Test
     fun unaryMinus() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
 
         // when
         with(quantityOps) {
             val actual = -a
 
             // then
-            val expected = QuantityValue(ops.pure(-2.0), UnitValueFixture.kg)
+            val expected = QuantityValue(ops.pure(-2.0), UnitValueFixture.kg())
             assertEquals(expected, actual)
         }
     }
@@ -118,7 +118,7 @@ class QuantityValueOperationsTest {
     @Test
     fun pow() {
         // given
-        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg)
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
         val n = 2.0
 
         // when
@@ -126,7 +126,7 @@ class QuantityValueOperationsTest {
             val actual = a.pow(n)
 
             // then
-            val expected = QuantityValue(ops.pure(4.0), UnitValueFixture.kg.pow(n))
+            val expected = QuantityValue(ops.pure(4.0), UnitValueFixture.kg<BasicNumber>().pow(n))
             assertEquals(expected, actual)
         }
     }

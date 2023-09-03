@@ -11,8 +11,8 @@ class ProductValueTest {
     @Test
     fun equals_whenReferenceUnitHaveSameDimension() {
         // given
-        val a = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.kg)
-        val b = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.ton)
+        val a = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.kg())
+        val b = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.ton())
 
         // then
         assertEquals(a, b)
@@ -22,8 +22,8 @@ class ProductValueTest {
     @Test
     fun equals_whenReferenceUnitHaveDifferentDimensions() {
         // given
-        val a = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.kg)
-        val b = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.l)
+        val a = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.kg())
+        val b = ProductValueFixture.carrot.copy(referenceUnit = UnitValueFixture.l())
 
         // then
         assertNotEquals(a, b)

@@ -21,7 +21,7 @@ class ToValueTest {
         // when
         val actual = with(ToValue(BasicOperations)) { expression.toValue() }
         // then
-        val allocationValue = QuantityValue(ops.pure(10.0), UnitValueFixture.percent)
+        val allocationValue = QuantityValue(ops.pure(10.0), UnitValueFixture.percent())
         val expected =
             TechnoExchangeValue(QuantityValueFixture.oneKilogram, ProductValueFixture.carrot, allocationValue)
 

@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.core.assessment
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaplugin.core.lang.value.*
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -10,9 +11,9 @@ class ContributionAnalysisTest {
     @Test
     fun getExchangeContribution1() {
         // given
-        val a = ProductValue("a", UnitValueFixture.kg)
-        val b = ProductValue("b", UnitValueFixture.kg)
-        val c = ProductValue("c", UnitValueFixture.kg)
+        val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+        val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
         val pa = ProcessValue(
             name = "pa",
             products = listOf(
@@ -68,9 +69,9 @@ class ContributionAnalysisTest {
     @Test
     fun getExchangeContribution2() {
         // given
-        val a = ProductValue("a", UnitValueFixture.kg)
-        val b = ProductValue("b", UnitValueFixture.kg)
-        val c = ProductValue("c", UnitValueFixture.kg)
+        val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+        val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
         val pa = ProcessValue(
             name = "pa",
             products = listOf(
@@ -126,9 +127,9 @@ class ContributionAnalysisTest {
     @Test
     fun getPortContribution() {
         // given
-        val a = ProductValue("a", UnitValueFixture.kg)
-        val b = ProductValue("b", UnitValueFixture.kg)
-        val c = ProductValue("c", UnitValueFixture.kg)
+        val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+        val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
         val pa = ProcessValue(
             name = "pa",
             products = listOf(
@@ -177,9 +178,9 @@ class ContributionAnalysisTest {
     @Test
     fun supplyOf_whenProduct() {
         // given
-        val a = ProductValue("a", UnitValueFixture.kg)
-        val b = ProductValue("b", UnitValueFixture.kg)
-        val c = ProductValue("c", UnitValueFixture.kg)
+        val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+        val c = ProductValue("c", UnitValueFixture.kg<BasicNumber>())
         val pa = ProcessValue(
             name = "pa",
             products = listOf(
@@ -228,9 +229,9 @@ class ContributionAnalysisTest {
     @Test
     fun supplyOf_whenSubstance() {
         // given
-        val a = ProductValue("a", UnitValueFixture.kg)
-        val b = PartiallyQualifiedSubstanceValue("b", UnitValueFixture.kg)
-        val c = IndicatorValue("c", UnitValueFixture.kg)
+        val a = ProductValue("a", UnitValueFixture.kg<BasicNumber>())
+        val b = PartiallyQualifiedSubstanceValue("b", UnitValueFixture.kg<BasicNumber>())
+        val c = IndicatorValue("c", UnitValueFixture.kg<BasicNumber>())
         val pa = ProcessValue(
             name = "pa",
             products = listOf(

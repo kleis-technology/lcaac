@@ -68,7 +68,7 @@ class CompleteTerminalsTest {
             listOf(
                 ImpactValue(
                     QuantityValueFixture.oneKilogram,
-                    IndicatorValue("cc", UnitValueFixture.kg)
+                    IndicatorValue("cc", UnitValueFixture.kg())
                 )
             )
         )
