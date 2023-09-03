@@ -7,15 +7,17 @@ import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.QuantityValueOperations
 import ch.kleis.lcaplugin.core.lang.value.SubstanceValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
-import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 
 class SankeyGraphBuilder(
     private val analysis: ContributionAnalysis,
     private val observableOrder: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) {
+    private val quantityOps = QuantityValueOperations(BasicOperations)
+
     fun buildContributionGraph(indicator: MatrixColumnIndex<BasicNumber>): Graph {
         val portsWithObservedImpact = analysis.getObservablePorts().getElements().toSet()
 
@@ -24,12 +26,17 @@ class SankeyGraphBuilder(
         ) { graph, port ->
             when (port) {
                 is SubstanceValue<BasicNumber> -> {
+                    val contribution = with(quantityOps) {
+                        analysis.getPortContribution(port, indicator)
+                            .absoluteScaleValue()
+                            .value
+                    }
                     graph.addNode(GraphNode(port.getUID(), port.getShortName()))
                         .addLinkIfNoCycle(
                             observableOrder,
                             port,
                             indicator,
-                            absoluteScaleValue(BasicOperations, analysis.getPortContribution(port, indicator)).value,
+                            contribution,
                         )
                 }
 
@@ -49,14 +56,16 @@ class SankeyGraphBuilder(
                             )
                         )
                     ) { accumulatorGraph, exchange ->
+                        val contribution = with(quantityOps) {
+                            analysis.getExchangeContribution(port, exchange, indicator)
+                                .absoluteScaleValue()
+                                .value
+                        }
                         accumulatorGraph.addLinkIfNoCycle(
                             observableOrder,
                             port,
                             exchange.port(),
-                            absoluteScaleValue(
-                                BasicOperations,
-                                analysis.getExchangeContribution(port, exchange, indicator)
-                            ).value,
+                            contribution,
                         )
                     }
                 }

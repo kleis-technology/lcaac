@@ -54,8 +54,8 @@ object BasicOperations : Operations<BasicNumber, BasicMatrix> {
         return BasicNumber(value.pow(other))
     }
 
-    override fun toDouble(quantity: BasicNumber): Double {
-        return quantity.value
+    override fun BasicNumber.toDouble(): Double {
+        return this.value
     }
 
     override fun BasicNumber.unaryMinus(): BasicNumber {

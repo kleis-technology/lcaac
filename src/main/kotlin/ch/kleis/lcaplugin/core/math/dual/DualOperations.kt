@@ -76,8 +76,8 @@ class DualOperations(
         )
     }
 
-    override fun toDouble(quantity: DualNumber): Double {
-        return quantity.zeroth
+    override fun DualNumber.toDouble(): Double {
+        return this.zeroth
     }
 
     override fun DualNumber.unaryMinus(): DualNumber {

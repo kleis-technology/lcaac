@@ -10,6 +10,7 @@ import kotlin.test.assertEquals
 
 class ImpactFactorMatrixTest {
     private val ops = BasicOperations
+    private val quantityOps = QuantityValueOperations(ops)
 
     private val kgValue = UnitValue<BasicNumber>(UnitFixture.kg.symbol, UnitFixture.kg.scale, UnitFixture.kg.dimension)
     private val literValue = UnitValue<BasicNumber>(UnitFixture.l.symbol, UnitFixture.l.scale, UnitFixture.l.dimension)
@@ -45,10 +46,13 @@ class ImpactFactorMatrixTest {
                 numerator / denominator
             }
         }
-        assertEquals(
-            absoluteScaleValue(BasicOperations, expected),
-            absoluteScaleValue(BasicOperations, actual),
-        )
+        with(quantityOps) {
+            assertEquals(
+                expected.absoluteScaleValue().value,
+                actual.absoluteScaleValue().value,
+            )
+
+        }
     }
 
     @Test

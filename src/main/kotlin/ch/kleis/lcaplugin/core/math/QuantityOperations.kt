@@ -10,7 +10,7 @@ interface QuantityOperations<Q> {
 
     fun Q.pow(other: Double): Q
 
-    fun toDouble(quantity: Q): Double
+    fun Q.toDouble(): Double
     fun pure(value: Double): Q
 }
 

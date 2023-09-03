@@ -75,9 +75,18 @@ class QuantityValueOperations<Q>(
         }
     }
 
-    override fun toDouble(quantity: QuantityValue<Q>): Double {
+    fun QuantityValue<Q>.absoluteScaleValue(): Q {
+        val amount = this.amount
+        val scale = this.unit.scale
         with(ops) {
-            return toDouble(quantity.amount) * quantity.unit.scale
+            return amount * pure(scale)
+        }
+    }
+
+    override fun QuantityValue<Q>.toDouble(): Double {
+        val quantity = this
+        with(ops) {
+            return quantity.absoluteScaleValue().toDouble()
         }
     }
 
