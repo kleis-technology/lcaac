@@ -6,7 +6,6 @@ import com.intellij.openapi.application.impl.AnyModalityState
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

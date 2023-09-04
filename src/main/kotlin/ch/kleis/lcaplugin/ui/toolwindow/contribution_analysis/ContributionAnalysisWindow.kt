@@ -16,7 +16,10 @@ import com.intellij.ui.content.ContentFactory
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBEmptyBorder
 import java.awt.BorderLayout
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JLabel
+import javax.swing.JMenuBar
+import javax.swing.JPanel
 import javax.swing.table.DefaultTableCellRenderer
 
 /*
@@ -28,8 +31,7 @@ class ContributionAnalysisWindow(
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     val project: Project,
     val name: String,
-) :
-    LcaToolWindowContent {
+) : LcaToolWindowContent {
     private val content: JPanel
 
     init {
@@ -53,7 +55,8 @@ class ContributionAnalysisWindow(
          */
         val button = JButton(AllIcons.Actions.MenuSaveall)
         button.addActionListener {
-            val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return@addActionListener
+            val toolWindow =
+                ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return@addActionListener
             val content = ContentFactory.getInstance()
                 .createContent(
                     ContributionAnalysisHugeWindow(
