@@ -51,13 +51,14 @@ class SensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> analysis.getParameters().getName(rowIndex).uid
-            1, 2 -> {
+            1 -> {
                 val value = analysis.getParameters().getValue(rowIndex)
-                if (columnIndex == 1) {
-                    repr(value.amount.zeroth)
-                } else {
-                    value.unit.symbol
-                }
+                repr(value.amount.zeroth)
+            }
+
+            2 -> {
+                val value = analysis.getParameters().getValue(rowIndex)
+                value.unit.symbol
             }
 
             else -> {

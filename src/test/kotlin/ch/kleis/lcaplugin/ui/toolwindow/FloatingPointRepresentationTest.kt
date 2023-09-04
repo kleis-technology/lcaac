@@ -1,9 +1,9 @@
 package ch.kleis.lcaplugin.ui.toolwindow
 
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
-import org.junit.Test
 import kotlin.test.assertEquals
 
 private fun digits(s: String): List<Int> {

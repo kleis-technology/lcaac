@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.value.BioExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.ImpactValue
 import ch.kleis.lcaplugin.core.lang.value.IndicatorValue
 import ch.kleis.lcaplugin.core.lang.value.SubstanceCharacterizationValue
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert
 import org.junit.Test

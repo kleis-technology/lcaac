@@ -12,7 +12,6 @@ import ch.kleis.lcaplugin.core.lang.fixture.TemplateFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test

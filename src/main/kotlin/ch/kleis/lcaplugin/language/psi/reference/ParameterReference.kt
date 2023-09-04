@@ -1,7 +1,9 @@
 package ch.kleis.lcaplugin.language.psi.reference
 
 import ch.kleis.lcaplugin.language.psi.type.ref.PsiParameterRef
-import ch.kleis.lcaplugin.psi.*
+import ch.kleis.lcaplugin.psi.LcaParams
+import ch.kleis.lcaplugin.psi.LcaProcess
+import ch.kleis.lcaplugin.psi.LcaProcessTemplateSpec
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil

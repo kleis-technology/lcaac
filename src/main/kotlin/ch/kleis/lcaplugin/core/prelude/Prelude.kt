@@ -3,10 +3,8 @@ package ch.kleis.lcaplugin.core.prelude
 import ch.kleis.lcaplugin.core.lang.Register
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
 import ch.kleis.lcaplugin.core.lang.expression.DataExpression
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
-import ch.kleis.lcaplugin.core.lang.value.UnitValue
 
 
 class Prelude {

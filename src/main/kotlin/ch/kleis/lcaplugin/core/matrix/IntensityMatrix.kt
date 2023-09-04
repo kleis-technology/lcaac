@@ -1,7 +1,5 @@
 package ch.kleis.lcaplugin.core.matrix
 
-import ch.kleis.lcaplugin.core.lang.dimension.Dimension
-import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.value.MatrixRowIndex
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.UnitValue

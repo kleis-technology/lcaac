@@ -52,14 +52,16 @@ class TransposedSensitivityTableModel(
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         return when (columnIndex) {
             0 -> sortedControllablePorts[rowIndex].getDisplayName()
-            1, 2 -> {
+            1 -> {
                 val indicator = sortedControllablePorts[rowIndex]
                 val contribution = analysis.getPortContribution(target, indicator)
-                if (columnIndex == 1) {
-                    repr(contribution.amount.zeroth)
-                } else {
-                    contribution.unit.symbol
-                }
+                repr(contribution.amount.zeroth)
+            }
+
+            2 -> {
+                val indicator = sortedControllablePorts[rowIndex]
+                val contribution = analysis.getPortContribution(target, indicator)
+                contribution.unit.symbol
             }
 
             else -> {

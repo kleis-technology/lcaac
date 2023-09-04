@@ -5,7 +5,6 @@ import ch.kleis.lcaplugin.core.lang.expression.ETechnoExchange
 import ch.kleis.lcaplugin.core.lang.fixture.*
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Assert.assertEquals
 import org.junit.Test

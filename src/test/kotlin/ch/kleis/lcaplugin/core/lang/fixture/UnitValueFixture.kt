@@ -3,7 +3,6 @@ package ch.kleis.lcaplugin.core.lang.fixture
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 
 
 class UnitValueFixture {
