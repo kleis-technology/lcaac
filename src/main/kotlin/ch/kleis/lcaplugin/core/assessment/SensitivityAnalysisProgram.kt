@@ -14,7 +14,7 @@ class SensitivityAnalysisProgram(
 ) {
     fun run(): SensitivityAnalysis {
         if (parameters.names.size() == 0) {
-            throw EvaluatorException("No quantitative parameters found")
+            throw EvaluatorException("No quantitative parameter found")
         }
         if (system.processes.size >= 1000) {
             throw EvaluatorException("The current software version cannot perform the sensitivity analysis of a system with 1'000+ processes")
