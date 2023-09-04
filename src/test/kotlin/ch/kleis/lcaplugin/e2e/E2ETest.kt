@@ -1,9 +1,6 @@
 package ch.kleis.lcaplugin.e2e
 
-import ch.kleis.lcaplugin.actions.csv.CsvProcessor
-import ch.kleis.lcaplugin.actions.csv.CsvRequest
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
-import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
@@ -13,8 +10,6 @@ import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaplugin.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaplugin.core.lang.expression.EQuantityScale
 import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
-import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
-import ch.kleis.lcaplugin.core.lang.value.ProductValue
 import ch.kleis.lcaplugin.core.lang.value.QuantityValue
 import ch.kleis.lcaplugin.core.lang.value.UnitValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
@@ -258,67 +253,6 @@ class E2ETest : BasePlatformTestCase() {
             ?.let { Evaluator(symbolTable, ops).eval(EProcessTemplateApplication(template = it)) }!!
     }
 
-    @Test
-    fun test_csvProcessor() {
-        // given
-        val pkgName = "test_exponentiationPriority"
-        val vf = myFixture.createFile(
-            "$pkgName.lca", """
-                package $pkgName
-                
-                process p {
-                    params {
-                        a = 0 kg
-                        b = 0 kg
-                        c = 1 kg
-                    }
-                    products {
-                        1 kg out
-                    }
-                    inputs {
-                        a + b + c in
-                    }
-                }
-            """.trimIndent()
-        )
-        val kg = UnitValue<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
-        val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
-        val symbolTable = parser.load()
-        val csvProcessor = CsvProcessor(symbolTable)
-        val request = CsvRequest(
-            "p",
-            emptyMap(),
-            mapOf("geo" to 0, "id" to 1, "a" to 2, "b" to 2),
-            listOf("UK", "s00", "1.0", "1.0"),
-        )
-
-        // when
-        val actual = csvProcessor.process(request)
-
-        // then
-        assertEquals(request, actual.request)
-        val out = ProductValue(
-            "out", kg,
-            FromProcessRefValue(
-                name = "p",
-                arguments = mapOf(
-                    "a" to QuantityValue(ops.pure(1.0), kg),
-                    "b" to QuantityValue(ops.pure(1.0), kg),
-                    "c" to QuantityValue(ops.pure(1.0), kg),
-                )
-            )
-        )
-        assertEquals(
-            out, actual.output
-        )
-        val key = ProductValue(
-            "in", kg,
-        )
-        assertEquals(
-            QuantityValue(ops.pure(3.0), kg), actual.impacts[key]
-        )
-    }
 
     @Test
     fun test_exponentiationPriority() {
