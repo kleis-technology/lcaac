@@ -15,10 +15,7 @@ class CsvProcessor(
     private val ops = BasicOperations
     private val evaluator = Evaluator(symbolTable, ops)
 
-    /*
-        TODO: Handle multi-product process
-     */
-    fun process(request: CsvRequest): CsvResult {
+    fun process(request: CsvRequest): List<CsvResult> {
         val processName = request.processName
         val template = symbolTable.getTemplate(processName)!!
         val arguments = template.params
@@ -39,18 +36,18 @@ class CsvProcessor(
 
         val trace = evaluator.trace(EProcessTemplateApplication(template, arguments))
         val systemValue = trace.getSystemValue()
-        val firstProcess = trace.getEntryPoint()
-        val program = ContributionAnalysisProgram(systemValue, firstProcess)
+        val entryPoint = trace.getEntryPoint()
+        val program = ContributionAnalysisProgram(systemValue, entryPoint)
         val analysis = program.run()
-        val outputPort =
-            firstProcess.products.firstOrNull()
-                ?.product
-                ?: throw EvaluatorException("$processName has no products")
-        val impacts = analysis.getUnitaryImpacts(outputPort)
-        return CsvResult(
-            request,
-            outputPort,
-            impacts,
-        )
+        return entryPoint.products
+            .map { output ->
+                val outputPort = output.product
+                val impacts = analysis.getUnitaryImpacts(outputPort)
+                CsvResult(
+                    request,
+                    outputPort,
+                    impacts,
+                )
+            }
     }
 }

@@ -59,7 +59,7 @@ class ContributionAnalysisWithDataAction(
                         parser.load()
                     }
                     val csvProcessor = CsvProcessor(symbolTable)
-                    val results = requests.map { request ->
+                    val results = requests.flatMap { request ->
                         ProgressManager.checkCanceled()
                         indicator.text = "Processing using ${request.arguments()}"
                         indicator.fraction = indicator.fraction + 1.0 / requests.size
