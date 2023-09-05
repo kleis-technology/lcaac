@@ -4,14 +4,100 @@ import ch.kleis.lcaplugin.core.lang.fixture.ProcessValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.ProductValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixture
+import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 
 class EvaluationTraceTest {
+    @Test
+    fun trace_productOrder() {
+        // given
+        val oneKg = QuantityValueFixture.oneKilogram
+        val product1 = ProductValueFixture.product("product1")
+        val product2 = ProductValueFixture.product("product2")
+        val product3 = ProductValueFixture.product("product3")
+
+        val p1 = ProcessValue(
+            name = "p1",
+            products = listOf(TechnoExchangeValue(oneKg, product1)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product2),
+                TechnoExchangeValue(oneKg, product3),
+            ),
+        )
+        val p2 = ProcessValue(
+            name = "p2",
+            products = listOf(TechnoExchangeValue(oneKg, product2)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product3),
+            ),
+        )
+        val trace = EvaluationTrace<BasicNumber>()
+        trace.add(p1)
+        trace.commit()
+        trace.add(p2)
+        trace.commit()
+
+        // when
+        val actual = trace.getObservableOrder()
+
+        // then
+        assert(actual.compare(product1, product2) < 0)
+        assert(actual.compare(product1, product3) < 0)
+        assert(actual.compare(product2, product3) < 0)
+    }
+
+    @Test
+    fun trace_productOrder_withLongCycle() {
+        // given
+        val oneKg = QuantityValueFixture.oneKilogram
+        val product1 = ProductValueFixture.product("product1")
+        val product2 = ProductValueFixture.product("product2")
+        val product3 = ProductValueFixture.product("product3")
+
+        val p1 = ProcessValue(
+            name = "p1",
+            products = listOf(TechnoExchangeValue(oneKg, product1)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product2),
+                TechnoExchangeValue(oneKg, product3),
+            ),
+        )
+        val p2 = ProcessValue(
+            name = "p2",
+            products = listOf(TechnoExchangeValue(oneKg, product2)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product3),
+            ),
+        )
+        val p3 = ProcessValue(
+            name = "p2",
+            products = listOf(TechnoExchangeValue(oneKg, product3)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product1),
+            ),
+        )
+        val trace = EvaluationTrace<BasicNumber>()
+        trace.add(p1)
+        trace.commit()
+        trace.add(p2)
+        trace.add(p3)
+        trace.commit()
+
+        // when
+        val actual = trace.getObservableOrder()
+
+        // then
+        assert(actual.compare(product1, product2) < 0)
+        assert(actual.compare(product1, product3) < 0)
+        assert(actual.compare(product2, product3) < 0)
+    }
+
     @Test
     fun trace_getEntryPoint() {
         // given

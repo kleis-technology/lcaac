@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.evaluator
 
 import ch.kleis.lcaplugin.core.lang.value.*
+import kotlin.math.max
 
 class EvaluationTrace<Q> {
     private val stages = ArrayList<HashSet<MatrixRowIndex<Q>>>()
@@ -26,11 +27,7 @@ class EvaluationTrace<Q> {
                 if (d1 > d2) {
                     return 1
                 }
-                return when {
-                    (o1 is ProductValue) && (o2 is SubstanceValue) -> -1
-                    (o1 is SubstanceValue) && (o2 is ProductValue) -> 1
-                    else -> o1.getUID().compareTo(o2.getUID())
-                }
+                return o1.getUID().compareTo(o2.getUID())
             }
         }
     }
@@ -94,16 +91,35 @@ class EvaluationTrace<Q> {
             .filterIsInstance<ProcessValue<Q>>()
             .forEach { process ->
                 process.products.forEach { exchange ->
-                    observableDepthMap[exchange.product] = currentDepth
+                    updateDepthMap(exchange.product, currentDepth)
+                }
+                process.inputs.forEach { exchange ->
+                    updateDepthMap(exchange.product, currentDepth + 1)
+                }
+                process.biosphere.forEach { exchange ->
+                    updateDepthMap(exchange.substance, currentDepth + 1)
+                }
+                process.impacts.forEach { exchange ->
+                    updateDepthMap(exchange.indicator, currentDepth + 1)
                 }
             }
         currentStage
             .filterIsInstance<SubstanceCharacterizationValue<Q>>()
             .forEach { sc ->
-                observableDepthMap[sc.referenceExchange.substance] = currentDepth
+                updateDepthMap(sc.referenceExchange.substance, currentDepth)
+                sc.impacts.forEach { exchange ->
+                    updateDepthMap(exchange.indicator, currentDepth + 1)
+                }
             }
 
         stages.add(currentStage)
         currentStage = HashSet()
+    }
+
+    private fun updateDepthMap(port: MatrixColumnIndex<Q>, depth: Int) {
+        observableDepthMap[port] = observableDepthMap[port]?.let {
+            if (it >= depth - 1) max(it, depth)
+            else it
+        } ?: depth
     }
 }
