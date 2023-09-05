@@ -1,12 +1,12 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
 import ch.kleis.lcaplugin.MyBundle
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.ide.component.ComponentFactory
 import ch.kleis.lcaplugin.ide.component.ComponentFactory.Companion.createLocationComponent
+import ch.kleis.lcaplugin.ui.toolwindow.LcaToolWindowContent
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
@@ -26,17 +26,17 @@ import java.nio.file.Paths
 import javax.swing.JButton
 import javax.swing.JPanel
 
-class LcaProcessAssessHugeResult(
-    private val inventory: Inventory<BasicNumber, BasicMatrix>,
+class ContributionAnalysisHugeWindow(
+    private val analysis: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
     messageKey: String,
     val project: Project,
 ) : LcaToolWindowContent {
-    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = analysis.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = analysis.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     companion object {
-        private val LOG = Logger.getInstance(LcaProcessAssessHugeResult::class.java)
+        private val LOG = Logger.getInstance(ContributionAnalysisHugeWindow::class.java)
     }
 
     private val content: JPanel
@@ -115,9 +115,9 @@ class LcaProcessAssessHugeResult(
 
     private fun getRow(outputProduct: MatrixColumnIndex<BasicNumber>): Array<String> {
         val cells = sortedControllablePorts
-            .map { inventory.impactFactors.valueRatio(outputProduct, it).amount.toString() }
+            .map { analysis.getImpactFactors().valueRatio(outputProduct, it).amount.toString() }
 
-        val quantity = inventory.supply.quantityOf(outputProduct)
+        val quantity = analysis.supplyOf(outputProduct)
         return (listOf(
             outputProduct.getDisplayName(),
             "${quantity.amount}",

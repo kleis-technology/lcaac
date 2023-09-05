@@ -1,18 +1,18 @@
-package ch.kleis.lcaplugin.ui.toolwindow
+package ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis
 
-import ch.kleis.lcaplugin.core.assessment.Inventory
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.ui.toolwindow.FloatingPointRepresentation
 import javax.swing.event.TableModelListener
 import javax.swing.table.TableModel
 
-class InventoryTableModel(
-    private val inventory: Inventory<BasicNumber, BasicMatrix>,
+class ContributionTableModel(
+    private val analysis: ContributionAnalysis,
     observablePortComparator: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) : TableModel {
-    private val sortedObservablePorts = inventory.getObservablePorts().getElements().sortedWith(observablePortComparator)
-    private val sortedControllablePorts = inventory.getControllablePorts().getElements().sortedBy { it.getUID() }
+    private val sortedObservablePorts = analysis.getObservablePorts().getElements().sortedWith(observablePortComparator)
+    private val sortedControllablePorts = analysis.getControllablePorts().getElements().sortedBy { it.getUID() }
 
     override fun getRowCount(): Int {
         return sortedObservablePorts.size
@@ -40,11 +40,11 @@ class InventoryTableModel(
     }
 
     override fun getColumnClass(columnIndex: Int): Class<*> {
-        if (columnIndex < 3) {
-            return String::class.java
+        return when (columnIndex) {
+            0 -> String::class.java
+            2 -> String::class.java
+            else -> FloatingPointRepresentation::class.java
         }
-
-        return sortedControllablePorts[columnIndex - 3]::class.java
     }
 
     override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
@@ -53,22 +53,21 @@ class InventoryTableModel(
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
         val outputProduct = sortedObservablePorts[rowIndex]
-
         if (columnIndex == 0) {
             return outputProduct.getDisplayName()
         }
 
-        val quantity = inventory.supply.quantityOf(outputProduct)
+        val quantity = analysis.supplyOf(outputProduct)
         if (columnIndex == 1) {
-            return FloatingPointRepresentation.of(quantity.amount.value).toString()
+            return FloatingPointRepresentation.of(quantity.amount.value)
         }
         if (columnIndex == 2) {
             return "${quantity.unit.symbol}"
         }
 
         val inputProduct = sortedControllablePorts[columnIndex - 3]
-        val ratio = inventory.impactFactors.valueRatio(outputProduct, inputProduct).amount
-        return FloatingPointRepresentation.of(quantity.amount.value * ratio.value).toString()
+        val contribution = analysis.getContribution(outputProduct, inputProduct).amount.value
+        return FloatingPointRepresentation.of(contribution)
     }
 
     override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {

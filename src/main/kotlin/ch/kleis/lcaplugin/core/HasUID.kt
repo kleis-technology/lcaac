@@ -5,3 +5,11 @@ interface HasUID {
         return "${hashCode()}"
     }
 }
+
+data class ParameterName(
+    val uid: String
+) : HasUID {
+    override fun getUID(): String {
+        return uid
+    }
+}

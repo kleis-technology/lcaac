@@ -2,13 +2,13 @@ package ch.kleis.lcaplugin.actions.sankey
 
 import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.actions.traceSystemWithIndicator
-import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
-import ch.kleis.lcaplugin.ui.toolwindow.SankeyGraphResult
+import ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.SankeyGraphWindow
 import com.intellij.icons.AllIcons
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
@@ -31,9 +31,9 @@ class SankeyGraphAction(
     private val processName: String,
     private val matchLabels: Map<String, String>,
 ) : AnAction(
-    "Generate Graph",
-    "Generate graph",
-    AllIcons.Graph.Layout,
+    "Visualize flows",
+    "Visualize flows",
+    AllIcons.Actions.Execute,
 ) {
     companion object {
         private val LOG = Logger.getInstance(SankeyGraphAction::class.java)
@@ -50,16 +50,15 @@ class SankeyGraphAction(
 
             override fun run(progress: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(progress, file, processName, matchLabels, BasicOperations)
-                val assessment = Assessment(trace.getSystemValue(), trace.getEntryPoint(), BasicOperations)
-                val inventory = assessment.inventory()
-                val allocatedSystem = assessment.allocatedSystem
-                indicatorList = inventory.getControllablePorts().getElements()
+                val analysisProgram = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+                val analysis = analysisProgram.run()
+                indicatorList = analysis.getControllablePorts().getElements()
 
                 val sankeyIndicator = indicatorList!!.first()
 
                 // generate graph
                 progress.text = "Generating sankey graph"
-                graphBuilder = SankeyGraphBuilder(allocatedSystem, inventory, trace.getObservableOrder())
+                graphBuilder = SankeyGraphBuilder(analysis, trace.getObservableOrder())
                 this.graph = graphBuilder!!.buildContributionGraph(sankeyIndicator)
             }
 
@@ -91,13 +90,13 @@ class SankeyGraphAction(
 
             private fun buildContent(processName: String, graph: Graph): Content =
                 ContentFactory.getInstance().createContent(
-                    SankeyGraphResult(
+                    SankeyGraphWindow(
                         processName,
                         graph,
                         indicatorList!!,
                         graphBuilder!!,
                     ).getContent(),
-                    "Contribution analysis of $processName",
+                    "Contribution flows of $processName",
                     false
                 )
 

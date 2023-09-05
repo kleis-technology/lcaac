@@ -114,7 +114,7 @@
         <notificationGroup id="LcaAsCode"
                            displayType="BALLOON"
                            bundle="messages.MyBundle"/>
-        <applicationService serviceImplementation="ch.kleis.lcaplugin.ui.toolwindow.SaveSettings"/>
+        <applicationService serviceImplementation="ch.kleis.lcaplugin.ui.toolwindow.contribution_analysis.SaveSettings"/>
         <applicationService serviceImplementation="ch.kleis.lcaplugin.ide.imports.simapro.SimaproImportSettings"/>
         <applicationService
                 serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings"/>

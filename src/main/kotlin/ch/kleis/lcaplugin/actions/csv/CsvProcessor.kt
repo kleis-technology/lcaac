@@ -1,20 +1,21 @@
 package ch.kleis.lcaplugin.actions.csv
 
-import ch.kleis.lcaplugin.core.assessment.Assessment
+import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.lang.SymbolTable
 import ch.kleis.lcaplugin.core.lang.evaluator.Evaluator
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.expression.*
-import ch.kleis.lcaplugin.core.math.Operations
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import java.lang.Double.parseDouble
 
-class CsvProcessor<Q, M>(
-    private val symbolTable: SymbolTable<Q>,
-    private val ops: Operations<Q, M>,
+class CsvProcessor(
+    private val symbolTable: SymbolTable<BasicNumber>,
 ) {
+    private val ops = BasicOperations
     private val evaluator = Evaluator(symbolTable, ops)
 
-    fun process(request: CsvRequest): CsvResult<Q> {
+    fun process(request: CsvRequest): CsvResult {
         val processName = request.processName
         val template = symbolTable.getTemplate(processName)!!
         val arguments = template.params
@@ -36,13 +37,13 @@ class CsvProcessor<Q, M>(
         val trace = evaluator.trace(EProcessTemplateApplication(template, arguments))
         val systemValue = trace.getSystemValue()
         val firstProcess = trace.getEntryPoint()
-        val assessment = Assessment(systemValue, firstProcess, ops)
-        val inventory = assessment.inventory()
+        val program = ContributionAnalysisProgram(systemValue, firstProcess)
+        val analysis = program.run()
         val outputPort =
             firstProcess.products.firstOrNull()
                 ?.product
                 ?: throw EvaluatorException("$processName has no products")
-        val impacts = inventory.impactFactors.rowAsMap(outputPort)
+        val impacts = analysis.getImpactFactorsOf(outputPort)
         return CsvResult(
             request,
             outputPort,
