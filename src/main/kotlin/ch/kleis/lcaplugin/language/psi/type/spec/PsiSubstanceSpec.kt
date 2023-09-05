@@ -3,12 +3,7 @@ package ch.kleis.lcaplugin.language.psi.type.spec
 import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.language.psi.reference.SubstanceReferenceFromPsiSubstanceSpec
 import ch.kleis.lcaplugin.language.psi.type.field.PsiStringLiteralField
-import ch.kleis.lcaplugin.language.psi.type.trait.PsiUIDOwner
-import ch.kleis.lcaplugin.psi.LcaBlockEmissions
-import ch.kleis.lcaplugin.psi.LcaBlockLandUse
-import ch.kleis.lcaplugin.psi.LcaBlockResources
-import ch.kleis.lcaplugin.psi.LcaSubstanceRef
-import ch.kleis.lcaplugin.psi.LcaTypes
+import ch.kleis.lcaplugin.psi.*
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.util.PsiTreeUtil

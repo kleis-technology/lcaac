@@ -10,6 +10,7 @@ import kotlin.test.assertEquals
 
 class ImpactFactorMatrixTest {
     private val ops = BasicOperations
+    private val quantityOps = QuantityValueOperations(ops)
 
     private val kgValue = UnitValue<BasicNumber>(UnitFixture.kg.symbol, UnitFixture.kg.scale, UnitFixture.kg.dimension)
     private val literValue = UnitValue<BasicNumber>(UnitFixture.l.symbol, UnitFixture.l.scale, UnitFixture.l.dimension)
@@ -22,34 +23,42 @@ class ImpactFactorMatrixTest {
     private val input2 = ProductValue("water", literValue, null)
     private val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
         IndexedCollection(listOf(input1, input2))
-    private val data = MatrixFixture.basic(3, 2, Array(3 * 2) { 2E-3 })
+    private val data = MatrixFixture.basic(
+        3, 2,
+        arrayOf(
+            2E-3, 2E-3,
+            2E-3, 2E-3,
+            2E-3, 2E-3,
+        )
+    )
     val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
     @Test
-    fun value_shouldReturnExchange() {
+    fun characterizationFactor() {
         // When
-        val result = sut.value(output1, input1)
+        val actual = sut.characterizationFactor(output1, input1)
 
         // Then
-        assertEquals(
-            GenericExchangeValue(QuantityValue(ops.pure(2E-3), literValue.dimension.getDefaultUnitValue()), input1),
-            result.input
-        )
-    }
+        val expected = with(BasicOperations) {
+            val numerator = QuantityValue(pure(2.0), literValue)
+            val denominator = QuantityValue(pure(1.0), kgValue)
+            with(QuantityValueOperations(BasicOperations)) {
+                numerator / denominator
+            }
+        }
+        with(quantityOps) {
+            assertEquals(
+                expected.absoluteScaleValue().value,
+                actual.absoluteScaleValue().value,
+            )
 
-    @Test
-    fun valueRatio_shouldReturnTheRatioWithScale_UnitIsNotTheReferenceForDimension() {
-        // When
-        val result = sut.valueRatio(output1, input1)
-
-        // Then
-        assertEquals(QuantityValue(ops.pure(2.0), literValue), result)
+        }
     }
 
     @Test
     fun rowAsMap() {
         // When
-        val result = sut.rowAsMap(output1)
+        val result = sut.unitaryImpacts(output1)
 
         // Then
         val expected: Map<MatrixColumnIndex<BasicNumber>, QuantityValue<BasicNumber>> = mapOf(

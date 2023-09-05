@@ -7,13 +7,13 @@ import ch.kleis.lcaplugin.core.math.Operations
 import ch.kleis.lcaplugin.core.matrix.*
 import org.mozilla.javascript.EvaluatorException
 
-internal data class AnalysisResults<Q, M>(
+data class AnalysisResults<Q, M>(
     val allocatedSystem: SystemValue<Q>,
     val impactFactors: ImpactFactorMatrix<Q, M>,
-    val supply: SupplyMatrix<Q, M>,
+    val intensity: IntensityMatrix<Q, M>,
 )
 
-internal class AnalysisProgram<Q, M>(
+class AnalysisProgram<Q, M>(
     private val system: SystemValue<Q>,
     private val targetProcess: ProcessValue<Q>,
     private val ops: Operations<Q, M>,
@@ -23,12 +23,13 @@ internal class AnalysisProgram<Q, M>(
 
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
+
         val observableProducts = processes
             .flatMap { it.products }
             .map { it.product }
         val observableSubstances = substanceCharacterizations
             .map { it.referenceExchange.substance }
-        val observablePorts = IndexedCollection(observableProducts.plus(observableSubstances))
+
         val observableMatrix = ObservableMatrix(
             processes,
             substanceCharacterizations,
@@ -48,7 +49,6 @@ internal class AnalysisProgram<Q, M>(
         val indicators = (processes + substanceCharacterizations)
             .flatMap { it.impacts }
             .map { it.indicator }
-        val controllablePorts = IndexedCollection(terminalProducts.plus(terminalSubstances).plus(indicators))
         val controllableMatrix = ControllableMatrix(
             processes,
             substanceCharacterizations,
@@ -60,20 +60,31 @@ internal class AnalysisProgram<Q, M>(
 
         val demandMatrix = DemandMatrix(
             targetProcess,
-            observablePorts,
+            observableMatrix.ports,
             ops,
         )
+
+        /*
+            D = 1 x observables
+            O = processes x observables
+            C = processes x controllables
+
+            Emission factors F is s.t.
+                O . F = -C
+            Intensity J is s.t.
+                J . O = D
+         */
 
         with(ops) {
             val impactFactorMatrix = controllableMatrix.data.negate()
                 .matDiv(observableMatrix.data)
-                ?.let { ImpactFactorMatrix(observablePorts, controllablePorts, it, ops) }
+                ?.let { ImpactFactorMatrix(observableMatrix.ports, controllableMatrix.ports, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            val supplyMatrix = demandMatrix.data
+            val intensityMatrix = demandMatrix.data
                 .matTransposeDiv(observableMatrix.data)
-                ?.let { SupplyMatrix(observablePorts, it, ops) }
+                ?.let { IntensityMatrix(observableMatrix.connections, it, ops) }
                 ?: throw EvaluatorException("The system cannot be solved")
-            return AnalysisResults(allocatedSystem, impactFactorMatrix, supplyMatrix)
+            return AnalysisResults(allocatedSystem, impactFactorMatrix, intensityMatrix)
         }
     }
 }

@@ -169,7 +169,7 @@ class DataExpressionReducer<Q>(
                     EQuantityScale(
                         pure(1.0), EUnitLiteral(
                             UnitSymbol.of(expression.symbol),
-                            toDouble(aliasForExpression.scale) * aliasForExpression.base.scale,
+                            aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
                             aliasForExpression.base.dimension
                         )
                     )

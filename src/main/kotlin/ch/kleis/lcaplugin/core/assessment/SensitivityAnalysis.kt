@@ -1,24 +1,31 @@
 package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.ParameterName
-import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
-import ch.kleis.lcaplugin.core.lang.value.ProcessValue
-import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.dual.DualMatrix
 import ch.kleis.lcaplugin.core.math.dual.DualNumber
 import ch.kleis.lcaplugin.core.math.dual.DualOperations
 import ch.kleis.lcaplugin.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaplugin.core.matrix.IndexedCollection
+import ch.kleis.lcaplugin.core.matrix.IntensityMatrix
 import ch.kleis.lcaplugin.core.matrix.ParameterVector
-import ch.kleis.lcaplugin.core.matrix.SupplyMatrix
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 
 class SensitivityAnalysis(
     private val entryPoint: ProcessValue<DualNumber>,
     private val impactFactors: ImpactFactorMatrix<DualNumber, DualMatrix>,
-    private val supply: SupplyMatrix<DualNumber, DualMatrix>,
+    intensity: IntensityMatrix<DualNumber, DualMatrix>,
+    allocatedSystem: SystemValue<DualNumber>,
     private val parameters: ParameterVector<DualNumber>,
 ) {
+    private val ops = DualOperations(parameters.size())
+    private val contributionAnalysis = ContributionAnalysis(
+        impactFactors,
+        intensity,
+        allocatedSystem,
+        ops,
+    )
+
     fun getEntryPointProducts(): List<ProductValue<DualNumber>> {
         return entryPoint.products.map { it.product }
     }
@@ -41,20 +48,16 @@ class SensitivityAnalysis(
         parameter: ParameterName,
     ): Double {
         val parameterIndex = parameters.indexOf(parameter)
-        val impactFactor = impactFactors.valueRatio(target, indicator).amount
+        val impactFactor = impactFactors.unitaryImpact(target, indicator).amount
         val base = impactFactor.zeroth
         val absoluteSensibility = impactFactor.first[parameterIndex]
         return absoluteSensibility / base
     }
 
-    fun getContribution(
-        target: MatrixColumnIndex<DualNumber>,
+    fun getPortContribution(
+        port: MatrixColumnIndex<DualNumber>,
         indicator: MatrixColumnIndex<DualNumber>,
-    ): DualNumber {
-        val quantity = supply.quantityOf(target).amount
-        val ratio = impactFactors.valueRatio(target, indicator).amount
-        return with(DualOperations(parameters.size())) {
-            quantity * ratio
-        }
+    ): QuantityValue<DualNumber> {
+        return contributionAnalysis.getPortContribution(port, indicator)
     }
 }

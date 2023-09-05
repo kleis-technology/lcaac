@@ -2,10 +2,13 @@
 
 package ch.kleis.lcaplugin.core.lang.expression.optics
 
+import arrow.core.identity
 import arrow.core.left
 import arrow.core.right
-import arrow.core.identity
-import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.EProcess
+import ch.kleis.lcaplugin.core.lang.expression.EProductSpec
+import ch.kleis.lcaplugin.core.lang.expression.LcaExchangeExpression
+import ch.kleis.lcaplugin.core.lang.expression.LcaExpression
 
 
 inline fun <Q> LcaExpression.Companion.eProcess(): arrow.optics.Prism<LcaExpression<Q>, EProcess<Q>> = arrow.optics.Prism(

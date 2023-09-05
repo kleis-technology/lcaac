@@ -4,12 +4,13 @@ import ch.kleis.lcaplugin.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.*
 import ch.kleis.lcaplugin.core.math.QuantityOperations
-import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 import kotlin.math.absoluteValue
 
 class Allocation<Q>(
     private val ops: QuantityOperations<Q>,
 ) {
+    private val quantityOps = QuantityValueOperations(ops)
+
     fun apply(system: SystemValue<Q>): SystemValue<Q> {
         val processes = system.processes.flatMap { processValue ->
             processValue.products.map { allocateProduct(it, processValue) }
@@ -17,30 +18,47 @@ class Allocation<Q>(
         return SystemValue(processes, system.substanceCharacterizations)
     }
 
-    private fun QuantityValue<Q>.absoluteScaleDoubleValue(): Double {
-        return ops.toDouble(absoluteScaleValue(ops, this@absoluteScaleDoubleValue))
-    }
-
-    private fun allocateProduct(technoExchangeValue: TechnoExchangeValue<Q>, processValue: ProcessValue<Q>): ProcessValue<Q> {
+    private fun allocateProduct(
+        technoExchangeValue: TechnoExchangeValue<Q>,
+        processValue: ProcessValue<Q>
+    ): ProcessValue<Q> {
         val totalAllocation = totalAmount(processValue)
         return ProcessValue(
             name = processValue.name,
             labels = processValue.labels,
             products = listOf(technoExchangeValue.copy(allocation = technoExchangeValue.allocation)),
-            inputs = processValue.inputs.map(applyAllocationToInput(technoExchangeValue.allocation, totalAllocation)),
-            biosphere = processValue.biosphere.map(
-                applyAllocationToBioExchange(
-                    technoExchangeValue.allocation,
+            inputs = processValue.inputs.map(
+                applyAllocationToInput(
+                    allocationOf(technoExchangeValue),
                     totalAllocation
                 )
             ),
-            impacts = processValue.impacts.map(applyAllocationToImpact(technoExchangeValue.allocation, totalAllocation))
+            biosphere = processValue.biosphere.map(
+                applyAllocationToBioExchange(
+                    allocationOf(technoExchangeValue),
+                    totalAllocation
+                )
+            ),
+            impacts = processValue.impacts.map(
+                applyAllocationToImpact(
+                    allocationOf(technoExchangeValue),
+                    totalAllocation
+                )
+            )
         )
     }
 
     fun totalAmount(processValue: ProcessValue<Q>): Double {
         allocationUnitCheck(processValue)
-        return processValue.products.sumOf { it.allocation?.absoluteScaleDoubleValue() ?: 1.0 }
+        return processValue.products.sumOf { allocationOf(it) }
+    }
+
+    private fun allocationOf(exchange: TechnoExchangeValue<Q>): Double {
+        with(quantityOps) {
+            with(ops) {
+                return exchange.allocation?.absoluteScaleValue()?.toDouble() ?: 1.0
+            }
+        }
     }
 
     fun allocationUnitCheck(processValue: ProcessValue<Q>) {
@@ -56,14 +74,14 @@ class Allocation<Q>(
     }
 
     private fun totalAllocationAmounts(processValue: ProcessValue<Q>): Double {
-        return processValue.products.sumOf { exchange -> exchange.allocation?.absoluteScaleDoubleValue() ?: 1.0 }
+        return processValue.products.sumOf { allocationOf(it) }
     }
 
     private fun applyAllocationToInput(
-        allocation: QuantityValue<Q>?,
+        allocation: Double,
         totalAllocation: Double
     ): (TechnoExchangeValue<Q>) -> TechnoExchangeValue<Q> {
-        val ratio = (allocation?.absoluteScaleDoubleValue() ?: 1.0) / totalAllocation
+        val ratio = allocation / totalAllocation
         return { technoExchangeValue: TechnoExchangeValue<Q> ->
             technoExchangeValue.copy(
                 quantity = technoExchangeValue.quantity.copy(
@@ -74,10 +92,10 @@ class Allocation<Q>(
     }
 
     private fun applyAllocationToBioExchange(
-        allocation: QuantityValue<Q>?,
+        allocation: Double,
         totalAllocation: Double
     ): (BioExchangeValue<Q>) -> BioExchangeValue<Q> {
-        val ratio = (allocation?.absoluteScaleDoubleValue() ?: totalAllocation) / totalAllocation
+        val ratio = allocation / totalAllocation
         return { bioExchange: BioExchangeValue<Q> ->
             bioExchange.copy(
                 quantity = bioExchange.quantity.copy(
@@ -88,10 +106,10 @@ class Allocation<Q>(
     }
 
     private fun applyAllocationToImpact(
-        allocation: QuantityValue<Q>?,
+        allocation: Double,
         totalAllocation: Double,
     ): (ImpactValue<Q>) -> ImpactValue<Q> {
-        val ratio = (allocation?.absoluteScaleDoubleValue() ?: totalAllocation) / totalAllocation
+        val ratio = allocation / totalAllocation
         return { impactValue ->
             impactValue.copy(
                 quantity = impactValue.quantity.copy(

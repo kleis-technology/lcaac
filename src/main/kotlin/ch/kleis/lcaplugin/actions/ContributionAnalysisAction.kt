@@ -3,6 +3,7 @@ package ch.kleis.lcaplugin.actions
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysis
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import ch.kleis.lcaplugin.language.psi.LcaFile
@@ -40,7 +41,7 @@ class AssessProcessAction(
         val project = e.project ?: return
         val file = e.getData(LangDataKeys.PSI_FILE) as LcaFile? ?: return
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Run") {
-            private var data: Pair<ContributionAnalysis, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
+            private var data: Pair<ContributionAnalysis<BasicNumber, BasicMatrix>, Comparator<MatrixColumnIndex<BasicNumber>>>? = null
 
             override fun run(indicator: ProgressIndicator) {
                 val trace = traceSystemWithIndicator(indicator, file, processName, matchLabels, BasicOperations)
@@ -66,11 +67,11 @@ class AssessProcessAction(
 
             private fun displayInventory(
                 project: Project,
-                analysis: ContributionAnalysis,
+                analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
                 order: Comparator<MatrixColumnIndex<BasicNumber>>
             ) {
                 val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("LCA Output") ?: return
-                val assessResultContent = if (analysis.getNumberOfImpactFactors() <= DISPLAY_MAX_CELLS) {
+                val assessResultContent = if (analysis.getNbCells() <= DISPLAY_MAX_CELLS) {
                     ContributionAnalysisWindow(analysis, order, project, processName).getContent()
                 } else {
                     ContributionAnalysisHugeWindow(analysis, order, "lca.dialog.export.warning", project).getContent()

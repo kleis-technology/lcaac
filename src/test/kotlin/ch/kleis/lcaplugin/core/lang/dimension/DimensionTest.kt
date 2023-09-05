@@ -1,7 +1,7 @@
 package ch.kleis.lcaplugin.core.lang.dimension
 
-import kotlin.test.assertEquals
 import org.junit.Test
+import kotlin.test.assertEquals
 
 
 class DimensionTest {

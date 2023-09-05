@@ -23,8 +23,8 @@ class FullyQualifiedSubstanceValueTest {
     @Test
     fun equals_whenSameDimension() {
         // given
-        val a = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.kg)
-        val b = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.ton)
+        val a = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.kg())
+        val b = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.ton())
 
         // then
         assertEquals(a, b)
@@ -34,8 +34,8 @@ class FullyQualifiedSubstanceValueTest {
     @Test
     fun equals_whenDifferentDimensions() {
         // given
-        val a = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.kg)
-        val b = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.l)
+        val a = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.kg())
+        val b = FullyQualifiedSubstanceValueFixture.propanol.copy(referenceUnit = UnitValueFixture.l())
 
         // then
         assertNotEquals(a, b)

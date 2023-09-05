@@ -24,10 +24,10 @@ class CsvResultWriterTest {
         )
         val result = CsvResult(
             request,
-            ProductValue("out", UnitValueFixture.kg),
+            ProductValue("out", UnitValueFixture.kg()),
             mapOf(
-                ProductValue<BasicNumber>("in1", UnitValueFixture.kg) to QuantityValueFixture.oneKilogram,
-                ProductValue<BasicNumber>("in2", UnitValueFixture.l) to QuantityValueFixture.oneLitre,
+                ProductValue<BasicNumber>("in1", UnitValueFixture.kg()) to QuantityValueFixture.oneKilogram,
+                ProductValue<BasicNumber>("in2", UnitValueFixture.l()) to QuantityValueFixture.oneLitre,
             )
         )
         val outputStream = mockk<OutputStream>()

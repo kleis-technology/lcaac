@@ -14,8 +14,8 @@ class ToValue<Q>(
         }
     }
 
-    private fun Q.toDoubleValue(): Double {
-            return ops.toDouble(this)
+    private fun doubleValueOf(q: () -> Q): Double {
+        return with(ops) { q().toDouble() }
     }
 
     private fun EProcess<Q>.toValue(): ProcessValue<Q> {
@@ -69,6 +69,7 @@ class ToValue<Q>(
 
     fun EProductSpec<Q>.toValue(): ProductValue<Q> {
         val name = this.name
+        @Suppress("UNCHECKED_CAST")
         val referenceUnitValue = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
             ?: throw EvaluatorException("$this has no reference unit")
@@ -84,8 +85,8 @@ class ToValue<Q>(
         when {
             this is EQuantityScale && this.base is EUnitLiteral ->
                 UnitValue(
-                    base.symbol.scale(scale.toDoubleValue()),
-                    scale.toDoubleValue() * base.scale,
+                    base.symbol.scale(doubleValueOf { scale }),
+                    doubleValueOf { scale } * base.scale,
                     base.dimension,
                 )
 
@@ -100,6 +101,7 @@ class ToValue<Q>(
         }
 
     fun ESubstanceSpec<Q>.toValue(): SubstanceValue<Q> {
+        @Suppress("UNCHECKED_CAST")
         val referenceUnit = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
             ?: throw EvaluatorException("$this has no reference unit")
@@ -115,6 +117,7 @@ class ToValue<Q>(
     }
 
     private fun EIndicatorSpec<Q>.toValue(): IndicatorValue<Q> {
+        @Suppress("UNCHECKED_CAST")
         val referenceUnit = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
             ?: throw EvaluatorException("$this has no reference unit")

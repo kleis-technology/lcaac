@@ -10,6 +10,9 @@ data class SystemValue<Q>(
 
     val productToProcessMap: Map<ProductValue<Q>, ProcessValue<Q>> =
         processes.flatMap { process -> process.products.map { it.product to process } }.toMap()
+    val substanceToSubstanceCharacterizationMap: Map<SubstanceValue<Q>, SubstanceCharacterizationValue<Q>> =
+        substanceCharacterizations
+            .associateBy { characterization -> characterization.referenceExchange.substance }
 
 }
 

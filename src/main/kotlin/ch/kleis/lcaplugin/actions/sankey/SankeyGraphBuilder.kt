@@ -5,41 +5,48 @@ import ch.kleis.lcaplugin.core.graph.Graph
 import ch.kleis.lcaplugin.core.graph.GraphLink
 import ch.kleis.lcaplugin.core.graph.GraphNode
 import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaplugin.core.lang.value.ExchangeValue
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
+import ch.kleis.lcaplugin.core.lang.value.QuantityValueOperations
 import ch.kleis.lcaplugin.core.lang.value.SubstanceValue
+import ch.kleis.lcaplugin.core.math.basic.BasicMatrix
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
-import ch.kleis.lcaplugin.core.matrix.absoluteScaleValue
 
 class SankeyGraphBuilder(
-    private val analysis: ContributionAnalysis,
+    private val analysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     private val observableOrder: Comparator<MatrixColumnIndex<BasicNumber>>,
 ) {
-    fun buildContributionGraph(sankeyIndicator: MatrixColumnIndex<BasicNumber>): Graph {
+    private val quantityOps = QuantityValueOperations(BasicOperations)
+
+    fun buildContributionGraph(indicator: MatrixColumnIndex<BasicNumber>): Graph {
         val portsWithObservedImpact = analysis.getObservablePorts().getElements().toSet()
 
         val completeGraph = portsWithObservedImpact.fold(
-            Graph.empty().addNode(GraphNode(sankeyIndicator.getUID(), sankeyIndicator.getShortName()))
+            Graph.empty().addNode(GraphNode(indicator.getUID(), indicator.getShortName()))
         ) { graph, port ->
             when (port) {
                 is SubstanceValue<BasicNumber> -> {
+                    val contribution = with(quantityOps) {
+                        analysis.getPortContribution(port, indicator)
+                            .absoluteScaleValue()
+                            .value
+                    }
                     graph.addNode(GraphNode(port.getUID(), port.getShortName()))
                         .addLinkIfNoCycle(
                             observableOrder,
                             port,
-                            sankeyIndicator,
-                            impactAmountForSubstance(sankeyIndicator, analysis, port)
+                            indicator,
+                            contribution,
                         )
                 }
 
                 is ProductValue<BasicNumber> -> {
-                    val parentProcess = analysis.getAllocatedSystem().productToProcessMap[port]!!
+                    val process = analysis.findOwnerOf(port) ?: throw IllegalStateException()
 
                     val linksWithObservedImpact =
-                        (parentProcess.inputs + parentProcess.biosphere).filter { parentProcessExchange ->
-                            portsWithObservedImpact.contains(parentProcessExchange.port()) || parentProcessExchange.port() == sankeyIndicator
+                        (process.inputs + process.biosphere).filter { exchange ->
+                            portsWithObservedImpact.contains(exchange.port()) || exchange.port() == indicator
                         }
 
                     linksWithObservedImpact.fold(
@@ -50,11 +57,16 @@ class SankeyGraphBuilder(
                             )
                         )
                     ) { accumulatorGraph, exchange ->
+                        val contribution = with(quantityOps) {
+                            analysis.getExchangeContribution(port, exchange, indicator)
+                                .absoluteScaleValue()
+                                .value
+                        }
                         accumulatorGraph.addLinkIfNoCycle(
                             observableOrder,
                             port,
                             exchange.port(),
-                            impactAmountForExchange(sankeyIndicator, analysis, port, exchange)
+                            contribution,
                         )
                     }
                 }
@@ -85,41 +97,5 @@ class SankeyGraphBuilder(
         } else {
             this.addLink(GraphLink(source.getUID(), target.getUID(), value))
         }
-    }
-
-    // TODO: Move the relevant code to ContributionAnalysis
-    private fun impactAmountForSubstance(
-        observed: MatrixColumnIndex<BasicNumber>,
-        inventory: ContributionAnalysis,
-        substance: SubstanceValue<BasicNumber>,
-    ): Double {
-        val ops = BasicOperations
-        val supply = absoluteScaleValue(ops, inventory.supplyOf(substance)).value
-        val characterizationFactor = absoluteScaleValue(ops, inventory.getImpactFactors().valueRatio(substance, observed)).value
-        return supply * characterizationFactor
-    }
-
-    // TODO: Move the relevant code to ContributionAnalysis
-    private fun impactAmountForExchange(
-        observed: MatrixColumnIndex<BasicNumber>,
-        inventory: ContributionAnalysis,
-        product: ProductValue<BasicNumber>,
-        exchange: ExchangeValue<BasicNumber>,
-    ): Double {
-        val ops = BasicOperations
-
-        val supply = inventory.supplyOf(product)
-        val absoluteSupply = absoluteScaleValue(ops, supply).value
-        val exchangeFactor = absoluteScaleValue(ops, exchange.quantity()).value  / supply.unit.scale
-        val emissionFactor = when {
-            (exchange.port() == observed) -> 1.0
-            else -> {
-                absoluteScaleValue(
-                    ops,
-                    inventory.getImpactFactors().valueRatio(exchange.port(), observed)
-                ).value
-            }
-        }
-        return absoluteSupply * exchangeFactor * emissionFactor
     }
 }

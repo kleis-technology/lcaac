@@ -6,12 +6,12 @@ import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 
 class ProductValueFixture {
     companion object {
-        fun product(s: String, unit: UnitValue<BasicNumber> = UnitValueFixture.kg): ProductValue<BasicNumber> {
+        fun product(s: String, unit: UnitValue<BasicNumber> = UnitValueFixture.kg()): ProductValue<BasicNumber> {
             return ProductValue(s, unit)
         }
 
-        val salad = ProductValue("salad", UnitValueFixture.kg)
-        val carrot = ProductValue("carrot", UnitValueFixture.kg)
-        val water = ProductValue("water", UnitValueFixture.l)
+        val salad = ProductValue("salad", UnitValueFixture.kg<BasicNumber>())
+        val carrot = ProductValue("carrot", UnitValueFixture.kg<BasicNumber>())
+        val water = ProductValue("water", UnitValueFixture.l<BasicNumber>())
     }
 }
