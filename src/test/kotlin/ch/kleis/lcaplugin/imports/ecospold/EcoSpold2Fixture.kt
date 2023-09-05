@@ -4,7 +4,24 @@ import ch.kleis.lcaplugin.core.lang.expression.SubstanceType
 import ch.kleis.lcaplugin.imports.ecospold.model.*
 
 object EcoSpold2Fixture {
-    fun buildData(outputGroup: Int = 0): ActivityDataset {
+    fun buildProcessDict(): Map<String, EcospoldImporter.ProcessDictRecord> = mapOf(
+        "iNameProcessID" to EcospoldImporter.ProcessDictRecord(
+            processId = "iNameProcessID",
+            fileName = "foo",
+            processName = "iName Producing Process",
+            geo = "GLO",
+            productName = "iName",
+        ),
+        "iName2ProcessID" to EcospoldImporter.ProcessDictRecord(
+            processId = "iName2ProcessID",
+            fileName = "bar",
+            processName = "iName2 Producing Process",
+            geo = "CH",
+            productName = "iName2",
+        ),
+    )
+
+    fun buildData(outputGroup: Int = 0, inputGroup: Int = 5): ActivityDataset {
         val activity = Activity(
             id = "aId",
             name = "aName",
@@ -20,7 +37,7 @@ object EcoSpold2Fixture {
             activity = activity,
             geography = geo,
             classifications = listOf(c),
-            )
+        )
         val prod = IntermediateExchange(
             name = "pName",
             outputGroup = outputGroup,
@@ -29,6 +46,20 @@ object EcoSpold2Fixture {
             amount = 1.0,
             unit = "km",
             synonyms = listOf("p1"),
+        )
+        val i1 = IntermediateExchange(
+            amount = 3.0,
+            name = "iName",
+            unit = "kg",
+            inputGroup = inputGroup,
+            activityLinkId = "iNameProcessID",
+        )
+        val i2 = IntermediateExchange(
+            amount = 25.0,
+            name = "iName2",
+            unit = "m3",
+            inputGroup = inputGroup,
+            activityLinkId = "iName2ProcessID"
         )
         val impacts = sequenceOf(
             ImpactIndicator("EF v3.0 no LT", "water use", "deprivation", 0.1188, "m3 world eq. deprived"),
@@ -69,7 +100,7 @@ object EcoSpold2Fixture {
         )
         return ActivityDataset(
             description, FlowData(
-                intermediateExchanges = sequenceOf(prod),
+                intermediateExchanges = sequenceOf(prod, i1, i2),
                 impactIndicators = impacts,
                 elementaryExchanges = emissions,
             )

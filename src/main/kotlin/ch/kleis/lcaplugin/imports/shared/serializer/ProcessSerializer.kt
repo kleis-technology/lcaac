@@ -7,14 +7,22 @@ import ch.kleis.lcaplugin.imports.model.*
 object ProcessSerializer {
     fun serialize(e: ImportedExchange): List<CharSequence> {
         val comments = e.comments
+            .flatMap(CharSequence::lines)
             .filter { it.isNotBlank() }
             .map { "// $it" }
+        val printCommented = if (e.printAsComment) "// " else ""
         val txt = when (e) {
-            is ImportedProductExchange -> "${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
-            is ImportedInputExchange, is ImportedImpactExchange -> "${e.qty} ${e.unit} ${e.uid}"
+            is ImportedProductExchange -> "${printCommented}${e.qty} ${e.unit} ${e.uid} allocate ${e.allocation} percent"
+            is ImportedImpactExchange -> "${printCommented}${e.qty} ${e.unit} ${e.uid}"
+
+            is ImportedInputExchange -> {
+                val fromProcess = e.fromProcess?.let { " from $it" } ?: ""
+                "${printCommented}${e.qty} ${e.unit} ${e.uid}${fromProcess}"
+            }
+
             is ImportedBioExchange -> {
                 val sub = e.subCompartment?.let { ", sub_compartment = \"$it\"" } ?: ""
-                """${e.qty} ${e.unit} ${e.uid}(compartment = "${e.compartment}"$sub)"""
+                """${printCommented}${e.qty} ${e.unit} ${e.uid}(compartment = "${e.compartment}"$sub)"""
             }
         }
         return comments + txt

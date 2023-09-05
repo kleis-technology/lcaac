@@ -20,7 +20,7 @@ class UnitRenderer(private val knownUnits: MutableMap<String, UnitValue<BasicNum
         AliasFor("area", Prelude.area),
         AliasFor("power", Prelude.power),
         AliasFor("amount", Prelude.none),
-        AliasFor("land use", Prelude.land_use),
+        AliasFor("land use", Prelude.land_occupation),
         AliasFor("transport", Prelude.transport),
         AliasFor("length.time", Prelude.length_time),
         AliasFor("person.distance", Prelude.person_distance),

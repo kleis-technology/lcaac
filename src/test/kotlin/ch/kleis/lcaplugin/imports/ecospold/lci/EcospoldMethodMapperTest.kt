@@ -24,7 +24,8 @@ class EcospoldMethodMapperTest {
     fun test_buildMapping_whenNoData_thenEmptyMap() {
         // given
         val emptyCSVReader = StringReader(
-            listOf("compartment_status",
+            listOf(
+                "compartment_status",
                 "conversion_factor",
                 "flow_status",
                 "id",
@@ -33,7 +34,9 @@ class EcospoldMethodMapperTest {
                 "method_subcompartment",
                 "method_unit",
                 "name",
-                "unitName").joinToString(","))
+                "unitName"
+            ).joinToString(",")
+        )
 
         // when
         val map = EcospoldMethodMapper.buildMapping(emptyCSVReader)
@@ -52,7 +55,7 @@ class EcospoldMethodMapperTest {
         assertNotNull(mapping)
         assertEquals("584ffb1c-036d-417b-a9d1-1ec694dc2cdc", mapping.first().key)
         assertEquals(
-            MappingExchange(
+            FoundMappingExchange(
                 "584ffb1c-036d-417b-a9d1-1ec694dc2cdc",
                 null,
                 "1,2-dichlorobenzene",
@@ -74,10 +77,11 @@ class EcospoldMethodMapperTest {
 
         // then
         assertNotNull(mapping)
-        assertEquals(MappingExchange(
-            "d21da01e-f96f-4db5-9746-7b70db8a1f2c",
-            null, null, null, null, null,
-            "Ecoinvent orphan. Ecoinvent ID: d21da01e-f96f-4db5-9746-7b70db8a1f2c"),
+        assertEquals(
+            OrphanMappingExchange(
+                "d21da01e-f96f-4db5-9746-7b70db8a1f2c",
+                "Ecoinvent orphan. Ecoinvent ID: d21da01e-f96f-4db5-9746-7b70db8a1f2c"
+            ),
             mapping.first().value
         )
     }
@@ -101,7 +105,8 @@ class EcospoldMethodMapperTest {
     fun test_whenMappingMethodFieldsEmpty_thenNull() {
         // given
         val givenReader = StringReader(
-            listOf("compartment_status",
+            listOf(
+                "compartment_status",
                 "conversion_factor",
                 "flow_status",
                 "id",
@@ -110,23 +115,26 @@ class EcospoldMethodMapperTest {
                 "method_subcompartment",
                 "method_unit",
                 "name",
-                "unitName").joinToString(",") + "\n" + """
+                "unitName"
+            ).joinToString(",") + "\n" + """
                    mapped,1.0,mapped,abc-you-and-me-an-id,,,,,eiName,eiUnit
-                """.trimIndent())
+                """.trimIndent()
+        )
 
         // when
         val result = EcospoldMethodMapper.buildMapping(givenReader)
 
         // then
         assertEquals(
-            MappingExchange(
+            FoundMappingExchange(
                 "abc-you-and-me-an-id",
                 null,
                 null,
                 null,
                 null,
                 null,
-                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"),
+                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"
+            ),
             result.first().value
         )
     }
@@ -135,7 +143,8 @@ class EcospoldMethodMapperTest {
     fun test_whenMappingMethodFieldsFull_thenNotNull() {
         // given
         val givenReader = StringReader(
-            listOf("compartment_status",
+            listOf(
+                "compartment_status",
                 "conversion_factor",
                 "flow_status",
                 "id",
@@ -144,36 +153,40 @@ class EcospoldMethodMapperTest {
                 "method_subcompartment",
                 "method_unit",
                 "name",
-                "unitName").joinToString(",") + "\n" + """
+                "unitName"
+            ).joinToString(",") + "\n" + """
                    mapped,2.57,mapped,abc-you-and-me-an-id,method_comp,method_name,method_subcomp,method_unit,eiName,eiUnit
-                """.trimIndent())
+                """.trimIndent()
+        )
 
         // when
         val result = EcospoldMethodMapper.buildMapping(givenReader)
 
         // then
         assertEquals(
-            MappingExchange(
+            FoundMappingExchange(
                 "abc-you-and-me-an-id",
                 2.57,
                 "method_name",
                 "method_unit",
                 "method_comp",
                 "method_subcomp",
-                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"),
+                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"
+            ),
             result.first().value
         )
     }
 
     @Test
-        /***
-         * This test is necessary because PEF will try and use m2*a as a unit, though in
-         * Ecoinvent's DB and imported units, 1 a = 0.01 ha (dimension = length * length)
-         */
+            /***
+             * This test is necessary because PEF will try and use m2*a as a unit, though in
+             * Ecoinvent's DB and imported units, 1 a = 0.01 ha (dimension = length * length)
+             */
     fun test_whenMappingFrom_m2year_to_m2stara_thenKeep_m2year() {
         // given
         val givenReader = StringReader(
-            listOf("compartment_status",
+            listOf(
+                "compartment_status",
                 "conversion_factor",
                 "flow_status",
                 "id",
@@ -182,23 +195,26 @@ class EcospoldMethodMapperTest {
                 "method_subcompartment",
                 "method_unit",
                 "name",
-                "unitName").joinToString(",") + "\n" + """
+                "unitName"
+            ).joinToString(",") + "\n" + """
                    mapped,1.0,mapped,abc-you-and-me-an-id,,,,m2*a,eiName,m2*year
-                """.trimIndent())
+                """.trimIndent()
+        )
 
         // when
         val result = EcospoldMethodMapper.buildMapping(givenReader)
 
         // then
         assertEquals(
-            MappingExchange(
+            FoundMappingExchange(
                 "abc-you-and-me-an-id",
                 null,
                 null,
                 "m2*year",
                 null,
                 null,
-                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"),
+                "Ecoinvent ID: abc-you-and-me-an-id. Flow, compartment status: mapped, mapped"
+            ),
             result.first().value
         )
     }

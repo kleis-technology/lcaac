@@ -119,7 +119,7 @@
         <applicationService
                 serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings"/>
         <applicationService
-                serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings"/>
+                serviceImplementation="ch.kleis.lcaplugin.ide.imports.ecospold.settings.UPRAndLCISettings"/>
 
         <defaultLiveTemplates file="/liveTemplates/lca.xml"/>
         <liveTemplateContext implementation="ch.kleis.lcaplugin.ide.template.LcaRootContext" contextId="LCARoot"/>
@@ -145,7 +145,7 @@
             <add-to-group group-id="ImportLibrary"/>
         </action>
         <action id="ImportEcospoldLCI" class="ch.kleis.lcaplugin.ide.imports.ecospold.lci.EcospoldLCIImportMenuAction"
-                text="EcoSpold LCI Library">
+                text="EcoSpold UPR / LCI Library">
             <add-to-group group-id="ImportLibrary"/>
         </action>
     </actions>

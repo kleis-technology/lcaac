@@ -5,7 +5,7 @@ import ch.kleis.lcaplugin.ide.imports.ImportHandler
 import ch.kleis.lcaplugin.ide.imports.LcaImportDialog
 import ch.kleis.lcaplugin.ide.imports.ecospold.settings.EcospoldImportSettings
 import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCIASettings
-import ch.kleis.lcaplugin.ide.imports.ecospold.settings.LCISettings
+import ch.kleis.lcaplugin.ide.imports.ecospold.settings.UPRAndLCISettings
 import ch.kleis.lcaplugin.imports.Importer
 import ch.kleis.lcaplugin.imports.ecospold.EcospoldImporter
 import com.intellij.BundleBase
@@ -77,7 +77,7 @@ class EcospoldImportSettingsPanel(
                 builder.addLabeledComponent(methodLabelled.label, methodLabelled.component)
             }
 
-            is LCISettings -> {
+            is UPRAndLCISettings -> {
                 methodNameField = null
 
                 val mappingFile = createMappingFileComponent(settings)
@@ -205,11 +205,8 @@ class EcospoldImportSettingsPanel(
                         warning.text = MyBundle.message("lca.dialog.import.ecospold.lcia.warning")
                     }
 
-                    is LCISettings -> if (name.contains("lci")) {
+                    is UPRAndLCISettings ->
                         warning.text = ""
-                    } else {
-                        warning.text = MyBundle.message("lca.dialog.import.ecospold.lci.warning")
-                    }
                 }
             }
         }
@@ -231,7 +228,7 @@ class EcospoldImportSettingsPanel(
         )
     }
 
-    private fun createMappingFileComponent(settings: LCISettings): LabeledComponent<TextFieldWithBrowseButton> {
+    private fun createMappingFileComponent(settings: UPRAndLCISettings): LabeledComponent<TextFieldWithBrowseButton> {
         val myMappingFileField = TextFieldWithBrowseButton()
         val file = Path.of(settings.mappingFile)
         myMappingFileField.text = if (file.exists() && file.isRegularFile()) file.toString() else ""
@@ -258,13 +255,13 @@ class EcospoldImportSettingsPanel(
         )
     }
 
-    private fun createImportBuiltinLibraryComponent(settings: LCISettings): LabeledComponent<ComboBox<LCISettings.Companion.BuiltinLibrary?>> {
-        val myComboBox = ComboBox<LCISettings.Companion.BuiltinLibrary?>()
+    private fun createImportBuiltinLibraryComponent(settings: UPRAndLCISettings): LabeledComponent<ComboBox<UPRAndLCISettings.Companion.BuiltinLibrary?>> {
+        val myComboBox = ComboBox<UPRAndLCISettings.Companion.BuiltinLibrary?>()
         myComboBox.addItem(null)
-        LCISettings.Companion.BuiltinLibrary.values().forEach(myComboBox::addItem)
+        UPRAndLCISettings.Companion.BuiltinLibrary.values().forEach(myComboBox::addItem)
         myComboBox.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
-                settings.importBuiltinLibrary = myComboBox.selectedItem as LCISettings.Companion.BuiltinLibrary?
+                settings.importBuiltinLibrary = myComboBox.selectedItem as UPRAndLCISettings.Companion.BuiltinLibrary?
             }
         }
 
@@ -288,7 +285,7 @@ class EcospoldImportSettingsPanel(
                 { LcaImportDialog.validateNonEmpty(settings.methodName, methodNameField!!) },
             )
 
-            is LCISettings -> if (settings.mappingFile.isNotEmpty()) {
+            is UPRAndLCISettings -> if (settings.mappingFile.isNotEmpty()) {
                 listOf({ LcaImportDialog.validateRegularFile(settings.mappingFile, mappingFileField!!) })
             } else listOf()
         }

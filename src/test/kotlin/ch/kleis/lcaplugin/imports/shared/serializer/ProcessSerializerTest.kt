@@ -43,8 +43,11 @@ class ProcessSerializerTest {
                 "materialsAndFuels",
                 sequenceOf(
                     ImportedInputExchange(
-                        "420.0", "kg", "aluminium_glo_market",
-                        listOf("Estimation based on few references"),
+                        uid = "aluminium_glo",
+                        qty = "420.0",
+                        unit = "kg",
+                        fromProcess = "market_for_aluminium_glo",
+                        comments = listOf("Estimation based on few references"),
                     )
                 )
             )
@@ -75,7 +78,13 @@ class ProcessSerializerTest {
                 sequenceOf(
                     ImportedBioExchange(
                         "5.9", "m3", "water", "water", "in river",
-                        listOf("Approximation"),
+                        listOf(
+                            """
+                        Approximation this is a first paragraph
+                        
+                        And this is a second paragraph, which should also be commented.
+                        """.trimIndent()
+                        ),
                     )
                 )
             )
@@ -150,7 +159,7 @@ process uid {
 
     inputs { // materialsAndFuels
         // Estimation based on few references
-        420.0 kg aluminium_glo_market
+        420.0 kg aluminium_glo from market_for_aluminium_glo
     }
 
     emissions { // To Air
@@ -164,7 +173,8 @@ process uid {
     }
 
     resources { // Natural
-        // Approximation
+        // Approximation this is a first paragraph
+        // And this is a second paragraph, which should also be commented.
         5.9 m3 water(compartment = "water", sub_compartment = "in river")
     }
 
