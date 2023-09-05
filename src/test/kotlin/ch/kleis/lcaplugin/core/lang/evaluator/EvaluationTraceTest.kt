@@ -7,7 +7,6 @@ import ch.kleis.lcaplugin.core.lang.fixture.SubstanceCharacterizationValueFixtur
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.TechnoExchangeValue
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
-import ch.kleis.lcaplugin.core.math.basic.BasicOperations
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -17,7 +17,7 @@ import javax.swing.JPanel
 
 class SankeyGraphWindow(
     processName: String,
-    graphData: Graph,
+    graph: Graph,
     indicatorList: List<MatrixColumnIndex<BasicNumber>>,
     private val graphBuilder: SankeyGraphBuilder,
 ) : LcaToolWindowContent {
@@ -29,7 +29,7 @@ class SankeyGraphWindow(
             Browser
          */
         val browser = JBCefBrowser()
-        browser.loadHTML(buildWebPage(Json.encodeToString(graphData)))
+        browser.loadHTML(buildWebPage(graph))
 
         /*
             Menu bar
@@ -38,10 +38,9 @@ class SankeyGraphWindow(
         indicatorList.forEach(comboBox::addItem)
         comboBox.addActionListener {
             if (it.actionCommand == "comboBoxChanged") {
+                @Suppress("UNCHECKED_CAST")
                 val indicator = comboBox.selectedItem as MatrixColumnIndex<BasicNumber>
-                val graph = graphBuilder.buildContributionGraph(indicator)
-                val json = Json.encodeToString(graph)
-                val html = buildWebPage(json)
+                val html = buildWebPage(graphBuilder.buildContributionGraph(indicator))
                 browser.loadHTML(html)
             }
         }
@@ -65,7 +64,8 @@ class SankeyGraphWindow(
         return content
     }
 
-    private fun buildWebPage(graphData: String): String {
+    private fun buildWebPage(graph: Graph): String {
+        val graphData = Json.encodeToString(graph)
         return """
            <!DOCTYPE HTML>
            <html>

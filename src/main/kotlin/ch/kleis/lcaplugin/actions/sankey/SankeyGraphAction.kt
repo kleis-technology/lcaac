@@ -4,6 +4,7 @@ import ch.kleis.lcaplugin.MyBundle
 import ch.kleis.lcaplugin.actions.traceSystemWithIndicator
 import ch.kleis.lcaplugin.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaplugin.core.graph.Graph
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
 import ch.kleis.lcaplugin.core.math.basic.BasicOperations
@@ -64,8 +65,12 @@ class SankeyGraphAction(
 
             override fun onSuccess() {
                 graph?.let {
-                    val content = buildContent(processName, it)
-                    fillAndShowToolWindow(project, content)
+                    if (it.links.isNotEmpty()) {
+                        val content = buildContent(processName, it)
+                        fillAndShowToolWindow(project, content)
+                    } else {
+                        buildErrorContent(processName, EvaluatorException("No flows to display."))
+                    }
                 }
             }
 
