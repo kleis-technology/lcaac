@@ -56,8 +56,6 @@
     <orderEntry type="module" module-name="intellij.platform.util.jdom" />
     <orderEntry type="module" module-name="intellij.platform.vcs" />
     <orderEntry type="library" name="openlca.olca.simapro.csv" level="project" />
-    <orderEntry type="library" name="jetbrains.kotlinx.serialization.json" level="project" />
-    <orderEntry type="library" name="kotlinx-serialization-json" level="project" />
     <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
     <orderEntry type="library" name="io.arrow.kt.optics" level="project" />
     <orderEntry type="library" name="jdom.jdom2" level="project" />
@@ -68,7 +66,7 @@
     <orderEntry type="library" name="swingx" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.13.2" level="project" />
     <orderEntry type="library" scope="TEST" name="kotlin-test" level="project" />
-    <orderEntry type="library" scope="TEST" name="commons-io" level="project" />
+    <orderEntry type="library" name="commons-io" level="project" />
     <orderEntry type="module" module-name="intellij.json" scope="TEST" />
     <orderEntry type="module" module-name="intellij.platform.testFramework" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="kotlin-test-junit" level="project" />
@@ -81,5 +79,7 @@
     <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
     <orderEntry type="library" name="kotlinc.kotlinx-serialization-compiler-plugin" level="project" />
     <orderEntry type="library" name="kotlin-reflect" level="project" />
+    <orderEntry type="library" name="jetbrains.kotlinx.multik.core.jvm" level="project" />
+    <orderEntry type="library" name="jetbrains.kotlinx.serialization.json" level="project" />
   </component>
 </module>

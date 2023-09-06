@@ -1,11 +1,11 @@
 package ch.kleis.lcaplugin.core.assessment
 
 import ch.kleis.lcaplugin.core.allocation.Allocation
+import ch.kleis.lcaplugin.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaplugin.core.lang.value.ProcessValue
 import ch.kleis.lcaplugin.core.lang.value.SystemValue
 import ch.kleis.lcaplugin.core.math.Operations
 import ch.kleis.lcaplugin.core.matrix.*
-import org.mozilla.javascript.EvaluatorException
 
 data class AnalysisResults<Q, M>(
     val allocatedSystem: SystemValue<Q>,
