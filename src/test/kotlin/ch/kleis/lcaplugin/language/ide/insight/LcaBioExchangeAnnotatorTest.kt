@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
@@ -33,7 +32,6 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        UnitFixture.getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()
@@ -58,6 +56,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+//        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -76,7 +75,6 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        UnitFixture.getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getEmissions().first()
         val mock = AnnotationHolderMock()

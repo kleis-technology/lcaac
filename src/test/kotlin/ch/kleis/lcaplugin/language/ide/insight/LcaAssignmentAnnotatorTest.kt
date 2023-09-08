@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -98,7 +99,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -106,7 +107,6 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
 
     @Test
     fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
-        // given QQQ On garde ?
         val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
         myFixture.createFile(
             "$pkgName.lca", """
@@ -116,9 +116,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
                 alias_for = 0.001 kg
             }""".trimIndent()
         )
-        // TODO Move to Unit after decision
-        val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
-            .getDataRef()
+        val element = UnitStubKeyIndex.findUnits(project, "$pkgName.g").first().dataRef
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -126,7 +124,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -142,7 +140,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
             
             process p {
                 variables {
-                    x = 1l
+                    x = 1 l
                 }
             }
         """.trimIndent()
@@ -196,7 +194,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }

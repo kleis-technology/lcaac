@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
@@ -76,7 +75,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        val pkgName = "testAnnotateInGlobals_whenFoundInPrelude_shouldDoNothing"
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -137,7 +136,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenUnitFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        val pkgName = "testAnnotateInSubstance_whenUnitFoundInPrelude_shouldDoNothing"
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -150,7 +149,6 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        UnitFixture.getInternalUnitFile(myFixture)
         val element = SubstanceKeyIndex.findSubstances(
             project,
             "$pkgName.s", "Resource", "c"
@@ -208,7 +206,6 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
         // given
         val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
-        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -220,10 +217,6 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         )
         val element = UnitStubKeyIndex.findUnits(project, "$pkgName.g")
             .first()
-//            .variablesList
-//            .first()
-//            .assignmentList
-//            .first()
             .dataRef
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()

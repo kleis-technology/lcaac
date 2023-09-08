@@ -10,6 +10,7 @@ import java.nio.file.Path
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.io.path.deleteExisting
+import kotlin.io.path.exists
 
 typealias UnitBlock = CharSequence
 
@@ -18,7 +19,7 @@ class UnitLcaFileFromPreludeGenerator<Q> {
     private val existingRefUnit = mutableMapOf<Dimension, EUnitLiteral<Q>>()
 
     fun recreate(path: Path) {
-        path.deleteExisting()
+        if (path.exists()) path.deleteExisting()
         val file = path.toFile()
         file.createNewFile()
         FileOutputStream(file)

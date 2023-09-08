@@ -1,5 +1,6 @@
 package ch.kleis.lcaplugin.language.parser
 
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.language.psi.LcaFile
 import com.intellij.openapi.ui.naturalSorted
 import com.intellij.psi.PsiManager
@@ -71,8 +72,8 @@ class LcaFileCollectorTest : BasePlatformTestCase() {
             .map { it.name }
             .toList().naturalSorted()
 
-        //
-        val expected = listOf(file, left, right).map { it.name }.naturalSorted()
+        val expected =
+            listOf(UnitFixture.getInternalUnitFile(myFixture), file, left, right).map { it.name }.naturalSorted()
         assertEquals(expected, actual)
     }
 
@@ -120,6 +121,10 @@ class LcaFileCollectorTest : BasePlatformTestCase() {
         val expected = listOf(fa, fb)
             .map { it.virtualFile.path }
             .naturalSorted()
-        assertEquals(expected, actual)
+        // Have to contains Units, whatever is located
+        assertEquals(1, actual.filter { it.endsWith("built_in_units.lca") }.size)
+
+        // And the other file
+        assertEquals(expected, actual.filter { !it.endsWith("built_in_units.lca") })
     }
 }
