@@ -9,6 +9,7 @@ import ch.kleis.lcaplugin.core.matrix.IndexedCollection
 import ch.kleis.lcaplugin.core.matrix.ParameterVector
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class SensitivityAnalysisTest {
     private val ops = DualOperations(2)
@@ -17,13 +18,87 @@ class SensitivityAnalysisTest {
     private val dy = ops.basis(1)
 
     @Test
+    fun getRelativeSensibility_whenAveraging_shouldAnalyzeTotalImpact() {
+        // given
+        val a = ProductValue("a", UnitValueFixture.kg<DualNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<DualNumber>())
+        val c = ProductValue("c", UnitValueFixture.kg<DualNumber>())
+        val oneKilogram = QuantityValue(ops.pure(1.0), UnitValueFixture.kg())
+        val twoKilograms = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val x = with(ops) {
+            QuantityValue(
+                pure(1.0) + dx,
+                UnitValueFixture.unit(),
+            )
+        }
+        val y = with(ops) {
+            QuantityValue(
+                pure(1.0) + dy,
+                UnitValueFixture.unit(),
+            )
+        }
+        val qb = with(QuantityValueOperations(ops)) {
+            oneKilogram * x
+        }
+        val qc = with(QuantityValueOperations(ops)) {
+            twoKilograms * y
+        }
+        val qa = with(QuantityValueOperations(ops)) {
+            qb + qc
+        }
+        val pa = ProcessValue(
+            name = "pa",
+            products = listOf(
+                TechnoExchangeValue(
+                    qa, a,
+                )
+            ),
+            inputs = listOf(
+                TechnoExchangeValue(
+                    qb, b,
+                ),
+                TechnoExchangeValue(
+                    qc, c,
+                ),
+            ),
+        )
+        val system = SystemValue(
+            setOf(pa)
+        )
+        val xName = ParameterName("x")
+        val yName = ParameterName("y")
+        val program = SensitivityAnalysisProgram(
+            system,
+            pa,
+            ParameterVector(
+                names = IndexedCollection(listOf(xName, yName)),
+                data = listOf(x, y),
+            )
+        )
+
+        // when
+        val analysis = program.run()
+        val sb = analysis.getRelativeSensibility(
+            a, b, xName,
+        )
+        val sc = analysis.getRelativeSensibility(
+            a, c, xName,
+        )
+
+        // then
+        val tolerance = 1e-3
+        assertEquals(1.0, sb, tolerance)
+        assertEquals(0.0, sc, tolerance)
+    }
+
+    @Test
     fun getRelativeSensibility() {
         // given
         val a = ProductValue("a", UnitValueFixture.kg<DualNumber>())
         val b = ProductValue("b", UnitValueFixture.kg<DualNumber>())
         val c = ProductValue("c", UnitValueFixture.kg<DualNumber>())
         val oneKilogram = QuantityValue(ops.pure(1.0), UnitValueFixture.kg())
-        val twoKilograms = QuantityValue(ops.pure(1.0), UnitValueFixture.kg())
+        val twoKilograms = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
         val x = with(ops) {
             QuantityValue(
                 pure(1.0) + dx,
