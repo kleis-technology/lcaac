@@ -48,9 +48,9 @@ class SensitivityAnalysis(
         parameter: ParameterName,
     ): Double {
         val parameterIndex = parameters.indexOf(parameter)
-        val impactFactor = impactFactors.unitaryImpact(target, indicator).amount
-        val base = impactFactor.zeroth
-        val absoluteSensibility = impactFactor.first[parameterIndex]
+        val impact = getPortContribution(target, indicator).amount
+        val base = impact.zeroth
+        val absoluteSensibility = impact.first[parameterIndex]
         return absoluteSensibility / base
     }
 
