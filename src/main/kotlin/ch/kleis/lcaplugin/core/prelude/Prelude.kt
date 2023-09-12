@@ -72,7 +72,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("J"), 1.0 / 3600.0, energy),
             EUnitLiteral(UnitSymbol.of("kJ"), 1.0e3 / 3600.0, energy),
             EUnitLiteral(UnitSymbol.of("MJ"), 1.0e6 / 3600.0, energy),
-            EUnitLiteral(UnitSymbol.of("W"), 1.0, power),
+            EUnitLiteral(UnitSymbol.of("W"), 1.0 / 3600.0, power),
             EUnitLiteral(UnitSymbol.of("m2a"), 1.0 * 365 * 24 * 3600, land_occupation),
             EUnitLiteral(UnitSymbol.of("tkm"), 1e3 * 1e3, transport),
             EUnitLiteral(UnitSymbol.of("my"), 365 * 24 * 3600.0, length_time),
