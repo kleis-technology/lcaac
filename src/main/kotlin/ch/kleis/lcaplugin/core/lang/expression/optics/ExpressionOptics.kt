@@ -6,7 +6,10 @@ import arrow.core.identity
 import arrow.core.left
 import arrow.core.right
 import arrow.optics.*
-import ch.kleis.lcaplugin.core.lang.expression.*
+import ch.kleis.lcaplugin.core.lang.expression.DataExpression
+import ch.kleis.lcaplugin.core.lang.expression.Expression
+import ch.kleis.lcaplugin.core.lang.expression.LcaExpression
+import ch.kleis.lcaplugin.core.lang.expression.ProcessTemplateExpression
 
 inline fun <Q> Expression.Companion.dataExpression(): Prism<Expression<Q>, DataExpression<Q>> = Prism(
   getOrModify = { expression: Expression<Q> ->
@@ -39,16 +42,6 @@ inline fun <Q> Expression.Companion.processTemplateExpression(): Prism<Expressio
   reverseGet = ::identity
 )
 
-
-inline fun <Q> Expression.Companion.systemExpression(): Prism<Expression<Q>, SystemExpression<Q>> = Prism(
-  getOrModify = { expression: Expression<Q> ->
-    when (expression) {
-      is SystemExpression -> expression.right()
-            else -> expression.left()
-    }
-  },
-  reverseGet = ::identity
-)
 
 inline fun <S,Q> Iso<S, Expression<Q>>.dataExpression(): Prism<S, DataExpression<Q>> = this + Expression.dataExpression()
 inline fun <S,Q> Lens<S, Expression<Q>>.dataExpression(): Optional<S, DataExpression<Q>> = this + Expression.dataExpression()
