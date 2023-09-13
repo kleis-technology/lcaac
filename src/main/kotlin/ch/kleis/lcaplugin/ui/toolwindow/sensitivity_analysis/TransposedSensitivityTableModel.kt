@@ -70,7 +70,7 @@ class TransposedSensitivityTableModel(
                     sortedControllablePorts[rowIndex],
                     analysis.getParameters().getName(columnIndex - 3)
                 )
-                return repr(relativeSensibility, " %")
+                return repr(relativeSensibility)
             }
         }
     }

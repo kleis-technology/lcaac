@@ -67,7 +67,7 @@ class SensitivityTableModel(
                     sortedControllablePorts[columnIndex - 3],
                     analysis.getParameters().getName(rowIndex),
                 )
-                return repr(relativeSensibility, " %")
+                return repr(relativeSensibility)
             }
         }
     }
