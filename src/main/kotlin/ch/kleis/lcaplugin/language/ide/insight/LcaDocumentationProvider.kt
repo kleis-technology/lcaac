@@ -59,15 +59,14 @@ class LcaDocumentationProvider : AbstractDocumentationProvider() {
                 sb.toString()
             }
 
-            is LcaUnitDefinition -> {
-                val sb = StringBuilder()
-                documentTitle(sb, "Unit", element.dataRef.name)
-                documentUnitData(sb, element)
-                sb.toString()
-            }
-
             is LcaDataRef -> {
                 when (val target = element.reference.resolve()) {
+                    is LcaUnitDefinition -> {
+                        val sb = StringBuilder()
+                        documentTitle(sb, "Unit", element.name)
+                        documentUnitData(sb, target)
+                        sb.toString()
+                    }
 
                     is LcaGlobalAssignment -> {
                         val sb = StringBuilder()
