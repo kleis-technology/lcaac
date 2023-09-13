@@ -125,7 +125,6 @@ class DataReferenceTest : BasePlatformTestCase() {
             .sorted()
 
         // then
-        val expected = setOf("foo", "bar")
-        TestCase.assertEquals(expected, actual.toSet())
+        assertContainsElements(actual, "foo", "bar")
     }
 }

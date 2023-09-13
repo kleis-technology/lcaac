@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.actions.csv
 
 import ch.kleis.lcaplugin.core.lang.evaluator.ToValue
+import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.value.FromProcessRefValue
 import ch.kleis.lcaplugin.core.lang.value.IndicatorValue
 import ch.kleis.lcaplugin.core.lang.value.ProductValue
@@ -46,7 +47,7 @@ class CsvProcessorTest : BasePlatformTestCase() {
             """.trimIndent()
         )
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
+        val parser = LcaLangAbstractParser(sequenceOf(file, UnitFixture.getInternalUnitFile(myFixture)), ops)
         val symbolTable = parser.load()
         val processor = CsvProcessor(symbolTable)
         val cc = IndicatorValue(
@@ -112,7 +113,7 @@ class CsvProcessorTest : BasePlatformTestCase() {
         )
         val kg = umap["kg"]!!
         val file = PsiManager.getInstance(project).findFile(vf) as LcaFile
-        val parser = LcaLangAbstractParser(sequenceOf(file), ops)
+        val parser = LcaLangAbstractParser(sequenceOf(file, UnitFixture.getInternalUnitFile(myFixture)), ops)
         val symbolTable = parser.load()
         val csvProcessor = CsvProcessor(symbolTable)
         val request = CsvRequest(

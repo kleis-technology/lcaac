@@ -65,7 +65,6 @@ class DataRefCollectorScopeProcessorTest : BasePlatformTestCase() {
             .naturalSorted()
 
         // then
-        val expected = listOf("a", "b", "c", "d", "e").naturalSorted()
-        assertEquals(expected, actual)
+        assertContainsElements(actual, "a", "b", "c", "d", "e")
     }
 }

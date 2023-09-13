@@ -56,7 +56,6 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
         val pkgName = "testAnnotate_whenFound_shouldDoNothing"
-//        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName

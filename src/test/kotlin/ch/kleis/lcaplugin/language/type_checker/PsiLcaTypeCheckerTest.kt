@@ -2,7 +2,6 @@ package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.fixture.DimensionFixture
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture
 import ch.kleis.lcaplugin.core.lang.type.*
 import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
@@ -61,7 +60,6 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     fun test_whenBioExchangeCompatibleRefUnitAndQuantityExpressionUnit_shouldTypeCheck() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
-        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca",
             """
@@ -104,7 +102,6 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     fun test_whenBioExchangeNotCompatibleRefUnitAndQuantityExpressionUnit_shouldThrow() {
         // given
         val pkgName = {}.javaClass.enclosingMethod.name
-        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca",
             """
@@ -895,11 +892,6 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                     dimension = "foo_dim"
                 }
                 
-                unit kg {
-                    symbol = "kg"
-                    dimension = "mass"
-                }
-                
                 process p {
                     inputs {
                         1 kg foo_product from foo_prod match (geo = 1 kg)
@@ -979,7 +971,6 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     fun test_whenPreludeUnit() {
         // given
         val pkgName = """test_whenPreludeUnit"""
-        UnitFixture.getInternalUnitFile(myFixture)
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName

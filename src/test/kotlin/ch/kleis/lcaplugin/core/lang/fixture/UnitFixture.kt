@@ -44,6 +44,14 @@ object UnitFixture {
             symbol = "g"
             alias_for = 0.001 kg
         }
+        unit ton {
+            symbol = "ton"
+            alias_for = 1000.0 kg
+        }
+        unit km {
+            symbol = "km"
+            alias_for = 1000.0 m
+        }
         unit m {
             symbol = "m"
             dimension = "length"

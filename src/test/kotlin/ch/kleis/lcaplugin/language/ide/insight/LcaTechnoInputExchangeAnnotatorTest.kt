@@ -1,6 +1,5 @@
 package ch.kleis.lcaplugin.language.ide.insight
 
-import ch.kleis.lcaplugin.core.lang.fixture.UnitFixture.getInternalUnitFile
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
@@ -70,7 +69,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -111,7 +109,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -157,7 +154,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
@@ -194,7 +190,6 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
             }
         """.trimIndent()
         )
-        getInternalUnitFile(myFixture)
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p").first()
             .getInputs().first()
         val mock = AnnotationHolderMock()
