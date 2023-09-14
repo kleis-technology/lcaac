@@ -535,8 +535,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
                                     EQuantityScale(ops.pure(1.0), EDataRef("kg")),
                                 )
                             ),
-                        ),
-                        EQuantityScale(ops.pure(100.0), EDataRef("percent"))
+                        )
                     ),
                 ),
                 inputs = listOf(
@@ -826,8 +825,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
             EProductSpec(
                 "carrot",
                 EUnitOf(EQuantityClosure(unitsSymbolTable, EQuantityScale(ops.pure(1.0), EDataRef("kg"))))
-            ),
-            EQuantityScale(ops.pure(100.0), EDataRef("percent"))
+            )
         )
         assertEquals(expected, actual)
     }

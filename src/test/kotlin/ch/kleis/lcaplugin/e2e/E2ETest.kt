@@ -681,10 +681,10 @@ class E2ETest : BasePlatformTestCase() {
         )
         // when
         val symbolTable = createFilesAndSymbols(vf)
-        val actual =
-            (((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
+        val actual = ((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation
+
         // then
-        assertEquals(100.0, actual.value)
+        TestCase.assertNull(actual)
     }
 
     @Test
@@ -706,10 +706,9 @@ class E2ETest : BasePlatformTestCase() {
         )
         // when
         val symbolTable = createFilesAndSymbols(vf)
-        val actual =
-            (((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation as EQuantityScale).scale
+        val actual = ((symbolTable.getTemplate("p") as EProcessTemplate).body).products[0].allocation
         // then
-        assertEquals(100.0, actual.value)
+        TestCase.assertNull(actual)
     }
 
     @Test

@@ -255,10 +255,6 @@ class LcaLangAbstractParser<Q>(
                     )
                 ),
             psiExchange.outputProductSpec.allocateField?.let { allocation(it) }
-                ?: EQuantityScale(
-                    ops.pure(100.0),
-                    EDataRef("percent")
-                )
         )
 
     private fun allocation(element: LcaAllocateField): DataExpression<Q> {

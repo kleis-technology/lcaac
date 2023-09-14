@@ -53,7 +53,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         generator.recreate(fullPath)
         val virtualFile = VfsUtil.findFile(fullPath, false)!!
         val jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile)!!
-        return LcaLibrary(jarRoot, "${Prelude.pkgName}.jar")
+        return LcaLibrary(jarRoot, Prelude.pkgName)
     }
 
 

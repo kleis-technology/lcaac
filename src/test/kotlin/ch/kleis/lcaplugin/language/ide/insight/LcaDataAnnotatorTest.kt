@@ -20,7 +20,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -48,7 +48,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenFound_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -75,7 +75,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotateInGlobals_whenFoundInPrelude_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -102,7 +102,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -136,7 +136,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenUnitFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotateInSubstance_whenUnitFoundInPrelude_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -168,7 +168,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenFoundInExplicitDefinition_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -205,7 +205,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
