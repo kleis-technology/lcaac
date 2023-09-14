@@ -122,9 +122,9 @@ class LcaFileCollectorTest : BasePlatformTestCase() {
             .map { it.virtualFile.path }
             .naturalSorted()
         // Have to contains Units, whatever is located
-        assertEquals(1, actual.filter { it.endsWith("built_in_units.lca") }.size)
+        assertEquals(1, actual.filter { it.endsWith("builtin_units.lca") }.size)
 
         // And the other file
-        assertEquals(expected, actual.filter { !it.endsWith("built_in_units.lca") })
+        assertEquals(expected, actual.filter { !it.endsWith("builtin_units.lca") })
     }
 }

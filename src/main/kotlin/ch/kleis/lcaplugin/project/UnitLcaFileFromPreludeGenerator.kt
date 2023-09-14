@@ -35,13 +35,13 @@ class UnitLcaFileFromPreludeGenerator<Q> {
             FileOutputStream(file)
                 .use { fileOut ->
                     ZipOutputStream(fileOut).use { jar ->
-                        val je = ZipEntry("built_in_units.lca")
-                        je.comment = "built_in_units";
+                        val je = ZipEntry("${Prelude.pkgName}.lca")
+                        je.comment = Prelude.pkgName;
                         jar.putNextEntry(je)
                         jar.write(newContent.toByteArray())
                         jar.closeEntry()
-                        val jeMd5 = ZipEntry("built_in_units.lca.md5")
-                        jeMd5.comment = "built_in_units_mda";
+                        val jeMd5 = ZipEntry("${Prelude.pkgName}.lca.md5")
+                        jeMd5.comment = "${Prelude.pkgName}_mda";
                         jar.putNextEntry(jeMd5)
                         jar.write(newHash.toByteArray())
                         jar.closeEntry()
@@ -52,7 +52,7 @@ class UnitLcaFileFromPreludeGenerator<Q> {
 
     private fun haveToRecreate(path: Path, newHash: String): Boolean {
         if (path.exists()) {
-            val oldHash = readEntry(path, "built_in_units.lca.md5")
+            val oldHash = readEntry(path, "${Prelude.pkgName}.lca.md5")
             if (oldHash == newHash) {
                 return false
             }
@@ -88,7 +88,7 @@ class UnitLcaFileFromPreludeGenerator<Q> {
     private fun getContent(): String {
         val buffer = StringBuilder()
         Prelude.primitiveUnits<Q>().values
-        buffer.append("package internal\n")
+        buffer.append("package ${Prelude.pkgName}\n")
         Prelude.primitiveUnits<Q>().values
             .filter { it.scale == 1.0 }
             .mapNotNull { mapUnitWithNewDimension(it) }

@@ -29,12 +29,12 @@ object UnitFixture {
     val percent = EUnitLiteral<BasicNumber>(UnitSymbol.of("percent"), 1.0e-2, Dimension.None)
 
     fun getInternalUnitFile(myFixture: CodeInsightTestFixture): LcaFile {
-        val unitFile = myFixture.createFile("built_in_units.lca", basicUnits)
+        val unitFile = myFixture.createFile("builtin_units.lca", basicUnits)
         return PsiManager.getInstance(myFixture.project).findFile(unitFile) as LcaFile
     }
 
     val basicUnits = """
-        package internal
+        package builtin_units
         
         unit kg {
             symbol = "kg"

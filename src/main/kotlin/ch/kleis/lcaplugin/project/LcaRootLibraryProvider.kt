@@ -1,6 +1,7 @@
 package ch.kleis.lcaplugin.project
 
 import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.project.libraries.LcaLibrary
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
@@ -45,14 +46,14 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
 
     private fun getUnitLibrary(plugin: IdeaPluginDescriptor?): LcaLibrary {
         val version: String = plugin?.version ?: "unknown"
-        val jarName = "built_in_units-$version.jar"
+        val jarName = "${Prelude.pkgName}-$version.jar"
         val folder = cacheFolder()
         val fullPath = Path.of(folder.toString(), jarName)
         val generator = UnitLcaFileFromPreludeGenerator<BasicNumber>()
         generator.recreate(fullPath)
         val virtualFile = VfsUtil.findFile(fullPath, false)!!
         val jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile)!!
-        return LcaLibrary(jarRoot, "built_in_units.jar")
+        return LcaLibrary(jarRoot, "${Prelude.pkgName}.jar")
     }
 
 

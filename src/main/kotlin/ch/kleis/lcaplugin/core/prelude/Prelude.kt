@@ -9,6 +9,8 @@ import ch.kleis.lcaplugin.core.lang.expression.EUnitLiteral
 
 class Prelude {
     companion object {
+        const val pkgName = "builtin_units"
+
         // primitive dimensions
         val mass = Dimension.of("mass")
         val length = Dimension.of("length")

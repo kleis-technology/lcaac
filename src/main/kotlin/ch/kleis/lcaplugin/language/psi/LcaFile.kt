@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.psi
 
 import ch.kleis.lcaplugin.LcaFileType
 import ch.kleis.lcaplugin.LcaLanguage
+import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.psi.*
 import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.fileTypes.FileType
@@ -26,7 +27,7 @@ class LcaFile(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, LcaLan
     }
 
     fun getImportNames(): Collection<String> {
-        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java).map { it.name } + "internal"
+        return PsiTreeUtil.findChildrenOfType(this, LcaImport::class.java).map { it.name } + Prelude.pkgName
     }
 
     fun getProcesses(): Collection<LcaProcess> {
