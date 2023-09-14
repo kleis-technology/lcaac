@@ -222,7 +222,7 @@ class LcaDocumentationProviderTest : BasePlatformTestCase() {
         </tr>
         <tr>
         <td valign='top' class='section'>Alias for</td>
-        <td valign='top'>0.001 kg</td>
+        <td valign='top'>1e-3 kg</td>
         </tr>
         </table>
         </div>

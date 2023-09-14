@@ -68,7 +68,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         verify {
             mock.holder.newAnnotation(
                 HighlightSeverity.ERROR,
-                "Quantity reference kg is already defined in the unit prelude."
+                "This name is already defined."
             )
         }
         verify { mock.builder.range(element) }

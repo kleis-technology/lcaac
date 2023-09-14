@@ -58,11 +58,11 @@ object UnitFixture {
         }
         unit m2 {
             symbol = "m2"
-            dimension = "length²"
+            alias_for = m^2
         }
         unit m3 {
             symbol = "m3"
-            dimension = "length³"
+            alias_for = m^3
         }
         unit l {
             symbol = "l"

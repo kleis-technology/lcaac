@@ -99,8 +99,8 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
 
     @Test
     fun testParse_shouldPreventDefiningReferenceUnitForDimensionInPrelude() {
-        // TODO Review ça
         // given
+        val prelude = parseFile("internal.lca", UnitFixture.basicUnits) as LcaFile
         val file = parseFile(
             "hello", """
             unit foo1 {
@@ -110,7 +110,7 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            sequenceOf(file),
+            sequenceOf(prelude, file),
             ops,
         )
 
@@ -452,12 +452,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
     @Test
     fun testParse_whenDefineUnitAndVariableWithSameName_shouldThrow() {
         // given
-        // unit p from prelude
+        // unit piece from prelude
+        val prelude = parseFile("internal.lca", UnitFixture.basicUnits) as LcaFile
         val file = parseFile(
             "hello", """
                 process p {
                     variables {
-                        p = 1 kg
+                        piece = 1 kg
                     }
                     products {
                         1 kg productName
@@ -466,13 +467,13 @@ class LcaLangAbstractParserTest : ParsingTestCase("", "lca", LcaParserDefinition
         """.trimIndent()
         ) as LcaFile
         val parser = LcaLangAbstractParser(
-            sequenceOf(file),
+            sequenceOf(prelude, file),
             ops,
         )
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { parser.load() }
-        assertEquals("Conflict between local variable(s) [p] and a global definition.", e.message)
+        assertEquals("Conflict between local variable(s) [piece] and a global definition.", e.message)
     }
 
     @Test

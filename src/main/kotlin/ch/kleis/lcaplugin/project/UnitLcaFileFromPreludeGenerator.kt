@@ -87,16 +87,16 @@ class UnitLcaFileFromPreludeGenerator<Q> {
 
     private fun getContent(): String {
         val buffer = StringBuilder()
-        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
+        Prelude.primitiveUnits<Q>().values
         buffer.append("package internal\n")
-        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
+        Prelude.primitiveUnits<Q>().values
             .filter { it.scale == 1.0 }
             .mapNotNull { mapUnitWithNewDimension(it) }
             .forEach { buffer.append(it.toString()) }
-        Prelude.unitWithDimensionWithReferenceUnit<Q>().values
+        Prelude.primitiveUnits<Q>().values
             .mapNotNull { mapUnitAsAlias(it) }
             .forEach { buffer.append(it.toString()) }
-        Prelude.unitWithCompositeDimensionWithoutReferenceUnit<Q>()
+        Prelude.compositeUnits<Q>()
             .map { mapUnitWithAlias(it.key, it.value) }
             .forEach { buffer.append(it.toString()) }
         return buffer.toString()
