@@ -1,1 +1,2 @@
-rootProject.name = "lca-plugin"
+rootProject.name = "lca-as-code"
+include("plugin")
