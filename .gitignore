@@ -5,5 +5,6 @@ build
 gen
 test.csv
 local
+.local
 out/
 tmp.units.lca.jar
