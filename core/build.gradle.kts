@@ -41,6 +41,11 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.4")
     implementation(kotlin("stdlib-jdk8"))
 
+    val log4jVersion = "2.20.0"
+    implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
+    
     testImplementation(kotlin("test"))
 }
 

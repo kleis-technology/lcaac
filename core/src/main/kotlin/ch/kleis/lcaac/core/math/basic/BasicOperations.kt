@@ -5,10 +5,11 @@ import org.ejml.data.DMatrixSparseCSC
 import org.ejml.data.MatrixType
 import org.ejml.simple.SimpleMatrix
 import org.ejml.sparse.csc.CommonOps_DSCC
+import org.slf4j.LoggerFactory
 import kotlin.math.pow
 
 object BasicOperations : Operations<BasicNumber, BasicMatrix> {
-//    private val LOG = Logger.getInstance(BasicOperations::class.java)
+    private val LOG = LoggerFactory.getLogger(BasicOperations::class.java)
 
     override fun BasicNumber.plus(other: BasicNumber): BasicNumber {
         return BasicNumber(value + other.value)
@@ -35,12 +36,12 @@ object BasicOperations : Operations<BasicNumber, BasicMatrix> {
     }
 
     override fun BasicMatrix.matDiv(other: BasicMatrix): BasicMatrix? {
-//        LOG.info("Start solving lhs(${other.rowDim()}, ${other.rowDim()}) * x = rhs(${this.rowDim()}, ${this.colDim()})")
+        LOG.info("Start solving lhs(${other.rowDim()}, ${other.rowDim()}) * x = rhs(${this.rowDim()}, ${this.colDim()})")
         val lhs = other.inner.dscc
         val rhs = this.inner.dscc
         val result = DMatrixSparseCSC(lhs.numCols, rhs.numCols)
         return if (CommonOps_DSCC.solve(lhs, rhs, result)) {
-//            LOG.info("End solving with result(${result.numRows}, ${result.numCols})")
+            LOG.info("End solving with result(${result.numRows}, ${result.numCols})")
             BasicMatrix(
                 SimpleMatrix.wrap(result)
             )

@@ -12,11 +12,13 @@ import ch.kleis.lcaac.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaac.core.lang.value.SystemValue
 import ch.kleis.lcaac.core.math.QuantityOperations
+import org.slf4j.LoggerFactory
 
 class Evaluator<Q>(
     symbolTable: SymbolTable<Q>,
     ops: QuantityOperations<Q>,
 ) {
+    private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
     private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable, ops)
     private val completeDefaultArguments = CompleteDefaultArguments(symbolTable)
     private val reduce = Reduce(symbolTable, ops)
@@ -36,14 +38,14 @@ class Evaluator<Q>(
     private val mapper = ToValue(ops)
 
     fun trace(expression: EProcessTemplateApplication<Q>): EvaluationTrace<Q> {
-//        LOG.info("Start recursive Compile")
+        LOG.info("Start recursive compile")
         try {
             val result = EvaluationTrace.empty<Q>()
             recursiveCompile(result, HashSet(), HashSet(setOf(expression)))
-//            LOG.info("End recursive Compile, found ${result.getNumberOfProcesses()} processes and ${result.getNumberOfSubstanceCharacterizations()} substances")
+            LOG.info("End recursive Compile, found ${result.getNumberOfProcesses()} processes and ${result.getNumberOfSubstanceCharacterizations()} substances")
             return result
         } catch (e: Exception) {
-//            LOG.info("End recursive Compile with error $e")
+            LOG.info("End recursive Compile with error $e")
             throw e
         }
     }
@@ -64,7 +66,7 @@ class Evaluator<Q>(
         val nextBatch = HashSet<EProcessTemplateApplication<Q>>()
         batch.forEach loop@{ expression ->
             if (visited.contains(expression)) {
-//                LOG.warn("Should not be present in already processed expressions $expression")
+                LOG.warn("Should not be present in already processed expressions $expression")
                 return@loop
             }
             visited.add(expression)
@@ -111,7 +113,7 @@ class Evaluator<Q>(
             val v = with(mapper) { substancesModified.toValue() }
 
             if (trace.contains(v)) {
-//                LOG.warn("This expression should not be present in accumulator $expression and $v")
+                LOG.warn("This expression should not be present in accumulator $expression and $v")
             } else {
                 // accumulate evaluated process
                 trace.add(v)

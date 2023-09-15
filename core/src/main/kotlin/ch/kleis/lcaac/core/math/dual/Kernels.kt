@@ -14,9 +14,10 @@ import org.jetbrains.kotlinx.multik.ndarray.data.set
 import org.jetbrains.kotlinx.multik.ndarray.operations.forEachMultiIndexed
 import org.jetbrains.kotlinx.multik.ndarray.operations.minus
 import org.jetbrains.kotlinx.multik.ndarray.operations.plus
+import org.slf4j.LoggerFactory
 
 class Kernels {
-//    private val LOG = Logger.getInstance(Kernels::class.java)
+    private val LOG = LoggerFactory.getLogger(Kernels::class.java)
 
     /*
         Basics
@@ -67,7 +68,7 @@ class Kernels {
         val bb = d2Ejml(b).dscc
         val xx = DMatrixSparseCSC(bb.numCols, aa.numCols)
         return if (CommonOps_DSCC.solve(bb, aa, xx)) {
-//            LOG.info("End solving with result(${xx.numRows}, ${xx.numCols})")
+            LOG.info("End solving with result(${xx.numRows}, ${xx.numCols})")
             ejmlD2(SimpleMatrix.wrap(xx))
         } else {
             null
