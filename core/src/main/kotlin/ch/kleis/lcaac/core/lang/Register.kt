@@ -13,14 +13,14 @@ data class RegisterException(val duplicates: Set<String>) : Exception(
     } already bound"
 )
 
-class Register<E> private constructor(
+class Register<E> (
     internal val registerType: String,
     private val data: Map<String, E> = HashMap()
 ) {
     constructor(register: Register<E>) : this(register.registerType, register.data)
 
     companion object {
-        internal inline fun <reified E> empty(): Register<E> {
+        inline fun <reified E> empty(): Register<E> {
             return Register(E::class.java.simpleName)
         }
 
