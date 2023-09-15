@@ -74,7 +74,7 @@ class SubstanceReferenceFromPsiSubstanceSpecTest : BasePlatformTestCase() {
     @Test
     fun test_resolve_whenIncompatibleTypes_ShouldNotResolve() {
         // given
-        val pkgName = "language.psi.reference.subst.test_resolve_whenIncompatibleTypes_ShouldNotResolve"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
@@ -125,7 +125,7 @@ class SubstanceReferenceFromPsiSubstanceSpecTest : BasePlatformTestCase() {
     @Test
     fun test_resolve__whenExact() {
         // given
-        val pkgName = "language.psi.reference.subst.test_resolve__whenExact"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air
@@ -182,7 +182,7 @@ class SubstanceReferenceFromPsiSubstanceSpecTest : BasePlatformTestCase() {
     @Test
     fun test_getVariants() {
         // given
-        val pkgName = "language.psi.reference.subst.test_getVariants"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.co2_air.lca", """
                 package $pkgName.co2_air

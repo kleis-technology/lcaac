@@ -20,7 +20,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenCoproductIsMissingAllocationField() {
         // given
-        val pkgName = "testAnnotate_whenCoproductIsMissingAllocationField"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -57,7 +57,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenUniqueProductWithoutAllocation_thenDoNotAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenUniqueProductWithoutAllocation_thenDoNotAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -84,7 +84,7 @@ class LcaProcessAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenMultipleProductsWithCorrectAllocationFactors_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenMultipleProductsWithCorrectAllocationFactors_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName

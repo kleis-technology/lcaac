@@ -20,7 +20,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -51,7 +51,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenFound_wrongDim_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenFound_wrongDim_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -88,7 +88,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_withFromProcess_wrongDim_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_withFromProcess_wrongDim_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -133,7 +133,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_withFromProcess_unknownParameter_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_withFromProcess_unknownParameter_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -172,7 +172,7 @@ class LcaTechnoInputExchangeAnnotatorTest : BasePlatformTestCase() {
 
     @Test
     fun testAnnotate_whenFound_shouldDoNothing() {
-        val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName

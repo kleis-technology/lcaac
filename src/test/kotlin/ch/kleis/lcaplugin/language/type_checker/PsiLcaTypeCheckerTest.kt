@@ -142,7 +142,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenMutuallyRecursiveQuantityExpression_shouldThrowTypeCheckException() {
         // given
-        val pkgName = "test_whenMutuallyRecursiveQuantityExpression_shouldThrowTypeCheckException"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -168,7 +168,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenRecursiveQuantityExpression_shouldThrowTypeCheckException() {
         // given
-        val pkgName = "test_whenRecursiveQuantityExpression_shouldThrowTypeCheckException"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -193,7 +193,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException() {
         // given
-        val pkgName = """test_whenCircularDependencyInUnitDefinition_shouldThrowTypeCheckException"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -222,7 +222,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitLiteral() {
         // given
-        val pkgName = """test_whenUnitLiteral"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -247,7 +247,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias() {
         // given
-        val pkgName = """test_whenUnitAlias"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -277,7 +277,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_div() {
         // given
-        val pkgName = """test_whenUnitAlias_div"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -312,7 +312,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_mul() {
         // given
-        val pkgName = """test_whenUnitAlias_mul"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -347,7 +347,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_addition_sameDim() {
         // given
-        val pkgName = """test_whenUnitAlias_addition_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -382,7 +382,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_subtraction_sameDim() {
         // given
-        val pkgName = """test_whenUnitAlias_subtraction_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -417,7 +417,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_addition_differentDim_shouldThrow() {
         // given
-        val pkgName = """test_whenUnitAlias_addition_differentDim_shouldThrow"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -450,7 +450,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_withParenthesis() {
         // given
-        val pkgName = """test_whenUnitAlias_withParenthesis"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -485,7 +485,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_refToGlobalAssignment() {
         // given
-        val pkgName = """test_whenUnitAlias_refToGlobalAssignment"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -519,7 +519,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenUnitAlias_directRef() {
         // given
-        val pkgName = """test_whenUnitAlias_directRef"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -553,7 +553,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment() {
         // given
-        val pkgName = """test_whenUnitAlias_directRef"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -582,7 +582,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment_addition_sameDim() {
         // given
-        val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -611,7 +611,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment_sub_sameDim() {
         // given
-        val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -640,7 +640,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment_mul() {
         // given
-        val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -674,7 +674,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment_div() {
         // given
-        val pkgName = """test_whenGlobalAssignment_addition_sameDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -708,7 +708,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenGlobalAssignment_addition_differentDim() {
         // given
-        val pkgName = """test_whenGlobalAssignment_addition_differentDim"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -742,7 +742,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenLocalAssignment() {
         // given
-        val pkgName = """test_whenLocalAssignment"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -775,7 +775,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenParameter() {
         // given
-        val pkgName = """test_whenLocalAssignment"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -808,7 +808,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenTechnoInputExchange_unresolvedProduct_shouldReturnDimensionOfGivenQuantity() {
         // given
-        val pkgName = """test_whenLocalAssignment"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -840,7 +840,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenTechnoInputExchange_resolvedProduct_incompatibleDims_shouldThrow() {
         // given
-        val pkgName = """test_whenLocalAssignment"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -925,7 +925,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow() {
         // given
-        val pkgName = """test_whenTechnoInputExchange_wrongDimInArgument_shouldThrow"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -970,7 +970,7 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
     @Test
     fun test_whenPreludeUnit() {
         // given
-        val pkgName = """test_whenPreludeUnit"""
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName

@@ -20,7 +20,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenUnique_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -46,7 +46,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenAlsoInPrelude_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -79,7 +79,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenDefinedTwice_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -107,7 +107,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
 
     @Test
     fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
-        val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -133,7 +133,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInLocals_whenUnique_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -167,7 +167,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInLocals_whenDefinedTwice_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName

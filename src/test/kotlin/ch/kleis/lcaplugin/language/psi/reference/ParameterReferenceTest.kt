@@ -19,7 +19,7 @@ class ParameterReferenceTest : BasePlatformTestCase() {
     @Test
     fun test_variants() {
         // given
-        val pkgName = "test_variants"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -69,7 +69,7 @@ class ParameterReferenceTest : BasePlatformTestCase() {
     @Test
     fun test_resolve() {
         // given
-        val pkgName = "test_resolve"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
