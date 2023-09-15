@@ -181,9 +181,9 @@ impactExchange
 
 dataExpression
     : left=dataExpression op=(PLUS | MINUS) right=dataExpression    # addGroup
-    | scale=NUMBER base=dataExpression                              # mulGroup
     | left=dataExpression op=(STAR | SLASH) right=dataExpression    # mulGroup
     | base=dataExpression HAT exponent=NUMBER                       # exponentialQuantityExpression
+    | scale=NUMBER base=dataExpression                              # mulGroup
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
     | dataRef                                                       # baseGroup

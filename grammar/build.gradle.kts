@@ -19,6 +19,9 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":core"))
+    testImplementation(project(":core"))
+
     antlr("org.antlr:antlr4:4.7.2") { // use ANTLR version 4
         exclude("com.ibm.icu", "icu4j")
     }
