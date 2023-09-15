@@ -10,7 +10,7 @@ class Dimension(
 
     override fun toString(): String {
         if (elements.isEmpty()) {
-            return "dimensionless"
+            return "none"
         }
         return elements.entries.joinToString(".") {
             simpleDimToString(it)

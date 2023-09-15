@@ -892,11 +892,6 @@ class PsiLcaTypeCheckerTest : BasePlatformTestCase() {
                     dimension = "foo_dim"
                 }
                 
-                unit kg {
-                    symbol = "kg"
-                    dimension = "mass"
-                }
-                
                 process p {
                     inputs {
                         1 kg foo_product from foo_prod match (geo = 1 kg)

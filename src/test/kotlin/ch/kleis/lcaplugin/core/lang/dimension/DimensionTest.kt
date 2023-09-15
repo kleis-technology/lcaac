@@ -15,7 +15,7 @@ class DimensionTest {
         val actual = "$dimension"
 
         // then
-        assertEquals("dimensionless", actual)
+        assertEquals("none", actual)
     }
 
     @Test
@@ -24,7 +24,7 @@ class DimensionTest {
         val dimension = Dimension.of("something")
 
         // when
-        val actual ="$dimension"
+        val actual = "$dimension"
 
         // then
         assertEquals("something", actual)
@@ -36,7 +36,7 @@ class DimensionTest {
         val dimension = Dimension.of("something", 2)
 
         // when
-        val actual ="$dimension"
+        val actual = "$dimension"
 
         // then
         assertEquals("something²", actual)

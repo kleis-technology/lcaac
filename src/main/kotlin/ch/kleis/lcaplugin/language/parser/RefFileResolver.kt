@@ -15,7 +15,7 @@ class DefaultRefFileResolver(
 ) : RefFileResolver {
     override fun resolve(element: PsiElement): List<LcaFile> {
         val lcaFile = element.containingFile as LcaFile
-        val packageCandidates = lcaFile.getImports().map { it.name }
+        val packageCandidates = lcaFile.getImportNames()
             .plus(lcaFile.getPackageName())
         return when (element) {
             is PsiProcessTemplateSpec -> {

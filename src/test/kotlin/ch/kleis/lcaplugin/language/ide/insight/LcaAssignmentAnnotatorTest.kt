@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.process.ProcessStubKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -21,7 +22,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -30,7 +31,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
-                .getDataRef()
+            .getDataRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -47,7 +48,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -56,7 +57,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.kg").first()
-                .getDataRef()
+            .getDataRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -64,7 +65,12 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "Quantity reference kg is already defined in the unit prelude.") }
+        verify {
+            mock.holder.newAnnotation(
+                HighlightSeverity.ERROR,
+                "This name is already defined."
+            )
+        }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -75,7 +81,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -85,7 +91,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
-                .getDataRef()
+            .getDataRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -93,7 +99,32 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
+    @Test
+    fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
+        val pkgName = "testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate"
+        myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            unit g {
+                symbol = "grm"
+                alias_for = 0.001 kg
+            }""".trimIndent()
+        )
+        val element = UnitStubKeyIndex.findUnits(project, "$pkgName.g").first().dataRef
+        val mock = AnnotationHolderMock()
+        val annotator = LcaAssignmentAnnotator()
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }
@@ -104,23 +135,23 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
                 variables {
-                    x = 1l
+                    x = 1 l
                 }
             }
         """.trimIndent()
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p")
-                .first()
-                .variablesList
-                .first()
-                .assignmentList
-                .first()
-                .getDataRef()
+            .first()
+            .variablesList
+            .first()
+            .assignmentList
+            .first()
+            .getDataRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -132,47 +163,13 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         verify(exactly = 0) { mock.builder.create() }
     }
 
-    @Test
-    fun testAnnotateInLocals_whenAlsoInPrelude_shouldAnnotate() {
-        // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
-        myFixture.createFile(
-                "$pkgName.lca", """
-            package $pkgName
-            
-            process p {
-                variables {
-                    kg = 1l
-                }
-            }
-        """.trimIndent()
-        )
-        val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p")
-                .first()
-                .variablesList
-                .first()
-                .assignmentList
-                .first()
-                .getDataRef()
-        val mock = AnnotationHolderMock()
-        val annotator = LcaAssignmentAnnotator()
-
-        // when
-        annotator.annotate(element, mock.holder)
-
-        // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "Quantity reference kg is already defined in the unit prelude.") }
-        verify { mock.builder.range(element) }
-        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
-        verify { mock.builder.create() }
-    }
 
     @Test
     fun testAnnotateInLocals_whenDefinedTwice_shouldAnnotate() {
         // given
         val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             process p {
@@ -184,12 +181,12 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = ProcessStubKeyIndex.findProcesses(project, "$pkgName.p")
-                .first()
-                .variablesList
-                .first()
-                .assignmentList
-                .first()
-                .getDataRef()
+            .first()
+            .variablesList
+            .first()
+            .assignmentList
+            .first()
+            .getDataRef()
         val mock = AnnotationHolderMock()
         val annotator = LcaAssignmentAnnotator()
 
@@ -197,7 +194,7 @@ class LcaAssignmentAnnotatorTest : BasePlatformTestCase() {
         annotator.annotate(element, mock.holder)
 
         // then
-        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined") }
+        verify { mock.holder.newAnnotation(HighlightSeverity.ERROR, "This name is already defined.") }
         verify { mock.builder.range(element) }
         verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
         verify { mock.builder.create() }

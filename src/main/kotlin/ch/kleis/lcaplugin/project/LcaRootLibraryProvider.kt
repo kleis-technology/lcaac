@@ -1,6 +1,8 @@
 package ch.kleis.lcaplugin.project
 
-import ch.kleis.lcaplugin.project.libraries.EmissionFactorLibrary
+import ch.kleis.lcaplugin.core.math.basic.BasicNumber
+import ch.kleis.lcaplugin.core.prelude.Prelude
+import ch.kleis.lcaplugin.project.libraries.LcaLibrary
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.PathManager
@@ -8,6 +10,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider
+import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.util.io.StreamUtil
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.VfsUtil
@@ -28,20 +31,33 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         private val LOG = Logger.getInstance(LcaRootLibraryProvider::class.java)
     }
 
-    private val additionalJars: Collection<EmissionFactorLibrary>
+    private val additionalJars: Collection<LcaLibrary>
 
     init {
         val pluginId = PluginId.getId("ch.kleis.lcaplugin.main")
         val plugin = PluginManagerCore.getPlugins().firstOrNull { it.pluginId == pluginId }
         additionalJars =
-            listOf(
-                AdditionalLib("ef31", "emissions_factors3.1.jar"),
-                AdditionalLib("ef30", "emissions_factors3.0.jar")
-            ).mapNotNull { getEmissionFactorLib(it, plugin) }
-
+            listOfNotNull(
+                getEmissionFactorLib(AdditionalLib("ef31", "emissions_factors3.1.jar"), plugin),
+                getEmissionFactorLib(AdditionalLib("ef30", "emissions_factors3.0.jar"), plugin),
+                getUnitLibrary(plugin)
+            )
     }
 
-    private fun getEmissionFactorLib(lib: AdditionalLib, plugin: IdeaPluginDescriptor?): EmissionFactorLibrary? {
+    private fun getUnitLibrary(plugin: IdeaPluginDescriptor?): LcaLibrary {
+        val version: String = plugin?.version ?: "unknown"
+        val jarName = "${Prelude.pkgName}-$version.jar"
+        val folder = cacheFolder()
+        val fullPath = Path.of(folder.toString(), jarName)
+        val generator = UnitLcaFileFromPreludeGenerator<BasicNumber>()
+        generator.recreate(fullPath)
+        val virtualFile = VfsUtil.findFile(fullPath, false)!!
+        val jarRoot = JarFileSystem.getInstance().getJarRootForLocalFile(virtualFile)!!
+        return LcaLibrary(jarRoot, Prelude.pkgName)
+    }
+
+
+    private fun getEmissionFactorLib(lib: AdditionalLib, plugin: IdeaPluginDescriptor?): LcaLibrary? {
         val jarVirtualFile = plugin?.pluginPath?.let {
             val jarFile = if (it.isDirectory()) {
                 // Case of the LCA As Code run as a plugin from Intellij
@@ -63,7 +79,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
             JarFileSystem.getInstance().getJarRootForLocalFile(it)
         }
         return jarRoot?.let {
-            EmissionFactorLibrary(it, lib.alias)
+            LcaLibrary(it, lib.alias)
         }
     }
 
@@ -72,9 +88,7 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         // TODO Remove cleaning after next deployment ie after august 2023
         val oldPath = Path.of(PathManager.getDefaultPluginPathFor("LcaAsCode1.x")).parent
         if (oldPath.exists()) oldPath.toFile().deleteRecursively()
-        val targetFolder =
-            Path.of(PathManager.getDefaultPluginPathFor("CacheLcaAsCode1.x") + File.separatorChar + "lca-as-code")
-        if (targetFolder.notExists()) targetFolder.createDirectories()
+        val targetFolder = cacheFolder()
         val targetFile = Path.of(targetFolder.toString() + File.separatorChar + lib.jarName)
         if (targetFile.notExists()) {
             FileOutputStream(targetFile.toFile()).use { target ->
@@ -86,7 +100,14 @@ class LcaRootLibraryProvider : AdditionalLibraryRootsProvider() {
         return VfsUtil.findFile(targetFile, false)
     }
 
-    override fun getAdditionalProjectLibraries(project: Project): Collection<EmissionFactorLibrary> {
+    private fun cacheFolder(): Path {
+        val targetFolder =
+            Path.of(PathManager.getDefaultPluginPathFor("CacheLcaAsCode1.x") + File.separatorChar + "lca-as-code")
+        if (targetFolder.notExists()) targetFolder.createDirectories()
+        return targetFolder
+    }
+
+    override fun getAdditionalProjectLibraries(project: Project): Collection<SyntheticLibrary> {
         return additionalJars
     }
 

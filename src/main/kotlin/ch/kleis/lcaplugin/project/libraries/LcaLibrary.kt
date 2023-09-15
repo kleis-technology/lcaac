@@ -6,21 +6,21 @@ import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.Icon
 
-class EmissionFactorLibrary(
-    val substances: VirtualFile,
+class LcaLibrary(
+    val libFile: VirtualFile,
     private val name: String
 ) : SyntheticLibrary(), ItemPresentation {
 
     override fun equals(other: Any?): Boolean =
-        other is EmissionFactorLibrary && other.substances == substances
+        other is LcaLibrary && other.libFile == libFile
 
-    override fun hashCode(): Int = substances.hashCode()
+    override fun hashCode(): Int = libFile.hashCode()
 
-    override fun getSourceRoots(): Collection<VirtualFile> = substances.children.toList()
+    override fun getSourceRoots(): Collection<VirtualFile> = libFile.children.toList()
 
     override fun getBinaryRoots(): Collection<VirtualFile> = emptyList()
 
-    override fun getLocationString(): String = substances.presentableName
+    override fun getLocationString(): String = libFile.presentableName
 
     override fun getIcon(unused: Boolean): Icon = LcaIcons.FILE
 

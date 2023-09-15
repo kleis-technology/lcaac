@@ -2,6 +2,7 @@ package ch.kleis.lcaplugin.language.ide.insight
 
 import ch.kleis.lcaplugin.language.psi.stub.global_assignment.GlobalAssigmentStubKeyIndex
 import ch.kleis.lcaplugin.language.psi.stub.substance.SubstanceKeyIndex
+import ch.kleis.lcaplugin.language.psi.stub.unit.UnitStubKeyIndex
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
@@ -19,9 +20,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -30,7 +31,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
-                .getValue()
+            .getValue()
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -47,9 +48,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenFound_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -59,7 +60,7 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex.findGlobalAssignments(project, "$pkgName.x").first()
-                .getValue()
+            .getValue()
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -74,9 +75,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInGlobals_whenFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             variables {
@@ -85,8 +86,8 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = GlobalAssigmentStubKeyIndex
-                .findGlobalAssignments(project, "$pkgName.x").first()
-                .getValue()
+            .findGlobalAssignments(project, "$pkgName.x").first()
+            .getValue()
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -101,9 +102,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
@@ -115,10 +116,10 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = SubstanceKeyIndex.findSubstances(
-                project,
-                "$pkgName.s", "Resource", "c"
+            project,
+            "$pkgName.s", "Resource", "c"
         ).first()
-                .getReferenceUnitField().dataExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -135,9 +136,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenUnitFoundInPrelude_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInPrelude_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
@@ -149,10 +150,10 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = SubstanceKeyIndex.findSubstances(
-                project,
-                "$pkgName.s", "Resource", "c"
+            project,
+            "$pkgName.s", "Resource", "c"
         ).first()
-                .getReferenceUnitField().dataExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -167,9 +168,9 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotateInSubstance_whenFoundInExplicitDefinition_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFoundInExplicitDefinition_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
-                "$pkgName.lca", """
+            "$pkgName.lca", """
             package $pkgName
             
             substance s {
@@ -186,10 +187,10 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         """.trimIndent()
         )
         val element = SubstanceKeyIndex.findSubstances(
-                project,
-                "$pkgName.s", "Resource", "c",
+            project,
+            "$pkgName.s", "Resource", "c",
         ).first()
-                .getReferenceUnitField().dataExpression
+            .getReferenceUnitField().dataExpression
         val mock = AnnotationHolderMock()
         val annotator = LcaDataAnnotator()
 
@@ -200,4 +201,39 @@ class LcaDataAnnotatorTest : BasePlatformTestCase() {
         verify(exactly = 0) { mock.holder.newAnnotation(any(), any()) }
         verify(exactly = 0) { mock.builder.create() }
     }
+
+    @Test
+    fun testAnnotateInGlobals_whenAlsoInPackagedUnit_shouldAnnotate() {
+        // given
+        val pkgName = {}.javaClass.enclosingMethod.name
+        myFixture.createFile(
+            "$pkgName.lca", """
+            package $pkgName
+            unit g {
+                symbol = "grm"
+                alias_for = 0.001 kg
+            }
+        """.trimIndent()
+        )
+        val element = UnitStubKeyIndex.findUnits(project, "$pkgName.g")
+            .first()
+            .dataRef
+        val mock = AnnotationHolderMock()
+        val annotator = LcaAssignmentAnnotator()
+
+        // when
+        annotator.annotate(element, mock.holder)
+
+        // then
+        verify {
+            mock.holder.newAnnotation(
+                HighlightSeverity.ERROR,
+                "This name is already defined."
+            )
+        }
+        verify { mock.builder.range(element) }
+        verify { mock.builder.highlightType(ProblemHighlightType.ERROR) }
+        verify { mock.builder.create() }
+    }
+
 }

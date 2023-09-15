@@ -2,8 +2,6 @@ package ch.kleis.lcaplugin.language.type_checker
 
 import ch.kleis.lcaplugin.core.lang.dimension.Dimension
 import ch.kleis.lcaplugin.core.lang.type.*
-import ch.kleis.lcaplugin.core.math.basic.BasicNumber
-import ch.kleis.lcaplugin.core.prelude.Prelude
 import ch.kleis.lcaplugin.language.psi.type.PsiAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiGlobalAssignment
 import ch.kleis.lcaplugin.language.psi.type.PsiProcess
@@ -183,7 +181,6 @@ class PsiLcaTypeChecker {
                         else -> throw PsiTypeCheckException("expected TQuantity, TUnit or TString, found $ty")
                     }
                 }
-                ?: Prelude.unitMap<BasicNumber>()[el.name]?.let { TQuantity(it.dimension) }
                 ?: throw PsiTypeCheckException("unbound reference ${el.name}")
         }(element)
     }

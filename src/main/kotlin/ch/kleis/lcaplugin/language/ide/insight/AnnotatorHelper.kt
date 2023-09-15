@@ -11,26 +11,26 @@ import com.intellij.psi.PsiElement
 
 object AnnotatorHelper {
     fun annotateWarnWithMessage(element: PsiElement, holder: AnnotationHolder, message: String): Unit =
-            holder.newAnnotation(HighlightSeverity.WARNING, message)
-                    .range(element)
-                    .highlightType(ProblemHighlightType.WARNING)
-                    .create()
+        holder.newAnnotation(HighlightSeverity.WARNING, message)
+            .range(element)
+            .highlightType(ProblemHighlightType.WARNING)
+            .create()
 
     fun annotateErrWithMessage(element: PsiElement, holder: AnnotationHolder, message: String): Unit =
-            holder.newAnnotation(HighlightSeverity.ERROR, message)
-                    .range(element)
-                    .highlightType(ProblemHighlightType.ERROR)
-                    .create()
+        holder.newAnnotation(HighlightSeverity.ERROR, message)
+            .range(element)
+            .highlightType(ProblemHighlightType.ERROR)
+            .create()
 
-    fun isAssignementReciever(element: PsiDataRef) =
-            isUnitDefName(element) || isLeftHandSideOfGlobalAssignement(element) || isLeftHandSideOfLocalAssignement(element)
+    fun isAssignmentReceiver(element: PsiDataRef) =
+        isUnitDefName(element) || isLeftHandSideOfGlobalAssignement(element) || isLeftHandSideOfLocalAssignement(element)
 
     private fun isUnitDefName(element: PsiDataRef): Boolean =
-            element.parent is PsiUnitDefinition
+        element.parent is PsiUnitDefinition
 
     private fun isLeftHandSideOfGlobalAssignement(element: PsiDataRef): Boolean =
-            element.parent is PsiGlobalAssignment && element.nextSibling != null
+        element.parent is PsiGlobalAssignment && element.nextSibling != null
 
     private fun isLeftHandSideOfLocalAssignement(element: PsiDataRef): Boolean =
-            element.parent is PsiAssignment && element.nextSibling != null
+        element.parent is PsiAssignment && element.nextSibling != null
 }
