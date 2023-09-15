@@ -1,6 +1,5 @@
 package ch.kleis.lcaac.core.lang
 
-import arrow.core.filterMap
 import arrow.optics.Fold
 
 data class RegisterException(val duplicates: Set<String>) : Exception(
@@ -37,13 +36,6 @@ class Register<E> (
 
     operator fun get(key: String): E? {
         return data[key]
-    }
-
-    fun <F> filterMap(fn: (E) -> F?): Register<F> {
-        return Register(
-            registerType,
-            data.filterMap { fn(it) }
-        )
     }
 
     fun getValues(): Sequence<E> = data.values.asSequence()

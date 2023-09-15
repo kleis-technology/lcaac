@@ -7,18 +7,6 @@ sealed interface ExchangeValue<Q> : Value<Q> {
     fun port(): MatrixColumnIndex<Q>
 }
 
-data class GenericExchangeValue<Q>(
-    val quantity: QuantityValue<Q>, val port: MatrixColumnIndex<Q>
-) : ExchangeValue<Q> {
-    override fun quantity(): QuantityValue<Q> {
-        return quantity
-    }
-
-    override fun port(): MatrixColumnIndex<Q> {
-        return port
-    }
-}
-
 data class TechnoExchangeValue<Q>(
     val quantity: QuantityValue<Q>,
     val product: ProductValue<Q>,

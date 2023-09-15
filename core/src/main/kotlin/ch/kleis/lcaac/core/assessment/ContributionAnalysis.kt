@@ -11,7 +11,7 @@ class ContributionAnalysis<Q, M>(
     private val impactFactors: ImpactFactorMatrix<Q, M>,
     private val intensity: IntensityMatrix<Q, M>,
     private val allocatedSystem: SystemValue<Q>,
-    private val ops: QuantityOperations<Q>,
+    ops: QuantityOperations<Q>,
 ) {
     private val quantityOps = QuantityValueOperations(ops)
 
@@ -63,12 +63,15 @@ class ContributionAnalysis<Q, M>(
                         process.outputExchangesByProduct[port]?.quantity ?: throw EvaluatorException("unknown $port")
                     intensity * exchangeQuantity
                 }
+
                 is SubstanceValue<Q> -> {
-                    val substanceCharacterization = allocatedSystem.substanceToSubstanceCharacterizationMap[port] ?: throw EvaluatorException("unknown $port")
+                    val substanceCharacterization = allocatedSystem.substanceToSubstanceCharacterizationMap[port]
+                        ?: throw EvaluatorException("unknown $port")
                     val intensity = intensity.intensityOf(substanceCharacterization)
                     val exchangeQuantity = substanceCharacterization.referenceExchange.quantity
                     intensity * exchangeQuantity
                 }
+
                 else -> throw IllegalStateException()
             }
         }

@@ -16,7 +16,3 @@ data class SystemValue<Q>(
 
 }
 
-data class CharacterizationFactorValue<Q>(
-    val output: ExchangeValue<Q>,
-    val input: ExchangeValue<Q>,
-) : Value<Q>
