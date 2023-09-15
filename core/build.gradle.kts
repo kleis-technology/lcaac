@@ -21,9 +21,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    antlr("org.antlr:antlr4:4.7.2") { // use ANTLR version 4
-        exclude("com.ibm.icu", "icu4j")
-    }
 
     implementation("org.ejml:ejml-simple:0.43")
     implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
@@ -38,6 +35,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-optics")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSONVersion")
     ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
+
     testImplementation("io.mockk:mockk:1.13.4")
     implementation(kotlin("stdlib-jdk8"))
 
@@ -45,7 +43,7 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
-    
+
     testImplementation(kotlin("test"))
 }
 
