@@ -253,7 +253,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_csvProcessor() {
         // given
-        val pkgName = "test_exponentiationPriority"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -312,7 +312,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_exponentiationPriority() {
         // given
-        val pkgName = "test_exponentiationPriority"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -347,7 +347,7 @@ class E2ETest : BasePlatformTestCase() {
 
     @Test
     fun test_substanceResolution() {
-        val pkgName = "e2e.test_substanceResolution"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -393,7 +393,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_meta_whenKeywordAsKey() {
         // given
-        val pkgName = "e2e.test_meta_whenKeywordAsKey"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
                 package $pkgName
@@ -421,7 +421,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_operationPriority() {
         // given
-        val pkgName = "e2e.test_operationPriority"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -463,7 +463,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_twoInstancesSameTemplate_whenOneImplicit() {
         // given
-        val pkgName = "e2e.test_twoInstancesSameTemplate_whenOneImplicit"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -516,7 +516,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_twoInstancesSameTemplate_whenExplicit() {
         // given
-        val pkgName = "e2e.test_twoInstancesSameTemplate_whenExplicit"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -569,7 +569,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_manyInstancesSameTemplate() {
         // given
-        val pkgName = "e2e.test_manyInstancesSameTemplate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -628,7 +628,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_allocate() {
         // given
-        val pkgName = "e2e.test_allocate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -667,7 +667,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_allocate_whenOneProduct_allocateIsOptional() {
         // given
-        val pkgName = "e2e.test_allocate_whenOneProduct_allocateIsOptional"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -690,7 +690,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed() {
         // given
-        val pkgName = "e2e.test_allocate_whenSecondaryBlock_EmptyBlockIsAllowed"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -714,7 +714,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_allocate_whenTwoProducts_shouldReturnWeightedResult() {
         // given
-        val pkgName = "e2e.test_allocate_whenTwoProducts_shouldReturnWeightedResult"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -757,7 +757,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_unitAlias_whenInfiniteLoop_shouldThrowAnError() {
         // given
-        val pkgName = "e2e.test_unitAlias_whenInfiniteLoop_shouldThrowAnError"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -785,7 +785,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError() {
         // given
-        val pkgName = "e2e.test_unitAlias_whenNestedInfiniteLoop_shouldThrowAnError"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -819,7 +819,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_unitAlias_shouldNotThrowAnError() {
         // given
-        val pkgName = "e2e.test_unitAlias_shouldNotThrowAnError"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -852,7 +852,7 @@ class E2ETest : BasePlatformTestCase() {
     @Test
     fun test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError() {
         // given
-        val pkgName = "e2e.test_unitAlias_whenAdditionInAliasForField_shouldNotThrowAnError"
+        val pkgName = {}.javaClass.enclosingMethod.name
         val vf = myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName

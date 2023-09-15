@@ -20,7 +20,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenNotFound_shouldAnnotate() {
         // given
-        val pkgName = "testAnnotate_whenNotFound_shouldAnnotate"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
@@ -55,7 +55,7 @@ class LcaBioExchangeAnnotatorTest : BasePlatformTestCase() {
     @Test
     fun testAnnotate_whenFound_shouldDoNothing() {
         // given
-        val pkgName = "testAnnotate_whenFound_shouldDoNothing"
+        val pkgName = {}.javaClass.enclosingMethod.name
         myFixture.createFile(
             "$pkgName.lca", """
             package $pkgName
