@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-library`
     kotlin("jvm") version "1.8.20"
-    id("antlr")
     id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     kotlin("plugin.serialization") version "1.8.10"
 }
