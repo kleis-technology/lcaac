@@ -62,4 +62,139 @@ class LoaderTest {
         assertEquals(scale, actual.getData("scale"))
         assertEquals(pow, actual.getData("pow"))
     }
+
+    @Test
+    fun load_dataExpression_priorityMulAdd() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = x * y + z
+                    b = x + y * z
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityAdd<BasicNumber>(EQuantityMul(EDataRef("x"), EDataRef("y")), EDataRef("z"))
+        val b = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityMul(EDataRef("y"), EDataRef("z")))
+        assertEquals(a, actual.getData("a"))
+        assertEquals(b, actual.getData("b"))
+    }
+
+    @Test
+    fun load_dataExpression_priorityDivAdd() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = x / y + z
+                    b = x + y / z
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityAdd<BasicNumber>(EQuantityDiv(EDataRef("x"), EDataRef("y")), EDataRef("z"))
+        val b = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityDiv(EDataRef("y"), EDataRef("z")))
+        assertEquals(a, actual.getData("a"))
+        assertEquals(b, actual.getData("b"))
+    }
+
+    @Test
+    fun load_dataExpression_priorityScaleMul() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = 3 x * y
+                    b = x * 4 y
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityScale(BasicNumber(3.0), EQuantityMul(EDataRef("x"), EDataRef("y")))
+        val b = EQuantityMul(EDataRef("x"), EQuantityScale(BasicNumber(4.0), EDataRef("y")))
+        assertEquals(a, actual.getData("a"))
+        assertEquals(b, actual.getData("b"))
+    }
+
+    @Test
+    fun load_dataExpression_priorityScaleDiv() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = 3 x / y
+                    b = x / 4 y
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityScale(BasicNumber(3.0), EQuantityDiv(EDataRef("x"), EDataRef("y")))
+        val b = EQuantityDiv(EDataRef("x"), EQuantityScale(BasicNumber(4.0), EDataRef("y")))
+        assertEquals(a, actual.getData("a"))
+        assertEquals(b, actual.getData("b"))
+    }
+
+    @Test
+    fun load_dataExpression_priorityPowAdd() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = x + y^2
+                    b = x^2 + y
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityPow(EDataRef("y"), 2.0))
+        val b = EQuantityAdd<BasicNumber>(EQuantityPow(EDataRef("x"), 2.0), EDataRef("y"))
+        assertEquals(a, actual.getData("a"))
+        assertEquals(b, actual.getData("b"))
+    }
+
+    @Test
+    fun load_dataExpression_leftAssociativeDiv() {
+        // given
+        val file = lcaFile(
+            """
+                variables {
+                    a = x / y / z
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val a = EQuantityDiv<BasicNumber>(EQuantityDiv(EDataRef("x"), EDataRef("y")), EDataRef("z"))
+        assertEquals(a, actual.getData("a"))
+    }
 }
