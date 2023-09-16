@@ -11,6 +11,100 @@ import kotlin.test.assertEquals
 
 class LoaderTest {
     @Test
+    fun load_substanceCharacterization() {
+        // given
+        val file = lcaFile(
+            """
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "Emissions to air"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg GWP
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val compartment = "Emissions to air"
+        val expected = ESubstanceCharacterization(
+            referenceExchange = EBioExchange(
+                EDataRef("kg"), ESubstanceSpec(
+                    name = "co2",
+                    displayName = "carbon dioxide",
+                    type = SubstanceType.EMISSION,
+                    compartment = compartment,
+                    subCompartment = null,
+                    referenceUnit = EUnitOf(EDataRef("kg")),
+                )
+            ),
+            impacts = listOf(
+                EImpact(
+                    oneKg,
+                    EIndicatorSpec("GWP", null)
+                )
+            ),
+        )
+        assertEquals(expected, actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, compartment))
+    }
+    
+    @Test
+    fun load_substanceCharacterization_withSubCompartment() {
+        // given
+        val file = lcaFile(
+            """
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "Emissions to air"
+                    sub_compartment = "Emissions to air, unspecified"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg GWP
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val compartment = "Emissions to air"
+        val subCompartment = "Emissions to air, unspecified"
+        val expected = ESubstanceCharacterization(
+            referenceExchange = EBioExchange(
+                EDataRef("kg"), ESubstanceSpec(
+                    name = "co2",
+                    displayName = "carbon dioxide",
+                    type = SubstanceType.EMISSION,
+                    compartment = compartment,
+                    subCompartment = subCompartment,
+                    referenceUnit = EUnitOf(EDataRef("kg")),
+                )
+            ),
+            impacts = listOf(
+                EImpact(
+                    oneKg,
+                    EIndicatorSpec("GWP", null)
+                )
+            ),
+        )
+        assertEquals(expected, actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, compartment, subCompartment))
+    }
+
+    @Test
     fun load_process_empty() {
         // given
         val file = lcaFile(
