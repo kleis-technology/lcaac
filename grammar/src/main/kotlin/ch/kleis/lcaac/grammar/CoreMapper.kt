@@ -230,10 +230,17 @@ class CoreMapper<Q>(
             is LcaLangParser.AddGroupContext -> {
                 val left = dataExpression(ctx.left)
                 val right = dataExpression(ctx.right)
-                when (ctx.op) {
-                    ctx.PLUS() -> EQuantityAdd(left, right)
-                    ctx.MINUS() -> EQuantitySub(left, right)
-                    else -> throw IllegalStateException()
+                when (ctx.op.text) {
+                    ctx.PLUS()?.innerText() -> EQuantityAdd(left, right)
+                    ctx.MINUS()?.innerText() -> EQuantitySub(left, right)
+                    else -> throw IllegalStateException(
+                        String.format(
+                            "Error while parsing operation %s %s %s",
+                            ctx.left.text,
+                            ctx.op.text,
+                            ctx.right.text
+                        )
+                    )
                 }
             }
 
@@ -246,10 +253,17 @@ class CoreMapper<Q>(
                 } else {
                     val left = dataExpression(ctx.left)
                     val right = dataExpression(ctx.right)
-                    when (ctx.op) {
-                        ctx.STAR() -> EQuantityMul(left, right)
-                        ctx.SLASH() -> EQuantityDiv(left, right)
-                        else -> throw IllegalStateException()
+                    when (ctx.op.text) {
+                        ctx.STAR()?.innerText() -> EQuantityMul(left, right)
+                        ctx.SLASH()?.innerText() -> EQuantityDiv(left, right)
+                        else -> throw IllegalStateException(
+                            String.format(
+                                "Error while parsing operation %s %s %s",
+                                ctx.left.text,
+                                ctx.op.text,
+                                ctx.right.text
+                            )
+                        )
                     }
                 }
             }
@@ -274,35 +288,35 @@ class CoreMapper<Q>(
         }
     }
 
-     fun TerminalNode.innerText(): String {
+    fun TerminalNode.innerText(): String {
         return this.text.trim('"')
     }
 
-     fun LcaLangParser.SubstanceRefContext.innerText(): String {
+    fun LcaLangParser.SubstanceRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
-     fun LcaLangParser.DimFieldContext.innerText(): String {
+    fun LcaLangParser.DimFieldContext.innerText(): String {
         return this.STRING_LITERAL().innerText()
     }
 
-     fun LcaLangParser.DataRefContext.innerText(): String {
+    fun LcaLangParser.DataRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
-     fun LcaLangParser.ProcessRefContext.innerText(): String {
+    fun LcaLangParser.ProcessRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
-     fun LcaLangParser.LabelRefContext.innerText(): String {
+    fun LcaLangParser.LabelRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
-     fun LcaLangParser.IndicatorRefContext.innerText(): String {
+    fun LcaLangParser.IndicatorRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
-     fun LcaLangParser.ProductRefContext.innerText(): String {
+    fun LcaLangParser.ProductRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 }
