@@ -2,6 +2,8 @@ package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.Register
 import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.dimension.Dimension
+import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
@@ -10,6 +12,48 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class LoaderTest {
+    @Test
+    fun load_unit_literal() {
+        // given
+        val file = lcaFile(
+            """
+                unit foo {
+                    symbol = "foo"
+                    dimension = "foo"
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file)).getData("foo") as EUnitLiteral<BasicNumber>
+
+        // then
+        val expected = EUnitLiteral<BasicNumber>(UnitSymbol.of("foo"), 1.0, Dimension.of("foo"))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun load_unit_aliasFor() {
+        // given
+        val file = lcaFile(
+            """
+                unit foo {
+                    symbol = "foo"
+                    alias_for = 2 bar
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file)).getData("foo") as EUnitAlias<BasicNumber>
+
+        // then
+        val expected = EUnitAlias("foo", EQuantityScale(BasicNumber(2.0), EDataRef("bar")))
+        assertEquals(expected, actual)
+    }
+
     @Test
     fun load_substanceCharacterization() {
         // given
@@ -55,7 +99,7 @@ class LoaderTest {
         )
         assertEquals(expected, actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, compartment))
     }
-    
+
     @Test
     fun load_substanceCharacterization_withSubCompartment() {
         // given

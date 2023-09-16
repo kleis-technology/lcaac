@@ -194,7 +194,7 @@ class CoreMapper<Q>(
     }
 
     fun dimension(ctx: LcaLangParser.DimFieldContext): Dimension {
-        return Dimension.of(ctx.text)
+        return Dimension.of(ctx.STRING_LITERAL().innerText())
     }
 
     fun substanceCharacterization(ctx: LcaLangParser.SubstanceDefinitionContext): ESubstanceCharacterization<Q> {
