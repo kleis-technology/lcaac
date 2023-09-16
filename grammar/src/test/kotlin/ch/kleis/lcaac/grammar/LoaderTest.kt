@@ -128,10 +128,12 @@ class LoaderTest {
                 )
             )
         )
-        val referenceUnit = EUnitOf(EQuantityClosure(
-            localTable,
-            sum,
-            ))
+        val referenceUnit = EUnitOf(
+            EQuantityClosure(
+                localTable,
+                sum,
+            )
+        )
         val expected = EProcessTemplate(
             locals = mapOf(
                 "y" to oneKg,
@@ -140,6 +142,390 @@ class LoaderTest {
                 "p",
                 products = listOf(
                     ETechnoExchange(sum, EProductSpec("out", referenceUnit)),
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_params() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    params {
+                        x = 1 kg
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val expected = EProcessTemplate(
+            params = mapOf(
+                "x" to oneKg,
+            ),
+            body = EProcess("p")
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_variables() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    variables {
+                        x = 1 kg
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val expected = EProcessTemplate(
+            locals = mapOf(
+                "x" to oneKg,
+            ),
+            body = EProcess("p")
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_inputs() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    inputs {
+                        1 kg in from q(a = 1 kg) match (geo = "FR")
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                inputs = listOf(
+                    ETechnoExchange(
+                        oneKg,
+                        EProductSpec(
+                            "in",
+                            referenceUnit = null,
+                            FromProcess(
+                                "q",
+                                matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                arguments = mapOf("a" to oneKg),
+                            ),
+                        ),
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_emissions() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    emissions {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.EMISSION,
+                            compartment = null,
+                            subCompartment = null,
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_emissions_withDetails() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    emissions {
+                        1 kg co2(compartment = "air", sub_compartment = "low pop")
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.EMISSION,
+                            "air",
+                            "low pop",
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_resources() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    resources {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.RESOURCE,
+                            compartment = null,
+                            subCompartment = null,
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_resources_withDetails() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    resources {
+                        1 kg co2(compartment = "air", sub_compartment = "low pop")
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.RESOURCE,
+                            "air",
+                            "low pop",
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_land_use() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    land_use {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.LAND_USE,
+                            compartment = null,
+                            subCompartment = null,
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_land_use_withDetails() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    land_use {
+                        1 kg co2(compartment = "air", sub_compartment = "low pop")
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val localTable = SymbolTable.empty<BasicNumber>()
+        val referenceUnit = EUnitOf(EQuantityClosure(localTable, oneKg))
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                biosphere = listOf(
+                    EBioExchange(
+                        oneKg,
+                        ESubstanceSpec(
+                            "co2",
+                            "co2",
+                            SubstanceType.LAND_USE,
+                            "air",
+                            "low pop",
+                            referenceUnit,
+                        )
+                    )
+                )
+            )
+        )
+        assertEquals(expected, actual.getTemplate("p"))
+    }
+
+    @Test
+    fun load_process_impacts() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    impacts {
+                        1 kg co2
+                    }
+                }
+            """.trimIndent()
+        )
+        val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val expected = EProcessTemplate(
+            body = EProcess(
+                "p",
+                impacts = listOf(
+                    EImpact(
+                        oneKg,
+                        EIndicatorSpec(
+                            "co2",
+                        )
+                    )
                 )
             )
         )
