@@ -1,3 +1,3 @@
-rootProject.name = "lca-as-code"
+rootProject.name = "ch.kleis.lcaac"
 include("core")
 include("plugin")
