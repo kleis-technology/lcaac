@@ -1,78 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id=":core:main" external.linked.project.path="$MODULE_DIR$/../../../core" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="ch.kleis.lcaac" external.system.module.type="sourceSet" external.system.module.version="0.0.7-alpha" type="JAVA_MODULE" version="4">
+<module type="JAVA_MODULE" version="4">
   <component name="FacetManager">
-    <facet external-system-id="GRADLE" type="kotlin-language" name="Kotlin">
-      <configuration version="5" platform="JVM 1.8" allPlatforms="JVM [1.8]" useProjectSettings="false">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="5" platform="JVM 17" allPlatforms="JVM [17]" useProjectSettings="false">
         <compilerSettings>
-          <option name="additionalArguments" value="-Xallow-no-source-files" />
+          <option name="additionalArguments" value="-Xjvm-default=all" />
         </compilerSettings>
         <compilerArguments>
-          <flagArguments>
-            <flagArg name="noReflect" arg="true" />
-            <flagArg name="noStdlib" arg="true" />
-          </flagArguments>
           <stringArguments>
-            <stringArg name="classpath">
-              <args>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.arrow-kt/arrow-optics-jvm/1.1.5/74de44b6e65929723be38f370f5ec7c8a40957e5/arrow-optics-jvm-1.1.5.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.8.20/ea6ffe3c1bb1229f4d9279ae51395c54e7132d53/kotlin-reflect-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-simple/0.43/5da00c4c40eda416e855ee602678b194384cb417/ejml-simple-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/multik-default-jvm/0.2.2/a37d79db5525d737c45777f3a4dead139ae51303/multik-default-jvm-0.2.2.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm/1.5.1/21ac91884e0b9462b9106d1a83e5e0d200170c65/kotlinx-serialization-json-jvm-1.5.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-serialization-core-jvm/1.5.1/e26cf5dfbcfe3e82ca196694dfd305753b1a49b9/kotlinx-serialization-core-jvm-1.5.1.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlinx/multik-core-jvm/0.2.2/f04f2fc7d0f450da34c8b70718fb444b219be6e3/multik-core-jvm-0.2.2.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.8.21/67f57e154437cd9e6e9cf368394b95814836ff88/kotlin-stdlib-jdk8-1.8.21.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.20.0/eb2a9a47b1396e00b5eee1264296729a70565cc0/log4j-core-2.20.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-slf4j-impl/2.20.0/7ab4f082fd162f60afcaf2b8744a3d959feab3e8/log4j-slf4j-impl-2.20.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.20.0/1fe6082e660daf07c689a89c94dc0f49c26b44bb/log4j-api-2.20.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.arrow-kt/arrow-core-jvm/1.1.5/d255e4bde5568c1438044c53932103cec781cf65/arrow-core-jvm-1.1.5.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.8.21/7473b8cd3c0ef9932345baf569bc398e8a717046/kotlin-stdlib-jdk7-1.8.21.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.8.21/43d50ab85bc7587adfe3dda3dbe579e5f8d51265/kotlin-stdlib-1.8.21.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-fsparse/0.43/3fb64b83f3edbcf047f0ac8992164830f97e0db6/ejml-fsparse-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-fdense/0.43/f226c334951ed5dde97049427a71f874e811d67a/ejml-fdense-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-dsparse/0.43/a6693062f2b99871beb57190e77b6e9c2293e79f/ejml-dsparse-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-ddense/0.43/86d5a1db5b62a533a9a7201e41a8c1ffea0bd23f/ejml-ddense-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-cdense/0.43/7d82a9287d94f64213e5aba991b4a5c4d9169043/ejml-cdense-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-zdense/0.43/be701a6c7c32ad2ae00c37281062e88b84bb7790/ejml-zdense-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ejml/ejml-core/0.43/98ea303e293db109db87800fbcf939a4e5c48e60/ejml-core-0.43.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.slf4j/slf4j-api/1.7.25/da76ca59f6a57ee3102f8f9bd9cee742973efa8a/slf4j-api-1.7.25.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.8.21/d749cd5ae25da36d06e5028785038e24f9d37976/kotlin-stdlib-common-1.8.21.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.arrow-kt/arrow-continuations-jvm/1.1.5/24d2c4d3d64201579e02ab3f1229301ef79f3988/arrow-continuations-jvm-1.1.5.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.arrow-kt/arrow-annotations-jvm/1.1.5/6e45cca708862a364b0df4ac8b7296d187ec551f/arrow-annotations-jvm-1.1.5.jar</arg>
-              </args>
-            </stringArg>
-            <stringArg name="destination" arg="$MODULE_DIR$/../../../core/build/classes/kotlin/main" />
-            <stringArg name="jvmTarget" arg="1.8" />
-            <stringArg name="moduleName" arg="core" />
+            <stringArg name="jvmTarget" arg="17" />
             <stringArg name="apiVersion" arg="1.8" />
             <stringArg name="languageVersion" arg="1.8" />
           </stringArguments>
           <arrayArguments>
-            <arrayArg name="friendPaths" />
             <arrayArg name="pluginClasspaths">
-              <args>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.devtools.ksp/symbol-processing/1.8.20-1.0.11/56ac099e080e9ba4b78e3086bfd61976f8185ea7/symbol-processing-1.8.20-1.0.11.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin-api/1.8.20/1d909998b74b7873ac71bd04ce5f145f3d68bcfd/kotlin-gradle-plugin-api-1.8.20-gradle76.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/1.8.20/78d9baa57f65babf9e0a93e51f62f26f5f35ac3e/kotlin-compiler-embeddable-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.devtools.ksp/symbol-processing-api/1.8.20-1.0.11/6101bc1131908edbedaf139acbcfb343985bd916/symbol-processing-api-1.8.20-1.0.11.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-jvm/1.8.20/51c8efbe177ebcaa89c82d01663c60060a120dd2/kotlin-scripting-jvm-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-common/1.8.20/f19996e3a40658541fe2108c483fd3301c4a3416/kotlin-scripting-common-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.8.20/e72fc5e03ec6c064c678a6bd0d955c88d55b0c4a/kotlin-stdlib-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.8.20/5eddaaf234c8c49d03eebeb6a14feb7f90faca71/kotlin-stdlib-common-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.8.20/c850771e723701f9d63dbcf641429c0f29290074/kotlin-script-runtime-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-daemon-embeddable/1.8.20/c1b808fbe5fee60bd0504a54778120ef40f383d4/kotlin-daemon-embeddable-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.intellij.deps/trove4j/1.0.20200330/3afb14d5f9ceb459d724e907a21145e8ff394f02/trove4j-1.0.20200330.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.java.dev.jna/jna/5.6.0/330f2244e9030119ab3030fc3fededc86713d9cc/jna-5.6.0.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-gradle-plugin-annotations/1.8.20/e4254b95d5b4abe86ba97afb6214877f9fc76a05/kotlin-gradle-plugin-annotations-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-native-utils/1.8.20/d490644e215629f7f23f1c9ba5eb8bf96f4b8504/kotlin-native-utils-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-project-model/1.8.20/1c22ceafd66b8e1dcd9e9c662a1bbb276528d4c7/kotlin-project-model-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-tooling-core/1.8.20/6ab3d6c8e8d13c2748ecf0b74978fbd191def027/kotlin-tooling-core-1.8.20.jar</arg>
-                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-util-io/1.8.20/845b590111343b11034db2a6febeac83102a8cbb/kotlin-util-io-1.8.20.jar</arg>
-                <arg>$KOTLIN_BUNDLED$/lib/kotlinx-serialization-compiler-plugin.jar</arg>
-              </args>
+              <args>$KOTLIN_BUNDLED$/lib/kotlinx-serialization-compiler-plugin.jar</args>
             </arrayArg>
             <arrayArg name="pluginOptions" />
           </arrayArguments>
@@ -80,48 +21,41 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
-    <output url="file://$MODULE_DIR$/../../../core/build/classes/kotlin/main" />
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../core/build/generated/ksp/main/java" />
-    <content url="file://$MODULE_DIR$/../../../core/build/generated/ksp/main/kotlin" />
-    <content url="file://$MODULE_DIR$/../../../core/src/generatedByKspKotlin" />
-    <content url="file://$MODULE_DIR$/../../../core/src/main">
-      <sourceFolder url="file://$MODULE_DIR$/../../../core/src/main/kotlin" isTestSource="false" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/../core/src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../core/src/main/stdlib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../core/build/generated/ksp/main/kotlin" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../core/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/../core/src/test/kotlin" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../core/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.8.20" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-simple:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-core:2.20.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-slf4j-impl:2.20.0" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.logging.log4j:log4j-api:2.20.0" level="project" />
-    <orderEntry type="library" name="Gradle: io.arrow-kt:arrow-optics-jvm:1.1.5" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.8.21" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-fsparse:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-fdense:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-dsparse:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-ddense:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-cdense:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-zdense:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.ejml:ejml-core:0.43" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:multik-default-jvm:0.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:multik-core-jvm:0.2.2" level="project" />
-    <orderEntry type="library" name="Gradle: io.arrow-kt:arrow-core-jvm:1.1.5" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.5.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21" level="project" />
-    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.21" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:13.0" level="project" />
-    <orderEntry type="library" name="Gradle: io.arrow-kt:arrow-annotations-jvm:1.1.5" level="project" />
-    <orderEntry type="library" name="Gradle: io.arrow-kt:arrow-continuations-jvm:1.1.5" level="project" />
-    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.5.1" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.8.21" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.bio:npy:0.3.5" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.apache.commons:commons-csv:1.10.0" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.21" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:multik-openblas-jvm:0.2.2" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:multik-kotlin-jvm:0.2.2" level="project" />
+    <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
+    <orderEntry type="library" name="io.arrow.kt.optics" level="project" />
+    <orderEntry type="library" name="jdom.jdom2" level="project" />
+    <orderEntry type="library" name="ejml.simple" level="project" />
+    <orderEntry type="library" name="kotlinx-collections-immutable" level="project" />
+    <orderEntry type="library" name="commons-compress" level="project" />
+    <orderEntry type="module" module-name="intellij.platform.codeStyle.impl" />
+    <orderEntry type="library" name="swingx" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: junit:junit:4.13.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="kotlin-test" level="project" />
+    <orderEntry type="library" name="commons-io" level="project" />
+    <orderEntry type="module" module-name="intellij.json" scope="TEST" />
+    <orderEntry type="module" module-name="intellij.platform.testFramework" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="kotlin-test-junit" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-agent-api-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-agent-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-core-jvm:1.13.4" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-dsl-jvm:1.13.4" level="project" />
+    <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
+    <orderEntry type="library" name="kotlinc.kotlinx-serialization-compiler-plugin" level="project" />
+    <orderEntry type="library" name="kotlin-reflect" level="project" />
+    <orderEntry type="library" name="jetbrains.kotlinx.multik.core.jvm" level="project" />
+    <orderEntry type="library" name="jetbrains.kotlinx.serialization.json" level="project" />
   </component>
 </module>
