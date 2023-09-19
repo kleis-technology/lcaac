@@ -4,6 +4,7 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
     `java-library`
+    id("maven-publish")
     id("org.jetbrains.kotlin.jvm") version "1.8.20"
     id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     kotlin("plugin.serialization") version "1.8.10"
@@ -60,4 +61,12 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("core") {
+            from(components["java"])
+        }
+    }
 }
