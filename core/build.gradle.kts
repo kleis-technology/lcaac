@@ -1,14 +1,17 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+fun properties(key: String) = project.findProperty(key).toString()
+
 plugins {
     `java-library`
-    kotlin("jvm") version "1.8.20"
+    id("org.jetbrains.kotlin.jvm") version "1.8.20"
     id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     kotlin("plugin.serialization") version "1.8.10"
 }
 
-group = "ch.kleis.lcaac"
-version = "0.0.7-alpha"
+
+group = properties("lcaacGroup")
+version = properties("lcaacVersion")
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
