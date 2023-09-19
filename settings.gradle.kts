@@ -1,1 +1,3 @@
-rootProject.name = "lca-plugin"
+rootProject.name = "ch.kleis.lcaac"
+include("core")
+include("plugin")
