@@ -103,7 +103,7 @@ class CoreMapper<Q>(
         quantity: DataExpression<Q>,
         symbolTable: SymbolTable<Q>
     ): ESubstanceSpec<Q> {
-        return ESubstanceSpec<Q>(
+        return ESubstanceSpec(
             name = ctx.substanceRef().innerText(),
             compartment = ctx.compartmentField()?.STRING_LITERAL()?.innerText(),
             subCompartment = ctx.subCompartmentField()?.STRING_LITERAL()?.innerText(),
@@ -189,10 +189,6 @@ class CoreMapper<Q>(
             name = ctx.productRef().text,
             referenceUnit = EUnitOf(EQuantityClosure(symbolTable, quantity))
         )
-    }
-
-    enum class UnitDefinitionType {
-        ALIAS, LITERAL
     }
 
     fun LcaLangParser.UnitDefinitionContext.type(): UnitDefinitionType {
@@ -327,6 +323,7 @@ class CoreMapper<Q>(
         return this.uid().ID().innerText()
     }
 
+    // TODO: Check other "buildUniqueKey"
     fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): String {
         val labels = this.labels()
             ?.flatMap { it.label_assignment() }

@@ -27,7 +27,7 @@ class Loader<Q>(
                 Register.empty<Dimension>()
                     .plus(
                         unitDefinitions
-                            .filter { it.type() == CoreMapper.UnitDefinitionType.LITERAL }
+                            .filter { it.type() == UnitDefinitionType.LITERAL }
                             .map { it.dimField().innerText() to dimension(it.dimField()) }
                             .asIterable()
                     )
@@ -50,13 +50,13 @@ class Loader<Q>(
                 Register.empty<DataExpression<Q>>()
                     .plus(
                         unitDefinitions
-                            .filter { it.type() == CoreMapper.UnitDefinitionType.LITERAL }
+                            .filter { it.type() == UnitDefinitionType.LITERAL }
                             .map { it.dataRef().innerText() to unitLiteral(it) }
                             .asIterable()
                     )
                     .plus(
                         unitDefinitions
-                            .filter { it.type() == CoreMapper.UnitDefinitionType.ALIAS }
+                            .filter { it.type() == UnitDefinitionType.ALIAS }
                             .map { it.dataRef().innerText() to unitAlias(it) }
                             .asIterable()
                     )
