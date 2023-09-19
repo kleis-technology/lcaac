@@ -323,12 +323,24 @@ class CoreMapper<Q>(
         return this.uid().ID().innerText()
     }
 
-    // TODO: Check other "buildUniqueKey"
     fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): String {
         val labels = this.labels()
             ?.flatMap { it.label_assignment() }
             ?.associate { it.labelRef().innerText() to it.STRING_LITERAL().innerText() }
             ?: return this.name.innerText()
         return "${this.name.innerText()}$labels"
+    }
+
+    fun LcaLangParser.SubstanceDefinitionContext.buildUniqueKey(): String {
+        val name = this.substanceRef().innerText()
+        val compartment = this.compartmentField().STRING_LITERAL().innerText()
+        val type = this.typeField().children[2].text
+        val subCompartment = this.subCompartmentField()?.STRING_LITERAL()?.innerText()
+        return listOfNotNull(
+            name,
+            compartment,
+            type,
+            subCompartment,
+        ).joinToString("_")
     }
 }

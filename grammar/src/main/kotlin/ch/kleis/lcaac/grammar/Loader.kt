@@ -39,7 +39,7 @@ class Loader<Q>(
                 Register.empty<ESubstanceCharacterization<Q>>()
                     .plus(
                         substanceDefinitions
-                            .map { it.substanceRef().innerText() to substanceCharacterization(it) }
+                            .map { it.buildUniqueKey() to substanceCharacterization(it) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {

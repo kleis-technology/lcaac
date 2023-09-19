@@ -115,6 +115,124 @@ class LoaderTest {
     }
 
     @Test
+    fun load_twoSubstanceCharacterizations_sameExceptForType() {
+        // given
+        val file = lcaFile(
+            """
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "Emissions to air"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg GWP
+                    }
+                }
+                
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Resource
+                    compartment = "Emissions to air"
+                    reference_unit = kg
+                    
+                    impacts {
+                        -1 kg GWP
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+
+        // then
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "Emissions to air"))
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.RESOURCE, "Emissions to air"))
+    }
+
+    @Test
+    fun load_twoSubstanceCharacterizations_sameExceptForCompartment() {
+        // given
+        val file = lcaFile(
+            """
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "foo"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg GWP
+                    }
+                }
+                
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "bar"
+                    reference_unit = kg
+                    
+                    impacts {
+                        -1 kg GWP
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+
+        // then
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "foo"))
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "bar"))
+    }
+
+    @Test
+    fun load_twoSubstanceCharacterizations_sameExceptForSubCompartment() {
+        // given
+        val file = lcaFile(
+            """
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "foo"
+                    reference_unit = kg
+                    
+                    impacts {
+                        1 kg GWP
+                    }
+                }
+                
+                substance co2 {
+                    name = "carbon dioxide"
+                    type = Emission
+                    compartment = "foo"
+                    sub_compartment = "low pop"
+                    reference_unit = kg
+                    
+                    impacts {
+                        -1 kg GWP
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+
+        // then
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "foo"))
+        assertNotNull(actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "foo", "low pop"))
+    }
+
+    @Test
     fun load_substanceCharacterization() {
         // given
         val file = lcaFile(
