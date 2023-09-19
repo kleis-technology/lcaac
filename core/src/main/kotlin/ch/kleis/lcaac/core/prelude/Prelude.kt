@@ -100,14 +100,18 @@ class Prelude {
             EUnitLiteral<Q>(UnitSymbol.of("kgy"), 365 * 24 * 3600.0, mass_time) to "1 kg * year",
             EUnitLiteral<Q>(UnitSymbol.of("kga"), 365 * 24 * 3600.0, mass_time) to "1 kg * year",
             EUnitLiteral<Q>(UnitSymbol.of("m3y"), 365 * 24 * 3600.0, volume_time) to "1 m3 * year",
-            )
+        )
 
 
         fun <Q> unitMap(): Map<String, EUnitLiteral<Q>> =
             compositeUnits<Q>().keys
                 .associateBy { it.symbol.toString() } + primitiveUnits()
 
+        fun primitiveDimensionMap(): Map<String, Dimension> =
+            primitiveUnits<Any>().mapValues { it.value.dimension }
+
         fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
+        fun dimensions(): Register<Dimension> = Register.from(primitiveDimensionMap())
 
     }
 }

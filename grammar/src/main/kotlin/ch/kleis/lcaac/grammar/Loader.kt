@@ -3,19 +3,25 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.core.lang.Register
 import ch.kleis.lcaac.core.lang.RegisterException
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.dimension.Dimension
-import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
 import ch.kleis.lcaac.core.math.QuantityOperations
+import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
+
+enum class LoaderOption {
+    WITH_PRELUDE
+}
 
 class Loader<Q>(
     ops: QuantityOperations<Q>,
 ) {
     private val mapper = CoreMapper(ops)
 
-    fun load(files: Sequence<LcaLangParser.LcaFileContext>): SymbolTable<Q> {
+    fun load(
+        files: Sequence<LcaLangParser.LcaFileContext>,
+        options: List<LoaderOption> = emptyList(),
+    ): SymbolTable<Q> {
         with(mapper) {
             val unitDefinitions = files.flatMap { it.unitDefinition() }
             val processDefinitions = files.flatMap { it.processDefinition() }
@@ -24,7 +30,10 @@ class Loader<Q>(
                 .flatMap { it.globalAssignment() }
 
             val dimensions = try {
-                Register.empty<Dimension>()
+                val register =
+                    if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.dimensions()
+                    else Register.empty()
+                register
                     .plus(
                         unitDefinitions
                             .filter { it.type() == UnitDefinitionType.LITERAL }
@@ -47,7 +56,10 @@ class Loader<Q>(
             }
 
             val globals = try {
-                Register.empty<DataExpression<Q>>()
+                val register =
+                    if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.units<Q>()
+                    else Register.empty()
+                register
                     .plus(
                         unitDefinitions
                             .filter { it.type() == UnitDefinitionType.LITERAL }
