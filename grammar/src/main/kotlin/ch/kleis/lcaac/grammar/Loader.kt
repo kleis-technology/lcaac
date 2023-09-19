@@ -74,7 +74,7 @@ class Loader<Q>(
                 Register.empty<EProcessTemplate<Q>>()
                     .plus(
                         processDefinitions
-                            .map { Pair(it.name.innerText(), process(it, globals)) }
+                            .map { Pair(it.buildUniqueKey(), process(it, globals)) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {
@@ -88,4 +88,6 @@ class Loader<Q>(
             )
         }
     }
+
 }
+

@@ -10,8 +10,43 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class LoaderTest {
+    @Test
+    fun load_twoProcesses_sameNameDifferentLabels() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    labels {
+                        id = "small"
+                    }
+                    inputs {
+                        1 kg a from q
+                    }
+                }
+                
+                process p {
+                    labels {
+                        id = "large"
+                    }
+                    inputs {
+                        2 kg a from q
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        assertNotNull(actual.getTemplate("p", mapOf("id" to "small")))
+        assertNotNull(actual.getTemplate("p", mapOf("id" to "large")))
+    }
+
     @Test
     fun load_fromProcess_withoutArguments() {
         // given

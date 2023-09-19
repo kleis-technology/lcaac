@@ -326,4 +326,12 @@ class CoreMapper<Q>(
     fun LcaLangParser.ProductRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
+
+    fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): String {
+        val labels = this.labels()
+            ?.flatMap { it.label_assignment() }
+            ?.associate { it.labelRef().innerText() to it.STRING_LITERAL().innerText() }
+            ?: return this.name.innerText()
+        return "${this.name.innerText()}$labels"
+    }
 }
