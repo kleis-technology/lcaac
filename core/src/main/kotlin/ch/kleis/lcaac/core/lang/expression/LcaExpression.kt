@@ -58,12 +58,14 @@ data class EIndicatorSpec<Q>(
 // Exchange
 @optics
 sealed interface LcaExchangeExpression<Q> : LcaExpression<Q> {
+    val quantity: DataExpression<Q>
+
     companion object
 }
 
 @optics
 data class ETechnoExchange<Q>(
-    val quantity: DataExpression<Q>,
+    override val quantity: DataExpression<Q>,
     val product: EProductSpec<Q>,
     val allocation: DataExpression<Q>? = null,
 ) : LcaExchangeExpression<Q> {
@@ -71,13 +73,14 @@ data class ETechnoExchange<Q>(
 }
 
 @optics
-data class EBioExchange<Q>(val quantity: DataExpression<Q>, val substance: ESubstanceSpec<Q>) :
+data class EBioExchange<Q>(override val quantity: DataExpression<Q>, val substance: ESubstanceSpec<Q>) :
     LcaExchangeExpression<Q> {
     companion object
 }
 
 @optics
-data class EImpact<Q>(val quantity: DataExpression<Q>, val indicator: EIndicatorSpec<Q>) : LcaExchangeExpression<Q> {
+data class EImpact<Q>(override val quantity: DataExpression<Q>, val indicator: EIndicatorSpec<Q>) :
+    LcaExchangeExpression<Q> {
     companion object
 }
 
