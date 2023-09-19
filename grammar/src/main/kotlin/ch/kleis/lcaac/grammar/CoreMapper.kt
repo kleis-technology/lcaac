@@ -145,8 +145,15 @@ class CoreMapper<Q>(
     }
 
     fun fromProcess(ctx: LcaLangParser.ProcessTemplateSpecContext): FromProcess<Q> {
-        val arguments = ctx.comma_sep_arguments().argument()
-        val labelSelectors = ctx.matchLabels().comma_sep_label_selectors().labelSelector()
+        val arguments = ctx
+            .comma_sep_arguments()
+            ?.argument()
+            ?: emptyList()
+        val labelSelectors = ctx
+            .matchLabels()
+            ?.comma_sep_label_selectors()
+            ?.labelSelector()
+            ?: emptyList()
         return FromProcess(
             name = ctx.processRef().text,
             matchLabels = MatchLabels(

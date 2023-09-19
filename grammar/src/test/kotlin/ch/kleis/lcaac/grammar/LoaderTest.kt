@@ -13,6 +13,31 @@ import kotlin.test.assertEquals
 
 class LoaderTest {
     @Test
+    fun load_fromProcess_withoutArguments() {
+        // given
+        val file = lcaFile(
+            """
+                process p {
+                    inputs {
+                        1 kg a from q
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file)).getTemplate("p")!!
+            .body
+            .inputs[0]
+            .product.fromProcess!!
+
+        // then
+        val expected = FromProcess<BasicNumber>("q", MatchLabels(emptyMap()))
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun load_unit_literal() {
         // given
         val file = lcaFile(
