@@ -5,11 +5,10 @@ fun properties(key: String) = project.findProperty(key).toString()
 plugins {
     `java-library`
     id("maven-publish")
+    id("antlr")
     id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("com.google.devtools.ksp") version "1.8.20-1.0.11"
     kotlin("plugin.serialization") version "1.8.10"
 }
-
 
 group = properties("lcaacGroup")
 version = properties("lcaacVersion")
@@ -23,21 +22,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation(project(":core"))
+    testImplementation(project(":core"))
 
-    implementation("org.ejml:ejml-simple:0.43")
-    implementation("org.jetbrains.kotlinx:multik-core:0.2.2")
-    implementation("org.jetbrains.kotlinx:multik-default:0.2.2")
-
-
-    val arrowVersion = "1.1.5"
-    val kotlinxSerializationJSONVersion = "1.5.1"
-
-    implementation(platform("io.arrow-kt:arrow-stack:$arrowVersion"))
-    implementation("io.arrow-kt:arrow-core")
-    implementation("io.arrow-kt:arrow-optics")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJSONVersion")
-    ksp("io.arrow-kt:arrow-optics-ksp-plugin:$arrowVersion")
+    antlr("org.antlr:antlr4:4.7.2") { // use ANTLR version 4
+        exclude("com.ibm.icu", "icu4j")
+    }
 
     testImplementation("io.mockk:mockk:1.13.4")
     implementation(kotlin("stdlib-jdk8"))
@@ -63,9 +53,41 @@ compileTestKotlin.kotlinOptions {
     jvmTarget = "1.8"
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs("src/main/gen")
+        }
+        antlr {
+            srcDirs("src/main/antlr")
+        }
+    }
+}
+
+tasks {
+    generateGrammarSource {
+        outputDirectory = file("src/main/gen/ch/kleis/lcaac/grammar/parser")
+        arguments = arguments.plus( // https://github.com/antlr/antlr4/blob/master/doc/tool-options.md
+            listOf(
+                "-package", "ch.kleis.lcaac.grammar.parser",
+            )
+        )
+    }
+
+    compileJava {
+        dependsOn("generateGrammarSource")
+    }
+    compileKotlin {
+        dependsOn("generateGrammarSource")
+    }
+    compileTestKotlin {
+        dependsOn("generateTestGrammarSource")
+    }
+}
+
 publishing {
     publications {
-        create<MavenPublication>("core") {
+        create<MavenPublication>("grammar") {
             from(components["java"])
         }
     }
