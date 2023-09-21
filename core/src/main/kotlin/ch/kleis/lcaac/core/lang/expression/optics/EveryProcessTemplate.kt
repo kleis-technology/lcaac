@@ -8,13 +8,3 @@ fun <Q> everyProcessTemplateInTemplateExpression() = Merge(
         ProcessTemplateExpression.eProcessTemplate(),
     )
 )
-
-fun <Q> everyEProcessInProcessTemplateExpression() = Merge(
-    listOf(
-        ProcessTemplateExpression.eProcessTemplate<Q>().body(),
-        ProcessTemplateExpression.eProcessTemplateApplication<Q>().template().body(),
-        ProcessTemplateExpression.eProcessFinal<Q>().expression(),
-    )
-)
-
-

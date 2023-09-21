@@ -1,6 +1,5 @@
 package ch.kleis.lcaac.core.lang.dimension
 
-import ch.kleis.lcaac.core.lang.value.UnitValue
 import kotlin.math.absoluteValue
 
 class Dimension(
@@ -31,10 +30,6 @@ class Dimension(
         fun of(name: String, power: Int): Dimension {
             return if (name == "none") None else Dimension(mapOf(Pair(name, power.toDouble())))
         }
-    }
-
-    fun <Q> getDefaultUnitValue(): UnitValue<Q> {
-        return UnitValue(UnitSymbol(elements), 1.0, this)
     }
 
     fun multiply(other: Dimension): Dimension {

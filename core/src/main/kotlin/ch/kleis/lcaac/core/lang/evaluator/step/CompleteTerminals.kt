@@ -24,16 +24,7 @@ class CompleteTerminals<Q>(
     private fun EProcessFinal<Q>.completeInputs(): EProcessFinal<Q> {
         return everyInputExchange
             .modify(this) { exchange ->
-                val quantityExpression = exchange.quantity
-                val referenceUnit = when {
-                    quantityExpression is EUnitLiteral ->
-                        EQuantityScale(ops.pure(1.0), quantityExpression)
-
-                    quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
-                        EQuantityScale(ops.pure(1.0), quantityExpression.base)
-
-                    else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
-                }
+                val referenceUnit = exchangeReferenceUnit(exchange)
 
                 ETechnoExchange.product<Q>()
                     .modify(exchange) {
@@ -45,16 +36,7 @@ class CompleteTerminals<Q>(
     private fun EProcessFinal<Q>.completeSubstances(): EProcessFinal<Q> {
         return (EProcessFinal.expression<Q>().biosphere() compose Every.list())
             .modify(this) { exchange ->
-                val quantityExpression = exchange.quantity
-                val referenceUnit = when {
-                    quantityExpression is EUnitLiteral ->
-                        EQuantityScale(ops.pure(1.0), quantityExpression)
-
-                    quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
-                        EQuantityScale(ops.pure(1.0), quantityExpression.base)
-
-                    else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
-                }
+                val referenceUnit = exchangeReferenceUnit(exchange)
 
                 EBioExchange.substance<Q>()
                     .modify(exchange) {
@@ -66,20 +48,11 @@ class CompleteTerminals<Q>(
     }
 
     private fun completeIndicators(impacts: Collection<EImpact<Q>>): List<EImpact<Q>> =
-        impacts.map { impactExchange ->
-            val quantityExpression = impactExchange.quantity
-            val referenceUnit = when {
-                quantityExpression is EUnitLiteral ->
-                    EQuantityScale(ops.pure(1.0), quantityExpression)
-
-                quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
-                    EQuantityScale(ops.pure(1.0), quantityExpression.base)
-
-                else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
-            }
+        impacts.map { exchange ->
+            val referenceUnit = exchangeReferenceUnit(exchange)
 
             EImpact.indicator<Q>()
-                .modify(impactExchange) {
+                .modify(exchange) {
                     EIndicatorSpec(it.name, referenceUnit)
                 }
         }
@@ -93,4 +66,19 @@ class CompleteTerminals<Q>(
 
     private fun ESubstanceCharacterization<Q>.completeSubstanceIndicators(): ESubstanceCharacterization<Q> =
         this.copy(impacts = completeIndicators(this.impacts))
+
+    private fun exchangeReferenceUnit(exchange: LcaExchangeExpression<Q>): EQuantityScale<Q> {
+        val quantityExpression = exchange.quantity
+        val referenceUnit = when {
+            quantityExpression is EUnitLiteral ->
+                EQuantityScale(ops.pure(1.0), quantityExpression)
+
+            quantityExpression is EQuantityScale && quantityExpression.base is EUnitLiteral ->
+                EQuantityScale(ops.pure(1.0), quantityExpression.base)
+
+            else -> throw EvaluatorException("quantity $quantityExpression is not reduced")
+        }
+        return referenceUnit
+    }
 }
+
