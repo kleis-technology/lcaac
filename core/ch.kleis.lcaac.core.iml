@@ -13,9 +13,6 @@
             <stringArg name="languageVersion" arg="1.8" />
           </stringArguments>
           <arrayArguments>
-            <arrayArg name="pluginClasspaths">
-              <args>$KOTLIN_BUNDLED$/lib/kotlinx-serialization-compiler-plugin.jar</args>
-            </arrayArg>
             <arrayArg name="pluginOptions" />
           </arrayArguments>
         </compilerArguments>
@@ -50,7 +47,6 @@
     <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-core-jvm:1.13.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: io.mockk:mockk-dsl-jvm:1.13.4" level="project" />
     <orderEntry type="library" name="kotlinx-serialization-core" level="project" />
-    <orderEntry type="library" name="kotlinc.kotlinx-serialization-compiler-plugin" level="project" />
     <orderEntry type="library" name="kotlin-reflect" level="project" />
     <orderEntry type="library" name="jetbrains.kotlinx.multik.core.jvm" level="project" />
     <orderEntry type="library" name="jetbrains.kotlinx.serialization.json" level="project" />
