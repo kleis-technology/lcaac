@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaac.core.matrix.IndexedCollection
+import ch.kleis.lcaac.core.matrix.IndexedPortCollection
 import ch.kleis.lcaac.core.matrix.IntensityMatrix
 
 class ContributionAnalysis<Q, M>(
@@ -14,6 +15,10 @@ class ContributionAnalysis<Q, M>(
     ops: QuantityOperations<Q>,
 ) {
     private val quantityOps = QuantityValueOperations(ops)
+    private val allPorts = IndexedPortCollection(
+        impactFactors.observablePorts.getElements()
+            + impactFactors.controllablePorts.getElements()
+    )
 
     fun getImpactFactors(): ImpactFactorMatrix<Q, M> {
         return impactFactors
@@ -37,6 +42,14 @@ class ContributionAnalysis<Q, M>(
 
     fun getControllablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.controllablePorts
+    }
+
+    fun isControllable(port: MatrixColumnIndex<Q>): Boolean {
+        return getControllablePorts().contains(port)
+    }
+
+    fun findAllPortsByShortName(shortName: String): List<MatrixColumnIndex<Q>> {
+        return allPorts.findByShortName(shortName)
     }
 
     fun getExchangeContribution(
@@ -83,9 +96,8 @@ class ContributionAnalysis<Q, M>(
     ): QuantityValue<Q> {
         val supply = supplyOf(port)
         val factor = impactFactors.characterizationFactor(port, indicator)
-        with(quantityOps) {
-            return supply * factor
+        return with(quantityOps) {
+            supply * factor
         }
     }
-
 }
