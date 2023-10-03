@@ -3,7 +3,7 @@ package ch.kleis.lcaac.core.matrix
 import ch.kleis.lcaac.core.HasUID
 import java.util.stream.Collectors
 
-class IndexedCollection<V : HasUID>(elements: Collection<V>) {
+open class IndexedCollection<V : HasUID>(elements: Collection<V>) {
     private val byEntity = HashMap<V, Int>()
     private val byUniqueId = HashMap<String, Int>()
     private val elements = ArrayList<V>()

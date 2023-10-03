@@ -14,6 +14,10 @@ class ContributionAnalysis<Q, M>(
     ops: QuantityOperations<Q>,
 ) {
     private val quantityOps = QuantityValueOperations(ops)
+    private val allPorts = IndexByShortName(
+        impactFactors.observablePorts.getElements()
+            + impactFactors.controllablePorts.getElements()
+    )
 
     fun getImpactFactors(): ImpactFactorMatrix<Q, M> {
         return impactFactors
@@ -37,6 +41,14 @@ class ContributionAnalysis<Q, M>(
 
     fun getControllablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.controllablePorts
+    }
+
+    fun isControllable(port: MatrixColumnIndex<Q>): Boolean {
+        return getControllablePorts().contains(port)
+    }
+
+    fun findAllPortsByShortName(shortName: String): List<MatrixColumnIndex<Q>> {
+        return allPorts.findByShortName(shortName)
     }
 
     fun getExchangeContribution(
@@ -83,9 +95,28 @@ class ContributionAnalysis<Q, M>(
     ): QuantityValue<Q> {
         val supply = supplyOf(port)
         val factor = impactFactors.characterizationFactor(port, indicator)
-        with(quantityOps) {
-            return supply * factor
+        return with(quantityOps) {
+            supply * factor
         }
     }
 
+    private class IndexByShortName<Q>(
+        private val elements: List<MatrixColumnIndex<Q>>,
+    ) {
+        private val byShortName = HashMap<String, List<Int>>()
+
+        init {
+            elements.forEachIndexed { index, port ->
+                val shortName = port.getShortName()
+                byShortName[shortName] = byShortName[shortName]?.plus(index)
+                    ?: listOf(index)
+            }
+        }
+
+        fun findByShortName(shortName: String): List<MatrixColumnIndex<Q>> {
+            val indices = byShortName[shortName] ?: return emptyList()
+            return indices.map { elements[it] }
+        }
+    }
 }
+
