@@ -2,10 +2,12 @@ fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
     `java-library`
+    `maven-publish`
+
+    id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.jvm")
-    id("maven-publish")
-    id("com.google.devtools.ksp") version "1.9.0-1.0.11"
-    kotlin("plugin.serialization") version "1.9.0"
+
+    kotlin("plugin.serialization")
 }
 
 val group = properties("lcaacGroup")

@@ -1,11 +1,13 @@
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
+    antlr
     `java-library`
-    id("maven-publish")
-    id("antlr")
+    `maven-publish`
+
     id("org.jetbrains.kotlin.jvm")
-    kotlin("plugin.serialization") version "1.9.0"
+
+    kotlin("plugin.serialization")
 }
 
 val group = properties("lcaacGroup")
