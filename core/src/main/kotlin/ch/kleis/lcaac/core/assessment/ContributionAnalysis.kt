@@ -5,7 +5,6 @@ import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.matrix.ImpactFactorMatrix
 import ch.kleis.lcaac.core.matrix.IndexedCollection
-import ch.kleis.lcaac.core.matrix.IndexedPortCollection
 import ch.kleis.lcaac.core.matrix.IntensityMatrix
 
 class ContributionAnalysis<Q, M>(
@@ -15,7 +14,7 @@ class ContributionAnalysis<Q, M>(
     ops: QuantityOperations<Q>,
 ) {
     private val quantityOps = QuantityValueOperations(ops)
-    private val allPorts = IndexedPortCollection(
+    private val allPorts = IndexByShortName(
         impactFactors.observablePorts.getElements()
             + impactFactors.controllablePorts.getElements()
     )
@@ -100,4 +99,24 @@ class ContributionAnalysis<Q, M>(
             supply * factor
         }
     }
+
+    private class IndexByShortName<Q>(
+        private val elements: List<MatrixColumnIndex<Q>>,
+    ) {
+        private val byShortName = HashMap<String, List<Int>>()
+
+        init {
+            elements.forEachIndexed { index, port ->
+                val shortName = port.getShortName()
+                byShortName[shortName] = byShortName[shortName]?.plus(index)
+                    ?: listOf(index)
+            }
+        }
+
+        fun findByShortName(shortName: String): List<MatrixColumnIndex<Q>> {
+            val indices = byShortName[shortName] ?: return emptyList()
+            return indices.map { elements[it] }
+        }
+    }
 }
+
