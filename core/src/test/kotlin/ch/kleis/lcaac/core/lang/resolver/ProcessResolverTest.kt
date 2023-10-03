@@ -10,7 +10,6 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 
 class ProcessResolverTest {
     @Test
@@ -204,7 +203,7 @@ class ProcessResolverTest {
     }
 
     @Test
-    fun resolve_whenNameOnly_multipleMatch_shouldReturnNull() {
+    fun resolve_whenNameOnly_multipleMatch_shouldThrow() {
         // given
         val carrotProductionFR = EProcessTemplate(
             body = EProcess(
@@ -255,10 +254,8 @@ class ProcessResolverTest {
         )
         val resolver = ProcessResolver(symbolTable)
 
-        // when
-        val actual = resolver.resolve(carrotSpec)
-
-        // then
-        assertNull(actual)
+        // {w,t}hen
+        val exception = assertFailsWith(EvaluatorException::class) { resolver.resolve(carrotSpec) }
+        assertEquals("more than one processes found providing carrot", exception.message)
     }
 }
