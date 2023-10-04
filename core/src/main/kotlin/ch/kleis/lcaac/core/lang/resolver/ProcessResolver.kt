@@ -12,8 +12,13 @@ class ProcessResolver<Q>(
     fun resolve(spec: EProductSpec<Q>): EProcessTemplate<Q>? {
         if (spec.fromProcess == null) {
             val matches = symbolTable.getAllTemplatesByProductName(spec.name)
-            return if (matches.isEmpty() || matches.size > 1) null else matches.firstOrNull()
+            return when (matches.size) {
+                0 -> null
+                1 -> matches.first()
+                else -> throw EvaluatorException("more than one processes found providing ${spec.name}")
+            }
         }
+
         val name = spec.fromProcess.name
         val labels = spec.fromProcess.matchLabels.elements.mapValues {
                 when (val v = it.value) {
