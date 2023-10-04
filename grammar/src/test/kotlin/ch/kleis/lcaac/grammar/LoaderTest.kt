@@ -14,6 +14,38 @@ import kotlin.test.assertNotNull
 
 class LoaderTest {
     @Test
+    fun load_whenFileContainsTest_thenNoError() {
+        val file = lcaFile(
+            """
+                process p {
+                    products {
+                        1 kg p
+                    }
+                    impacts {
+                        1 kg a
+                    }
+                }
+                
+                test another {
+                    given {
+                        1 kg foo
+                    }
+                    assert {
+                        bar between 40 g and 50 kg
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        assertNotNull(actual.getTemplate("p"))
+    }
+
+    @Test
     fun load_twoProcesses_sameNameDifferentLabels() {
         // given
         val file = lcaFile(

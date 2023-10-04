@@ -1,7 +1,7 @@
 grammar LcaLang;
 
 lcaFile
-	:	pkg? pkgImport* ( processDefinition | unitDefinition | substanceDefinition | globalVariables )* EOF
+	:	pkg? pkgImport* ( processDefinition | testDefinition | unitDefinition | substanceDefinition | globalVariables )* EOF
 	;
 
 /*
@@ -26,6 +26,18 @@ globalVariables
 globalAssignment
     : dataRef EQUAL dataExpression
     ;
+
+/*
+    Test
+*/
+testDefinition
+    : TEST_KEYWORD testRef LBRACE
+        (block_given | block_assert | variables)*
+      RBRACE
+    ;
+block_given : GIVEN_KEYWORD LBRACE technoInputExchange* RBRACE ;
+block_assert : ASSERT_KEYWORD LBRACE rangeAssertion* RBRACE ;
+rangeAssertion : uid BETWEEN_KEYWORD dataExpression AND_KEYWORD dataExpression ;
 
 /*
     Substance
@@ -219,6 +231,7 @@ processRef : uid ;
 substanceRef : uid ;
 indicatorRef : uid ;
 parameterRef : uid ;
+testRef : uid ;
 
 /*
     Spec
@@ -300,6 +313,12 @@ LAND_USE_KEYWORD : 'land_use' ;
 RESOURCES_KEYWORD : 'resources' ;
 MATCH_KEYWORD : 'match' ;
 LABELS_KEYWORD : 'labels' ;
+
+TEST_KEYWORD : 'test' ;
+GIVEN_KEYWORD : 'given' ;
+ASSERT_KEYWORD : 'assert' ;
+BETWEEN_KEYWORD : 'between' ;
+AND_KEYWORD : 'and' ;
 
 EQUAL : '=' ;
 LBRACK : '[' ;
