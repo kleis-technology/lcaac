@@ -71,9 +71,28 @@ class EvaluationTrace<Q> {
         return processes.contains(process)
     }
 
+    fun doesNotContain(process: ProcessValue<Q>) = !contains(process)
+
+    fun contains(substanceCharacterization: SubstanceCharacterizationValue<Q>): Boolean {
+        return substanceCharacterizations.contains(substanceCharacterization)
+    }
+
+    fun doesNotContain(substanceCharacterization: SubstanceCharacterizationValue<Q>) = !contains(substanceCharacterization)
+
+    fun addIfNew(process: ProcessValue<Q>) {
+        if (doesNotContain(process)) {
+            add(process)
+        }
+    }
     fun add(process: ProcessValue<Q>) {
         processes.add(process)
         currentStage.add(process)
+    }
+
+    fun addIfNew(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
+        if (doesNotContain(substanceCharacterization)) {
+            add(substanceCharacterization)
+        }
     }
 
     fun add(substanceCharacterization: SubstanceCharacterizationValue<Q>) {

@@ -355,7 +355,10 @@ class LoaderTest {
                 )
             ),
         )
-        assertEquals(expected, actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, compartment, subCompartment))
+        assertEquals(
+            expected,
+            actual.getSubstanceCharacterization("co2", SubstanceType.EMISSION, compartment, subCompartment)
+        )
     }
 
     @Test
