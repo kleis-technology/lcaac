@@ -51,6 +51,7 @@ data class ProductValue<Q>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
+        @Suppress("UNCHECKED_CAST")
         other as ProductValue<Q>
 
         if (name != other.name) return false
@@ -96,6 +97,7 @@ data class PartiallyQualifiedSubstanceValue<Q>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
+        @Suppress("UNCHECKED_CAST")
         other as PartiallyQualifiedSubstanceValue<Q>
 
         if (name != other.name) return false
@@ -148,6 +150,7 @@ data class FullyQualifiedSubstanceValue<Q>(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
+        @Suppress("UNCHECKED_CAST")
         other as FullyQualifiedSubstanceValue<Q>
 
         if (name != other.name) return false
@@ -192,6 +195,7 @@ data class IndicatorValue<Q>(val name: String, val referenceUnit: UnitValue<Q>) 
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
+        @Suppress("UNCHECKED_CAST")
         other as IndicatorValue<Q>
 
         if (name != other.name) return false

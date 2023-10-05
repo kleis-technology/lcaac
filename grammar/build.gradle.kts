@@ -1,20 +1,21 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
+    antlr
     `java-library`
-    id("maven-publish")
-    id("antlr")
-    id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    kotlin("plugin.serialization") version "1.8.10"
+    `maven-publish`
+
+    id("org.jetbrains.kotlin.jvm")
+
+    kotlin("plugin.serialization")
 }
 
-group = properties("lcaacGroup")
-version = properties("lcaacVersion")
+val group = properties("lcaacGroup")
+val version = properties("lcaacVersion")
+val javaVersion = properties("javaVersion")
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
+kotlin {
+    jvmToolchain(Integer.parseInt(javaVersion))
 }
 
 repositories {
@@ -42,15 +43,6 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "1.8"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "1.8"
 }
 
 sourceSets {
