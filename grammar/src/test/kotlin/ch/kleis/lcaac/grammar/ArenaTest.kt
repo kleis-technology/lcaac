@@ -19,6 +19,53 @@ import kotlin.test.assertEquals
 
 class ArenaTest {
     @Test
+    fun arena_with1HopLoop() {
+        // given
+        val file = lcaFile(
+            """
+                process p1 {
+                    products {
+                        1 kg A
+                    }
+                    inputs {
+                        1 kg B
+                    }
+                }
+                process p2 {
+                    products {
+                        1 kg B
+                    }
+                    inputs {
+                        0.5 kg A
+                    }
+                    emissions {
+                        1 kg C
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+        val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
+        val spec = EProductSpec<BasicNumber>(
+            name = "A",
+            fromProcess = FromProcess("p1", MatchLabels(emptyMap())),
+        )
+        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+
+        // when
+        val trace = arena.run()
+        val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+        val analysis = program.run()
+
+        // then
+        val port = analysis.getObservablePorts().get("A from p1{}{}")
+        val indicator = analysis.getControllablePorts().get("C")
+        val expected = QuantityValue(BasicNumber(4.0), UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass")))
+        val actual = analysis.getPortContribution(port, indicator)
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun arena_withSelfLoop() {
         val file = lcaFile(
             """
