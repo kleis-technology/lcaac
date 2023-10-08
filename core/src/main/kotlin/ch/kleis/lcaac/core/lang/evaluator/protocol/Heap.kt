@@ -7,23 +7,15 @@ class Heap<D> {
         const val VIRTUAL_ADDRESS = -1
     }
 
-    fun store(expression: D): Int {
-        val address = expression.hashCode()
+    fun add(expression: D): Int {
+        val address = (data.keys.maxOrNull() ?: 0) + 1
         data[address] = expression
         return address
-    }
-
-    fun contains(expression: D): Boolean {
-        return data.containsKey(expression.hashCode())
     }
 
     fun modify(address: Int, update: (D) -> D) {
         data[address] = data[address]?.let(update)
             ?: return
-    }
-
-    fun free(address: Int) {
-        data.remove(address)
     }
 
     fun pop(address: Int, next: (D) -> Unit) {
@@ -32,7 +24,26 @@ class Heap<D> {
         d?.let(next)
     }
 
+
+    fun find(address: Int): D? {
+        return data[address]
+    }
+
+    fun remove(address: Int) {
+        data.remove(address)
+    }
+
+    fun getEntries(): Collection<Map.Entry<Int, D>> {
+        return data.entries
+    }
+
+    fun getAddresses(): Collection<Int> {
+        return data.keys
+    }
+
     fun popAll(): Collection<D> {
-        return data.values
+        val result = data.values.toMutableList()
+        data.clear()
+        return result
     }
 }

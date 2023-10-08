@@ -13,8 +13,6 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Timeout
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 
 class ArenaTest {

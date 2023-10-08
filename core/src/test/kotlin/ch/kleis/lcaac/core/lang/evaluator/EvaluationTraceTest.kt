@@ -37,9 +37,9 @@ class EvaluationTraceTest {
             ),
         )
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
+        trace.addProcess(p2)
         trace.commit()
 
         // when
@@ -82,10 +82,10 @@ class EvaluationTraceTest {
             ),
         )
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
         trace.commit()
 
         // when
@@ -111,10 +111,10 @@ class EvaluationTraceTest {
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
         trace.commit()
 
         // when
@@ -138,10 +138,10 @@ class EvaluationTraceTest {
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
         val trace = EvaluationTrace.empty<BasicNumber>()
-        trace.add(p1)
-        trace.add(p2)
+        trace.addProcess(p1)
+        trace.addProcess(p2)
         trace.commit()
-        trace.add(p3)
+        trace.addProcess(p3)
         trace.commit()
 
         // when/then
@@ -179,13 +179,13 @@ class EvaluationTraceTest {
         val substance = sc.referenceExchange.substance
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
-        trace.add(p4)
+        trace.addProcess(p4)
         trace.commit()
 
         // when
@@ -221,13 +221,13 @@ class EvaluationTraceTest {
         val substance = sc.referenceExchange.substance
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
-        trace.add(p4)
+        trace.addProcess(p4)
         trace.commit()
 
         // when
@@ -252,10 +252,10 @@ class EvaluationTraceTest {
         val trace = EvaluationTrace<BasicNumber>()
 
         // when
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
 
         // then
@@ -269,10 +269,10 @@ class EvaluationTraceTest {
         val p2 = p1.copy(name = "another_carrot_production")
         val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
 
         // when
@@ -292,7 +292,7 @@ class EvaluationTraceTest {
         // when
         trace.commit()
         trace.commit()
-        trace.add(p)
+        trace.addProcess(p)
         trace.commit()
         trace.commit()
 

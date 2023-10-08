@@ -71,31 +71,46 @@ class EvaluationTrace<Q> {
         return processes.contains(process)
     }
 
-    fun doesNotContain(process: ProcessValue<Q>) = !contains(process)
+    private fun doesNotContain(process: ProcessValue<Q>) = !contains(process)
 
     fun contains(substanceCharacterization: SubstanceCharacterizationValue<Q>): Boolean {
         return substanceCharacterizations.contains(substanceCharacterization)
     }
 
-    fun doesNotContain(substanceCharacterization: SubstanceCharacterizationValue<Q>) = !contains(substanceCharacterization)
+    private fun doesNotContain(substanceCharacterization: SubstanceCharacterizationValue<Q>) = !contains(substanceCharacterization)
 
-    fun addIfNew(process: ProcessValue<Q>) {
+    private fun addIfNewProcess(process: ProcessValue<Q>) {
         if (doesNotContain(process)) {
-            add(process)
+            addProcess(process)
         }
     }
-    fun add(process: ProcessValue<Q>) {
+
+    fun addIfNew(connection: MatrixRowIndex<Q>) {
+        when(connection) {
+            is ProcessValue -> addIfNewProcess(connection)
+            is SubstanceCharacterizationValue -> addIfNewSubstanceCharacterization(connection)
+        }
+    }
+
+    fun add(connection: MatrixRowIndex<Q>) {
+        when(connection) {
+            is ProcessValue -> addProcess(connection)
+            is SubstanceCharacterizationValue -> addSubstanceCharacterization(connection)
+        }
+    }
+
+    fun addProcess(process: ProcessValue<Q>) {
         processes.add(process)
         currentStage.add(process)
     }
 
-    fun addIfNew(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
+    private fun addIfNewSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
         if (doesNotContain(substanceCharacterization)) {
-            add(substanceCharacterization)
+            addSubstanceCharacterization(substanceCharacterization)
         }
     }
 
-    fun add(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
+    fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
         substanceCharacterizations.add(substanceCharacterization)
         currentStage.add(substanceCharacterization)
     }

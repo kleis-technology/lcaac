@@ -7,11 +7,11 @@ sealed interface Address<Q> {
 
 data class PAddr<Q>(override val connectionIndex: Int, override val portIndex: Int) : Address<Q> {
     companion object {
-        fun <Q> virtual() = PAddr<Q>(Heap.VIRTUAL_ADDRESS, 0)
+        fun <Q> virtual(portIndex: Int = 0) = PAddr<Q>(Heap.VIRTUAL_ADDRESS, portIndex)
     }
 }
 data class SAddr<Q>(override val connectionIndex: Int, override val portIndex: Int) : Address<Q> {
     companion object {
-        fun <Q> virtual() = SAddr<Q>(Heap.VIRTUAL_ADDRESS, 0)
+        fun <Q> virtual(portIndex: Int = 0) = SAddr<Q>(Heap.VIRTUAL_ADDRESS, portIndex)
     }
 }

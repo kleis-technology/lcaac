@@ -19,7 +19,7 @@ class Arena<Q>(
         ops: QuantityOperations<Q>,
     ): this(
         Proponent(
-            requests.map { ProductRequest(PAddr.virtual(), it) }.toSet(),
+            requests,
             ops,
         ),
         Opponent(symbolTable, ops)
@@ -33,7 +33,6 @@ class Arena<Q>(
                 val responses = opponent.receive(requests)
                 requests = proponent.receive(responses)
             }
-            proponent.finish()
             LOG.info("End evaluation, found ${proponent.trace.getNumberOfProcesses()} processes and ${proponent.trace.getNumberOfSubstanceCharacterizations()} substances")
             return proponent.trace
         } catch (e: Exception) {

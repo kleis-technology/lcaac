@@ -32,19 +32,18 @@ class Evaluator<Q>(
         return trace(expression).getSystemValue()
     }
 
-    // FIXME: This is hack.
     private fun prepareRequests(expression: EProcessTemplateApplication<Q>): Set<EProductSpec<Q>> {
         val template = expression.template
         val body = template.body
-        return setOf(
-            body.products.first().product.copy(
+        return body.products.map {
+            it.product.copy(
                 fromProcess = FromProcess(
                     body.name,
                     MatchLabels(body.labels),
                     template.params.plus(expression.arguments)
                 )
             )
-        )
+        }.toSet()
     }
 }
 
