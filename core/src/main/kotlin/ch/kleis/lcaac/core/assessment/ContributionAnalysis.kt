@@ -8,6 +8,7 @@ import ch.kleis.lcaac.core.matrix.IndexedCollection
 import ch.kleis.lcaac.core.matrix.IntensityMatrix
 
 class ContributionAnalysis<Q, M>(
+    private val entryPoint: ProcessValue<Q>,
     private val impactFactors: ImpactFactorMatrix<Q, M>,
     private val intensity: IntensityMatrix<Q, M>,
     private val allocatedSystem: SystemValue<Q>,
@@ -18,6 +19,10 @@ class ContributionAnalysis<Q, M>(
         impactFactors.observablePorts.getElements()
             + impactFactors.controllablePorts.getElements()
     )
+
+    fun getEntryPoint(): ProcessValue<Q> {
+        return entryPoint
+    }
 
     fun getImpactFactors(): ImpactFactorMatrix<Q, M> {
         return impactFactors
@@ -41,6 +46,10 @@ class ContributionAnalysis<Q, M>(
 
     fun getControllablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.controllablePorts
+    }
+
+    fun getIndicators(): List<IndicatorValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<IndicatorValue<Q>>()
     }
 
     fun isControllable(port: MatrixColumnIndex<Q>): Boolean {
