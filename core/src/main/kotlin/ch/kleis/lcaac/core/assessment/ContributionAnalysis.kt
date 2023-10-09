@@ -52,6 +52,22 @@ class ContributionAnalysis<Q, M>(
         return getControllablePorts().getElements().filterIsInstance<IndicatorValue<Q>>()
     }
 
+    fun getObservableProducts(): List<ProductValue<Q>> {
+        return getObservablePorts().getElements().filterIsInstance<ProductValue<Q>>()
+    }
+
+    fun getControllableProducts(): List<ProductValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<ProductValue<Q>>()
+    }
+
+    fun getObservableSubstances(): List<SubstanceValue<Q>> {
+        return getObservablePorts().getElements().filterIsInstance<SubstanceValue<Q>>()
+    }
+
+    fun getControllableSubstances(): List<SubstanceValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<SubstanceValue<Q>>()
+    }
+
     fun isControllable(port: MatrixColumnIndex<Q>): Boolean {
         return getControllablePorts().contains(port)
     }
