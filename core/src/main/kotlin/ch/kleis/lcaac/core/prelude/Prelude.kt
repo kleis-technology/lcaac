@@ -18,6 +18,7 @@ class Prelude {
         val energy = Dimension.of("energy")
         val time = Dimension.of("time")
         val radioactivity = Dimension.of("radioactivity")
+        val luminous_intensity = Dimension.of("luminous_intensity")
 
         fun <Q> primitiveUnits(): Map<String, EUnitLiteral<Q>> = listOf(
             EUnitLiteral<Q>(UnitSymbol.of("u"), 1.0, none),
@@ -27,6 +28,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("Wh"), 1.0, energy),
             EUnitLiteral(UnitSymbol.of("s"), 1.0, time),
             EUnitLiteral(UnitSymbol.of("Bq"), 1.0, radioactivity),
+            EUnitLiteral(UnitSymbol.of("lumen"), 1.0, luminous_intensity),
         ).associateBy { it.symbol.toString() }
 
         // composite dimensions
@@ -40,6 +42,7 @@ class Prelude {
         val person_distance = none.multiply(length)
         val mass_time = mass.multiply(time)
         val volume_time = volume.multiply(time)
+        val illuminance = luminous_intensity.divide(area)
 
         fun <Q> compositeUnits(): Map<EUnitLiteral<Q>, String> = mapOf(
             // dimensionless
@@ -92,6 +95,9 @@ class Prelude {
 
             // land_occupation
             EUnitLiteral<Q>(UnitSymbol.of("m2a"), 1.0 * 365 * 24 * 3600, land_occupation) to "1 m2 * 1 year",
+
+            // illuminance
+            EUnitLiteral<Q>(UnitSymbol.of("lux"), 1.0, illuminance) to "1 lumen / m2",
 
             // other
             EUnitLiteral<Q>(UnitSymbol.of("tkm"), 1e3 * 1e3, transport) to "1 ton * km",
