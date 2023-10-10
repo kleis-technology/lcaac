@@ -106,7 +106,6 @@ class ContributionAnalysis<Q, M>(
             return allocation * supplyOf(port)
         }
     }
-    
 
     private fun supplyOfObservablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(quantityOps) {
