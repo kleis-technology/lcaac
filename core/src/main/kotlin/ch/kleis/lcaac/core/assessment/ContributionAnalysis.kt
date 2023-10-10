@@ -97,6 +97,17 @@ class ContributionAnalysis<Q, M>(
         }
     }
 
+    fun allocatedSupplyOf(port: MatrixColumnIndex<Q>, product: ProductValue<Q>): QuantityValue<Q> {
+        with(quantityOps) {
+            val exchange = entryPoint.products.firstOrNull { it.product == product } ?: throw EvaluatorException("$product does not belong to the demand")
+            val allocation = exchange.allocation
+                ?.let { pure(it.toDouble()) }
+                ?: pure(1.0)
+            return allocation * supplyOf(port)
+        }
+    }
+    
+
     private fun supplyOfObservablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(quantityOps) {
             return when (port) {
