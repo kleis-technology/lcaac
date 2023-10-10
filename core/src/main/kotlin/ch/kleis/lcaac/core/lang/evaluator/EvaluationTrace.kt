@@ -16,7 +16,6 @@ class EvaluationTrace<Q> {
         }
     }
 
-    // TODO: Test mixed comparison with observable and controllable
     fun getComparator(): Comparator<MatrixColumnIndex<Q>> {
         return object : Comparator<MatrixColumnIndex<Q>> {
             override fun compare(o1: MatrixColumnIndex<Q>, o2: MatrixColumnIndex<Q>): Int {
