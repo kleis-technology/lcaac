@@ -52,19 +52,19 @@ class ContributionAnalysis<Q, M>(
         return getControllablePorts().getElements().filterIsInstance<IndicatorValue<Q>>()
     }
 
-    fun getObservableProducts(): List<ProductValue<Q>> {
-        return getObservablePorts().getElements().filterIsInstance<ProductValue<Q>>()
+    fun getProducts(): List<ProductValue<Q>> {
+        return (getObservablePorts().getElements() + getControllablePorts().getElements()).filterIsInstance<ProductValue<Q>>()
     }
 
-    fun getControllableProducts(): List<ProductValue<Q>> {
+    fun getUnresolvedProducts(): List<ProductValue<Q>> {
         return getControllablePorts().getElements().filterIsInstance<ProductValue<Q>>()
     }
 
-    fun getObservableSubstances(): List<SubstanceValue<Q>> {
-        return getObservablePorts().getElements().filterIsInstance<SubstanceValue<Q>>()
+    fun getSubstances(): List<SubstanceValue<Q>> {
+        return (getObservablePorts().getElements() + getControllablePorts().getElements()).filterIsInstance<SubstanceValue<Q>>()
     }
 
-    fun getControllableSubstances(): List<SubstanceValue<Q>> {
+    fun getNonCharacterizedSubstances(): List<SubstanceValue<Q>> {
         return getControllablePorts().getElements().filterIsInstance<SubstanceValue<Q>>()
     }
 
@@ -89,8 +89,15 @@ class ContributionAnalysis<Q, M>(
         }
     }
 
-
     fun supplyOf(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
+        return when {
+            getObservablePorts().contains(port) -> supplyOfObservablePort(port)
+            getControllablePorts().contains(port) -> supplyOfControllablePort(port)
+            else -> throw EvaluatorException("unknown $port")
+        }
+    }
+
+    private fun supplyOfObservablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(quantityOps) {
             return when (port) {
                 is ProductValue<Q> -> {
@@ -111,6 +118,15 @@ class ContributionAnalysis<Q, M>(
 
                 else -> throw IllegalStateException()
             }
+        }
+    }
+
+    private fun supplyOfControllablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
+        with(quantityOps) {
+            val entryPointProducts = entryPoint.products.map { it.product }
+            return entryPointProducts
+                .map { getPortContribution(it, port) }
+                .reduce { acc, value -> acc + value }
         }
     }
 

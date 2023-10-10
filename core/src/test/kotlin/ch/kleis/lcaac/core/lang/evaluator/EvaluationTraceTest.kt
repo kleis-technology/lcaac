@@ -43,7 +43,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getObservableOrder()
+        val actual = trace.getComparator()
 
         // then
         assert(actual.compare(product1, product2) < 0)
@@ -89,7 +89,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getObservableOrder()
+        val actual = trace.getComparator()
 
         // then
         assert(actual.compare(product1, product2) < 0)
@@ -189,7 +189,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getObservableOrder()
+        val actual = trace.getComparator()
 
         // then
         assert(actual.compare(product1, product2) < 0)
@@ -231,7 +231,7 @@ class EvaluationTraceTest {
         trace.commit()
 
         // when
-        val actual = trace.getObservableOrder()
+        val actual = trace.getComparator()
 
         // then
         assert(actual.compare(product1, product2) == -actual.compare(product2, product1))

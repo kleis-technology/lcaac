@@ -8,7 +8,7 @@ class EvaluationTrace<Q> {
     private var currentStage = HashSet<MatrixRowIndex<Q>>()
     private val processes = HashSet<ProcessValue<Q>>()
     private val substanceCharacterizations = HashSet<SubstanceCharacterizationValue<Q>>()
-    private val observableDepthMap = HashMap<MatrixColumnIndex<Q>, Int>()
+    private val depthMap = HashMap<MatrixColumnIndex<Q>, Int>()
 
     companion object {
         fun <Q> empty(): EvaluationTrace<Q> {
@@ -16,11 +16,12 @@ class EvaluationTrace<Q> {
         }
     }
 
-    fun getObservableOrder(): Comparator<MatrixColumnIndex<Q>> {
+    // TODO: Test mixed comparison with observable and controllable
+    fun getComparator(): Comparator<MatrixColumnIndex<Q>> {
         return object : Comparator<MatrixColumnIndex<Q>> {
             override fun compare(o1: MatrixColumnIndex<Q>, o2: MatrixColumnIndex<Q>): Int {
-                val d1 = observableDepthMap[o1] ?: throw EvaluatorException("unknown $o1")
-                val d2 = observableDepthMap[o2] ?: throw EvaluatorException("unknown $o2")
+                val d1 = depthMap[o1] ?: throw EvaluatorException("unknown $o1")
+                val d2 = depthMap[o2] ?: throw EvaluatorException("unknown $o2")
                 if (d1 < d2) {
                     return -1
                 }
@@ -117,7 +118,7 @@ class EvaluationTrace<Q> {
     }
 
     private fun updateDepthMap(port: MatrixColumnIndex<Q>, depth: Int) {
-        observableDepthMap[port] = observableDepthMap[port]?.let {
+        depthMap[port] = depthMap[port]?.let {
             if (it >= depth - 1) max(it, depth)
             else it
         } ?: depth
