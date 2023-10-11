@@ -125,8 +125,8 @@ class ContributionAnalysis<Q, M>(
 
     private fun supplyOfControllablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(quantityOps) {
-            val entryPointProducts = entryPoint.products.map { it.product }
-            return entryPointProducts
+            return entryPoint.products.asSequence()
+                .map { it.product }
                 .map { getPortContribution(it, port) }
                 .reduce { acc, value -> acc + value }
         }
