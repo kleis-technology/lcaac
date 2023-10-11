@@ -20,6 +20,21 @@ class Prelude {
         val radioactivity = Dimension.of("radioactivity")
         val luminous_intensity = Dimension.of("luminous_intensity")
 
+        val acidification = Dimension.of("acidification")
+        val climateChange = Dimension.of("climate_change")
+        val ecotoxicity = Dimension.of("ecotoxicity")
+        val particulateMatterFormation = Dimension.of("particulate_matter_formation")
+        val eutrophicationMarine = Dimension.of("eutrophication_marine")
+        val eutrophicationFreshwater = Dimension.of("eutrophication_freshwater")
+        val eutrophicationTerrestrial = Dimension.of("eutrophication_terrestrial")
+        val humanToxicity = Dimension.of("human_toxicity")
+        val ionisingRadiation = Dimension.of("ionising_radiation")
+        val ozoneDepletion = Dimension.of("ozone_depletion")
+        val resourceUseFossils = Dimension.of("resource_use_fossils")
+        val resourceUseMineralsAndMetals = Dimension.of("resource_use_minerals_and_metals")
+        val waterUse = Dimension.of("water_use")
+
+
         fun <Q> primitiveUnits(): Map<String, EUnitLiteral<Q>> = listOf(
             EUnitLiteral<Q>(UnitSymbol.of("u"), 1.0, none),
             EUnitLiteral(UnitSymbol.of("kg"), 1.0, mass),
@@ -29,6 +44,20 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("s"), 1.0, time),
             EUnitLiteral(UnitSymbol.of("Bq"), 1.0, radioactivity),
             EUnitLiteral(UnitSymbol.of("lumen"), 1.0, luminous_intensity),
+
+            EUnitLiteral(UnitSymbol.of("mol_H_p_Eq"), 1.0, acidification),
+            EUnitLiteral(UnitSymbol.of("kg_CO2_Eq"), 1.0, climateChange),
+            EUnitLiteral(UnitSymbol.of("CTUe"), 1.0, ecotoxicity),
+            EUnitLiteral(UnitSymbol.of("disease_incidence"), 1.0, particulateMatterFormation),
+            EUnitLiteral(UnitSymbol.of("kg_N_Eq"), 1.0, eutrophicationMarine),
+            EUnitLiteral(UnitSymbol.of("kg_P_Eq"), 1.0, eutrophicationFreshwater),
+            EUnitLiteral(UnitSymbol.of("mol_N_Eq"), 1.0, eutrophicationTerrestrial),
+            EUnitLiteral(UnitSymbol.of("CTUh"), 1.0, humanToxicity),
+            EUnitLiteral(UnitSymbol.of("kBq_U235_Eq"), 1.0, ionisingRadiation),
+            EUnitLiteral(UnitSymbol.of("kg_CFC_11_Eq"), 1.0, ozoneDepletion),
+            EUnitLiteral(UnitSymbol.of("MJ_net_calorific_value"), 1.0, resourceUseFossils),
+            EUnitLiteral(UnitSymbol.of("kg_Sb_Eq"), 1.0, resourceUseMineralsAndMetals),
+            EUnitLiteral(UnitSymbol.of("m3_world_eq_deprived"), 1.0, waterUse),
         ).associateBy { it.symbol.toString() }
 
         // composite dimensions
