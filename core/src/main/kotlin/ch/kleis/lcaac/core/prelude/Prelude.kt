@@ -10,6 +10,7 @@ import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 class Prelude {
     companion object {
         const val pkgName = "builtin_units"
+        const val PKG_NAME = "builtin_units"
 
         // primitive dimensions
         val mass = Dimension.of("mass")
@@ -21,18 +22,19 @@ class Prelude {
         val luminous_intensity = Dimension.of("luminous_intensity")
 
         val acidification = Dimension.of("acidification")
-        val climateChange = Dimension.of("climate_change")
+        val climateChange = Dimension.of("climate change")
         val ecotoxicity = Dimension.of("ecotoxicity")
-        val particulateMatterFormation = Dimension.of("particulate_matter_formation")
-        val eutrophicationMarine = Dimension.of("eutrophication_marine")
-        val eutrophicationFreshwater = Dimension.of("eutrophication_freshwater")
-        val eutrophicationTerrestrial = Dimension.of("eutrophication_terrestrial")
-        val humanToxicity = Dimension.of("human_toxicity")
-        val ionisingRadiation = Dimension.of("ionising_radiation")
-        val ozoneDepletion = Dimension.of("ozone_depletion")
-        val resourceUseFossils = Dimension.of("resource_use_fossils")
-        val resourceUseMineralsAndMetals = Dimension.of("resource_use_minerals_and_metals")
-        val waterUse = Dimension.of("water_use")
+        val particulateMatterFormation = Dimension.of("particulate matter formation")
+        val eutrophicationMarine = Dimension.of("eutrophication marine")
+        val eutrophicationFreshwater = Dimension.of("eutrophication freshwater")
+        val eutrophicationTerrestrial = Dimension.of("eutrophication terrestrial")
+        val humanToxicity = Dimension.of("human toxicity")
+        val ionisingRadiation = Dimension.of("ionising radiation")
+        val ozoneDepletion = Dimension.of("ozone depletion")
+        val photochemicalOzoneFormationHumanHealth = Dimension.of("photochemical oxidant formation human health")
+        val resourceUseFossils = Dimension.of("resource use fossils")
+        val resourceUseMineralsAndMetals = Dimension.of("resource use minerals and metals")
+        val waterUse = Dimension.of("water use")
 
 
         fun <Q> primitiveUnits(): Map<String, EUnitLiteral<Q>> = listOf(
@@ -55,6 +57,7 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("CTUh"), 1.0, humanToxicity),
             EUnitLiteral(UnitSymbol.of("kBq_U235_Eq"), 1.0, ionisingRadiation),
             EUnitLiteral(UnitSymbol.of("kg_CFC_11_Eq"), 1.0, ozoneDepletion),
+            EUnitLiteral(UnitSymbol.of("kg_NMVOC_Eq"), 1.0, photochemicalOzoneFormationHumanHealth),
             EUnitLiteral(UnitSymbol.of("MJ_net_calorific_value"), 1.0, resourceUseFossils),
             EUnitLiteral(UnitSymbol.of("kg_Sb_Eq"), 1.0, resourceUseMineralsAndMetals),
             EUnitLiteral(UnitSymbol.of("m3_world_eq_deprived"), 1.0, waterUse),
