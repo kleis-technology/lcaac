@@ -9,33 +9,16 @@ import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 
 class Prelude {
     companion object {
-        const val pkgName = "builtin_units"
         const val PKG_NAME = "builtin_units"
 
         // primitive dimensions
-        val mass = Dimension.of("mass")
-        val length = Dimension.of("length")
+        private val mass = Dimension.of("mass")
+        private val length = Dimension.of("length")
         private val temperature = Dimension.of("temperature")
-        val energy = Dimension.of("energy")
-        val time = Dimension.of("time")
-        val radioactivity = Dimension.of("radioactivity")
-        val luminous_intensity = Dimension.of("luminous_intensity")
-
-        val acidification = Dimension.of("acidification")
-        val climateChange = Dimension.of("climate change")
-        val ecotoxicity = Dimension.of("ecotoxicity")
-        val particulateMatterFormation = Dimension.of("particulate matter formation")
-        val eutrophicationMarine = Dimension.of("eutrophication marine")
-        val eutrophicationFreshwater = Dimension.of("eutrophication freshwater")
-        val eutrophicationTerrestrial = Dimension.of("eutrophication terrestrial")
-        val humanToxicity = Dimension.of("human toxicity")
-        val ionisingRadiation = Dimension.of("ionising radiation")
-        val ozoneDepletion = Dimension.of("ozone depletion")
-        val photochemicalOzoneFormationHumanHealth = Dimension.of("photochemical oxidant formation human health")
-        val resourceUseFossils = Dimension.of("resource use fossils")
-        val resourceUseMineralsAndMetals = Dimension.of("resource use minerals and metals")
-        val waterUse = Dimension.of("water use")
-
+        private val energy = Dimension.of("energy")
+        private val time = Dimension.of("time")
+        private val radioactivity = Dimension.of("radioactivity")
+        private val luminous_intensity = Dimension.of("luminous_intensity")
 
         fun <Q> primitiveUnits(): Map<String, EUnitLiteral<Q>> = listOf(
             EUnitLiteral<Q>(UnitSymbol.of("u"), 1.0, none),
@@ -47,34 +30,55 @@ class Prelude {
             EUnitLiteral(UnitSymbol.of("Bq"), 1.0, radioactivity),
             EUnitLiteral(UnitSymbol.of("lumen"), 1.0, luminous_intensity),
 
-            EUnitLiteral(UnitSymbol.of("mol_H_p_Eq"), 1.0, acidification),
-            EUnitLiteral(UnitSymbol.of("kg_CO2_Eq"), 1.0, climateChange),
-            EUnitLiteral(UnitSymbol.of("CTUe"), 1.0, ecotoxicity),
-            EUnitLiteral(UnitSymbol.of("disease_incidence"), 1.0, particulateMatterFormation),
-            EUnitLiteral(UnitSymbol.of("kg_N_Eq"), 1.0, eutrophicationMarine),
-            EUnitLiteral(UnitSymbol.of("kg_P_Eq"), 1.0, eutrophicationFreshwater),
-            EUnitLiteral(UnitSymbol.of("mol_N_Eq"), 1.0, eutrophicationTerrestrial),
-            EUnitLiteral(UnitSymbol.of("CTUh"), 1.0, humanToxicity),
-            EUnitLiteral(UnitSymbol.of("kBq_U235_Eq"), 1.0, ionisingRadiation),
-            EUnitLiteral(UnitSymbol.of("kg_CFC_11_Eq"), 1.0, ozoneDepletion),
-            EUnitLiteral(UnitSymbol.of("kg_NMVOC_Eq"), 1.0, photochemicalOzoneFormationHumanHealth),
-            EUnitLiteral(UnitSymbol.of("MJ_net_calorific_value"), 1.0, resourceUseFossils),
-            EUnitLiteral(UnitSymbol.of("kg_Sb_Eq"), 1.0, resourceUseMineralsAndMetals),
-            EUnitLiteral(UnitSymbol.of("m3_world_eq_deprived"), 1.0, waterUse),
-        ).associateBy { it.symbol.toString() }
+            EUnitLiteral(UnitSymbol.of("mol H+-Eq"), 1.0, Dimension.of("accumulated exceedance (AE)")),
+            EUnitLiteral(UnitSymbol.of("kg CO2-Eq"), 1.0, Dimension.of("global warming potential (GWP100)")),
+            EUnitLiteral(UnitSymbol.of("CTUe"), 1.0, Dimension.of("comparative toxic unit for ecosystems (CTUe)")),
+            EUnitLiteral(
+                UnitSymbol.of("MJ, net calorific value"),
+                1.0,
+                Dimension.of("abiotic depletion potential (ADP): fossil fuels")
+            ),
+            EUnitLiteral(
+                UnitSymbol.of("kg P-Eq"),
+                1.0,
+                Dimension.of("fraction of nutrients reaching freshwater end compartment (P)")
+            ),
+            EUnitLiteral(
+                UnitSymbol.of("kg N-Eq"),
+                1.0,
+                Dimension.of("fraction of nutrients reaching marine end compartment (N)")
+            ),
+            EUnitLiteral(UnitSymbol.of("mol N-Eq"), 1.0, Dimension.of("accumulated exceedance (AE)")),
+            EUnitLiteral(UnitSymbol.of("CTUh"), 1.0, Dimension.of("comparative toxic unit for human (CTUh)")),
+            EUnitLiteral(UnitSymbol.of("kBq U235-Eq"), 1.0, Dimension.of("human exposure efficiency relative to u235")),
+            EUnitLiteral(UnitSymbol.of("dimensionless"), 1.0, Dimension.of("soil quality index")),
+            EUnitLiteral(
+                UnitSymbol.of("kg Sb-Eq"),
+                1.0,
+                Dimension.of("abiotic depletion potential (ADP): elements (ultimate reserves)")
+            ),
+            EUnitLiteral(UnitSymbol.of("kg CFC-11-Eq"), 1.0, Dimension.of("ozone depletion potential (ODP)")),
+            EUnitLiteral(UnitSymbol.of("disease incidence"), 1.0, Dimension.of("impact on human health")),
+            EUnitLiteral(UnitSymbol.of("kg NMVOC-Eq"), 1.0, Dimension.of("tropospheric ozone concentration increase")),
+            EUnitLiteral(
+                UnitSymbol.of("m3 world eq. deprived"),
+                1.0,
+                Dimension.of("user deprivation potential (deprivation-weighted water consumption)")
+            ),
+        ).associateBy { sanitize(it.symbol.toString(), toLowerCase = false) }
 
         // composite dimensions
-        val area = length.multiply(length)
-        val volume = length.multiply(area)
-        val land_occupation = area.multiply(time)
-        val transport = mass.multiply(length)
-        val power = energy.divide(time)
-        val none = Dimension.None
-        val length_time = length.multiply(time)
-        val person_distance = none.multiply(length)
-        val mass_time = mass.multiply(time)
-        val volume_time = volume.multiply(time)
-        val illuminance = luminous_intensity.divide(area)
+        private val area = length.multiply(length)
+        private val volume = length.multiply(area)
+        private val land_occupation = area.multiply(time)
+        private val transport = mass.multiply(length)
+        private val power = energy.divide(time)
+        private val none = Dimension.None
+        private val length_time = length.multiply(time)
+        private val person_distance = none.multiply(length)
+        private val mass_time = mass.multiply(time)
+        private val volume_time = volume.multiply(time)
+        private val illuminance = luminous_intensity.divide(area)
 
         fun <Q> compositeUnits(): Map<EUnitLiteral<Q>, String> = mapOf(
             // dimensionless
@@ -145,11 +149,36 @@ class Prelude {
             compositeUnits<Q>().keys
                 .associateBy { it.symbol.toString() } + primitiveUnits()
 
-        fun primitiveDimensionMap(): Map<String, Dimension> =
+        private fun primitiveDimensionMap(): Map<String, Dimension> =
             primitiveUnits<Any>().mapValues { it.value.dimension }
 
         fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
         fun dimensions(): Register<Dimension> = Register.from(primitiveDimensionMap())
 
+        fun sanitize(s: String, toLowerCase: Boolean = true): String {
+            if (s.isBlank()) {
+                return s
+            }
+
+            val r = if (s[0].isDigit()) "_$s" else s
+            val spaces = """\s+""".toRegex()
+            val nonAlphaNumeric = """[^a-zA-Z0-9_]+""".toRegex()
+            val underscores = Regex("_{2,}")
+
+            return r.let {
+                if (toLowerCase) it.lowercase()
+                else it
+            }.trim()
+                .replace(spaces, "_")
+                .replace("*", "_m_")
+                .replace("+", "_p_")
+                .replace("&", "_a_")
+                .replace(">", "_gt_")
+                .replace("<", "_lt_")
+                .replace("/", "_sl_")
+                .replace(nonAlphaNumeric, "_")
+                .replace(underscores, "_")
+                .trimEnd('_')
+        }
     }
 }
