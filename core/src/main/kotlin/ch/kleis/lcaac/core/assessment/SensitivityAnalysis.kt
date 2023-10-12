@@ -20,6 +20,7 @@ class SensitivityAnalysis(
 ) {
     private val ops = DualOperations(parameters.size())
     private val contributionAnalysis = ContributionAnalysis(
+        entryPoint,
         impactFactors,
         intensity,
         allocatedSystem,

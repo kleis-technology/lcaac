@@ -8,6 +8,7 @@ import ch.kleis.lcaac.core.matrix.IndexedCollection
 import ch.kleis.lcaac.core.matrix.IntensityMatrix
 
 class ContributionAnalysis<Q, M>(
+    val entryPoint: ProcessValue<Q>,
     private val impactFactors: ImpactFactorMatrix<Q, M>,
     private val intensity: IntensityMatrix<Q, M>,
     private val allocatedSystem: SystemValue<Q>,
@@ -31,16 +32,32 @@ class ContributionAnalysis<Q, M>(
         return impactFactors.unitaryImpacts(target)
     }
 
-    fun getNbCells(): Int {
-        return impactFactors.nbCells()
-    }
-
     fun getObservablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.observablePorts
     }
 
     fun getControllablePorts(): IndexedCollection<MatrixColumnIndex<Q>> {
         return impactFactors.controllablePorts
+    }
+
+    fun getIndicators(): List<IndicatorValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<IndicatorValue<Q>>()
+    }
+
+    fun getProducts(): List<ProductValue<Q>> {
+        return (getObservablePorts().getElements() + getControllablePorts().getElements()).filterIsInstance<ProductValue<Q>>()
+    }
+
+    fun getUnresolvedProducts(): List<ProductValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<ProductValue<Q>>()
+    }
+
+    fun getSubstances(): List<SubstanceValue<Q>> {
+        return (getObservablePorts().getElements() + getControllablePorts().getElements()).filterIsInstance<SubstanceValue<Q>>()
+    }
+
+    fun getNonCharacterizedSubstances(): List<SubstanceValue<Q>> {
+        return getControllablePorts().getElements().filterIsInstance<SubstanceValue<Q>>()
     }
 
     fun isControllable(port: MatrixColumnIndex<Q>): Boolean {
@@ -64,8 +81,25 @@ class ContributionAnalysis<Q, M>(
         }
     }
 
-
     fun supplyOf(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
+        return when {
+            getObservablePorts().contains(port) -> supplyOfObservablePort(port)
+            getControllablePorts().contains(port) -> supplyOfControllablePort(port)
+            else -> throw EvaluatorException("unknown $port")
+        }
+    }
+
+    fun allocatedSupplyOf(port: MatrixColumnIndex<Q>, product: ProductValue<Q>): QuantityValue<Q> {
+        with(quantityOps) {
+            val exchange = entryPoint.products.firstOrNull { it.product == product } ?: throw EvaluatorException("$product does not belong to the demand")
+            val allocation = exchange.allocation
+                ?.let { pure(it.toDouble()) }
+                ?: pure(1.0)
+            return allocation * supplyOf(port)
+        }
+    }
+
+    private fun supplyOfObservablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
         with(quantityOps) {
             return when (port) {
                 is ProductValue<Q> -> {
@@ -86,6 +120,15 @@ class ContributionAnalysis<Q, M>(
 
                 else -> throw IllegalStateException()
             }
+        }
+    }
+
+    private fun supplyOfControllablePort(port: MatrixColumnIndex<Q>): QuantityValue<Q> {
+        with(quantityOps) {
+            return entryPoint.products.asSequence()
+                .map { it.product }
+                .map { getPortContribution(it, port) }
+                .reduce { acc, value -> acc + value }
         }
     }
 

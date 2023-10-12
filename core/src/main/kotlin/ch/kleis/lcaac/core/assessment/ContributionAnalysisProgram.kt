@@ -13,6 +13,7 @@ class ContributionAnalysisProgram(
     fun run(): ContributionAnalysis<BasicNumber, BasicMatrix> {
         val results = AnalysisProgram(system, targetProcess, BasicOperations).run()
         return ContributionAnalysis(
+            targetProcess,
             results.impactFactors,
             results.intensity,
             results.allocatedSystem,

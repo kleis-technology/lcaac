@@ -10,6 +10,7 @@ class QuantityValueFixture {
         val oneKilogram = QuantityValue(ops.pure(1.0), UnitValueFixture.kg())
         val oneGram = QuantityValue(ops.pure(1.0), UnitValueFixture.g())
         val twoKilograms = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+        val threeKilograms = QuantityValue(ops.pure(3.0), UnitValueFixture.kg())
         val oneLitre = QuantityValue(ops.pure(1.0), UnitValueFixture.l())
         val twoLitres = QuantityValue(ops.pure(2.0), UnitValueFixture.l())
         val twentyPercent = QuantityValue(ops.pure(20.0), UnitValueFixture.percent())
