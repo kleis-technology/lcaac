@@ -8,14 +8,14 @@ import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 
 
 class Prelude {
-    sealed interface UnitRecord<Q> {
+    sealed interface UnitDef<Q> {
         fun ref(): String
         val value: EUnitLiteral<Q>
     }
 
     data class PrimitiveUnitDef<Q>(
         override val value: EUnitLiteral<Q>
-    ) : UnitRecord<Q> {
+    ) : UnitDef<Q> {
         override fun ref(): String {
             return sanitize(value.symbol.toString(), toLowerCase = false)
         }
@@ -24,7 +24,7 @@ class Prelude {
     data class CompositeUnitDef<Q>(
         override val value: EUnitLiteral<Q>,
         val rawAlias: String,
-    ) : UnitRecord<Q> {
+    ) : UnitDef<Q> {
         override fun ref(): String {
             return sanitize(value.symbol.toString(), toLowerCase = false)
         }
