@@ -147,7 +147,7 @@ class Prelude {
 
         fun <Q> unitMap(): Map<String, EUnitLiteral<Q>> =
             compositeUnits<Q>().keys
-                .associateBy { it.symbol.toString() } + primitiveUnits()
+                .associateBy { sanitize(it.symbol.toString(), toLowerCase = false) } + primitiveUnits()
 
         private fun primitiveDimensionMap(): Map<String, Dimension> =
             primitiveUnits<Any>().mapValues { it.value.dimension }
