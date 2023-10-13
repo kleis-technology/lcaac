@@ -88,7 +88,6 @@ class Prelude {
             pud("CTUh", "comparative toxic unit for human (CTUh)"),
             pud("CTUh", "comparative toxic unit for human (CTUh)"),
             pud("kBq U235-Eq", "human exposure efficiency relative to u235"),
-            pud("dimensionless", "soil quality index"),
             pud("kg Sb-Eq", "abiotic depletion potential (ADP): elements (ultimate reserves)"),
             pud("kg CFC-11-Eq", "ozone depletion potential (ODP)"),
             pud("disease incidence", "impact on human health"),
