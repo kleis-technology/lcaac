@@ -2,24 +2,14 @@ package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.arena.Arena
-import ch.kleis.lcaac.core.lang.expression.EProcessTemplateApplication
-import ch.kleis.lcaac.core.lang.expression.EProductSpec
-import ch.kleis.lcaac.core.lang.expression.FromProcess
-import ch.kleis.lcaac.core.lang.expression.MatchLabels
-import ch.kleis.lcaac.core.lang.value.SystemValue
+import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.QuantityOperations
-import org.slf4j.LoggerFactory
 
 class Evaluator<Q>(
     private val symbolTable: SymbolTable<Q>,
     private val ops: QuantityOperations<Q>,
 ) {
-    @Suppress("PrivatePropertyName")
-    private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
-
-    // TODO: Accept a product spec instead
-    fun trace(expression: EProcessTemplateApplication<Q>): EvaluationTrace<Q> {
-        val requests = prepareRequests(expression)
+    fun trace(requests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
         val arena = Arena(
             symbolTable,
             requests,
@@ -28,19 +18,22 @@ class Evaluator<Q>(
         return arena.run()
     }
 
-    fun eval(expression: EProcessTemplateApplication<Q>): SystemValue<Q> {
-        return trace(expression).getSystemValue()
+    fun trace(template: EProcessTemplate<Q>, arguments: Map<String, DataExpression<Q>> = emptyMap()): EvaluationTrace<Q> {
+        return prepareRequests(template, arguments)
+            .let(this::trace)
     }
 
-    private fun prepareRequests(expression: EProcessTemplateApplication<Q>): Set<EProductSpec<Q>> {
-        val template = expression.template
+    private fun <Q> prepareRequests(
+        template: EProcessTemplate<Q>,
+        arguments: Map<String, DataExpression<Q>> = emptyMap(),
+    ): Set<EProductSpec<Q>> {
         val body = template.body
         return body.products.map {
             it.product.copy(
                 fromProcess = FromProcess(
                     body.name,
                     MatchLabels(body.labels),
-                    template.params.plus(expression.arguments)
+                    template.params.plus(arguments)
                 )
             )
         }.toSet()
