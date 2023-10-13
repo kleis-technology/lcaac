@@ -13,6 +13,24 @@ class PreludeTest {
     private val ops = BasicOperations
 
     @Test
+    fun test_sanitize() {
+        // Given
+        val data = listOf(
+            "01" to "_01",
+            "ab" to "ab",
+            "a_+__b" to "a_p_b",
+            "a_*__b" to "a_m_b",
+            "m*2a" to "m_m_2a",
+            "a&b" to "a_a_b",
+            "  a&b++" to "a_a_b_p_p",
+        )
+
+        data.forEach { (given, expected) ->
+            assertEquals(expected, Prelude.sanitize(given))
+        }
+    }
+
+    @Test
     fun energyAndPower() {
         // given
         val wattHour = with(ToValue(ops)) { Prelude.unitMap<BasicNumber>()["Wh"]!!.toUnitValue() }
