@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.protocol
+package ch.kleis.lcaac.core.lang.evaluator.arena
 
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.step.CompleteTerminals

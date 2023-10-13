@@ -3,7 +3,7 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Arena
+import ch.kleis.lcaac.core.lang.evaluator.arena.Arena
 import ch.kleis.lcaac.core.lang.expression.EProductSpec
 import ch.kleis.lcaac.core.lang.expression.FromProcess
 import ch.kleis.lcaac.core.lang.expression.MatchLabels

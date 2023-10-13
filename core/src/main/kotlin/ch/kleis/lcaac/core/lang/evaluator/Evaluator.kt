@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Arena
+import ch.kleis.lcaac.core.lang.evaluator.arena.Arena
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaac.core.lang.expression.EProductSpec
 import ch.kleis.lcaac.core.lang.expression.FromProcess
