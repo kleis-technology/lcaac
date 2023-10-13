@@ -9,11 +9,11 @@ sealed interface Request<Q> {
 }
 
 data class ProductRequest<Q>(
-    val address: PAddr<Q>,
+    val address: Address<Q>,
     override val value: EProductSpec<Q>,
 ) : Request<Q>
 
 data class SubstanceRequest<Q>(
-    val address: SAddr<Q>,
+    val address: Address<Q>,
     override val value: ESubstanceSpec<Q>,
 ) : Request<Q>

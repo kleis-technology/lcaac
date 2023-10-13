@@ -18,27 +18,12 @@ class Heap<D> {
             ?: return
     }
 
-    fun pop(address: Int, next: (D) -> Unit) {
-        val d = data[address]
-        data.remove(address)
-        d?.let(next)
-    }
-
-
     fun find(address: Int): D? {
         return data[address]
     }
 
     fun remove(address: Int) {
         data.remove(address)
-    }
-
-    fun getEntries(): Collection<Map.Entry<Int, D>> {
-        return data.entries
-    }
-
-    fun getAddresses(): Collection<Int> {
-        return data.keys
     }
 
     fun popAll(): Collection<D> {

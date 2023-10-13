@@ -17,7 +17,7 @@ class Proponent<Q>(
     fun start(): Set<Request<Q>> {
         return requests.map {
             val index = start.add(it)
-            ProductRequest(PAddr.virtual(index), it)
+            ProductRequest(Address.virtual(index), it)
         }.toSet()
     }
 
@@ -116,11 +116,11 @@ class Proponent<Q>(
     private fun next(process: EProcess<Q>, connectionIndex: Int): Set<Request<Q>> {
         val productRequests =
             process.inputs.mapIndexed { portIndex, it ->
-                ProductRequest(PAddr(connectionIndex, portIndex), it.product)
+                ProductRequest(Address(connectionIndex, portIndex), it.product)
             }.toSet()
         val substanceRequest =
             process.biosphere.mapIndexed { portIndex, it ->
-                SubstanceRequest(SAddr(connectionIndex, portIndex), it.substance)
+                SubstanceRequest(Address(connectionIndex, portIndex), it.substance)
             }.toSet()
         return productRequests + substanceRequest
 

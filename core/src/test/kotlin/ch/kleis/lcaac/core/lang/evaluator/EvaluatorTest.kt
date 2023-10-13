@@ -38,9 +38,6 @@ class EvaluatorTest {
                 )
             )
         )
-        val instance = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
@@ -48,7 +45,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(instance).processes.first().impacts.first()
+        val actual = evaluator.trace(template).getEntryPoint().impacts.first()
 
         // then
         assertEquals(expected, actual)
@@ -84,7 +81,6 @@ class EvaluatorTest {
                 )
             )
         )
-        val instance = EProcessTemplateApplication(template, emptyMap())
         val evaluator = Evaluator(symbolTable, ops)
         val expected = FullyQualifiedSubstanceValue<BasicNumber>(
             "doesNotExist",
@@ -95,7 +91,7 @@ class EvaluatorTest {
         )
 
         // when
-        val actual = evaluator.eval(instance).processes.first().biosphere.first().substance
+        val actual = evaluator.trace(template).getEntryPoint().biosphere.first().substance
 
         // then
         assertEquals(expected, actual)
@@ -105,8 +101,6 @@ class EvaluatorTest {
     fun eval_whenTwoInstancesOfSameTemplate_thenDifferentProduct() {
         // given
         val template = TemplateFixture.carrotProduction
-        val i1 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.oneLitre))
-        val i2 = EProcessTemplateApplication(template, mapOf("q_water" to QuantityFixture.twoLitres))
         val symbolTable = SymbolTable(
             processTemplates = Register.from(
                 mapOf(
@@ -118,8 +112,8 @@ class EvaluatorTest {
         val evaluator = Evaluator(symbolTable, ops)
 
         // when
-        val p1 = evaluator.eval(i1).processes.first().products.first().product
-        val p2 = evaluator.eval(i2).processes.first().products.first().product
+        val p1 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.oneLitre)).getEntryPoint().products.first().product
+        val p2 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.twoLitres)).getEntryPoint().products.first().product
 
         // then
         assertEquals(p1.name, p2.name)
@@ -132,7 +126,6 @@ class EvaluatorTest {
     fun eval_whenAProductAsACycle_thenItShouldEnd() {
         // given
         val template = TemplateFixture.cyclicProduction
-        val appli = EProcessTemplateApplication(template)
         val register = Register.empty<EProcessTemplate<BasicNumber>>().plus(mapOf("carrot_production" to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
@@ -140,7 +133,7 @@ class EvaluatorTest {
 
         // when
 
-        val p1 = evaluator.eval(appli).processes.first().products.first().product
+        val p1 = evaluator.trace(template).getEntryPoint().products.first().product
 
         // then
         assertEquals("carrot", p1.name)
@@ -176,13 +169,10 @@ class EvaluatorTest {
                 )
             ),
         )
-        val expression = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when
-        val actual = evaluator.eval(expression).processes
+        val actual = evaluator.trace(template).getSystemValue().processes
 
         // then
         val expected = setOf(
@@ -275,13 +265,10 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val expression = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when
-        val actual = evaluator.eval(expression).processes
+        val actual = evaluator.trace(template).getSystemValue().processes
 
         // then
         val expected = setOf(
@@ -373,15 +360,12 @@ class EvaluatorTest {
                 )
             )
         )
-        val expression = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when/then
         val e = assertFailsWith(
             EvaluatorException::class,
-        ) { evaluator.eval(expression) }
+        ) { evaluator.trace(template) }
         assertEquals("no process 'carrot_production' providing 'irrelevant_product' found", e.message)
     }
 
@@ -420,13 +404,10 @@ class EvaluatorTest {
                 )
             )
         )
-        val expression = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when
-        val actual = evaluator.eval(expression).substanceCharacterizations.toSet()
+        val actual = evaluator.trace(template).getSystemValue().substanceCharacterizations
 
         // then
         val expected = setOf(
@@ -463,15 +444,12 @@ class EvaluatorTest {
                 )
             )
         )
-        val expression = EProcessTemplateApplication(
-            template = template
-        )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when/then
         val e = assertFailsWith(
             EvaluatorException::class,
-        ) { evaluator.eval(expression) }
+        ) { evaluator.trace(template) }
         assertEquals("incompatible dimensions: length³ vs mass for product carrot", e.message)
     }
 }
