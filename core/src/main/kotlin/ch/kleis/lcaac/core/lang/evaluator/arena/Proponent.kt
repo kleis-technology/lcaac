@@ -90,25 +90,25 @@ class Proponent<Q>(
 
     private fun updateStagingAndKnowledge(response: Response<Q>) {
         return when (response) {
-            is ProductResponse -> updateStagingWithProductResponse(response)
-            is SubstanceResponse -> updateStagingWithSubstanceResponse(response)
+            is ProductResponse -> updateStagingAndKnowledgeWithProductResponse(response)
+            is SubstanceResponse -> updateStagingAndKnowledgeWithSubstanceResponse(response)
         }
     }
 
-    private fun updateStagingWithProductResponse(response: ProductResponse<Q>) {
+    private fun updateStagingAndKnowledgeWithProductResponse(response: ProductResponse<Q>) {
         val address = response.address
         when (address.connectionIndex) {
             Heap.VIRTUAL_ADDRESS -> start.find(address.portIndex)
                 ?.let { port ->
                     val process = response.value
-                    val selectedPortIndex = response.selectedPortIndex
+                    val selectedPortIndex = response.productInProcessIndex
                     val product = process.products[selectedPortIndex].product
                     knowledge[port] = product
                 }
 
             else -> {
                 val process = response.value
-                val selectedPortIndex = response.selectedPortIndex
+                val selectedPortIndex = response.productInProcessIndex
                 val product = process.products[selectedPortIndex].product
                 staging.find(address.connectionIndex)
                     ?.let { existingConnection ->
@@ -137,7 +137,7 @@ class Proponent<Q>(
 
     }
 
-    private fun updateStagingWithSubstanceResponse(response: SubstanceResponse<Q>) {
+    private fun updateStagingAndKnowledgeWithSubstanceResponse(response: SubstanceResponse<Q>) {
         val address = response.address
         when (address.connectionIndex) {
             Heap.VIRTUAL_ADDRESS -> start.find(address.portIndex)?.let { port ->

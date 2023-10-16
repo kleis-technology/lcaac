@@ -12,7 +12,7 @@ sealed interface Response<Q> {
 data class ProductResponse<Q>(
     override val address: Address<Q>,
     override val value: EProcess<Q>,
-    val selectedPortIndex: Int,
+    val productInProcessIndex: Int,
 ) : Response<Q>
 
 data class SubstanceResponse<Q>(
