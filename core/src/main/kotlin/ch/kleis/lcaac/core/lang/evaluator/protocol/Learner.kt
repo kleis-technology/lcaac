@@ -5,6 +5,27 @@ import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 
+/*
+    Start.
+    The Learner starts with some initial requests. They represent the Learner's initial
+    demand of products or substances. The Learner's goal is to learn the network of processes
+    and substance characterizations required to satisfy this demand.
+
+    Staging. The staging contains processes/substance characterizations waiting to be completed
+    by an answer from the Oracle. These processes have inputs about which the Learner has asked
+    the Oracle, but has not yet received an answer.
+
+    Trace. Once the processes/substance characterizations in staging have been completed, the
+    Learner commits them in one stage. The trace is the sequence of committed stages.
+
+    Knowledge. This represents the association between a request (product or substance)
+    and a response (process or substance characterization). Because the Oracle is assumed
+    to be deterministic, the Learner does not need to ask the Oracle for a product/substance
+    that she already knows, i.e., for which she already received an answer. This property
+    guarantees that even if there is a potential loop in the network of processes,
+    the Learner will eventually stop asking questions to the Oracle.
+
+ */
 class Learner<Q>(
     private val requests: Set<EProductSpec<Q>>,
     private val ops: QuantityOperations<Q>,
