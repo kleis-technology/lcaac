@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import ch.kleis.lcaac.core.lang.expression.ConnectionExpression
 import ch.kleis.lcaac.core.lang.expression.EProcess

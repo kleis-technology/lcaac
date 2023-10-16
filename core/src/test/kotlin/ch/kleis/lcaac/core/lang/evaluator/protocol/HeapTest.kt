@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals

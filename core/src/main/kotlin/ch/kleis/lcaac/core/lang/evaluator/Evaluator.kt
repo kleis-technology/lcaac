@@ -1,8 +1,8 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.arena.Opponent
-import ch.kleis.lcaac.core.lang.evaluator.arena.Proponent
+import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
+import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import org.slf4j.LoggerFactory
@@ -15,17 +15,17 @@ class Evaluator<Q>(
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
-        val proponent = Proponent(initialRequests, ops)
-        val opponent = Opponent(symbolTable, ops)
+        val learner = Learner(initialRequests, ops)
+        val oracle = Oracle(symbolTable, ops)
         LOG.info("Start evaluation")
         try {
-            var requests = proponent.start()
+            var requests = learner.start()
             while (requests.isNotEmpty()) {
-                val responses = opponent.answer(requests)
-                requests = proponent.receive(responses)
+                val responses = oracle.answer(requests)
+                requests = learner.receive(responses)
             }
-            LOG.info("End evaluation, found ${proponent.trace.getNumberOfProcesses()} processes and ${proponent.trace.getNumberOfSubstanceCharacterizations()} substances")
-            return proponent.trace
+            LOG.info("End evaluation, found ${learner.trace.getNumberOfProcesses()} processes and ${learner.trace.getNumberOfSubstanceCharacterizations()} substances")
+            return learner.trace
         } catch (e: Exception) {
             LOG.info("End evaluation with error $e")
             throw e

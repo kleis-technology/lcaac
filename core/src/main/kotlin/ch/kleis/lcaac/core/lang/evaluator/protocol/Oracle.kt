@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.step.CompleteTerminals
@@ -10,7 +10,7 @@ import ch.kleis.lcaac.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaac.core.math.QuantityOperations
 
-class Opponent<Q>(
+class Oracle<Q>(
     val symbolTable: SymbolTable<Q>,
     val ops: QuantityOperations<Q>,
 ) {

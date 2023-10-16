@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import ch.kleis.lcaac.core.lang.expression.EProductSpec
 import ch.kleis.lcaac.core.lang.expression.ESubstanceSpec

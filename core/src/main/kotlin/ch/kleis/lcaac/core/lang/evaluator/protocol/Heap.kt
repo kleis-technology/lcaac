@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 class Heap<D> {
     private val data: HashMap<Int, D> = hashMapOf()

@@ -1,11 +1,11 @@
-package ch.kleis.lcaac.core.lang.evaluator.arena
+package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 
-class Proponent<Q>(
+class Learner<Q>(
     private val requests: Set<EProductSpec<Q>>,
     private val ops: QuantityOperations<Q>,
 ) {
