@@ -71,25 +71,8 @@ class EvaluationTrace<Q> {
         return processes.contains(process)
     }
 
-    private fun doesNotContain(process: ProcessValue<Q>) = !contains(process)
-
     fun contains(substanceCharacterization: SubstanceCharacterizationValue<Q>): Boolean {
         return substanceCharacterizations.contains(substanceCharacterization)
-    }
-
-    private fun doesNotContain(substanceCharacterization: SubstanceCharacterizationValue<Q>) = !contains(substanceCharacterization)
-
-    private fun addIfNewProcess(process: ProcessValue<Q>) {
-        if (doesNotContain(process)) {
-            addProcess(process)
-        }
-    }
-
-    fun addIfNew(connection: MatrixRowIndex<Q>) {
-        when(connection) {
-            is ProcessValue -> addIfNewProcess(connection)
-            is SubstanceCharacterizationValue -> addIfNewSubstanceCharacterization(connection)
-        }
     }
 
     fun add(connection: MatrixRowIndex<Q>) {
@@ -102,12 +85,6 @@ class EvaluationTrace<Q> {
     fun addProcess(process: ProcessValue<Q>) {
         processes.add(process)
         currentStage.add(process)
-    }
-
-    private fun addIfNewSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
-        if (doesNotContain(substanceCharacterization)) {
-            addSubstanceCharacterization(substanceCharacterization)
-        }
     }
 
     fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
