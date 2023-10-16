@@ -20,11 +20,11 @@ class Opponent<Q>(
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
 
-    fun receive(ports: Set<Request<Q>>): Set<Response<Q>> {
-        return ports.mapNotNull { receiveRequest(it) }.toSet()
+    fun answer(ports: Set<Request<Q>>): Set<Response<Q>> {
+        return ports.mapNotNull { answerRequest(it) }.toSet()
     }
 
-    private fun receiveRequest(expression: Request<Q>): Response<Q>? {
+    private fun answerRequest(expression: Request<Q>): Response<Q>? {
         return when (expression) {
             is ProductRequest -> answerProductRequest(expression)
             is SubstanceRequest -> answerSubstanceRequest(expression)

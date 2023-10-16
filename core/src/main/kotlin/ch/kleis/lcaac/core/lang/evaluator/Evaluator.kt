@@ -21,7 +21,7 @@ class Evaluator<Q>(
         try {
             var requests = proponent.start()
             while (requests.isNotEmpty()) {
-                val responses = opponent.receive(requests)
+                val responses = opponent.answer(requests)
                 requests = proponent.receive(responses)
             }
             LOG.info("End evaluation, found ${proponent.trace.getNumberOfProcesses()} processes and ${proponent.trace.getNumberOfSubstanceCharacterizations()} substances")
