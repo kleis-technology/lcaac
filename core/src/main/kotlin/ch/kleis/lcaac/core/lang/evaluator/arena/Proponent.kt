@@ -24,14 +24,19 @@ class Proponent<Q>(
     fun receive(responses: Set<Response<Q>>): Set<Request<Q>> {
         responses.forEach { updateStagingAndKnowledge(it) }
         commitStaging()
-        val nextRequests = nextRequests(responses)
-        if (nextRequests.isEmpty()) {
-            commitStaging()
-        }
+
+        val nextRequests = responses
+            .let(this::applyKnowledge)
+            .let(this::addToStaging)
+            .let(this::nextRequests)
+            .ifEmpty {
+                commitStaging()
+                emptySet()
+            }
         return nextRequests
     }
 
-    private fun applyKnowledgeTo(process: EProcess<Q>): EProcess<Q> {
+    private fun applyKnowledge(process: EProcess<Q>): EProcess<Q> {
         return process.copy(
             inputs = process.inputs.map { exchange ->
                 exchange.copy(
@@ -45,31 +50,36 @@ class Proponent<Q>(
             }
         )
     }
-    private fun applyKnowledgeTo(substanceCharacterization: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
+
+    private fun applyKnowledge(substanceCharacterization: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
         return substanceCharacterization
     }
 
-    private fun nextRequests(responses: Set<Response<Q>>) =
-        responses.flatMap { response ->
+    private fun applyKnowledge(responses: Set<Response<Q>>): Set<ConnectionExpression<Q>> =
+        responses.map { response ->
             when (response) {
-                is ProductResponse -> {
-                    val process = applyKnowledgeTo(response.value)
-                    val connectionIndex = staging.add(process)
-                    next(process, connectionIndex)
-                }
+                is ProductResponse -> applyKnowledge(response.value)
+                is SubstanceResponse -> applyKnowledge(response.value)
+            }
+        }.toSet()
 
-                is SubstanceResponse -> {
-                    val substanceCharacterization = applyKnowledgeTo(response.value)
-                    staging.add(substanceCharacterization)
-                    emptySet()
-                }
+    private fun addToStaging(connections: Set<ConnectionExpression<Q>>): Set<Pair<ConnectionExpression<Q>, Int>> =
+        connections.map { connection ->
+            connection to staging.add(connection)
+        }.toSet()
+
+    private fun nextRequests(pairs: Set<Pair<ConnectionExpression<Q>, Int>>): Set<Request<Q>> =
+        pairs.flatMap { (connection, index) ->
+            when(connection) {
+                is EProcess -> next(connection, index)
+                is ESubstanceCharacterization -> emptySet()
             }
         }.filter { !knowledge.containsKey(it.value) }.toSet()
 
     private fun commitStaging() {
         staging.popAll().forEach { connection ->
             with(ToValue(ops)) {
-                when(connection) {
+                when (connection) {
                     is EProcess -> trace.add(connection.toValue())
                     is ESubstanceCharacterization -> trace.add(connection.toValue())
                 }
@@ -87,7 +97,7 @@ class Proponent<Q>(
 
     private fun updateStagingWithProductResponse(response: ProductResponse<Q>) {
         val address = response.address
-        when(address.connectionIndex) {
+        when (address.connectionIndex) {
             Heap.VIRTUAL_ADDRESS -> start.find(address.portIndex)
                 ?.let { port ->
                     val process = response.value
@@ -95,6 +105,7 @@ class Proponent<Q>(
                     val product = process.products[selectedPortIndex].product
                     knowledge[port] = product
                 }
+
             else -> {
                 val process = response.value
                 val selectedPortIndex = response.selectedPortIndex
@@ -128,11 +139,12 @@ class Proponent<Q>(
 
     private fun updateStagingWithSubstanceResponse(response: SubstanceResponse<Q>) {
         val address = response.address
-        when(address.connectionIndex) {
+        when (address.connectionIndex) {
             Heap.VIRTUAL_ADDRESS -> start.find(address.portIndex)?.let { port ->
                 val substanceCharacterization = response.value
                 knowledge[port] = substanceCharacterization.referenceExchange.substance
             }
+
             else -> {
                 val substanceCharacterization = response.value
                 val substance = substanceCharacterization.referenceExchange.substance
