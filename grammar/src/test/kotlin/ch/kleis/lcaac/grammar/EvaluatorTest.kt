@@ -3,7 +3,7 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaac.core.lang.evaluator.arena.Arena
+import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.expression.EProductSpec
 import ch.kleis.lcaac.core.lang.expression.FromProcess
 import ch.kleis.lcaac.core.lang.expression.MatchLabels
@@ -15,7 +15,7 @@ import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-class ArenaTest {
+class EvaluatorTest {
     @Test
     fun arena_with1HopLoop() {
         // given
@@ -48,10 +48,10 @@ class ArenaTest {
             name = "A",
             fromProcess = FromProcess("p1", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
@@ -86,10 +86,10 @@ class ArenaTest {
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
@@ -139,10 +139,10 @@ class ArenaTest {
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
@@ -183,10 +183,10 @@ class ArenaTest {
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
@@ -228,10 +228,10 @@ class ArenaTest {
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
@@ -283,10 +283,10 @@ class ArenaTest {
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val arena = Arena(symbolTable, setOf(spec), BasicOperations)
+        val evaluator = Evaluator(symbolTable, BasicOperations)
 
         // when
-        val trace = arena.run()
+        val trace = evaluator.trace(setOf(spec))
         val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
         val analysis = program.run()
 
