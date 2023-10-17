@@ -10,8 +10,9 @@ plugins {
     kotlin("plugin.serialization")
 }
 
-val group = properties("lcaacGroup")
-val version = properties("lcaacVersion")
+val groupId = properties("lcaacGroup")
+val artifactId = "core"
+val artifactVersion = properties("lcaacVersion")
 val javaVersion = properties("javaVersion")
 
 kotlin {
@@ -57,6 +58,9 @@ tasks.test {
 publishing {
     publications {
         create<MavenPublication>("core") {
+            groupId = groupId
+            artifactId = artifactId
+            version = artifactVersion
             from(components["java"])
         }
     }
