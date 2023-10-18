@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
 import arrow.optics.Every
+import ch.kleis.lcaac.core.lang.DataKey
 import ch.kleis.lcaac.core.lang.Register
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -18,7 +19,7 @@ class ReduceLabelSelectors<Q>(
             ETechnoExchange.product()
     private val everyLabelSelector = everyInputProduct compose
         EProductSpec.fromProcess<Q>().matchLabels().elements() compose
-        Every.map<String, DataExpression<Q>>() compose
+        Every.map() compose
         everyDataRefInDataExpression()
 
     fun apply(expression: EProcessTemplateApplication<Q>): EProcessTemplateApplication<Q> {
@@ -28,9 +29,9 @@ class ReduceLabelSelectors<Q>(
         val locals = template.locals
         val reducer = DataExpressionReducer(
             Register(symbolTable.data)
-                .plus(actualArguments)
-                .plus(labels)
-                .plus(locals),
+                .plus(actualArguments.mapKeys { DataKey(it.key) })
+                .plus(labels.mapKeys { DataKey(it.key) })
+                .plus(locals.mapKeys { DataKey(it.key) }),
             ops,
         )
         return everyLabelSelector.modify(expression) { ref -> reducer.reduce(ref) }

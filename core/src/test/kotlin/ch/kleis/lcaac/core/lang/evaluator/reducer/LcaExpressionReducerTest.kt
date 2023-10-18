@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.DataKey
+import ch.kleis.lcaac.core.lang.DataRegister
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -26,8 +27,8 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            Register.from(
-                mapOf("geo" to EStringLiteral("FR"))
+            DataRegister(
+                mapOf(DataKey("geo") to EStringLiteral("FR"))
             ),
             ops,
         )
@@ -66,12 +67,12 @@ class LcaExpressionReducerTest {
             ),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q_carrot", QuantityFixture.oneKilogram),
-                    Pair("q_water", QuantityFixture.oneLitre),
-                    Pair("q_propanol", QuantityFixture.oneKilogram),
-                )
+            dataRegister = DataRegister(
+                mapOf(
+                    "q_carrot" to QuantityFixture.oneKilogram,
+                    "q_water" to QuantityFixture.oneLitre,
+                    "q_propanol" to QuantityFixture.oneKilogram,
+                ).mapKeys { DataKey(it.key) }
             ),
             ops,
         )
@@ -112,9 +113,9 @@ class LcaExpressionReducerTest {
             EIndicatorSpec("cc")
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q", QuantityFixture.oneKilogram),
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
             ops,
@@ -139,9 +140,9 @@ class LcaExpressionReducerTest {
             EProductSpec("carrot"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q", QuantityFixture.oneKilogram),
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
             ops,
@@ -166,9 +167,9 @@ class LcaExpressionReducerTest {
             ESubstanceSpec("propanol"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q", QuantityFixture.oneKilogram),
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
             ops,
@@ -193,9 +194,9 @@ class LcaExpressionReducerTest {
             EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("kg", UnitFixture.kg)
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("kg") to UnitFixture.kg
                 )
             ),
             ops,
@@ -224,9 +225,9 @@ class LcaExpressionReducerTest {
             EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("kg", UnitFixture.kg)
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("kg") to UnitFixture.kg
                 )
             ),
             ops,
@@ -255,9 +256,9 @@ class LcaExpressionReducerTest {
             EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("kg", UnitFixture.kg)
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("kg") to UnitFixture.kg
                 )
             ),
             ops,
@@ -282,9 +283,9 @@ class LcaExpressionReducerTest {
             EDataRef("kg"),
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("kg", UnitFixture.kg)
+            dataRegister = DataRegister(
+                mapOf(
+                    DataKey("kg") to UnitFixture.kg
                 )
             ),
             ops,
@@ -311,16 +312,16 @@ class LcaExpressionReducerTest {
                 "p",
                 MatchLabels(emptyMap()),
                 mapOf(
-                    Pair("x", EDataRef("q"))
+                    "x" to EDataRef("q")
                 )
             )
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q", EQuantityScale(ops.pure(3.0), EDataRef("kg"))),
-                    Pair("kg", UnitFixture.kg)
-                )
+            dataRegister = DataRegister(
+                mapOf(
+                    "q" to EQuantityScale(ops.pure(3.0), EDataRef("kg")),
+                    "kg" to UnitFixture.kg
+                ).mapKeys { DataKey(it.key) }
             ),
             ops,
         )
@@ -336,7 +337,7 @@ class LcaExpressionReducerTest {
                 "p",
                 MatchLabels(emptyMap()),
                 mapOf(
-                    Pair("x", EQuantityScale(ops.pure(3.0), UnitFixture.kg))
+                    "x" to EQuantityScale(ops.pure(3.0), UnitFixture.kg)
                 )
             ),
         )
@@ -359,11 +360,11 @@ class LcaExpressionReducerTest {
             )
         )
         val reducer = LcaExpressionReducer(
-            dataRegister = Register.from(
-                hashMapOf(
-                    Pair("q_propanol", QuantityFixture.oneKilogram),
-                    Pair("q_cc", QuantityFixture.oneKilogram),
-                )
+            dataRegister = DataRegister(
+                mapOf(
+                    "q_propanol" to QuantityFixture.oneKilogram,
+                    "q_cc" to QuantityFixture.oneKilogram,
+                ).mapKeys { DataKey(it.key) }
             ),
             ops,
         )

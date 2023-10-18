@@ -11,9 +11,9 @@ class RegisterTest {
     @Test
     fun set_and_get() {
         // given
-        val key = "abc.x"
+        val key = DataKey("abc.x")
         val a = EDataRef<BasicNumber>("a")
-        val register = Register.empty<DataExpression<BasicNumber>>()
+        val register = DataRegister<BasicNumber>()
 
         // when
         val actual = register.plus(listOf(key to a))
@@ -25,10 +25,10 @@ class RegisterTest {
     @Test
     fun set_whenDuplicate_atOnce() {
         // given
-        val key = "abc.x"
+        val key = DataKey("abc.x")
         val a = EDataRef<BasicNumber>("a")
         val b = EDataRef<BasicNumber>("b")
-        val register = Register.empty<DataExpression<BasicNumber>>()
+        val register = DataRegister<BasicNumber>()
         val duplicateKeys = listOf(
             key to a,
             key to b
@@ -43,10 +43,10 @@ class RegisterTest {
     @Test
     fun set_whenDuplicate_successive() {
         // given
-        val key = "abc.x"
+        val key = DataKey("abc.x")
         val a = EDataRef<BasicNumber>("a")
         val b = EDataRef<BasicNumber>("b")
-        val register = Register.empty<DataExpression<BasicNumber>>().plus(listOf(key to a))
+        val register = DataRegister<BasicNumber>().plus(listOf(key to a))
         val message = "[$key] is already bound"
         val duplicateKey = listOf(key to b)
 
@@ -58,8 +58,8 @@ class RegisterTest {
     @Test
     fun equals_whenEquals_thenTrue() {
         // given
-        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
-        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r1 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "b" to 2.0))
 
         // then
         assertEquals(r1, r2)
@@ -68,8 +68,8 @@ class RegisterTest {
     @Test
     fun equals_whenSameKeysDifferentValue_thenFalse() {
         // given
-        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
-        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 3.0))
+        val r1 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "b" to 3.0))
 
         // then
         assertNotEquals(r1, r2)
@@ -78,8 +78,8 @@ class RegisterTest {
     @Test
     fun equals_whenDifferentKeys_thenFalse() {
         // given
-        val r1 = Register.empty<Double>().plus(listOf("a" to 1.0, "b" to 2.0))
-        val r2 = Register.empty<Double>().plus(listOf("a" to 1.0, "c" to 2.0))
+        val r1 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "b" to 2.0))
+        val r2 = Register.empty<String, Double>().plus(listOf("a" to 1.0, "c" to 2.0))
 
         // then
         assertNotEquals(r1, r2)
@@ -93,7 +93,7 @@ class RegisterTest {
 
         val key2 = "abc.y"
         val b = EDataRef<BasicNumber>("b")
-        val sut = Register.empty<EDataRef<BasicNumber>>().plus(listOf(key to a, key2 to b))
+        val sut = Register.empty<String, EDataRef<BasicNumber>>().plus(listOf(key to a, key2 to b))
 
         // When
         val actual = sut.getEntries(EDataRef.name())["a"]!!
@@ -114,7 +114,7 @@ class RegisterTest {
         val optics =
             EUnitAlias.aliasFor<BasicNumber>() compose
                 DataExpression.eDataRef<BasicNumber>().name()
-        val register = Register.empty<EUnitAlias<BasicNumber>>()
+        val register = Register.empty<String, EUnitAlias<BasicNumber>>()
             .plus(listOf(keyA to a, keyB to b))
 
 

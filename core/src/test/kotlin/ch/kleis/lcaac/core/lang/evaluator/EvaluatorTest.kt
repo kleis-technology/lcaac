@@ -1,7 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
-import ch.kleis.lcaac.core.lang.Register
-import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.*
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
@@ -32,9 +31,9 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister(
                 mapOf(
-                    "eProcess" to template,
+                    ProcessKey("eProcess") to template,
                 )
             )
         )
@@ -75,9 +74,9 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister.from(
                 mapOf(
-                    "eProcess" to template
+                    ProcessKey("eProcess") to template
                 )
             )
         )
@@ -102,18 +101,20 @@ class EvaluatorTest {
         // given
         val template = TemplateFixture.carrotProduction
         val symbolTable = SymbolTable(
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister.from(
                 mapOf(
-                    "i1" to template,
-                    "i2" to template,
+                    ProcessKey("i1") to template,
+                    ProcessKey("i2") to template,
                 )
             )
         )
         val evaluator = Evaluator(symbolTable, ops)
 
         // when
-        val p1 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.oneLitre)).getEntryPoint().products.first().product
-        val p2 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.twoLitres)).getEntryPoint().products.first().product
+        val p1 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.oneLitre))
+            .getEntryPoint().products.first().product
+        val p2 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.twoLitres))
+            .getEntryPoint().products.first().product
 
         // then
         assertEquals(p1.name, p2.name)
@@ -126,7 +127,7 @@ class EvaluatorTest {
     fun eval_whenAProductAsACycle_thenItShouldEnd() {
         // given
         val template = TemplateFixture.cyclicProduction
-        val register = Register.empty<EProcessTemplate<BasicNumber>>().plus(mapOf("carrot_production" to template))
+        val register = ProcessTemplateRegister(mapOf(ProcessKey("carrot_production") to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
         val evaluator = Evaluator(symbolTable, BasicOperations)
@@ -162,10 +163,10 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register.from<EProcessTemplate<BasicNumber>>(
+            processTemplates = ProcessTemplateRegister(
                 mapOf(
-                    "carrot_production" to TemplateFixture.carrotProduction,
-                    "salad_production" to template,
+                    ProcessKey("carrot_production") to TemplateFixture.carrotProduction,
+                    ProcessKey("salad_production") to template,
                 )
             ),
         )
@@ -256,10 +257,10 @@ class EvaluatorTest {
             ),
         )
         // given
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates=  ProcessTemplateRegister(
             mapOf(
-                "carrot_production" to TemplateFixture.carrotProduction,
-                "salad_production" to template,
+                ProcessKey("carrot_production") to TemplateFixture.carrotProduction,
+                ProcessKey("salad_production") to template,
             )
         )
         val symbolTable = SymbolTable(
@@ -353,11 +354,11 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister(
                 mapOf(
                     "carrot_production" to TemplateFixture.carrotProduction,
                     "salad_production" to template,
-                )
+                ).mapKeys { ProcessKey(it.key) }
             )
         )
         val evaluator = Evaluator(symbolTable, ops)
@@ -393,14 +394,14 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            substanceCharacterizations = Register.from(
+            substanceCharacterizations = SubstanceCharacterizationRegister(
                 mapOf(
-                    "propanol" to SubstanceCharacterizationFixture.propanolCharacterization,
+                    SubstanceKey("propanol") to SubstanceCharacterizationFixture.propanolCharacterization,
                 )
             ),
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister(
                 mapOf(
-                    "carrot_production" to template,
+                    ProcessKey("carrot_production") to template,
                 )
             )
         )
@@ -437,11 +438,11 @@ class EvaluatorTest {
             )
         )
         val symbolTable = SymbolTable(
-            processTemplates = Register.from(
+            processTemplates = ProcessTemplateRegister(
                 mapOf(
                     "carrot_production" to TemplateFixture.carrotProduction,
                     "salad_production" to template,
-                )
+                ).mapKeys { ProcessKey(it.key) }
             )
         )
         val evaluator = Evaluator(symbolTable, ops)

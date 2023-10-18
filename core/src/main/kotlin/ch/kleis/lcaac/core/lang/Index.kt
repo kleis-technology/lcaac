@@ -2,40 +2,25 @@ package ch.kleis.lcaac.core.lang
 
 import arrow.optics.Fold
 
-interface IndexKeySerializer<K> {
-    fun serialize(key: K): String
-}
-
-class Index<K, E> private constructor(
-    private val indexType: String,
-    private val indexKeySerializer: IndexKeySerializer<K>,
-    private val cachedEntries: Map<String, List<E>>,
-    private val optics: Fold<E, K>,
+class Index<S, K, E> private constructor(
+    private val cachedEntries: Map<S, List<E>>,
 ) {
     constructor(
-        register: Register<E>,
-        indexKeySerializer: IndexKeySerializer<K>,
-        optics: Fold<E, K>
+        register: Register<K, E>,
+        optics: Fold<E, S>
     ) : this(
-        register.registerType,
-        indexKeySerializer,
-        register.getEntries(optics).mapKeys { indexKeySerializer.serialize(it.key) },
-        optics,
+        register.getEntries(optics),
     )
 
-    fun firstOrNull(key: K): E? {
-        val h = indexKeySerializer.serialize(key)
-        return cachedEntries[h]?.firstOrNull {
-            this.optics.firstOrNull(it) == key
-        }
+    fun firstOrNull(s: S): E? {
+        return cachedEntries[s]?.firstOrNull()
     }
 
-    fun getAll(key: K): List<E> {
-        return cachedEntries[indexKeySerializer.serialize(key)] ?: emptyList()
+    fun getAll(s: S): List<E> {
+        return cachedEntries[s] ?: emptyList()
     }
 
     override fun toString(): String {
-        return "[index<${indexType}>]"
+        return "[index]"
     }
-
 }

@@ -1,62 +1,53 @@
 package ch.kleis.lcaac.core.lang
 
 import arrow.optics.Fold
+import ch.kleis.lcaac.core.lang.dimension.Dimension
+import ch.kleis.lcaac.core.lang.expression.DataExpression
+import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
+import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
 
-data class RegisterException(val duplicates: Set<String>) : Exception(
-    "$duplicates ${
-        if (duplicates.size > 1) {
-            "are"
-        } else {
-            "is"
-        }
-    } already bound"
-)
-
-class Register<E> (
-    internal val registerType: String,
-    private val data: Map<String, E> = HashMap()
+class Register<K, E> (
+    private val data: Map<K, E> = HashMap()
 ) {
-    constructor(register: Register<E>) : this(register.registerType, register.data)
+    constructor(register: Register<K, E>) : this(register.data)
 
     companion object {
-        inline fun <reified E> empty(): Register<E> {
-            return Register(E::class.java.simpleName)
+        inline fun <reified K, reified E> empty(): Register<K, E> {
+            return Register()
         }
 
-        internal inline fun <reified E> from(data: Map<String, E>): Register<E> {
-            return Register(E::class.java.simpleName, data)
+        internal inline fun <reified K, reified E> from(data: Map<K, E>): Register<K, E> {
+            return Register(data)
         }
     }
 
-    fun <K> getEntries(optics: Fold<E, K>): Map<K, List<E>> {
+    fun <S> getEntries(optics: Fold<E, S>): Map<S, List<E>> {
         return data.entries.asSequence()
             .flatMap { entry -> optics.getAll(entry.value).map { value -> value to entry.value } }
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
     }
 
-    operator fun get(key: String): E? {
+    operator fun get(key: K): E? {
         return data[key]
     }
 
-    fun getValues(): Sequence<E> = data.values.asSequence()
-
     override fun toString(): String {
-        return "[register<${registerType}>]"
+        return "[register]"
     }
 
     override fun equals(other: Any?): Boolean {
-        return (this === other) or ((javaClass == other?.javaClass) and (data == (other as Register<*>).data))
+        return (this === other) or ((javaClass == other?.javaClass) and (data == (other as Register<*, *>).data))
     }
 
     override fun hashCode(): Int {
         return data.hashCode()
     }
 
-    fun plus(map: Map<String, E>): Register<E> {
+    fun plus(map: Map<K, E>): Register<K, E> {
         return plus(map.map { it.key to it.value })
     }
 
-    fun plus(pairs: Iterable<Pair<String, E>>): Register<E> {
+    fun plus(pairs: Iterable<Pair<K, E>>): Register<K, E> {
         val keys = data.keys.toList()
             .plus(pairs.map { it.first })
 
@@ -66,11 +57,36 @@ class Register<E> (
             .take(20)
             .toSet()
         if (firstConflicts.isNotEmpty()) {
-            throw RegisterException(firstConflicts.take(10).toSet())
+            throw RegisterException(firstConflicts.take(10).map { it.toString() }.toSet())
         }
         return Register(
-            registerType,
             data.plus(pairs)
         )
     }
 }
+
+data class DataKey(
+    val name: String,
+) {
+    override fun toString() = name
+}
+typealias DataRegister<Q> = Register<DataKey, DataExpression<Q>>
+
+data class DimensionKey(
+    val name: String,
+)
+typealias DimensionRegister = Register<DimensionKey, Dimension>
+
+data class ProcessKey(
+    val name: String,
+    val labels: Map<String, String> = emptyMap(),
+)
+typealias ProcessTemplateRegister<Q> = Register<ProcessKey, EProcessTemplate<Q>>
+
+data class SubstanceKey(
+    val name: String,
+    val type: String? = null,
+    val compartment: String? = null,
+    val subCompartment: String? = null,
+)
+typealias SubstanceCharacterizationRegister<Q> = Register<SubstanceKey, ESubstanceCharacterization<Q>>

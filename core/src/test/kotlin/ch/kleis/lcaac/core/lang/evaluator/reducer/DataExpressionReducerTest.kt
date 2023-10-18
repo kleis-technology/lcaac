@@ -1,5 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.lang.DataKey
+import ch.kleis.lcaac.core.lang.DataRegister
 import ch.kleis.lcaac.core.lang.Register
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
@@ -92,9 +94,9 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenLiteral_shouldReduceUnit() {
         // given
-        val quantityEnvironment: Register<DataExpression<BasicNumber>> = Register.from(
-            hashMapOf(
-                Pair("kg", UnitFixture.kg)
+        val quantityEnvironment = DataRegister(
+            mapOf(
+                DataKey("kg") to UnitFixture.kg
             )
         )
         val quantity = EQuantityScale(ops.pure(1.0), EDataRef("kg"))
@@ -498,9 +500,9 @@ class DataExpressionReducerTest {
         // given
         val a = EDataRef<BasicNumber>("a")
         val reducer = DataExpressionReducer(
-            Register.from(
-                hashMapOf(
-                    Pair("a", EQuantityScale(ops.pure(1.0), UnitFixture.kg))
+            DataRegister(
+                mapOf(
+                    DataKey("a") to EQuantityScale(ops.pure(1.0), UnitFixture.kg)
                 )
             ),
             ops,
@@ -576,14 +578,14 @@ class DataExpressionReducerTest {
     fun reduce_whenUnitClosure_shouldReduceWithGivenTable() {
         // given
         val symbolTable = SymbolTable(
-            data = Register.from(
-                mapOf("a" to UnitFixture.kg)
+            data = DataRegister(
+                mapOf(DataKey("a") to UnitFixture.kg)
             ),
         )
         val unit = EQuantityClosure(symbolTable, EDataRef("a"))
         val reducer = DataExpressionReducer(
-            Register.from(
-                mapOf("a" to UnitFixture.l)
+            DataRegister(
+                mapOf(DataKey("a") to UnitFixture.l)
             ),
             ops,
         )
@@ -776,9 +778,9 @@ class DataExpressionReducerTest {
     fun reduce_whenRef_shouldReadEnv() {
         // given
         val ref = EDataRef<BasicNumber>("kg")
-        val units: Register<DataExpression<BasicNumber>> = Register.from(
-            hashMapOf(
-                Pair("kg", UnitFixture.kg)
+        val units = DataRegister(
+            mapOf(
+                DataKey("kg") to UnitFixture.kg
             )
         )
         val reducer = DataExpressionReducer(
@@ -804,7 +806,7 @@ class DataExpressionReducerTest {
         // given
         val expression = EStringLiteral<BasicNumber>("FR")
         val reducer = DataExpressionReducer(
-            Register.empty<DataExpression<BasicNumber>>(),
+            DataRegister.empty(),
             ops,
         )
 
@@ -820,10 +822,10 @@ class DataExpressionReducerTest {
         // given
         val expression = EDataRef<BasicNumber>("geo")
         val reducer = DataExpressionReducer(
-            Register.from(
+            DataRegister(
                 mapOf(
-                    "geo" to EDataRef("geo2"),
-                    "geo2" to EStringLiteral("FR"),
+                    DataKey("geo") to EDataRef("geo2"),
+                    DataKey("geo2") to EStringLiteral("FR"),
                 )
             ),
             ops,
@@ -842,10 +844,10 @@ class DataExpressionReducerTest {
         // given
         val expression = EDataRef<BasicNumber>("foo")
         val reducer = DataExpressionReducer(
-            Register.from(
+            DataRegister(
                 mapOf(
-                    "geo" to EDataRef("geo2"),
-                    "geo2" to EStringLiteral("FR"),
+                    DataKey("geo") to EDataRef("geo2"),
+                    DataKey("geo2") to EStringLiteral("FR"),
                 )
             ),
             ops,
