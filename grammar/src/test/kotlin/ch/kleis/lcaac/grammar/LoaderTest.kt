@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.DataKey
+import ch.kleis.lcaac.core.lang.DataRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
@@ -472,11 +473,11 @@ class LoaderTest {
         // then
         val sum = EQuantityAdd<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val localTable = SymbolTable(
-            data = Register.empty<DataExpression<BasicNumber>>().plus(
+            data = DataRegister(
                 mapOf(
                     "x" to oneKg,
                     "y" to oneKg,
-                )
+                ).mapKeys { DataKey(it.key) }
             )
         )
         val referenceUnit = EUnitOf(
@@ -906,7 +907,7 @@ class LoaderTest {
         val sum = EQuantityAdd<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val mul = EQuantityMul<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val div = EQuantityDiv<BasicNumber>(EDataRef("x"), EDataRef("y"))
-        val scale = EQuantityScale<BasicNumber>(BasicNumber(2.0), EDataRef("x"))
+        val scale = EQuantityScale(BasicNumber(2.0), EDataRef("x"))
         val pow = EQuantityPow<BasicNumber>(EDataRef("x"), 2.0)
         assertEquals(sum, actual.getData("sum"))
         assertEquals(mul, actual.getData("mul"))
