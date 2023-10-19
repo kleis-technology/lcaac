@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
+import ch.kleis.lcaac.core.lang.expression.SubstanceType
 
 class Register<K, E> (
     private val data: Map<K, E> = HashMap()
@@ -92,7 +93,7 @@ typealias ProcessTemplateRegister<Q> = Register<ProcessKey, EProcessTemplate<Q>>
 
 data class SubstanceKey(
     val name: String,
-    val type: String? = null,
+    val type: SubstanceType? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
 ) {

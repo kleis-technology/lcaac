@@ -36,9 +36,9 @@ class ProcessResolverTest {
         )
         val processTemplates = ProcessTemplateRegister(
             mapOf(
-                "carrot_production_FR" to carrotProductionFR,
-                "carrot_production_UK" to carrotProductionUK,
-            ).mapKeys { ProcessKey(it.key) }
+                ProcessKey("carrot_production", mapOf("geo" to "FR")) to carrotProductionFR,
+                ProcessKey("carrot_production", mapOf("geo" to "UK")) to carrotProductionUK,
+            )
         )
         val carrotSpec = ProductFixture.carrot.copy(
             fromProcess = FromProcess(

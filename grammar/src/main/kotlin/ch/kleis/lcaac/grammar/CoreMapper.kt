@@ -332,7 +332,7 @@ class CoreMapper<Q>(
     fun LcaLangParser.SubstanceDefinitionContext.buildUniqueKey(): SubstanceKey {
         val name = this.substanceRef().innerText()
         val compartment = this.compartmentField().STRING_LITERAL().innerText()
-        val type = this.typeField().children[2].text
+        val type = SubstanceType.of(this.typeField().children[2].text)
         val subCompartment = this.subCompartmentField()?.STRING_LITERAL()?.innerText()
         return SubstanceKey(name, type, compartment, subCompartment)
     }

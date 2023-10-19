@@ -103,8 +103,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = ProcessTemplateRegister.from(
                 mapOf(
-                    ProcessKey("i1") to template,
-                    ProcessKey("i2") to template,
+                    ProcessKey("carrot_production") to template,
                 )
             )
         )
@@ -396,7 +395,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             substanceCharacterizations = SubstanceCharacterizationRegister(
                 mapOf(
-                    SubstanceKey("propanol") to SubstanceCharacterizationFixture.propanolCharacterization,
+                    SubstanceKey("propanol", SubstanceType.RESOURCE, "air") to SubstanceCharacterizationFixture.propanolCharacterization,
                 )
             ),
             processTemplates = ProcessTemplateRegister(
