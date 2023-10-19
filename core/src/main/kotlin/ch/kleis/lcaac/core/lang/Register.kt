@@ -74,13 +74,20 @@ typealias DataRegister<Q> = Register<DataKey, DataExpression<Q>>
 
 data class DimensionKey(
     val name: String,
-)
+){
+    override fun toString() = name
+}
 typealias DimensionRegister = Register<DimensionKey, Dimension>
 
 data class ProcessKey(
     val name: String,
     val labels: Map<String, String> = emptyMap(),
-)
+){
+    override fun toString(): String {
+        return name + labels.entries.joinToString(", ") { "${it.key}=${it.value}" }
+            .let { if (it.isNotEmpty()) "{$it}" else "" }
+    }
+}
 typealias ProcessTemplateRegister<Q> = Register<ProcessKey, EProcessTemplate<Q>>
 
 data class SubstanceKey(
@@ -88,5 +95,14 @@ data class SubstanceKey(
     val type: String? = null,
     val compartment: String? = null,
     val subCompartment: String? = null,
-)
+) {
+    override fun toString(): String {
+        return name + listOfNotNull(
+            type?.let { "type=$it" },
+            compartment?.let { "compartment=$it" },
+            subCompartment?.let { "sub_compartment=$it" },
+        ).joinToString(", ").let { if (it.isNotEmpty()) "($it)"  else ""}
+    }
+}
+
 typealias SubstanceCharacterizationRegister<Q> = Register<SubstanceKey, ESubstanceCharacterization<Q>>
