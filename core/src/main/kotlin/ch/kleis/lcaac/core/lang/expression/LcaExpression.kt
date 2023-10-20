@@ -7,13 +7,16 @@ sealed interface LcaExpression<Q> : Expression<Q> {
     companion object
 }
 
+sealed interface PortExpression<Q>
+sealed interface ConnectionExpression<Q>
+
 // Product
 @optics
 data class EProductSpec<Q>(
     val name: String,
     val referenceUnit: DataExpression<Q>? = null,
     val fromProcess: FromProcess<Q>? = null,
-) : LcaExpression<Q> {
+) : LcaExpression<Q>, PortExpression<Q> {
     companion object
 }
 
@@ -42,7 +45,7 @@ data class ESubstanceSpec<Q>(
     val compartment: String? = null,
     val subCompartment: String? = null,
     val referenceUnit: DataExpression<Q>? = null,
-) : LcaExpression<Q> {
+) : LcaExpression<Q>, PortExpression<Q> {
     companion object
 }
 
@@ -51,7 +54,7 @@ data class ESubstanceSpec<Q>(
 data class EIndicatorSpec<Q>(
     val name: String,
     val referenceUnit: DataExpression<Q>? = null,
-) : LcaExpression<Q> {
+) : LcaExpression<Q>, PortExpression<Q> {
     companion object
 }
 
@@ -93,7 +96,7 @@ data class EProcess<Q>(
     val inputs: List<ETechnoExchange<Q>> = emptyList(),
     val biosphere: List<EBioExchange<Q>> = emptyList(),
     val impacts: List<EImpact<Q>> = emptyList(),
-) : LcaExpression<Q> {
+) : LcaExpression<Q>, ConnectionExpression<Q> {
     companion object
 }
 
@@ -102,7 +105,7 @@ data class EProcess<Q>(
 data class ESubstanceCharacterization<Q>(
     val referenceExchange: EBioExchange<Q>,
     val impacts: List<EImpact<Q>>
-) : LcaExpression<Q> {
+) : LcaExpression<Q>, ConnectionExpression<Q> {
     companion object
 
     fun hasImpacts(): Boolean {

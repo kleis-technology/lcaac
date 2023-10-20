@@ -37,9 +37,9 @@ class EvaluationTraceTest {
             ),
         )
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
+        trace.addProcess(p2)
         trace.commit()
 
         // when
@@ -82,10 +82,10 @@ class EvaluationTraceTest {
             ),
         )
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
         trace.commit()
 
         // when
@@ -111,10 +111,10 @@ class EvaluationTraceTest {
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
         trace.commit()
 
         // when
@@ -137,15 +137,15 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = EvaluationTrace.empty<BasicNumber>()
-        trace.add(p1)
-        trace.add(p2)
-        trace.commit()
-        trace.add(p3)
-        trace.commit()
-
         // when/then
-        val e = assertFailsWith(EvaluatorException::class) { trace.getEntryPoint() }
+        val e = assertFailsWith(EvaluatorException::class) {
+            val trace = EvaluationTrace.empty<BasicNumber>()
+            trace.addProcess(p1)
+            trace.addProcess(p2)
+            trace.commit()
+            trace.addProcess(p3)
+            trace.commit()
+        }
         assertEquals("execution trace contains multiple entrypoint", e.message)
     }
 
@@ -179,13 +179,13 @@ class EvaluationTraceTest {
         val substance = sc.referenceExchange.substance
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
-        trace.add(p4)
+        trace.addProcess(p4)
         trace.commit()
 
         // when
@@ -221,13 +221,13 @@ class EvaluationTraceTest {
         val substance = sc.referenceExchange.substance
 
         val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(p3)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addProcess(p3)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
-        trace.add(p4)
+        trace.addProcess(p4)
         trace.commit()
 
         // when
@@ -252,35 +252,14 @@ class EvaluationTraceTest {
         val trace = EvaluationTrace<BasicNumber>()
 
         // when
-        trace.add(p1)
+        trace.addProcess(p1)
         trace.commit()
-        trace.add(p2)
-        trace.add(sc)
+        trace.addProcess(p2)
+        trace.addSubstanceCharacterization(sc)
         trace.commit()
 
         // then
         assertEquals(2, trace.getNumberOfStages())
-    }
-
-    @Test
-    fun trace_getStages() {
-        // given
-        val p1 = ProcessValueFixture.carrotProcessValue
-        val p2 = p1.copy(name = "another_carrot_production")
-        val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = EvaluationTrace<BasicNumber>()
-        trace.add(p1)
-        trace.commit()
-        trace.add(p2)
-        trace.add(sc)
-        trace.commit()
-
-        // when
-        val actual = trace.getStages()
-
-        // then
-        assertEquals(setOf(p1), actual[0])
-        assertEquals(setOf(p2, sc), actual[1])
     }
 
     @Test
@@ -292,11 +271,11 @@ class EvaluationTraceTest {
         // when
         trace.commit()
         trace.commit()
-        trace.add(p)
+        trace.addProcess(p)
         trace.commit()
         trace.commit()
 
         // then
-        assertEquals(listOf(setOf(p)), trace.getStages())
+        assertEquals(1, trace.getNumberOfStages())
     }
 }

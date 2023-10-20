@@ -18,7 +18,7 @@ class ToValue<Q>(
         return with(ops) { q().toDouble() }
     }
 
-    private fun EProcess<Q>.toValue(): ProcessValue<Q> {
+    fun EProcess<Q>.toValue(): ProcessValue<Q> {
         return ProcessValue(
             this.name,
             this.labels.mapValues { it.value.toValue() as StringValue<Q> },
