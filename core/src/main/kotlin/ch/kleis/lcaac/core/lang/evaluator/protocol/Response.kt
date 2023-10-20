@@ -4,6 +4,11 @@ import ch.kleis.lcaac.core.lang.expression.ConnectionExpression
 import ch.kleis.lcaac.core.lang.expression.EProcess
 import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
 
+/*
+    ConnectionExpression is a common interface for a EProcess or a ESubstanceCharacterization
+    PortExpression is a common interface for a EProductSpec, ESubstanceSpec or EIndicatorSpec
+ */
+
 sealed interface Response<Q> {
     val address: Address<Q>
     val value: ConnectionExpression<Q>
