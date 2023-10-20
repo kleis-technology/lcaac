@@ -137,15 +137,15 @@ class EvaluationTraceTest {
         val p3 = ProcessValueFixture.carrotProcessValue
             .copy(products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, product3)))
 
-        val trace = EvaluationTrace.empty<BasicNumber>()
-        trace.addProcess(p1)
-        trace.addProcess(p2)
-        trace.commit()
-        trace.addProcess(p3)
-        trace.commit()
-
         // when/then
-        val e = assertFailsWith(EvaluatorException::class) { trace.getEntryPoint() }
+        val e = assertFailsWith(EvaluatorException::class) {
+            val trace = EvaluationTrace.empty<BasicNumber>()
+            trace.addProcess(p1)
+            trace.addProcess(p2)
+            trace.commit()
+            trace.addProcess(p3)
+            trace.commit()
+        }
         assertEquals("execution trace contains multiple entrypoint", e.message)
     }
 
@@ -263,27 +263,6 @@ class EvaluationTraceTest {
     }
 
     @Test
-    fun trace_getStages() {
-        // given
-        val p1 = ProcessValueFixture.carrotProcessValue
-        val p2 = p1.copy(name = "another_carrot_production")
-        val sc = SubstanceCharacterizationValueFixture.propanolCharacterization
-        val trace = EvaluationTrace<BasicNumber>()
-        trace.addProcess(p1)
-        trace.commit()
-        trace.addProcess(p2)
-        trace.addSubstanceCharacterization(sc)
-        trace.commit()
-
-        // when
-        val actual = trace.getStages()
-
-        // then
-        assertEquals(setOf(p1), actual[0])
-        assertEquals(setOf(p2, sc), actual[1])
-    }
-
-    @Test
     fun trace_emptyCommit_shouldNotAddStages() {
         // given
         val p = ProcessValueFixture.carrotProcessValue
@@ -297,6 +276,6 @@ class EvaluationTraceTest {
         trace.commit()
 
         // then
-        assertEquals(listOf(setOf(p)), trace.getStages())
+        assertEquals(1, trace.getNumberOfStages())
     }
 }

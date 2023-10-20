@@ -4,7 +4,8 @@ import ch.kleis.lcaac.core.lang.value.*
 import kotlin.math.max
 
 class EvaluationTrace<Q> {
-    private val stages = ArrayList<HashSet<MatrixRowIndex<Q>>>()
+    private var nbStages = 0
+    private var entryPoint: ProcessValue<Q>? = null
     private var currentStage = HashSet<MatrixRowIndex<Q>>()
     private val processes = HashSet<ProcessValue<Q>>()
     private val substanceCharacterizations = HashSet<SubstanceCharacterizationValue<Q>>()
@@ -33,7 +34,7 @@ class EvaluationTrace<Q> {
     }
 
     fun getNumberOfStages(): Int {
-        return stages.size
+        return nbStages
     }
 
     fun getNumberOfProcesses(): Int {
@@ -44,20 +45,11 @@ class EvaluationTrace<Q> {
         return substanceCharacterizations.size
     }
 
-    fun getStages(): List<Set<MatrixRowIndex<Q>>> {
-        return stages
-    }
-
     fun getEntryPoint(): ProcessValue<Q> {
-        if (stages.isEmpty()) {
+        if (nbStages == 0) {
             throw EvaluatorException("execution trace is empty")
         }
-        val candidates = stages.first()
-            .filterIsInstance<ProcessValue<Q>>()
-        if (candidates.size > 1) {
-            throw EvaluatorException("execution trace contains multiple entrypoint")
-        }
-        return candidates.first()
+        return entryPoint ?: throw EvaluatorException("missing entrypoint")
     }
 
     fun getSystemValue(): SystemValue<Q> {
@@ -83,6 +75,11 @@ class EvaluationTrace<Q> {
     }
 
     fun addProcess(process: ProcessValue<Q>) {
+        if (nbStages == 0) {
+            if (entryPoint == null) {
+                entryPoint = process
+            } else throw EvaluatorException("execution trace contains multiple entrypoint")
+        }
         processes.add(process)
         currentStage.add(process)
     }
@@ -97,7 +94,7 @@ class EvaluationTrace<Q> {
             return
         }
 
-        val currentDepth = stages.size
+        val currentDepth = nbStages
         currentStage
             .filterIsInstance<ProcessValue<Q>>()
             .forEach { process ->
@@ -123,7 +120,7 @@ class EvaluationTrace<Q> {
                 }
             }
 
-        stages.add(currentStage)
+        nbStages += 1
         currentStage = HashSet()
     }
 
