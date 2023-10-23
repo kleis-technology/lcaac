@@ -122,19 +122,17 @@ class Learner<Q>(
             Heap.VIRTUAL_ADDRESS -> start.find(address.portIndex)
                 ?.let { port ->
                     val process = response.value
-                    val selectedPortIndex = response.productInProcessIndex
-                    val product = process.products[selectedPortIndex].product
+                    val product = process.products[response.productInProcessIndex].product
                     knowledge[port] = product
                 }
 
             else -> {
                 val process = response.value
-                val selectedPortIndex = response.productInProcessIndex
-                val product = process.products[selectedPortIndex].product
+                val product = process.products[response.productInProcessIndex].product
                 staging.find(address.connectionIndex)
                     ?.let { existingConnection ->
                         if (existingConnection is EProcess<Q>) {
-                            knowledge[existingConnection.inputs[selectedPortIndex].product] = product
+                            knowledge[existingConnection.inputs[address.portIndex].product] = product
                         }
                     }
                 staging.modify(
