@@ -80,13 +80,17 @@ class EvaluationTrace<Q> {
                 entryPoint = process
             } else throw EvaluatorException("execution trace contains multiple entrypoint")
         }
-        processes.add(process)
-        currentStage.add(process)
+        if (!processes.contains(process)) {
+            processes.add(process)
+            currentStage.add(process)
+        }
     }
 
     fun addSubstanceCharacterization(substanceCharacterization: SubstanceCharacterizationValue<Q>) {
-        substanceCharacterizations.add(substanceCharacterization)
-        currentStage.add(substanceCharacterization)
+        if (!substanceCharacterizations.contains(substanceCharacterization)) {
+            substanceCharacterizations.add(substanceCharacterization)
+            currentStage.add(substanceCharacterization)
+        }
     }
 
     fun commit() {
@@ -101,8 +105,11 @@ class EvaluationTrace<Q> {
                 process.products.forEach { exchange ->
                     updateDepthMap(exchange.product, currentDepth)
                 }
+                val processProducts = process.products.map { it.product }
                 process.inputs.forEach { exchange ->
-                    updateDepthMap(exchange.product, currentDepth + 1)
+                    if (!processProducts.contains(exchange.product)) { // avoid self loop
+                        updateDepthMap(exchange.product, currentDepth + 1)
+                    }
                 }
                 process.biosphere.forEach { exchange ->
                     updateDepthMap(exchange.substance, currentDepth + 1)
