@@ -17,6 +17,65 @@ import kotlin.test.assertEquals
 
 class EvaluatorTest {
     @Test
+    fun arena_shouldHandleKnowledgeCorrectly() {
+        // given
+        val file = lcaFile(
+            """
+                process a_proc {
+                    products {
+                        1 kg a
+                    }
+                    inputs {
+                        1 kg b from b_proc
+                        1 l c from c_proc
+                    }
+                }
+                
+                process b_proc {
+                    products {
+                        1 kg b
+                    }
+                    impacts {
+                        1 kg gwp
+                    }
+                }
+                
+                process c_proc {
+                    products {
+                        1 l c
+                    }
+                    inputs {
+                        1kg b from b_proc
+                    }
+                    impacts {
+                        1 kg gwp
+                    }
+                }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+        val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
+        val spec = EProductSpec<BasicNumber>(
+            name = "a",
+            fromProcess = FromProcess("a_proc", MatchLabels(emptyMap())),
+        )
+        val evaluator = Evaluator(symbolTable, BasicOperations)
+
+        // when
+        val trace = evaluator.trace(setOf(spec))
+        val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+        val analysis = program.run()
+
+        // then
+        val port = analysis.getObservablePorts().get("a from a_proc{}{}")
+        val indicator = analysis.getControllablePorts().get("gwp")
+        val expected = QuantityValue(BasicNumber(3.0), UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass")))
+        val actual = analysis.getPortContribution(port, indicator)
+        assertEquals(expected, actual)
+    }
+
+
+    @Test
     fun arena_with1HopLoop() {
         // given
         val file = lcaFile(
