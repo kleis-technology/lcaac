@@ -156,7 +156,7 @@ private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceChar
     )
 
 
-private fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
+fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
             LcaExpression.eProcess<Q>() compose
@@ -173,7 +173,7 @@ private fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpre
         )
     )
 
-private fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
+fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
     everyProcessTemplateInTemplateExpression<Q>() compose Merge(
         listOf(
             EProcessTemplate.params<Q>() compose Every.map() compose
@@ -184,11 +184,3 @@ private fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpres
         )
     )
 
-fun <Q> everyDataRef(): PEvery<Expression<Q>, Expression<Q>, EDataRef<Q>, EDataRef<Q>> =
-    Merge(
-        listOf(
-            Expression.lcaExpression<Q>() compose everyDataRefInLcaExpression(),
-            Expression.dataExpression<Q>() compose everyDataRefInDataExpression(),
-            Expression.processTemplateExpression<Q>() compose everyDataRefInTemplateExpression(),
-        )
-    )

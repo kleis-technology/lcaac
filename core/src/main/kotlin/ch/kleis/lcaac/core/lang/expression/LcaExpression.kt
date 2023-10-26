@@ -3,7 +3,7 @@ package ch.kleis.lcaac.core.lang.expression
 import arrow.optics.optics
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 
-sealed interface LcaExpression<Q> : Expression<Q> {
+sealed interface LcaExpression<Q> {
     companion object
 }
 
@@ -25,7 +25,7 @@ enum class SubstanceType(val value: String) {
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
-        private val map = SubstanceType.values().associateBy { it.value }
+        private val map = entries.associateBy { it.value }
         infix fun of(value: String): SubstanceType =
             map[value] ?: throw EvaluatorException("Invalid SubstanceType: $value")
     }

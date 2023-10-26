@@ -4,7 +4,7 @@ import arrow.optics.optics
 import java.util.*
 
 @optics
-sealed interface ProcessTemplateExpression<Q> : Expression<Q> {
+sealed interface ProcessTemplateExpression<Q> {
     companion object
 }
 
