@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang
 
 import arrow.optics.Fold
+import ch.kleis.lcaac.core.lang.register.Register
 
 class Index<S, K, E> private constructor(
     private val cachedEntries: Map<S, List<E>>,

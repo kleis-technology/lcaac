@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.lang
 
 import arrow.optics.Every
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.*
 
 
 data class SymbolTable<Q>(

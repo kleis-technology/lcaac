@@ -7,6 +7,7 @@ import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.tree.TerminalNode

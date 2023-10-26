@@ -1,8 +1,8 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
 import arrow.optics.Every
-import ch.kleis.lcaac.core.lang.DataKey
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*

@@ -1,9 +1,9 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import arrow.optics.Every
-import ch.kleis.lcaac.core.lang.DataKey
-import ch.kleis.lcaac.core.lang.DataRegister
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.Helper
 import ch.kleis.lcaac.core.lang.expression.*
@@ -11,7 +11,7 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 
 class TemplateExpressionReducer<Q>(
     private val ops: QuantityOperations<Q>,
-    dataRegister: DataRegister<Q>  = DataRegister.empty(),
+    dataRegister: DataRegister<Q> = DataRegister.empty(),
 ) : Reducer<ProcessTemplateExpression<Q>> {
     private val dataRegister = Register(dataRegister)
     private val helper = Helper<Q>()

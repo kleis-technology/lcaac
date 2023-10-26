@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.DataKey
-import ch.kleis.lcaac.core.lang.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber

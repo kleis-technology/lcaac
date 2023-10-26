@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.lang
+package ch.kleis.lcaac.core.lang.register
 
 data class RegisterException(val duplicates: Set<String>) : Exception(
     "$duplicates ${

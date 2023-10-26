@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.parser.LcaLangParser

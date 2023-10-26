@@ -1,9 +1,9 @@
 package ch.kleis.lcaac.core.prelude
 
-import ch.kleis.lcaac.core.lang.DataKey
-import ch.kleis.lcaac.core.lang.DataRegister
-import ch.kleis.lcaac.core.lang.DimensionKey
-import ch.kleis.lcaac.core.lang.DimensionRegister
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DimensionKey
+import ch.kleis.lcaac.core.lang.register.DimensionRegister
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.EUnitLiteral

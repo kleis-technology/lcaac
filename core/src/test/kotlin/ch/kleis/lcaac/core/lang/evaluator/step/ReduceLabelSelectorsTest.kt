@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
-import ch.kleis.lcaac.core.lang.DataKey
-import ch.kleis.lcaac.core.lang.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture

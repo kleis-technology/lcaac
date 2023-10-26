@@ -1,6 +1,10 @@
 package ch.kleis.lcaac.core.lang
 
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.Register
+import ch.kleis.lcaac.core.lang.register.RegisterException
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

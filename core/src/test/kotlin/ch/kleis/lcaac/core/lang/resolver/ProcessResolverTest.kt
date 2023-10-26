@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.resolver
 
-import ch.kleis.lcaac.core.lang.ProcessKey
-import ch.kleis.lcaac.core.lang.ProcessTemplateRegister
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.register.ProcessTemplateRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*

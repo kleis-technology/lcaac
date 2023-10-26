@@ -4,6 +4,8 @@ import arrow.optics.Fold
 import arrow.typeclasses.Monoid
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EDataRef
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

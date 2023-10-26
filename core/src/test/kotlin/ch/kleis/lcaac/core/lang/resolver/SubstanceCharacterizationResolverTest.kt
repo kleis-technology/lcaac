@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.resolver
 
-import ch.kleis.lcaac.core.lang.SubstanceCharacterizationRegister
-import ch.kleis.lcaac.core.lang.SubstanceKey
+import ch.kleis.lcaac.core.lang.register.SubstanceCharacterizationRegister
+import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.SubstanceType
 import ch.kleis.lcaac.core.lang.fixture.SubstanceCharacterizationFixture
