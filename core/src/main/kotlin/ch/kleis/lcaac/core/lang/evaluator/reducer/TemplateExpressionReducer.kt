@@ -12,22 +12,11 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 class TemplateExpressionReducer<Q>(
     private val ops: QuantityOperations<Q>,
     dataRegister: DataRegister<Q> = DataRegister.empty(),
-) : Reducer<ProcessTemplateExpression<Q>> {
+) {
     private val dataRegister = Register(dataRegister)
     private val helper = Helper<Q>()
 
-    override fun reduce(expression: ProcessTemplateExpression<Q>): ProcessTemplateExpression<Q> {
-        return when (expression) {
-            is EProcessTemplateApplication -> {
-                return reduceTemplateApplication(expression)
-            }
-
-            is EProcessFinal -> expression
-            is EProcessTemplate -> expression
-        }
-    }
-
-    fun reduceTemplateApplication(expression: EProcessTemplateApplication<Q>): EProcessFinal<Q> {
+    fun reduce(expression: EProcessTemplateApplication<Q>): EProcess<Q> {
         val template = expression.template
 
         val unknownParameters = expression.arguments.keys
@@ -52,7 +41,7 @@ class TemplateExpressionReducer<Q>(
         }
         result = reducer.reduce(result) as EProcess
         result = concretizeProducts(result, actualArguments, dataReducer)
-        return EProcessFinal(result)
+        return result
     }
 
     private fun concretizeProducts(

@@ -2,7 +2,9 @@ package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
-import ch.kleis.lcaac.core.lang.fixture.*
+import ch.kleis.lcaac.core.lang.fixture.ProductFixture
+import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Test
@@ -48,7 +50,7 @@ class ProcessTemplateExpressionReducerTest {
         val actual = reducer.reduce(expression)
 
         // then
-        val expected = EProcessFinal(
+        val expected =
             EProcess(
                 name = "carrot_production",
                 products = listOf(
@@ -74,7 +76,6 @@ class ProcessTemplateExpressionReducerTest {
                     ),
                 ),
             )
-        )
         assertEquals(expected, actual)
     }
 
@@ -113,31 +114,5 @@ class ProcessTemplateExpressionReducerTest {
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { reducer.reduce(expression) }
         assertEquals("unknown parameters: [foo]", e.message)
-    }
-
-    @Test
-    fun reduce_whenProcessFinal_shouldRemainUnchanged() {
-        // given
-        val expression = EProcessFinal(ProcessFixture.carrotProduction)
-        val reducer = TemplateExpressionReducer(ops)
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        assertEquals(expression, actual)
-    }
-
-    @Test
-    fun reduce_whenTemplate_shouldRemainUnchanged() {
-        // given
-        val expression = TemplateFixture.carrotProduction
-        val reducer = TemplateExpressionReducer(ops)
-
-        // when
-        val actual = reducer.reduce(expression)
-
-        // then
-        assertEquals(expression, actual)
     }
 }

@@ -14,24 +14,23 @@ import kotlin.test.assertEquals
 
 class CompleteTerminalsTest {
     private val ops = BasicOperations
-    
+
     @Test
     fun eval_withUnknownSubstances_shouldCompleteSubstances() {
         // given
-        val process = EProcessFinal(
+        val process =
             EProcess(
                 name = "process",
                 biosphere = listOf(
                     EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
                 ),
             )
-        )
 
         // when
         val actual = CompleteTerminals(ops).apply(process)
 
         // then
-        val expected = EProcessFinal(
+        val expected =
             EProcess(
                 name = "process",
                 biosphere = listOf(
@@ -44,7 +43,6 @@ class CompleteTerminalsTest {
                     )
                 ),
             )
-        )
         assertEquals(expected, actual)
     }
 

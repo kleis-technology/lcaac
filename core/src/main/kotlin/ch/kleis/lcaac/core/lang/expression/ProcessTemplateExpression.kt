@@ -41,9 +41,4 @@ data class EProcessTemplateApplication<Q>(
     companion object
 }
 
-@optics
-data class EProcessFinal<Q>(val expression: EProcess<Q>) : ProcessTemplateExpression<Q> {
-    companion object
-}
-
 

@@ -11,11 +11,11 @@ import kotlin.math.pow
 class DataExpressionReducer<Q>(
     dataRegister: DataRegister<Q>,
     private val ops: QuantityOperations<Q>,
-) : Reducer<DataExpression<Q>> {
+) {
     private val dataRegister = DataRegister(dataRegister)
     private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker<Q>()
 
-    override fun reduce(expression: DataExpression<Q>): DataExpression<Q> {
+    fun reduce(expression: DataExpression<Q>): DataExpression<Q> {
         with(ops) {
             return when (expression) {
                 is EDataRef -> reduceRef(expression)
