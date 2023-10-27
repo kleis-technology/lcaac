@@ -9,10 +9,10 @@ class CompleteTerminals<Q>(
     private val ops: QuantityOperations<Q>
 ) {
     private val everyInputExchange =
-        EProcessFinal.expression<Q>().inputs() compose
+        EProcess.inputs<Q>() compose
                 Every.list()
 
-    fun apply(expression: EProcessFinal<Q>): EProcessFinal<Q> =
+    fun apply(expression: EProcess<Q>): EProcess<Q> =
         expression
             .completeInputs()
             .completeSubstances()
@@ -21,7 +21,7 @@ class CompleteTerminals<Q>(
     fun apply(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> =
         expression.completeSubstanceIndicators()
 
-    private fun EProcessFinal<Q>.completeInputs(): EProcessFinal<Q> {
+    private fun EProcess<Q>.completeInputs(): EProcess<Q> {
         return everyInputExchange
             .modify(this) { exchange ->
                 val referenceUnit = exchangeReferenceUnit(exchange)
@@ -33,8 +33,8 @@ class CompleteTerminals<Q>(
             }
     }
 
-    private fun EProcessFinal<Q>.completeSubstances(): EProcessFinal<Q> {
-        return (EProcessFinal.expression<Q>().biosphere() compose Every.list())
+    private fun EProcess<Q>.completeSubstances(): EProcess<Q> {
+        return (EProcess.biosphere<Q>() compose Every.list())
             .modify(this) { exchange ->
                 val referenceUnit = exchangeReferenceUnit(exchange)
 
@@ -57,11 +57,9 @@ class CompleteTerminals<Q>(
                 }
         }
 
-    private fun EProcessFinal<Q>.completeProcessIndicators(): EProcessFinal<Q> =
+    private fun EProcess<Q>.completeProcessIndicators(): EProcess<Q> =
         this.copy(
-            expression = this.expression.copy(
-                impacts = completeIndicators(this.expression.impacts)
-            )
+                impacts = completeIndicators(this.impacts)
         )
 
     private fun ESubstanceCharacterization<Q>.completeSubstanceIndicators(): ESubstanceCharacterization<Q> =

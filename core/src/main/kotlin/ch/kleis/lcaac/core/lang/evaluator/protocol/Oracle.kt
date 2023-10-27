@@ -41,7 +41,6 @@ class Oracle<Q>(
             .let(reduceLabelSelectors::apply)
             .let(reduceDataExpressions::apply)
             .let(completeTerminals::apply)
-            .expression
         val selectedPortIndex = indexOf(request.value.name, process)
         return ProductResponse(request.address, process, selectedPortIndex)
     }

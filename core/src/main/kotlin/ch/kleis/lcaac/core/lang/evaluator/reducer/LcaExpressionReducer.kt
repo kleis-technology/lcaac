@@ -7,10 +7,10 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 class LcaExpressionReducer<Q>(
     dataRegister: DataRegister<Q> = DataRegister.empty(),
     ops: QuantityOperations<Q>,
-) : Reducer<LcaExpression<Q>> {
+) {
     private val dataExpressionReducer = DataExpressionReducer(dataRegister, ops)
 
-    override fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
+    fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
         return when (expression) {
             is EProcess -> reduceProcess(expression)
             is ESubstanceCharacterization -> reduceSubstanceCharacterization(expression)

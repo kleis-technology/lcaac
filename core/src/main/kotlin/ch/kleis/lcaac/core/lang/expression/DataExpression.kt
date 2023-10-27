@@ -6,13 +6,16 @@ import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 
 @optics
-sealed interface DataExpression<Q> : Expression<Q> {
+sealed interface DataExpression<Q> {
     companion object
 }
 
+sealed interface QuantityExpression<Q>
+sealed interface StringExpression
+
 @optics
-data class EDataRef<Q>(val name: String) : DataExpression<Q>, RefExpression {
-    override fun name(): String {
+data class EDataRef<Q>(val name: String) : DataExpression<Q> {
+    fun name(): String {
         return name
     }
 

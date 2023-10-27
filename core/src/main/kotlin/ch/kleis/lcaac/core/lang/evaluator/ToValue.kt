@@ -7,13 +7,6 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 class ToValue<Q>(
     private val ops: QuantityOperations<Q>,
 ) {
-    fun ProcessTemplateExpression<Q>.toValue(): ProcessValue<Q> {
-        return when (this) {
-            is EProcessFinal -> this.expression.toValue()
-            else -> throw EvaluatorException("$this is not final")
-        }
-    }
-
     private fun doubleValueOf(q: () -> Q): Double {
         return with(ops) { q().toDouble() }
     }

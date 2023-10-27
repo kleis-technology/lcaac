@@ -1,3 +1,5 @@
+@file:Suppress("LocalVariableName")
+
 package ch.kleis.lcaac.core.lang.expression.optics
 
 import arrow.optics.Every
@@ -106,7 +108,7 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
 
 private fun <Q> everyDataRefInConstraint(): PEvery<FromProcess<Q>, FromProcess<Q>, EDataRef<Q>, DataExpression<Q>> =
     FromProcess.arguments<Q>() compose
-        Every.map() compose everyDataRefInDataExpression<Q>()
+        Every.map() compose everyDataRefInDataExpression()
 
 private fun <Q> everyDataRefInEProductSpec(): PEvery<EProductSpec<Q>, EProductSpec<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
@@ -130,10 +132,10 @@ private fun <Q> everyDataRefInETechnoExchange(): PEvery<ETechnoExchange<Q>, ETec
     )
 
 private fun <Q> everyDataRefInEBioExchange(): PEvery<EBioExchange<Q>, EBioExchange<Q>, EDataRef<Q>, DataExpression<Q>> =
-    EBioExchange.quantity<Q>() compose everyDataRefInDataExpression<Q>()
+    EBioExchange.quantity<Q>() compose everyDataRefInDataExpression()
 
 private fun <Q> everyDataRefInEImpact(): PEvery<EImpact<Q>, EImpact<Q>, EDataRef<Q>, DataExpression<Q>> =
-    EImpact.quantity<Q>() compose everyDataRefInDataExpression<Q>()
+    EImpact.quantity<Q>() compose everyDataRefInDataExpression()
 
 fun <Q> everyDataRefInProcess(): PEvery<EProcess<Q>, EProcess<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
@@ -154,7 +156,7 @@ private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceChar
     )
 
 
-private fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
+fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
             LcaExpression.eProcess<Q>() compose
@@ -171,27 +173,14 @@ private fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpre
         )
     )
 
-private fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
-    Merge(
+fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
+    everyProcessTemplateInTemplateExpression<Q>() compose Merge(
         listOf(
-            everyProcessTemplateInTemplateExpression<Q>() compose Merge(
-                listOf(
-                    EProcessTemplate.params<Q>() compose Every.map() compose
-                        everyDataRefInDataExpression(),
-                    EProcessTemplate.locals<Q>() compose Every.map() compose
-                        everyDataRefInDataExpression(),
-                    EProcessTemplate.body<Q>() compose everyDataRefInProcess(),
-                )
-            ),
-            ProcessTemplateExpression.eProcessFinal<Q>().expression() compose everyDataRefInProcess(),
-        ),
-    )
-
-fun <Q> everyDataRef(): PEvery<Expression<Q>, Expression<Q>, EDataRef<Q>, EDataRef<Q>> =
-    Merge(
-        listOf(
-            Expression.lcaExpression<Q>() compose everyDataRefInLcaExpression(),
-            Expression.dataExpression<Q>() compose everyDataRefInDataExpression(),
-            Expression.processTemplateExpression<Q>() compose everyDataRefInTemplateExpression(),
+            EProcessTemplate.params<Q>() compose Every.map() compose
+                everyDataRefInDataExpression(),
+            EProcessTemplate.locals<Q>() compose Every.map() compose
+                everyDataRefInDataExpression(),
+            EProcessTemplate.body<Q>() compose everyDataRefInProcess(),
         )
     )
+
