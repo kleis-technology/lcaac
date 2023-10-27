@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
@@ -202,7 +203,7 @@ class ReduceLabelSelectorsTest {
 
         val reduceLabelSelectors = ReduceLabelSelectors(
             SymbolTable(
-                data = Register.from(mapOf("geo" to EStringLiteral("FR")))
+                data = DataRegister(mapOf(DataKey("geo") to EStringLiteral("FR")))
             ),
             ops,
         )

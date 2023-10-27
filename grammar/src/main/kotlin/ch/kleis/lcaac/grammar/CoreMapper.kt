@@ -2,13 +2,12 @@
 
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.Register
-import ch.kleis.lcaac.core.lang.RegisterException
-import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.*
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.tree.TerminalNode
@@ -19,7 +18,7 @@ class CoreMapper<Q>(
 ) {
     fun process(
         ctx: LcaLangParser.ProcessDefinitionContext,
-        globals: Register<DataExpression<Q>> = Register.empty(),
+        globals: DataRegister<Q> = DataRegister.empty(),
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
         val labels = ctx.labels()
@@ -33,7 +32,7 @@ class CoreMapper<Q>(
             .associate { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
         val symbolTable = SymbolTable(
             data = try {
-                Register(globals.plus(params).plus(locals))
+                DataRegister(globals.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
             },
@@ -323,24 +322,19 @@ class CoreMapper<Q>(
         return this.uid().ID().innerText()
     }
 
-    fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): String {
+    fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): ProcessKey {
         val labels = this.labels()
             ?.flatMap { it.label_assignment() }
             ?.associate { it.labelRef().innerText() to it.STRING_LITERAL().innerText() }
-            ?: return this.name.innerText()
-        return "${this.name.innerText()}$labels"
+            ?: return ProcessKey(this.name.innerText())
+        return ProcessKey(this.name.innerText(), labels)
     }
 
-    fun LcaLangParser.SubstanceDefinitionContext.buildUniqueKey(): String {
+    fun LcaLangParser.SubstanceDefinitionContext.buildUniqueKey(): SubstanceKey {
         val name = this.substanceRef().innerText()
         val compartment = this.compartmentField().STRING_LITERAL().innerText()
-        val type = this.typeField().children[2].text
+        val type = SubstanceType.of(this.typeField().children[2].text)
         val subCompartment = this.subCompartmentField()?.STRING_LITERAL()?.innerText()
-        return listOfNotNull(
-            name,
-            compartment,
-            type,
-            subCompartment,
-        ).joinToString("_")
+        return SubstanceKey(name, type, compartment, subCompartment)
     }
 }

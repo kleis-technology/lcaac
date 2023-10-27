@@ -1,8 +1,9 @@
 package ch.kleis.lcaac.core.lang.resolver
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.SubstanceCharacterizationRegister
+import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
+import ch.kleis.lcaac.core.lang.expression.SubstanceType
 import ch.kleis.lcaac.core.lang.fixture.SubstanceCharacterizationFixture
 import ch.kleis.lcaac.core.lang.fixture.SubstanceFixture
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -31,7 +32,9 @@ class SubstanceCharacterizationResolverTest {
         // given
         val substance = SubstanceFixture.propanol.copy(compartment = null)
         val substanceCharacterization = SubstanceCharacterizationFixture.propanolCharacterization
-        val substanceCharacterizations = Register.from(mapOf("propanol" to substanceCharacterization))
+        val substanceCharacterizations =
+            SubstanceCharacterizationRegister(mapOf("propanol" to substanceCharacterization).mapKeys { SubstanceKey(it.key) }
+            )
 
         val symbolTable = SymbolTable(
             substanceCharacterizations = substanceCharacterizations,
@@ -50,7 +53,9 @@ class SubstanceCharacterizationResolverTest {
         // given
         val substance = SubstanceFixture.propanol.copy(type = null)
         val substanceCharacterization = SubstanceCharacterizationFixture.propanolCharacterization
-        val substanceCharacterizations = Register.from(mapOf("propanol" to substanceCharacterization))
+        val substanceCharacterizations =
+            SubstanceCharacterizationRegister(mapOf("propanol" to substanceCharacterization).mapKeys { SubstanceKey(it.key) }
+            )
 
         val symbolTable = SymbolTable(
             substanceCharacterizations = substanceCharacterizations,
@@ -69,7 +74,12 @@ class SubstanceCharacterizationResolverTest {
         // given
         val substance = SubstanceFixture.propanol
         val substanceCharacterization = SubstanceCharacterizationFixture.propanolCharacterization
-        val substanceCharacterizations = Register.from(mapOf("propanol" to substanceCharacterization))
+        val substanceCharacterizations =
+            SubstanceCharacterizationRegister(
+                mapOf(
+                    SubstanceKey("propanol", SubstanceType.RESOURCE, "air") to substanceCharacterization
+                )
+            )
 
         val symbolTable = SymbolTable(
             substanceCharacterizations = substanceCharacterizations,
@@ -92,10 +102,10 @@ class SubstanceCharacterizationResolverTest {
         val propanolWater = SubstanceFixture.propanol.copy(compartment = "water")
         val propanolWaterCharacterization = SubstanceCharacterizationFixture.substanceCharacterizationFor(propanolWater)
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
+        val substanceCharacterizations = SubstanceCharacterizationRegister(
             mapOf(
-                "a" to propanolAirCharacterization,
-                "b" to propanolWaterCharacterization,
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "air") to propanolAirCharacterization,
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "water") to propanolWaterCharacterization,
             )
         )
 
@@ -122,10 +132,10 @@ class SubstanceCharacterizationResolverTest {
 
         val query = propanolAir.copy(subCompartment = "airspace G")
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
+        val substanceCharacterizations = SubstanceCharacterizationRegister(
             mapOf(
-                "G" to propanolAirCharacterization,
-                "E" to propanolAirECharacterization
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "air") to propanolAirCharacterization,
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "air", "airspace E") to propanolAirECharacterization
             )
         )
 
@@ -152,10 +162,10 @@ class SubstanceCharacterizationResolverTest {
         val propanolAirSpaceECharacterization =
             SubstanceCharacterizationFixture.substanceCharacterizationFor(propanolAirSpaceE)
 
-        val substanceCharacterizations: Register<ESubstanceCharacterization<BasicNumber>> = Register.from(
+        val substanceCharacterizations = SubstanceCharacterizationRegister(
             mapOf(
-                "a" to propanolAirSpaceGCharacterization,
-                "b" to propanolAirSpaceECharacterization,
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "air", "airspace G") to propanolAirSpaceGCharacterization,
+                SubstanceKey("propanol", SubstanceType.RESOURCE, "air", "airspace E") to propanolAirSpaceECharacterization,
             )
         )
 

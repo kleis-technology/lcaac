@@ -1,9 +1,11 @@
 package ch.kleis.lcaac.core.prelude
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DimensionKey
+import ch.kleis.lcaac.core.lang.register.DimensionRegister
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 
 
@@ -16,7 +18,8 @@ class Prelude {
         constructor(value: EUnitLiteral<Q>) : this(
             sanitize(value.symbol.toString(), toLowerCase = false), value, null
         )
-        constructor(value: EUnitLiteral<Q>, rawAlias: String): this(
+
+        constructor(value: EUnitLiteral<Q>, rawAlias: String) : this(
             sanitize(value.symbol.toString(), toLowerCase = false), value, rawAlias
         )
     }
@@ -172,8 +175,10 @@ class Prelude {
         private fun primitiveDimensionMap(): Map<String, Dimension> =
             primitiveUnits<Any>().mapValues { it.value.value.dimension }
 
-        fun <Q> units(): Register<DataExpression<Q>> = Register.from(unitMap())
-        fun dimensions(): Register<Dimension> = Register.from(primitiveDimensionMap())
+        fun <Q> units(): DataRegister<Q> =
+            DataRegister.from(unitMap<Q>().mapKeys { DataKey(it.key) })
+        fun dimensions(): DimensionRegister =
+            DimensionRegister.from(primitiveDimensionMap().mapKeys { DimensionKey(it.key) })
 
         fun sanitize(s: String, toLowerCase: Boolean = true): String {
             if (s.isBlank()) {

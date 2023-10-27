@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
@@ -8,10 +9,10 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
 
 class DataExpressionReducer<Q>(
-    dataRegister: Register<DataExpression<Q>>,
+    dataRegister: DataRegister<Q>,
     private val ops: QuantityOperations<Q>,
 ) : Reducer<DataExpression<Q>> {
-    private val dataRegister = Register(dataRegister)
+    private val dataRegister = DataRegister(dataRegister)
     private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker<Q>()
 
     override fun reduce(expression: DataExpression<Q>): DataExpression<Q> {
@@ -132,7 +133,8 @@ class DataExpressionReducer<Q>(
     }
 
     private fun reduceRef(expression: EDataRef<Q>): DataExpression<Q> {
-        return dataRegister[expression.name]?.let { reduce(it) } ?: expression
+        val key = DataKey(expression.name)
+        return dataRegister[key]?.let { reduce(it) } ?: expression
     }
 
     private fun reduceScale(expression: EQuantityScale<Q>): DataExpression<Q> {

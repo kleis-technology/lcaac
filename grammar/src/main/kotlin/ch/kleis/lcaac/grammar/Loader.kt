@@ -1,10 +1,7 @@
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.Register
-import ch.kleis.lcaac.core.lang.RegisterException
-import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
-import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
+import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
@@ -32,12 +29,12 @@ class Loader<Q>(
             val dimensions = try {
                 val register =
                     if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.dimensions()
-                    else Register.empty()
+                    else DimensionRegister.empty()
                 register
                     .plus(
                         unitDefinitions
                             .filter { it.type() == UnitDefinitionType.LITERAL }
-                            .map { it.dimField().innerText() to dimension(it.dimField()) }
+                            .map { DimensionKey(it.dimField().innerText()) to dimension(it.dimField()) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {
@@ -45,7 +42,7 @@ class Loader<Q>(
             }
 
             val substanceCharacterizations = try {
-                Register.empty<ESubstanceCharacterization<Q>>()
+                SubstanceCharacterizationRegister<Q>()
                     .plus(
                         substanceDefinitions
                             .map { it.buildUniqueKey() to substanceCharacterization(it) }
@@ -56,25 +53,25 @@ class Loader<Q>(
             }
 
             val globals = try {
-                val register =
-                    if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.units<Q>()
-                    else Register.empty()
+                val register: DataRegister<Q> =
+                    if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.units()
+                    else DataRegister()
                 register
                     .plus(
                         unitDefinitions
                             .filter { it.type() == UnitDefinitionType.LITERAL }
-                            .map { it.dataRef().innerText() to unitLiteral(it) }
+                            .map { DataKey(it.dataRef().innerText()) to unitLiteral(it) }
                             .asIterable()
                     )
                     .plus(
                         unitDefinitions
                             .filter { it.type() == UnitDefinitionType.ALIAS }
-                            .map { it.dataRef().innerText() to unitAlias(it) }
+                            .map { DataKey(it.dataRef().innerText()) to unitAlias(it) }
                             .asIterable()
                     )
                     .plus(
                         globalDefinitions
-                            .map { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
+                            .map { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {
@@ -83,7 +80,7 @@ class Loader<Q>(
 
 
             val processTemplates = try {
-                Register.empty<EProcessTemplate<Q>>()
+                ProcessTemplateRegister<Q>()
                     .plus(
                         processDefinitions
                             .map { Pair(it.buildUniqueKey(), process(it, globals)) }

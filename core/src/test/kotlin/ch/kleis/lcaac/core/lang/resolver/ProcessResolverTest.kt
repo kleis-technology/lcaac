@@ -1,12 +1,12 @@
 package ch.kleis.lcaac.core.lang.resolver
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.register.ProcessTemplateRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.ProductFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
-import ch.kleis.lcaac.core.math.basic.BasicNumber
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -34,10 +34,10 @@ class ProcessResolverTest {
         val carrotProductionUK = EProcessTemplate(
             body = carrotProductionBodyUK,
         )
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
-                "carrot_production_FR" to carrotProductionFR,
-                "carrot_production_UK" to carrotProductionUK,
+                ProcessKey("carrot_production", mapOf("geo" to "FR")) to carrotProductionFR,
+                ProcessKey("carrot_production", mapOf("geo" to "UK")) to carrotProductionUK,
             )
         )
         val carrotSpec = ProductFixture.carrot.copy(
@@ -79,10 +79,10 @@ class ProcessResolverTest {
                 ),
             )
         )
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 "carrot_production" to carrotProduction,
-            )
+            ).mapKeys { ProcessKey(it.key) }
         )
         val carrotSpec = ProductFixture.carrot.copy(
             name = "irrelevant_product",
@@ -131,11 +131,11 @@ class ProcessResolverTest {
                 ),
             )
         )
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 "carrot_production" to carrotProduction,
                 "salad_production" to saladProduction,
-            )
+            ).mapKeys { ProcessKey(it.key) }
         )
         val carrotSpec = ProductFixture.carrot.copy(
             fromProcess = FromProcess("carrot_production", MatchLabels(emptyMap()), emptyMap())
@@ -183,11 +183,11 @@ class ProcessResolverTest {
                 ),
             )
         )
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 "carrot_production" to carrotProduction,
                 "salad_production" to saladProduction,
-            )
+            ).mapKeys { ProcessKey(it.key) }
         )
         val carrotSpec = ProductFixture.carrot
         val symbolTable = SymbolTable(
@@ -241,12 +241,12 @@ class ProcessResolverTest {
                 ),
             )
         )
-        val processTemplates: Register<EProcessTemplate<BasicNumber>> = Register.from(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 "carrot_production_FR" to carrotProductionFR,
                 "carrot_production_UK" to carrotProductionUK,
                 "salad_production" to saladProduction,
-            )
+            ).mapKeys { ProcessKey(it.key) }
         )
         val carrotSpec = ProductFixture.carrot
         val symbolTable = SymbolTable(

@@ -1,11 +1,11 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.Register
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class LcaExpressionReducer<Q>(
-    dataRegister: Register<DataExpression<Q>> = Register.empty(),
+    dataRegister: DataRegister<Q> = DataRegister.empty(),
     ops: QuantityOperations<Q>,
 ) : Reducer<LcaExpression<Q>> {
     private val dataExpressionReducer = DataExpressionReducer(dataRegister, ops)
