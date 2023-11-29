@@ -21,13 +21,12 @@ data class EProductSpec<Q>(
 }
 
 // Substance
+@Suppress("EnumValuesSoftDeprecate")
 enum class SubstanceType(val value: String) {
     EMISSION("Emission"), RESOURCE("Resource"), LAND_USE("Land_use");
 
     companion object {
-        @ExperimentalStdlibApi
-        private val map = entries.associateBy { it.value }
-        @OptIn(ExperimentalStdlibApi::class)
+        private val map = SubstanceType.values().associateBy { it.value }
         infix fun of(value: String): SubstanceType =
             map[value] ?: throw EvaluatorException("Invalid SubstanceType: $value")
     }
