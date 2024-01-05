@@ -11,7 +11,8 @@ plugins {
 }
 
 val group = properties("lcaacGroup")
-val version = properties("lcaacVersion")
+val artifactId = "grammar"
+val artifactVersion = properties("lcaacVersion")
 val javaVersion = properties("javaVersion")
 
 kotlin {
@@ -80,6 +81,9 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>("grammar") {
+            groupId = groupId
+            artifactId = artifactId
+            version = artifactVersion
             from(components["java"])
         }
     }
