@@ -1,6 +1,7 @@
 # LCA as Code
 
 ![Repository Status](https://www.repostatus.org/badges/latest/active.svg)
+![Tests](https://github.com/kleis-technology/lcaac/actions/workflows/test.yaml/badge.svg)
 
 This is the official repository of LCA as Code language.
 
