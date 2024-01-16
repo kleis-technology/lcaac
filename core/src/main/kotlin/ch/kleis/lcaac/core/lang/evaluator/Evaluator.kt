@@ -1,9 +1,10 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
+import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 import org.slf4j.LoggerFactory
 
@@ -32,9 +33,23 @@ class Evaluator<Q>(
         }
     }
 
-    fun trace(template: EProcessTemplate<Q>, arguments: Map<String, DataExpression<Q>> = emptyMap()): EvaluationTrace<Q> {
-        return prepareRequests(template, arguments)
-            .let(this::trace)
+    fun with(template: EProcessTemplate<Q>): Evaluator<Q> {
+        val processKey = ProcessKey(template.body.name)
+        if (symbolTable.processTemplates[processKey] != null) throw IllegalStateException("Process ${template.body.name} already exists")
+        val st = this.symbolTable.copy(
+                processTemplates = this.symbolTable.processTemplates.plus(
+                    mapOf(processKey to template)
+                )
+            )
+        return Evaluator(st, ops)
+    }
+
+    fun trace(
+        template: EProcessTemplate<Q>,
+        arguments: Map<String, DataExpression<Q>> = emptyMap()
+    ): EvaluationTrace<Q> {
+        val requests = prepareRequests(template, arguments)
+        return trace(requests)
     }
 
     private fun <Q> prepareRequests(

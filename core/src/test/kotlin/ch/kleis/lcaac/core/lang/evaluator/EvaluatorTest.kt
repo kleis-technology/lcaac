@@ -13,12 +13,67 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 
 class EvaluatorTest {
     private val ops = BasicOperations
+
+    @Test
+    fun with_whenNewTemplate() {
+        // given
+        val template = EProcessTemplate(
+            body = EProcess(
+                name = "eProcess",
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+                ),
+                impacts = listOf(
+                    ImpactFixture.oneClimateChange
+                ),
+            )
+        )
+        val evaluator = Evaluator(SymbolTable.empty(), BasicOperations)
+            .with(template)
+        val expected = ImpactValue(
+            QuantityValueFixture.oneKilogram,
+            IndicatorValueFixture.climateChange,
+        )
+
+        // when
+        val actual = evaluator.trace(template).getEntryPoint().impacts.first()
+
+        // then
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun with_whenNameCollision_shouldThrow() {
+        // given
+        val template = EProcessTemplate(
+            body = EProcess(
+                name = "eProcess",
+                products = listOf(
+                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+                ),
+                impacts = listOf(
+                    ImpactFixture.oneClimateChange
+                ),
+            )
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = ProcessTemplateRegister.from(mapOf(
+                ProcessKey("eProcess") to template
+            ))
+        )
+        val evaluator = Evaluator(symbolTable, BasicOperations)
+
+        // when/then
+        val e = assertThrows<IllegalStateException> { evaluator.with(template) }
+        assertEquals("Process eProcess already exists", e.message)
+    }
 
     @Test
     fun eval_processWithImpacts_shouldReduceImpacts() {
