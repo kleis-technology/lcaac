@@ -2,7 +2,7 @@
 
 ![Repository Status](https://www.repostatus.org/badges/latest/active.svg)
 
-This is the official repository of LCA as Code core packages.
+This is the official repository of LCA as Code language.
 
 ## What is LCA as Code?
 
