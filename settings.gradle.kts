@@ -1,6 +1,7 @@
 rootProject.name = "ch.kleis.lcaac"
 include("core")
 include("grammar")
+include("cli")
 
 pluginManagement {
     val kotlinPluginVersion = "1.9.0"
