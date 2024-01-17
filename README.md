@@ -12,30 +12,59 @@ Its *declarative* approach enables to seamlessly define *parametrized* and *reus
 
 ![LCA as Code](./assets/logo-white-60pct.png)
 
+## Table of Contents
+
+1. [Getting started](#getting-started)
+2. [What's inside](#whats-inside)
+3. [Related projects](#related-projects)
+4. [License](#license)
+5. [About us](#about-us)
+
+## Getting started
+
+Check the sample file in `$GIT_ROOT/cli/samples`.
+
 ```lca
-process electricity_production_mix {
+process electricity_mix {
     params {
-        hydro = 20 percent
-        nuclear = 30 percent
-        fossil = 50 percent
+        from_fossil = 40 percent
+        from_nuclear = 20 percent
+        from_hydro = 40 percent
     }
     products {
         1 kWh electricity
     }
     inputs {
-        hydro * 1 kWh electricity from hydroelectric_production
-        nuclear * 1 kWh electricity from nuclear_production
-        fossil * 1 kWh electricity from fossil_production
+        from_fossil * 1 kWh electricity from fossil
+        from_nuclear * 1 kWh electricity from nuclear
+        from_hydro * 1 kWh electricity from hydro
     }
 }
+// rest of the file omitted
 ```
 
-## Table of Contents
+On the command line, setup the cli.
+```bash
+./gradlew :cli:installDist
+alias lcaac=$GIT_ROOT/cli/build/install/cli/bin/cli
+```
 
-1. [What's inside](#whats-inside)
-2. [Related projects](#related-projects)
-3. [License](#license)
-4. [About us](#about-us)
+Now you can assess the process `electricity_mix`.
+```bash
+cd $GIT_ROOT/cli/samples
+lcaac assess "electricity_mix"
+```
+The result is printed on the standard output in CSV format.
+```csv
+product,amount,reference unit,co2 [kg]
+electricity,1.0,kWh,5.4
+```
+
+You can also run multiple assessments with an external data csv file providing values for the process parameters.
+```bash
+lcaac assess "electricity_mix" --data params.csv
+```
+
 
 ## What's inside
 
@@ -53,6 +82,10 @@ The package `core` contains:
 The package `grammar` contains:
 - a concrete ANTLR-based grammar
 - utilities to parse and load LCAAC files.
+
+### Package `cli`
+
+The package `cli` contains the code for the command-line interface.
 
 ## Related projects
 
