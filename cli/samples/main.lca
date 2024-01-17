@@ -1,0 +1,42 @@
+process electricity_mix {
+    params {
+        from_fossil = 40 percent
+        from_nuclear = 20 percent
+        from_hydro = 40 percent
+    }
+    products {
+        1 kWh electricity
+    }
+    inputs {
+        from_fossil * 1 kWh electricity from fossil
+        from_nuclear * 1 kWh electricity from nuclear
+        from_hydro * 1 kWh electricity from hydro
+    }
+}
+
+process fossil {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        10 kg co2
+    }
+}
+
+process nuclear {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        5 kg co2
+    }
+}
+
+process hydro {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        1 kg co2
+    }
+}
