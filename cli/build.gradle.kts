@@ -41,6 +41,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
+    implementation("org.apache.commons:commons-csv:1.10.0")
 }
 
 tasks.test {
