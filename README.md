@@ -46,7 +46,7 @@ process electricity_mix {
 On the command line, setup the cli.
 ```bash
 ./gradlew :cli:installDist
-alias lcaac=$GIT_ROOT/cli/build/install/cli/bin/cli
+alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
 ```
 
 Now you can assess the process `electricity_mix`.

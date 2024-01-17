@@ -12,6 +12,7 @@ val artifactVersion = properties("lcaacVersion")
 val javaVersion = properties("javaVersion")
 
 application {
+    applicationName = "lcaac"
     mainClass.set("ch.kleis.lcaac.cli.MainKt")
 }
 

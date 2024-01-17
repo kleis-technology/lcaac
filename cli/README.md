@@ -4,7 +4,7 @@
 
 ```bash
 ./gradlew :cli:installDist
-alias lcaac=$GIT_ROOT/cli/build/install/cli/bin/cli
+alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
 ```
 
 ## Impact assessment

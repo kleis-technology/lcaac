@@ -2,5 +2,5 @@
 
 export GIT_ROOT=$(git rev-parse --show-toplevel)
 function lcaac() {
-    $GIT_ROOT/cli/build/install/cli/bin/cli $@
+    $GIT_ROOT/cli/build/install/lcaac/bin/lcaac $@
 }
