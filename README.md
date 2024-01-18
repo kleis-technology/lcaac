@@ -9,6 +9,7 @@ This is the official repository of LCA as Code language.
 
 LCA as Code is a domain-specific language (DSL) for life-cycle analysis experts.
 Its *declarative* approach allows to define *parametrized* and *reusable* LCA models.
+See our [book](https://lca-as-code.com/book) to learn more about the language.
 
 ![LCA as Code](./assets/logo-white-60pct.png)
 
