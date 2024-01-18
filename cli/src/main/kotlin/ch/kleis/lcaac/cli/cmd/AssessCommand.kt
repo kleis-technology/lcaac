@@ -6,6 +6,7 @@ import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.CsvResultWriter
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
+import ch.kleis.lcaac.grammar.LoaderOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
@@ -25,7 +26,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
     override fun run() {
         val files = lcaFiles(root)
-        val symbolTable = Loader(BasicOperations).load(files)
+        val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val processor = CsvProcessor(symbolTable)
         val iterator = loadRequests()
         val writer = CsvResultWriter()
