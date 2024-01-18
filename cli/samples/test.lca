@@ -1,0 +1,17 @@
+test should_pass {
+    given {
+        1 kWh electricity from electricity_mix
+    }
+    assert {
+        co2 between 0 kg and 10 kg
+    }
+}
+
+test should_fail {
+    given {
+        1 kWh electricity from electricity_mix
+    }
+    assert {
+        co2 between 100 kg and 1000 kg
+    }
+}

@@ -8,7 +8,7 @@ This is the official repository of LCA as Code language.
 ## What is LCA as Code?
 
 LCA as Code is a domain-specific language (DSL) for life-cycle analysis experts.
-Its *declarative* approach enables to seamlessly define *parametrized* and *reusable* LCA models.
+Its *declarative* approach allows to define *parametrized* and *reusable* LCA models.
 
 ![LCA as Code](./assets/logo-white-60pct.png)
 
@@ -22,7 +22,9 @@ Its *declarative* approach enables to seamlessly define *parametrized* and *reus
 
 ## Getting started
 
-Check the sample file in `$GIT_ROOT/cli/samples`.
+### Impact assessment
+
+Check the sample file in `$GIT_ROOT/cli/samples/main.lca`.
 
 ```lca
 process electricity_mix {
@@ -65,6 +67,26 @@ You can also run multiple assessments with an external data csv file providing v
 lcaac assess "electricity_mix" --data params.csv
 ```
 
+### Tests
+
+The language allows to define tests as well. See the file `$GIT_ROOT/cli/samples/test.lca`.
+
+```lca
+test should_pass {
+    given {
+        1 kWh electricity from electricity_mix
+    }
+    assert {
+        co2 between 0 kg and 10 kg
+    }
+}
+// rest of the file omitted
+```
+
+Run the tests using
+```bash
+lcaac test --show-success
+```
 
 ## What's inside
 
