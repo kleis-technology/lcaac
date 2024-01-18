@@ -59,8 +59,8 @@ lcaac assess "electricity_mix"
 ```
 The result is printed on the standard output in CSV format.
 ```csv
-product,amount,reference unit,co2 [kg]
-electricity,1.0,kWh,5.4
+product,amount,reference unit,co2,co2_unit
+electricity,1.0,kWh,5.4,kg
 ```
 
 You can also run multiple assessments with an external data csv file providing values for the process parameters.
