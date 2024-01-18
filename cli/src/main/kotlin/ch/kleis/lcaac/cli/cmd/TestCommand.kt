@@ -12,6 +12,7 @@ import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
@@ -21,9 +22,9 @@ private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
-    val pattern: String by option("-p", "--pattern").default("*").help("Run only tests whose name match this pattern.")
     val root: File by option("-r", "--root").file(canBeFile = false).default(File(".")).help("Root folder")
     val data: File? by option("-d", "--data").file(canBeDir = false).help("CSV file with parameter values")
+    val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
         val files = lcaFiles(root)
@@ -45,7 +46,8 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
                     is RangeAssertionFailure -> "${assertion.name} = ${assertion.actual} is not in between ${assertion.lo} and ${assertion.hi}"
                     is RangeAssertionSuccess -> "${assertion.name} = ${assertion.actual} is in between ${assertion.lo} and ${assertion.hi}"
                 }
-                echo("$tick  ${result.name}[$id] $message")
+                if ((isSuccess && showSuccess) || !isSuccess)
+                    echo("$tick  ${result.name}[$id] $message")
             }
         }
         val nbTests = results.flatMap { it.results }.count()
