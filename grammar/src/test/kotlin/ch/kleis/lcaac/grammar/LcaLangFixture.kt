@@ -13,5 +13,12 @@ class LcaLangFixture {
             val parser = LcaLangParser(tokens)
             return parser.lcaFile()
         }
+
+        fun test(content: String): LcaLangParser.TestDefinitionContext {
+            val lexer = LcaLangLexer(CharStreams.fromString(content))
+            val tokens = CommonTokenStream(lexer)
+            val parser = LcaLangParser(tokens)
+            return parser.testDefinition()
+        }
     }
 }
