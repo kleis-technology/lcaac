@@ -20,12 +20,29 @@ import java.io.File
 @Suppress("MemberVisibilityCanBePrivate")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
-    val labels: Map<String, String> by option("-l", "--label").associate()
-    val root: File by option("-r", "--root").file(canBeFile = false).default(File(".")).help("Root folder")
-    val data: File? by option("-d", "--data").file(canBeDir = false).help("CSV file with parameter values")
+    val labels: Map<String, String> by option("-l", "--label")
+            .help(
+                """
+                    Specify a process label as a key value pair.
+                    Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
+                """.trimIndent())
+            .associate()
+    val path: File by option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
+    val file: File? by option("-f", "--file").file(canBeDir = false)
+            .help("""
+                CSV file with parameter values.
+                Example: `lcaac assess <process name> -f params.csv`.
+            """.trimIndent())
+    val arguments: Map<String, String> by option("-D", "--parameter")
+            .help(
+            """
+                Override parameter value as a key value pair.
+                Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
+            """.trimIndent())
+            .associate()
 
     override fun run() {
-        val files = lcaFiles(root)
+        val files = lcaFiles(path)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val processor = CsvProcessor(symbolTable)
         val iterator = loadRequests()
@@ -45,12 +62,24 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
     }
 
     private fun loadRequests(): Iterator<CsvRequest> {
-        return data?.let { loadRequestsFrom(it) }
-            ?: listOf(CsvRequest(name, labels, emptyMap(), emptyList())).iterator()
+        return file?.let { loadRequestsFrom(it) }
+                ?: listOf(defaultRequest()).iterator()
     }
 
     private fun loadRequestsFrom(file: File): Iterator<CsvRequest> {
-        val reader = CsvRequestReader(name, labels, file.inputStream())
+        val reader = CsvRequestReader(name, labels, file.inputStream(), arguments)
         return reader.iterator()
+    }
+
+    private fun defaultRequest(): CsvRequest {
+        val pairs = arguments.toList()
+        val header = pairs.mapIndexed { index, pair -> pair.first to index }.toMap()
+        val record = pairs.map { it.second }
+        return CsvRequest(
+                name,
+                labels,
+                header,
+                record,
+        )
     }
 }

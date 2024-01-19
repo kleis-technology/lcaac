@@ -1,11 +1,20 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.expression.DataExpression
+import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.expression.EUnitOf
+import ch.kleis.lcaac.core.lang.expression.QuantityExpression
+import ch.kleis.lcaac.core.math.basic.BasicNumber
+import ch.kleis.lcaac.core.math.basic.BasicOperations
+import ch.kleis.lcaac.grammar.CoreMapper
 import ch.kleis.lcaac.grammar.parser.LcaLangLexer
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import java.io.File
 import java.io.InputStream
+import java.lang.Double.parseDouble
 import java.nio.file.Files
 import kotlin.io.path.isRegularFile
 
@@ -24,3 +33,32 @@ private fun lcaFile(inputStream: InputStream): LcaLangParser.LcaFileContext {
     val parser = LcaLangParser(tokens)
     return parser.lcaFile()
 }
+
+fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
+    val parts = s.split(" ")
+    return when (parts.size) {
+        1 -> {
+            val number = parts[0]
+            val amount = try {
+                parseDouble(number)
+            } catch (e: NumberFormatException) {
+                throw EvaluatorException("'$s' is not a valid quantity")
+            }
+            EQuantityScale(BasicNumber(amount), defaultUnit)
+        }
+        2 -> {
+            val lexer = LcaLangLexer(CharStreams.fromString(s))
+            val tokens = CommonTokenStream(lexer)
+            val parser = LcaLangParser(tokens)
+            val ctx = parser.dataExpression()
+            try {
+                CoreMapper(BasicOperations).dataExpression(ctx)
+            } catch (e: IllegalStateException) {
+                throw EvaluatorException("'$s' is not a valid quantity")
+            }
+        }
+        else -> throw EvaluatorException("'$s' is not a valid quantity")
+    }
+
+}
+
