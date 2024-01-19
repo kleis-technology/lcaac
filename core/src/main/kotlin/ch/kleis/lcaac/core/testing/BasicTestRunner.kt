@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.testing
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -14,11 +15,13 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 
 class BasicTestRunner<S>(
     symbolTable: SymbolTable<BasicNumber>,
-    private val evaluator: Evaluator<BasicNumber> = Evaluator(symbolTable, BasicOperations),
+    sourceOps: DataSourceOperations<BasicNumber>,
+    private val evaluator: Evaluator<BasicNumber> = Evaluator(symbolTable, BasicOperations, sourceOps),
     private val dataReducer: DataExpressionReducer<BasicNumber> = DataExpressionReducer(
         symbolTable.data,
         symbolTable.dataSources,
         BasicOperations,
+        sourceOps,
     ),
 ) {
     fun run(case: TestCase<S>): TestResult<S> {

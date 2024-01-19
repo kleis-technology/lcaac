@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import arrow.optics.Every
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.Register
@@ -12,6 +13,7 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 
 class TemplateExpressionReducer<Q>(
     private val ops: QuantityOperations<Q>,
+    private val sourceOps: DataSourceOperations<Q>,
     dataRegister: DataRegister<Q> = DataRegister.empty(),
         dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
 ) {
@@ -35,8 +37,8 @@ class TemplateExpressionReducer<Q>(
             .plus(actualArguments.mapKeys { DataKey(it.key) })
             .plus(template.locals.mapKeys { DataKey(it.key) })
 
-        val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops)
-        val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops)
+        val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
+        val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
 
         var result = template.body
         actualArguments.forEach {

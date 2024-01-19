@@ -33,6 +33,17 @@ data class ERecordEntry<Q>(val record: DataExpression<Q>, val index: String): Da
 }
 
 /*
+    Column operations
+ */
+
+sealed interface ColumnOperationExpression<Q>
+
+@optics
+data class ESum<Q>(val dataSourceRef: String, val column: String): DataExpression<Q>, ColumnOperationExpression<Q> {
+    companion object
+}
+
+/*
     Ref
  */
 

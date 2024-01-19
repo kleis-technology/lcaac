@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
@@ -14,6 +15,7 @@ class DataExpressionReducer<Q>(
     dataRegister: DataRegister<Q>,
     dataSourceRegister: DataSourceRegister<Q>,
     private val ops: QuantityOperations<Q>,
+    private val sourceOps: DataSourceOperations<Q>,
 ) {
     private val dataRegister = DataRegister(dataRegister)
     private val dataSourceRegister = DataSourceRegister(dataSourceRegister)
@@ -37,12 +39,13 @@ class DataExpressionReducer<Q>(
                 is ERecord -> reduceMap(expression)
                 is ERecordEntry -> reduceMapEntry(expression)
                 is EDefaultRecordOf -> reduceDefaultRecordOf(expression)
+                is ESum -> TODO()
             }
         }
     }
 
     private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
-        val dataSource = dataSourceRegister[DataSourceKey( expression.dataSourceRef)]
+        val dataSource = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
             ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
         val schema = dataSource.schema
         return ERecord(schema.mapValues { reduce(it.value.defaultValue) })
@@ -51,16 +54,17 @@ class DataExpressionReducer<Q>(
     private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {
         return when (val map = reduce(expression.record)) {
             is ERecord -> map.entries[expression.index]
-                    ?: throw EvaluatorException("invalid index: '${expression.index}' not in ${map.entries.keys}")
+                ?: throw EvaluatorException("invalid index: '${expression.index}' not in ${map.entries.keys}")
+
             else -> ERecordEntry(map, expression.index)
         }
     }
 
     private fun reduceMap(expression: ERecord<Q>): DataExpression<Q> {
         return ERecord(
-                expression.entries.mapValues {
-                    reduce(it.value)
-                }
+            expression.entries.mapValues {
+                reduce(it.value)
+            }
         )
     }
 
@@ -98,7 +102,8 @@ class DataExpressionReducer<Q>(
     }
 
     private fun reduceClosure(closure: EQuantityClosure<Q>): DataExpression<Q> =
-        DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops).reduce(closure.expression)
+        DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops, sourceOps)
+            .reduce(closure.expression)
 
     private fun reduceDiv(expression: EQuantityDiv<Q>): DataExpression<Q> {
         with(ops) {
@@ -200,10 +205,10 @@ class DataExpressionReducer<Q>(
                 aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
                     EQuantityScale(
                         pure(1.0), EUnitLiteral(
-                            UnitSymbol.of(expression.symbol),
-                            aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
-                            aliasForExpression.base.dimension
-                        )
+                        UnitSymbol.of(expression.symbol),
+                        aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
+                        aliasForExpression.base.dimension
+                    )
                     )
                 }
 

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.ProductFixture
@@ -7,12 +8,14 @@ import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class ProcessTemplateExpressionReducerTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
     fun reduce_whenInstance_shouldReduce() {
@@ -44,7 +47,7 @@ class ProcessTemplateExpressionReducerTest {
             Pair("q_carrot", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
-        val reducer = TemplateExpressionReducer(ops)
+        val reducer = TemplateExpressionReducer(ops, sourceOps)
 
         // when
         val actual = reducer.reduce(expression)
@@ -109,7 +112,7 @@ class ProcessTemplateExpressionReducerTest {
             Pair("foo", QuantityFixture.twoKilograms),
         )
         val expression = EProcessTemplateApplication(template, arguments)
-        val reducer = TemplateExpressionReducer(ops)
+        val reducer = TemplateExpressionReducer(ops, sourceOps)
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class, null) { reducer.reduce(expression) }

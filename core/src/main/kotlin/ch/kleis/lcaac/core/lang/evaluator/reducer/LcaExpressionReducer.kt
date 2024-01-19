@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
@@ -9,8 +10,9 @@ class LcaExpressionReducer<Q>(
     dataRegister: DataRegister<Q> = DataRegister.empty(),
     dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
     ops: QuantityOperations<Q>,
+    sourceOps: DataSourceOperations<Q>,
 ) {
-    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops)
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps)
 
     fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
         return when (expression) {

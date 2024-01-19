@@ -1,17 +1,20 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class LcaExpressionReducerTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
     fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {
@@ -33,6 +36,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -78,6 +82,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -123,6 +128,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -151,6 +157,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -179,6 +186,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -207,6 +215,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -239,6 +248,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -271,6 +281,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -299,6 +310,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -335,6 +347,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -379,6 +392,7 @@ class LcaExpressionReducerTest {
             ),
             Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when

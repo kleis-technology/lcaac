@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.*
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
@@ -11,6 +12,7 @@ import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.assertThrows
@@ -20,6 +22,7 @@ import kotlin.test.assertNotEquals
 
 class EvaluatorTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
     fun with_whenNewTemplate() {
@@ -35,7 +38,7 @@ class EvaluatorTest {
                 ),
             )
         )
-        val evaluator = Evaluator(SymbolTable.empty(), BasicOperations)
+        val evaluator = Evaluator(SymbolTable.empty(), ops, sourceOps)
             .with(template)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
@@ -68,7 +71,7 @@ class EvaluatorTest {
                 ProcessKey("eProcess") to template
             ))
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertThrows<IllegalStateException> { evaluator.with(template) }
@@ -96,7 +99,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
             IndicatorValueFixture.climateChange,
@@ -139,7 +142,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val expected = FullyQualifiedSubstanceValue<BasicNumber>(
             "doesNotExist",
             type = SubstanceType.EMISSION,
@@ -166,7 +169,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val p1 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.oneLitre))
@@ -188,7 +191,7 @@ class EvaluatorTest {
         val register = ProcessTemplateRegister(mapOf(ProcessKey("carrot_production") to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
 
@@ -228,7 +231,7 @@ class EvaluatorTest {
                 )
             ),
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().processes
@@ -324,7 +327,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().processes
@@ -419,7 +422,7 @@ class EvaluatorTest {
                 ).mapKeys { ProcessKey(it.key) }
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertFailsWith(
@@ -463,7 +466,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().substanceCharacterizations
@@ -503,7 +506,7 @@ class EvaluatorTest {
                 ).mapKeys { ProcessKey(it.key) }
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertFailsWith(

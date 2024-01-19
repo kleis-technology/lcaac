@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
@@ -11,13 +12,14 @@ import org.slf4j.LoggerFactory
 class Evaluator<Q>(
     private val symbolTable: SymbolTable<Q>,
     private val ops: QuantityOperations<Q>,
+    private val sourceOps: DataSourceOperations<Q>,
 ) {
     @Suppress("PrivatePropertyName")
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
         val learner = Learner(initialRequests, ops)
-        val oracle = Oracle(symbolTable, ops)
+        val oracle = Oracle(symbolTable, ops, sourceOps)
         LOG.info("Start evaluation")
         try {
             var requests = learner.start()
@@ -41,7 +43,7 @@ class Evaluator<Q>(
                     mapOf(processKey to template)
                 )
             )
-        return Evaluator(st, ops)
+        return Evaluator(st, ops, sourceOps)
     }
 
     fun trace(
