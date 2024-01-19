@@ -39,9 +39,15 @@ class DataExpressionReducer<Q>(
                 is ERecord -> reduceMap(expression)
                 is ERecordEntry -> reduceMapEntry(expression)
                 is EDefaultRecordOf -> reduceDefaultRecordOf(expression)
-                is ESum -> TODO()
+                is ESum -> reduceESum(expression)
             }
         }
+    }
+
+    private fun reduceESum(expression: ESum<Q>): DataExpression<Q> {
+        val dataSource = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+            ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+        return reduce(sourceOps.sum(dataSource, expression.column))
     }
 
     private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
