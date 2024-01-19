@@ -66,7 +66,7 @@ electricity,1.0,kWh,5.4,kg
 
 You can also run multiple assessments with an external data csv file providing values for the process parameters.
 ```bash
-lcaac assess "electricity_mix" --data params.csv
+lcaac assess "electricity_mix" --file params.csv
 ```
 
 ### Tests

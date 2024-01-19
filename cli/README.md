@@ -19,7 +19,7 @@ lcaac assess "electricity_mix"
 
 ```bash
 cd $GIT_ROOT/cli/samples
-lcaac assess "electricity_mix" --data params.csv
+lcaac assess "electricity_mix" --file params.csv
 ```
 
 ## Run tests

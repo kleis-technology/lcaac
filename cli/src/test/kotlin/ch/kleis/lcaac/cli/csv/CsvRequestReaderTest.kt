@@ -14,9 +14,13 @@ class CsvRequestReaderTest {
             ch,2020,0.20,0.40,0.40
         """.trimIndent()
         val reader = CsvRequestReader(
-            "process",
-            mapOf("label" to "value"),
-            content.byteInputStream()
+                "process",
+                mapOf("label" to "value"),
+                content.byteInputStream(),
+                mapOf(
+                        "year" to "2024",
+                        "foo" to "bar",
+                )
         )
 
         // when
@@ -26,8 +30,8 @@ class CsvRequestReaderTest {
         // then
         assertEquals(actual.processName, "process")
         assertEquals(actual.matchLabels, mapOf("label" to "value"))
-        assertEquals(actual.columns(), listOf("country", "year", "fossil", "nuclear", "hydro"))
-        assertEquals(actual.arguments(), listOf("ch", "2020", "0.20", "0.40", "0.40"))
+        assertEquals(actual.columns(), listOf("country", "year", "fossil", "nuclear", "hydro", "foo"))
+        assertEquals(actual.arguments(), listOf("ch", "2024", "0.20", "0.40", "0.40", "bar"))
         assertFalse { iterator.hasNext() }
     }
 }
