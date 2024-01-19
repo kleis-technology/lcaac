@@ -22,12 +22,16 @@ private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
-    val root: File by option("-r", "--root").file(canBeFile = false).default(File(".")).help("Root folder")
-    val data: File? by option("-d", "--data").file(canBeDir = false).help("CSV file with parameter values")
+    val path: File by option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
+    val file: File? by option("-f", "--file").file(canBeDir = false)
+            .help("""
+                CSV file with parameter values.
+                Example: `lcaac assess <process name> -f params.csv`.
+            """.trimIndent())
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val files = lcaFiles(root)
+        val files = lcaFiles(path)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val mapper = CoreTestMapper()
         val cases = files
