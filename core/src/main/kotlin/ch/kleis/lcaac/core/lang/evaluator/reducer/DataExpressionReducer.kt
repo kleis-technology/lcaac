@@ -1,10 +1,10 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
 
@@ -30,8 +30,26 @@ class DataExpressionReducer<Q>(
                 is EUnitLiteral -> EQuantityScale(pure(1.0), expression)
                 is EUnitOf -> reduceUnitOf(expression)
                 is EStringLiteral -> expression
+                is EMap -> reduceMap(expression)
+                is EMapEntry -> reduceMapEntry(expression)
             }
         }
+    }
+
+    private fun reduceMapEntry(expression: EMapEntry<Q>): DataExpression<Q> {
+        return when (val map = reduce(expression.map)) {
+            is EMap -> map.entries[expression.index]
+                    ?: throw EvaluatorException("invalid index: '${expression.index}' not in ${map.entries.keys}")
+            else -> EMapEntry(map, expression.index)
+        }
+    }
+
+    private fun reduceMap(expression: EMap<Q>): DataExpression<Q> {
+        return EMap(
+                expression.entries.mapValues {
+                    reduce(it.value)
+                }
+        )
     }
 
 

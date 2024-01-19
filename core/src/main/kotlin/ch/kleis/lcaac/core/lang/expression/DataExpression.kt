@@ -13,6 +13,24 @@ sealed interface DataExpression<Q> {
 sealed interface QuantityExpression<Q>
 sealed interface StringExpression
 
+/*
+    Map
+ */
+
+@optics
+data class EMap<Q>(val entries: Map<String, DataExpression<Q>>): DataExpression<Q> {
+    companion object
+}
+
+@optics
+data class EMapEntry<Q>(val map: DataExpression<Q>, val index: String): DataExpression<Q> {
+    companion object
+}
+
+/*
+    Ref
+ */
+
 @optics
 data class EDataRef<Q>(val name: String) : DataExpression<Q> {
     fun name(): String {

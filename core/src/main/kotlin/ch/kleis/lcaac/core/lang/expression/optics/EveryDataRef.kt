@@ -47,6 +47,11 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 is EUnitLiteral -> M.empty()
                 is EUnitOf -> foldMap(M, source.expression, map)
                 is EStringLiteral -> M.empty()
+                is EMap -> M.fold(
+                        source.entries.values
+                                .map { foldMap(M, it, map) }
+                )
+                is EMapEntry -> foldMap(M, source.map, map)
             }
         }
 
@@ -102,6 +107,15 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 )
 
                 is EStringLiteral -> source
+                is EMap -> EMap(
+                        source.entries.mapValues {
+                            modify(it.value, map)
+                        }
+                )
+                is EMapEntry -> EMapEntry(
+                        modify(source.map, map),
+                        source.index,
+                )
             }
         }
     }
@@ -172,15 +186,3 @@ fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>
                 everyDataRefInSubstanceCharacterization()
         )
     )
-
-fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
-    everyProcessTemplateInTemplateExpression<Q>() compose Merge(
-        listOf(
-            EProcessTemplate.params<Q>() compose Every.map() compose
-                everyDataRefInDataExpression(),
-            EProcessTemplate.locals<Q>() compose Every.map() compose
-                everyDataRefInDataExpression(),
-            EProcessTemplate.body<Q>() compose everyDataRefInProcess(),
-        )
-    )
-
