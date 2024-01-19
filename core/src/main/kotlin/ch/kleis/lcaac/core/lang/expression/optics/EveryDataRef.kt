@@ -47,11 +47,11 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 is EUnitLiteral -> M.empty()
                 is EUnitOf -> foldMap(M, source.expression, map)
                 is EStringLiteral -> M.empty()
-                is EMap -> M.fold(
+                is ERecord -> M.fold(
                         source.entries.values
                                 .map { foldMap(M, it, map) }
                 )
-                is EMapEntry -> foldMap(M, source.map, map)
+                is ERecordEntry -> foldMap(M, source.record, map)
             }
         }
 
@@ -107,13 +107,13 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 )
 
                 is EStringLiteral -> source
-                is EMap -> EMap(
+                is ERecord -> ERecord(
                         source.entries.mapValues {
                             modify(it.value, map)
                         }
                 )
-                is EMapEntry -> EMapEntry(
-                        modify(source.map, map),
+                is ERecordEntry -> ERecordEntry(
+                        modify(source.record, map),
                         source.index,
                 )
             }

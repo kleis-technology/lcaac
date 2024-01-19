@@ -14,16 +14,16 @@ sealed interface QuantityExpression<Q>
 sealed interface StringExpression
 
 /*
-    Map
+    Record
  */
 
 @optics
-data class EMap<Q>(val entries: Map<String, DataExpression<Q>>): DataExpression<Q> {
+data class ERecord<Q>(val entries: Map<String, DataExpression<Q>>): DataExpression<Q> {
     companion object
 }
 
 @optics
-data class EMapEntry<Q>(val map: DataExpression<Q>, val index: String): DataExpression<Q> {
+data class ERecordEntry<Q>(val record: DataExpression<Q>, val index: String): DataExpression<Q> {
     companion object
 }
 

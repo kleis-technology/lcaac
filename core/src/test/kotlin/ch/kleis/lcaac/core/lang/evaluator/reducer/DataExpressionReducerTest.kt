@@ -23,13 +23,13 @@ class DataExpressionReducerTest {
     private val ops = BasicOperations
 
     /*
-        DICT
+        RECORD
      */
     @Test
-    fun reduce_whenMap() {
+    fun reduce_whenRecord() {
         // given
         val q = QuantityFixture.oneKilogram
-        val map = EMap<BasicNumber>(mapOf(
+        val record = ERecord<BasicNumber>(mapOf(
                 "mass" to EDataRef("m")
         ))
         val reducer = DataExpressionReducer(
@@ -40,27 +40,27 @@ class DataExpressionReducerTest {
         )
 
         // when
-        val actual = reducer.reduce(map)
+        val actual = reducer.reduce(record)
 
         // then
-        val expected = EMap(mapOf(
+        val expected = ERecord(mapOf(
                 "mass" to q
         ))
         assertEquals(expected, actual)
     }
 
     @Test
-    fun reduce_whenMapEntry_withRef() {
+    fun reduce_whenRecordEntry_withRef() {
         // given
         val q = QuantityFixture.oneKilogram
-        val map = EMap<BasicNumber>(mapOf(
+        val record = ERecord<BasicNumber>(mapOf(
                 "mass" to EDataRef("m")
         ))
-        val entry = EMapEntry<BasicNumber>(EDataRef("my_map"), "mass")
+        val entry = ERecordEntry<BasicNumber>(EDataRef("my_map"), "mass")
         val reducer = DataExpressionReducer(
                 Register.from(mapOf(
                         DataKey("m") to q,
-                        DataKey("my_map") to map,
+                        DataKey("my_map") to record,
                 )),
                 BasicOperations
         )
@@ -73,13 +73,13 @@ class DataExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenMapEntry() {
+    fun reduce_whenRecordEntry() {
         // given
         val q = QuantityFixture.oneKilogram
-        val map = EMap<BasicNumber>(mapOf(
+        val record = ERecord<BasicNumber>(mapOf(
                 "mass" to EDataRef("m")
         ))
-        val entry = EMapEntry(map, "mass")
+        val entry = ERecordEntry(record, "mass")
         val reducer = DataExpressionReducer(
                 Register.from(mapOf(
                         DataKey("m") to q
@@ -95,13 +95,13 @@ class DataExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenMapEntry_invalidIndex() {
+    fun reduce_whenRecordEntry_invalidIndex() {
         // given
         val q = QuantityFixture.oneKilogram
-        val map = EMap<BasicNumber>(mapOf(
+        val record = ERecord<BasicNumber>(mapOf(
                 "mass" to EDataRef("m")
         ))
-        val entry = EMapEntry(map, "foo")
+        val entry = ERecordEntry(record, "foo")
         val reducer = DataExpressionReducer(
                 Register.from(mapOf(
                         DataKey("m") to q

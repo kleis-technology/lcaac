@@ -11,7 +11,7 @@ data object TString : TypeDataExpression
 
 data class TQuantity(val dimension: Dimension) : TypeDataExpression
 
-data class TMap(val entries: Map<String, TypeDataExpression>) : TypeDataExpression
+data class TRecord(val entries: Map<String, TypeDataExpression>) : TypeDataExpression
 
 sealed interface TypeLcaExpression : Type
 

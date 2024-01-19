@@ -30,22 +30,22 @@ class DataExpressionReducer<Q>(
                 is EUnitLiteral -> EQuantityScale(pure(1.0), expression)
                 is EUnitOf -> reduceUnitOf(expression)
                 is EStringLiteral -> expression
-                is EMap -> reduceMap(expression)
-                is EMapEntry -> reduceMapEntry(expression)
+                is ERecord -> reduceMap(expression)
+                is ERecordEntry -> reduceMapEntry(expression)
             }
         }
     }
 
-    private fun reduceMapEntry(expression: EMapEntry<Q>): DataExpression<Q> {
-        return when (val map = reduce(expression.map)) {
-            is EMap -> map.entries[expression.index]
+    private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {
+        return when (val map = reduce(expression.record)) {
+            is ERecord -> map.entries[expression.index]
                     ?: throw EvaluatorException("invalid index: '${expression.index}' not in ${map.entries.keys}")
-            else -> EMapEntry(map, expression.index)
+            else -> ERecordEntry(map, expression.index)
         }
     }
 
-    private fun reduceMap(expression: EMap<Q>): DataExpression<Q> {
-        return EMap(
+    private fun reduceMap(expression: ERecord<Q>): DataExpression<Q> {
+        return ERecord(
                 expression.entries.mapValues {
                     reduce(it.value)
                 }

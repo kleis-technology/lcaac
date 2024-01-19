@@ -14,7 +14,7 @@ data class QuantityValue<Q>(val amount: Q, val unit: UnitValue<Q>) : DataValue<Q
     }
 }
 
-data class MapValue<Q>(val entries: Map<String, DataValue<Q>>) : DataValue<Q> {
+data class RecordValue<Q>(val entries: Map<String, DataValue<Q>>) : DataValue<Q> {
     override fun toString(): String {
         return entries.toString()
     }
