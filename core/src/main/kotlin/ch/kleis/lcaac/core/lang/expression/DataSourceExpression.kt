@@ -1,8 +1,8 @@
 package ch.kleis.lcaac.core.lang.expression
 
-sealed interface ColumnType<Q>
-class CText<Q> : ColumnType<Q>
-data class CQuantity<Q>(val defaultValue: DataExpression<Q>): ColumnType<Q>
+data class ColumnType<Q>(
+        val defaultValue: DataExpression<Q>
+)
 
 sealed interface DataSourceExpression<Q> {
     val schema: Map<String, ColumnType<Q>>

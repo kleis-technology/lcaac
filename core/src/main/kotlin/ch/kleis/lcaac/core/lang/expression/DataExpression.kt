@@ -18,6 +18,11 @@ sealed interface StringExpression
  */
 
 @optics
+data class EAnyRecordFrom<Q>(val dataSourceRef: String): DataExpression<Q> {
+    companion object
+}
+
+@optics
 data class ERecord<Q>(val entries: Map<String, DataExpression<Q>>): DataExpression<Q> {
     companion object
 }

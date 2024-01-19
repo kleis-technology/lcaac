@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
+import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Test
@@ -30,6 +31,7 @@ class LcaExpressionReducerTest {
             DataRegister(
                 mapOf(DataKey("geo") to EStringLiteral("FR"))
             ),
+            Register.empty(),
             ops,
         )
 
@@ -74,6 +76,7 @@ class LcaExpressionReducerTest {
                     "q_propanol" to QuantityFixture.oneKilogram,
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
         )
 
@@ -118,6 +121,7 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -145,6 +149,7 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -172,6 +177,7 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -199,6 +205,7 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -230,6 +237,7 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -261,6 +269,7 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -288,6 +297,7 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
         )
 
@@ -323,6 +333,7 @@ class LcaExpressionReducerTest {
                     "kg" to UnitFixture.kg
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
         )
 
@@ -366,6 +377,7 @@ class LcaExpressionReducerTest {
                     "q_cc" to QuantityFixture.oneKilogram,
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
         )
 

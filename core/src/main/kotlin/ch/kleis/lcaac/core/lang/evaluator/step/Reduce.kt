@@ -16,7 +16,8 @@ class Reduce<Q>(
 ) {
     private val lcaReducer = LcaExpressionReducer(
         symbolTable.data,
-        ops
+        symbolTable.dataSources,
+        ops,
     )
     private val templateReducer = TemplateExpressionReducer(
         ops,

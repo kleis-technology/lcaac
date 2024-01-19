@@ -5,14 +5,17 @@ import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
 
 class DataExpressionReducer<Q>(
     dataRegister: DataRegister<Q>,
+    dataSourceRegister: DataSourceRegister<Q>,
     private val ops: QuantityOperations<Q>,
 ) {
     private val dataRegister = DataRegister(dataRegister)
+    private val dataSourceRegister = DataSourceRegister(dataSourceRegister)
     private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker<Q>()
 
     fun reduce(expression: DataExpression<Q>): DataExpression<Q> {
@@ -32,6 +35,7 @@ class DataExpressionReducer<Q>(
                 is EStringLiteral -> expression
                 is ERecord -> reduceMap(expression)
                 is ERecordEntry -> reduceMapEntry(expression)
+                is EAnyRecordFrom -> TODO()
             }
         }
     }
@@ -86,7 +90,7 @@ class DataExpressionReducer<Q>(
     }
 
     private fun reduceClosure(closure: EQuantityClosure<Q>): DataExpression<Q> =
-        DataExpressionReducer(closure.symbolTable.data, ops).reduce(closure.expression)
+        DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops).reduce(closure.expression)
 
     private fun reduceDiv(expression: EQuantityDiv<Q>): DataExpression<Q> {
         with(ops) {
