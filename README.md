@@ -17,9 +17,10 @@ See our [book](https://lca-as-code.com/book) to learn more about the language.
 
 1. [Getting started](#getting-started)
 2. [What's inside](#whats-inside)
-3. [Related projects](#related-projects)
-4. [License](#license)
-5. [About us](#about-us)
+3. [Documentation](#documentation)
+4. [Related projects](#related-projects)
+5. [License](#license)
+6. [About us](#about-us)
 
 ## Getting started
 
@@ -109,6 +110,16 @@ The package `grammar` contains:
 ### Package `cli`
 
 The package `cli` contains the code for the command-line interface.
+
+## Documentation
+
+For users
+- [Walkthrough](https://lca-as-code.com/book)
+- Code samples *\[coming soon\]*
+
+For developers
+- Core concepts *\[coming soon\]*
+- Contribution guide *\[coming soon\]*
 
 ## Related projects
 
