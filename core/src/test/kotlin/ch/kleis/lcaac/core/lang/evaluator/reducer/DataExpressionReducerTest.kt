@@ -10,6 +10,7 @@ import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
@@ -25,6 +26,61 @@ class DataExpressionReducerTest {
     /*
         RECORD
      */
+    @Test
+    fun reduce_whenDefaultRecordOfDataSourceRef() {
+        // given
+        val dataSource = ECsvSource<BasicNumber>(
+            location = "source.csv",
+            schema = mapOf(
+                "x" to ColumnType(EDataRef("a")),
+            )
+        )
+        val record = EDefaultRecordOf<BasicNumber>("source")
+        val reducer = DataExpressionReducer(
+            Register.from(mapOf(
+                DataKey("a") to QuantityFixture.oneKilogram,
+            )),
+            Register.from(mapOf(
+                DataSourceKey("source") to dataSource,
+            )),
+            BasicOperations,
+        )
+
+        // when
+        val actual = reducer.reduce(record)
+
+        // then
+        val expected = ERecord(mapOf(
+            "x" to QuantityFixture.oneKilogram,
+        ))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenDefaultRecordOfDataSourceRef_invalidRef() {
+        // given
+        val dataSource = ECsvSource<BasicNumber>(
+            location = "source.csv",
+            schema = mapOf(
+                "x" to ColumnType(EDataRef("a")),
+            )
+        )
+        val record = EDefaultRecordOf<BasicNumber>("foo")
+        val reducer = DataExpressionReducer(
+            Register.from(mapOf(
+                DataKey("a") to QuantityFixture.oneKilogram,
+            )),
+            Register.from(mapOf(
+                DataSourceKey("source") to dataSource,
+            )),
+            BasicOperations,
+        )
+
+        // when/then
+        val e = assertThrows<EvaluatorException> {  reducer.reduce(record) }
+        assertEquals("unknown data source 'foo'", e.message)
+    }
+
     @Test
     fun reduce_whenRecord() {
         // given

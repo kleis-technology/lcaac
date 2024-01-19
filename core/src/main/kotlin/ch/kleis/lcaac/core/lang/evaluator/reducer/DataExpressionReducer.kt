@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
@@ -35,9 +36,16 @@ class DataExpressionReducer<Q>(
                 is EStringLiteral -> expression
                 is ERecord -> reduceMap(expression)
                 is ERecordEntry -> reduceMapEntry(expression)
-                is EAnyRecordFrom -> TODO()
+                is EDefaultRecordOf -> reduceDefaultRecordOf(expression)
             }
         }
+    }
+
+    private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
+        val dataSource = dataSourceRegister[DataSourceKey( expression.dataSourceRef)]
+            ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+        val schema = dataSource.schema
+        return ERecord(schema.mapValues { reduce(it.value.defaultValue) })
     }
 
     private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {

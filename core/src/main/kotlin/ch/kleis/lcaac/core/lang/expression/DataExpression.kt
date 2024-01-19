@@ -18,7 +18,7 @@ sealed interface StringExpression
  */
 
 @optics
-data class EAnyRecordFrom<Q>(val dataSourceRef: String): DataExpression<Q> {
+data class EDefaultRecordOf<Q>(val dataSourceRef: String): DataExpression<Q> {
     companion object
 }
 
