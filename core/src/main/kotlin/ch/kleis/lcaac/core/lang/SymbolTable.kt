@@ -6,10 +6,11 @@ import ch.kleis.lcaac.core.lang.register.*
 
 
 data class SymbolTable<Q>(
-    val data: DataRegister<Q> = DataRegister.empty(),
-    val dimensions: DimensionRegister = DimensionRegister.empty(),
-    val processTemplates: ProcessTemplateRegister<Q> = ProcessTemplateRegister.empty(),
-    val substanceCharacterizations: SubstanceCharacterizationRegister<Q> = SubstanceCharacterizationRegister.empty(),
+        val data: DataRegister<Q> = DataRegister.empty(),
+        val dimensions: DimensionRegister = DimensionRegister.empty(),
+        val processTemplates: ProcessTemplateRegister<Q> = ProcessTemplateRegister.empty(),
+        val substanceCharacterizations: SubstanceCharacterizationRegister<Q> = SubstanceCharacterizationRegister.empty(),
+        val dataSources: DataSourceRegister<Q> = DataSourceRegister.empty(),
 ) {
     companion object {
         fun <Q> empty() = SymbolTable<Q>()
@@ -26,11 +27,11 @@ data class SymbolTable<Q>(
      */
 
     private val templatesIndexedByProductName: Index<String, ProcessKey, EProcessTemplate<Q>> = Index(
-        processTemplates,
-        EProcessTemplate.body<Q>().products() compose
-            Every.list() compose
-            ETechnoExchange.product() compose
-            EProductSpec.name()
+            processTemplates,
+            EProcessTemplate.body<Q>().products() compose
+                    Every.list() compose
+                    ETechnoExchange.product() compose
+                    EProductSpec.name()
     )
 
     fun getTemplate(name: String): EProcessTemplate<Q>? {
@@ -50,10 +51,10 @@ data class SymbolTable<Q>(
         Substances
      */
     fun getSubstanceCharacterization(
-        name: String,
-        type: SubstanceType,
-        compartment: String,
-        subCompartment: String? = null,
+            name: String,
+            type: SubstanceType,
+            compartment: String,
+            subCompartment: String? = null,
     ): ESubstanceCharacterization<Q>? {
         return substanceCharacterizations[SubstanceKey(name, type, compartment, subCompartment)]
     }
