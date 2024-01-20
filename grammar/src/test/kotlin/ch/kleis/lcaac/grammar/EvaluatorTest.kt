@@ -20,6 +20,50 @@ import kotlin.test.assertEquals
 class EvaluatorTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+
+    @Test
+    fun arena_shouldHandleDefaultRecordOf() {
+        // given
+        val file = LcaLangFixture.parser("""
+            datasource source {
+                location = "file.csv"
+                schema {
+                    "mass" = 1 kg
+                }
+            }
+            
+            process p {
+                params {
+                    row from source
+                }
+                products {
+                    1 kg carrot
+                }
+                impacts {
+                    row["mass"] co2
+                }
+            }
+        """.trimIndent()).lcaFile()
+        val loader = Loader(ops)
+        val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
+        val spec = EProductSpec<BasicNumber>(
+            name = "carrot",
+            fromProcess = FromProcess("p", MatchLabels(emptyMap())),
+        )
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
+
+        // when
+        val trace = evaluator.trace(setOf(spec))
+        val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+        val analysis = program.run()
+
+        // then
+        val port = analysis.getObservablePorts().get("carrot from p{}{row={mass=1.0 kg}}")
+        val indicator = analysis.getControllablePorts().get("co2")
+        val expected = QuantityValue(BasicNumber(1.0), UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass")))
+        val actual = analysis.getPortContribution(port, indicator)
+        assertEquals(expected, actual)
+    }
     
     @Test
     fun arena_shouldHandleKnowledgeCorrectly() {

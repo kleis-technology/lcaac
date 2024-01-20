@@ -15,6 +15,35 @@ import kotlin.test.assertNotNull
 
 class LoaderTest {
     @Test
+    fun load_params_defaultRecord() {
+        // given
+        val file = LcaLangFixture.parser("""
+            datasource source {
+                location = "file.csv"
+                schema {
+                    "mass" = 1 kg
+                }
+            }
+            
+            process p {
+                params {
+                    row from source
+                }
+            }
+        """.trimIndent()).lcaFile()
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+            .getTemplate("p")!!
+            .params["row"]!!
+
+        // then
+        val expected = EDefaultRecordOf<BasicNumber>("source")
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun load_whenSumOpInProduct_referenceUnitClosureShouldContainDataSource() {
         // given
         val file = LcaLangFixture.parser(

@@ -27,10 +27,10 @@ class CoreMapper<Q>(
             .associate { it.labelRef().innerText() to EStringLiteral<Q>(it.STRING_LITERAL().innerText()) }
         val locals = ctx.variables()
             .flatMap { it.assignment() }
-            .associate { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
+            .associate { assignment(it) }
         val params = ctx.params()
             .flatMap { it.assignment() }
-            .associate { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
+            .associate { assignment(it) }
         val symbolTable = SymbolTable(
             data = try {
                 DataRegister(globals.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
@@ -71,6 +71,14 @@ class CoreMapper<Q>(
             locals,
             body,
         )
+    }
+
+    fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {
+        return when(ctx.sep.text) {
+            ctx.EQUAL()?.innerText() -> ctx.dataRef().innerText() to dataExpression(ctx.dataExpression())
+            ctx.FROM_KEYWORD()?.innerText() -> ctx.dataRef().innerText() to EDefaultRecordOf(ctx.dataSourceRef().innerText())
+            else -> throw IllegalStateException("parsing error: invalid assignment '${ctx.text}'")
+        }
     }
 
     fun impactExchange(ctx: LcaLangParser.ImpactExchangeContext): ImpactBlock<Q> {

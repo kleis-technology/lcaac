@@ -17,6 +17,38 @@ class CoreMapperTest {
     private val ops = BasicOperations
 
     @Test
+    fun assignment_regular() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            x = 1 kg
+        """.trimIndent()).assignment()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.assignment(ctx)
+
+        // then
+        val expected = "x" to EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun assignment_defaultRecordOf() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            x from inventory
+        """.trimIndent()).assignment()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.assignment(ctx)
+
+        // then
+        val expected = "x" to EDefaultRecordOf<BasicNumber>("inventory")
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun recordEntry() {
         // given
         val ctx = LcaLangFixture.parser("""

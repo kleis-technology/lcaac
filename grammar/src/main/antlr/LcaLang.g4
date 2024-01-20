@@ -162,7 +162,8 @@ variables
     ;
 
 assignment
-    : dataRef EQUAL dataExpression
+    : dataRef sep=EQUAL dataExpression
+    | dataRef sep=FROM_KEYWORD dataSourceRef
     ;
 
 /*
