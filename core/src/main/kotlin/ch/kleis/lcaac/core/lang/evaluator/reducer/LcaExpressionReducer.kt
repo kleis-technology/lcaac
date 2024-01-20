@@ -18,7 +18,9 @@ class LcaExpressionReducer<Q>(
     private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps)
 
     private fun push(data: Map<DataKey, DataExpression<Q>>): LcaExpressionReducer<Q> {
-        TODO()
+        val localRegister = DataRegister(dataRegister)
+            .plus(data)
+        return LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
     }
 
     fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
@@ -39,7 +41,7 @@ class LcaExpressionReducer<Q>(
     fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
         return ESubstanceCharacterization(
             reduceBioExchange(expression.referenceExchange),
-            expression.impacts.flatMap { reduceBlock(it, this::reduceImpact) },
+            expression.impacts.flatMap { reduceImpactBlock(it) },
         )
     }
 
@@ -49,9 +51,9 @@ class LcaExpressionReducer<Q>(
             expression.name,
             expression.labels,
             expression.products.map(::reduceTechnoExchange),
-            expression.inputs.flatMap { reduceBlock(it, this::reduceTechnoExchange) },
-            expression.biosphere.flatMap { reduceBlock(it, this::reduceBioExchange) },
-            expression.impacts.flatMap { reduceBlock(it, this::reduceImpact) },
+            expression.inputs.flatMap { reduceTechnoBlock(it) },
+            expression.biosphere.flatMap { reduceBioBlock(it) },
+            expression.impacts.flatMap { reduceImpactBlock(it) },
         )
     }
 
@@ -73,13 +75,13 @@ class LcaExpressionReducer<Q>(
         )
     }
 
-    // TODO: Test me
-    private fun <E : LcaExpression<Q>> reduceBlock(expression: BlockExpression<E, Q>, onEntry: (E) -> E):
-        List<EBlockEntry<E,
-            Q>> {
+    private fun reduceTechnoBlock(expression: TechnoBlock<Q>):
+        List<ETechnoBlockEntry<Q>> {
         return when (expression) {
             is EBlockEntry -> listOf(
-                EBlockEntry(onEntry(expression.entry))
+                ETechnoBlockEntry(
+                    reduceTechnoExchange(expression.entry)
+                )
             )
 
             is EBlockForEach -> {
@@ -91,7 +93,55 @@ class LcaExpressionReducer<Q>(
                             DataKey(expression.rowRef) to record
                         ))
                         expression.body
-                            .flatMap { reducer.reduceBlock(it, onEntry) }
+                            .flatMap { reducer.reduceTechnoBlock(it) }
+                    }.toList()
+            }
+        }
+    }
+    
+    private fun reduceBioBlock(expression: BioBlock<Q>):
+        List<EBioBlockEntry<Q>> {
+        return when (expression) {
+            is EBlockEntry -> listOf(
+                EBioBlockEntry(
+                    reduceBioExchange(expression.entry)
+                )
+            )
+
+            is EBlockForEach -> {
+                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                sourceOps.readAll(ds)
+                    .flatMap { record ->
+                        val reducer = push(mapOf(
+                            DataKey(expression.rowRef) to record
+                        ))
+                        expression.body
+                            .flatMap { reducer.reduceBioBlock(it) }
+                    }.toList()
+            }
+        }
+    }
+    
+    private fun reduceImpactBlock(expression: ImpactBlock<Q>):
+        List<EImpactBlockEntry<Q>> {
+        return when (expression) {
+            is EBlockEntry -> listOf(
+                EImpactBlockEntry(
+                    reduceImpact(expression.entry)
+                )
+            )
+
+            is EBlockForEach -> {
+                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                sourceOps.readAll(ds)
+                    .flatMap { record ->
+                        val reducer = push(mapOf(
+                            DataKey(expression.rowRef) to record
+                        ))
+                        expression.body
+                            .flatMap { reducer.reduceImpactBlock(it) }
                     }.toList()
             }
         }

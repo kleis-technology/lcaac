@@ -3,18 +3,244 @@ package ch.kleis.lcaac.core.lang.evaluator.reducer
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
-import ch.kleis.lcaac.core.lang.register.Register
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class LcaExpressionReducerTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+
+    /*
+        Block
+     */
+
+    @Test
+    fun reduce_whenBlockForEach_withRecordEntryOverride_shouldThrow() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        ERecordEntry(EDataRef("row"), "mass"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = object : DataSourceOperations<BasicNumber> {
+            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
+                return sequenceOf(
+                    ERecord(mapOf(
+                        "mass" to QuantityFixture.oneKilogram,
+                    )),
+                    ERecord(mapOf(
+                        "mass" to QuantityFixture.twoKilograms,
+                    )),
+                )
+            }
+
+            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
+                throw IllegalAccessException("should not have been called")
+            }
+        }
+        val reducer = LcaExpressionReducer(
+            DataRegister.from(mapOf(
+                DataKey("row") to QuantityFixture.oneLitre,
+            )),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when/then
+        val e = assertThrows<RegisterException> {  reducer.reduce(expression) }
+        assertEquals("[row] is already bound", e.message)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_withRecordEntry() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        ERecordEntry(EDataRef("row"), "mass"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = object : DataSourceOperations<BasicNumber> {
+            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
+                return sequenceOf(
+                    ERecord(mapOf(
+                        "mass" to QuantityFixture.oneKilogram,
+                    )),
+                    ERecord(mapOf(
+                        "mass" to QuantityFixture.twoKilograms,
+                    )),
+                )
+            }
+
+            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
+                throw IllegalAccessException("should not have been called")
+            }
+        }
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.twoKilograms,
+                        ProductFixture.carrot,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_shouldFlatten() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                EBlockForEach(
+                    "row2",
+                    "source",
+                    listOf(
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
+                                QuantityFixture.oneLitre,
+                                ProductFixture.water,
+                            )
+                        ),
+                    )
+                )
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = object : DataSourceOperations<BasicNumber> {
+            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
+                return sequenceOf(
+                    ERecord(emptyMap()),
+                    ERecord(emptyMap()),
+                )
+            }
+
+            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
+                throw IllegalAccessException("should not have been called")
+            }
+        }
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    /*
+        Techno Exchange
+     */
 
     @Test
     fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {
