@@ -44,7 +44,7 @@ class LoaderTest {
         )
         assertEquals(expected, actual)
     }
-    
+
     @Test
     fun load_whenFileContainsTest_thenNoError() {
         val file = lcaFile(

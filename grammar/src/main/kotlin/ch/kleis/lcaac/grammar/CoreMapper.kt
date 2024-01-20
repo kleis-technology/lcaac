@@ -80,7 +80,13 @@ class CoreMapper<Q>(
                 )
             )
 
-            is LcaLangParser.ImpactBlockForEachContext -> TODO()
+            is LcaLangParser.ImpactBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.impactExchange().map { this.impactExchange(it) }
+                EImpactBlockForEach(rowRef, dataSourceRef, body)
+            }
+
             else -> throw IllegalStateException("parsing error: expecting an impact exchange context")
         }
     }
@@ -107,7 +113,12 @@ class CoreMapper<Q>(
                 )
             }
 
-            is LcaLangParser.BioBlockForEachContext -> TODO()
+            is LcaLangParser.BioBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.bioExchange().map { this.bioExchange(it, symbolTable, type) }
+                EBioBlockForEach(rowRef, dataSourceRef, body)
+            }
             else -> throw IllegalStateException("parsing error: expecting a bio exchange context")
         }
     }
@@ -154,7 +165,13 @@ class CoreMapper<Q>(
                 )
             )
 
-            is LcaLangParser.TechnoBlockForEachContext -> TODO()
+            is LcaLangParser.TechnoBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.technoInputExchange().map { this.technoInputExchange(it) }
+                ETechnoBlockForEach(rowRef, dataSourceRef, body)
+            }
+
             else -> throw IllegalStateException("parsing error: expecting a techno input exchange context")
         }
     }
