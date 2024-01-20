@@ -66,5 +66,9 @@ data class SymbolTable<Q>(
         return data[DataKey(name)]
     }
 
+    fun getDataSource(name: String): DataSourceExpression<Q>? {
+        return dataSources[DataSourceKey(name)]
+    }
+
 }
 
