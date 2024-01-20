@@ -80,7 +80,7 @@ class BasicCsvSourceOperations(
                 parser.iterator().asSequence()
                     .map { record ->
                         val element = record[position]
-                        parseQuantityWithDefaultUnit(element, defaultValue)
+                        parseQuantityWithDefaultUnit(element, EUnitOf(defaultValue))
                     }.reduce { acc, expression ->
                         reducer.reduce(EQuantityAdd(acc, expression))
                     }
