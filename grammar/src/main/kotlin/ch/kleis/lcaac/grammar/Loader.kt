@@ -23,6 +23,7 @@ class Loader<Q>(
             val unitDefinitions = files.flatMap { it.unitDefinition() }
             val processDefinitions = files.flatMap { it.processDefinition() }
             val substanceDefinitions = files.flatMap { it.substanceDefinition() }
+            val dataSourceDefinitions = files.flatMap { it.dataSourceDefinition() }
             val globalDefinitions = files.flatMap { it.globalVariables() }
                 .flatMap { it.globalAssignment() }
 
@@ -89,9 +90,21 @@ class Loader<Q>(
             } catch (e: RegisterException) {
                 throw LoaderException("Duplicate process ${e.duplicates} defined")
             }
+
+            val dataSources = try {
+                DataSourceRegister<Q>()
+                    .plus(
+                        dataSourceDefinitions
+                            .map { DataSourceKey(it.dataSourceRef().innerText()) to dataSourceDefinition(it) }
+                            .asIterable()
+                    )
+            } catch (e: RegisterException) {
+                throw LoaderException("Duplicate data sources ${e.duplicates} defined")
+            }
             return SymbolTable(
                 data = globals,
                 processTemplates = processTemplates,
+                dataSources = dataSources,
                 dimensions = dimensions,
                 substanceCharacterizations = substanceCharacterizations,
             )

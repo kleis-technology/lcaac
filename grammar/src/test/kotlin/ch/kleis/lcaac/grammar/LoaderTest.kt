@@ -15,6 +15,37 @@ import kotlin.test.assertNotNull
 
 class LoaderTest {
     @Test
+    fun load_datasource() {
+        // given
+        val file = lcaFile(
+            """
+            datasource source {
+                location = "file.csv"
+                schema {
+                    "mass" = 1 kg
+                    "geo" = "FR"
+                }
+            }
+            """.trimIndent()
+        )
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+            .getDataSource("source")!!
+
+        // then
+        val expected = ECsvSource(
+            location = "file.csv",
+            schema = mapOf(
+                "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
+                "geo" to ColumnType(EStringLiteral("FR")),
+            )
+        )
+        assertEquals(expected, actual)
+    }
+    
+    @Test
     fun load_whenFileContainsTest_thenNoError() {
         val file = lcaFile(
             """

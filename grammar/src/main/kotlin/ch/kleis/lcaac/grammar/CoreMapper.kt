@@ -329,6 +329,10 @@ class CoreMapper<Q>(
         return this.uid().ID().innerText()
     }
 
+    fun LcaLangParser.DataSourceRefContext.innerText(): String {
+        return this.uid().ID().innerText()
+    }
+
     fun LcaLangParser.ProcessRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
@@ -359,5 +363,23 @@ class CoreMapper<Q>(
         val type = SubstanceType.of(this.typeField().children[2].text)
         val subCompartment = this.subCompartmentField()?.STRING_LITERAL()?.innerText()
         return SubstanceKey(name, type, compartment, subCompartment)
+    }
+
+    fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): DataSourceExpression<Q> {
+        val name = ctx.dataSourceRef().uid().ID().innerText()
+        val locationField = ctx.locationField().firstOrNull()
+            ?: throw LoaderException("missing location field in datasource $name")
+        val location = locationField.STRING_LITERAL().innerText()
+        val schemaBlock = ctx.schema().firstOrNull()
+            ?: throw LoaderException("missing schema in datasource $name")
+        val schema = schemaBlock.columnDefinition().associate { column ->
+            val key = column.STRING_LITERAL().innerText()
+            val value = dataExpression(column.dataExpression())
+            key to ColumnType(value)
+        }
+        return ECsvSource(
+            location,
+            schema,
+        )
     }
 }
