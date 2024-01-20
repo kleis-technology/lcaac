@@ -88,15 +88,39 @@ data class EImpact<Q>(override val quantity: DataExpression<Q>, val indicator: E
     companion object
 }
 
+// Block
+@optics
+sealed interface BlockExpression<E, Q> {
+    companion object
+}
+
+@optics
+data class EBlockEntry<E, Q>(val entry: E) : BlockExpression<E, Q> {
+    companion object
+}
+
+@optics
+data class EBlockForEach<E, Q>(
+    val rowRef: String,
+    val dataSourceRef: String,
+    val body: List<BlockExpression<E, Q>>,
+) : BlockExpression<E, Q> {
+    companion object
+}
+
+typealias TechnoBlock<Q> = BlockExpression<ETechnoExchange<Q>, Q>
+typealias BioBlock<Q> = BlockExpression<EBioExchange<Q>, Q>
+typealias ImpactBlock<Q> = BlockExpression<EImpact<Q>, Q>
+
 // Process
 @optics
 data class EProcess<Q>(
     val name: String,
     val labels: Map<String, EStringLiteral<Q>> = emptyMap(),
     val products: List<ETechnoExchange<Q>> = emptyList(),
-    val inputs: List<ETechnoExchange<Q>> = emptyList(),
-    val biosphere: List<EBioExchange<Q>> = emptyList(),
-    val impacts: List<EImpact<Q>> = emptyList(),
+    val inputs: List<TechnoBlock<Q>> = emptyList(),
+    val biosphere: List<BioBlock<Q>> = emptyList(),
+    val impacts: List<ImpactBlock<Q>> = emptyList(),
 ) : LcaExpression<Q>, ConnectionExpression<Q> {
     companion object
 }
