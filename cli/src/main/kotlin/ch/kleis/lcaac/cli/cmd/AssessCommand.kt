@@ -44,7 +44,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
     override fun run() {
         val files = lcaFiles(path)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
-        val processor = CsvProcessor(symbolTable)
+        val processor = CsvProcessor(path, symbolTable)
         val iterator = loadRequests()
         val writer = CsvResultWriter()
         var first = true

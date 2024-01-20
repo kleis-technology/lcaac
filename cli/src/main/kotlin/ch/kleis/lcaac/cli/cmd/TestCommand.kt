@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.cli.csv.BasicCsvSourceOperations
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure
@@ -37,7 +38,7 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
         val cases = files
             .flatMap { it.testDefinition() }
             .map { mapper.test(it) }
-        val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(symbolTable)
+        val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(symbolTable, BasicCsvSourceOperations(path))
         val results = cases.map { runner.run(it) }
 
         results.forEach { result ->
