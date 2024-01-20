@@ -1,11 +1,11 @@
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
@@ -95,9 +95,10 @@ class LoaderTest {
         val loader = Loader(BasicOperations)
 
         // when
-        val actual = loader.load(sequenceOf(file)).getTemplate("p")!!
+        val input = loader.load(sequenceOf(file)).getTemplate("p")!!
             .body
-            .inputs[0]
+            .inputs[0] as ETechnoBlockEntry<BasicNumber>
+        val actual = input.entry
             .product.fromProcess!!
 
         // then
@@ -293,18 +294,20 @@ class LoaderTest {
         val expected = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
                 EDataRef("kg"), ESubstanceSpec(
-                    name = "co2",
-                    displayName = "carbon dioxide",
-                    type = SubstanceType.EMISSION,
-                    compartment = compartment,
-                    subCompartment = null,
-                    referenceUnit = EUnitOf(EDataRef("kg")),
-                )
+                name = "co2",
+                displayName = "carbon dioxide",
+                type = SubstanceType.EMISSION,
+                compartment = compartment,
+                subCompartment = null,
+                referenceUnit = EUnitOf(EDataRef("kg")),
+            )
             ),
             impacts = listOf(
-                EImpact(
-                    oneKg,
-                    EIndicatorSpec("GWP", null)
+                EImpactBlockEntry(
+                    EImpact(
+                        oneKg,
+                        EIndicatorSpec("GWP", null)
+                    )
                 )
             ),
         )
@@ -341,18 +344,20 @@ class LoaderTest {
         val expected = ESubstanceCharacterization(
             referenceExchange = EBioExchange(
                 EDataRef("kg"), ESubstanceSpec(
-                    name = "co2",
-                    displayName = "carbon dioxide",
-                    type = SubstanceType.EMISSION,
-                    compartment = compartment,
-                    subCompartment = subCompartment,
-                    referenceUnit = EUnitOf(EDataRef("kg")),
-                )
+                name = "co2",
+                displayName = "carbon dioxide",
+                type = SubstanceType.EMISSION,
+                compartment = compartment,
+                subCompartment = subCompartment,
+                referenceUnit = EUnitOf(EDataRef("kg")),
+            )
             ),
             impacts = listOf(
-                EImpact(
-                    oneKg,
-                    EIndicatorSpec("GWP", null)
+                EImpactBlockEntry(
+                    EImpact(
+                        oneKg,
+                        EIndicatorSpec("GWP", null)
+                    )
                 )
             ),
         )
@@ -563,7 +568,7 @@ class LoaderTest {
             """
                 process p {
                     inputs {
-                        1 kg in from q(a = 1 kg) match (geo = "FR")
+                        1 kg q_in from q(a = 1 kg) match (geo = "FR")
                     }
                 }
             """.trimIndent()
@@ -579,17 +584,19 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 inputs = listOf(
-                    ETechnoExchange(
-                        oneKg,
-                        EProductSpec(
-                            "in",
-                            referenceUnit = null,
-                            FromProcess(
-                                "q",
-                                matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
-                                arguments = mapOf("a" to oneKg),
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            oneKg,
+                            EProductSpec(
+                                "q_in",
+                                referenceUnit = null,
+                                FromProcess(
+                                    "q",
+                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                    arguments = mapOf("a" to oneKg),
+                                ),
                             ),
-                        ),
+                        )
                     )
                 )
             )
@@ -622,15 +629,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.EMISSION,
-                            compartment = null,
-                            subCompartment = null,
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.EMISSION,
+                                compartment = null,
+                                subCompartment = null,
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -664,15 +673,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.EMISSION,
-                            "air",
-                            "low pop",
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.EMISSION,
+                                "air",
+                                "low pop",
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -706,15 +717,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.RESOURCE,
-                            compartment = null,
-                            subCompartment = null,
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.RESOURCE,
+                                compartment = null,
+                                subCompartment = null,
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -748,15 +761,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.RESOURCE,
-                            "air",
-                            "low pop",
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.RESOURCE,
+                                "air",
+                                "low pop",
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -790,15 +805,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.LAND_USE,
-                            compartment = null,
-                            subCompartment = null,
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.LAND_USE,
+                                compartment = null,
+                                subCompartment = null,
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -832,15 +849,17 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 biosphere = listOf(
-                    EBioExchange(
-                        oneKg,
-                        ESubstanceSpec(
-                            "co2",
-                            "co2",
-                            SubstanceType.LAND_USE,
-                            "air",
-                            "low pop",
-                            referenceUnit,
+                    EBioBlockEntry(
+                        EBioExchange(
+                            oneKg,
+                            ESubstanceSpec(
+                                "co2",
+                                "co2",
+                                SubstanceType.LAND_USE,
+                                "air",
+                                "low pop",
+                                referenceUnit,
+                            )
                         )
                     )
                 )
@@ -872,10 +891,12 @@ class LoaderTest {
             body = EProcess(
                 "p",
                 impacts = listOf(
-                    EImpact(
-                        oneKg,
-                        EIndicatorSpec(
-                            "co2",
+                    EImpactBlockEntry(
+                        EImpact(
+                            oneKg,
+                            EIndicatorSpec(
+                                "co2",
+                            )
                         )
                     )
                 )
@@ -890,11 +911,11 @@ class LoaderTest {
         val file = lcaFile(
             """
                 variables {
-                    sum = x + y
-                    mul = x * y
-                    div = x / y
-                    scale = 2 x
-                    pow = x^2.0
+                    op_sum = x + y
+                    op_mul = x * y
+                    op_div = x / y
+                    op_scale = 2 x
+                    op_pow = x^2.0
                 }
             """.trimIndent()
         )
@@ -909,11 +930,11 @@ class LoaderTest {
         val div = EQuantityDiv<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val scale = EQuantityScale(BasicNumber(2.0), EDataRef("x"))
         val pow = EQuantityPow<BasicNumber>(EDataRef("x"), 2.0)
-        assertEquals(sum, actual.getData("sum"))
-        assertEquals(mul, actual.getData("mul"))
-        assertEquals(div, actual.getData("div"))
-        assertEquals(scale, actual.getData("scale"))
-        assertEquals(pow, actual.getData("pow"))
+        assertEquals(sum, actual.getData("op_sum"))
+        assertEquals(mul, actual.getData("op_mul"))
+        assertEquals(div, actual.getData("op_div"))
+        assertEquals(scale, actual.getData("op_scale"))
+        assertEquals(pow, actual.getData("op_pow"))
     }
 
     @Test

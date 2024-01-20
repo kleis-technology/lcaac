@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
@@ -12,10 +13,14 @@ import ch.kleis.lcaac.core.lang.value.UnitValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 class EvaluatorTest {
+    private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+    
     @Test
     fun arena_shouldHandleKnowledgeCorrectly() {
         // given
@@ -53,13 +58,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "a",
             fromProcess = FromProcess("a_proc", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -101,13 +106,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "A",
             fromProcess = FromProcess("p1", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -139,13 +144,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -192,13 +197,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -236,13 +241,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -281,13 +286,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))
@@ -336,13 +341,13 @@ class EvaluatorTest {
                 }
             """.trimIndent()
         )
-        val loader = Loader(BasicOperations)
+        val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
             name = "carrot",
             fromProcess = FromProcess("p", MatchLabels(emptyMap())),
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val trace = evaluator.trace(setOf(spec))

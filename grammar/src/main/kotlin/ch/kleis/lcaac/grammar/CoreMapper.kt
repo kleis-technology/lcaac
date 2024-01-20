@@ -2,15 +2,13 @@
 
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
-import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.testing.TestCase
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.lang.Double.parseDouble
@@ -73,11 +71,18 @@ class CoreMapper<Q>(
         )
     }
 
-    fun impactExchange(ctx: LcaLangParser.ImpactExchangeContext): EImpact<Q> {
-        return EImpact(
-            dataExpression(ctx.quantity),
-            indicatorSpec(ctx.indicator),
-        )
+    fun impactExchange(ctx: LcaLangParser.ImpactExchangeContext): ImpactBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.ImpactEntryContext -> EImpactBlockEntry(
+                EImpact(
+                    dataExpression(ctx.quantity),
+                    indicatorSpec(ctx.indicator),
+                )
+            )
+
+            is LcaLangParser.ImpactBlockForEachContext -> TODO()
+            else -> throw IllegalStateException("parsing error: expecting an impact exchange context")
+        }
     }
 
     fun indicatorSpec(ctx: LcaLangParser.IndicatorRefContext): EIndicatorSpec<Q> {
@@ -90,12 +95,21 @@ class CoreMapper<Q>(
         ctx: LcaLangParser.BioExchangeContext,
         symbolTable: SymbolTable<Q>,
         type: SubstanceType
-    ): EBioExchange<Q> {
-        val quantity = dataExpression(ctx.quantity)
-        return EBioExchange(
-            quantity,
-            substanceSpec(ctx.substance, type, quantity, symbolTable)
-        )
+    ): BioBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.BioEntryContext -> {
+                val quantity = dataExpression(ctx.quantity)
+                EBioBlockEntry(
+                    EBioExchange(
+                        quantity,
+                        substanceSpec(ctx.substance, type, quantity, symbolTable),
+                    )
+                )
+            }
+
+            is LcaLangParser.BioBlockForEachContext -> TODO()
+            else -> throw IllegalStateException("parsing error: expecting a bio exchange context")
+        }
     }
 
     fun substanceSpec(
@@ -131,11 +145,18 @@ class CoreMapper<Q>(
     }
 
 
-    fun technoInputExchange(ctx: LcaLangParser.TechnoInputExchangeContext): ETechnoExchange<Q> {
-        return ETechnoExchange(
-            dataExpression(ctx.quantity),
-            inputProductSpec(ctx.product),
-        )
+    fun technoInputExchange(ctx: LcaLangParser.TechnoInputExchangeContext): TechnoBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.TechnoEntryContext -> ETechnoBlockEntry(
+                ETechnoExchange(
+                    dataExpression(ctx.quantity),
+                    inputProductSpec(ctx.product),
+                )
+            )
+
+            is LcaLangParser.TechnoBlockForEachContext -> TODO()
+            else -> throw IllegalStateException("parsing error: expecting a techno input exchange context")
+        }
     }
 
     fun inputProductSpec(ctx: LcaLangParser.InputProductSpecContext): EProductSpec<Q> {
