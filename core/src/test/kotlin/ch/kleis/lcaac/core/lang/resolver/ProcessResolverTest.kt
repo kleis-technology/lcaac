@@ -22,7 +22,7 @@ class ProcessResolverTest {
                 ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
             ),
             inputs = listOf(
-                ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
             ),
         )
         val carrotProductionFR = EProcessTemplate(
@@ -75,7 +75,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
                 ),
             )
         )
@@ -116,7 +116,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
                 ),
             )
         )
@@ -127,7 +127,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                    ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)),
                 ),
             )
         )
@@ -168,7 +168,7 @@ class ProcessResolverTest {
                     ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
                 ),
             )
         )
@@ -179,7 +179,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                    ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)),
                 ),
             )
         )
@@ -213,7 +213,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water)),
                 ),
             )
         )
@@ -225,7 +225,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.water)),
                 ),
             )
         )
@@ -237,7 +237,7 @@ class ProcessResolverTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.salad),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot),
+                    ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)),
                 ),
             )
         )

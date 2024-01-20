@@ -160,9 +160,15 @@ fun <Q> everyDataRefInProcess(): PEvery<EProcess<Q>, EProcess<Q>, EDataRef<Q>, D
     Merge(
         listOf(
             EProcess.products<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
-            EProcess.inputs<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
-            EProcess.biosphere<Q>() compose Every.list() compose everyDataRefInEBioExchange(),
-            EProcess.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
+            EProcess.inputs<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInETechnoExchange(),
+            EProcess.biosphere<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEBioExchange(),
+            EProcess.impacts<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEImpact(),
         )
     )
 
@@ -170,7 +176,9 @@ private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceChar
     Merge(
         listOf(
             ESubstanceCharacterization.referenceExchange<Q>() compose everyDataRefInEBioExchange(),
-            ESubstanceCharacterization.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
+            ESubstanceCharacterization.impacts<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEImpact(),
         )
     )
 

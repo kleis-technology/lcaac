@@ -39,7 +39,7 @@ class ProcessTemplateExpressionReducerTest {
                     ),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
                 ),
             )
         )
@@ -73,9 +73,11 @@ class ProcessTemplateExpressionReducerTest {
                     ),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneLitre,
-                        ProductFixture.water
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneLitre,
+                            ProductFixture.water
+                        )
                     ),
                 ),
             )
@@ -104,7 +106,7 @@ class ProcessTemplateExpressionReducerTest {
                     ),
                 ),
                 inputs = listOf(
-                    ETechnoExchange(EDataRef("q_water"), ProductFixture.water),
+                    ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water)),
                 ),
             )
         )

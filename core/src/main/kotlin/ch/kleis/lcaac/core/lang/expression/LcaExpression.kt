@@ -109,8 +109,16 @@ data class EBlockForEach<E, Q>(
 }
 
 typealias TechnoBlock<Q> = BlockExpression<ETechnoExchange<Q>, Q>
+typealias ETechnoBlockEntry<Q> = EBlockEntry<ETechnoExchange<Q>, Q>
+typealias ETechnoBlockForEach<Q> = EBlockForEach<ETechnoExchange<Q>, Q>
+
 typealias BioBlock<Q> = BlockExpression<EBioExchange<Q>, Q>
+typealias EBioBlockEntry<Q> = EBlockEntry<EBioExchange<Q>, Q>
+typealias EBioBlockForEach<Q> = EBlockForEach<EBioExchange<Q>, Q>
+
 typealias ImpactBlock<Q> = BlockExpression<EImpact<Q>, Q>
+typealias EImpactBlockEntry<Q> = EBlockEntry<EImpact<Q>, Q>
+typealias EImpactBlockForEach<Q> = EBlockForEach<EImpact<Q>, Q>
 
 // Process
 @optics
@@ -129,7 +137,7 @@ data class EProcess<Q>(
 @optics
 data class ESubstanceCharacterization<Q>(
     val referenceExchange: EBioExchange<Q>,
-    val impacts: List<EImpact<Q>>
+    val impacts: List<ImpactBlock<Q>>
 ) : LcaExpression<Q>, ConnectionExpression<Q> {
     companion object
 

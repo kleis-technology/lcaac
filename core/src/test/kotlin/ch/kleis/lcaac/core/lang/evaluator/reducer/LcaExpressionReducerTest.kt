@@ -66,10 +66,10 @@ class LcaExpressionReducerTest {
                 ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
             ),
             inputs = listOf(
-                ETechnoExchange(EDataRef("q_water"), ProductFixture.water)
+                ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water))
             ),
             biosphere = listOf(
-                EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol),
+                EBioBlockEntry(EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol)),
             ),
         )
         val reducer = LcaExpressionReducer(
@@ -98,15 +98,19 @@ class LcaExpressionReducerTest {
                 ),
             ),
             inputs = listOf(
-                ETechnoExchange(
-                    QuantityFixture.oneLitre,
-                    ProductFixture.water
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water
+                    )
                 )
             ),
             biosphere = listOf(
-                EBioExchange(
-                    QuantityFixture.oneKilogram,
-                    SubstanceFixture.propanol
+                EBioBlockEntry(
+                    EBioExchange(
+                        QuantityFixture.oneKilogram,
+                        SubstanceFixture.propanol
+                    )
                 ),
             ),
         )
@@ -377,9 +381,11 @@ class LcaExpressionReducerTest {
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
-                EImpact(
-                    EDataRef("q_cc"),
-                    IndicatorFixture.climateChange
+                EImpactBlockEntry(
+                    EImpact(
+                        EDataRef("q_cc"),
+                        IndicatorFixture.climateChange
+                    )
                 ),
             )
         )
@@ -405,9 +411,11 @@ class LcaExpressionReducerTest {
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
-                EImpact(
-                    QuantityFixture.oneKilogram,
-                    IndicatorFixture.climateChange
+                EImpactBlockEntry(
+                    EImpact(
+                        QuantityFixture.oneKilogram,
+                        IndicatorFixture.climateChange
+                    )
                 ),
             )
         )

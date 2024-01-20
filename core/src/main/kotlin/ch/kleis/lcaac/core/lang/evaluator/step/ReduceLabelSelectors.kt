@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.expression.optics.everyDataRefInDataExpression
+import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.math.QuantityOperations
@@ -18,6 +19,7 @@ class ReduceLabelSelectors<Q>(
     private val everyInputProduct =
         EProcessTemplateApplication.template<Q>().body().inputs() compose
             Every.list() compose
+            BlockExpression.everyEntry() compose
             ETechnoExchange.product()
     private val everyLabelSelector = everyInputProduct compose
         EProductSpec.fromProcess<Q>().matchLabels().elements() compose

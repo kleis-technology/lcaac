@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
-import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
@@ -34,7 +34,7 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
@@ -62,7 +62,7 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
@@ -88,7 +88,7 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
@@ -122,14 +122,16 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, EProductSpec("p", QuantityFixture.oneKilogram))
                 ),
                 biosphere = listOf(
-                    EBioExchange(
-                        QuantityFixture.oneKilogram,
-                        ESubstanceSpec(
-                            "doesNotExist",
-                            "doesNotExist",
-                            SubstanceType.EMISSION,
-                            "water",
-                            "sea water"
+                    EBioBlockEntry(
+                        EBioExchange(
+                            QuantityFixture.oneKilogram,
+                            ESubstanceSpec(
+                                "doesNotExist",
+                                "doesNotExist",
+                                SubstanceType.EMISSION,
+                                "water",
+                                "sea water"
+                            )
                         )
                     )
                 ),
@@ -214,10 +216,12 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                            )
                         )
                     )
                 ),
@@ -302,23 +306,25 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels(emptyMap()),
-                                mapOf("q_water" to QuantityFixture.twoLitres),
-                            ),
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels(emptyMap()),
+                                    mapOf("q_water" to QuantityFixture.twoLitres),
+                                ),
+                            )
                         )
                     )
                 ),
             ),
         )
         // given
-        val processTemplates=  ProcessTemplateRegister(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 ProcessKey("carrot_production") to TemplateFixture.carrotProduction,
                 ProcessKey("salad_production") to template,
@@ -399,16 +405,18 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "irrelevant_product",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels(emptyMap()),
-                                mapOf("q_water" to QuantityFixture.twoLitres),
-                            ),
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "irrelevant_product",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels(emptyMap()),
+                                    mapOf("q_water" to QuantityFixture.twoLitres),
+                                ),
+                            )
                         )
                     )
                 ),
@@ -444,11 +452,13 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = listOf(
-                    EBioExchange(
-                        QuantityFixture.oneKilogram, ESubstanceSpec(
+                    EBioBlockEntry(
+                        EBioExchange(
+                            QuantityFixture.oneKilogram, ESubstanceSpec(
                             "propanol",
                             compartment = "air",
                             type = SubstanceType.RESOURCE,
+                        )
                         )
                     )
                 ),
@@ -491,9 +501,11 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneLitre,
-                        ProductFixture.carrot,
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneLitre,
+                            ProductFixture.carrot,
+                        )
                     )
                 ),
             )
