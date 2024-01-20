@@ -36,7 +36,7 @@ class CoreMapperTest {
     fun columnOperation_sum() {
         // given
         val ctx = LcaLangFixture.parser("""
-            sum(source, "mass")
+            sum(source["mass"])
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
