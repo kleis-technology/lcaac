@@ -269,6 +269,17 @@ class CoreMapper<Q>(
 
     fun dataExpression(ctx: LcaLangParser.DataExpressionContext): DataExpression<Q> {
         return when (ctx) {
+            is LcaLangParser.ColGroupContext -> {
+                when (ctx.op.text) {
+                    ctx.SUM().innerText() -> {
+                        val sourceRef = ctx.dataSourceRef().innerText()
+                        val columnRef = ctx.columnRef().innerText()
+                        ESum(sourceRef, columnRef)
+                    }
+                    else -> throw IllegalStateException("parsing error: invalid column operation '${ctx.op.text}'")
+                }
+            }
+
             is LcaLangParser.AddGroupContext -> {
                 val left = dataExpression(ctx.left)
                 val right = dataExpression(ctx.right)
@@ -321,6 +332,10 @@ class CoreMapper<Q>(
                     dataExpression(it.dataExpression())
                 } ?: ctx.stringExpression()?.let {
                     EStringLiteral(it.STRING_LITERAL().innerText())
+                } ?: ctx.slice()?.let {
+                    val recordRef = ctx.dataRef().innerText()
+                    val columnRef = ctx.slice().columnRef().innerText()
+                    ERecordEntry(EDataRef(recordRef), columnRef)
                 } ?: ctx.dataRef()?.let {
                     EDataRef(it.innerText())
                 } ?: throw IllegalStateException()
@@ -344,6 +359,10 @@ class CoreMapper<Q>(
 
     fun LcaLangParser.DataRefContext.innerText(): String {
         return this.uid().ID().innerText()
+    }
+
+    fun LcaLangParser.ColumnRefContext.innerText(): String {
+        return this.STRING_LITERAL().innerText()
     }
 
     fun LcaLangParser.DataSourceRefContext.innerText(): String {

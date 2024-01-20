@@ -17,6 +17,38 @@ class CoreMapperTest {
     private val ops = BasicOperations
 
     @Test
+    fun recordEntry() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            row["mass"]
+        """.trimIndent()).dataExpression()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.dataExpression(ctx)
+
+        // then
+        val expected = ERecordEntry<BasicNumber>(EDataRef("row"), "mass")
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun columnOperation_sum() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            sum(source, "mass")
+        """.trimIndent()).dataExpression()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.dataExpression(ctx)
+
+        // then
+        val expected = ESum<BasicNumber>("source", "mass")
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun datasource() {
         // given
         val ctx = LcaLangFixture.parser("""
