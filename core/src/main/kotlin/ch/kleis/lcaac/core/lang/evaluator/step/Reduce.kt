@@ -26,6 +26,7 @@ class Reduce<Q>(
         ops,
         sourceOps,
         symbolTable.data,
+        symbolTable.dataSources,
     )
 
     fun apply(expression: EProcessTemplateApplication<Q>): EProcess<Q> {
