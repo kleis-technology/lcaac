@@ -15,9 +15,50 @@ import kotlin.test.assertNotNull
 
 class LoaderTest {
     @Test
+    fun load_whenSumOpInProduct_referenceUnitClosureShouldContainDataSource() {
+        // given
+        val file = LcaLangFixture.parser(
+            """
+            datasource source {
+                location = "file.csv"
+                schema {
+                    "mass" = 1 kg
+                }
+            }
+            
+            process p {
+                products {
+                    sum(source["mass"]) p
+                }
+            }
+            """.trimIndent()
+        ).lcaFile()
+        val loader = Loader(BasicOperations)
+
+        // when
+        val symbolTable = loader.load(sequenceOf(file))
+        val referenceUnit = symbolTable
+            .getTemplate("p")!!
+            .body.products[0]
+            .product.referenceUnit!! as EUnitOf
+        val closure = referenceUnit.expression as EQuantityClosure
+        val actual = closure.symbolTable
+
+
+        // then
+        val expected = ECsvSource(
+            location = "file.csv",
+            schema = mapOf(
+                "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
+            )
+        )
+        assertEquals(expected, actual.getDataSource("source"))
+    }
+
+    @Test
     fun load_datasource() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
             datasource source {
                 location = "file.csv"
@@ -27,7 +68,7 @@ class LoaderTest {
                 }
             }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -47,7 +88,7 @@ class LoaderTest {
 
     @Test
     fun load_whenFileContainsTest_thenNoError() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -67,7 +108,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when

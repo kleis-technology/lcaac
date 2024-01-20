@@ -19,6 +19,7 @@ class CoreMapper<Q>(
     fun process(
         ctx: LcaLangParser.ProcessDefinitionContext,
         globals: DataRegister<Q> = DataRegister.empty(),
+        dataSources: Register<DataSourceKey, DataSourceExpression<Q>>,
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
         val labels = ctx.labels()
@@ -36,6 +37,7 @@ class CoreMapper<Q>(
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
             },
+            dataSources = dataSources,
         )
         val products = ctx.block_products()
             .flatMap { it.technoProductExchange() }

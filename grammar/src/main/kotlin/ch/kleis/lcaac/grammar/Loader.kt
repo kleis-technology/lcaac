@@ -79,18 +79,6 @@ class Loader<Q>(
                 throw LoaderException("Duplicate global variable ${e.duplicates} defined")
             }
 
-
-            val processTemplates = try {
-                ProcessTemplateRegister<Q>()
-                    .plus(
-                        processDefinitions
-                            .map { Pair(it.buildUniqueKey(), process(it, globals)) }
-                            .asIterable()
-                    )
-            } catch (e: RegisterException) {
-                throw LoaderException("Duplicate process ${e.duplicates} defined")
-            }
-
             val dataSources = try {
                 DataSourceRegister<Q>()
                     .plus(
@@ -101,6 +89,18 @@ class Loader<Q>(
             } catch (e: RegisterException) {
                 throw LoaderException("Duplicate data sources ${e.duplicates} defined")
             }
+
+            val processTemplates = try {
+                ProcessTemplateRegister<Q>()
+                    .plus(
+                        processDefinitions
+                            .map { Pair(it.buildUniqueKey(), process(it, globals, dataSources)) }
+                            .asIterable()
+                    )
+            } catch (e: RegisterException) {
+                throw LoaderException("Duplicate process ${e.duplicates} defined")
+            }
+
             return SymbolTable(
                 data = globals,
                 processTemplates = processTemplates,
