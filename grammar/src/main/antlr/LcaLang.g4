@@ -200,18 +200,18 @@ block_impacts
 
 technoInputExchange
     : quantity=dataExpression product=inputProductSpec                                      # technoEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE technoInputExchange* RBRACE  # technoBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
     ;
 technoProductExchange
     : quantity=dataExpression product=outputProductSpec
     ;
 bioExchange
     : quantity=dataExpression substance=substanceSpec                               # bioEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE bioExchange* RBRACE  # bioBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
     ;
 impactExchange
     : quantity=dataExpression indicator=indicatorRef                                    # impactEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE impactExchange* RBRACE   # impactBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
     ;
 
 

@@ -112,6 +112,9 @@ class CoreMapperTest {
         // given
         val ctx = LcaLangFixture.parser("""
             for_each row in source {
+                variables {
+                    x = 1 l
+                }
                 1 kg co2
             }
         """.trimIndent()).technoInputExchange()
@@ -124,6 +127,9 @@ class CoreMapperTest {
         val expected = ETechnoBlockForEach(
             "row",
             "source",
+            mapOf(
+                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
+            ),
             listOf(
                 ETechnoBlockEntry(
                     ETechnoExchange(
@@ -141,6 +147,9 @@ class CoreMapperTest {
         // given
         val ctx = LcaLangFixture.parser("""
             for_each row in source {
+                variables {
+                    x = 1 l
+                }
                 1 kg co2
             }
         """.trimIndent()).impactExchange()
@@ -153,6 +162,9 @@ class CoreMapperTest {
         val expected = EImpactBlockForEach(
             "row",
             "source",
+            mapOf(
+                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
+            ),
             listOf(
                 EImpactBlockEntry(
                     EImpact(
@@ -170,6 +182,9 @@ class CoreMapperTest {
         // given
         val ctx = LcaLangFixture.parser("""
             for_each row in source {
+                variables {
+                    x = 1 l
+                }
                 1 kg co2(compartment="air")
             }
         """.trimIndent()).bioExchange()
@@ -185,6 +200,9 @@ class CoreMapperTest {
         val expected = EBioBlockForEach(
             "row",
             "source",
+            mapOf(
+                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
+            ),
             listOf(
                 EBioBlockEntry(
                     EBioExchange(

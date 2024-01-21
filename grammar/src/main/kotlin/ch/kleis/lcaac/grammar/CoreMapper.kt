@@ -94,7 +94,10 @@ class CoreMapper<Q>(
                 val rowRef = ctx.dataRef().innerText()
                 val dataSourceRef = ctx.dataSourceRef().innerText()
                 val body = ctx.impactExchange().map { this.impactExchange(it) }
-                EImpactBlockForEach(rowRef, dataSourceRef, body)
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                EImpactBlockForEach(rowRef, dataSourceRef, locals,  body)
             }
 
             else -> throw IllegalStateException("parsing error: expecting an impact exchange context")
@@ -127,7 +130,10 @@ class CoreMapper<Q>(
                 val rowRef = ctx.dataRef().innerText()
                 val dataSourceRef = ctx.dataSourceRef().innerText()
                 val body = ctx.bioExchange().map { this.bioExchange(it, symbolTable, type) }
-                EBioBlockForEach(rowRef, dataSourceRef, body)
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                EBioBlockForEach(rowRef, dataSourceRef, locals,  body)
             }
             else -> throw IllegalStateException("parsing error: expecting a bio exchange context")
         }
@@ -179,7 +185,10 @@ class CoreMapper<Q>(
                 val rowRef = ctx.dataRef().innerText()
                 val dataSourceRef = ctx.dataSourceRef().innerText()
                 val body = ctx.technoInputExchange().map { this.technoInputExchange(it) }
-                ETechnoBlockForEach(rowRef, dataSourceRef, body)
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                ETechnoBlockForEach(rowRef, dataSourceRef, locals,  body)
             }
 
             else -> throw IllegalStateException("parsing error: expecting a techno input exchange context")
