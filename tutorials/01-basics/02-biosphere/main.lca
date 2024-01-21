@@ -25,7 +25,7 @@ test bake {
     }
     assert {
         wheat between 2 kg and 2 kg
-        wood_smoke(compartment="air") between 1 m3 and 1 m3
+        wood_smoke between 1 m3 and 1 m3 // TODO: Reference should include compartment
     }
 }
 

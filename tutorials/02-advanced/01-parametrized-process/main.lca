@@ -32,7 +32,7 @@ process produce_sandwich {
 
 test sandwich {
     given {
-        1 p sandwich
+        1 p sandwich from produce_sandwich // TODO: separate tests and process references
     }
     assert {
         flour between 0.2 kg and 0.2 kg
