@@ -6,5 +6,5 @@ import ch.kleis.lcaac.core.lang.expression.ERecord
 
 interface DataSourceOperations<Q> {
     fun readAll(source: DataSourceExpression<Q>): Sequence<ERecord<Q>>
-    fun sum(source: DataSourceExpression<Q>, column: String): DataExpression<Q>
+    fun sumProduct(source: DataSourceExpression<Q>, columns: List<String>): DataExpression<Q>
 }

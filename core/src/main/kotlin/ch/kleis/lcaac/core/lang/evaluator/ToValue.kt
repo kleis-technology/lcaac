@@ -146,7 +146,7 @@ class ToValue<Q>(
                     is StringExpression -> e.toValue()
                     is ERecord -> RecordValue(e.entries.mapValues { it.value.toValue() })
                     is EDataRef, is ERecordEntry,
-                    is EDefaultRecordOf, is ESum -> throw EvaluatorException("$it is not reduced")
+                    is EDefaultRecordOf, is ESumProduct -> throw EvaluatorException("$it is not reduced")
                 }
             },
         )

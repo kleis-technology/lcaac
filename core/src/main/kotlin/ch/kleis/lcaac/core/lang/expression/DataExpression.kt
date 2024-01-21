@@ -18,17 +18,17 @@ sealed interface StringExpression
  */
 
 @optics
-data class EDefaultRecordOf<Q>(val dataSourceRef: String): DataExpression<Q> {
+data class EDefaultRecordOf<Q>(val dataSourceRef: String) : DataExpression<Q> {
     companion object
 }
 
 @optics
-data class ERecord<Q>(val entries: Map<String, DataExpression<Q>>): DataExpression<Q> {
+data class ERecord<Q>(val entries: Map<String, DataExpression<Q>>) : DataExpression<Q> {
     companion object
 }
 
 @optics
-data class ERecordEntry<Q>(val record: DataExpression<Q>, val index: String): DataExpression<Q> {
+data class ERecordEntry<Q>(val record: DataExpression<Q>, val index: String) : DataExpression<Q> {
     companion object
 }
 
@@ -39,7 +39,8 @@ data class ERecordEntry<Q>(val record: DataExpression<Q>, val index: String): Da
 sealed interface ColumnOperationExpression<Q>
 
 @optics
-data class ESum<Q>(val dataSourceRef: String, val column: String): DataExpression<Q>, ColumnOperationExpression<Q> {
+data class ESumProduct<Q>(val dataSourceRef: String, val columns: List<String>)
+    : DataExpression<Q>, ColumnOperationExpression<Q> {
     companion object
 }
 

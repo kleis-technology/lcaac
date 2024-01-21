@@ -34,7 +34,7 @@ class ReduceTest {
         val instance = EProcessTemplateApplication(
             template,
             mapOf(
-                "q_water" to ESum("source", "mass")
+                "q_water" to ESumProduct("source", listOf("mass"))
             )
         )
         val dataSource = ECsvSource(
@@ -43,7 +43,7 @@ class ReduceTest {
                 "mass" to ColumnType(QuantityFixture.oneLitre)
             )
         )
-        every { sourceOps.sum(dataSource, "mass") } returns QuantityFixture.twoLitres
+        every { sourceOps.sumProduct(dataSource, listOf("mass")) } returns QuantityFixture.twoLitres
         val symbolTable = SymbolTable(
             dataSources = DataSourceRegister.from(mapOf(
                 DataSourceKey("source") to dataSource,

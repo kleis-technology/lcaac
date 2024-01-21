@@ -53,7 +53,7 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 )
                 is ERecordEntry -> foldMap(M, source.record, map)
                 is EDefaultRecordOf -> M.empty()
-                is ESum -> M.empty()
+                is ESumProduct -> M.empty()
             }
         }
 
@@ -120,7 +120,7 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 )
 
                 is EDefaultRecordOf -> source
-                is ESum -> source
+                is ESumProduct -> source
             }
         }
     }

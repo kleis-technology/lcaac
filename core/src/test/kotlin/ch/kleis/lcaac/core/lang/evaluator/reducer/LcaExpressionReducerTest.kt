@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.lang.fixture.*
 import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -38,22 +39,15 @@ class LcaExpressionReducerTest {
             name = "foo",
             inputs = listOf(block),
         )
-        val sourceOps = object : DataSourceOperations<BasicNumber> {
-            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
-                return sequenceOf(
-                    ERecord(mapOf(
-                        "mass" to QuantityFixture.oneKilogram,
-                    )),
-                    ERecord(mapOf(
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                )
-            }
-
-            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
-                throw IllegalAccessException("should not have been called")
-            }
-        }
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
         val reducer = LcaExpressionReducer(
             DataRegister.from(mapOf(
                 DataKey("row") to QuantityFixture.oneLitre,
@@ -89,22 +83,15 @@ class LcaExpressionReducerTest {
             name = "foo",
             inputs = listOf(block),
         )
-        val sourceOps = object : DataSourceOperations<BasicNumber> {
-            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
-                return sequenceOf(
-                    ERecord(mapOf(
-                        "mass" to QuantityFixture.oneKilogram,
-                    )),
-                    ERecord(mapOf(
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                )
-            }
-
-            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
-                throw IllegalAccessException("should not have been called")
-            }
-        }
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
         val reducer = LcaExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
@@ -169,18 +156,11 @@ class LcaExpressionReducerTest {
             name = "foo",
             inputs = listOf(block),
         )
-        val sourceOps = object : DataSourceOperations<BasicNumber> {
-            override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
-                return sequenceOf(
-                    ERecord(emptyMap()),
-                    ERecord(emptyMap()),
-                )
-            }
-
-            override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
-                throw IllegalAccessException("should not have been called")
-            }
-        }
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(emptyMap()),
+            ERecord(emptyMap()),
+        )
         val reducer = LcaExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(

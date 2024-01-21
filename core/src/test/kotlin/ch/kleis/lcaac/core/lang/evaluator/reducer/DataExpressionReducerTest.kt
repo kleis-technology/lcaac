@@ -30,18 +30,24 @@ class DataExpressionReducerTest {
      */
 
     @Test
-    fun sum() {
+    fun sumProduct() {
         // given
-        val expression = ESum<BasicNumber>("source", "mass")
+        val expression = ESumProduct<BasicNumber>("source", listOf("volume", "mass"))
         val dataSource = ECsvSource(
             location = "source.csv",
             schema = mapOf(
+                "volume" to ColumnType(QuantityFixture.oneLitre),
                 "mass" to ColumnType(QuantityFixture.oneKilogram),
             ),
         )
         val sops = mockk<DataSourceOperations<BasicNumber>>()
-        val total = QuantityFixture.twoKilograms
-        every { sops.sum(dataSource, "mass") } returns total
+        val total = EQuantityScale(BasicNumber(1.0),
+            EUnitLiteral(
+                UnitFixture.l.symbol.multiply(UnitFixture.kg.symbol),
+                1.0,
+                UnitFixture.l.dimension.multiply(UnitFixture.kg.dimension),
+            ))
+        every { sops.sumProduct(dataSource, listOf("volume", "mass")) } returns total
         val reducer = DataExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
@@ -56,14 +62,14 @@ class DataExpressionReducerTest {
 
         // then
         assertEquals(total, actual)
-        verify { sops.sum(dataSource, "mass") }
+        verify { sops.sumProduct(dataSource, listOf("volume", "mass")) }
     }
 
 
     @Test
     fun sum_invalidDataSourceRef() {
         // given
-        val expression = ESum<BasicNumber>("foo", "mass")
+        val expression = ESumProduct<BasicNumber>("foo", listOf("mass"))
         val dataSource = ECsvSource(
             location = "source.csv",
             schema = mapOf(
@@ -72,7 +78,7 @@ class DataExpressionReducerTest {
         )
         val sops = mockk<DataSourceOperations<BasicNumber>>()
         val total = QuantityFixture.twoKilograms
-        every { sops.sum(dataSource, "mass") } returns total
+        every { sops.sumProduct(dataSource, listOf("mass")) } returns total
         val reducer = DataExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
@@ -86,7 +92,7 @@ class DataExpressionReducerTest {
         val e = assertThrows<EvaluatorException> { reducer.reduce(expression) }
         assertEquals("unknown data source 'foo'", e.message)
     }
-    
+
     /*
         RECORD
      */
