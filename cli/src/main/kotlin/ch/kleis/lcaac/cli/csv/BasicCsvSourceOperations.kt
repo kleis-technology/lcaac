@@ -33,29 +33,32 @@ class BasicCsvSourceOperations(
                         val entries = header
                             .filter { entry -> source.schema.containsKey(entry.key) }
                             .mapValues { entry ->
-                            val columnType = source.schema[entry.key]!!
-                            val columnDefaultValue = columnType.defaultValue
-                            val position = entry.value
-                            val element = record[position]
-                            when (columnDefaultValue) {
-                                is QuantityExpression<*> ->
-                                    parseQuantityWithDefaultUnit(element, EUnitOf(columnDefaultValue))
+                                val columnType = source.schema[entry.key]!!
+                                val columnDefaultValue = columnType.defaultValue
+                                val position = entry.value
+                                val element = record[position]
+                                when (columnDefaultValue) {
+                                    is QuantityExpression<*> ->
+                                        parseQuantityWithDefaultUnit(element, EUnitOf(columnDefaultValue))
 
-                                is StringExpression ->
-                                    EStringLiteral(element)
+                                    is StringExpression ->
+                                        EStringLiteral(element)
 
-                                else -> throw IllegalStateException(
-                                    "invalid schema: column '${entry.key}' has an invalid default value"
-                                )
+                                    else -> throw IllegalStateException(
+                                        "invalid schema: column '${entry.key}' has an invalid default value"
+                                    )
+                                }
                             }
-                        }
                         ERecord(entries)
                     }
             }
         }
     }
 
-    override fun sum(source: DataSourceExpression<BasicNumber>, column: String): DataExpression<BasicNumber> {
+    override fun sumProduct(
+        source: DataSourceExpression<BasicNumber>,
+        columns: List<String>,
+    ): DataExpression<BasicNumber> {
         val reducer = DataExpressionReducer(
             dataRegister = Prelude.units(),
             dataSourceRegister = DataSourceRegister.empty(),
@@ -68,19 +71,23 @@ class BasicCsvSourceOperations(
                 val inputStream = location.toFile().inputStream()
                 val parser = CSVParser(inputStream.reader(), format)
                 val header = parser.headerMap
-                val position = header[column]
-                    ?: throw IllegalStateException(
-                        "${source.location}: invalid schema: unknown column '$column'"
-                    )
-                val columnType = source.schema[column]
-                    ?: throw IllegalStateException(
-                        "invalid schema: column '$column' has an invalid default value"
-                    )
-                val defaultValue = columnType.defaultValue
                 parser.iterator().asSequence()
                     .map { record ->
-                        val element = record[position]
-                        parseQuantityWithDefaultUnit(element, EUnitOf(defaultValue))
+                        columns.map { column ->
+                            val position = header[column]
+                                ?: throw IllegalStateException(
+                                    "${source.location}: invalid schema: unknown column '$column'"
+                                )
+                            val columnType = source.schema[column]
+                                ?: throw IllegalStateException(
+                                    "invalid schema: column '$column' has an invalid default value"
+                                )
+                            val defaultValue = columnType.defaultValue
+                            val element = record[position]
+                            parseQuantityWithDefaultUnit(element, EUnitOf(defaultValue))
+                        }.reduce { acc, expression ->
+                            reducer.reduce(EQuantityMul(acc, expression))
+                        }
                     }.reduce { acc, expression ->
                         reducer.reduce(EQuantityAdd(acc, expression))
                     }
