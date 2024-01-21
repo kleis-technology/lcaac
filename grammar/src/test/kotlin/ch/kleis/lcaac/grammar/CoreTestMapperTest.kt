@@ -46,7 +46,7 @@ class CoreTestMapperTest {
                     products = listOf(
                         ETechnoExchange(
                             EQuantityScale(BasicNumber(1.0), EDataRef("u")),
-                            EProductSpec("foo", EDataRef("u"))
+                            EProductSpec("__test__product__foo", EDataRef("u"))
                         )
                     ),
                     inputs = listOf(
