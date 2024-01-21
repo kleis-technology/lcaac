@@ -103,6 +103,7 @@ data class EBlockEntry<E, Q>(val entry: E) : BlockExpression<E, Q> {
 data class EBlockForEach<E, Q>(
     val rowRef: String,
     val dataSourceRef: String,
+    val locals: Map<String, DataExpression<Q>>,
     val body: List<BlockExpression<E, Q>>,
 ) : BlockExpression<E, Q> {
     companion object

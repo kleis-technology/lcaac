@@ -21,11 +21,74 @@ class LcaExpressionReducerTest {
      */
 
     @Test
+    fun reduce_whenBlockForEach_withLocalVariables() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            mapOf("x" to ERecordEntry(EDataRef("row"), "mass")),
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        EDataRef("x"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.twoKilograms,
+                        ProductFixture.carrot,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun reduce_whenBlockForEach_withRecordEntryOverride_shouldThrow() {
         // given
         val block = ETechnoBlockForEach(
             "row",
             "source",
+            emptyMap(),
             listOf(
                 ETechnoBlockEntry(
                     ETechnoExchange(
@@ -70,6 +133,7 @@ class LcaExpressionReducerTest {
         val block = ETechnoBlockForEach(
             "row",
             "source",
+            emptyMap(),
             listOf(
                 ETechnoBlockEntry(
                     ETechnoExchange(
@@ -131,6 +195,7 @@ class LcaExpressionReducerTest {
         val block = ETechnoBlockForEach(
             "row",
             "source",
+            emptyMap(),
             listOf(
                 ETechnoBlockEntry(
                     ETechnoExchange(
@@ -141,6 +206,7 @@ class LcaExpressionReducerTest {
                 EBlockForEach(
                     "row2",
                     "source",
+                    emptyMap(),
                     listOf(
                         ETechnoBlockEntry(
                             ETechnoExchange(
