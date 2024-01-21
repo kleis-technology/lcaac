@@ -227,7 +227,7 @@ dataExpression
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
     | dataRef slice?                                                # baseGroup
-    | op=SUM LPAREN dataSourceRef LBRACK columnRef RBRACK RPAREN    # colGroup
+    | op=SUM LPAREN dataSourceRef COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
     : LBRACK columnRef RBRACK

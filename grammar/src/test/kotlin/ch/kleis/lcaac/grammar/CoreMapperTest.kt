@@ -5,7 +5,6 @@ import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
-import io.mockk.mockkObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -68,7 +67,7 @@ class CoreMapperTest {
     fun columnOperation_sum() {
         // given
         val ctx = LcaLangFixture.parser("""
-            sum(source["mass"])
+            sum(source, "mass" * "ratio")
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -76,7 +75,7 @@ class CoreMapperTest {
         val actual = mapper.dataExpression(ctx)
 
         // then
-        val expected = ESum<BasicNumber>("source", "mass")
+        val expected = ESumProduct<BasicNumber>("source", listOf("mass", "ratio"))
         assertEquals(expected, actual)
     }
 

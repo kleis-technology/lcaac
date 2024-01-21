@@ -283,8 +283,9 @@ class CoreMapper<Q>(
                 when (ctx.op.text) {
                     ctx.SUM().innerText() -> {
                         val sourceRef = ctx.dataSourceRef().innerText()
-                        val columnRef = ctx.columnRef().innerText()
-                        ESum(sourceRef, columnRef)
+                        val columns = ctx.columnRef()
+                            .map { it.innerText() }
+                        ESumProduct(sourceRef, columns)
                     }
                     else -> throw IllegalStateException("parsing error: invalid column operation '${ctx.op.text}'")
                 }
