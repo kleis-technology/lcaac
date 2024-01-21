@@ -1,0 +1,54 @@
+process electric_vehicle {
+   params {
+      geo = "switzerland" // or "france"
+   }
+   products {
+       1 person * km transport
+   }
+   inputs {
+      1 kWh electricity from electricity_production match (geo = geo)
+   }
+}
+
+process electricity_production {
+    labels {
+       geo = "switzerland"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        1 kg_CO2_Eq GWP
+    }
+}
+
+process electricity_production {
+    labels {
+       geo = "france"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        2 kg_CO2_Eq GWP
+    }
+}
+
+test electric_vehicle_ch {
+    given {
+        1 person * km transport from electric_vehicle(geo = "switzerland")
+    }
+    assert {
+        GWP between 1 kg_CO2_Eq and 1 kg_CO2_Eq
+    }
+}
+
+test electric_vehicle_fr {
+    given {
+        1 person * km transport from electric_vehicle(geo = "france")
+    }
+    assert {
+        GWP between 2 kg_CO2_Eq and 2 kg_CO2_Eq
+    }
+}
+

@@ -1,0 +1,41 @@
+process bake {
+    params {
+        salt_amount = 30 g
+    }
+    products {
+        1 kg bread
+    }
+    inputs {
+        1 kg flour
+        salt_amount salt
+    }
+}
+
+test bake {
+    given {
+        1 kg bread from bake(salt_amount = 10 g)
+    }
+    assert {
+        salt between 10 g and 10 g
+    }
+}
+
+
+process produce_sandwich {
+    products {
+        5 p sandwich
+    }
+    inputs {
+        1 kg bread from bake (salt_amount = 20 g)
+    }
+}
+
+test sandwich {
+    given {
+        1 p sandwich
+    }
+    assert {
+        flour between 0.2 kg and 0.2 kg
+        salt between 4 g and 4 g
+    }
+}

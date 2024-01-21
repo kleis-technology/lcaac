@@ -1,0 +1,41 @@
+process bake {
+    products {
+        1 kg bread
+    }
+    inputs {
+        1 kg flour
+    }
+    emissions {
+        1 m3  wood_smoke (compartment="air")
+    }
+}
+
+substance wood_smoke {
+    name = "Wood fire Smoke"
+    type = Emission
+    compartment = "air"
+    // optional: sub_compartment = "low altitude"
+    reference_unit = m3
+    impacts {
+        1 kg_CO2_Eq climate_change
+    }
+}
+
+process mill {
+    products {
+        1 kg flour
+    }
+    inputs {
+        2 kg wheat
+    }
+}
+
+test bake {
+    given {
+        1 kg bread
+    }
+    assert {
+        climate_change between 1 kg_CO2_Eq and 1 kg_CO2_Eq
+    }
+}
+
