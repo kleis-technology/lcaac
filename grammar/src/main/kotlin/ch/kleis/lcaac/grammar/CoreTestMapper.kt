@@ -15,6 +15,8 @@ class CoreTestMapper {
         ctx: LcaLangParser.TestDefinitionContext,
     ): TestCase<LcaLangParser.TestDefinitionContext> {
         val name = ctx.testRef().uid().ID().innerText()
+        val processName = "__test__${name}"
+        val productName = "__test__product__${name}"
         return TestCase(
             source = ctx,
             name = name,
@@ -28,11 +30,11 @@ class CoreTestMapper {
             },
             template = EProcessTemplate(
                 body = EProcess(
-                    name = "__test__${name}",
+                    name = processName,
                     products = listOf(
                         ETechnoExchange(
                             EQuantityScale(BasicNumber(1.0), EDataRef("u")),
-                            EProductSpec(name, EDataRef("u"))
+                            EProductSpec(productName, EDataRef("u"))
                         )
                     ),
                     inputs = ctx.block_given().flatMap {
