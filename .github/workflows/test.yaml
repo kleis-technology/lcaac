@@ -33,8 +33,13 @@ jobs:
           java-version: 17
           cache: gradle
 
-      - name: Run Tests
+      - name: Run Kotlin Tests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew test
+
+      - name: Run LCAAC Tests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./tutorials/run.sh
 

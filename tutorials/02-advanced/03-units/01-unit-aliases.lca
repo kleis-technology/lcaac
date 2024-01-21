@@ -1,0 +1,23 @@
+unit oil_barrel {
+    symbol = "oil_barrel"
+    alias_for = 1700 kWh
+}
+
+process oil_burning {
+    products {
+        1700 kWh electricity
+    }
+    impacts {
+        1 p physical_oil_barrel
+    }
+}
+
+test unit_conversion {
+    given {
+        1 oil_barrel electricity from oil_burning
+    }
+    assert {
+        physical_oil_barrel between 1 p and 1 p
+    }
+}
+

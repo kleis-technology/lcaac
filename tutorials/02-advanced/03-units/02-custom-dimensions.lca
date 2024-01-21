@@ -1,0 +1,48 @@
+unit night {
+    symbol = "night"
+    dimension = "night"
+}
+
+unit guest {
+    symbol = "guest"
+    dimension = "guest"
+}
+
+unit dollar {
+    symbol = "dollar"
+    dimension = "dollar"
+}
+
+
+process hotel {
+    products {
+        1 night night
+    }
+    impacts {
+        1 piece night_stay
+    }
+}
+
+process customer {
+    variables {
+        budget = 200 dollar
+        price_per_guest_night = 100 dollar / (guest * night)
+        nb_guests = 2 guest
+
+        /*
+            The following formula has the wrong dimension.
+            Assessing the process should yield a dimension error.
+            The correct formula is
+                nb_nights = budget / (price_per_guest_night * nb_guests)
+        */
+        nb_nights = budget / price_per_guest_night * nb_guests
+    }
+
+    products {
+        1 piece customer
+    }
+
+    inputs {
+        nb_nights night from hotel
+    }
+}

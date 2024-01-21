@@ -1,0 +1,30 @@
+process consumption {
+    params {
+        budget = 200 u
+    }
+    products {
+        1 u consumer
+    }
+    variables {
+        a_choco = 2 u
+        p_choco = 4 u
+        a_candy = 1 u
+        p_candy = 2 u
+        q_choco = budget * a_choco / p_choco
+        q_candy = budget * a_candy / p_candy
+    }
+    inputs {
+        q_choco chocolate_bar
+        q_candy candy
+    }
+}
+
+test consumption {
+    given {
+        1 u consumer
+    }
+    assert {
+        chocolate_bar between 100 u and 100 u
+        candy between 100 u and 100 u
+    }
+}

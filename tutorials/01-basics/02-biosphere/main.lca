@@ -1,0 +1,31 @@
+process bake {
+    products {
+        1 kg bread
+    }
+    inputs {
+        1 kg flour
+    }
+    emissions {
+        1 m3  wood_smoke (compartment="air")
+    }
+}
+
+process mill {
+    products {
+        1 kg flour
+    }
+    inputs {
+        2 kg wheat
+    }
+}
+
+test bake {
+    given {
+        1 kg bread
+    }
+    assert {
+        wheat between 2 kg and 2 kg
+        wood_smoke between 1 m3 and 1 m3 // TODO: Reference should include compartment
+    }
+}
+

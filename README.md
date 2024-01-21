@@ -115,7 +115,7 @@ The package `cli` contains the code for the command-line interface.
 
 For users
 - [Walkthrough](https://lca-as-code.com/book)
-- Code samples *\[coming soon\]*
+- [Code samples](./tutorials/README.md)
 
 For developers
 - Core concepts *\[coming soon\]*
