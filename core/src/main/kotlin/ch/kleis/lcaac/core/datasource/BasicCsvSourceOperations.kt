@@ -1,7 +1,6 @@
-package ch.kleis.lcaac.cli.csv
+package ch.kleis.lcaac.core.datasource
 
-import ch.kleis.lcaac.cli.cmd.parseQuantityWithDefaultUnit
-import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
@@ -11,6 +10,7 @@ import ch.kleis.lcaac.core.prelude.Prelude
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import java.io.File
+import java.lang.Double.parseDouble
 import java.nio.file.Paths
 
 class BasicCsvSourceOperations(
@@ -93,5 +93,14 @@ class BasicCsvSourceOperations(
                     }
             }
         }
+    }
+    private fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>):
+        DataExpression<BasicNumber> {
+        val amount = try {
+            parseDouble(s)
+        } catch (e: NumberFormatException) {
+            throw EvaluatorException("'$s' is not a valid number")
+        }
+        return EQuantityScale(BasicNumber(amount), defaultUnit)
     }
 }

@@ -1,6 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
-import ch.kleis.lcaac.cli.csv.BasicCsvSourceOperations
+import ch.kleis.lcaac.core.datasource.BasicCsvSourceOperations
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure

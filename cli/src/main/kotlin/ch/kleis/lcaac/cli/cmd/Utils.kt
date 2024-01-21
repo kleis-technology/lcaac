@@ -32,7 +32,7 @@ private fun lcaFile(inputStream: InputStream): LcaLangParser.LcaFileContext {
     return parser.lcaFile()
 }
 
-fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
+fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
     val parts = s.split(" ")
     return if (parts.size == 1) {
         val number = parts[0]

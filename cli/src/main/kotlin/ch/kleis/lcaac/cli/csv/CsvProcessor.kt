@@ -1,7 +1,8 @@
 package ch.kleis.lcaac.cli.csv
 
-import ch.kleis.lcaac.cli.cmd.parseQuantityWithDefaultUnit
+import ch.kleis.lcaac.cli.cmd.smartParseQuantityWithDefaultUnit
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.core.datasource.BasicCsvSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -32,7 +33,7 @@ class CsvProcessor(
             .mapValues { entry ->
                 when (val v = entry.value) {
                     is QuantityExpression<*> -> request[entry.key]?.let {
-                        parseQuantityWithDefaultUnit(it, EUnitOf(v))
+                        smartParseQuantityWithDefaultUnit(it, EUnitOf(v))
                     } ?: entry.value
 
                     is StringExpression -> request[entry.key]?.let {

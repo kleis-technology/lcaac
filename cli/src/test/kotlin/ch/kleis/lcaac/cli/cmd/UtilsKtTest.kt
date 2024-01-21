@@ -20,7 +20,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> { parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'a@bc' is not a valid quantity", actual.message)
     }
 
@@ -31,7 +31,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> { parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'12 3 4' is not a valid quantity", actual.message)
     }
 
@@ -42,7 +42,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> { parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'12 \$3' is not a valid quantity", actual.message)
     }
 
@@ -53,7 +53,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when
-        val actual = parseQuantityWithDefaultUnit(s, defaultUnit)
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
 
         // then
         assertEquals(EQuantityScale(BasicNumber(12.0), defaultUnit), actual)
@@ -66,7 +66,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when
-        val actual = parseQuantityWithDefaultUnit(s, defaultUnit)
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
 
         // then
         assertEquals(EQuantityScale(BasicNumber(12.0), EDataRef("kg")), actual)
@@ -81,7 +81,7 @@ class UtilsKtTest {
         val defaultUnit = EQuantityMul(kg, hour)
 
         // when
-        val actual = parseQuantityWithDefaultUnit(s, defaultUnit)
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
 
         // then
         assertEquals(
