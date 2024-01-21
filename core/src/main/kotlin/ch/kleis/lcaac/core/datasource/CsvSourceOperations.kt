@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.prelude.Prelude
@@ -13,15 +14,16 @@ import java.io.File
 import java.lang.Double.parseDouble
 import java.nio.file.Paths
 
-class BasicCsvSourceOperations(
+class CsvSourceOperations<Q>(
     private val path: File,
-) : DataSourceOperations<BasicNumber> {
+    private val ops: QuantityOperations<Q>,
+) : DataSourceOperations<Q> {
     private val format = CSVFormat.DEFAULT.builder()
         .setHeader()
         .setSkipHeaderRecord(true)
         .build()
 
-    override fun readAll(source: DataSourceExpression<BasicNumber>): Sequence<ERecord<BasicNumber>> {
+    override fun readAll(source: DataSourceExpression<Q>): Sequence<ERecord<Q>> {
         return when (source) {
             is ECsvSource -> {
                 val location = Paths.get(path.absolutePath, source.location)
@@ -56,13 +58,13 @@ class BasicCsvSourceOperations(
     }
 
     override fun sumProduct(
-        source: DataSourceExpression<BasicNumber>,
+        source: DataSourceExpression<Q>,
         columns: List<String>,
-    ): DataExpression<BasicNumber> {
+    ): DataExpression<Q> {
         val reducer = DataExpressionReducer(
             dataRegister = Prelude.units(),
             dataSourceRegister = DataSourceRegister.empty(),
-            ops = BasicOperations,
+            ops = ops,
             sourceOps = this,
         )
         return when (source) {
@@ -94,13 +96,13 @@ class BasicCsvSourceOperations(
             }
         }
     }
-    private fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>):
-        DataExpression<BasicNumber> {
+    private fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<Q>):
+        DataExpression<Q> {
         val amount = try {
             parseDouble(s)
         } catch (e: NumberFormatException) {
             throw EvaluatorException("'$s' is not a valid number")
         }
-        return EQuantityScale(BasicNumber(amount), defaultUnit)
+        return EQuantityScale(ops.pure(amount), defaultUnit)
     }
 }
