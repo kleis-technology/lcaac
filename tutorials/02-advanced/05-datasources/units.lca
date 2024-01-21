@@ -1,0 +1,9 @@
+unit GB {
+    symbol = "GB"
+    dimension = "memory"
+}
+
+unit TB {
+    symbol = "TB"
+    alias_for = 1024 GB
+}
