@@ -3,6 +3,7 @@ package ch.kleis.lcaac.core.lang.evaluator.step
 import arrow.optics.Every
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class CompleteTerminals<Q>(
@@ -10,7 +11,8 @@ class CompleteTerminals<Q>(
 ) {
     private val everyInputExchange =
         EProcess.inputs<Q>() compose
-                Every.list()
+            Every.list() compose
+            TechnoBlock.everyEntry()
 
     fun apply(expression: EProcess<Q>): EProcess<Q> =
         expression
@@ -34,7 +36,11 @@ class CompleteTerminals<Q>(
     }
 
     private fun EProcess<Q>.completeSubstances(): EProcess<Q> {
-        return (EProcess.biosphere<Q>() compose Every.list())
+        val everyBioExchange =
+            EProcess.biosphere<Q>() compose
+                Every.list() compose
+                BioBlock.everyEntry()
+        return everyBioExchange
             .modify(this) { exchange ->
                 val referenceUnit = exchangeReferenceUnit(exchange)
 
@@ -47,8 +53,11 @@ class CompleteTerminals<Q>(
             }
     }
 
-    private fun completeIndicators(impacts: Collection<EImpact<Q>>): List<EImpact<Q>> =
-        impacts.map { exchange ->
+    private fun completeIndicators(impacts: List<ImpactBlock<Q>>): List<ImpactBlock<Q>> {
+        val everyImpact =
+            Every.list<ImpactBlock<Q>>() compose
+                ImpactBlock.everyEntry()
+        return everyImpact.modify(impacts) { exchange ->
             val referenceUnit = exchangeReferenceUnit(exchange)
 
             EImpact.indicator<Q>()
@@ -56,10 +65,11 @@ class CompleteTerminals<Q>(
                     EIndicatorSpec(it.name, referenceUnit)
                 }
         }
+    }
 
     private fun EProcess<Q>.completeProcessIndicators(): EProcess<Q> =
         this.copy(
-                impacts = completeIndicators(this.impacts)
+            impacts = completeIndicators(this.impacts)
         )
 
     private fun ESubstanceCharacterization<Q>.completeSubstanceIndicators(): ESubstanceCharacterization<Q> =

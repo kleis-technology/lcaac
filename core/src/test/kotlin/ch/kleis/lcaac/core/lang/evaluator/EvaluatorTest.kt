@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
-import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
@@ -11,6 +12,7 @@ import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
 import org.junit.jupiter.api.assertThrows
@@ -20,6 +22,7 @@ import kotlin.test.assertNotEquals
 
 class EvaluatorTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
     fun with_whenNewTemplate() {
@@ -31,11 +34,11 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
-        val evaluator = Evaluator(SymbolTable.empty(), BasicOperations)
+        val evaluator = Evaluator(SymbolTable.empty(), ops, sourceOps)
             .with(template)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
@@ -59,7 +62,7 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
@@ -68,7 +71,7 @@ class EvaluatorTest {
                 ProcessKey("eProcess") to template
             ))
         )
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertThrows<IllegalStateException> { evaluator.with(template) }
@@ -85,7 +88,7 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
                 ),
                 impacts = listOf(
-                    ImpactFixture.oneClimateChange
+                    ImpactBlockFixture.oneClimateChange
                 ),
             )
         )
@@ -96,7 +99,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val expected = ImpactValue(
             QuantityValueFixture.oneKilogram,
             IndicatorValueFixture.climateChange,
@@ -119,14 +122,16 @@ class EvaluatorTest {
                     ETechnoExchange(QuantityFixture.oneKilogram, EProductSpec("p", QuantityFixture.oneKilogram))
                 ),
                 biosphere = listOf(
-                    EBioExchange(
-                        QuantityFixture.oneKilogram,
-                        ESubstanceSpec(
-                            "doesNotExist",
-                            "doesNotExist",
-                            SubstanceType.EMISSION,
-                            "water",
-                            "sea water"
+                    EBioBlockEntry(
+                        EBioExchange(
+                            QuantityFixture.oneKilogram,
+                            ESubstanceSpec(
+                                "doesNotExist",
+                                "doesNotExist",
+                                SubstanceType.EMISSION,
+                                "water",
+                                "sea water"
+                            )
                         )
                     )
                 ),
@@ -139,7 +144,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val expected = FullyQualifiedSubstanceValue<BasicNumber>(
             "doesNotExist",
             type = SubstanceType.EMISSION,
@@ -166,7 +171,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val p1 = evaluator.trace(template, mapOf("q_water" to QuantityFixture.oneLitre))
@@ -188,7 +193,7 @@ class EvaluatorTest {
         val register = ProcessTemplateRegister(mapOf(ProcessKey("carrot_production") to template))
 
         val symbolTable = SymbolTable(processTemplates = register)
-        val evaluator = Evaluator(symbolTable, BasicOperations)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
 
@@ -211,10 +216,12 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                            )
                         )
                     )
                 ),
@@ -228,7 +235,7 @@ class EvaluatorTest {
                 )
             ),
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().processes
@@ -299,23 +306,25 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "carrot",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels(emptyMap()),
-                                mapOf("q_water" to QuantityFixture.twoLitres),
-                            ),
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "carrot",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels(emptyMap()),
+                                    mapOf("q_water" to QuantityFixture.twoLitres),
+                                ),
+                            )
                         )
                     )
                 ),
             ),
         )
         // given
-        val processTemplates=  ProcessTemplateRegister(
+        val processTemplates = ProcessTemplateRegister(
             mapOf(
                 ProcessKey("carrot_production") to TemplateFixture.carrotProduction,
                 ProcessKey("salad_production") to template,
@@ -324,7 +333,7 @@ class EvaluatorTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().processes
@@ -396,16 +405,18 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneKilogram,
-                        EProductSpec(
-                            "irrelevant_product",
-                            UnitFixture.kg,
-                            FromProcess(
-                                "carrot_production",
-                                MatchLabels(emptyMap()),
-                                mapOf("q_water" to QuantityFixture.twoLitres),
-                            ),
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneKilogram,
+                            EProductSpec(
+                                "irrelevant_product",
+                                UnitFixture.kg,
+                                FromProcess(
+                                    "carrot_production",
+                                    MatchLabels(emptyMap()),
+                                    mapOf("q_water" to QuantityFixture.twoLitres),
+                                ),
+                            )
                         )
                     )
                 ),
@@ -419,7 +430,7 @@ class EvaluatorTest {
                 ).mapKeys { ProcessKey(it.key) }
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertFailsWith(
@@ -441,11 +452,13 @@ class EvaluatorTest {
                     )
                 ),
                 biosphere = listOf(
-                    EBioExchange(
-                        QuantityFixture.oneKilogram, ESubstanceSpec(
+                    EBioBlockEntry(
+                        EBioExchange(
+                            QuantityFixture.oneKilogram, ESubstanceSpec(
                             "propanol",
                             compartment = "air",
                             type = SubstanceType.RESOURCE,
+                        )
                         )
                     )
                 ),
@@ -463,7 +476,7 @@ class EvaluatorTest {
                 )
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when
         val actual = evaluator.trace(template).getSystemValue().substanceCharacterizations
@@ -488,9 +501,11 @@ class EvaluatorTest {
                     )
                 ),
                 inputs = listOf(
-                    ETechnoExchange(
-                        QuantityFixture.oneLitre,
-                        ProductFixture.carrot,
+                    ETechnoBlockEntry(
+                        ETechnoExchange(
+                            QuantityFixture.oneLitre,
+                            ProductFixture.carrot,
+                        )
                     )
                 ),
             )
@@ -503,7 +518,7 @@ class EvaluatorTest {
                 ).mapKeys { ProcessKey(it.key) }
             )
         )
-        val evaluator = Evaluator(symbolTable, ops)
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
         // when/then
         val e = assertFailsWith(

@@ -1,14 +1,27 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataSourceKey
+import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class LcaExpressionReducer<Q>(
-    dataRegister: DataRegister<Q> = DataRegister.empty(),
-    ops: QuantityOperations<Q>,
+    private val dataRegister: DataRegister<Q> = DataRegister.empty(),
+    private val dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
+    private val ops: QuantityOperations<Q>,
+    private val sourceOps: DataSourceOperations<Q>,
 ) {
-    private val dataExpressionReducer = DataExpressionReducer(dataRegister, ops)
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps)
+
+    private fun push(data: Map<DataKey, DataExpression<Q>>): LcaExpressionReducer<Q> {
+        val localRegister = DataRegister(dataRegister)
+            .plus(data)
+        return LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
+    }
 
     fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
         return when (expression) {
@@ -28,7 +41,7 @@ class LcaExpressionReducer<Q>(
     fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
         return ESubstanceCharacterization(
             reduceBioExchange(expression.referenceExchange),
-            expression.impacts.map(::reduceImpact),
+            expression.impacts.flatMap { reduceImpactBlock(it) },
         )
     }
 
@@ -38,9 +51,9 @@ class LcaExpressionReducer<Q>(
             expression.name,
             expression.labels,
             expression.products.map(::reduceTechnoExchange),
-            expression.inputs.map(::reduceTechnoExchange),
-            expression.biosphere.map(::reduceBioExchange),
-            expression.impacts.map(::reduceImpact)
+            expression.inputs.flatMap { reduceTechnoBlock(it) },
+            expression.biosphere.flatMap { reduceBioBlock(it) },
+            expression.impacts.flatMap { reduceImpactBlock(it) },
         )
     }
 
@@ -60,6 +73,80 @@ class LcaExpressionReducer<Q>(
             reduceProductSpec(expression.product),
             expression.allocation?.let { dataExpressionReducer.reduce(it) }
         )
+    }
+
+    private fun reduceTechnoBlock(expression: TechnoBlock<Q>):
+        List<ETechnoBlockEntry<Q>> {
+        return when (expression) {
+            is EBlockEntry -> listOf(
+                ETechnoBlockEntry(
+                    reduceTechnoExchange(expression.entry)
+                )
+            )
+
+            is EBlockForEach -> {
+                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                sourceOps.readAll(ds)
+                    .flatMap { record ->
+                        val reducer = push(mapOf(
+                            DataKey(expression.rowRef) to record
+                        )).push(
+                            expression.locals.mapKeys { DataKey(it.key) }
+                        )
+                        expression.body
+                            .flatMap { reducer.reduceTechnoBlock(it) }
+                    }.toList()
+            }
+        }
+    }
+    
+    private fun reduceBioBlock(expression: BioBlock<Q>):
+        List<EBioBlockEntry<Q>> {
+        return when (expression) {
+            is EBlockEntry -> listOf(
+                EBioBlockEntry(
+                    reduceBioExchange(expression.entry)
+                )
+            )
+
+            is EBlockForEach -> {
+                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                sourceOps.readAll(ds)
+                    .flatMap { record ->
+                        val reducer = push(mapOf(
+                            DataKey(expression.rowRef) to record
+                        ))
+                        expression.body
+                            .flatMap { reducer.reduceBioBlock(it) }
+                    }.toList()
+            }
+        }
+    }
+    
+    private fun reduceImpactBlock(expression: ImpactBlock<Q>):
+        List<EImpactBlockEntry<Q>> {
+        return when (expression) {
+            is EBlockEntry -> listOf(
+                EImpactBlockEntry(
+                    reduceImpact(expression.entry)
+                )
+            )
+
+            is EBlockForEach -> {
+                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                sourceOps.readAll(ds)
+                    .flatMap { record ->
+                        val reducer = push(mapOf(
+                            DataKey(expression.rowRef) to record
+                        ))
+                        expression.body
+                            .flatMap { reducer.reduceImpactBlock(it) }
+                    }.toList()
+            }
+        }
     }
 
     private fun reduceProductSpec(expression: EProductSpec<Q>): EProductSpec<Q> {

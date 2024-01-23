@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.testing
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -14,36 +15,42 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 
 class BasicTestRunner<S>(
     symbolTable: SymbolTable<BasicNumber>,
-    private val evaluator: Evaluator<BasicNumber> = Evaluator(symbolTable, BasicOperations),
-    private val dataReducer: DataExpressionReducer<BasicNumber> = DataExpressionReducer(symbolTable.data, BasicOperations),
+    sourceOps: DataSourceOperations<BasicNumber>,
+    private val evaluator: Evaluator<BasicNumber> = Evaluator(symbolTable, BasicOperations, sourceOps),
+    private val dataReducer: DataExpressionReducer<BasicNumber> = DataExpressionReducer(
+        symbolTable.data,
+        symbolTable.dataSources,
+        BasicOperations,
+        sourceOps,
+    ),
 ) {
     fun run(case: TestCase<S>): TestResult<S> {
         try {
-        val trace = evaluator.with(case.template).trace(case.template)
-        val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
-        val analysis = program.run()
-        val target = trace.getEntryPoint().products.first().port()
-        val results = case.assertions.map { assertion ->
-            val ports = analysis.findAllPortsByShortName(assertion.ref)
-            if (ports.isEmpty()) {
-                GenericFailure("unknown reference '${assertion.ref}'")
-            } else {
-                val impact = with(QuantityValueOperations(BasicOperations)) {
-                    ports.map {
-                        if (analysis.isControllable(it)) analysis.getPortContribution(target, it)
-                        else analysis.supplyOf(it)
-                    }.reduce { acc, quantityValue -> acc + quantityValue }
+            val trace = evaluator.with(case.template).trace(case.template)
+            val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+            val analysis = program.run()
+            val target = trace.getEntryPoint().products.first().port()
+            val results = case.assertions.map { assertion ->
+                val ports = analysis.findAllPortsByShortName(assertion.ref)
+                if (ports.isEmpty()) {
+                    GenericFailure("unknown reference '${assertion.ref}'")
+                } else {
+                    val impact = with(QuantityValueOperations(BasicOperations)) {
+                        ports.map {
+                            if (analysis.isControllable(it)) analysis.getPortContribution(target, it)
+                            else analysis.supplyOf(it)
+                        }.reduce { acc, quantityValue -> acc + quantityValue }
+                    }
+                    val lo = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.lo).toValue() }
+                    val hi = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.hi).toValue() }
+                    test(assertion.ref, impact, lo, hi)
                 }
-                val lo = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.lo).toValue() }
-                val hi = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.hi).toValue() }
-                test(assertion.ref, impact, lo, hi)
             }
-        }
-        return TestResult(
-            case.source,
-            case.name,
-            results,
-        )
+            return TestResult(
+                case.source,
+                case.name,
+                results,
+            )
         } catch (e: EvaluatorException) {
             return TestResult(
                 case.source,

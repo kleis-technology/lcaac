@@ -1,8 +1,11 @@
 package ch.kleis.lcaac.core.lang.evaluator.protocol
 
+import arrow.optics.Every
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 /*
@@ -58,18 +61,24 @@ class Learner<Q>(
     }
 
     private fun applyKnowledge(process: EProcess<Q>): EProcess<Q> {
-        return process.copy(
-            inputs = process.inputs.map { exchange ->
-                exchange.copy(
-                    product = knowledge[exchange.product] as EProductSpec<Q>? ?: exchange.product
-                )
-            },
-            biosphere = process.biosphere.map { exchange ->
-                exchange.copy(
-                    substance = knowledge[exchange.substance] as ESubstanceSpec<Q>? ?: exchange.substance
-                )
+        val everyInputProductSpec = EProcess.inputs<Q>() compose
+            Every.list() compose
+            BlockExpression.everyEntry() compose
+            ETechnoExchange.product()
+        val everySubstance = EProcess.biosphere<Q>() compose
+            Every.list() compose
+            BlockExpression.everyEntry() compose
+            EBioExchange.substance()
+        return process
+            .let { p ->
+                everyInputProductSpec.modify(p) {
+                    knowledge[it] as EProductSpec? ?: it
+                }
+            }.let { p ->
+                everySubstance.modify(p) {
+                    knowledge[it] as ESubstanceSpec<Q>? ?: it
+                }
             }
-        )
     }
 
     private fun applyKnowledge(substanceCharacterization: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
@@ -91,7 +100,7 @@ class Learner<Q>(
 
     private fun nextRequests(pairs: Set<Pair<ConnectionExpression<Q>, Int>>): Set<Request<Q>> =
         pairs.flatMap { (connection, index) ->
-            when(connection) {
+            when (connection) {
                 is EProcess -> next(connection, index)
                 is ESubstanceCharacterization -> emptySet()
             }
@@ -132,7 +141,9 @@ class Learner<Q>(
                 staging.find(address.connectionIndex)
                     ?.let { existingConnection ->
                         if (existingConnection is EProcess<Q>) {
-                            knowledge[existingConnection.inputs[address.portIndex].product] = product
+                            val block = existingConnection.inputs[address.portIndex]
+                            if (block !is ETechnoBlockEntry<Q>) throw EvaluatorException("$block is not reduced")
+                            knowledge[block.entry.product] = product
                         }
                     }
                 staging.modify(
@@ -146,11 +157,13 @@ class Learner<Q>(
     private fun next(process: EProcess<Q>, connectionIndex: Int): Set<Request<Q>> {
         val productRequests =
             process.inputs.mapIndexed { portIndex, it ->
-                ProductRequest(Address(connectionIndex, portIndex), it.product)
+                if (it !is ETechnoBlockEntry<Q>) throw EvaluatorException("$it is not reduced")
+                ProductRequest(Address(connectionIndex, portIndex), it.entry.product)
             }.toSet()
         val substanceRequest =
             process.biosphere.mapIndexed { portIndex, it ->
-                SubstanceRequest(Address(connectionIndex, portIndex), it.substance)
+                if (it !is EBioBlockEntry<Q>) throw EvaluatorException("$it is not reduced")
+                SubstanceRequest(Address(connectionIndex, portIndex), it.entry.substance)
             }.toSet()
         return productRequests + substanceRequest
 
@@ -170,7 +183,9 @@ class Learner<Q>(
                 staging.find(address.connectionIndex)
                     ?.let { existingConnection ->
                         if (existingConnection is EProcess<Q>) {
-                            knowledge[existingConnection.biosphere[address.portIndex].substance] = substance
+                            val block = existingConnection.biosphere[address.portIndex]
+                            if (block !is EBioBlockEntry<Q>) throw EvaluatorException("$block is not reduced")
+                            knowledge[block.entry.substance] = substance
                         }
                     }
                 staging.modify(
@@ -188,11 +203,14 @@ class Learner<Q>(
         return {
             when (it) {
                 is EProcess -> it.copy(
-                    inputs = it.inputs.mapIndexed { index, exchange ->
-                        if (index == portIndex) exchange.copy(
-                            product = product
+                    inputs = it.inputs.mapIndexed { index, block ->
+                        if (block !is ETechnoBlockEntry<Q>) throw EvaluatorException("$block is not reduced")
+                        if (index == portIndex) ETechnoBlockEntry(
+                            entry = block.entry.copy(
+                                product = product
+                            )
                         )
-                        else exchange
+                        else block
                     }
                 )
 
@@ -208,11 +226,14 @@ class Learner<Q>(
         return {
             when (it) {
                 is EProcess -> it.copy(
-                    biosphere = it.biosphere.mapIndexed { index, exchange ->
-                        if (index == portIndex) exchange.copy(
-                            substance = substance
+                    biosphere = it.biosphere.mapIndexed { index, block ->
+                        if (block !is EBioBlockEntry<Q>) throw EvaluatorException("$block is not reduced")
+                        if (index == portIndex) EBioBlockEntry(
+                            entry = block.entry.copy(
+                                substance = substance
+                            )
                         )
-                        else exchange
+                        else block
                     }
                 )
 

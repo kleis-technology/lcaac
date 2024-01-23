@@ -23,13 +23,15 @@ class HelperTest {
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
             inputs = listOf(
-                ETechnoExchange(
-                    QuantityFixture.oneKilogram,
-                    ProductFixture.carrot.copy(
-                        fromProcess = FromProcess(
-                            name = "another_process",
-                            matchLabels = MatchLabels(mapOf("class" to ref)),
-                        ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot.copy(
+                            fromProcess = FromProcess(
+                                name = "another_process",
+                                matchLabels = MatchLabels(mapOf("class" to ref)),
+                            ),
+                        )
                     )
                 )
             ),
@@ -46,13 +48,15 @@ class HelperTest {
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
             inputs = listOf(
-                ETechnoExchange(
-                    QuantityFixture.oneKilogram,
-                    ProductFixture.carrot.copy(
-                        fromProcess = FromProcess(
-                            name = "another_process",
-                            matchLabels = MatchLabels(mapOf("class" to EStringLiteral("foo"))),
-                        ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot.copy(
+                            fromProcess = FromProcess(
+                                name = "another_process",
+                                matchLabels = MatchLabels(mapOf("class" to EStringLiteral("foo"))),
+                            ),
+                        )
                     )
                 )
             ),
@@ -71,10 +75,10 @@ class HelperTest {
                 ETechnoExchange(ref, ProductFixture.carrot)
             ),
             inputs = listOf(
-                ETechnoExchange(ref, ProductFixture.carrot)
+                ETechnoBlockEntry(ETechnoExchange(ref, ProductFixture.carrot))
             ),
             biosphere = listOf(
-                EBioExchange(ref, SubstanceFixture.propanol)
+                EBioBlockEntry(EBioExchange(ref, SubstanceFixture.propanol))
             ),
         )
         val helper = Helper<BasicNumber>()
@@ -89,10 +93,10 @@ class HelperTest {
                 ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
             ),
             inputs = listOf(
-                ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
+                ETechnoBlockEntry(ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot))
             ),
             biosphere = listOf(
-                EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol)
+                EBioBlockEntry(EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol))
             ),
         )
         assertEquals(expected, actual)
@@ -156,19 +160,23 @@ class HelperTest {
             name = "p",
             products = listOf(ETechnoExchange(EDataRef("quantity"), ProductFixture.carrot)),
             inputs = listOf(
-                ETechnoExchange(
-                    EQuantityScale(
-                        ops.pure(1.0),
-                        EQuantityMul(EDataRef("ua"), EDataRef("ub"))
-                    ), EProductSpec(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        EQuantityScale(
+                            ops.pure(1.0),
+                            EQuantityMul(EDataRef("ua"), EDataRef("ub"))
+                        ), EProductSpec(
                         "product",
                     )
+                    )
                 ),
-                ETechnoExchange(
-                    QuantityFixture.oneLitre, EProductSpec(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre, EProductSpec(
                         "water",
                         UnitFixture.l,
                         FromProcess(name = "template", matchLabels = MatchLabels(emptyMap())),
+                    )
                     )
                 ),
             ),
@@ -191,11 +199,13 @@ class HelperTest {
         val substanceCharacterization = ESubstanceCharacterization(
             EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("substance")),
             listOf(
-                EImpact(
-                    EQuantityAdd(
-                        EQuantityScale(ops.pure(3.0), EDataRef("qa")),
-                        EDataRef("qb")
-                    ), EIndicatorSpec("indicator")
+                EImpactBlockEntry(
+                    EImpact(
+                        EQuantityAdd(
+                            EQuantityScale(ops.pure(3.0), EDataRef("qa")),
+                            EDataRef("qb")
+                        ), EIndicatorSpec("indicator")
+                    )
                 )
             ),
         )

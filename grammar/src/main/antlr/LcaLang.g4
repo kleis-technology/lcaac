@@ -1,7 +1,8 @@
 grammar LcaLang;
 
 lcaFile
-	:	pkg? pkgImport* ( processDefinition | testDefinition | unitDefinition | substanceDefinition | globalVariables )* EOF
+	:	pkg? pkgImport* ( processDefinition | dataSourceDefinition | testDefinition | unitDefinition |
+	substanceDefinition | globalVariables )* EOF
 	;
 
 /*
@@ -25,6 +26,29 @@ globalVariables
     ;
 globalAssignment
     : dataRef EQUAL dataExpression
+    ;
+
+/*
+    Data source
+*/
+
+dataSourceDefinition
+    : DATASOURCE_KEYWORD dataSourceRef LBRACE
+        (
+            locationField | schema
+        )*
+      RBRACE
+    ;
+locationField
+    : LOCATION EQUAL STRING_LITERAL
+    ;
+schema
+    : SCHEMA_KEYWORD LBRACE
+        columnDefinition*
+      RBRACE
+    ;
+columnDefinition
+    : STRING_LITERAL EQUAL dataExpression
     ;
 
 /*
@@ -138,7 +162,8 @@ variables
     ;
 
 assignment
-    : dataRef EQUAL dataExpression
+    : dataRef sep=EQUAL dataExpression
+    | dataRef sep=FROM_KEYWORD dataSourceRef
     ;
 
 /*
@@ -174,16 +199,19 @@ block_impacts
 */
 
 technoInputExchange
-    : quantity=dataExpression product=inputProductSpec
+    : quantity=dataExpression product=inputProductSpec                                      # technoEntry
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
     ;
 technoProductExchange
     : quantity=dataExpression product=outputProductSpec
     ;
 bioExchange
-    : quantity=dataExpression substance=substanceSpec
+    : quantity=dataExpression substance=substanceSpec                               # bioEntry
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
     ;
 impactExchange
-    : quantity=dataExpression indicator=indicatorRef
+    : quantity=dataExpression indicator=indicatorRef                                    # impactEntry
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
     ;
 
 
@@ -198,7 +226,11 @@ dataExpression
     | left=dataExpression op=(PLUS | MINUS) right=dataExpression    # addGroup
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
-    | dataRef                                                       # baseGroup
+    | dataRef slice?                                                # baseGroup
+    | op=SUM LPAREN dataSourceRef COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
+    ;
+slice
+    : LBRACK columnRef RBRACK
     ;
 
 parenExpression
@@ -206,6 +238,10 @@ parenExpression
     ;
 
 stringExpression
+    : STRING_LITERAL
+    ;
+
+columnRef
     : STRING_LITERAL
     ;
 
@@ -228,6 +264,7 @@ labelRef : uid ;
 dataRef : uid ;
 productRef : uid ;
 processRef : uid ;
+dataSourceRef : uid ;
 substanceRef : uid ;
 indicatorRef : uid ;
 parameterRef : uid ;
@@ -314,11 +351,21 @@ RESOURCES_KEYWORD : 'resources' ;
 MATCH_KEYWORD : 'match' ;
 LABELS_KEYWORD : 'labels' ;
 
+DATASOURCE_KEYWORD : 'datasource' ;
+LOCATION : 'location' ;
+SCHEMA_KEYWORD : 'schema' ;
+
 TEST_KEYWORD : 'test' ;
 GIVEN_KEYWORD : 'given' ;
 ASSERT_KEYWORD : 'assert' ;
 BETWEEN_KEYWORD : 'between' ;
 AND_KEYWORD : 'and' ;
+
+FOR_EACH_KEYWORD : 'for_each' ;
+IN_KEYWORD : 'in' ;
+
+SUM : 'sum' ;
+
 
 EQUAL : '=' ;
 LBRACK : '[' ;

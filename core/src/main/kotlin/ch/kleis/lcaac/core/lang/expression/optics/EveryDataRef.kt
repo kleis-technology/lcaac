@@ -47,6 +47,13 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 is EUnitLiteral -> M.empty()
                 is EUnitOf -> foldMap(M, source.expression, map)
                 is EStringLiteral -> M.empty()
+                is ERecord -> M.fold(
+                        source.entries.values
+                                .map { foldMap(M, it, map) }
+                )
+                is ERecordEntry -> foldMap(M, source.record, map)
+                is EDefaultRecordOf -> M.empty()
+                is ESumProduct -> M.empty()
             }
         }
 
@@ -102,6 +109,18 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 )
 
                 is EStringLiteral -> source
+                is ERecord -> ERecord(
+                        source.entries.mapValues {
+                            modify(it.value, map)
+                        }
+                )
+                is ERecordEntry -> ERecordEntry(
+                        modify(source.record, map),
+                        source.index,
+                )
+
+                is EDefaultRecordOf -> source
+                is ESumProduct -> source
             }
         }
     }
@@ -141,9 +160,15 @@ fun <Q> everyDataRefInProcess(): PEvery<EProcess<Q>, EProcess<Q>, EDataRef<Q>, D
     Merge(
         listOf(
             EProcess.products<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
-            EProcess.inputs<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
-            EProcess.biosphere<Q>() compose Every.list() compose everyDataRefInEBioExchange(),
-            EProcess.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
+            EProcess.inputs<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInETechnoExchange(),
+            EProcess.biosphere<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEBioExchange(),
+            EProcess.impacts<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEImpact(),
         )
     )
 
@@ -151,7 +176,9 @@ private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceChar
     Merge(
         listOf(
             ESubstanceCharacterization.referenceExchange<Q>() compose everyDataRefInEBioExchange(),
-            ESubstanceCharacterization.impacts<Q>() compose Every.list() compose everyDataRefInEImpact(),
+            ESubstanceCharacterization.impacts<Q>() compose Every.list() compose
+                BlockExpression.everyEntry() compose
+                everyDataRefInEImpact(),
         )
     )
 
@@ -172,15 +199,3 @@ fun <Q> everyDataRefInLcaExpression(): PEvery<LcaExpression<Q>, LcaExpression<Q>
                 everyDataRefInSubstanceCharacterization()
         )
     )
-
-fun <Q> everyDataRefInTemplateExpression(): PEvery<ProcessTemplateExpression<Q>, ProcessTemplateExpression<Q>, EDataRef<Q>, DataExpression<Q>> =
-    everyProcessTemplateInTemplateExpression<Q>() compose Merge(
-        listOf(
-            EProcessTemplate.params<Q>() compose Every.map() compose
-                everyDataRefInDataExpression(),
-            EProcessTemplate.locals<Q>() compose Every.map() compose
-                everyDataRefInDataExpression(),
-            EProcessTemplate.body<Q>() compose everyDataRefInProcess(),
-        )
-    )
-

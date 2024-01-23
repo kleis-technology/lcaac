@@ -1,0 +1,125 @@
+/*
+    A datasource is assumed to provide a sequence of records.
+    For now, only the local CSV file source is supported.
+*/
+datasource inventory {
+    location = "inventory.csv"
+
+    /*
+        The schema is defined using default values. Note that the unit of
+        the default value will be the one chosen for the entire column.
+    */
+    schema {
+        "quantity" = 1 p
+        "ram_size" = 16 GB
+        "storage_size" = 1 TB
+        "amortization_period" = 5 year
+        "power" = 400 W
+        "ram_allocation" = 75 percent
+        "storage_allocation" = 25 percent
+
+        // embodied impact
+        "GWP" = 0 kg_CO2_Eq
+        "WU" = 0 m3
+    }
+}
+
+/*
+    Block 'for_each'
+*/
+
+process simple_pool {
+    products {
+        1 p simple_pool
+    }
+    impacts {
+        // A block for_each allows to map over the records of the datasource
+        for_each row in inventory {
+
+            // The variable row represents a record.
+            // The dimension of, e.g., row["quantity"] is defined by the schema.
+            row["quantity"] * row["GWP"] GWP
+        }
+    }
+}
+
+test simple_pool {
+    given {
+        1 p simple_pool
+    }
+    assert {
+        GWP between 700e3 kg_CO2_Eq and 800e3 kg_CO2_Eq
+    }
+}
+
+
+/*
+    Record as parameter
+*/
+
+process server {
+    // You can define a parameter as a row from inventory.
+    // The default value for this parameter is given by the schema.
+    params {
+        row from inventory
+    }
+    products {
+        1 p server
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+process pool_server {
+    products {
+        1 p pool_server
+    }
+    inputs {
+        for_each row in inventory {
+            // record variable can be fed to the process invoked.
+            row["quantity"] server from server(row = row)
+        }
+    }
+}
+
+test pool_server {
+    given {
+        1 p pool_server
+    }
+    assert {
+        GWP between 700e3 kg_CO2_Eq and 800e3 kg_CO2_Eq
+    }
+}
+
+/*
+    Column operations.
+*/
+
+process sum_prod {
+    products {
+        1 p sum_prod
+    }
+    impacts {
+        /*
+            The 'sum' primitive allows compute the sum-product
+            of multiple columns.
+
+            In this example, the columns "quantity" and "GWP"
+            are multiplied point-wise, and then summed.
+
+            For now, only the point-wise product of columns is
+            supported.
+        */
+        sum(inventory, "quantity" * "GWP") GWP
+    }
+}
+
+test sum_prod {
+    given {
+        1 p sum_prod
+    }
+    assert {
+        GWP between 700e3 kg_CO2_Eq and 800e3 kg_CO2_Eq
+    }
+}

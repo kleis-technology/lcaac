@@ -37,7 +37,7 @@ class BasicTestRunnerTest {
             arguments = emptyMap(),
         )
         val symbolTable = SymbolTable.empty<BasicNumber>()
-        val runner = BasicTestRunner<String>(symbolTable)
+        val runner = BasicTestRunner<String>(symbolTable, mockk())
 
         // when
         val actual = runner.run(case)
@@ -77,7 +77,7 @@ class BasicTestRunnerTest {
             arguments = emptyMap(),
         )
         val symbolTable = SymbolTable.empty<BasicNumber>()
-        val runner = BasicTestRunner<String>(symbolTable)
+        val runner = BasicTestRunner<String>(symbolTable, mockk())
 
         // when
         val actual = runner.run(case)
@@ -117,7 +117,7 @@ class BasicTestRunnerTest {
             arguments = emptyMap(),
         )
         val symbolTable = SymbolTable.empty<BasicNumber>()
-        val runner = BasicTestRunner<String>(symbolTable)
+        val runner = BasicTestRunner<String>(symbolTable, mockk())
 
         // when
         val actual = runner.run(case)
@@ -141,7 +141,7 @@ class BasicTestRunnerTest {
         val evaluator = mockk<Evaluator<BasicNumber>>()
         every { evaluator.with(carrotProduction) } returns evaluator
         every { evaluator.trace(carrotProduction) } throws EvaluatorException("some error")
-        val runner = BasicTestRunner<String>(SymbolTable.empty(), evaluator)
+        val runner = BasicTestRunner<String>(SymbolTable.empty(), mockk(),  evaluator)
         val case = TestCase(
             source = "source",
             name = "carrot_production",

@@ -1,9 +1,6 @@
 package ch.kleis.lcaac.core.lang.fixture
 
-import ch.kleis.lcaac.core.lang.expression.EBioExchange
-import ch.kleis.lcaac.core.lang.expression.EImpact
-import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
-import ch.kleis.lcaac.core.lang.expression.ESubstanceSpec
+import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 
 class SubstanceCharacterizationFixture {
@@ -11,7 +8,7 @@ class SubstanceCharacterizationFixture {
         val propanolCharacterization = ESubstanceCharacterization(
             referenceExchange = EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             impacts = listOf(
-                EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange),
+                EImpactBlockEntry(EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange)),
             ),
         )
 
@@ -19,7 +16,7 @@ class SubstanceCharacterizationFixture {
             ESubstanceCharacterization(
                 referenceExchange = EBioExchange(QuantityFixture.oneKilogram, substance),
                 impacts = listOf(
-                    EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange)
+                    EImpactBlockEntry(EImpact(QuantityFixture.oneKilogram, IndicatorFixture.climateChange)),
                 )
             )
     }

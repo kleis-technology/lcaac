@@ -22,7 +22,7 @@ class CompleteTerminalsTest {
             EProcess(
                 name = "process",
                 biosphere = listOf(
-                    EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2"))
+                    EBioBlockEntry(EBioExchange(QuantityFixture.oneKilogram, ESubstanceSpec("co2")))
                 ),
             )
 
@@ -34,11 +34,13 @@ class CompleteTerminalsTest {
             EProcess(
                 name = "process",
                 biosphere = listOf(
-                    EBioExchange(
-                        QuantityFixture.oneKilogram,
-                        ESubstanceSpec(
-                            "co2",
-                            referenceUnit = QuantityFixture.oneKilogram
+                    EBioBlockEntry(
+                        EBioExchange(
+                            QuantityFixture.oneKilogram,
+                            ESubstanceSpec(
+                                "co2",
+                                referenceUnit = QuantityFixture.oneKilogram
+                            )
                         )
                     )
                 ),
@@ -52,7 +54,7 @@ class CompleteTerminalsTest {
         val expression = ESubstanceCharacterization(
             EBioExchange(QuantityFixture.oneKilogram, SubstanceFixture.propanol),
             listOf(
-                EImpact(QuantityFixture.oneKilogram, EIndicatorSpec("cc"))
+                EImpactBlockEntry(EImpact(QuantityFixture.oneKilogram, EIndicatorSpec("cc")))
             )
         )
 

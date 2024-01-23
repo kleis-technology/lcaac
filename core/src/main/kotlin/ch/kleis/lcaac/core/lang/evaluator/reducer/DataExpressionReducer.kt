@@ -1,18 +1,24 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.lang.register.DataSourceKey
+import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
 
 class DataExpressionReducer<Q>(
     dataRegister: DataRegister<Q>,
+    dataSourceRegister: DataSourceRegister<Q>,
     private val ops: QuantityOperations<Q>,
+    private val sourceOps: DataSourceOperations<Q>,
 ) {
     private val dataRegister = DataRegister(dataRegister)
+    private val dataSourceRegister = DataSourceRegister(dataSourceRegister)
     private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker<Q>()
 
     fun reduce(expression: DataExpression<Q>): DataExpression<Q> {
@@ -30,8 +36,42 @@ class DataExpressionReducer<Q>(
                 is EUnitLiteral -> EQuantityScale(pure(1.0), expression)
                 is EUnitOf -> reduceUnitOf(expression)
                 is EStringLiteral -> expression
+                is ERecord -> reduceMap(expression)
+                is ERecordEntry -> reduceMapEntry(expression)
+                is EDefaultRecordOf -> reduceDefaultRecordOf(expression)
+                is ESumProduct -> reduceESumProduct(expression)
             }
         }
+    }
+
+    private fun reduceESumProduct(expression: ESumProduct<Q>): DataExpression<Q> {
+        val dataSource = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+            ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+        return reduce(sourceOps.sumProduct(dataSource, expression.columns))
+    }
+
+    private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
+        val dataSource = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
+            ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+        val schema = dataSource.schema
+        return ERecord(schema.mapValues { reduce(it.value.defaultValue) })
+    }
+
+    private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {
+        return when (val map = reduce(expression.record)) {
+            is ERecord -> map.entries[expression.index]
+                ?: throw EvaluatorException("invalid index: '${expression.index}' not in ${map.entries.keys}")
+
+            else -> ERecordEntry(map, expression.index)
+        }
+    }
+
+    private fun reduceMap(expression: ERecord<Q>): DataExpression<Q> {
+        return ERecord(
+            expression.entries.mapValues {
+                reduce(it.value)
+            }
+        )
     }
 
 
@@ -68,7 +108,8 @@ class DataExpressionReducer<Q>(
     }
 
     private fun reduceClosure(closure: EQuantityClosure<Q>): DataExpression<Q> =
-        DataExpressionReducer(closure.symbolTable.data, ops).reduce(closure.expression)
+        DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops, sourceOps)
+            .reduce(closure.expression)
 
     private fun reduceDiv(expression: EQuantityDiv<Q>): DataExpression<Q> {
         with(ops) {
@@ -170,10 +211,10 @@ class DataExpressionReducer<Q>(
                 aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
                     EQuantityScale(
                         pure(1.0), EUnitLiteral(
-                            UnitSymbol.of(expression.symbol),
-                            aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
-                            aliasForExpression.base.dimension
-                        )
+                        UnitSymbol.of(expression.symbol),
+                        aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
+                        aliasForExpression.base.dimension
+                    )
                     )
                 }
 

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.Helper
@@ -13,14 +14,19 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 class Reduce<Q>(
     symbolTable: SymbolTable<Q>,
     ops: QuantityOperations<Q>,
+    sourceOps: DataSourceOperations<Q>,
 ) {
     private val lcaReducer = LcaExpressionReducer(
         symbolTable.data,
-        ops
+        symbolTable.dataSources,
+        ops,
+        sourceOps,
     )
     private val templateReducer = TemplateExpressionReducer(
         ops,
+        sourceOps,
         symbolTable.data,
+        symbolTable.dataSources,
     )
 
     fun apply(expression: EProcessTemplateApplication<Q>): EProcess<Q> {

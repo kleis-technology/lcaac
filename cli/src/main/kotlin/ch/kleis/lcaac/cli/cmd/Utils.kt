@@ -3,8 +3,6 @@ package ch.kleis.lcaac.cli.cmd
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
-import ch.kleis.lcaac.core.lang.expression.EUnitOf
-import ch.kleis.lcaac.core.lang.expression.QuantityExpression
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.CoreMapper
@@ -34,31 +32,26 @@ private fun lcaFile(inputStream: InputStream): LcaLangParser.LcaFileContext {
     return parser.lcaFile()
 }
 
-fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
+fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
     val parts = s.split(" ")
-    return when (parts.size) {
-        1 -> {
-            val number = parts[0]
-            val amount = try {
-                parseDouble(number)
-            } catch (e: NumberFormatException) {
-                throw EvaluatorException("'$s' is not a valid quantity")
-            }
-            EQuantityScale(BasicNumber(amount), defaultUnit)
+    return if (parts.size == 1) {
+        val number = parts[0]
+        val amount = try {
+            parseDouble(number)
+        } catch (e: NumberFormatException) {
+            throw EvaluatorException("'$s' is not a valid quantity")
         }
-        2 -> {
-            val lexer = LcaLangLexer(CharStreams.fromString(s))
-            val tokens = CommonTokenStream(lexer)
-            val parser = LcaLangParser(tokens)
-            val ctx = parser.dataExpression()
-            try {
-                CoreMapper(BasicOperations).dataExpression(ctx)
-            } catch (e: IllegalStateException) {
-                throw EvaluatorException("'$s' is not a valid quantity")
-            }
+        EQuantityScale(BasicNumber(amount), defaultUnit)
+    } else {
+        val lexer = LcaLangLexer(CharStreams.fromString(s))
+        val tokens = CommonTokenStream(lexer)
+        val parser = LcaLangParser(tokens)
+        val ctx = parser.dataExpression()
+        try {
+            CoreMapper(BasicOperations).dataExpression(ctx)
+        } catch (e: IllegalStateException) {
+            throw EvaluatorException("'$s' is not a valid quantity")
         }
-        else -> throw EvaluatorException("'$s' is not a valid quantity")
     }
-
 }
 

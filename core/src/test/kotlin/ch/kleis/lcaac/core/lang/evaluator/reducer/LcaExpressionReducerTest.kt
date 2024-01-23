@@ -1,16 +1,292 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
+import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class LcaExpressionReducerTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+
+    /*
+        Block
+     */
+
+    @Test
+    fun reduce_whenBlockForEach_withLocalVariables() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            mapOf("x" to ERecordEntry(EDataRef("row"), "mass")),
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        EDataRef("x"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.twoKilograms,
+                        ProductFixture.carrot,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_withRecordEntryOverride_shouldThrow() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            emptyMap(),
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        ERecordEntry(EDataRef("row"), "mass"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.from(mapOf(
+                DataKey("row") to QuantityFixture.oneLitre,
+            )),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when/then
+        val e = assertThrows<RegisterException> {  reducer.reduce(expression) }
+        assertEquals("[row] is already bound", e.message)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_withRecordEntry() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            emptyMap(),
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        ERecordEntry(EDataRef("row"), "mass"),
+                        ProductFixture.carrot,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.twoKilograms,
+                        ProductFixture.carrot,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_shouldFlatten() {
+        // given
+        val block = ETechnoBlockForEach(
+            "row",
+            "source",
+            emptyMap(),
+            listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                EBlockForEach(
+                    "row2",
+                    "source",
+                    emptyMap(),
+                    listOf(
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
+                                QuantityFixture.oneLitre,
+                                ProductFixture.water,
+                            )
+                        ),
+                    )
+                )
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            inputs = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(emptyMap()),
+            ERecord(emptyMap()),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to mockk(),
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            inputs = listOf(
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneKilogram,
+                        ProductFixture.carrot,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    /*
+        Techno Exchange
+     */
 
     @Test
     fun reduce_whenTechnoExchange_shouldReduceLabelSelectors() {
@@ -30,7 +306,9 @@ class LcaExpressionReducerTest {
             DataRegister(
                 mapOf(DataKey("geo") to EStringLiteral("FR"))
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -60,10 +338,10 @@ class LcaExpressionReducerTest {
                 ETechnoExchange(EDataRef("q_carrot"), ProductFixture.carrot),
             ),
             inputs = listOf(
-                ETechnoExchange(EDataRef("q_water"), ProductFixture.water)
+                ETechnoBlockEntry(ETechnoExchange(EDataRef("q_water"), ProductFixture.water))
             ),
             biosphere = listOf(
-                EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol),
+                EBioBlockEntry(EBioExchange(EDataRef("q_propanol"), SubstanceFixture.propanol)),
             ),
         )
         val reducer = LcaExpressionReducer(
@@ -74,7 +352,9 @@ class LcaExpressionReducerTest {
                     "q_propanol" to QuantityFixture.oneKilogram,
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -90,15 +370,19 @@ class LcaExpressionReducerTest {
                 ),
             ),
             inputs = listOf(
-                ETechnoExchange(
-                    QuantityFixture.oneLitre,
-                    ProductFixture.water
+                ETechnoBlockEntry(
+                    ETechnoExchange(
+                        QuantityFixture.oneLitre,
+                        ProductFixture.water
+                    )
                 )
             ),
             biosphere = listOf(
-                EBioExchange(
-                    QuantityFixture.oneKilogram,
-                    SubstanceFixture.propanol
+                EBioBlockEntry(
+                    EBioExchange(
+                        QuantityFixture.oneKilogram,
+                        SubstanceFixture.propanol
+                    )
                 ),
             ),
         )
@@ -118,7 +402,9 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -145,7 +431,9 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -172,7 +460,9 @@ class LcaExpressionReducerTest {
                     DataKey("q") to QuantityFixture.oneKilogram,
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -199,7 +489,9 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -230,7 +522,9 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -261,7 +555,9 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -288,7 +584,9 @@ class LcaExpressionReducerTest {
                     DataKey("kg") to UnitFixture.kg
                 )
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -323,7 +621,9 @@ class LcaExpressionReducerTest {
                     "kg" to UnitFixture.kg
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -353,9 +653,11 @@ class LcaExpressionReducerTest {
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
-                EImpact(
-                    EDataRef("q_cc"),
-                    IndicatorFixture.climateChange
+                EImpactBlockEntry(
+                    EImpact(
+                        EDataRef("q_cc"),
+                        IndicatorFixture.climateChange
+                    )
                 ),
             )
         )
@@ -366,7 +668,9 @@ class LcaExpressionReducerTest {
                     "q_cc" to QuantityFixture.oneKilogram,
                 ).mapKeys { DataKey(it.key) }
             ),
+            Register.empty(),
             ops,
+            sourceOps,
         )
 
         // when
@@ -379,9 +683,11 @@ class LcaExpressionReducerTest {
                 SubstanceFixture.propanol
             ),
             impacts = listOf(
-                EImpact(
-                    QuantityFixture.oneKilogram,
-                    IndicatorFixture.climateChange
+                EImpactBlockEntry(
+                    EImpact(
+                        QuantityFixture.oneKilogram,
+                        IndicatorFixture.climateChange
+                    )
                 ),
             )
         )

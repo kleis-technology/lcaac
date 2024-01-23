@@ -27,6 +27,7 @@ lcaac test -p $TUTORIALS_PATH/02-advanced/01-parametrized-process
 lcaac test -p $TUTORIALS_PATH/02-advanced/02-variables
 lcaac test -p $TUTORIALS_PATH/02-advanced/03-units
 lcaac test -p $TUTORIALS_PATH/02-advanced/04-labels
+lcaac test -p $TUTORIALS_PATH/02-advanced/05-datasources
 
 # Check custom dimensions tutorial
 set -euo

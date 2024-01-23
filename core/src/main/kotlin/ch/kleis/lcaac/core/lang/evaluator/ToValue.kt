@@ -16,10 +16,17 @@ class ToValue<Q>(
             this.name,
             this.labels.mapValues { it.value.toValue() as StringValue<Q> },
             this.products.map { it.toValue() },
-            this.inputs.map { it.toValue() },
-            this.biosphere.map { it.toValue() },
-            this.impacts.map { it.toValue() }
+            this.inputs.flatMap { blockToValue(it) { block -> block.toValue() } },
+            this.biosphere.flatMap { blockToValue(it) { block -> block.toValue() } },
+            this.impacts.flatMap { blockToValue(it) { block -> block.toValue() } },
         )
+    }
+
+    private fun <E, V> blockToValue(block: BlockExpression<E, Q>, map: (E) -> V): List<V> {
+        return when(block) {
+            is EBlockEntry -> listOf(map(block.entry))
+            is EBlockForEach -> throw EvaluatorException("block $block is not reduced")
+        }
     }
 
     fun DataExpression<Q>.toValue(): DataValue<Q> {
@@ -62,6 +69,7 @@ class ToValue<Q>(
 
     fun EProductSpec<Q>.toValue(): ProductValue<Q> {
         val name = this.name
+
         @Suppress("UNCHECKED_CAST")
         val referenceUnitValue = (this.referenceUnit as QuantityExpression<Q>?)
             ?.toUnitValue()
@@ -124,7 +132,7 @@ class ToValue<Q>(
     fun ESubstanceCharacterization<Q>.toValue(): SubstanceCharacterizationValue<Q> {
         return SubstanceCharacterizationValue(
             referenceExchange = this.referenceExchange.toValue(),
-            impacts = this.impacts.map { it.toValue() },
+            impacts = this.impacts.flatMap { blockToValue(it) { block -> block.toValue() } },
         )
     }
 
@@ -136,7 +144,9 @@ class ToValue<Q>(
                 when (val e = it.value) {
                     is QuantityExpression<*> -> e.toValue()
                     is StringExpression -> e.toValue()
-                    is EDataRef -> throw EvaluatorException("$it is not reduced")
+                    is ERecord -> RecordValue(e.entries.mapValues { it.value.toValue() })
+                    is EDataRef, is ERecordEntry,
+                    is EDefaultRecordOf, is ESumProduct -> throw EvaluatorException("$it is not reduced")
                 }
             },
         )

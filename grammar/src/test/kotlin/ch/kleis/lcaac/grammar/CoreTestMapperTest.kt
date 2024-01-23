@@ -50,9 +50,11 @@ class CoreTestMapperTest {
                         )
                     ),
                     inputs = listOf(
-                        ETechnoExchange(
-                            EQuantityScale(BasicNumber(1.0), EDataRef("kWh")),
-                            EProductSpec("electricity"),
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
+                                EQuantityScale(BasicNumber(1.0), EDataRef("kWh")),
+                                EProductSpec("electricity"),
+                            )
                         )
                     )
                 )

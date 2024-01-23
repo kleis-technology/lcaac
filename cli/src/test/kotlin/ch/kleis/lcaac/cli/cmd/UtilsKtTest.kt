@@ -2,6 +2,7 @@ package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.EDataRef
+import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.prelude.Prelude
@@ -19,7 +20,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> {  parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'a@bc' is not a valid quantity", actual.message)
     }
 
@@ -30,7 +31,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> {  parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'12 3 4' is not a valid quantity", actual.message)
     }
 
@@ -41,7 +42,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when/then
-        val actual = assertThrows<EvaluatorException> {  parseQuantityWithDefaultUnit(s, defaultUnit) }
+        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
         assertEquals("'12 \$3' is not a valid quantity", actual.message)
     }
 
@@ -52,7 +53,7 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when
-        val actual = parseQuantityWithDefaultUnit(s, defaultUnit)
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
 
         // then
         assertEquals(EQuantityScale(BasicNumber(12.0), defaultUnit), actual)
@@ -65,9 +66,28 @@ class UtilsKtTest {
         val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
 
         // when
-        val actual = parseQuantityWithDefaultUnit(s, defaultUnit)
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
 
         // then
         assertEquals(EQuantityScale(BasicNumber(12.0), EDataRef("kg")), actual)
+    }
+
+    @Test
+    fun parseQuantityWithDefaultUnit_whenComplexExpression() {
+        // given
+        val s = "12.0 kg * hour"
+        val kg = Prelude.unitMap<BasicNumber>()["kg"]!!
+        val hour = Prelude.unitMap<BasicNumber>()["hour"]!!
+        val defaultUnit = EQuantityMul(kg, hour)
+
+        // when
+        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
+
+        // then
+        assertEquals(
+            EQuantityScale(
+                BasicNumber(12.0),
+                EQuantityMul(EDataRef("kg"), EDataRef("hour"))),
+            actual)
     }
 }

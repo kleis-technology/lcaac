@@ -2,15 +2,13 @@
 
 package ch.kleis.lcaac.grammar
 
-import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
-import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.testing.TestCase
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.lang.Double.parseDouble
@@ -21,6 +19,7 @@ class CoreMapper<Q>(
     fun process(
         ctx: LcaLangParser.ProcessDefinitionContext,
         globals: DataRegister<Q> = DataRegister.empty(),
+        dataSources: Register<DataSourceKey, DataSourceExpression<Q>>,
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
         val labels = ctx.labels()
@@ -28,16 +27,17 @@ class CoreMapper<Q>(
             .associate { it.labelRef().innerText() to EStringLiteral<Q>(it.STRING_LITERAL().innerText()) }
         val locals = ctx.variables()
             .flatMap { it.assignment() }
-            .associate { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
+            .associate { assignment(it) }
         val params = ctx.params()
             .flatMap { it.assignment() }
-            .associate { it.dataRef().innerText() to dataExpression(it.dataExpression()) }
+            .associate { assignment(it) }
         val symbolTable = SymbolTable(
             data = try {
                 DataRegister(globals.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
             },
+            dataSources = dataSources,
         )
         val products = ctx.block_products()
             .flatMap { it.technoProductExchange() }
@@ -73,11 +73,35 @@ class CoreMapper<Q>(
         )
     }
 
-    fun impactExchange(ctx: LcaLangParser.ImpactExchangeContext): EImpact<Q> {
-        return EImpact(
-            dataExpression(ctx.quantity),
-            indicatorSpec(ctx.indicator),
-        )
+    fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {
+        return when(ctx.sep.text) {
+            ctx.EQUAL()?.innerText() -> ctx.dataRef().innerText() to dataExpression(ctx.dataExpression())
+            ctx.FROM_KEYWORD()?.innerText() -> ctx.dataRef().innerText() to EDefaultRecordOf(ctx.dataSourceRef().innerText())
+            else -> throw IllegalStateException("parsing error: invalid assignment '${ctx.text}'")
+        }
+    }
+
+    fun impactExchange(ctx: LcaLangParser.ImpactExchangeContext): ImpactBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.ImpactEntryContext -> EImpactBlockEntry(
+                EImpact(
+                    dataExpression(ctx.quantity),
+                    indicatorSpec(ctx.indicator),
+                )
+            )
+
+            is LcaLangParser.ImpactBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.impactExchange().map { this.impactExchange(it) }
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                EImpactBlockForEach(rowRef, dataSourceRef, locals,  body)
+            }
+
+            else -> throw IllegalStateException("parsing error: expecting an impact exchange context")
+        }
     }
 
     fun indicatorSpec(ctx: LcaLangParser.IndicatorRefContext): EIndicatorSpec<Q> {
@@ -90,12 +114,29 @@ class CoreMapper<Q>(
         ctx: LcaLangParser.BioExchangeContext,
         symbolTable: SymbolTable<Q>,
         type: SubstanceType
-    ): EBioExchange<Q> {
-        val quantity = dataExpression(ctx.quantity)
-        return EBioExchange(
-            quantity,
-            substanceSpec(ctx.substance, type, quantity, symbolTable)
-        )
+    ): BioBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.BioEntryContext -> {
+                val quantity = dataExpression(ctx.quantity)
+                EBioBlockEntry(
+                    EBioExchange(
+                        quantity,
+                        substanceSpec(ctx.substance, type, quantity, symbolTable),
+                    )
+                )
+            }
+
+            is LcaLangParser.BioBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.bioExchange().map { this.bioExchange(it, symbolTable, type) }
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                EBioBlockForEach(rowRef, dataSourceRef, locals,  body)
+            }
+            else -> throw IllegalStateException("parsing error: expecting a bio exchange context")
+        }
     }
 
     fun substanceSpec(
@@ -131,11 +172,27 @@ class CoreMapper<Q>(
     }
 
 
-    fun technoInputExchange(ctx: LcaLangParser.TechnoInputExchangeContext): ETechnoExchange<Q> {
-        return ETechnoExchange(
-            dataExpression(ctx.quantity),
-            inputProductSpec(ctx.product),
-        )
+    fun technoInputExchange(ctx: LcaLangParser.TechnoInputExchangeContext): TechnoBlock<Q> {
+        return when (ctx) {
+            is LcaLangParser.TechnoEntryContext -> ETechnoBlockEntry(
+                ETechnoExchange(
+                    dataExpression(ctx.quantity),
+                    inputProductSpec(ctx.product),
+                )
+            )
+
+            is LcaLangParser.TechnoBlockForEachContext -> {
+                val rowRef = ctx.dataRef().innerText()
+                val dataSourceRef = ctx.dataSourceRef().innerText()
+                val body = ctx.technoInputExchange().map { this.technoInputExchange(it) }
+                val locals = ctx.variables()
+                    .flatMap { it.assignment() }
+                    .associate { assignment(it) }
+                ETechnoBlockForEach(rowRef, dataSourceRef, locals,  body)
+            }
+
+            else -> throw IllegalStateException("parsing error: expecting a techno input exchange context")
+        }
     }
 
     fun inputProductSpec(ctx: LcaLangParser.InputProductSpecContext): EProductSpec<Q> {
@@ -231,6 +288,18 @@ class CoreMapper<Q>(
 
     fun dataExpression(ctx: LcaLangParser.DataExpressionContext): DataExpression<Q> {
         return when (ctx) {
+            is LcaLangParser.ColGroupContext -> {
+                when (ctx.op.text) {
+                    ctx.SUM().innerText() -> {
+                        val sourceRef = ctx.dataSourceRef().innerText()
+                        val columns = ctx.columnRef()
+                            .map { it.innerText() }
+                        ESumProduct(sourceRef, columns)
+                    }
+                    else -> throw IllegalStateException("parsing error: invalid column operation '${ctx.op.text}'")
+                }
+            }
+
             is LcaLangParser.AddGroupContext -> {
                 val left = dataExpression(ctx.left)
                 val right = dataExpression(ctx.right)
@@ -283,6 +352,10 @@ class CoreMapper<Q>(
                     dataExpression(it.dataExpression())
                 } ?: ctx.stringExpression()?.let {
                     EStringLiteral(it.STRING_LITERAL().innerText())
+                } ?: ctx.slice()?.let {
+                    val recordRef = ctx.dataRef().innerText()
+                    val columnRef = ctx.slice().columnRef().innerText()
+                    ERecordEntry(EDataRef(recordRef), columnRef)
                 } ?: ctx.dataRef()?.let {
                     EDataRef(it.innerText())
                 } ?: throw IllegalStateException()
@@ -305,6 +378,14 @@ class CoreMapper<Q>(
     }
 
     fun LcaLangParser.DataRefContext.innerText(): String {
+        return this.uid().ID().innerText()
+    }
+
+    fun LcaLangParser.ColumnRefContext.innerText(): String {
+        return this.STRING_LITERAL().innerText()
+    }
+
+    fun LcaLangParser.DataSourceRefContext.innerText(): String {
         return this.uid().ID().innerText()
     }
 
@@ -338,5 +419,23 @@ class CoreMapper<Q>(
         val type = SubstanceType.of(this.typeField().children[2].text)
         val subCompartment = this.subCompartmentField()?.STRING_LITERAL()?.innerText()
         return SubstanceKey(name, type, compartment, subCompartment)
+    }
+
+    fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): DataSourceExpression<Q> {
+        val name = ctx.dataSourceRef().uid().ID().innerText()
+        val locationField = ctx.locationField().firstOrNull()
+            ?: throw LoaderException("missing location field in datasource $name")
+        val location = locationField.STRING_LITERAL().innerText()
+        val schemaBlock = ctx.schema().firstOrNull()
+            ?: throw LoaderException("missing schema in datasource $name")
+        val schema = schemaBlock.columnDefinition().associate { column ->
+            val key = column.STRING_LITERAL().innerText()
+            val value = dataExpression(column.dataExpression())
+            key to ColumnType(value)
+        }
+        return ECsvSource(
+            location,
+            schema,
+        )
     }
 }

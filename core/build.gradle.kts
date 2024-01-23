@@ -48,6 +48,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
+    implementation("org.apache.commons:commons-csv:1.10.0")
+
     testImplementation(kotlin("test"))
 }
 

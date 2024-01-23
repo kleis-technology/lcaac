@@ -1,17 +1,21 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
-import ch.kleis.lcaac.core.lang.register.DataKey
-import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.register.DataRegister
+import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 
 class ReduceLabelSelectorsTest {
     private val ops = BasicOperations
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
     fun reduce_whenPassingByArguments() {
@@ -22,14 +26,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     name = "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            quantity = QuantityFixture.oneKilogram,
-                            product = EProductSpec(
-                                name = "carrot",
-                                referenceUnit = QuantityFixture.oneKilogram,
-                                fromProcess = FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
+                                quantity = QuantityFixture.oneKilogram,
+                                product = EProductSpec(
+                                    name = "carrot",
+                                    referenceUnit = QuantityFixture.oneKilogram,
+                                    fromProcess = FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                    )
                                 )
                             )
                         )
@@ -38,7 +44,7 @@ class ReduceLabelSelectorsTest {
             ),
             mapOf("geo" to EStringLiteral("FR")),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops, sourceOps)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -50,14 +56,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                    )
                                 )
                             )
                         )
@@ -78,14 +86,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     name = "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                    )
                                 )
                             )
                         )
@@ -93,7 +103,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops, sourceOps)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -105,14 +115,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     name = "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
+                                    )
                                 )
                             )
                         )
@@ -132,14 +144,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                    )
                                 )
                             )
                         )
@@ -147,7 +161,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops, sourceOps)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -159,14 +173,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     name = "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("GLO"))),
+                                    )
                                 )
                             )
                         )
@@ -185,14 +201,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     name = "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                    )
                                 )
                             )
                         )
@@ -206,6 +224,7 @@ class ReduceLabelSelectorsTest {
                 data = DataRegister(mapOf(DataKey("geo") to EStringLiteral("FR")))
             ),
             ops,
+            sourceOps,
         )
 
         // when
@@ -217,14 +236,16 @@ class ReduceLabelSelectorsTest {
                 body = EProcess(
                     "salad_production",
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                    )
                                 )
                             )
                         )
@@ -244,14 +265,16 @@ class ReduceLabelSelectorsTest {
                     "salad_production",
                     labels = mapOf("geo" to EStringLiteral("FR")),
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EDataRef("geo"))),
+                                    )
                                 )
                             )
                         )
@@ -259,7 +282,7 @@ class ReduceLabelSelectorsTest {
                 )
             ),
         )
-        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops)
+        val reduceLabelSelectors = ReduceLabelSelectors(SymbolTable(), ops, sourceOps)
 
         // when
         val actual = reduceLabelSelectors.apply(instance)
@@ -271,14 +294,16 @@ class ReduceLabelSelectorsTest {
                     "salad_production",
                     labels = mapOf("geo" to EStringLiteral("FR")),
                     inputs = listOf(
-                        ETechnoExchange(
-                            QuantityFixture.oneKilogram,
-                            EProductSpec(
-                                "carrot",
+                        ETechnoBlockEntry(
+                            ETechnoExchange(
                                 QuantityFixture.oneKilogram,
-                                FromProcess(
-                                    name = "carrot_production",
-                                    matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                EProductSpec(
+                                    "carrot",
+                                    QuantityFixture.oneKilogram,
+                                    FromProcess(
+                                        name = "carrot_production",
+                                        matchLabels = MatchLabels(mapOf("geo" to EStringLiteral("FR"))),
+                                    )
                                 )
                             )
                         )
