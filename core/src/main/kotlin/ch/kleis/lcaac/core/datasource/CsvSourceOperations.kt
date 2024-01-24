@@ -26,7 +26,13 @@ class CsvSourceOperations<Q>(
         val inputStream = location.toFile().inputStream()
         val parser = CSVParser(inputStream.reader(), format)
         val header = parser.headerMap
+        val filter = source.filter
         return parser.iterator().asSequence()
+            .filter {  record ->
+                filter.entries.all {
+                    record[it.key] == it.value
+                }
+            }
             .map { record ->
                 val entries = header
                     .filter { entry -> source.schema.containsKey(entry.key) }
@@ -65,7 +71,13 @@ class CsvSourceOperations<Q>(
         val inputStream = location.toFile().inputStream()
         val parser = CSVParser(inputStream.reader(), format)
         val header = parser.headerMap
+        val filter = source.filter
         return parser.iterator().asSequence()
+            .filter {  record ->
+                filter.entries.all {
+                    record[it.key] == it.value
+                }
+            }
             .map { record ->
                 columns.map { column ->
                     val position = header[column]
