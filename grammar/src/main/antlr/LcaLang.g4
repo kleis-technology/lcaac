@@ -51,6 +51,17 @@ columnDefinition
     : STRING_LITERAL EQUAL dataExpression
     ;
 
+dataSourceExpression
+    : dataSourceRef rowFilter?
+    ;
+rowFilter
+    : MATCH_KEYWORD  rowSelector
+    | MATCH_KEYWORD  LPAREN ( rowSelector (COMMA rowSelector)* COMMA? ) RPAREN
+    ;
+rowSelector
+    : columnRef EQUAL STRING_LITERAL
+    ;
+
 /*
     Test
 */
@@ -200,18 +211,18 @@ block_impacts
 
 technoInputExchange
     : quantity=dataExpression product=inputProductSpec                                      # technoEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
     ;
 technoProductExchange
     : quantity=dataExpression product=outputProductSpec
     ;
 bioExchange
     : quantity=dataExpression substance=substanceSpec                               # bioEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
     ;
 impactExchange
     : quantity=dataExpression indicator=indicatorRef                                    # impactEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
+    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
     ;
 
 
@@ -227,7 +238,7 @@ dataExpression
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
     | dataRef slice?                                                # baseGroup
-    | op=SUM LPAREN dataSourceRef COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
+    | op=SUM LPAREN dataSourceExpression COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
     : LBRACK columnRef RBRACK
@@ -349,6 +360,7 @@ EMISSIONS_KEYWORD : 'emissions' ;
 LAND_USE_KEYWORD : 'land_use' ;
 RESOURCES_KEYWORD : 'resources' ;
 MATCH_KEYWORD : 'match' ;
+WHERE_KEYWORD : 'where' ;
 LABELS_KEYWORD : 'labels' ;
 
 DATASOURCE_KEYWORD : 'datasource' ;
