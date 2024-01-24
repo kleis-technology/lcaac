@@ -44,11 +44,25 @@ class DataExpressionReducer<Q>(
         }
     }
 
-    fun reduceDataSource(expression: DataSourceExpression<Q>): EDataSource<Q> {
+    fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, String> = emptyMap()): EDataSource<Q> {
         return when (expression) {
-            is EDataSource -> expression
+            is EDataSource -> {
+                val f = expression.filter.plus(filter)
+                val columns = expression.schema
+                val invalidKeys = f.keys
+                    .filter { columns.containsKey(it) }
+                    .filter { columns[it]!!.defaultValue !is StringExpression }
+                if (invalidKeys.isNotEmpty())
+                    throw EvaluatorException(
+                        "data source '${expression.location}': cannot match on numeric column(s) $invalidKeys"
+                    )
+                expression.copy(filter = f)
+            }
             is EDataSourceRef -> dataSourceRegister[DataSourceKey(expression.name)]
+                ?.let { reduceDataSource(it, filter) }
                 ?: throw EvaluatorException("unknown data source '${expression.name}'")
+
+            is EFilter -> reduceDataSource(expression.dataSource, filter.plus(expression.filter))
         }
     }
 

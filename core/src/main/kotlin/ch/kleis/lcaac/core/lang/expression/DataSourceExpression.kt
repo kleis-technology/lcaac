@@ -9,9 +9,14 @@ sealed interface DataSourceExpression<Q>
 data class EDataSource<Q> (
     val location: String,
     val schema: Map<String, ColumnType<Q>>,
+    val filter: Map<String, String> = emptyMap(),
 ) : DataSourceExpression<Q>
 
 data class EDataSourceRef<Q>(
     val name: String
 ) : DataSourceExpression<Q>
 
+data class EFilter<Q>(
+    val dataSource: DataSourceExpression<Q>,
+    val filter: Map<String, String>
+) : DataSourceExpression<Q>
