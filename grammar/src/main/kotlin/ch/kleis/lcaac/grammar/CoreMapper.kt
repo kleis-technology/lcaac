@@ -19,7 +19,7 @@ class CoreMapper<Q>(
     fun process(
         ctx: LcaLangParser.ProcessDefinitionContext,
         globals: DataRegister<Q> = DataRegister.empty(),
-        dataSources: Register<DataSourceKey, DataSourceExpression<Q>>,
+        dataSources: Register<DataSourceKey, EDataSource<Q>>,
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
         val labels = ctx.labels()
@@ -74,9 +74,13 @@ class CoreMapper<Q>(
     }
 
     fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {
-        return when(ctx.sep.text) {
+        return when (ctx.sep.text) {
             ctx.EQUAL()?.innerText() -> ctx.dataRef().innerText() to dataExpression(ctx.dataExpression())
-            ctx.FROM_KEYWORD()?.innerText() -> ctx.dataRef().innerText() to EDefaultRecordOf(ctx.dataSourceRef().innerText())
+            ctx.FROM_KEYWORD()?.innerText() -> ctx.dataRef().innerText() to
+                EDefaultRecordOf(
+                    EDataSourceRef(ctx.dataSourceRef().innerText())
+                )
+
             else -> throw IllegalStateException("parsing error: invalid assignment '${ctx.text}'")
         }
     }
@@ -97,7 +101,7 @@ class CoreMapper<Q>(
                 val locals = ctx.variables()
                     .flatMap { it.assignment() }
                     .associate { assignment(it) }
-                EImpactBlockForEach(rowRef, dataSourceRef, locals,  body)
+                EImpactBlockForEach(rowRef, dataSourceRef, locals, body)
             }
 
             else -> throw IllegalStateException("parsing error: expecting an impact exchange context")
@@ -133,8 +137,9 @@ class CoreMapper<Q>(
                 val locals = ctx.variables()
                     .flatMap { it.assignment() }
                     .associate { assignment(it) }
-                EBioBlockForEach(rowRef, dataSourceRef, locals,  body)
+                EBioBlockForEach(rowRef, dataSourceRef, locals, body)
             }
+
             else -> throw IllegalStateException("parsing error: expecting a bio exchange context")
         }
     }
@@ -188,7 +193,7 @@ class CoreMapper<Q>(
                 val locals = ctx.variables()
                     .flatMap { it.assignment() }
                     .associate { assignment(it) }
-                ETechnoBlockForEach(rowRef, dataSourceRef, locals,  body)
+                ETechnoBlockForEach(rowRef, dataSourceRef, locals, body)
             }
 
             else -> throw IllegalStateException("parsing error: expecting a techno input exchange context")
@@ -294,8 +299,9 @@ class CoreMapper<Q>(
                         val sourceRef = ctx.dataSourceRef().innerText()
                         val columns = ctx.columnRef()
                             .map { it.innerText() }
-                        ESumProduct(sourceRef, columns)
+                        ESumProduct(EDataSourceRef(sourceRef), columns)
                     }
+
                     else -> throw IllegalStateException("parsing error: invalid column operation '${ctx.op.text}'")
                 }
             }
@@ -421,7 +427,7 @@ class CoreMapper<Q>(
         return SubstanceKey(name, type, compartment, subCompartment)
     }
 
-    fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): DataSourceExpression<Q> {
+    fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): EDataSource<Q> {
         val name = ctx.dataSourceRef().uid().ID().innerText()
         val locationField = ctx.locationField().firstOrNull()
             ?: throw LoaderException("missing location field in datasource $name")
@@ -433,7 +439,7 @@ class CoreMapper<Q>(
             val value = dataExpression(column.dataExpression())
             key to ColumnType(value)
         }
-        return ECsvSource(
+        return EDataSource(
             location,
             schema,
         )

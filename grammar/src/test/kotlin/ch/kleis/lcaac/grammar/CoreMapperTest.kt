@@ -43,7 +43,7 @@ class CoreMapperTest {
         val actual = mapper.assignment(ctx)
 
         // then
-        val expected = "x" to EDefaultRecordOf<BasicNumber>("inventory")
+        val expected = "x" to EDefaultRecordOf<BasicNumber>(EDataSourceRef("inventory"))
         assertEquals(expected, actual)
     }
 
@@ -75,7 +75,7 @@ class CoreMapperTest {
         val actual = mapper.dataExpression(ctx)
 
         // then
-        val expected = ESumProduct<BasicNumber>("source", listOf("mass", "ratio"))
+        val expected = ESumProduct<BasicNumber>(EDataSourceRef("source"), listOf("mass", "ratio"))
         assertEquals(expected, actual)
     }
 
@@ -97,7 +97,7 @@ class CoreMapperTest {
         val actual = mapper.dataSourceDefinition(ctx)
 
         // then
-        val expected = ECsvSource(
+        val expected = EDataSource(
             location = "file.csv",
             schema = mapOf(
                 "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),

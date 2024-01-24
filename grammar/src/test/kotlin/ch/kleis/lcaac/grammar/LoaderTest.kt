@@ -39,7 +39,7 @@ class LoaderTest {
             .params["row"]!!
 
         // then
-        val expected = EDefaultRecordOf<BasicNumber>("source")
+        val expected = EDefaultRecordOf<BasicNumber>(EDataSourceRef("source"))
         assertEquals(expected, actual)
     }
 
@@ -75,7 +75,7 @@ class LoaderTest {
 
 
         // then
-        val expected = ECsvSource(
+        val expected = EDataSource(
             location = "file.csv",
             schema = mapOf(
                 "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
@@ -105,7 +105,7 @@ class LoaderTest {
             .getDataSource("source")!!
 
         // then
-        val expected = ECsvSource(
+        val expected = EDataSource(
             location = "file.csv",
             schema = mapOf(
                 "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
@@ -150,7 +150,7 @@ class LoaderTest {
     @Test
     fun load_twoProcesses_sameNameDifferentLabels() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     labels {
@@ -170,7 +170,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -184,7 +184,7 @@ class LoaderTest {
     @Test
     fun load_fromProcess_withoutArguments() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     inputs {
@@ -192,7 +192,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -210,14 +210,14 @@ class LoaderTest {
     @Test
     fun load_unit_literal() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 unit foo {
                     symbol = "foo"
                     dimension = "foo"
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -231,14 +231,14 @@ class LoaderTest {
     @Test
     fun load_unit_aliasFor() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 unit foo {
                     symbol = "foo"
                     alias_for = 2 bar
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -252,7 +252,7 @@ class LoaderTest {
     @Test
     fun load_twoSubstanceCharacterizations_sameExceptForType() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 substance co2 {
                     name = "carbon dioxide"
@@ -276,7 +276,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -291,7 +291,7 @@ class LoaderTest {
     @Test
     fun load_twoSubstanceCharacterizations_sameExceptForCompartment() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 substance co2 {
                     name = "carbon dioxide"
@@ -315,7 +315,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -330,7 +330,7 @@ class LoaderTest {
     @Test
     fun load_twoSubstanceCharacterizations_sameExceptForSubCompartment() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 substance co2 {
                     name = "carbon dioxide"
@@ -355,7 +355,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
@@ -370,7 +370,7 @@ class LoaderTest {
     @Test
     fun load_substanceCharacterization() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 substance co2 {
                     name = "carbon dioxide"
@@ -383,7 +383,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
         val loader = Loader(BasicOperations)
 
@@ -418,7 +418,7 @@ class LoaderTest {
     @Test
     fun load_substanceCharacterization_withSubCompartment() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 substance co2 {
                     name = "carbon dioxide"
@@ -432,7 +432,7 @@ class LoaderTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val oneKg = EQuantityScale(BasicNumber(1.0), EDataRef("kg"))
         val loader = Loader(BasicOperations)
 
@@ -471,12 +471,12 @@ class LoaderTest {
     @Test
     fun load_process_empty() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(BasicOperations)
 
         // when
