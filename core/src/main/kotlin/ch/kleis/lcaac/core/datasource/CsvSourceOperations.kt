@@ -30,7 +30,11 @@ class CsvSourceOperations<Q>(
         return parser.iterator().asSequence()
             .filter {  record ->
                 filter.entries.all {
-                    record[it.key] == it.value
+                    val iv = it.value
+                    if ( iv is EStringLiteral) {
+                        record[it.key] == iv.value
+                    }
+                    else throw EvaluatorException("invalid matching condition $it")
                 }
             }
             .map { record ->
@@ -75,7 +79,11 @@ class CsvSourceOperations<Q>(
         return parser.iterator().asSequence()
             .filter {  record ->
                 filter.entries.all {
-                    record[it.key] == it.value
+                    val iv = it.value
+                    if ( iv is EStringLiteral) {
+                        record[it.key] == iv.value
+                    }
+                    else throw EvaluatorException("invalid matching condition $it")
                 }
             }
             .map { record ->

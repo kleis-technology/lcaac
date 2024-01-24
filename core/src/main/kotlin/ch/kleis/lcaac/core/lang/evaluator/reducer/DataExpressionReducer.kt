@@ -44,22 +44,20 @@ class DataExpressionReducer<Q>(
         }
     }
 
-    fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, String> = emptyMap()): EDataSource<Q> {
+    fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, DataExpression<Q>> = emptyMap()): EDataSource<Q> {
         return when (expression) {
             is EDataSource -> {
                 val f = expression.filter.plus(filter)
+                    .mapValues { reduce(it.value) }
                 val columns = expression.schema
                 val invalidKeys = f.keys
                     .filter { columns.containsKey(it) }
                     .filter { columns[it]!!.defaultValue !is StringExpression }
-                if (invalidKeys.isNotEmpty())
-                    throw EvaluatorException(
-                        "data source '${expression.location}': cannot match on numeric column(s) $invalidKeys"
-                    )
+                if (invalidKeys.isNotEmpty()) throw EvaluatorException("data source '${expression.location}': cannot match on numeric column(s) $invalidKeys")
                 expression.copy(filter = f)
             }
-            is EDataSourceRef -> dataSourceRegister[DataSourceKey(expression.name)]
-                ?.let { reduceDataSource(it, filter) }
+
+            is EDataSourceRef -> dataSourceRegister[DataSourceKey(expression.name)]?.let { reduceDataSource(it, filter) }
                 ?: throw EvaluatorException("unknown data source '${expression.name}'")
 
             is EFilter -> reduceDataSource(expression.dataSource, filter.plus(expression.filter))
@@ -87,11 +85,9 @@ class DataExpressionReducer<Q>(
     }
 
     private fun reduceMap(expression: ERecord<Q>): DataExpression<Q> {
-        return ERecord(
-            expression.entries.mapValues {
-                reduce(it.value)
-            }
-        )
+        return ERecord(expression.entries.mapValues {
+            reduce(it.value)
+        })
     }
 
 
@@ -99,10 +95,7 @@ class DataExpressionReducer<Q>(
         with(ops) {
             val reducedExpression = reduce(unitOf.expression)
             return when {
-                reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> EQuantityScale(
-                    pure(1.0),
-                    reducedExpression.base
-                )
+                reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> EQuantityScale(pure(1.0), reducedExpression.base)
 
                 reducedExpression is EUnitOf -> reducedExpression
                 else -> EUnitOf(reducedExpression)
@@ -117,8 +110,7 @@ class DataExpressionReducer<Q>(
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral -> {
                     val resultUnit = checkAndReturnUnitForAddition(left.base, right.base)
-                    val resultAmount =
-                        (left.scale * pure(left.base.scale) + right.scale * pure(right.base.scale)) / pure(resultUnit.scale)
+                    val resultAmount = (left.scale * pure(left.base.scale) + right.scale * pure(right.base.scale)) / pure(resultUnit.scale)
                     EQuantityScale(resultAmount, resultUnit)
                 }
 
@@ -127,9 +119,7 @@ class DataExpressionReducer<Q>(
         }
     }
 
-    private fun reduceClosure(closure: EQuantityClosure<Q>): DataExpression<Q> =
-        DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops, sourceOps)
-            .reduce(closure.expression)
+    private fun reduceClosure(closure: EQuantityClosure<Q>): DataExpression<Q> = DataExpressionReducer(closure.symbolTable.data, closure.symbolTable.dataSources, ops, sourceOps).reduce(closure.expression)
 
     private fun reduceDiv(expression: EQuantityDiv<Q>): DataExpression<Q> {
         with(ops) {
@@ -138,14 +128,11 @@ class DataExpressionReducer<Q>(
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
 
-                    EQuantityScale(
-                        left.scale / right.scale,
-                        EUnitLiteral(
-                            left.base.symbol.divide(right.base.symbol),
-                            left.base.scale / right.base.scale,
-                            left.base.dimension.divide(right.base.dimension),
-                        )
-                    )
+                    EQuantityScale(left.scale / right.scale, EUnitLiteral(
+                        left.base.symbol.divide(right.base.symbol),
+                        left.base.scale / right.base.scale,
+                        left.base.dimension.divide(right.base.dimension),
+                    ))
 
 
                 else -> EQuantityDiv(left, right)
@@ -160,14 +147,11 @@ class DataExpressionReducer<Q>(
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral ->
 
-                    EQuantityScale(
-                        left.scale * right.scale,
-                        EUnitLiteral(
-                            left.base.symbol.multiply(right.base.symbol),
-                            left.base.scale * right.base.scale,
-                            left.base.dimension.multiply(right.base.dimension),
-                        )
-                    )
+                    EQuantityScale(left.scale * right.scale, EUnitLiteral(
+                        left.base.symbol.multiply(right.base.symbol),
+                        left.base.scale * right.base.scale,
+                        left.base.dimension.multiply(right.base.dimension),
+                    ))
 
                 else -> EQuantityMul(left, right)
             }
@@ -178,15 +162,14 @@ class DataExpressionReducer<Q>(
         with(ops) {
             val quantity = reduce(expression.quantity)
             return when {
-                quantity is EQuantityScale && quantity.base is EUnitLiteral ->
-                    EQuantityScale(
-                        quantity.scale.pow(expression.exponent),
-                        EUnitLiteral(
-                            quantity.base.symbol.pow(expression.exponent),
-                            quantity.base.scale.pow(expression.exponent),
-                            quantity.base.dimension.pow(expression.exponent),
-                        ),
-                    )
+                quantity is EQuantityScale && quantity.base is EUnitLiteral -> EQuantityScale(
+                    quantity.scale.pow(expression.exponent),
+                    EUnitLiteral(
+                        quantity.base.symbol.pow(expression.exponent),
+                        quantity.base.scale.pow(expression.exponent),
+                        quantity.base.dimension.pow(expression.exponent),
+                    ),
+                )
 
                 else -> EQuantityPow(quantity, expression.exponent)
             }
@@ -214,8 +197,7 @@ class DataExpressionReducer<Q>(
             return when {
                 left is EQuantityScale && left.base is EUnitLiteral && right is EQuantityScale && right.base is EUnitLiteral -> {
                     val resultUnit = checkAndReturnUnitForAddition(left.base, right.base)
-                    val resultAmount =
-                        (left.scale * pure(left.base.scale) - right.scale * pure(right.base.scale)) / pure(resultUnit.scale)
+                    val resultAmount = (left.scale * pure(left.base.scale) - right.scale * pure(right.base.scale)) / pure(resultUnit.scale)
                     EQuantityScale(resultAmount, resultUnit)
                 }
 
@@ -229,13 +211,7 @@ class DataExpressionReducer<Q>(
             val aliasForExpression = reduceAliasFor(expression)
             return when {
                 aliasForExpression is EQuantityScale && aliasForExpression.base is EUnitLiteral -> {
-                    EQuantityScale(
-                        pure(1.0), EUnitLiteral(
-                        UnitSymbol.of(expression.symbol),
-                        aliasForExpression.scale.toDouble() * aliasForExpression.base.scale,
-                        aliasForExpression.base.dimension
-                    )
-                    )
+                    EQuantityScale(pure(1.0), EUnitLiteral(UnitSymbol.of(expression.symbol), aliasForExpression.scale.toDouble() * aliasForExpression.base.scale, aliasForExpression.base.dimension))
                 }
 
                 else -> EUnitAlias(expression.symbol, aliasForExpression)

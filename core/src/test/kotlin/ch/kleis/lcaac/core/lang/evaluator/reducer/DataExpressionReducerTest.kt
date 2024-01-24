@@ -30,6 +30,32 @@ class DataExpressionReducerTest {
      */
 
     @Test
+    fun reduceDataSource_filterWithRef() {
+        // given
+        val dataSource = EDataSource<BasicNumber>(
+            location = "source.csv",
+            schema = mapOf(
+                "id" to ColumnType(EStringLiteral("foo")),
+            ),
+        )
+        val dataRegister = DataRegister.from(mapOf(
+            DataKey("x") to EStringLiteral<BasicNumber>("bar") as DataExpression<BasicNumber>,
+        ))
+        val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
+        val expression = EFilter<BasicNumber>(EDataSourceRef("source"), mapOf("id" to EDataRef("x")))
+        val reducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps)
+
+        // when
+        val actual = reducer.reduceDataSource(expression)
+
+        // then
+        val expected = dataSource.copy(
+            filter = mapOf("id" to EStringLiteral("bar"))
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun reduceDataSource_dataSourceRef() {
         // given
         val dataSource = EDataSource(
@@ -62,14 +88,19 @@ class DataExpressionReducerTest {
             ),
         )
         val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
-        val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("label" to "some_value"))
+        val expression = EFilter(
+            EDataSourceRef<BasicNumber>("source"),
+            mapOf(
+                "label" to EStringLiteral("some_value"),
+            )
+        )
         val reducer = DataExpressionReducer(DataRegister.empty(), dataSourceRegister, ops, sourceOps)
 
         // when
         val actual = reducer.reduceDataSource(expression)
 
         // then
-        val expected = dataSource.copy(filter = mapOf("label" to "some_value"))
+        val expected = dataSource.copy(filter = mapOf("label" to EStringLiteral("some_value")))
         assertEquals(expected, actual)
     }
 
@@ -81,9 +112,9 @@ class DataExpressionReducerTest {
             "geo" to ColumnType(EStringLiteral("FR")),
             "volume" to ColumnType(QuantityFixture.oneLitre),
             "mass" to ColumnType(QuantityFixture.oneKilogram),
-        ), filter = mapOf("geo" to "UK"))
+        ), filter = mapOf("geo" to EStringLiteral("UK")))
         val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
-        val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("label" to "some_value"))
+        val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("label" to EStringLiteral("some_value")))
         val reducer = DataExpressionReducer(DataRegister.empty(), dataSourceRegister, ops, sourceOps)
 
         // when
@@ -91,8 +122,8 @@ class DataExpressionReducerTest {
 
         // then
         val expected = dataSource.copy(filter = mapOf(
-            "geo" to "UK",
-            "label" to "some_value",
+            "geo" to EStringLiteral("UK"),
+            "label" to EStringLiteral("some_value"),
         ))
         assertEquals(expected, actual)
     }
@@ -105,11 +136,11 @@ class DataExpressionReducerTest {
             "mass" to ColumnType(QuantityFixture.oneKilogram),
         ))
         val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
-        val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("volume" to "some_value"))
+        val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("volume" to EStringLiteral("some_value")))
         val reducer = DataExpressionReducer(DataRegister.empty(), dataSourceRegister, ops, sourceOps)
 
         // when
-        val e = assertThrows<EvaluatorException> {  reducer.reduceDataSource(expression) }
+        val e = assertThrows<EvaluatorException> { reducer.reduceDataSource(expression) }
         assertEquals("data source 'source.csv': cannot match on numeric column(s) [volume]", e.message)
     }
 
