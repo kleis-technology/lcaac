@@ -34,10 +34,10 @@ class ReduceTest {
         val instance = EProcessTemplateApplication(
             template,
             mapOf(
-                "q_water" to ESumProduct("source", listOf("mass"))
+                "q_water" to ESumProduct(EDataSourceRef("source"), listOf("mass"))
             )
         )
-        val dataSource = ECsvSource(
+        val dataSource = EDataSource(
             location = "foo.csv",
             schema = mapOf(
                 "mass" to ColumnType(QuantityFixture.oneLitre)

@@ -1,6 +1,6 @@
 package ch.kleis.lcaac.core.lang.register
 
-import ch.kleis.lcaac.core.lang.expression.DataSourceExpression
+import ch.kleis.lcaac.core.lang.expression.EDataSource
 
 data class DataSourceKey(
         val name: String,
@@ -8,5 +8,5 @@ data class DataSourceKey(
     override fun toString(): String = name
 }
 
-typealias DataSourceRegister<Q> = Register<DataSourceKey, DataSourceExpression<Q>>
+typealias DataSourceRegister<Q> = Register<DataSourceKey, EDataSource<Q>>
 

@@ -32,8 +32,8 @@ class DataExpressionReducerTest {
     @Test
     fun sumProduct() {
         // given
-        val expression = ESumProduct<BasicNumber>("source", listOf("volume", "mass"))
-        val dataSource = ECsvSource(
+        val expression = ESumProduct<BasicNumber>(EDataSourceRef("source"), listOf("volume", "mass"))
+        val dataSource = EDataSource(
             location = "source.csv",
             schema = mapOf(
                 "volume" to ColumnType(QuantityFixture.oneLitre),
@@ -69,8 +69,8 @@ class DataExpressionReducerTest {
     @Test
     fun sum_invalidDataSourceRef() {
         // given
-        val expression = ESumProduct<BasicNumber>("foo", listOf("mass"))
-        val dataSource = ECsvSource(
+        val expression = ESumProduct<BasicNumber>(EDataSourceRef("foo"), listOf("mass"))
+        val dataSource = EDataSource(
             location = "source.csv",
             schema = mapOf(
                 "mass" to ColumnType(QuantityFixture.oneKilogram),
@@ -99,13 +99,13 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenDefaultRecordOfDataSourceRef() {
         // given
-        val dataSource = ECsvSource<BasicNumber>(
+        val dataSource = EDataSource<BasicNumber>(
             location = "source.csv",
             schema = mapOf(
                 "x" to ColumnType(EDataRef("a")),
             )
         )
-        val record = EDefaultRecordOf<BasicNumber>("source")
+        val record = EDefaultRecordOf<BasicNumber>(EDataSourceRef("source"))
         val reducer = DataExpressionReducer(
             Register.from(mapOf(
                 DataKey("a") to QuantityFixture.oneKilogram,
@@ -130,13 +130,13 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenDefaultRecordOfDataSourceRef_invalidRef() {
         // given
-        val dataSource = ECsvSource<BasicNumber>(
+        val dataSource = EDataSource<BasicNumber>(
             location = "source.csv",
             schema = mapOf(
                 "x" to ColumnType(EDataRef("a")),
             )
         )
-        val record = EDefaultRecordOf<BasicNumber>("foo")
+        val record = EDefaultRecordOf<BasicNumber>(EDataSourceRef("foo"))
         val reducer = DataExpressionReducer(
             Register.from(mapOf(
                 DataKey("a") to QuantityFixture.oneKilogram,
