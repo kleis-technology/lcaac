@@ -355,7 +355,7 @@ class CoreMapper<Q>(
         val schema = schemaBlock.columnDefinition().associate { column ->
             val key = column.STRING_LITERAL().innerText()
             val value = dataExpression(column.dataExpression())
-            key to ColumnType(value)
+            key to value
         }
         return EDataSource(
             location,

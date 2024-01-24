@@ -183,8 +183,8 @@ class CoreMapperTest {
 
         // then
         val expected = EDataSource(location = "file.csv", schema = mapOf(
-            "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
-            "geo" to ColumnType(EStringLiteral("FR")),
+            "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+            "geo" to EStringLiteral("FR"),
         ))
         assertEquals(expected, actual)
     }
