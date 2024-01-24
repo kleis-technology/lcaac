@@ -8,6 +8,8 @@ import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import java.io.File
@@ -38,17 +40,17 @@ class CsvProcessor(
                     } ?: entry.value
 
                     is EDefaultRecordOf -> {
-                        val dataSource = dataReducer.reduceDataSource(v.dataSource)
+                        val dataSource = dataReducer.evalDataSource(v.dataSource)
                         val schema = dataSource.schema
                         val entries = schema.mapValues { schemaEntry ->
-                            when (val defaultValue = schemaEntry.value.defaultValue) {
-                                is QuantityExpression<*> -> request[schemaEntry.key]?.let {
-                                    smartParseQuantityWithDefaultUnit(it, EUnitOf(defaultValue))
-                                } ?: defaultValue
+                            when (val defaultValue = schemaEntry.value) {
+                                is QuantityValue -> request[schemaEntry.key]?.let {
+                                    smartParseQuantityWithDefaultUnit(it, defaultValue.unit.toEUnitLiteral())
+                                } ?: defaultValue.toEQuantityScale()
 
-                                is StringExpression -> request[schemaEntry.key]?.let {
+                                is StringValue -> request[schemaEntry.key]?.let {
                                     EStringLiteral(it)
-                                } ?: defaultValue
+                                } ?: defaultValue.toEStringLiteral()
 
                                 else -> throw EvaluatorException("datasource '${dataSource.location}': column '${schemaEntry.key}': invalid default value")
                             }
