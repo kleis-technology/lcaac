@@ -1,14 +1,10 @@
 package ch.kleis.lcaac.core.lang.expression
 
-data class ColumnType<Q>(
-        val defaultValue: DataExpression<Q>
-)
-
 sealed interface DataSourceExpression<Q>
 
 data class EDataSource<Q> (
     val location: String,
-    val schema: Map<String, ColumnType<Q>>,
+    val schema: Map<String, DataExpression<Q>>,
     val filter: Map<String, DataExpression<Q>> = emptyMap(),
 ) : DataSourceExpression<Q>
 

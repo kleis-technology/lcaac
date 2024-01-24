@@ -83,7 +83,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataExpressionReducer.reduceDataSource(expression.dataSource)
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(
@@ -108,7 +108,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataExpressionReducer.reduceDataSource(expression.dataSource)
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(
@@ -131,7 +131,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataExpressionReducer.reduceDataSource(expression.dataSource)
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(

@@ -40,10 +40,13 @@ class ReduceTest {
         val dataSource = EDataSource(
             location = "foo.csv",
             schema = mapOf(
-                "mass" to ColumnType(QuantityFixture.oneLitre)
+                "mass" to QuantityFixture.oneLitre
             )
         )
-        every { sourceOps.sumProduct(dataSource, listOf("mass")) } returns QuantityFixture.twoLitres
+        val dataSourceValue = with(ToValue(ops)) {
+            dataSource.toValue()
+        }
+        every { sourceOps.sumProduct(dataSourceValue, listOf("mass")) } returns QuantityFixture.twoLitres
         val symbolTable = SymbolTable(
             dataSources = DataSourceRegister.from(mapOf(
                 DataSourceKey("source") to dataSource,

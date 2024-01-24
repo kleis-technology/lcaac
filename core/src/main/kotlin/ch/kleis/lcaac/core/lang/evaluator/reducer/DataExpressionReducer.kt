@@ -3,11 +3,13 @@ package ch.kleis.lcaac.core.lang.evaluator.reducer
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
 
@@ -47,14 +49,18 @@ class DataExpressionReducer<Q>(
     fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, DataExpression<Q>> = emptyMap()): EDataSource<Q> {
         return when (expression) {
             is EDataSource -> {
+                val s = expression.schema
+                    .mapValues { reduce(it.value) }
                 val f = expression.filter.plus(filter)
                     .mapValues { reduce(it.value) }
-                val columns = expression.schema
                 val invalidKeys = f.keys
-                    .filter { columns.containsKey(it) }
-                    .filter { columns[it]!!.defaultValue !is StringExpression }
+                    .filter { s.containsKey(it) }
+                    .filter { s[it]!! !is StringExpression }
                 if (invalidKeys.isNotEmpty()) throw EvaluatorException("data source '${expression.location}': cannot match on numeric column(s) $invalidKeys")
-                expression.copy(filter = f)
+                expression.copy(
+                    schema = s,
+                    filter = f,
+                )
             }
 
             is EDataSourceRef -> dataSourceRegister[DataSourceKey(expression.name)]?.let { reduceDataSource(it, filter) }
@@ -64,15 +70,21 @@ class DataExpressionReducer<Q>(
         }
     }
 
+    fun evalDataSource(expression: DataSourceExpression<Q>): DataSourceValue<Q> {
+        return with(ToValue(ops)) {
+            reduceDataSource(expression).toValue()
+        }
+    }
+
     private fun reduceESumProduct(expression: ESumProduct<Q>): DataExpression<Q> {
-        val dataSource = reduceDataSource(expression.dataSource)
+        val dataSource = evalDataSource(expression.dataSource)
         return reduce(sourceOps.sumProduct(dataSource, expression.columns))
     }
 
     private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
         val dataSource = reduceDataSource(expression.dataSource)
         val schema = dataSource.schema
-        return ERecord(schema.mapValues { reduce(it.value.defaultValue) })
+        return ERecord(schema.mapValues { reduce(it.value) })
     }
 
     private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {

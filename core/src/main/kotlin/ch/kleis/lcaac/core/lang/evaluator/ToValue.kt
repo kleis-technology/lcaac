@@ -152,6 +152,16 @@ class ToValue<Q>(
         )
     }
 
+    fun DataSourceExpression<Q>.toValue(): DataSourceValue<Q> {
+        return when(this) {
+            is EDataSource -> DataSourceValue(
+                this.location,
+                this.schema.mapValues { it.value.toValue() },
+                this.filter.mapValues { it.value.toValue() },
+            )
+            else -> throw EvaluatorException("$this is not reduced")
+        }
+    }
 
 }
 
