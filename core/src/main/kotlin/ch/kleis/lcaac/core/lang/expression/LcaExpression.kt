@@ -102,7 +102,7 @@ data class EBlockEntry<E, Q>(val entry: E) : BlockExpression<E, Q> {
 @optics
 data class EBlockForEach<E, Q>(
     val rowRef: String,
-    val dataSourceRef: String,
+    val dataSource: DataSourceExpression<Q>,
     val locals: Map<String, DataExpression<Q>>,
     val body: List<BlockExpression<E, Q>>,
 ) : BlockExpression<E, Q> {

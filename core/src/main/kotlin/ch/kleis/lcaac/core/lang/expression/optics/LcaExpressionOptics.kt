@@ -25,7 +25,7 @@ inline fun <E, Q> BlockExpression.Companion.everyEntry(): Every<BlockExpression<
                 is EBlockEntry -> EBlockEntry(map(source.entry))
                 is EBlockForEach -> EBlockForEach(
                     source.rowRef,
-                    source.dataSourceRef,
+                    source.dataSource,
                     source.locals,
                     source.body.map {
                         modify(it, map)
