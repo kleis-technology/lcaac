@@ -59,7 +59,7 @@ rowFilter
     | MATCH_KEYWORD  LPAREN ( rowSelector (COMMA rowSelector)* COMMA? ) RPAREN
     ;
 rowSelector
-    : columnRef EQUAL STRING_LITERAL
+    : columnRef EQUAL dataExpression
     ;
 
 /*

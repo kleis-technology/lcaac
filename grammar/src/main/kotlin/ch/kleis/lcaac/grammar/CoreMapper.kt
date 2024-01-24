@@ -68,7 +68,7 @@ class CoreMapper<Q>(
         val ref = ctx.dataSourceRef().innerText()
         return ctx.rowFilter()?.let { rowFilter ->
             val filter = rowFilter.rowSelector().associate { rowSelector ->
-                rowSelector.columnRef().innerText() to rowSelector.STRING_LITERAL().innerText()
+                rowSelector.columnRef().innerText() to dataExpression(rowSelector.dataExpression())
             }
             EFilter(EDataSourceRef(ref), filter)
         } ?: EDataSourceRef(ref)
