@@ -28,13 +28,16 @@ class CsvSourceOperations<Q>(
         val header = parser.headerMap
         val filter = source.filter
         return parser.iterator().asSequence()
-            .filter {  record ->
+            .filter { record ->
                 filter.entries.all {
                     val iv = it.value
-                    if ( iv is EStringLiteral) {
-                        record[it.key] == iv.value
-                    }
-                    else throw EvaluatorException("invalid matching condition $it")
+                    if (iv is EStringLiteral) {
+                        val pos = header[it.key]
+                            ?: throw IllegalStateException(
+                                "${source.location}: invalid schema: unknown column '${it.key}'"
+                            )
+                        record[pos] == iv.value
+                    } else throw EvaluatorException("invalid matching condition $it")
                 }
             }
             .map { record ->
@@ -61,52 +64,27 @@ class CsvSourceOperations<Q>(
             }
     }
 
-    override fun sumProduct(
-        source: EDataSource<Q>,
-        columns: List<String>,
-    ): DataExpression<Q> {
+    override fun sumProduct(source: EDataSource<Q>, columns: List<String>): DataExpression<Q> {
         val reducer = DataExpressionReducer(
             dataRegister = Prelude.units(),
             dataSourceRegister = DataSourceRegister.empty(),
             ops = ops,
             sourceOps = this,
         )
-        val location = Paths.get(path.absolutePath, source.location)
-        val inputStream = location.toFile().inputStream()
-        val parser = CSVParser(inputStream.reader(), format)
-        val header = parser.headerMap
-        val filter = source.filter
-        return parser.iterator().asSequence()
-            .filter {  record ->
-                filter.entries.all {
-                    val iv = it.value
-                    if ( iv is EStringLiteral) {
-                        record[it.key] == iv.value
-                    }
-                    else throw EvaluatorException("invalid matching condition $it")
-                }
-            }
-            .map { record ->
-                columns.map { column ->
-                    val position = header[column]
-                        ?: throw IllegalStateException(
-                            "${source.location}: invalid schema: unknown column '$column'"
-                        )
-                    val columnType = source.schema[column]
-                        ?: throw IllegalStateException(
-                            "invalid schema: column '$column' has an invalid default value"
-                        )
-                    val defaultValue = columnType.defaultValue
-                    val element = record[position]
-                    parseQuantityWithDefaultUnit(element, EUnitOf(defaultValue))
-                }.reduce { acc, expression ->
-                    reducer.reduce(EQuantityMul(acc, expression))
-                }
+        return readAll(source).map { record ->
+            columns.map { column ->
+                record.entries[column]
+                    ?: throw IllegalStateException(
+                        "${source.location}: invalid schema: unknown column '$column'"
+                    )
             }.reduce { acc, expression ->
-                reducer.reduce(EQuantityAdd(acc, expression))
+                reducer.reduce(EQuantityMul(acc, expression))
             }
-
+        }.reduce { acc, expression ->
+            reducer.reduce(EQuantityAdd(acc, expression))
+        }
     }
+
     private fun parseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<Q>):
         DataExpression<Q> {
         val amount = try {
