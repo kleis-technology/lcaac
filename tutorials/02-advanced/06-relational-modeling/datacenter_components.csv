@@ -1,0 +1,19 @@
+datacenter_id,lc_step,tag,name,GWP,GWP_unit
+dc-zone-01,bld,A1,raw material extraction,100,kg_CO2_Eq
+dc-zone-01,bld,A2,raw material processing,100,kg_CO2_Eq
+dc-zone-01,bld,B1.1,it equipment production,100,kg_CO2_Eq
+dc-zone-01,bld,B1.2,it equipment assembly,100,kg_CO2_Eq
+dc-zone-01,bld,B3.1,site construction,100,kg_CO2_Eq
+dc-zone-01,use,C2,support equipment usage,100,kg_CO2_Eq
+dc-zone-01,use,C3,support operator activities,100,kg_CO2_Eq
+dc-zone-01,eol,D1,it equipment reconditioning,100,kg_CO2_Eq
+dc-zone-01,eol,D2,it equipment disposal,100,kg_CO2_Eq
+dc-zone-02,bld,A1,raw material extraction,100,kg_CO2_Eq
+dc-zone-02,bld,A2,raw material processing,100,kg_CO2_Eq
+dc-zone-02,bld,B1.1,it equipment production,100,kg_CO2_Eq
+dc-zone-02,bld,B1.2,it equipment assembly,100,kg_CO2_Eq
+dc-zone-02,bld,B3.1,site construction,100,kg_CO2_Eq
+dc-zone-02,use,C2,support equipment usage,100,kg_CO2_Eq
+dc-zone-02,use,C3,support operator activities,100,kg_CO2_Eq
+dc-zone-02,eol,D1,it equipment reconditioning,100,kg_CO2_Eq
+dc-zone-02,eol,D2,it equipment disposal,100,kg_CO2_Eq

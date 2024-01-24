@@ -1,0 +1,70 @@
+process electricity_mix {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.762 kg_CO2_Eq GWP
+    }
+}
+
+datasource datacenter_components {
+    location = "datacenter_components.csv"
+    schema {
+        "datacenter_id" = "dc-zone-01"
+        "GWP" = 100 kg_CO2_Eq
+    }
+}
+
+process datacenter_component {
+    params {
+        dc_component from datacenter_components
+    }
+    products {
+        1 p component
+    }
+    impacts {
+        dc_component["GWP"] GWP
+    }
+}
+
+
+datasource datacenters {
+    location = "datacenters.csv"
+    schema {
+        "id" = "dc-zone-01"
+        "reserved_power" = 10 kW
+        "amortization_period" = 25 year
+    }
+}
+
+process datacenter {
+    params {
+        dc from datacenters
+    }
+    variables {
+        total = dc["reserved_power"] * dc["amortization_period"]
+    }
+    products {
+        total energy
+    }
+    inputs {
+        for_each row in datacenter_components match "datacenter_id" = dc["id"] {
+            1 p component from datacenter_component(dc_component = row)
+        }
+    }
+}
+
+process main {
+    params {
+        id = "dc-zone-01"
+    }
+    products {
+        1 p main
+    }
+    inputs {
+        for_each dc in datacenters match "id" = id {
+            1 kWh energy from datacenter(dc = dc)
+        }
+    }
+}
+

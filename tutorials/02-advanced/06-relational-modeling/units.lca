@@ -1,0 +1,15 @@
+unit ton_CO2_Eq {
+    symbol = "ton_CO2_Eq"
+    alias_for = 1000 kg_CO2_Eq
+}
+
+unit kW {
+    symbol = "kW"
+    alias_for = 1000 W
+}
+
+unit CPU {
+    symbol = "CPU"
+    dimension = "computing"
+}
+
