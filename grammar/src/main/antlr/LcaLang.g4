@@ -48,7 +48,7 @@ schema
       RBRACE
     ;
 columnDefinition
-    : STRING_LITERAL EQUAL dataExpression
+    : columnRef EQUAL dataExpression
     ;
 
 dataSourceExpression
@@ -242,7 +242,7 @@ dataExpression
     | op=SUM LPAREN dataSourceExpression COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
-    : LBRACK columnRef RBRACK
+    : DOT columnRef
     ;
 
 parenExpression
@@ -250,10 +250,6 @@ parenExpression
     ;
 
 stringExpression
-    : STRING_LITERAL
-    ;
-
-columnRef
     : STRING_LITERAL
     ;
 
@@ -281,6 +277,8 @@ substanceRef : uid ;
 indicatorRef : uid ;
 parameterRef : uid ;
 testRef : uid ;
+columnRef : uid ;
+
 
 /*
     Spec
@@ -326,7 +324,7 @@ substanceSpec
 */
 
 urn : uid DOT urn | uid ;
-uid : ID ;
+uid : ID | STRING_LITERAL_BACK_QUOTE;
 
 
 /*
@@ -388,7 +386,7 @@ RBRACE : '}' ;
 LPAREN : '(' ;
 RPAREN : ')' ;
 COMMA : ',' ;
-DOT : ' . ' ;
+DOT : '.' ;
 PLUS : '+' ;
 MINUS : '-' ;
 STAR : '*' ;
@@ -408,6 +406,8 @@ fragment INT : [0-9]+ ;
 fragment EXP :   [Ee] [+\-]? INT ;
 
 STRING_LITERAL :  '"' (ESC | ~["\\])* '"' ;
+STRING_LITERAL_BACK_QUOTE : '`' (ESC | ~["\\])* '`' ;
+
 fragment ESC :   '\\' ["\bfnrt] ;
 
 WS : [ \t\n\r]+ -> channel(HIDDEN) ;

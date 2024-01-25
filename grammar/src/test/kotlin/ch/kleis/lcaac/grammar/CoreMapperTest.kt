@@ -15,7 +15,7 @@ class CoreMapperTest {
     fun lookup() {
         // given
         val ctx = LcaLangFixture.parser("""
-            lookup source match ("geo"="FR", "id"="glass-01")
+            lookup source match (geo="FR", id="glass-01")
         """.trimIndent()).dataExpression()
 
         val mapper = CoreMapper(ops)
@@ -40,7 +40,7 @@ class CoreMapperTest {
     fun match_withRef() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row from source match "geo" = x {
+            for_each row from source match geo = x {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -64,7 +64,7 @@ class CoreMapperTest {
     fun match_forEach_multiple() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row from source match ("geo" = "FR", "category" = "abcd") {
+            for_each row from source match (geo = "FR", category = "abcd") {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -89,7 +89,7 @@ class CoreMapperTest {
     fun match_forEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row from source match "geo" = "FR" {
+            for_each row from source match geo = "FR" {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -143,7 +143,7 @@ class CoreMapperTest {
     fun recordEntry() {
         // given
         val ctx = LcaLangFixture.parser("""
-            row["mass"]
+            row.mass
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -159,7 +159,7 @@ class CoreMapperTest {
     fun columnOperation_sum() {
         // given
         val ctx = LcaLangFixture.parser("""
-            sum(source, "mass" * "ratio")
+            sum(source, mass * ratio)
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -175,7 +175,7 @@ class CoreMapperTest {
     fun columnOperation_sum_withMatching() {
         // given
         val ctx = LcaLangFixture.parser("""
-            sum(source match "geo" = "FR", "mass" * "ratio")
+            sum(source match geo = "FR", mass * ratio)
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -196,8 +196,8 @@ class CoreMapperTest {
             datasource source {
                 location = "file.csv"
                 schema {
-                    "mass" = 1 kg
-                    "geo" = "FR"
+                    mass = 1 kg
+                    geo = "FR"
                 }
             }
         """.trimIndent()).dataSourceDefinition()

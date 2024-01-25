@@ -306,7 +306,7 @@ class CoreMapper<Q>(
     }
 
     fun LcaLangParser.SubstanceRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.DimFieldContext.innerText(): String {
@@ -314,31 +314,37 @@ class CoreMapper<Q>(
     }
 
     fun LcaLangParser.DataRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.ColumnRefContext.innerText(): String {
-        return this.STRING_LITERAL().innerText()
+        return this.uid().innerText()
+    }
+    
+    fun LcaLangParser.UidContext.innerText(): String {
+        return this.ID()?.innerText()
+            ?: this.STRING_LITERAL_BACK_QUOTE()?.innerText()?.trim('`')
+            ?: throw LoaderException("parsing error: invalid uid: ${this.text}")
     }
 
     fun LcaLangParser.DataSourceRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.ProcessRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.LabelRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.IndicatorRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.ProductRefContext.innerText(): String {
-        return this.uid().ID().innerText()
+        return this.uid().innerText()
     }
 
     fun LcaLangParser.ProcessDefinitionContext.buildUniqueKey(): ProcessKey {
@@ -362,7 +368,7 @@ class CoreMapper<Q>(
         val location = locationField.STRING_LITERAL().innerText()
         val schemaBlock = ctx.schema().firstOrNull() ?: throw LoaderException("missing schema in datasource $name")
         val schema = schemaBlock.columnDefinition().associate { column ->
-            val key = column.STRING_LITERAL().innerText()
+            val key = column.columnRef().innerText()
             val value = dataExpression(column.dataExpression())
             key to value
         }
