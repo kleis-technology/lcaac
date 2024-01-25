@@ -1,0 +1,177 @@
+process end_of_life {
+    params {
+        mat_params from material_params
+        geo = "GLO"
+    }
+    products {
+        1 kg material
+    }
+    variables {
+        ErecyclingEol_id = mat_params["ErecyclingEol_id"]
+        EstarV_id = mat_params["EstarV_id"]
+        Eer_id = mat_params["Eer_id"]
+        Ese_heat_id = mat_params["Ese_heat_id"]
+        Ese_elec_id = mat_params["Ese_elec_id"]
+        Ed_id = mat_params["Ed_id"]
+
+        A = mat_params["A"]
+        B = mat_params["B"]
+        Q_out = mat_params["Q_out"]
+        R3 = mat_params["R3"]
+
+        Xer_heat = mat_params["Xer_heat"]
+        Xer_elec = mat_params["Xer_elec"]
+    }
+    inputs {
+        for_each R2_row in R2_data match ("geo" = geo, "id" = mat_params["id"]) {
+            variables {
+                R2 = R2_row["R2"]
+            }
+            for_each row in ErecyclingEol_data match "id" = ErecyclingEol_id {
+                (1 u - A) * R2 * 1 kg material from recycling_eol(
+                                            row = row,
+                                            EstarV_id = EstarV_id,
+                                            Q_out = Q_out,
+                                        )
+            }
+
+            for_each row in Eer_data match "id" = Eer_id {
+                (1 u - B) * R3 * 1 kg material from energy_recovery
+            }
+
+            for_each row in Ed_data match "id" = Ed_id {
+                (1 u - R2 - R3) * 1 kg material from disposal_process(
+                                                    row = row,
+                                                )
+            }
+        }
+    }
+}
+
+process recycling_eol {
+    params {
+        row from ErecyclingEol_data
+        EstarV_id = "material-01"
+        Q_out = 1 u
+    }
+    products {
+        1 kg material
+    }
+    inputs {
+        // recycling
+        1 kg material from downstream_recycling_process(row = row)
+
+        // avoided production
+        for_each substitute_data in EstarV_data match "id" = EstarV_id {
+            -1 u * Q_out * kg material from substitute_production_process(row = substitute_data)
+        }
+    }
+}
+
+process downstream_recycling_process {
+    params {
+        row from ErecyclingEol_data
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+process substitute_production_process {
+    params {
+        row from EstarV_data
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+process energy_recovery {
+    params {
+        row from Eer_data
+        LHV = 1 u
+        Xer_heat = 1 u
+        Xer_elec = 1 u
+        Ese_heat_id = "material-01"
+        Ese_elec_id = "material-01"
+    }
+    products {
+        1 kg material
+    }
+
+    variables {
+        avoided_primary_heat = LHV * Xer_heat
+        avoided_primary_elec = LHV * Xer_elec
+    }
+
+    inputs {
+        1 kg material from energy_recovery_process(row = row)
+
+        for_each data in Ese_heat_data match "id" = Ese_heat_id {
+            -1 u * avoided_primary_heat * kg energy from heat_production_process(
+                                                        row = data,
+                                                    )
+        }
+
+        for_each data in Ese_elec_data match "id" = Ese_elec_id {
+            -1 u * avoided_primary_elec * kg energy from elec_production_process(
+                                                        row = data,
+                                                    )
+        }
+    }
+}
+
+process heat_production_process {
+    params {
+        row from Ese_heat_data
+    }
+    products {
+        1 kg energy
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+process elec_production_process {
+    params {
+        row from Ese_elec_data
+    }
+    products {
+        1 kg energy
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+process energy_recovery_process {
+    params {
+        row from Eer_data
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+
+process disposal_process {
+    params {
+        row from Ed_data
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}

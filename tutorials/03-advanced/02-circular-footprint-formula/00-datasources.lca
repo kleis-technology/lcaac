@@ -1,0 +1,95 @@
+datasource material_params {
+    location = "data/material_params.csv"
+    schema {
+        "id" = "material-01"
+        "A" = 1.0 u
+        "B" = 1.0 u
+        "R1" = 0.2 u
+        "R3" = 0.2 u
+        "Q_out" = 1.0 u
+        "Q_in" = 1.0 u
+        "LHV" = 1.0 Wh / fu
+        "Xer_elec" = 1.0 u
+        "Xer_heat" = 1.0 u
+
+        "Ev_id"  = "material-01"
+        "Erecycled_id"  = "material-01"
+        "ErecyclingEol_id"  = "material-01"
+        "EstarV_id"  = "material-01"
+        "Eer_id"  = "material-01"
+        "Ed_id"  = "material-01"
+    }
+}
+
+datasource Ev_data {
+    location = "data/Ev_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+
+datasource Erecycled_data {
+    location = "data/Erecycled_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+
+datasource ErecyclingEol_data {
+    location = "data/ErecyclingEol_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+
+datasource EstarV_data {
+    location = "data/EstarV_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+
+datasource Eer_data {
+    location = "data/Eer_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+
+datasource Ese_heat_data {
+    location = "data/Ese_heat_data.csv"
+    schema {
+        "geo" = "GLO"
+        "GWP" = 1 kg_CO2_Eq / Wh
+    }
+}
+
+datasource Ese_elec_data {
+    location = "data/Ese_elec_data.csv"
+    schema {
+        "geo" = "GLO"
+        "GWP" = 1 kg_CO2_Eq / Wh
+    }
+}
+
+datasource R2_data {
+    location = "data/R2_data.csv"
+    schema {
+        "id" = "glass-01"
+        "geo" = "GLO"
+        "R2" = 0 u
+    }
+}
+
+datasource Ed_data {
+    location = "data/Ed_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}

@@ -1,0 +1,29 @@
+process main {
+    params {
+        id = "glass-01"
+        geo = "GLO"
+    }
+    products {
+        1 kg main
+    }
+    inputs {
+        for_each row in material_params match "id" = id {
+            1 kg material from cff(mat_params = row, geo = geo)
+        }
+    }
+}
+
+process cff {
+    params {
+        mat_params from material_params
+        geo = "GLO"
+    }
+    products {
+        1 kg material
+    }
+    inputs {
+        1 kg material from manufacturing(mat_params = mat_params)
+        1 kg material from end_of_life(mat_params = mat_params, geo = geo)
+    }
+}
+
