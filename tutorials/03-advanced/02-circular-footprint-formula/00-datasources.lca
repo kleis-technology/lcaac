@@ -1,3 +1,7 @@
+/*
+    CFF parameters for every material
+*/
+
 datasource material_params {
     location = "data/material_params.csv"
     schema {
@@ -8,7 +12,7 @@ datasource material_params {
         "R3" = 0.2 u
         "Q_out" = 1.0 u
         "Q_in" = 1.0 u
-        "LHV" = 1.0 Wh / fu
+        "LHV" = 1.0 Wh / kg
         "Xer_elec" = 1.0 u
         "Xer_heat" = 1.0 u
 
@@ -17,65 +21,15 @@ datasource material_params {
         "ErecyclingEol_id"  = "material-01"
         "EstarV_id"  = "material-01"
         "Eer_id"  = "material-01"
+        "Ese_heat_id" = "material-01"
+        "Ese_elec_id" = "material-01"
         "Ed_id"  = "material-01"
     }
 }
 
-datasource Ev_data {
-    location = "data/Ev_data.csv"
-    schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
-    }
-}
-
-datasource Erecycled_data {
-    location = "data/Erecycled_data.csv"
-    schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
-    }
-}
-
-datasource ErecyclingEol_data {
-    location = "data/ErecyclingEol_data.csv"
-    schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
-    }
-}
-
-datasource EstarV_data {
-    location = "data/EstarV_data.csv"
-    schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
-    }
-}
-
-datasource Eer_data {
-    location = "data/Eer_data.csv"
-    schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
-    }
-}
-
-datasource Ese_heat_data {
-    location = "data/Ese_heat_data.csv"
-    schema {
-        "geo" = "GLO"
-        "GWP" = 1 kg_CO2_Eq / Wh
-    }
-}
-
-datasource Ese_elec_data {
-    location = "data/Ese_elec_data.csv"
-    schema {
-        "geo" = "GLO"
-        "GWP" = 1 kg_CO2_Eq / Wh
-    }
-}
+/*
+    Recycling rates per material and country
+*/
 
 datasource R2_data {
     location = "data/R2_data.csv"
@@ -86,10 +40,198 @@ datasource R2_data {
     }
 }
 
+/*
+    Emission Factors
+*/
+
+// VIRGIN
+
+datasource Ev_data {
+    location = "data/Ev_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process virgin_production_process {
+    params {
+        Ev_id = "glass-01"
+    }
+    variables {
+        row = lookup Ev_data match "id" = Ev_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// RECYCLED
+
+datasource Erecycled_data {
+    location = "data/Erecycled_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process upstream_recycling_process {
+    params {
+        Erecycled_id = "glass-01"
+    }
+    variables {
+        row = lookup Erecycled_data match "id" = Erecycled_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// RECYCLING END OF LIFE
+
+datasource ErecyclingEol_data {
+    location = "data/ErecyclingEol_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process downstream_recycling_process {
+    params {
+        ErecyclingEol_id = "glass-01"
+    }
+    variables {
+        row = lookup ErecyclingEol_data match "id" = ErecyclingEol_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// SUBSTITUTE FOR VIRGIN
+
+datasource EstarV_data {
+    location = "data/EstarV_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process substitute_production_process {
+    params {
+        EstarV_id = "glass-01"
+    }
+    variables {
+        row = lookup EstarV_data match "id" = EstarV_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// ENERGY RECOVERY
+
+datasource Eer_data {
+    location = "data/Eer_data.csv"
+    schema {
+        "id" = "material-01"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process energy_recovery_process {
+    params {
+        Eer_id = "glass-01"
+    }
+    variables {
+        row = lookup Eer_data match "id" = Eer_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// HEAT PRODUCTION
+
+datasource Ese_heat_data {
+    location = "data/Ese_heat_data.csv"
+    schema {
+        "geo" = "GLO"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process heat_production_process {
+    params {
+        geo = "GLO"
+    }
+    variables {
+        row = lookup Ese_heat_data match "geo" = geo
+    }
+    products {
+        1 Wh energy
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// ELECTRICITY PRODUCTION
+
+datasource Ese_elec_data {
+    location = "data/Ese_elec_data.csv"
+    schema {
+        "geo" = "GLO"
+        "GWP" = 1 kg_CO2_Eq
+    }
+}
+process elec_production_process {
+    params {
+        geo = "GLO"
+    }
+    variables {
+        row = lookup Ese_elec_data match "geo" = geo
+    }
+    products {
+        1 Wh energy
+    }
+    impacts {
+        row["GWP"] GWP
+    }
+}
+
+// DISPOSAL
+
 datasource Ed_data {
     location = "data/Ed_data.csv"
     schema {
         "id" = "material-01"
         "GWP" = 1 kg_CO2_Eq
+    }
+}
+process disposal_process {
+    params {
+        Ed_id = "glass-01"
+    }
+    variables {
+        row = lookup Ed_data match "id" = Ed_id
+    }
+    products {
+        1 kg material
+    }
+    impacts {
+        row["GWP"] GWP
     }
 }

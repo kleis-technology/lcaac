@@ -1,72 +1,48 @@
 process manufacturing {
     params {
-        mat_params from material_params
+        id = "glass-01"
     }
     products {
         1 kg material
     }
     variables {
+        mat_params = lookup material_params match "id" = id
+
         Ev_id = mat_params["Ev_id"]
         Erecycled_id = mat_params["Erecycled_id"]
+
         R1 = mat_params["R1"]
+        Q_in = mat_params["Q_in"]
+        A = mat_params["A"]
     }
+
     inputs {
         // virgin
-        for_each row in Ev_data match "id" = Ev_id {
-            (1.0 u - R1) * 1 kg material from primary_production(row = row)
-        }
+        (1.0 u - R1) * 1 kg material from virgin_production_process(Ev_id = Ev_id)
 
         // recycled material
-        for_each row in Erecycled_data match "id" = Erecycled_id {
-            R1 * 1 kg material from recycled_production(
-                                        row = row,
-                                        Q_in = mat_params["Q_in"],
-                                        A = mat_params["A"],
-                                        Ev_id = mat_params["Ev_id"]
-                                    )
-        }
-    }
-}
-
-process primary_production {
-    params {
-        row from Ev_data
-    }
-    products {
-        1 kg material
-    }
-    impacts {
-        row["GWP"] GWP
+        R1 * 1 kg material from recycled_production(
+                                    Ev_id = Ev_id,
+                                    Erecycled_id = Erecycled_id,
+                                    Q_in = Q_in,
+                                    A = A,
+                                )
     }
 }
 
 process recycled_production {
     params {
-        row from Erecycled_data
+        Ev_id = "glass-01"
+        Erecycled_id = "glass-01"
         Q_in = 1.0 u
         A = 1.0 u
-        Ev_id = "material-01"
     }
     products {
         1 kg material
     }
     inputs {
-        A * kg material from upstream_recycling_process(row = row)
-
-        for_each virgin_data in Ev_data match "id" = Ev_id {
-            (1.0 u - A) * kg material from primary_production(row = virgin_data)
-        }
+        A * 1 kg material from upstream_recycling_process(Erecycled_id = Erecycled_id)
+        (1.0 u - A) * Q_in * 1 kg material from virgin_production_process(Ev_id = Ev_id)
     }
 }
 
-process upstream_recycling_process {
-    params {
-        row from Erecycled_data
-    }
-    products {
-        1 kg material
-    }
-    impacts {
-        row["GWP"] GWP
-    }
-}

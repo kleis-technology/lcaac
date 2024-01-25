@@ -6,7 +6,7 @@ process main {
         1 p main
     }
     inputs {
-        for_each dc in datacenters match "id" = id {
+        for_each dc from datacenters match "id" = id {
             1 kWh energy from datacenter(dc = dc)
         }
     }
@@ -23,11 +23,11 @@ process datacenter {
         total energy
     }
     inputs {
-        for_each row in datacenter_components match "datacenter_id" = dc["id"] {
+        for_each row from datacenter_components match "datacenter_id" = dc["id"] {
             1 p component from datacenter_component(dc_component = row)
         }
 
-        for_each mix in electricity_mixes match "geo" = dc["geo"] {
+        for_each mix from electricity_mixes match "geo" = dc["geo"] {
             total electricity from electricity_mix(mix = mix)
         }
     }

@@ -34,7 +34,7 @@ process simple_pool {
     }
     impacts {
         // A block for_each allows to map over the records of the datasource
-        for_each row in inventory {
+        for_each row from inventory {
 
             // The variable row represents a record.
             // The dimension of, e.g., row["quantity"] is defined by the schema.
@@ -76,7 +76,7 @@ process pool_server {
         1 p pool_server
     }
     inputs {
-        for_each row in inventory {
+        for_each row from inventory {
             // record variable can be fed to the process invoked.
             row["quantity"] server from server(row = row)
         }
