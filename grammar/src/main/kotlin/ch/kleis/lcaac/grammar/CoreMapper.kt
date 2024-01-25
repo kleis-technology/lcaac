@@ -229,6 +229,15 @@ class CoreMapper<Q>(
 
     fun dataExpression(ctx: LcaLangParser.DataExpressionContext): DataExpression<Q> {
         return when (ctx) {
+            is LcaLangParser.RecordGroupContext -> {
+                when (ctx.op.text) {
+                    ctx.LOOKUP().innerText() -> {
+                        val dataSource = dataSource(ctx.dataSourceExpression())
+                        EFirstRecordOf(dataSource)
+                    }
+                    else -> throw IllegalStateException("parsing error: invalid primitive '${ctx.op.text}'")
+                }
+            }
             is LcaLangParser.ColGroupContext -> {
                 when (ctx.op.text) {
                     ctx.SUM().innerText() -> {
@@ -237,7 +246,7 @@ class CoreMapper<Q>(
                         ESumProduct(dataSource, columns)
                     }
 
-                    else -> throw IllegalStateException("parsing error: invalid column operation '${ctx.op.text}'")
+                    else -> throw IllegalStateException("parsing error: invalid primitive '${ctx.op.text}'")
                 }
             }
 
@@ -280,9 +289,9 @@ class CoreMapper<Q>(
                 } ?: ctx.stringExpression()?.let {
                     EStringLiteral(it.STRING_LITERAL().innerText())
                 } ?: ctx.slice()?.let {
-                    val recordRef = ctx.dataRef().innerText()
+                    val ref = EDataRef<Q>(ctx.dataRef().innerText())
                     val columnRef = ctx.slice().columnRef().innerText()
-                    ERecordEntry(EDataRef(recordRef), columnRef)
+                    ERecordEntry(ref, columnRef)
                 } ?: ctx.dataRef()?.let {
                     EDataRef(it.innerText())
                 } ?: throw IllegalStateException()

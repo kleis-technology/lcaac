@@ -12,10 +12,35 @@ class CoreMapperTest {
     private val ops = BasicOperations
 
     @Test
+    fun lookup() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            lookup source match ("geo"="FR", "id"="glass-01")
+        """.trimIndent()).dataExpression()
+
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.dataExpression(ctx)
+
+        // then
+        val expected = EFirstRecordOf<BasicNumber>(
+            EFilter(
+                EDataSourceRef("source"),
+                mapOf(
+                    "geo" to EStringLiteral("FR"),
+                    "id" to EStringLiteral("glass-01"),
+                )
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun match_withRef() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source match "geo" = x {
+            for_each row from source match "geo" = x {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -39,7 +64,7 @@ class CoreMapperTest {
     fun match_forEach_multiple() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source match ("geo" = "FR", "category" = "abcd") {
+            for_each row from source match ("geo" = "FR", "category" = "abcd") {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -64,7 +89,7 @@ class CoreMapperTest {
     fun match_forEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source match "geo" = "FR" {
+            for_each row from source match "geo" = "FR" {
             }
         """.trimIndent()).technoInputExchange()
         val mapper = CoreMapper(ops)
@@ -193,7 +218,7 @@ class CoreMapperTest {
     fun technoInputExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }
@@ -217,7 +242,7 @@ class CoreMapperTest {
     fun impactExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }
@@ -241,7 +266,7 @@ class CoreMapperTest {
     fun bioExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }

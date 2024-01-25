@@ -210,19 +210,19 @@ block_impacts
 */
 
 technoInputExchange
-    : quantity=dataExpression product=inputProductSpec                                      # technoEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
+    : quantity=dataExpression product=inputProductSpec                                                             # technoEntry
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
     ;
 technoProductExchange
     : quantity=dataExpression product=outputProductSpec
     ;
 bioExchange
-    : quantity=dataExpression substance=substanceSpec                               # bioEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
+    : quantity=dataExpression substance=substanceSpec                                                      # bioEntry
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
     ;
 impactExchange
     : quantity=dataExpression indicator=indicatorRef                                    # impactEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceExpression LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
     ;
 
 
@@ -238,6 +238,7 @@ dataExpression
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
     | dataRef slice?                                                # baseGroup
+    | op=LOOKUP dataSourceExpression                                # recordGroup
     | op=SUM LPAREN dataSourceExpression COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
@@ -374,9 +375,9 @@ BETWEEN_KEYWORD : 'between' ;
 AND_KEYWORD : 'and' ;
 
 FOR_EACH_KEYWORD : 'for_each' ;
-IN_KEYWORD : 'in' ;
 
 SUM : 'sum' ;
+LOOKUP : 'lookup' ;
 
 
 EQUAL : '=' ;
