@@ -48,12 +48,28 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                 is EUnitOf -> foldMap(M, source.expression, map)
                 is EStringLiteral -> M.empty()
                 is ERecord -> M.fold(
-                        source.entries.values
-                                .map { foldMap(M, it, map) }
+                    source.entries.values
+                        .map { foldMap(M, it, map) }
                 )
+
                 is ERecordEntry -> foldMap(M, source.record, map)
-                is EDefaultRecordOf -> M.empty()
-                is ESumProduct -> M.empty()
+                is EDefaultRecordOf -> M.fold(
+                    (everyDataExpressionInDataSourceExpression<Q>() compose
+                        DataExpression.eDataRef()).getAll(source.dataSource)
+                        .map(map)
+                )
+
+                is ESumProduct -> M.fold(
+                    (everyDataExpressionInDataSourceExpression<Q>() compose
+                        DataExpression.eDataRef()).getAll(source.dataSource)
+                        .map(map)
+                )
+
+                is EFirstRecordOf -> M.fold(
+                    (everyDataExpressionInDataSourceExpression<Q>() compose
+                        DataExpression.eDataRef()).getAll(source.dataSource)
+                        .map(map)
+                )
             }
         }
 
@@ -110,17 +126,32 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
 
                 is EStringLiteral -> source
                 is ERecord -> ERecord(
-                        source.entries.mapValues {
-                            modify(it.value, map)
-                        }
-                )
-                is ERecordEntry -> ERecordEntry(
-                        modify(source.record, map),
-                        source.index,
+                    source.entries.mapValues {
+                        modify(it.value, map)
+                    }
                 )
 
-                is EDefaultRecordOf -> source
-                is ESumProduct -> source
+                is ERecordEntry -> ERecordEntry(
+                    modify(source.record, map),
+                    source.index,
+                )
+
+                is EDefaultRecordOf -> source.copy(
+                    dataSource = everyDataExpressionInDataSourceExpression<Q>().modify(source.dataSource) {
+                        modify(it, map)
+                    }
+                )
+
+                is ESumProduct -> source.copy(
+                    dataSource = everyDataExpressionInDataSourceExpression<Q>().modify(source.dataSource) {
+                        modify(it, map)
+                    }
+                )
+                is EFirstRecordOf -> source.copy(
+                    dataSource = everyDataExpressionInDataSourceExpression<Q>().modify(source.dataSource) {
+                        modify(it, map)
+                    }
+                )
             }
         }
     }

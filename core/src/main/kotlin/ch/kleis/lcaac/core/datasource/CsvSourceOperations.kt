@@ -12,12 +12,17 @@ import ch.kleis.lcaac.core.prelude.Prelude
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import java.io.File
+import java.io.InputStream
 import java.lang.Double.parseDouble
 import java.nio.file.Paths
 
 class CsvSourceOperations<Q>(
     private val path: File,
     private val ops: QuantityOperations<Q>,
+    private val fileLoader: (String) -> InputStream = {
+        val location = Paths.get(path.absolutePath, it)
+        location.toFile().inputStream()
+    }
 ) : DataSourceOperations<Q> {
     private val format = CSVFormat.DEFAULT.builder()
         .setHeader()
@@ -25,8 +30,7 @@ class CsvSourceOperations<Q>(
         .build()
 
     override fun readAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val location = Paths.get(path.absolutePath, source.location)
-        val inputStream = location.toFile().inputStream()
+        val inputStream = fileLoader(source.location)
         val parser = CSVParser(inputStream.reader(), format)
         val header = parser.headerMap
         val filter = source.filter
@@ -91,5 +95,10 @@ class CsvSourceOperations<Q>(
             throw EvaluatorException("'$s' is not a valid number")
         }
         return EQuantityScale(ops.pure(amount), defaultUnit)
+    }
+
+    override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
+        return readAll(source).firstOrNull()
+            ?: throw EvaluatorException("no record found in '${source.location}' matching ${source.filter}")
     }
 }

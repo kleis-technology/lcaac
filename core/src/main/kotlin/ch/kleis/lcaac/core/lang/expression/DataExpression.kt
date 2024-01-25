@@ -23,6 +23,11 @@ data class EDefaultRecordOf<Q>(val dataSource: DataSourceExpression<Q>) : DataEx
 }
 
 @optics
+data class EFirstRecordOf<Q>(val dataSource: DataSourceExpression<Q>) : DataExpression<Q> {
+    companion object
+}
+
+@optics
 data class ERecord<Q>(val entries: Map<String, DataExpression<Q>>) : DataExpression<Q> {
     companion object
 }

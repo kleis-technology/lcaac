@@ -246,6 +246,36 @@ class DataExpressionReducerTest {
     /*
         RECORD
      */
+
+    @Test
+    fun reduce_whenFirstRecordOfDataSourceRef() {
+        val dataSource = EDataSource(
+            location = "source.csv",
+            schema = mapOf(
+                "mass" to QuantityFixture.oneKilogram
+            )
+        )
+        val record = EFirstRecordOf<BasicNumber>(EDataSourceRef("source"))
+        val reducer = DataExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to dataSource
+            )),
+            ops,
+            sourceOps,
+        )
+        val expected = mockk<ERecord<BasicNumber>>()
+        val dataSourceValue = with(ToValue(ops)) { dataSource.toValue() }
+        every { sourceOps.getFirst(dataSourceValue) } returns expected
+
+        // when
+        val actual = reducer.reduce(record)
+
+        // then
+        assertEquals(expected, actual)
+        verify { sourceOps.getFirst(dataSourceValue) }
+    }
+
     @Test
     fun reduce_whenDefaultRecordOfDataSourceRef() {
         // given
