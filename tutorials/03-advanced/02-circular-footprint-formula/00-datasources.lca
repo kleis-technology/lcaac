@@ -5,25 +5,25 @@
 datasource material_params {
     location = "data/material_params.csv"
     schema {
-        "id" = "material-01"
-        "A" = 1.0 u
-        "B" = 1.0 u
-        "R1" = 0.2 u
-        "R3" = 0.2 u
-        "Q_out" = 1.0 u
-        "Q_in" = 1.0 u
-        "LHV" = 1.0 Wh / kg
-        "Xer_elec" = 1.0 u
-        "Xer_heat" = 1.0 u
+         id = "material-01"
+         A = 1.0 u
+         B = 1.0 u
+         R1 = 0.2 u
+         R3 = 0.2 u
+         Q_out = 1.0 u
+         Q_in = 1.0 u
+         LHV = 1.0 Wh / kg
+         Xer_elec = 1.0 u
+         Xer_heat = 1.0 u
 
-        "Ev_id"  = "material-01"
-        "Erecycled_id"  = "material-01"
-        "ErecyclingEol_id"  = "material-01"
-        "EstarV_id"  = "material-01"
-        "Eer_id"  = "material-01"
-        "Ese_heat_id" = "material-01"
-        "Ese_elec_id" = "material-01"
-        "Ed_id"  = "material-01"
+         Ev_id = "material-01"
+         Erecycled_id = "material-01"
+         ErecyclingEol_id = "material-01"
+         EstarV_id = "material-01"
+         Eer_id = "material-01"
+         Ese_heat_id = "material-01"
+         Ese_elec_id = "material-01"
+         Ed_id = "material-01"
     }
 }
 
@@ -34,9 +34,9 @@ datasource material_params {
 datasource R2_data {
     location = "data/R2_data.csv"
     schema {
-        "id" = "glass-01"
-        "geo" = "GLO"
-        "R2" = 0 u
+         id = "glass-01"
+         geo = "GLO"
+         R2 = 0 u
     }
 }
 
@@ -49,8 +49,8 @@ datasource R2_data {
 datasource Ev_data {
     location = "data/Ev_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process virgin_production_process {
@@ -58,13 +58,13 @@ process virgin_production_process {
         Ev_id = "glass-01"
     }
     variables {
-        row = lookup Ev_data match "id" = Ev_id
+        row = lookup Ev_data match  id = Ev_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -73,8 +73,8 @@ process virgin_production_process {
 datasource Erecycled_data {
     location = "data/Erecycled_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process upstream_recycling_process {
@@ -82,13 +82,13 @@ process upstream_recycling_process {
         Erecycled_id = "glass-01"
     }
     variables {
-        row = lookup Erecycled_data match "id" = Erecycled_id
+        row = lookup Erecycled_data match  id = Erecycled_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -97,8 +97,8 @@ process upstream_recycling_process {
 datasource ErecyclingEol_data {
     location = "data/ErecyclingEol_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process downstream_recycling_process {
@@ -106,13 +106,13 @@ process downstream_recycling_process {
         ErecyclingEol_id = "glass-01"
     }
     variables {
-        row = lookup ErecyclingEol_data match "id" = ErecyclingEol_id
+        row = lookup ErecyclingEol_data match  id = ErecyclingEol_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -121,8 +121,8 @@ process downstream_recycling_process {
 datasource EstarV_data {
     location = "data/EstarV_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process substitute_production_process {
@@ -130,13 +130,13 @@ process substitute_production_process {
         EstarV_id = "glass-01"
     }
     variables {
-        row = lookup EstarV_data match "id" = EstarV_id
+        row = lookup EstarV_data match  id = EstarV_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -145,8 +145,8 @@ process substitute_production_process {
 datasource Eer_data {
     location = "data/Eer_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process energy_recovery_process {
@@ -154,13 +154,13 @@ process energy_recovery_process {
         Eer_id = "glass-01"
     }
     variables {
-        row = lookup Eer_data match "id" = Eer_id
+        row = lookup Eer_data match  id = Eer_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -169,8 +169,8 @@ process energy_recovery_process {
 datasource Ese_heat_data {
     location = "data/Ese_heat_data.csv"
     schema {
-        "geo" = "GLO"
-        "GWP" = 1 kg_CO2_Eq
+         geo = "GLO"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process heat_production_process {
@@ -178,13 +178,13 @@ process heat_production_process {
         geo = "GLO"
     }
     variables {
-        row = lookup Ese_heat_data match "geo" = geo
+        row = lookup Ese_heat_data match  geo = geo
     }
     products {
         1 Wh energy
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -193,8 +193,8 @@ process heat_production_process {
 datasource Ese_elec_data {
     location = "data/Ese_elec_data.csv"
     schema {
-        "geo" = "GLO"
-        "GWP" = 1 kg_CO2_Eq
+         geo = "GLO"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process elec_production_process {
@@ -202,13 +202,13 @@ process elec_production_process {
         geo = "GLO"
     }
     variables {
-        row = lookup Ese_elec_data match "geo" = geo
+        row = lookup Ese_elec_data match  geo = geo
     }
     products {
         1 Wh energy
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -217,8 +217,8 @@ process elec_production_process {
 datasource Ed_data {
     location = "data/Ed_data.csv"
     schema {
-        "id" = "material-01"
-        "GWP" = 1 kg_CO2_Eq
+         id = "material-01"
+         GWP = 1 kg_CO2_Eq
     }
 }
 process disposal_process {
@@ -226,12 +226,12 @@ process disposal_process {
         Ed_id = "glass-01"
     }
     variables {
-        row = lookup Ed_data match "id" = Ed_id
+        row = lookup Ed_data match  id = Ed_id
     }
     products {
         1 kg material
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }

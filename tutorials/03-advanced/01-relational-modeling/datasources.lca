@@ -1,26 +1,26 @@
 datasource datacenters {
     location = "data/datacenters.csv"
     schema {
-        "id" = "dc-zone-01"
-        "geo" = "GLO"                       // references electricity_mixes.geo
-        "reserved_power" = 10 kW
-        "amortization_period" = 25 year
+         id = "dc-zone-01"
+         geo = "GLO"                       // references electricity_mixes.geo
+         reserved_power = 10 kW
+         amortization_period = 25 year
     }
 }
 
 datasource datacenter_components {
     location = "data/datacenter_components.csv"
     schema {
-        "datacenter_id" = "dc-zone-01"      // references datacenters.id
-        "GWP" = 100 kg_CO2_Eq
+         datacenter_id = "dc-zone-01"      // references datacenters.id
+         GWP = 100 kg_CO2_Eq
     }
 }
 
 datasource electricity_mixes {
     location = "data/electricity_mixes.csv"
     schema {
-        "geo" = "FR"
-        "GWP" = 1 kg_CO2_Eq
+         geo = "FR"
+         GWP = 1 kg_CO2_Eq
     }
 }
 

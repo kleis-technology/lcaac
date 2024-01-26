@@ -6,14 +6,14 @@ process manufacturing {
         1 kg material
     }
     variables {
-        mat_params = lookup material_params match "id" = id
+        mat_params = lookup material_params match id = id
 
-        Ev_id = mat_params["Ev_id"]
-        Erecycled_id = mat_params["Erecycled_id"]
+        Ev_id = mat_params.Ev_id
+        Erecycled_id = mat_params.Erecycled_id
 
-        R1 = mat_params["R1"]
-        Q_in = mat_params["Q_in"]
-        A = mat_params["A"]
+        R1 = mat_params.R1
+        Q_in = mat_params.Q_in
+        A = mat_params.A
     }
 
     inputs {

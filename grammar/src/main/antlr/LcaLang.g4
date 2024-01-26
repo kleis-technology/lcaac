@@ -324,7 +324,7 @@ substanceSpec
 */
 
 urn : uid DOT urn | uid ;
-uid : ID | STRING_LITERAL_BACK_QUOTE;
+uid : ID ;
 
 
 /*

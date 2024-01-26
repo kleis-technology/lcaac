@@ -323,7 +323,6 @@ class CoreMapper<Q>(
     
     fun LcaLangParser.UidContext.innerText(): String {
         return this.ID()?.innerText()
-            ?: this.STRING_LITERAL_BACK_QUOTE()?.innerText()?.trim('`')
             ?: throw LoaderException("parsing error: invalid uid: ${this.text}")
     }
 
