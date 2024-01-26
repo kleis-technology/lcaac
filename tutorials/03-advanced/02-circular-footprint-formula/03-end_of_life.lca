@@ -1,0 +1,85 @@
+process end_of_life {
+    params {
+        id = "glass-01"
+        geo = "GLO"
+    }
+    products {
+        1 kg material
+    }
+    variables {
+        mat_params = lookup material_params match  id = id
+
+        ErecyclingEol_id = mat_params.ErecyclingEol_id
+        EstarV_id = mat_params.EstarV_id
+        Eer_id = mat_params.Eer_id
+        Ed_id = mat_params.Ed_id
+
+        A = mat_params.A
+        B = mat_params.B
+        Q_out = mat_params.Q_out
+
+        R2_data = lookup R2_data match ( geo = geo, id = id )
+        R2 = R2_data.R2
+
+        R3 = mat_params.R3
+
+        LHV = mat_params.LHV
+        Xer_heat = mat_params.Xer_heat
+        Xer_elec = mat_params.Xer_elec
+    }
+
+    inputs {
+        (1 u - A) * R2 * 1 kg material from recycling_eol(
+                                    ErecyclingEol_id = ErecyclingEol_id,
+                                    EstarV_id = EstarV_id,
+                                    Q_out = Q_out,
+                                )
+        (1 u - B) * R3 * 1 kg material from energy_recovery(
+                                    Eer_id = Eer_id,
+                                    LHV = LHV,
+                                    Xer_heat = Xer_heat,
+                                    Xer_elec = Xer_elec,
+                                )
+        (1 u - R2 - R3) * 1 kg material from disposal_process(Ed_id = Ed_id)
+    }
+}
+
+process recycling_eol {
+    params {
+        ErecyclingEol_id = "glass-01"
+        EstarV_id = "glass-01"
+        Q_out = 1 u
+    }
+    products {
+        1 kg material
+    }
+    inputs {
+        // recycling
+        1 kg material from downstream_recycling_process(ErecyclingEol_id = ErecyclingEol_id)
+
+        // avoided production
+        -1 u * Q_out * kg material from substitute_production_process(EstarV_id = EstarV_id)
+    }
+}
+
+process energy_recovery {
+    params {
+        Eer_id = "glass-01"
+        LHV = 1 Wh / kg
+        Xer_heat = 1 u
+        Xer_elec = 1 u
+        geo = "GLO"
+    }
+    products {
+        1 kg material
+    }
+    inputs {
+        1 kg material from energy_recovery_process(Eer_id = Eer_id)
+
+        // avoided energy production
+        -1 u * LHV * Xer_heat * kg energy from heat_production_process(geo = geo)
+        -1 u * LHV * Xer_elec * kg energy from elec_production_process(geo = geo)
+    }
+}
+
+

@@ -48,7 +48,18 @@ schema
       RBRACE
     ;
 columnDefinition
-    : STRING_LITERAL EQUAL dataExpression
+    : columnRef EQUAL dataExpression
+    ;
+
+dataSourceExpression
+    : dataSourceRef rowFilter?
+    ;
+rowFilter
+    : MATCH_KEYWORD  rowSelector
+    | MATCH_KEYWORD  LPAREN ( rowSelector (COMMA rowSelector)* COMMA? ) RPAREN
+    ;
+rowSelector
+    : columnRef EQUAL dataExpression
     ;
 
 /*
@@ -199,19 +210,19 @@ block_impacts
 */
 
 technoInputExchange
-    : quantity=dataExpression product=inputProductSpec                                      # technoEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
+    : quantity=dataExpression product=inputProductSpec                                                             # technoEntry
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | technoInputExchange)* RBRACE  # technoBlockForEach
     ;
 technoProductExchange
     : quantity=dataExpression product=outputProductSpec
     ;
 bioExchange
-    : quantity=dataExpression substance=substanceSpec                               # bioEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
+    : quantity=dataExpression substance=substanceSpec                                                      # bioEntry
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | bioExchange)* RBRACE  # bioBlockForEach
     ;
 impactExchange
     : quantity=dataExpression indicator=indicatorRef                                    # impactEntry
-    | FOR_EACH_KEYWORD dataRef IN_KEYWORD dataSourceRef LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
+    | FOR_EACH_KEYWORD dataRef FROM_KEYWORD dataSourceExpression LBRACE (variables | impactExchange)* RBRACE   # impactBlockForEach
     ;
 
 
@@ -227,10 +238,11 @@ dataExpression
     | parenExpression                                               # baseGroup
     | stringExpression                                              # baseGroup
     | dataRef slice?                                                # baseGroup
-    | op=SUM LPAREN dataSourceRef COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
+    | op=LOOKUP dataSourceExpression                                # recordGroup
+    | op=SUM LPAREN dataSourceExpression COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
-    : LBRACK columnRef RBRACK
+    : DOT columnRef
     ;
 
 parenExpression
@@ -238,10 +250,6 @@ parenExpression
     ;
 
 stringExpression
-    : STRING_LITERAL
-    ;
-
-columnRef
     : STRING_LITERAL
     ;
 
@@ -269,6 +277,8 @@ substanceRef : uid ;
 indicatorRef : uid ;
 parameterRef : uid ;
 testRef : uid ;
+columnRef : uid ;
+
 
 /*
     Spec
@@ -349,6 +359,7 @@ EMISSIONS_KEYWORD : 'emissions' ;
 LAND_USE_KEYWORD : 'land_use' ;
 RESOURCES_KEYWORD : 'resources' ;
 MATCH_KEYWORD : 'match' ;
+WHERE_KEYWORD : 'where' ;
 LABELS_KEYWORD : 'labels' ;
 
 DATASOURCE_KEYWORD : 'datasource' ;
@@ -362,9 +373,9 @@ BETWEEN_KEYWORD : 'between' ;
 AND_KEYWORD : 'and' ;
 
 FOR_EACH_KEYWORD : 'for_each' ;
-IN_KEYWORD : 'in' ;
 
 SUM : 'sum' ;
+LOOKUP : 'lookup' ;
 
 
 EQUAL : '=' ;
@@ -375,7 +386,7 @@ RBRACE : '}' ;
 LPAREN : '(' ;
 RPAREN : ')' ;
 COMMA : ',' ;
-DOT : ' . ' ;
+DOT : '.' ;
 PLUS : '+' ;
 MINUS : '-' ;
 STAR : '*' ;
@@ -395,6 +406,8 @@ fragment INT : [0-9]+ ;
 fragment EXP :   [Ee] [+\-]? INT ;
 
 STRING_LITERAL :  '"' (ESC | ~["\\])* '"' ;
+STRING_LITERAL_BACK_QUOTE : '`' (ESC | ~["\\])* '`' ;
+
 fragment ESC :   '\\' ["\bfnrt] ;
 
 WS : [ \t\n\r]+ -> channel(HIDDEN) ;

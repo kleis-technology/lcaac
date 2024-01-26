@@ -1,0 +1,59 @@
+process datacenter {
+    params {
+        id = "dc-zone-01"
+    }
+    variables {
+        dc = lookup datacenters match id = id
+        total = dc.reserved_power * dc.amortization_period
+    }
+    products {
+        total energy
+    }
+    inputs {
+        // include electricity from the relevant geographic zone
+        total electricity from electricity_mix(geo = dc.geo)
+
+        // include all components belonging to the given datacenter
+        for_each row from datacenter_components match datacenter_id = dc .id {
+
+            // pass the component parameters
+            1 p component from datacenter_component(dc_component = row)
+        }
+    }
+}
+
+process datacenter_component {
+    params {
+        dc_component from datacenter_components
+    }
+    products {
+        1 p component
+    }
+    impacts {
+        dc_component.GWP GWP
+    }
+}
+
+process electricity_mix {
+    params {
+        geo = "GLO"
+    }
+    variables {
+        mix = lookup electricity_mixes match geo = geo
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        mix.GWP GWP
+    }
+}
+
+test datacenter {
+    given {
+        1 kWh energy from datacenter(id = "dc-zone-01")
+    }
+    assert {
+        GWP between 70 g_CO2_Eq and 75 g_CO2_Eq
+    }
+}

@@ -1,0 +1,48 @@
+process manufacturing {
+    params {
+        id = "glass-01"
+    }
+    products {
+        1 kg material
+    }
+    variables {
+        mat_params = lookup material_params match id = id
+
+        Ev_id = mat_params.Ev_id
+        Erecycled_id = mat_params.Erecycled_id
+
+        R1 = mat_params.R1
+        Q_in = mat_params.Q_in
+        A = mat_params.A
+    }
+
+    inputs {
+        // virgin
+        (1.0 u - R1) * 1 kg material from virgin_production_process(Ev_id = Ev_id)
+
+        // recycled material
+        R1 * 1 kg material from recycled_production(
+                                    Ev_id = Ev_id,
+                                    Erecycled_id = Erecycled_id,
+                                    Q_in = Q_in,
+                                    A = A,
+                                )
+    }
+}
+
+process recycled_production {
+    params {
+        Ev_id = "glass-01"
+        Erecycled_id = "glass-01"
+        Q_in = 1.0 u
+        A = 1.0 u
+    }
+    products {
+        1 kg material
+    }
+    inputs {
+        A * 1 kg material from upstream_recycling_process(Erecycled_id = Erecycled_id)
+        (1.0 u - A) * Q_in * 1 kg material from virgin_production_process(Ev_id = Ev_id)
+    }
+}
+

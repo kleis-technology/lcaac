@@ -6,7 +6,10 @@ import ch.kleis.lcaac.core.datasource.CsvSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import java.io.File
@@ -17,17 +20,16 @@ class CsvProcessor(
 ) {
     private val ops = BasicOperations
     private val sourceOps = CsvSourceOperations(path, ops)
+    private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
     fun process(request: CsvRequest): List<CsvResult> {
         val reqName = request.processName
         val reqLabels = request.matchLabels
-        val template =
-            symbolTable.getTemplate(reqName, reqLabels)
-                ?: throw EvaluatorException("Could not get template for ${reqName}${reqLabels}")
+        val template = symbolTable.getTemplate(reqName, reqLabels)
+            ?: throw EvaluatorException("Could not get template for ${reqName}${reqLabels}")
 
-        val arguments = template.params
-            .mapValues { entry ->
+        val arguments = template.params.mapValues { entry ->
                 when (val v = entry.value) {
                     is QuantityExpression<*> -> request[entry.key]?.let {
                         smartParseQuantityWithDefaultUnit(it, EUnitOf(v))
@@ -38,23 +40,19 @@ class CsvProcessor(
                     } ?: entry.value
 
                     is EDefaultRecordOf -> {
-                        val dataSourceRef = v.dataSourceRef
-                        val dataSource = symbolTable.getDataSource(dataSourceRef)
-                            ?: throw EvaluatorException("unknown datasource '$dataSourceRef'")
+                        val dataSource = dataReducer.evalDataSource(v.dataSource)
                         val schema = dataSource.schema
                         val entries = schema.mapValues { schemaEntry ->
-                            when (val defaultValue = schemaEntry.value.defaultValue) {
-                                is QuantityExpression<*> -> request[schemaEntry.key]?.let {
-                                    smartParseQuantityWithDefaultUnit(it, EUnitOf(defaultValue))
-                                } ?: defaultValue
+                            when (val defaultValue = schemaEntry.value) {
+                                is QuantityValue -> request[schemaEntry.key]?.let {
+                                    smartParseQuantityWithDefaultUnit(it, defaultValue.unit.toEUnitLiteral())
+                                } ?: defaultValue.toEQuantityScale()
 
-                                is StringExpression -> request[schemaEntry.key]?.let {
+                                is StringValue -> request[schemaEntry.key]?.let {
                                     EStringLiteral(it)
-                                } ?: defaultValue
+                                } ?: defaultValue.toEStringLiteral()
 
-                                else -> throw EvaluatorException(
-                                    "datasource '$dataSourceRef': column '${schemaEntry.key}': invalid default value"
-                                )
+                                else -> throw EvaluatorException("datasource '${dataSource.location}': column '${schemaEntry.key}': invalid default value")
                             }
                         }
                         ERecord(entries)
@@ -69,8 +67,7 @@ class CsvProcessor(
         val entryPoint = trace.getEntryPoint()
         val program = ContributionAnalysisProgram(systemValue, entryPoint)
         val analysis = program.run()
-        return entryPoint.products
-            .map { output ->
+        return entryPoint.products.map { output ->
                 val outputPort = output.product
                 val impacts = analysis.getUnitaryImpacts(outputPort)
                 CsvResult(

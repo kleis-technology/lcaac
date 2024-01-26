@@ -8,12 +8,104 @@ import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/*
-    TODO: Boyscout rule: Add mapper tests.
- */
-
 class CoreMapperTest {
     private val ops = BasicOperations
+
+    @Test
+    fun lookup() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            lookup source match (geo="FR", id="glass-01")
+        """.trimIndent()).dataExpression()
+
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.dataExpression(ctx)
+
+        // then
+        val expected = EFirstRecordOf<BasicNumber>(
+            EFilter(
+                EDataSourceRef("source"),
+                mapOf(
+                    "geo" to EStringLiteral("FR"),
+                    "id" to EStringLiteral("glass-01"),
+                )
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun match_withRef() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            for_each row from source match geo = x {
+            }
+        """.trimIndent()).technoInputExchange()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.technoInputExchange(ctx)
+
+        // then
+        val expected = ETechnoBlockForEach<BasicNumber>(
+            "row",
+            EFilter(EDataSourceRef("source"), mapOf(
+                "geo" to EDataRef("x"),
+            )),
+            emptyMap(),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun match_forEach_multiple() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            for_each row from source match (geo = "FR", category = "abcd") {
+            }
+        """.trimIndent()).technoInputExchange()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.technoInputExchange(ctx)
+
+        // then
+        val expected = ETechnoBlockForEach<BasicNumber>(
+            "row",
+            EFilter(EDataSourceRef("source"), mapOf(
+                "geo" to EStringLiteral("FR"),
+                "category" to EStringLiteral("abcd"),
+            )),
+            emptyMap(),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun match_forEach() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            for_each row from source match geo = "FR" {
+            }
+        """.trimIndent()).technoInputExchange()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.technoInputExchange(ctx)
+
+        // then
+        val expected = ETechnoBlockForEach<BasicNumber>(
+            "row",
+            EFilter(EDataSourceRef("source"), mapOf("geo" to EStringLiteral("FR"))),
+            emptyMap(),
+            emptyList(),
+        )
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun assignment_regular() {
@@ -43,7 +135,7 @@ class CoreMapperTest {
         val actual = mapper.assignment(ctx)
 
         // then
-        val expected = "x" to EDefaultRecordOf<BasicNumber>("inventory")
+        val expected = "x" to EDefaultRecordOf<BasicNumber>(EDataSourceRef("inventory"))
         assertEquals(expected, actual)
     }
 
@@ -51,7 +143,7 @@ class CoreMapperTest {
     fun recordEntry() {
         // given
         val ctx = LcaLangFixture.parser("""
-            row["mass"]
+            row.mass
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -67,7 +159,7 @@ class CoreMapperTest {
     fun columnOperation_sum() {
         // given
         val ctx = LcaLangFixture.parser("""
-            sum(source, "mass" * "ratio")
+            sum(source, mass * ratio)
         """.trimIndent()).dataExpression()
         val mapper = CoreMapper(ops)
 
@@ -75,7 +167,25 @@ class CoreMapperTest {
         val actual = mapper.dataExpression(ctx)
 
         // then
-        val expected = ESumProduct<BasicNumber>("source", listOf("mass", "ratio"))
+        val expected = ESumProduct<BasicNumber>(EDataSourceRef("source"), listOf("mass", "ratio"))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun columnOperation_sum_withMatching() {
+        // given
+        val ctx = LcaLangFixture.parser("""
+            sum(source match geo = "FR", mass * ratio)
+        """.trimIndent()).dataExpression()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.dataExpression(ctx)
+
+        // then
+        val expected = ESumProduct<BasicNumber>(
+            EFilter(EDataSourceRef("source"), mapOf("geo" to EStringLiteral("FR"))),
+            listOf("mass", "ratio"))
         assertEquals(expected, actual)
     }
 
@@ -86,8 +196,8 @@ class CoreMapperTest {
             datasource source {
                 location = "file.csv"
                 schema {
-                    "mass" = 1 kg
-                    "geo" = "FR"
+                    mass = 1 kg
+                    geo = "FR"
                 }
             }
         """.trimIndent()).dataSourceDefinition()
@@ -97,13 +207,10 @@ class CoreMapperTest {
         val actual = mapper.dataSourceDefinition(ctx)
 
         // then
-        val expected = ECsvSource(
-            location = "file.csv",
-            schema = mapOf(
-                "mass" to ColumnType(EQuantityScale(BasicNumber(1.0), EDataRef("kg"))),
-                "geo" to ColumnType(EStringLiteral("FR")),
-            )
-        )
+        val expected = EDataSource(location = "file.csv", schema = mapOf(
+            "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+            "geo" to EStringLiteral("FR"),
+        ))
         assertEquals(expected, actual)
     }
 
@@ -111,7 +218,7 @@ class CoreMapperTest {
     fun technoInputExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }
@@ -124,21 +231,10 @@ class CoreMapperTest {
         val actual = mapper.technoInputExchange(ctx)
 
         // then
-        val expected = ETechnoBlockForEach(
-            "row",
-            "source",
-            mapOf(
-                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
-            ),
-            listOf(
-                ETechnoBlockEntry(
-                    ETechnoExchange(
-                        EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
-                        EProductSpec("co2"),
-                    )
-                )
-            )
-        )
+        val expected = ETechnoBlockForEach("row", EDataSourceRef("source"), mapOf("x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))), listOf(ETechnoBlockEntry(ETechnoExchange(
+            EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+            EProductSpec("co2"),
+        ))))
         assertEquals(expected, actual)
     }
 
@@ -146,7 +242,7 @@ class CoreMapperTest {
     fun impactExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }
@@ -159,21 +255,10 @@ class CoreMapperTest {
         val actual = mapper.impactExchange(ctx)
 
         // then
-        val expected = EImpactBlockForEach(
-            "row",
-            "source",
-            mapOf(
-                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
-            ),
-            listOf(
-                EImpactBlockEntry(
-                    EImpact(
-                        EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
-                        EIndicatorSpec("co2"),
-                    )
-                )
-            )
-        )
+        val expected = EImpactBlockForEach("row", EDataSourceRef("source"), mapOf("x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))), listOf(EImpactBlockEntry(EImpact(
+            EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+            EIndicatorSpec("co2"),
+        ))))
         assertEquals(expected, actual)
     }
 
@@ -181,7 +266,7 @@ class CoreMapperTest {
     fun bioExchange_blockForEach() {
         // given
         val ctx = LcaLangFixture.parser("""
-            for_each row in source {
+            for_each row from source {
                 variables {
                     x = 1 l
                 }
@@ -197,21 +282,10 @@ class CoreMapperTest {
 
         // then
         val referenceUnit = EUnitOf(EQuantityClosure(symbolTable, EQuantityScale(BasicNumber(1.0), EDataRef("kg"))))
-        val expected = EBioBlockForEach(
-            "row",
-            "source",
-            mapOf(
-                "x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))
-            ),
-            listOf(
-                EBioBlockEntry(
-                    EBioExchange(
-                        EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
-                        ESubstanceSpec("co2", compartment = "air", type=substanceType, referenceUnit = referenceUnit),
-                    )
-                )
-            )
-        )
+        val expected = EBioBlockForEach("row", EDataSourceRef("source"), mapOf("x" to EQuantityScale(BasicNumber(1.0), EDataRef("l"))), listOf(EBioBlockEntry(EBioExchange(
+            EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+            ESubstanceSpec("co2", compartment = "air", type = substanceType, referenceUnit = referenceUnit),
+        ))))
         assertEquals(expected, actual)
     }
 }

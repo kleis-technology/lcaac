@@ -146,12 +146,23 @@ class ToValue<Q>(
                     is StringExpression -> e.toValue()
                     is ERecord -> RecordValue(e.entries.mapValues { it.value.toValue() })
                     is EDataRef, is ERecordEntry,
-                    is EDefaultRecordOf, is ESumProduct -> throw EvaluatorException("$it is not reduced")
+                    is EDefaultRecordOf, is ESumProduct, is EFirstRecordOf -> throw EvaluatorException("$it is not " +
+                        "reduced")
                 }
             },
         )
     }
 
+    fun DataSourceExpression<Q>.toValue(): DataSourceValue<Q> {
+        return when(this) {
+            is EDataSource -> DataSourceValue(
+                this.location,
+                this.schema.mapValues { it.value.toValue() },
+                this.filter.mapValues { it.value.toValue() },
+            )
+            else -> throw EvaluatorException("$this is not reduced")
+        }
+    }
 
 }
 

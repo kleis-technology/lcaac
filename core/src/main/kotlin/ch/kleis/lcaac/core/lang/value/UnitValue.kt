@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.lang.value
 
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaac.core.math.DoubleComparator
 import kotlin.math.pow
 
@@ -44,5 +45,9 @@ data class UnitValue<Q>(val symbol: UnitSymbol, val scale: Double, val dimension
 
     fun scale(s: Double): UnitValue<Q> {
         return UnitValue(symbol.scale(s), s * scale, dimension)
+    }
+
+    fun toEUnitLiteral(): EUnitLiteral<Q> {
+        return EUnitLiteral(symbol, scale, dimension)
     }
 }

@@ -12,7 +12,6 @@ import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.UnitValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
-import ch.kleis.lcaac.grammar.LcaLangFixture.Companion.lcaFile
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -28,7 +27,7 @@ class EvaluatorTest {
             datasource source {
                 location = "file.csv"
                 schema {
-                    "mass" = 1 kg
+                    mass = 1 kg
                 }
             }
             
@@ -40,7 +39,7 @@ class EvaluatorTest {
                     1 kg carrot
                 }
                 impacts {
-                    row["mass"] co2
+                    row.mass co2
                 }
             }
         """.trimIndent()).lcaFile()
@@ -68,7 +67,7 @@ class EvaluatorTest {
     @Test
     fun arena_shouldHandleKnowledgeCorrectly() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process a_proc {
                     products {
@@ -101,7 +100,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -127,7 +126,7 @@ class EvaluatorTest {
     @Test
     fun arena_with1HopLoop() {
         // given
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p1 {
                     products {
@@ -149,7 +148,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -173,7 +172,7 @@ class EvaluatorTest {
 
     @Test
     fun arena_withSelfLoop() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -187,7 +186,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -211,7 +210,7 @@ class EvaluatorTest {
 
     @Test
     fun arena_withMoreIntermediates() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -240,7 +239,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -264,7 +263,7 @@ class EvaluatorTest {
 
     @Test
     fun arena_singleIntermediary() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -284,7 +283,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -308,7 +307,7 @@ class EvaluatorTest {
 
     @Test
     fun arena_withSubstance() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -329,7 +328,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(
@@ -353,7 +352,7 @@ class EvaluatorTest {
 
     @Test
     fun arena_withIntermediaryAndSubstance() {
-        val file = lcaFile(
+        val file = LcaLangFixture.parser(
             """
                 process p {
                     products {
@@ -384,7 +383,7 @@ class EvaluatorTest {
                     }
                 }
             """.trimIndent()
-        )
+        ).lcaFile()
         val loader = Loader(ops)
         val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
         val spec = EProductSpec<BasicNumber>(

@@ -12,10 +12,7 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
-import com.github.ajalt.clikt.parameters.options.help
-import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 
@@ -23,7 +20,11 @@ private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
-    val path: File by option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
+    private val getPath = option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
+    val path: File by getPath
+    val dataSourcePath: File by option("--data-path").file(canBeFile = false)
+        .defaultLazy { getPath.value }
+        .help("Path to data folder. Default to root folder.")
     val file: File? by option("-f", "--file").file(canBeDir = false)
             .help("""
                 CSV file with parameter values.
@@ -41,7 +42,7 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
             .map { mapper.test(it) }
         val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(
             symbolTable,
-            CsvSourceOperations(path, ops))
+            CsvSourceOperations(dataSourcePath, ops))
         val results = cases.map { runner.run(it) }
 
         results.forEach { result ->

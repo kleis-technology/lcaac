@@ -3,7 +3,6 @@ package ch.kleis.lcaac.cli.csv
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
@@ -16,7 +15,6 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import java.io.File
 
 class CsvProcessorTest {
@@ -27,8 +25,8 @@ class CsvProcessorTest {
             datasource source {
                 location = "source.csv"
                 schema {
-                    "quantity" = 10 u
-                    "mass" = 1 kg
+                    quantity = 10 u
+                    mass = 1 kg
                 }
             }
             process main {
@@ -39,7 +37,7 @@ class CsvProcessorTest {
                     1 kWh electricity
                 }
                 impacts {
-                    row["quantity"] * row["mass"] co2
+                    row.quantity * row.mass co2
                 }
             }
         """.trimIndent()
@@ -91,8 +89,8 @@ class CsvProcessorTest {
             datasource source {
                 location = "source.csv"
                 schema {
-                    "quantity" = 10 u
-                    "mass" = 1 kg
+                    quantity = 10 u
+                    mass = 1 kg
                 }
             }
             process main {
@@ -103,7 +101,7 @@ class CsvProcessorTest {
                     1 kWh electricity
                 }
                 impacts {
-                    row["quantity"] * row["mass"] co2
+                    row.quantity * row.mass co2
                 }
             }
         """.trimIndent()

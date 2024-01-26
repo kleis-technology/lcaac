@@ -15,6 +15,11 @@ import kotlin.test.assertEquals
 class LcaExpressionReducerTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+    private val emptyDataSource = EDataSource<BasicNumber>(
+        "location.csv",
+        emptyMap(),
+        emptyMap()
+    )
 
     /*
         Block
@@ -25,7 +30,7 @@ class LcaExpressionReducerTest {
         // given
         val block = ETechnoBlockForEach(
             "row",
-            "source",
+            EDataSourceRef("source"),
             mapOf("x" to ERecordEntry(EDataRef("row"), "mass")),
             listOf(
                 ETechnoBlockEntry(
@@ -52,7 +57,7 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
-                DataSourceKey("source") to mockk(),
+                DataSourceKey("source") to emptyDataSource,
             )),
             ops,
             sourceOps,
@@ -87,7 +92,7 @@ class LcaExpressionReducerTest {
         // given
         val block = ETechnoBlockForEach(
             "row",
-            "source",
+            EDataSourceRef("source"),
             emptyMap(),
             listOf(
                 ETechnoBlockEntry(
@@ -116,7 +121,7 @@ class LcaExpressionReducerTest {
                 DataKey("row") to QuantityFixture.oneLitre,
             )),
             DataSourceRegister.from(mapOf(
-                DataSourceKey("source") to mockk(),
+                DataSourceKey("source") to emptyDataSource,
             )),
             ops,
             sourceOps,
@@ -132,7 +137,7 @@ class LcaExpressionReducerTest {
         // given
         val block = ETechnoBlockForEach(
             "row",
-            "source",
+            EDataSourceRef("source"),
             emptyMap(),
             listOf(
                 ETechnoBlockEntry(
@@ -159,7 +164,7 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
-                DataSourceKey("source") to mockk(),
+                DataSourceKey("source") to emptyDataSource,
             )),
             ops,
             sourceOps,
@@ -194,7 +199,7 @@ class LcaExpressionReducerTest {
         // given
         val block = ETechnoBlockForEach(
             "row",
-            "source",
+            EDataSourceRef("source"),
             emptyMap(),
             listOf(
                 ETechnoBlockEntry(
@@ -205,7 +210,7 @@ class LcaExpressionReducerTest {
                 ),
                 EBlockForEach(
                     "row2",
-                    "source",
+                    EDataSourceRef("source"),
                     emptyMap(),
                     listOf(
                         ETechnoBlockEntry(
@@ -230,7 +235,7 @@ class LcaExpressionReducerTest {
         val reducer = LcaExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
-                DataSourceKey("source") to mockk(),
+                DataSourceKey("source") to emptyDataSource,
             )),
             ops,
             sourceOps,

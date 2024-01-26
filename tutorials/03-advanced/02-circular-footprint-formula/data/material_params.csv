@@ -1,0 +1,2 @@
+id,A,B,R1,R3,Q_out,Q_in,LHV,Xer_heat,Xer_elec,Ev_id,Erecycled_id,ErecyclingEol_id,EstarV_id,Eer_id,Ese_heat_id,Ese_elec_id,Ed_id
+glass-01,0.2,0,0,0,1,1,0,0.31,0.101,glass-01,glass-01,glass-01,glass-01,glass-01,glass-01,glass-01,glass-01

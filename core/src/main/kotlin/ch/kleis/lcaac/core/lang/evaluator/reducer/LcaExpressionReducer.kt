@@ -1,11 +1,9 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
-import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.math.QuantityOperations
 
@@ -85,8 +83,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
-                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(
@@ -111,8 +108,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
-                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(
@@ -135,8 +131,7 @@ class LcaExpressionReducer<Q>(
             )
 
             is EBlockForEach -> {
-                val ds = dataSourceRegister[DataSourceKey(expression.dataSourceRef)]
-                    ?: throw EvaluatorException("unknown data source '${expression.dataSourceRef}'")
+                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
                 sourceOps.readAll(ds)
                     .flatMap { record ->
                         val reducer = push(mapOf(

@@ -21,7 +21,7 @@ class CoreTestMapperTest {
                 }
             }
         """.trimIndent()
-        val ctx = LcaLangFixture.test(content)
+        val ctx = LcaLangFixture.parser(content).testDefinition()
         val mapper = CoreTestMapper()
 
         // when

@@ -1,30 +1,4 @@
 /*
-    A datasource is assumed to provide a sequence of records.
-    For now, only the local CSV file source is supported.
-*/
-datasource inventory {
-    location = "inventory.csv"
-
-    /*
-        The schema is defined using default values. Note that the unit of
-        the default value will be the one chosen for the entire column.
-    */
-    schema {
-        "quantity" = 1 p
-        "ram_size" = 16 GB
-        "storage_size" = 1 TB
-        "amortization_period" = 5 year
-        "power" = 400 W
-        "ram_allocation" = 75 percent
-        "storage_allocation" = 25 percent
-
-        // embodied impact
-        "GWP" = 0 kg_CO2_Eq
-        "WU" = 0 m3
-    }
-}
-
-/*
     Block 'for_each'
 */
 
@@ -34,11 +8,11 @@ process simple_pool {
     }
     impacts {
         // A block for_each allows to map over the records of the datasource
-        for_each row in inventory {
+        for_each row from inventory {
 
             // The variable row represents a record.
-            // The dimension of, e.g., row["quantity"] is defined by the schema.
-            row["quantity"] * row["GWP"] GWP
+            // The dimension of, e.g., `row.quantity` is defined by the schema.
+            row.quantity * row.GWP GWP
         }
     }
 }
@@ -67,7 +41,7 @@ process server {
         1 p server
     }
     impacts {
-        row["GWP"] GWP
+        row .GWP GWP
     }
 }
 
@@ -76,9 +50,9 @@ process pool_server {
         1 p pool_server
     }
     inputs {
-        for_each row in inventory {
+        for_each row from inventory {
             // record variable can be fed to the process invoked.
-            row["quantity"] server from server(row = row)
+            row.quantity server from server(row = row)
         }
     }
 }
@@ -105,13 +79,13 @@ process sum_prod {
             The 'sum' primitive allows compute the sum-product
             of multiple columns.
 
-            In this example, the columns "quantity" and "GWP"
+            In this example, the columns quantity and GWP
             are multiplied point-wise, and then summed.
 
             For now, only the point-wise product of columns is
             supported.
         */
-        sum(inventory, "quantity" * "GWP") GWP
+        sum(inventory, quantity * GWP) GWP
     }
 }
 

@@ -1,0 +1,42 @@
+/*
+    Lookup primitive
+*/
+
+process my_lookup {
+    products {
+        1 p material
+    }
+    variables {
+        /*
+            The lookup primitive fetches exactly one record matching
+            the given condition. Here, the chosen row is the one whose
+            value in the column 'id' equals the value "small".
+
+            If no record or more than one record is found, an error
+            is thrown.
+        */
+        row = lookup inventory match id = "small"
+
+        /*
+            Individual entries of the record are accessed using
+            the dot syntax. Their dimensions is specified by
+            the data source schema.
+        */
+
+        quantity = row.quantity
+        GWP = row.GWP
+    }
+
+    impacts {
+        quantity * GWP GWP
+    }
+}
+
+test my_lookup {
+    given {
+        1 p material from my_lookup
+    }
+    assert {
+        GWP between 38 p * 2800 kg_CO2_Eq and 38 p * 2900 kg_CO2_Eq
+    }
+}
