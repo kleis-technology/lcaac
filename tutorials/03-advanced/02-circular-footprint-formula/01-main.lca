@@ -12,3 +12,11 @@ process cff {
     }
 }
 
+test cff {
+    given {
+        1 kg material from cff
+    }
+    assert {
+        GWP between 1.38 kg_CO2_Eq and 1.4 kg_CO2_Eq
+    }
+}

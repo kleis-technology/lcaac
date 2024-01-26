@@ -1,3 +1,8 @@
+unit g_CO2_Eq {
+    symbol = "g_CO2_Eq"
+    alias_for = 1e-3 kg_CO2_Eq
+}
+
 unit ton_CO2_Eq {
     symbol = "ton_CO2_Eq"
     alias_for = 1000 kg_CO2_Eq

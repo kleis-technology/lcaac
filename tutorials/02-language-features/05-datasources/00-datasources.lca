@@ -1,0 +1,29 @@
+/*
+    A datasource is assumed to provide a sequence of records.
+    For now, only the local CSV file source is supported.
+*/
+
+datasource inventory {
+    /*
+        The location is relative to the path chosen when invoking the cli.
+    */
+    location = "data/inventory.csv"
+
+    /*
+        The schema is defined using default values. Note that the unit of
+        the default value will be the one chosen for the entire column.
+    */
+    schema {
+         quantity = 1 p
+         ram_size = 16 GB
+         storage_size = 1 TB
+         amortization_period = 5 year
+         power = 400 W
+         ram_allocation = 75 percent
+         storage_allocation = 25 percent
+
+        // embodied impact
+         GWP = 0 kg_CO2_Eq
+         WU = 0 m3
+    }
+}

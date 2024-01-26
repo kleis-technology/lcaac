@@ -9,23 +9,23 @@ process end_of_life {
     variables {
         mat_params = lookup material_params match  id = id
 
-        ErecyclingEol_id = mat_params .ErecyclingEol_id
-        EstarV_id = mat_params .EstarV_id
-        Eer_id = mat_params .Eer_id
-        Ed_id = mat_params .Ed_id
+        ErecyclingEol_id = mat_params.ErecyclingEol_id
+        EstarV_id = mat_params.EstarV_id
+        Eer_id = mat_params.Eer_id
+        Ed_id = mat_params.Ed_id
 
         A = mat_params.A
         B = mat_params.B
         Q_out = mat_params.Q_out
 
         R2_data = lookup R2_data match ( geo = geo, id = id )
-        R2 = R2_data .R2
+        R2 = R2_data.R2
 
-        R3 = mat_params .R3
+        R3 = mat_params.R3
 
-        LHV = mat_params .LHV
-        Xer_heat = mat_params .Xer_heat
-        Xer_elec = mat_params .Xer_elec
+        LHV = mat_params.LHV
+        Xer_heat = mat_params.Xer_heat
+        Xer_elec = mat_params.Xer_elec
     }
 
     inputs {
