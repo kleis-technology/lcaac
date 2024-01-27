@@ -33,7 +33,7 @@ class EvaluatorTest {
             
             process p {
                 params {
-                    row from source
+                    row = default_record from source
                 }
                 products {
                     1 kg carrot
