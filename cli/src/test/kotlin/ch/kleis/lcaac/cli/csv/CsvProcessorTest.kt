@@ -31,7 +31,7 @@ class CsvProcessorTest {
             }
             process main {
                 params {
-                    row from source
+                    row = default_record from source
                 }
                 products {
                     1 kWh electricity
@@ -95,7 +95,7 @@ class CsvProcessorTest {
             }
             process main {
                 params {
-                    row from source
+                    row = default_record from source
                 }
                 products {
                     1 kWh electricity

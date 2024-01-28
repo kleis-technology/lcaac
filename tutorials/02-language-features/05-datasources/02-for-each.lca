@@ -35,7 +35,7 @@ process server {
     // You can define a parameter as a row from inventory.
     // The default value for this parameter is given by the schema.
     params {
-        row from inventory
+        row = default_record from inventory
     }
     products {
         1 p server

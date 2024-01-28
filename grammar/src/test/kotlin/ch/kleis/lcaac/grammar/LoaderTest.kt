@@ -26,7 +26,7 @@ class LoaderTest {
             
             process p {
                 params {
-                    row from source
+                    row = default_record from source
                 }
             }
         """.trimIndent()).lcaFile()

@@ -174,7 +174,6 @@ variables
 
 assignment
     : dataRef sep=EQUAL dataExpression
-    | dataRef sep=FROM_KEYWORD dataSourceRef
     ;
 
 /*
@@ -239,6 +238,7 @@ dataExpression
     | stringExpression                                              # baseGroup
     | dataRef slice?                                                # baseGroup
     | op=LOOKUP dataSourceExpression                                # recordGroup
+    | op=DEFAULT_RECORD FROM_KEYWORD dataSourceExpression           # recordGroup
     | op=SUM LPAREN dataSourceExpression COMMA columnRef (STAR columnRef)* RPAREN    # colGroup
     ;
 slice
@@ -376,6 +376,7 @@ FOR_EACH_KEYWORD : 'for_each' ;
 
 SUM : 'sum' ;
 LOOKUP : 'lookup' ;
+DEFAULT_RECORD : 'default_record' ;
 
 
 EQUAL : '=' ;

@@ -58,8 +58,6 @@ class CoreMapper<Q>(
     fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {
         return when (ctx.sep.text) {
             ctx.EQUAL()?.innerText() -> ctx.dataRef().innerText() to dataExpression(ctx.dataExpression())
-            ctx.FROM_KEYWORD()?.innerText() -> ctx.dataRef().innerText() to EDefaultRecordOf(EDataSourceRef(ctx.dataSourceRef().innerText()))
-
             else -> throw IllegalStateException("parsing error: invalid assignment '${ctx.text}'")
         }
     }
@@ -231,9 +229,13 @@ class CoreMapper<Q>(
         return when (ctx) {
             is LcaLangParser.RecordGroupContext -> {
                 when (ctx.op.text) {
-                    ctx.LOOKUP().innerText() -> {
+                    ctx.LOOKUP()?.innerText() -> {
                         val dataSource = dataSource(ctx.dataSourceExpression())
                         EFirstRecordOf(dataSource)
+                    }
+                    ctx.DEFAULT_RECORD()?.innerText() -> {
+                        val dataSource = dataSource(ctx.dataSourceExpression())
+                        EDefaultRecordOf(dataSource)
                     }
                     else -> throw IllegalStateException("parsing error: invalid primitive '${ctx.op.text}'")
                 }

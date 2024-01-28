@@ -127,7 +127,7 @@ class CoreMapperTest {
     fun assignment_defaultRecordOf() {
         // given
         val ctx = LcaLangFixture.parser("""
-            x from inventory
+            x = default_record from inventory
         """.trimIndent()).assignment()
         val mapper = CoreMapper(ops)
 
