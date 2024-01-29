@@ -29,6 +29,8 @@ class CoreTestMapper {
                 }
             },
             template = EProcessTemplate(
+                locals = ctx.variables().flatMap { it.assignment() }
+                    .associate { it.dataRef().uid().ID().text to coreMapper.dataExpression(it.dataExpression()) },
                 body = EProcess(
                     name = processName,
                     products = listOf(

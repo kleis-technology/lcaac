@@ -1,8 +1,10 @@
 package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.DataExpression
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
+import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.CoreMapper
@@ -55,3 +57,39 @@ fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<Bas
     }
 }
 
+fun prepareArguments(
+    dataReducer: DataExpressionReducer<BasicNumber>,
+    template: EProcessTemplate<BasicNumber>,
+    request: Map<String, String>,
+) = template.params.mapValues { entry ->
+    when (val v = entry.value) {
+        is QuantityExpression<*> -> request[entry.key]?.let {
+            smartParseQuantityWithDefaultUnit(it, EUnitOf(v))
+        } ?: entry.value
+
+        is StringExpression -> request[entry.key]?.let {
+            EStringLiteral(it)
+        } ?: entry.value
+
+        is EDefaultRecordOf -> {
+            val dataSource = dataReducer.evalDataSource(v.dataSource)
+            val schema = dataSource.schema
+            val entries = schema.mapValues { schemaEntry ->
+                when (val defaultValue = schemaEntry.value) {
+                    is QuantityValue -> request[schemaEntry.key]?.let {
+                        smartParseQuantityWithDefaultUnit(it, defaultValue.unit.toEUnitLiteral())
+                    } ?: defaultValue.toEQuantityScale()
+
+                    is StringValue -> request[schemaEntry.key]?.let {
+                        EStringLiteral(it)
+                    } ?: defaultValue.toEStringLiteral()
+
+                    else -> throw EvaluatorException("datasource '${dataSource.location}': column '${schemaEntry.key}': invalid default value")
+                }
+            }
+            ERecord(entries)
+        }
+
+        else -> throw EvaluatorException("$v is not a supported data expression")
+    }
+}

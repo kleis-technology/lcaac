@@ -18,4 +18,8 @@ class CsvRequest(
         return header[name]
             ?.let { record[it] }
     }
+
+    fun toMap(): Map<String, String> {
+        return header.mapValues { record[it.value] }
+    }
 }
