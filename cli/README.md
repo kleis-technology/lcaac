@@ -22,6 +22,16 @@ cd $GIT_ROOT/cli/samples
 lcaac assess "electricity_mix" --file params.csv
 ```
 
+## Tracing
+
+The `trace` command traces the execution of the assessment of a (single-product) target process.
+For every intermediate product or substance, it reports their quantity and their contribution to the total impact.
+
+```bash
+cd $GIT_ROOT/cli/samples
+lcaac trace "electricity_mix"
+```
+
 ## Run tests
 
 You can run all the tests with the following command.

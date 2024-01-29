@@ -10,6 +10,7 @@ import ch.kleis.lcaac.core.lang.value.IndicatorValue
 import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
 import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
 import ch.kleis.lcaac.core.prelude.Prelude.Companion.sanitize
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
@@ -22,6 +23,7 @@ import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.File
 
+@Suppress("MemberVisibilityCanBePrivate")
 class TraceCommand : CliktCommand(name = "trace", help = "Trace the contributions") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
@@ -71,6 +73,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             .sortedBy { it.getShortName() }
 
         val header = listOf(
+            "d_amount", "d_unit", "d_product", "alloc",
             "name", "a", "b", "c", "amount", "unit",
         ).plus(
             controllablePorts.flatMap {
@@ -81,63 +84,89 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             }
         )
 
-        val lines = observablePorts.asSequence()
-            .map { row ->
-                val supply = analysis.supplyOf(row)
-                val prefix = when (row) {
-                    is IndicatorValue -> {
-                        listOf(
-                            row.name,
-                            "",
-                            "",
-                            "",
-                            supply.amount.toString(),
-                            supply.unit.toString(),
-                        )
-                    }
+        val products = entryPoint.products.asSequence()
+        val lines = products.flatMap { demandedProduct ->
+            val demandedAmount = demandedProduct.quantity.amount
+            val demandedUnit = demandedProduct.quantity.unit
+            val demandedProductName = demandedProduct.product.name
+            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble() ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
+            observablePorts.asSequence()
+                .map { row ->
+                    val supply = analysis.supplyOf(row)
+                    val supplyAmount = supply.amount.value * allocationAmount
+                    val prefix = when (row) {
+                        is IndicatorValue -> {
+                            listOf(
+                                demandedAmount.toString(),
+                                demandedUnit.toString(),
+                                demandedProductName,
+                                allocationAmount.toString(),
+                                row.name,
+                                "",
+                                "",
+                                "",
+                                supplyAmount.toString(),
+                                supply.unit.toString(),
+                            )
+                        }
 
-                    is ProductValue -> {
-                        listOf(
-                            row.name,
-                            row.fromProcessRef?.name ?: "",
-                            row.fromProcessRef?.matchLabels?.toString() ?: "",
-                            row.fromProcessRef?.arguments?.toString() ?: "",
-                            supply.amount.toString(),
-                            supply.unit.toString(),
-                        )
-                    }
+                        is ProductValue -> {
+                            listOf(
+                                demandedAmount.toString(),
+                                demandedUnit.toString(),
+                                demandedProductName,
+                                allocationAmount.toString(),
+                                row.name,
+                                row.fromProcessRef?.name ?: "",
+                                row.fromProcessRef?.matchLabels?.toString() ?: "",
+                                row.fromProcessRef?.arguments?.toString() ?: "",
+                                supplyAmount.toString(),
+                                supply.unit.toString(),
+                            )
+                        }
 
-                    is FullyQualifiedSubstanceValue -> {
-                        listOf(
-                            row.name,
-                            row.compartment,
-                            row.subcompartment ?: "",
-                            row.type.toString(),
-                            supply.amount.toString(),
-                            supply.unit.toString(),
-                        )
-                    }
+                        is FullyQualifiedSubstanceValue -> {
+                            listOf(
+                                demandedAmount.toString(),
+                                demandedUnit.toString(),
+                                demandedProductName,
+                                allocationAmount.toString(),
+                                row.name,
+                                row.compartment,
+                                row.subcompartment ?: "",
+                                row.type.toString(),
+                                supplyAmount.toString(),
+                                supply.unit.toString(),
+                            )
+                        }
 
-                    is PartiallyQualifiedSubstanceValue -> {
+                        is PartiallyQualifiedSubstanceValue -> {
+                            listOf(
+                                demandedAmount.toString(),
+                                demandedUnit.toString(),
+                                demandedProductName,
+                                allocationAmount.toString(),
+                                row.name,
+                                "",
+                                "",
+                                "",
+                                supplyAmount.toString(),
+                                supply.unit.toString(),
+                            )
+                        }
+                    }
+                    val impacts = controllablePorts.flatMap { col ->
+                        val impact = analysis.getPortContribution(row, col)
+                        val impactAmount = impact.amount.value * allocationAmount
                         listOf(
-                            row.name,
-                            "",
-                            "",
-                            "",
-                            supply.amount.toString(),
-                            supply.unit.toString(),
+                            impactAmount.toString(),
+                            impact.unit.toString(),
                         )
                     }
+                    prefix.plus(impacts)
                 }
-                val impacts = controllablePorts.flatMap { col ->
-                    val impact = analysis.getPortContribution(row, col)
-                    listOf(
-                        impact.amount.toString(),
-                        impact.unit.toString(),
-                    )
-                }
-                prefix.plus(impacts)
-            }
+        }
+
 
         val s = StringBuilder()
         CSVPrinter(s, format).printRecord(header)
