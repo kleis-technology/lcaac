@@ -13,6 +13,9 @@ class CoreTestMapperTest {
         // given
         val content = """
             test foo {
+                variables {
+                    x = 1 kg
+                }
                 given {
                     1 kWh electricity
                 }
@@ -41,6 +44,9 @@ class CoreTestMapperTest {
         )
         assertEquals(
             EProcessTemplate(
+                locals = mapOf(
+                    "x" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
+                ),
                 body = EProcess(
                     name = "__test__foo",
                     products = listOf(
