@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.datasource.DummySourceOperations
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -110,14 +111,12 @@ class DataExpressionReducer<Q>(
 
 
     private fun reduceUnitOf(unitOf: EUnitOf<Q>): DataExpression<Q> {
-        with(ops) {
-            val reducedExpression = reduce(unitOf.expression)
-            return when {
-                reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> EQuantityScale(pure(1.0), reducedExpression.base)
+        val reducedExpression = dummyReducer().reduce(unitOf.expression)
+        return when {
+            reducedExpression is EQuantityScale && reducedExpression.base is EUnitLiteral -> EQuantityScale(ops.pure(1.0), reducedExpression.base)
 
-                reducedExpression is EUnitOf -> reducedExpression
-                else -> EUnitOf(reducedExpression)
-            }
+            reducedExpression is EUnitOf -> reducedExpression
+            else -> EUnitOf(reducedExpression)
         }
     }
 
@@ -250,5 +249,10 @@ class DataExpressionReducer<Q>(
         }
 
         return if (left.scale > right.scale) left else right
+    }
+
+
+    private fun dummyReducer(): DataExpressionReducer<Q> {
+        return DataExpressionReducer(dataRegister, dataSourceRegister, ops, DummySourceOperations())
     }
 }

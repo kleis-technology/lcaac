@@ -965,6 +965,41 @@ class DataExpressionReducerTest {
     }
 
     @Test
+    fun reduce_whenUnitOf_withDataSourceExpression() {
+        // given
+        val dataSource = EDataSource(
+            location = "source.csv",
+            schema = mapOf(
+                "n_items" to EQuantityScale(BasicNumber(0.0), UnitFixture.unit),
+                "mass" to EQuantityScale(BasicNumber(0.0), UnitFixture.kg),
+            )
+        )
+        val expr = EUnitOf<BasicNumber>(
+            ESumProduct(EDataSourceRef("source"), listOf("n_items", "mass"))
+        )
+        val reducer = DataExpressionReducer(
+            Register.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to dataSource,
+            )), ops, sourceOps)
+
+
+        // when
+        val actual = reducer.reduce(expr)
+
+        // then
+        val expected = EQuantityScale(
+            BasicNumber(1.0),
+            EUnitLiteral(
+                UnitSymbol.of("unit").multiply(UnitSymbol.of("kg")),
+                1.0,
+                Dimension.of("none").multiply(Dimension.of("mass"))
+            )
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun reduce_whenUnitOfUnitLiteral_shouldReturnNormalForm() {
         // given
         val expr = EUnitOf(UnitFixture.l)
