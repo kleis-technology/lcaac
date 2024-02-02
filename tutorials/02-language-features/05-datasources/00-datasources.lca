@@ -14,6 +14,7 @@ datasource inventory {
         the default value will be the one chosen for the entire column.
     */
     schema {
+         id = "small"
          quantity = 1 p
          ram_size = 16 GB
          storage_size = 1 TB
