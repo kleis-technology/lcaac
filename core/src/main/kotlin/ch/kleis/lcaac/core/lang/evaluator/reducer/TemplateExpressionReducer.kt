@@ -36,6 +36,7 @@ class TemplateExpressionReducer<Q>(
         val localRegister = DataRegister(dataRegister)
             .plus(actualArguments.mapKeys { DataKey(it.key) })
             .plus(template.locals.mapKeys { DataKey(it.key) })
+            .plus(template.body.labels.mapKeys { DataKey(it.key) })
 
         val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
         val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)

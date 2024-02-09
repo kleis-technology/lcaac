@@ -4,7 +4,6 @@ import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.step.CompleteTerminals
 import ch.kleis.lcaac.core.lang.evaluator.step.Reduce
-import ch.kleis.lcaac.core.lang.evaluator.step.ReduceLabelSelectors
 import ch.kleis.lcaac.core.lang.expression.EProcess
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaac.core.lang.resolver.ProcessResolver
@@ -14,9 +13,8 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 class Oracle<Q>(
     val symbolTable: SymbolTable<Q>,
     val ops: QuantityOperations<Q>,
-    private val sourceOps: DataSourceOperations<Q>,
+    sourceOps: DataSourceOperations<Q>,
 ) {
-    private val reduceLabelSelectors = ReduceLabelSelectors(symbolTable, ops, sourceOps)
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)
     private val processResolver = ProcessResolver(symbolTable)
@@ -40,7 +38,6 @@ class Oracle<Q>(
             .plus(spec.fromProcess?.arguments ?: emptyMap())
         val expression = EProcessTemplateApplication(template, arguments)
         val process = expression
-            .let(reduceLabelSelectors::apply)
             .let(reduceDataExpressions::apply)
             .let(completeTerminals::apply)
         val selectedPortIndex = indexOf(request.value.name, process)
