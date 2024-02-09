@@ -147,6 +147,7 @@ fun <Q> everyDataRefInDataExpression(): PEvery<DataExpression<Q>, DataExpression
                         modify(it, map)
                     }
                 )
+
                 is EFirstRecordOf -> source.copy(
                     dataSource = everyDataExpressionInDataSourceExpression<Q>().modify(source.dataSource) {
                         modify(it, map)
@@ -187,19 +188,28 @@ private fun <Q> everyDataRefInEBioExchange(): PEvery<EBioExchange<Q>, EBioExchan
 private fun <Q> everyDataRefInEImpact(): PEvery<EImpact<Q>, EImpact<Q>, EDataRef<Q>, DataExpression<Q>> =
     EImpact.quantity<Q>() compose everyDataRefInDataExpression()
 
+private fun <E, Q> everyProperDataRefInEBlockForEach(): PEvery<EBlockForEach<E, Q>, EBlockForEach<E, Q>, EDataRef<Q>, DataExpression<Q>> =
+    Merge(
+        listOf(
+            EBlockForEach.dataSource<E, Q>() compose
+                everyDataExpressionInDataSourceExpression() compose
+                everyDataRefInDataExpression(),
+            EBlockForEach.locals<E, Q>() compose
+                Every.map() compose
+                everyDataRefInDataExpression(),
+        )
+    )
+
 fun <Q> everyDataRefInProcess(): PEvery<EProcess<Q>, EProcess<Q>, EDataRef<Q>, DataExpression<Q>> =
     Merge(
         listOf(
             EProcess.products<Q>() compose Every.list() compose everyDataRefInETechnoExchange(),
             EProcess.inputs<Q>() compose Every.list() compose
-                BlockExpression.everyEntry() compose
-                everyDataRefInETechnoExchange(),
+                BlockExpression.everyDataRef(everyDataRefInETechnoExchange()),
             EProcess.biosphere<Q>() compose Every.list() compose
-                BlockExpression.everyEntry() compose
-                everyDataRefInEBioExchange(),
+                BlockExpression.everyDataRef(everyDataRefInEBioExchange()),
             EProcess.impacts<Q>() compose Every.list() compose
-                BlockExpression.everyEntry() compose
-                everyDataRefInEImpact(),
+                BlockExpression.everyDataRef(everyDataRefInEImpact()),
         )
     )
 
@@ -208,8 +218,7 @@ private fun <Q> everyDataRefInSubstanceCharacterization(): PEvery<ESubstanceChar
         listOf(
             ESubstanceCharacterization.referenceExchange<Q>() compose everyDataRefInEBioExchange(),
             ESubstanceCharacterization.impacts<Q>() compose Every.list() compose
-                BlockExpression.everyEntry() compose
-                everyDataRefInEImpact(),
+                BlockExpression.everyDataRef(everyDataRefInEImpact()),
         )
     )
 
