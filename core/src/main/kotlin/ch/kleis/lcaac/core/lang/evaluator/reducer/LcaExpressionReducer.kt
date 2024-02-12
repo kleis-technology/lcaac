@@ -113,7 +113,9 @@ class LcaExpressionReducer<Q>(
                     .flatMap { record ->
                         val reducer = push(mapOf(
                             DataKey(expression.rowRef) to record
-                        ))
+                        )).push(
+                            expression.locals.mapKeys { DataKey(it.key) }
+                        )
                         expression.body
                             .flatMap { reducer.reduceBioBlock(it) }
                     }.toList()
@@ -136,7 +138,9 @@ class LcaExpressionReducer<Q>(
                     .flatMap { record ->
                         val reducer = push(mapOf(
                             DataKey(expression.rowRef) to record
-                        ))
+                        )).push(
+                            expression.locals.mapKeys { DataKey(it.key) }
+                        )
                         expression.body
                             .flatMap { reducer.reduceImpactBlock(it) }
                     }.toList()

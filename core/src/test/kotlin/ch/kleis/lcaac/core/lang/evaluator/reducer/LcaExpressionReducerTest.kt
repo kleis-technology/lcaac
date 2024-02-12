@@ -26,7 +26,131 @@ class LcaExpressionReducerTest {
      */
 
     @Test
-    fun reduce_whenBlockForEach_withLocalVariables() {
+    fun reduce_whenBlockForEach_ImpactBlock_withLocalVariables() {
+        // given
+        val block = EImpactBlockForEach(
+            "row",
+            EDataSourceRef("source"),
+            mapOf("x" to ERecordEntry(EDataRef("row"), "mass")),
+            listOf(
+                EImpactBlockEntry(
+                    EImpact(
+                        EDataRef("x"),
+                        IndicatorFixture.climateChange,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            impacts = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to emptyDataSource,
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            impacts = listOf(
+                EImpactBlockEntry(
+                    EImpact(
+                        QuantityFixture.oneKilogram,
+                        IndicatorFixture.climateChange,
+                    )
+                ),
+                EImpactBlockEntry(
+                    EImpact(
+                        QuantityFixture.twoKilograms,
+                        IndicatorFixture.climateChange,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_BioBlock_withLocalVariables() {
+        // given
+        val block = EBioBlockForEach(
+            "row",
+            EDataSourceRef("source"),
+            mapOf("x" to ERecordEntry(EDataRef("row"), "mass")),
+            listOf(
+                EBioBlockEntry(
+                    EBioExchange(
+                        EDataRef("x"),
+                        SubstanceFixture.propanol,
+                    )
+                ),
+            )
+        )
+        val expression = EProcess(
+            name = "foo",
+            biosphere = listOf(block),
+        )
+        val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        every { sourceOps.readAll(any()) } returns sequenceOf(
+            ERecord(mapOf(
+                "mass" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "mass" to QuantityFixture.twoKilograms,
+            )),
+        )
+        val reducer = LcaExpressionReducer(
+            DataRegister.empty(),
+            DataSourceRegister.from(mapOf(
+                DataSourceKey("source") to emptyDataSource,
+            )),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(expression)
+
+        // then
+        val expected = EProcess(
+            name = "foo",
+            biosphere = listOf(
+                EBioBlockEntry(
+                    EBioExchange(
+                        QuantityFixture.oneKilogram,
+                        SubstanceFixture.propanol,
+                    )
+                ),
+                EBioBlockEntry(
+                    EBioExchange(
+                        QuantityFixture.twoKilograms,
+                        SubstanceFixture.propanol,
+                    )
+                ),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenBlockForEach_TechnoBlock_withLocalVariables() {
         // given
         val block = ETechnoBlockForEach(
             "row",
