@@ -59,5 +59,11 @@ class Register<K, E> (
             data.plus(pairs)
         )
     }
+
+    fun override(key: K, value: E): Register<K, E> {
+        return Register(
+            data.plus(key to value)
+        )
+    }
 }
 
