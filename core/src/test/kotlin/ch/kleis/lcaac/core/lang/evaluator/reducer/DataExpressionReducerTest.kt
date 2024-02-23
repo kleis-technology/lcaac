@@ -255,7 +255,7 @@ class DataExpressionReducerTest {
                 "mass" to QuantityFixture.oneKilogram
             )
         )
-        val record = EFirstRecordOf<BasicNumber>(EDataSourceRef("source"))
+        val firstRecordOf = EFirstRecordOf<BasicNumber>(EDataSourceRef("source"))
         val reducer = DataExpressionReducer(
             DataRegister.empty(),
             DataSourceRegister.from(mapOf(
@@ -264,12 +264,16 @@ class DataExpressionReducerTest {
             ops,
             sourceOps,
         )
-        val expected = mockk<ERecord<BasicNumber>>()
+        val expected = ERecord(
+            mapOf(
+                "mass" to QuantityFixture.twoKilograms
+            )
+        )
         val dataSourceValue = with(ToValue(ops)) { dataSource.toValue() }
         every { sourceOps.getFirst(dataSourceValue) } returns expected
 
         // when
-        val actual = reducer.reduce(record)
+        val actual = reducer.reduce(firstRecordOf)
 
         // then
         assertEquals(expected, actual)

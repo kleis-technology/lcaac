@@ -21,12 +21,6 @@ open class DataSourceOperationsBase<Q>(
         val description = DataSourceDescription(source.location, source.schema)
         val records = load(description)
         val filter = source.filter
-        val reducer = DataExpressionReducer(
-            dataRegister = Prelude.units(),
-            dataSourceRegister = DataSourceRegister.empty(),
-            ops = ops,
-            sourceOps = this,
-        )
         return records
             .filter { record ->
                 filter.entries.all {
@@ -40,10 +34,6 @@ open class DataSourceOperationsBase<Q>(
                         actual == expected
                     } else throw EvaluatorException("invalid matching condition $it")
                 }
-            }.map { record ->
-                ERecord(
-                    record.entries.mapValues { reducer.reduce(it.value) }
-                )
             }
     }
 
