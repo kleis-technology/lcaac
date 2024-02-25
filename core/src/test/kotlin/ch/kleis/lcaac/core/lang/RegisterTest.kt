@@ -13,6 +13,23 @@ import kotlin.test.assertNotEquals
 
 class RegisterTest {
     @Test
+    fun override() {
+        // given
+        val key = DataKey("abc.x")
+        val a = EDataRef<BasicNumber>("a")
+        val b = EDataRef<BasicNumber>("b")
+        val register = DataRegister<BasicNumber>().plus(mapOf(
+            key to a
+        ))
+
+        // when
+        val actual = register.override(key, b)[key]
+
+        // then
+        assertEquals(b, actual)
+    }
+
+    @Test
     fun set_and_get() {
         // given
         val key = DataKey("abc.x")

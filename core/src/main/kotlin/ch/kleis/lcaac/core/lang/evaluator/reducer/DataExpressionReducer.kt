@@ -50,7 +50,7 @@ class DataExpressionReducer<Q>(
 
     private fun reduceFirstRecordOf(expression: EFirstRecordOf<Q>): DataExpression<Q> {
         val dataSource = evalDataSource(expression.dataSource)
-        return sourceOps.getFirst(dataSource)
+        return reduceMap(sourceOps.getFirst(dataSource))
     }
 
     fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, DataExpression<Q>> = emptyMap()): EDataSource<Q> {
