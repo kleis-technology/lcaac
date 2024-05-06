@@ -16,6 +16,7 @@ class LcaExpressionReducerTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
     private val emptyDataSource = EDataSource<BasicNumber>(
+        name = "source",
         "location.csv",
         emptyMap(),
         emptyMap()

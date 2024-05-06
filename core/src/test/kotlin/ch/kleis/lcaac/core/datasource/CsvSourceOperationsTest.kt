@@ -43,6 +43,7 @@ class CsvSourceOperationsTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
+            name = "source",
             location = "source.csv",
             schema = mapOf(
                 "geo" to StringValue("FR"),
@@ -87,6 +88,7 @@ class CsvSourceOperationsTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
+            name = "source",
             location = "source.csv",
             schema = mapOf(
                 "geo" to StringValue("FR"),
@@ -122,6 +124,7 @@ class CsvSourceOperationsTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
+            name = "source",
             location = "source.csv",
             schema = mapOf(
                 "geo" to StringValue("FR"),
@@ -154,6 +157,7 @@ class CsvSourceOperationsTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
+            name = "source",
             location = "source.csv",
             schema = mapOf(
                 "geo" to StringValue("FR"),

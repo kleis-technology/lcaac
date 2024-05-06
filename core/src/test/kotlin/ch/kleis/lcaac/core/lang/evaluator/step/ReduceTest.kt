@@ -38,6 +38,7 @@ class ReduceTest {
             )
         )
         val dataSource = EDataSource(
+            name = "source",
             location = "foo.csv",
             schema = mapOf(
                 "mass" to QuantityFixture.oneLitre
