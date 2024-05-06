@@ -374,8 +374,9 @@ class CoreMapper<Q>(
             key to value
         }
         return EDataSource(
-            location,
-            schema,
+            name = name,
+            location = location,
+            schema = schema,
         )
     }
 }

@@ -75,6 +75,7 @@ class LoaderTest {
 
         // then
         val expected = EDataSource(
+            name = "source",
             location = "file.csv",
             schema = mapOf(
                 "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
@@ -105,6 +106,7 @@ class LoaderTest {
 
         // then
         val expected = EDataSource(
+            name = "source",
             location = "file.csv",
             schema = mapOf(
                 "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),

@@ -207,7 +207,7 @@ class CoreMapperTest {
         val actual = mapper.dataSourceDefinition(ctx)
 
         // then
-        val expected = EDataSource(location = "file.csv", schema = mapOf(
+        val expected = EDataSource(name = "source", location = "file.csv", schema = mapOf(
             "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
             "geo" to EStringLiteral("FR"),
         ))
