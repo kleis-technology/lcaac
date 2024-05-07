@@ -63,7 +63,8 @@ class DataExpressionReducer<Q>(
                 val invalidKeys = f.keys
                     .filter { s.containsKey(it) }
                     .filter { s[it]!! !is StringExpression }
-                if (invalidKeys.isNotEmpty()) throw EvaluatorException("data source '${expression.location}': cannot match on numeric column(s) $invalidKeys")
+                if (invalidKeys.isNotEmpty())
+                    throw EvaluatorException("data source '${expression.config.name}': cannot match on numeric column(s) $invalidKeys")
                 expression.copy(
                     schema = s,
                     filter = f,

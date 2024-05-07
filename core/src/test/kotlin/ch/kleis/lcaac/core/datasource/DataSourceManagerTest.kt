@@ -1,8 +1,8 @@
 package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.config.LcaacConnectorConfig
-import ch.kleis.lcaac.core.config.LcaacDataSourceConfig
+import ch.kleis.lcaac.core.config.ConnectorConfig
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -21,10 +21,10 @@ import kotlin.test.assertEquals
 
 class DataSourceManagerTest {
     private val connectorName = "connector"
-    private val connectorConfig = LcaacConnectorConfig(name = connectorName, options = emptyMap())
+    private val connectorConfig = ConnectorConfig(name = connectorName, options = emptyMap())
 
     private val sourceName = "source"
-    private val sourceConfig = LcaacDataSourceConfig(name = sourceName, connector = connectorName)
+    private val sourceConfig = DataSourceConfig(name = sourceName, connector = connectorName)
 
     private val config = LcaacConfig(
         name = "project",
@@ -63,8 +63,10 @@ class DataSourceManagerTest {
         val sourceOps = DataSourceManager(config, ops)
         sourceOps.registerConnector(connectorName, connector)
         val source = DataSourceValue(
-            name = sourceName,
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = sourceName,
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -112,8 +114,10 @@ class DataSourceManagerTest {
         val sourceOps = DataSourceManager(config, ops)
         sourceOps.registerConnector(connectorName, connector)
         val source = DataSourceValue(
-            name = sourceName,
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = sourceName,
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -161,8 +165,10 @@ class DataSourceManagerTest {
         val sourceOps = DataSourceManager(config, ops)
         sourceOps.registerConnector(connectorName, connector)
         val source = DataSourceValue(
-            name = sourceName,
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = sourceName,
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,

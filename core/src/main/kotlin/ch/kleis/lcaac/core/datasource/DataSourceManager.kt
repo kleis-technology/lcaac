@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.config.LcaacDataSourceConfig
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityAdd
@@ -22,24 +22,25 @@ class DataSourceManager<Q>(
         connectors[connectorName] = connector
     }
 
-    private fun configOf(name: String): LcaacDataSourceConfig {
-        return config.datasources[name]
-            ?: throw IllegalArgumentException("No configuration found for datasource '$name'")
+    private fun configOf(source: DataSourceValue<Q>): DataSourceConfig {
+//        return config.datasources[name]
+//            ?: throw IllegalArgumentException("No configuration found for datasource '$name'")
+        TODO("Implement me")
     }
 
-    private fun connectorOf(config: LcaacDataSourceConfig): DataSourceConnector<Q> {
+    private fun connectorOf(config: DataSourceConfig): DataSourceConnector<Q> {
         return connectors[config.connector]
             ?: throw IllegalArgumentException("Unknown connect '${config.connector}'")
     }
 
     override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
-        val sourceConfig = configOf(source.name)
+        val sourceConfig = configOf(source)
         val connector = connectorOf(sourceConfig)
         return connector.getFirst(sourceConfig, source)
     }
 
     override fun getAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val sourceConfig = configOf(source.name)
+        val sourceConfig = configOf(source)
         val connector = connectorOf(sourceConfig)
         return connector.getAll(sourceConfig, source)
     }
@@ -55,7 +56,7 @@ class DataSourceManager<Q>(
             columns.map { column ->
                 record.entries[column]
                     ?: throw IllegalStateException(
-                        "${source.location}: invalid schema: unknown column '$column'"
+                        "${source.config.name}: invalid schema: unknown column '$column'"
                     )
             }.reduce { acc, expression ->
                 reducer.reduce(EQuantityMul(acc, expression))

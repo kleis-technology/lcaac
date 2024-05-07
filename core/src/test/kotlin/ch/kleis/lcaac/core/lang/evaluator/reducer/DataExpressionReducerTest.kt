@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
@@ -34,8 +35,10 @@ class DataExpressionReducerTest {
     fun reduceDataSource_withRefInSchema() {
         // given
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "col" to EQuantityScale(BasicNumber(2.0), EDataRef("foo")),
             ),
@@ -52,8 +55,10 @@ class DataExpressionReducerTest {
 
         // then
         val expected = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "col" to QuantityFixture.twoKilograms,
             ),
@@ -65,8 +70,10 @@ class DataExpressionReducerTest {
     fun reduceDataSource_filterWithRef() {
         // given
         val dataSource = EDataSource<BasicNumber>(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "id" to EStringLiteral("foo"),
             ),
@@ -92,8 +99,10 @@ class DataExpressionReducerTest {
     fun reduceDataSource_dataSourceRef() {
         // given
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "volume" to QuantityFixture.oneLitre,
                 "mass" to QuantityFixture.oneKilogram,
@@ -114,8 +123,10 @@ class DataExpressionReducerTest {
     fun reduceDataSource_filter() {
         // given
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "label" to EStringLiteral("value"),
                 "volume" to QuantityFixture.oneLitre,
@@ -142,12 +153,17 @@ class DataExpressionReducerTest {
     @Test
     fun reduceDataSource_filter_accumulation() {
         // given
-        val dataSource = EDataSource(name = "source", location = "source.csv", schema = mapOf(
-            "label" to EStringLiteral("value"),
-            "geo" to EStringLiteral("FR"),
-            "volume" to QuantityFixture.oneLitre,
-            "mass" to QuantityFixture.oneKilogram,
-        ), filter = mapOf("geo" to EStringLiteral("UK")))
+        val dataSource = EDataSource(
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
+            schema = mapOf(
+                "label" to EStringLiteral("value"),
+                "geo" to EStringLiteral("FR"),
+                "volume" to QuantityFixture.oneLitre,
+                "mass" to QuantityFixture.oneKilogram,
+            ), filter = mapOf("geo" to EStringLiteral("UK")))
         val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
         val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("label" to EStringLiteral("some_value")))
         val reducer = DataExpressionReducer(DataRegister.empty(), dataSourceRegister, ops, sourceOps)
@@ -166,17 +182,22 @@ class DataExpressionReducerTest {
     @Test
     fun reduceDataSource_filter_whenInvalid() {
         // given
-        val dataSource = EDataSource(name = "source", location = "source.csv", schema = mapOf(
-            "volume" to QuantityFixture.oneLitre,
-            "mass" to QuantityFixture.oneKilogram,
-        ))
+        val dataSource = EDataSource(
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
+            schema = mapOf(
+                "volume" to QuantityFixture.oneLitre,
+                "mass" to QuantityFixture.oneKilogram,
+            ))
         val dataSourceRegister = DataSourceRegister.from(mapOf(DataSourceKey("source") to dataSource))
         val expression = EFilter(EDataSourceRef<BasicNumber>("source"), mapOf("volume" to EStringLiteral("some_value")))
         val reducer = DataExpressionReducer(DataRegister.empty(), dataSourceRegister, ops, sourceOps)
 
         // when
         val e = assertThrows<EvaluatorException> { reducer.reduceDataSource(expression) }
-        assertEquals("data source 'source.csv': cannot match on numeric column(s) [volume]", e.message)
+        assertEquals("data source 'source': cannot match on numeric column(s) [volume]", e.message)
     }
 
     /*
@@ -188,8 +209,10 @@ class DataExpressionReducerTest {
         // given
         val expression = ESumProduct<BasicNumber>(EDataSourceRef("source"), listOf("volume", "mass"))
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "volume" to QuantityFixture.oneLitre,
                 "mass" to QuantityFixture.oneKilogram,
@@ -226,8 +249,10 @@ class DataExpressionReducerTest {
         // given
         val expression = ESumProduct<BasicNumber>(EDataSourceRef("foo"), listOf("mass"))
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             ),
@@ -257,8 +282,10 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenFirstRecordOfDataSourceRef() {
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "mass" to QuantityFixture.oneKilogram
             )
@@ -291,9 +318,14 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenDefaultRecordOfDataSourceRef() {
         // given
-        val dataSource = EDataSource<BasicNumber>(name = "source", location = "source.csv", schema = mapOf(
-            "x" to EDataRef("a"),
-        ))
+        val dataSource = EDataSource<BasicNumber>(
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
+            schema = mapOf(
+                "x" to EDataRef("a"),
+            ))
         val record = EDefaultRecordOf<BasicNumber>(EDataSourceRef("source"))
         val reducer = DataExpressionReducer(
             Register.from(mapOf(
@@ -319,9 +351,14 @@ class DataExpressionReducerTest {
     @Test
     fun reduce_whenDefaultRecordOfDataSourceRef_invalidRef() {
         // given
-        val dataSource = EDataSource<BasicNumber>(name="source", location = "source.csv", schema = mapOf(
-            "x" to EDataRef("a"),
-        ))
+        val dataSource = EDataSource<BasicNumber>(
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
+            schema = mapOf(
+                "x" to EDataRef("a"),
+            ))
         val record = EDefaultRecordOf<BasicNumber>(EDataSourceRef("foo"))
         val reducer = DataExpressionReducer(
             Register.from(mapOf(
@@ -980,8 +1017,10 @@ class DataExpressionReducerTest {
     fun reduce_whenUnitOf_withDataSourceExpression() {
         // given
         val dataSource = EDataSource(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "n_items" to EQuantityScale(BasicNumber(0.0), UnitFixture.unit),
                 "mass" to EQuantityScale(BasicNumber(0.0), UnitFixture.kg),

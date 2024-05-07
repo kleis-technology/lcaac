@@ -1,6 +1,6 @@
 package ch.kleis.lcaac.core.datasource.csv
 
-import ch.kleis.lcaac.core.config.LcaacConnectorConfig
+import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig.Companion.CSV_CONNECTOR_KEY_DIRECTORY
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig.Companion.CSV_CONNECTOR_NAME
 import java.io.File
@@ -15,7 +15,7 @@ data class CsvConnectorConfig(
     }
 }
 
-fun LcaacConnectorConfig.csv(): CsvConnectorConfig? {
+fun ConnectorConfig.csv(): CsvConnectorConfig? {
     if (this.name != CSV_CONNECTOR_NAME) {
         return null
     }

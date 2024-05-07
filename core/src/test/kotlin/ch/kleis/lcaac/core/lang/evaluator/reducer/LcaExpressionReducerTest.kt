@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
@@ -16,8 +17,10 @@ class LcaExpressionReducerTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
     private val emptyDataSource = EDataSource<BasicNumber>(
-        name = "source",
-        "location.csv",
+        config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        ),
         emptyMap(),
         emptyMap()
     )

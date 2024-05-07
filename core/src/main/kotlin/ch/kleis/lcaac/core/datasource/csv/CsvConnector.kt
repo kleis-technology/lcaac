@@ -1,7 +1,6 @@
 package ch.kleis.lcaac.core.datasource.csv
 
-import ch.kleis.lcaac.core.config.LcaacConnectorConfig
-import ch.kleis.lcaac.core.config.LcaacDataSourceConfig
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -52,7 +51,7 @@ class CsvConnector<Q>(
             }
     }
 
-    override fun getAll(config: LcaacDataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+    override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val records = load(config.location, source.schema)
         val filter = source.filter
         return records
@@ -63,7 +62,7 @@ class CsvConnector<Q>(
                         val actual = record.entries[it.key]
                             ?.let { with(ToValue(ops)) { it.toValue() } }
                             ?: throw IllegalStateException(
-                                "${source.location}: invalid schema: unknown column '${it.key}'"
+                                "${source.config.name}: invalid schema: unknown column '${it.key}'"
                             )
                         actual == expected
                     } else throw EvaluatorException("invalid matching condition $it")
@@ -71,7 +70,7 @@ class CsvConnector<Q>(
             }
     }
 
-    override fun getFirst(config: LcaacDataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+    override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
         return getAll(config, source).firstOrNull()
             ?: throw EvaluatorException("no record found in '${config.location}' matching ${source.filter}")
     }

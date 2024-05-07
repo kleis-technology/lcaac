@@ -1,18 +1,14 @@
 package ch.kleis.lcaac.core.datasource
 
-import ch.kleis.lcaac.core.config.LcaacDataSourceConfig
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.csv.CsvConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
-import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -45,8 +41,10 @@ class CsvConnectorTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -56,7 +54,7 @@ class CsvConnectorTest {
                 "geo" to StringValue("FR")
             )
         )
-        val config = LcaacDataSourceConfig(
+        val config = DataSourceConfig(
             name = "source",
             location = "source.csv",
         )
@@ -94,8 +92,10 @@ class CsvConnectorTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -105,7 +105,7 @@ class CsvConnectorTest {
                 "geo" to StringValue("UK")
             )
         )
-        val config = LcaacDataSourceConfig(
+        val config = DataSourceConfig(
             name = "source",
             location = "source.csv",
         )
@@ -131,8 +131,10 @@ class CsvConnectorTest {
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            name = "source",
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -142,7 +144,7 @@ class CsvConnectorTest {
                 "geo" to StringValue("A_NON_EXISTING_COUNTRY")
             )
         )
-        val config = LcaacDataSourceConfig(
+        val config = DataSourceConfig(
             name = "source",
             location = "source.csv",
         )
