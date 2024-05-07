@@ -47,7 +47,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -109,7 +109,7 @@ class LcaExpressionReducerTest {
             biosphere = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -171,7 +171,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -233,7 +233,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -278,7 +278,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -353,7 +353,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(emptyMap()),
             ERecord(emptyMap()),
         )

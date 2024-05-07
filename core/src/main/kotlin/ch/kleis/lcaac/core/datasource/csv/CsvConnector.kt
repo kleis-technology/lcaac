@@ -1,31 +1,33 @@
-package ch.kleis.lcaac.core.datasource
+package ch.kleis.lcaac.core.datasource.csv
 
+import ch.kleis.lcaac.core.config.LcaacConnectorConfig
+import ch.kleis.lcaac.core.config.LcaacDataSourceConfig
+import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
-import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
-import ch.kleis.lcaac.core.lang.expression.*
-import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.expression.DataExpression
+import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.expression.ERecord
+import ch.kleis.lcaac.core.lang.expression.EStringLiteral
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.DataValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.QuantityOperations
-import ch.kleis.lcaac.core.prelude.Prelude
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
-import java.io.File
 import java.io.InputStream
 import java.lang.Double.parseDouble
 import java.nio.file.Paths
 
-class CsvSourceOperations<Q>(
-    private val path: File,
+class CsvConnector<Q>(
+    private val connectorConfig: CsvConnectorConfig,
     private val ops: QuantityOperations<Q>,
-    private val fileLoader: (String) -> InputStream = {
-        val location = Paths.get(path.absolutePath, it)
-        location.toFile().inputStream()
+    private val fileLoader: (String) -> InputStream = { location ->
+        val csvFile = Paths.get(connectorConfig.directory.absolutePath, location)
+        csvFile.toFile().inputStream()
     }
-) : DataSourceOperations<Q> {
+) : DataSourceConnector<Q> {
     private fun load(location: String, schema: Map<String, DataValue<Q>>): Sequence<ERecord<Q>> {
         val inputStream = fileLoader(location)
         val parser = CSVParser(inputStream.reader(), format)
@@ -50,8 +52,8 @@ class CsvSourceOperations<Q>(
             }
     }
 
-    override fun readAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val records = load(source.location, source.schema)
+    override fun getAll(config: LcaacDataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+        val records = load(config.location, source.schema)
         val filter = source.filter
         return records
             .filter { record ->
@@ -69,30 +71,9 @@ class CsvSourceOperations<Q>(
             }
     }
 
-    override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        val reducer = DataExpressionReducer(
-            dataRegister = Prelude.units(),
-            dataSourceRegister = DataSourceRegister.empty(),
-            ops = ops,
-            sourceOps = this,
-        )
-        return readAll(source).map { record ->
-            columns.map { column ->
-                record.entries[column]
-                    ?: throw IllegalStateException(
-                        "${source.location}: invalid schema: unknown column '$column'"
-                    )
-            }.reduce { acc, expression ->
-                reducer.reduce(EQuantityMul(acc, expression))
-            }
-        }.reduce { acc, expression ->
-            reducer.reduce(EQuantityAdd(acc, expression))
-        }
-    }
-
-    override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
-        return readAll(source).firstOrNull()
-            ?: throw EvaluatorException("no record found in '${source.location}' matching ${source.filter}")
+    override fun getFirst(config: LcaacDataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+        return getAll(config, source).firstOrNull()
+            ?: throw EvaluatorException("no record found in '${config.location}' matching ${source.filter}")
     }
 }
 

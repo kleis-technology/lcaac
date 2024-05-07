@@ -4,7 +4,7 @@ sealed interface DataSourceExpression<Q>
 
 data class EDataSource<Q> (
     val name: String,
-    val location: String,
+    @Deprecated("will be removed") val location: String,
     val schema: Map<String, DataExpression<Q>>,
     val filter: Map<String, DataExpression<Q>> = emptyMap(),
 ) : DataSourceExpression<Q>
