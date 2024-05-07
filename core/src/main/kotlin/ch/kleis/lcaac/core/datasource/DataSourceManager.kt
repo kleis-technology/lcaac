@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.core.datasource
 
-import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityAdd
@@ -23,9 +23,11 @@ class DataSourceManager<Q>(
     }
 
     private fun configOf(source: DataSourceValue<Q>): DataSourceConfig {
-//        return config.datasources[name]
-//            ?: throw IllegalArgumentException("No configuration found for datasource '$name'")
-        TODO("Implement me")
+        return with(DataSourceConfig.merger(source.config.name)) {
+            config.datasources[source.config.name]
+                ?.let { source.config.combine(it) }
+                ?: source.config
+        }
     }
 
     private fun connectorOf(config: DataSourceConfig): DataSourceConnector<Q> {

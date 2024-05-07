@@ -52,7 +52,8 @@ class CsvConnector<Q>(
     }
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val records = load(config.location, source.schema)
+        val location = config.location ?: throw IllegalArgumentException("Missing location in configuration for datasource '${config.name}'")
+        val records = load(location, source.schema)
         val filter = source.filter
         return records
             .filter { record ->
