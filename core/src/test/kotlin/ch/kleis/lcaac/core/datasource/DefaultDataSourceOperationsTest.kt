@@ -19,7 +19,7 @@ import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class DataSourceManagerTest {
+class DefaultDataSourceOperationsTest {
     private val connectorName = "connector"
     private val connectorConfig = ConnectorConfig(name = connectorName, options = emptyMap())
 
@@ -29,12 +29,8 @@ class DataSourceManagerTest {
     private val config = LcaacConfig(
         name = "project",
         description = "description",
-        datasources = mapOf(
-            sourceName to sourceConfig
-        ),
-        connectors = mapOf(
-            connectorName to connectorConfig
-        ),
+        datasources = listOf(sourceConfig),
+        connectors = listOf(connectorConfig),
     )
     private val ops = BasicOperations
 
@@ -42,6 +38,7 @@ class DataSourceManagerTest {
     fun getAll() {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
+        every { connector.getName() } returns connectorName
         every { connector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -59,9 +56,10 @@ class DataSourceManagerTest {
                 "mass" to QuantityFixture.twoKilograms,
             )),
         )
-
-        val sourceOps = DataSourceManager(config, ops)
-        sourceOps.registerConnector(connectorName, connector)
+        val factory = object : ConnectorFactory<BasicNumber> {
+            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
+        }
+        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -105,14 +103,17 @@ class DataSourceManagerTest {
     fun getFirst() {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
+        every { connector.getName() } returns connectorName
         every { connector.getFirst(any(), any()) } returns ERecord(mapOf(
             "geo" to EStringLiteral("FR"),
             "n_items" to QuantityFixture.oneUnit,
             "mass" to QuantityFixture.oneKilogram,
         ))
 
-        val sourceOps = DataSourceManager(config, ops)
-        sourceOps.registerConnector(connectorName, connector)
+        val factory = object : ConnectorFactory<BasicNumber> {
+            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
+        }
+        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -144,6 +145,7 @@ class DataSourceManagerTest {
     fun sumProduct() {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
+        every { connector.getName() } returns connectorName
         every { connector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -162,8 +164,10 @@ class DataSourceManagerTest {
             )),
         )
 
-        val sourceOps = DataSourceManager(config, ops)
-        sourceOps.registerConnector(connectorName, connector)
+        val factory = object : ConnectorFactory<BasicNumber> {
+            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
+        }
+        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,

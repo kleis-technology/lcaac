@@ -21,7 +21,7 @@ fun ConnectorConfig.csv(): CsvConnectorConfig? {
     }
     val directory = this.options[CSV_CONNECTOR_KEY_DIRECTORY]
         ?.let { Path.of(it).toFile() }
-        ?: return null
+        ?: Path.of(".").toFile()
     return CsvConnectorConfig(
         directory,
     )

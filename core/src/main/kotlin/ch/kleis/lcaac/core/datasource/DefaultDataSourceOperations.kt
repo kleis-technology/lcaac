@@ -12,19 +12,18 @@ import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 
-class DataSourceManager<Q>(
+class DefaultDataSourceOperations<Q>(
     private val config: LcaacConfig,
     private val ops: QuantityOperations<Q>,
+    private val connectorFactory: ConnectorFactory<Q> = ConnectorFactory.default(ops)
 ) : DataSourceOperations<Q> {
-    private val connectors = HashMap<String, DataSourceConnector<Q>>()
-
-    fun registerConnector(connectorName: String, connector: DataSourceConnector<Q>) {
-        connectors[connectorName] = connector
-    }
+    private val connectors = config.connectors
+        .mapNotNull { connectorFactory.buildOrNull(it) }
+        .associateBy { it.getName() }
 
     private fun configOf(source: DataSourceValue<Q>): DataSourceConfig {
         return with(DataSourceConfig.merger(source.config.name)) {
-            config.datasources[source.config.name]
+            config.getDataSource(source.config.name)
                 ?.let { source.config.combine(it) }
                 ?: source.config
         }
@@ -32,7 +31,7 @@ class DataSourceManager<Q>(
 
     private fun connectorOf(config: DataSourceConfig): DataSourceConnector<Q> {
         return connectors[config.connector]
-            ?: throw IllegalArgumentException("Unknown connect '${config.connector}'")
+            ?: throw IllegalArgumentException("Unknown connector '${config.connector}'")
     }
 
     override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {

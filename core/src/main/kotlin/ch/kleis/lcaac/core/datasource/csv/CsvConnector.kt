@@ -27,6 +27,7 @@ class CsvConnector<Q>(
         csvFile.toFile().inputStream()
     }
 ) : DataSourceConnector<Q> {
+
     private fun load(location: String, schema: Map<String, DataValue<Q>>): Sequence<ERecord<Q>> {
         val inputStream = fileLoader(location)
         val parser = CSVParser(inputStream.reader(), format)
@@ -74,6 +75,10 @@ class CsvConnector<Q>(
     override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
         return getAll(config, source).firstOrNull()
             ?: throw EvaluatorException("no record found in '${config.location}' matching ${source.filter}")
+    }
+
+    override fun getName(): String {
+        return CsvConnectorConfig.CSV_CONNECTOR_NAME
     }
 }
 
