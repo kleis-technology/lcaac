@@ -35,12 +35,15 @@ globalAssignment
 dataSourceDefinition
     : DATASOURCE_KEYWORD dataSourceRef LBRACE
         (
-            locationField | schema
+            locationField | primaryKeyField | schema | block_meta
         )*
       RBRACE
     ;
 locationField
     : LOCATION EQUAL STRING_LITERAL
+    ;
+primaryKeyField
+    : PRIMARY_KEY EQUAL STRING_LITERAL
     ;
 schema
     : SCHEMA_KEYWORD LBRACE
@@ -364,6 +367,7 @@ LABELS_KEYWORD : 'labels' ;
 
 DATASOURCE_KEYWORD : 'datasource' ;
 LOCATION : 'location' ;
+PRIMARY_KEY : 'primary_key' ;
 SCHEMA_KEYWORD : 'schema' ;
 
 TEST_KEYWORD : 'test' ;

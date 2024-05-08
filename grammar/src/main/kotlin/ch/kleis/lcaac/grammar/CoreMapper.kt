@@ -2,6 +2,7 @@
 
 package ch.kleis.lcaac.grammar
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
@@ -364,18 +365,27 @@ class CoreMapper<Q>(
 
     fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): EDataSource<Q> {
         val name = ctx.dataSourceRef().uid().ID().innerText()
-        val locationField = ctx.locationField().firstOrNull()
-            ?: throw LoaderException("missing location field in datasource $name")
-        val location = locationField.STRING_LITERAL().innerText()
+        val location = ctx.locationField().firstOrNull()?.STRING_LITERAL()?.innerText()
+        val primaryKey = ctx.primaryKeyField().firstOrNull()?.STRING_LITERAL()?.innerText()
         val schemaBlock = ctx.schema().firstOrNull() ?: throw LoaderException("missing schema in datasource $name")
         val schema = schemaBlock.columnDefinition().associate { column ->
             val key = column.columnRef().innerText()
             val value = dataExpression(column.dataExpression())
             key to value
         }
+        val options = ctx.block_meta().flatMap { it.meta_assignment() }
+            .associate { assignment ->
+                val key = assignment.STRING_LITERAL(0).innerText()
+                val value = assignment.STRING_LITERAL(1).innerText()
+                key to value
+            }
         return EDataSource(
-            name = name,
-            location = location,
+            config = DataSourceConfig(
+                name = name,
+                location = location,
+                primaryKey = primaryKey,
+                options = options,
+            ),
             schema = schema,
         )
     }
