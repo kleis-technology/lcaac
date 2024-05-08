@@ -1,5 +1,8 @@
 package ch.kleis.lcaac.core.config
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class LcaacConfig(
     val name: String,
     val description: String,

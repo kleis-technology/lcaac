@@ -1,7 +1,9 @@
 package ch.kleis.lcaac.core.config
 
 import arrow.typeclasses.Semigroup
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DataSourceConfig(
     val name: String,
     val connector: String? = null,
