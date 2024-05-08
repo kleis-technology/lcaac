@@ -4,15 +4,22 @@ import ch.kleis.lcaac.cli.csv.CsvProcessor
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.CsvResultWriter
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
+import java.nio.file.Path
 
 @Suppress("MemberVisibilityCanBePrivate")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
@@ -24,11 +31,9 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
             .associate()
-    private val getPath = option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
-    val path: File by getPath
-    val dataSourcePath: File by option("--data-path").file(canBeFile = false)
-        .defaultLazy { getPath.value }
-        .help("Path to data folder. Default to root folder.")
+    private val getConfigPath = option("-c", "--config").file().default(File("lcaac.yaml")).help("Configuration file.")
+    val configFile: File by getConfigPath
+
     val file: File? by option("-f", "--file").file(canBeDir = false)
             .help("""
                 CSV file with parameter values.
@@ -43,9 +48,12 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
             .associate()
 
     override fun run() {
-        val files = lcaFiles(path)
+        val config = configFile.inputStream().use {
+            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+        }
+        val files = lcaFiles(Path.of(".").toFile())
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
-        val processor = CsvProcessor(dataSourcePath, symbolTable)
+        val processor = CsvProcessor(config, symbolTable)
         val iterator = loadRequests()
         val writer = CsvResultWriter()
         var first = true

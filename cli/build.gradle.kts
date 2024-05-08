@@ -43,6 +43,8 @@ dependencies {
 
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
     implementation("org.apache.commons:commons-csv:1.10.0")
+
+    implementation("com.charleskorn.kaml:kaml:0.59.0")
 }
 
 tasks.test {

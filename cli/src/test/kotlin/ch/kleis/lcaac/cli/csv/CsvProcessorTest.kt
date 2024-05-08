@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.csv
 
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
@@ -10,12 +11,10 @@ import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parser.LcaLangLexer
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
-import io.mockk.mockk
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.io.File
 
 class CsvProcessorTest {
     @Test
@@ -42,8 +41,8 @@ class CsvProcessorTest {
             }
         """.trimIndent()
         val symbolTable = load(content)
-        val path = mockk<File>()
-        val processor = CsvProcessor(path, symbolTable)
+        val config = LcaacConfig()
+        val processor = CsvProcessor(config, symbolTable)
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -106,8 +105,8 @@ class CsvProcessorTest {
             }
         """.trimIndent()
         val symbolTable = load(content)
-        val path = mockk<File>()
-        val processor = CsvProcessor(path, symbolTable)
+        val config = LcaacConfig()
+        val processor = CsvProcessor(config, symbolTable)
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -162,8 +161,8 @@ class CsvProcessorTest {
             }
         """.trimIndent()
         val symbolTable = load(content)
-        val path = mockk<File>()
-        val processor = CsvProcessor(path, symbolTable)
+        val config = LcaacConfig()
+        val processor = CsvProcessor(config, symbolTable)
         val request = CsvRequest(
             "main",
             emptyMap(),

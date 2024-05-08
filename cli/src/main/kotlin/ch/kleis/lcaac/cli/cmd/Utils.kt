@@ -84,7 +84,8 @@ fun prepareArguments(
                         EStringLiteral(it)
                     } ?: defaultValue.toEStringLiteral()
 
-                    else -> throw EvaluatorException("datasource '${dataSource.location}': column '${schemaEntry.key}': invalid default value")
+                    else -> throw EvaluatorException("datasource '${dataSource.config.name}': column '${schemaEntry
+                        .key}': invalid default value")
                 }
             }
             ERecord(entries)
