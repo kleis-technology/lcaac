@@ -234,13 +234,16 @@ class CoreMapper<Q>(
                         val dataSource = dataSource(ctx.dataSourceExpression())
                         EFirstRecordOf(dataSource)
                     }
+
                     ctx.DEFAULT_RECORD()?.innerText() -> {
                         val dataSource = dataSource(ctx.dataSourceExpression())
                         EDefaultRecordOf(dataSource)
                     }
+
                     else -> throw IllegalStateException("parsing error: invalid primitive '${ctx.op.text}'")
                 }
             }
+
             is LcaLangParser.ColGroupContext -> {
                 when (ctx.op.text) {
                     ctx.SUM().innerText() -> {
@@ -323,7 +326,7 @@ class CoreMapper<Q>(
     fun LcaLangParser.ColumnRefContext.innerText(): String {
         return this.uid().innerText()
     }
-    
+
     fun LcaLangParser.UidContext.innerText(): String {
         return this.ID()?.innerText()
             ?: throw LoaderException("parsing error: invalid uid: ${this.text}")
@@ -380,11 +383,13 @@ class CoreMapper<Q>(
                 key to value
             }
         return EDataSource(
-            config = DataSourceConfig(
-                name = name,
-                location = location,
-                primaryKey = primaryKey,
-                options = options,
+            config = DataSourceConfig.completeWithDefaults(
+                DataSourceConfig(
+                    name = name,
+                    location = location,
+                    primaryKey = primaryKey,
+                    options = options,
+                )
             ),
             schema = schema,
         )
