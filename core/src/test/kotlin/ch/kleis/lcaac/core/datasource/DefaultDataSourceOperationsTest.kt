@@ -56,9 +56,9 @@ class DefaultDataSourceOperationsTest {
                 "mass" to QuantityFixture.twoKilograms,
             )),
         )
-        val factory = object : ConnectorFactory<BasicNumber> {
-            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
-        }
+        val builder = mockk<ConnectorBuilder<BasicNumber>>()
+        every { builder.buildOrNull(any(), any()) } returns connector
+        val factory = ConnectorFactory(config, ops, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -110,9 +110,9 @@ class DefaultDataSourceOperationsTest {
             "mass" to QuantityFixture.oneKilogram,
         ))
 
-        val factory = object : ConnectorFactory<BasicNumber> {
-            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
-        }
+        val builder = mockk<ConnectorBuilder<BasicNumber>>()
+        every { builder.buildOrNull(any(), any()) } returns connector
+        val factory = ConnectorFactory(config, ops, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -164,9 +164,9 @@ class DefaultDataSourceOperationsTest {
             )),
         )
 
-        val factory = object : ConnectorFactory<BasicNumber> {
-            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<BasicNumber> = connector
-        }
+        val builder = mockk<ConnectorBuilder<BasicNumber>>()
+        every { builder.buildOrNull(any(), any()) } returns connector
+        val factory = ConnectorFactory(config, ops, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(config, ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(

@@ -1,6 +1,9 @@
 package ch.kleis.lcaac.core.datasource.csv
 
+import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
+import ch.kleis.lcaac.core.datasource.ConnectorBuilder
+import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -53,7 +56,8 @@ class CsvConnector<Q>(
     }
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val location = config.location ?: throw IllegalArgumentException("Missing location in configuration for datasource '${config.name}'")
+        val location = config.location
+            ?: throw IllegalArgumentException("Missing location in configuration for datasource '${config.name}'")
         val records = load(location, source.schema)
         val filter = source.filter
         return records

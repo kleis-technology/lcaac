@@ -1,20 +1,25 @@
 package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.config.ConnectorConfig
-import ch.kleis.lcaac.core.datasource.csv.CsvConnector
-import ch.kleis.lcaac.core.datasource.csv.csv
+import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.math.QuantityOperations
 
-interface ConnectorFactory<Q> {
-    fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>?
+class ConnectorFactory<Q>(
+    private val lcaacConfig: LcaacConfig,
+    private val ops: QuantityOperations<Q>,
+    builders: List<ConnectorBuilder<Q>> = listOf(CsvConnectorBuilder())
+) {
+    private val builders = ArrayList<ConnectorBuilder<Q>>(builders)
 
-    companion object {
-        fun <Q> default(ops: QuantityOperations<Q>) = object : ConnectorFactory<Q> {
-            override fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
-                return config
-                    .csv()?.let { CsvConnector(it, ops) }
-                // add other cases here
-            }
-        }
+    fun getLcaacConfig(): LcaacConfig = lcaacConfig
+    fun getQuantityOperations(): QuantityOperations<Q> = ops
+
+    fun register(builder: ConnectorBuilder<Q>) {
+        builders.add(builder)
+    }
+
+    fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
+        return builders.firstNotNullOfOrNull { it.buildOrNull(this, config) }
     }
 }
