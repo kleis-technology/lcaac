@@ -1,8 +1,8 @@
 package ch.kleis.lcaac.core.datasource
 
-import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -58,8 +58,8 @@ class DefaultDataSourceOperationsTest {
         )
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
+        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -112,8 +112,8 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
+        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -166,8 +166,8 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, factory)
+        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
