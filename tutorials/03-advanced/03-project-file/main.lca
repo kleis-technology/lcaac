@@ -1,0 +1,36 @@
+datasource inventory {
+    location = "inventory.csv"
+    schema {
+        id = "s01"
+        weight = 0 kg
+    }
+}
+
+process main {
+    products {
+        1 kg main
+    }
+    impacts {
+        for_each item from inventory {
+            item.weight mass
+        }
+    }
+}
+
+test main_with_data {
+    given {
+        1 kg main from main
+    }
+    assert {
+        mass between 10 kg and 10 kg
+    }
+}
+
+test main_with_mock_data {
+    given {
+        1 kg main from main
+    }
+    assert {
+        mass between 100 kg and 100 kg
+    }
+}

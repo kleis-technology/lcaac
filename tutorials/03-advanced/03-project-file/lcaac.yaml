@@ -1,0 +1,6 @@
+name: Project file
+description: Sample project to illustrate the use of lcaac.yaml
+connectors:
+  - name: csv
+    options:
+      directory: data
