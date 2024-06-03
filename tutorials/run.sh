@@ -33,6 +33,9 @@ lcaac test -p $TUTORIALS_PATH/02-language-features/05-datasources
 lcaac test -p $TUTORIALS_PATH/03-advanced/01-relational-modeling
 lcaac test -p $TUTORIALS_PATH/03-advanced/02-circular-footprint-formula
 
+lcaac test -p $TUTORIALS_PATH/03-advanced/03-project-file/lcaac.yaml main_with_data
+lcaac test -p $TUTORIALS_PATH/03-advanced/03-project-file/lcaac-mock.yaml main_with_mock_data
+
 # Check custom dimensions tutorial
 set -euo
 # The following assessment is expected to fail.
