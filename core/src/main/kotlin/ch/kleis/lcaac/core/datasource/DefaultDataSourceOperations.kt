@@ -15,7 +15,8 @@ import ch.kleis.lcaac.core.prelude.Prelude
 class DefaultDataSourceOperations<Q>(
     private val config: LcaacConfig,
     private val ops: QuantityOperations<Q>,
-    private val connectorFactory: ConnectorFactory<Q> = ConnectorFactory(config, ops)
+    private val workingDirectory: String,
+    private val connectorFactory: ConnectorFactory<Q> = ConnectorFactory(workingDirectory, config, ops)
 ) : DataSourceOperations<Q> {
     private val connectors = config.connectors
         .mapNotNull { connectorFactory.buildOrNull(it) }

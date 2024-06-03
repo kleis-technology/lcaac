@@ -8,6 +8,6 @@ import ch.kleis.lcaac.core.datasource.DataSourceConnector
 class CsvConnectorBuilder<Q> : ConnectorBuilder<Q> {
     override fun buildOrNull(factory: ConnectorFactory<Q>, config: ConnectorConfig): DataSourceConnector<Q>? {
         return config
-            .csv()?.let { CsvConnector(it, factory.getQuantityOperations()) }
+            .csv(factory.getWorkingDirectory())?.let { CsvConnector(it, factory.getQuantityOperations()) }
     }
 }
