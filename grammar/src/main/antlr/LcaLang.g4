@@ -364,7 +364,6 @@ LABELS_KEYWORD : 'labels' ;
 
 DATASOURCE_KEYWORD : 'datasource' ;
 LOCATION : 'location' ;
-PRIMARY_KEY : 'primary_key' ;
 SCHEMA_KEYWORD : 'schema' ;
 
 TEST_KEYWORD : 'test' ;
