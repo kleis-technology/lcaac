@@ -15,19 +15,23 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.default
+import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import java.nio.file.Paths
 
 private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
+    val name: String by argument().help("Process name").default("")
+
     private val getProjectPath = option("-p", "--project").file()
         .default(File(defaultLcaacFilename))
         .help("Path to project folder or yaml file.")
@@ -41,9 +45,8 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
-        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
-        else projectPath
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
+
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
@@ -58,6 +61,7 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
         val cases = files
             .flatMap { it.testDefinition() }
             .map { mapper.test(it) }
+            .filter { name.isBlank() || it.name == name }
         val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(
             symbolTable,
             sourceOps,

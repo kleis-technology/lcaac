@@ -50,9 +50,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
         .associate()
 
     override fun run() {
-        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
-        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
-        else projectPath
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }

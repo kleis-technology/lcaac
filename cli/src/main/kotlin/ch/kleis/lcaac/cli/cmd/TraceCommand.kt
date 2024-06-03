@@ -28,7 +28,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.File
-import java.nio.file.Paths
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TraceCommand : CliktCommand(name = "trace", help = "Trace the contributions") {
@@ -54,9 +53,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         .associate()
 
     override fun run() {
-        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
-        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
-        else projectPath
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }

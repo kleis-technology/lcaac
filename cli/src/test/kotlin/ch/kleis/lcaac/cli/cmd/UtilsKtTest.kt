@@ -6,12 +6,65 @@ import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.prelude.Prelude
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.jupiter.api.assertThrows
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
 class UtilsKtTest {
+
+    @Test
+    fun parseProjectPath_whenSimpleFile() {
+        // given
+        val path = mockk<File>()
+        every { path.isDirectory } returns false
+        every { path.parentFile } returns null
+        every { path.path } returns "lcaac.yaml"
+
+        // when
+        val (workingDir, configFile) = parseProjectPath(path)
+
+        // then
+        assertEquals(".", workingDir.path)
+        assertEquals("lcaac.yaml", configFile.path)
+    }
+
+    @Test
+    fun parseProjectPath_whenFileWithParentDirectory() {
+        // given
+        val path = mockk<File>()
+        every { path.isDirectory } returns false
+        every { path.parentFile } returns Paths.get("some", "directory").toFile()
+        every { path.path } returns "lcaac.yaml"
+
+        // when
+        val (workingDir, configFile) = parseProjectPath(path)
+
+        // then
+        assertEquals("some/directory", workingDir.path)
+        assertEquals("lcaac.yaml", configFile.path)
+    }
+
+    @Test
+    fun parseProjectPath_whenDirectory() {
+        // given
+        val path = mockk<File>()
+        every { path.isDirectory } returns true
+        every { path.path } returns "some/directory"
+
+        // when
+        val (workingDir, configFile) = parseProjectPath(path)
+
+        // then
+        assertEquals("some/directory", workingDir.path)
+        assertEquals("lcaac.yaml", configFile.path)
+    }
 
     @Test
     fun parseQuantityWithDefaultUnit_invalidExpression() {

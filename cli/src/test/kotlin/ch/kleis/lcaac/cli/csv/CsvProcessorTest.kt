@@ -42,7 +42,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable)
+        val processor = CsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -106,7 +106,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable)
+        val processor = CsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -162,7 +162,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable)
+        val processor = CsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),

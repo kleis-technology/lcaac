@@ -16,9 +16,19 @@ import java.io.File
 import java.io.InputStream
 import java.lang.Double.parseDouble
 import java.nio.file.Files
+import kotlin.io.path.Path
 import kotlin.io.path.isRegularFile
 
-val defaultLcaacFilename = "lcaac.yaml"
+const val defaultLcaacFilename = "lcaac.yaml"
+
+fun parseProjectPath(path: File): Pair<File, File> {
+    if (path.isDirectory) {
+        val configFile = Path(defaultLcaacFilename).toFile()
+        return path to configFile
+    }
+    val workingDirectory = path.parentFile ?: Path(".").toFile()
+    return workingDirectory to path
+}
 
 fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
     return Files.walk(root.toPath())
