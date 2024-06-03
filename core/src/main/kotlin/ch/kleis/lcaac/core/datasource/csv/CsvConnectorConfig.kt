@@ -12,6 +12,14 @@ data class CsvConnectorConfig(
     companion object {
         const val CSV_CONNECTOR_NAME = "csv"
         const val CSV_CONNECTOR_KEY_DIRECTORY = "directory"
+
+        fun default(): ConnectorConfig =
+            ConnectorConfig(
+                name = CSV_CONNECTOR_NAME,
+                options = mapOf(
+                    CSV_CONNECTOR_KEY_DIRECTORY to "."
+                )
+            )
     }
 }
 
