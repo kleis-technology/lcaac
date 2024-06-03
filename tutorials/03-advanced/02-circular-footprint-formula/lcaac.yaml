@@ -1,6 +1,0 @@
-name: Circular footprint formula
-description: A sample project to illustrate the implementation of the circular footprint formula.
-connectors:
-  - name: csv
-    options:
-      directory: "data"

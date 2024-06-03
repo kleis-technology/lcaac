@@ -3,6 +3,7 @@
 */
 
 datasource material_params {
+    location = "data/material_params.csv"
     schema {
          id = "material-01"
          A = 1.0 u
@@ -31,6 +32,7 @@ datasource material_params {
 */
 
 datasource R2_data {
+    location = "data/R2_data.csv"
     schema {
          id = "glass-01"
          geo = "GLO"
@@ -45,6 +47,7 @@ datasource R2_data {
 // VIRGIN
 
 datasource Ev_data {
+    location = "data/Ev_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
@@ -68,6 +71,7 @@ process virgin_production_process {
 // RECYCLED
 
 datasource Erecycled_data {
+    location = "data/Erecycled_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
@@ -91,6 +95,7 @@ process upstream_recycling_process {
 // RECYCLING END OF LIFE
 
 datasource ErecyclingEol_data {
+    location = "data/ErecyclingEol_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
@@ -114,6 +119,7 @@ process downstream_recycling_process {
 // SUBSTITUTE FOR VIRGIN
 
 datasource EstarV_data {
+    location = "data/EstarV_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
@@ -137,6 +143,7 @@ process substitute_production_process {
 // ENERGY RECOVERY
 
 datasource Eer_data {
+    location = "data/Eer_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
@@ -160,6 +167,7 @@ process energy_recovery_process {
 // HEAT PRODUCTION
 
 datasource Ese_heat_data {
+    location = "data/Ese_heat_data.csv"
     schema {
          geo = "GLO"
          GWP = 1 kg_CO2_Eq
@@ -183,6 +191,7 @@ process heat_production_process {
 // ELECTRICITY PRODUCTION
 
 datasource Ese_elec_data {
+    location = "data/Ese_elec_data.csv"
     schema {
          geo = "GLO"
          GWP = 1 kg_CO2_Eq
@@ -206,6 +215,7 @@ process elec_production_process {
 // DISPOSAL
 
 datasource Ed_data {
+    location = "data/Ed_data.csv"
     schema {
          id = "material-01"
          GWP = 1 kg_CO2_Eq
