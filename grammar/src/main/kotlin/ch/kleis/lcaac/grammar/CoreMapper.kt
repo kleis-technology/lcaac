@@ -369,7 +369,6 @@ class CoreMapper<Q>(
     fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): EDataSource<Q> {
         val name = ctx.dataSourceRef().uid().ID().innerText()
         val location = ctx.locationField().firstOrNull()?.STRING_LITERAL()?.innerText()
-        val primaryKey = ctx.primaryKeyField().firstOrNull()?.STRING_LITERAL()?.innerText()
         val schemaBlock = ctx.schema().firstOrNull() ?: throw LoaderException("missing schema in datasource $name")
         val schema = schemaBlock.columnDefinition().associate { column ->
             val key = column.columnRef().innerText()
@@ -387,7 +386,6 @@ class CoreMapper<Q>(
                 DataSourceConfig(
                     name = name,
                     location = location,
-                    primaryKey = primaryKey,
                     options = options,
                 )
             ),

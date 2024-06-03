@@ -196,7 +196,6 @@ class CoreMapperTest {
         val ctx = LcaLangFixture.parser("""
             datasource source {
                 location = "file.csv"
-                primary_key = "geo"
                 schema {
                     mass = 1 kg
                     geo = "FR"
@@ -216,7 +215,7 @@ class CoreMapperTest {
             config = DataSourceConfig(
                 name = "source",
                 location = "file.csv",
-                primaryKey = "geo",
+                primaryKey = "id",
                 options = mapOf(
                     "description" to "This is a description",
                 )
