@@ -19,9 +19,9 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import java.nio.file.Path
+import java.nio.file.Paths
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
@@ -31,8 +31,10 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
         .associate()
-    private val getConfigPath = option("-c", "--config").file().default(File("lcaac.yaml")).help("Configuration file.")
-    val configFile: File by getConfigPath
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""
@@ -48,14 +50,17 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
         .associate()
 
     override fun run() {
-        val config = if (configFile.exists()) configFile.inputStream().use {
+        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
+        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
+        else projectPath
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
 
-        val files = lcaFiles(Path.of(".").toFile())
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
-        val processor = CsvProcessor(config, symbolTable)
+        val processor = CsvProcessor(config, symbolTable, workingDirectory.path)
         val iterator = loadRequests()
         val writer = CsvResultWriter()
         var first = true

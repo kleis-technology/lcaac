@@ -14,9 +14,10 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 class CsvProcessor(
     config: LcaacConfig,
     private val symbolTable: SymbolTable<BasicNumber>,
+    workingDirectory: String,
 ) {
     private val ops = BasicOperations
-    private val sourceOps = DefaultDataSourceOperations(config, ops)
+    private val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory)
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 

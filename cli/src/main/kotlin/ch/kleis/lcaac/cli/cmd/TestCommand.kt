@@ -21,14 +21,18 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import java.nio.file.Path
+import java.nio.file.Paths
 
 private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
-    private val getConfigPath = option("-c", "--config").file().default(File("lcaac.yaml")).help("Configuration file.")
-    val configFile: File by getConfigPath
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
+
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""
                 CSV file with parameter values.
@@ -37,15 +41,18 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val config = if (configFile.exists()) configFile.inputStream().use {
+        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
+        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
+        else projectPath
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
 
         val ops = BasicOperations
-        val sourceOps = DefaultDataSourceOperations(config, ops)
+        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
 
-        val files = lcaFiles(Path.of(".").toFile())
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val mapper = CoreTestMapper()
         val cases = files

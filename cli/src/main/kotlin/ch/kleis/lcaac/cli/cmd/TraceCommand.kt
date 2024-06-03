@@ -28,9 +28,9 @@ import com.github.ajalt.clikt.parameters.types.file
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.File
-import java.nio.file.Path
+import java.nio.file.Paths
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TraceCommand : CliktCommand(name = "trace", help = "Trace the contributions") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
@@ -40,8 +40,11 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
         .associate()
-    private val getConfigPath = option("-c", "--config").file().default(File("lcaac.yaml")).help("Configuration file.")
-    val configFile: File by getConfigPath
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
+
     val arguments: Map<String, String> by option("-D", "--parameter")
         .help(
             """
@@ -51,14 +54,17 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         .associate()
 
     override fun run() {
-        val config = if (configFile.exists()) configFile.inputStream().use {
+        val workingDirectory = if (projectPath.isDirectory) projectPath else projectPath.parentFile
+        val lcaacConfigFile = if (projectPath.isDirectory) Paths.get(workingDirectory.path, defaultLcaacFilename).toFile()
+        else projectPath
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
         val ops = BasicOperations
-        val sourceOps = DefaultDataSourceOperations(config, ops)
+        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
 
-        val files = lcaFiles(Path.of(".").toFile())
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val template = symbolTable.getTemplate(name, labels)

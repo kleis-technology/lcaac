@@ -18,6 +18,8 @@ import java.lang.Double.parseDouble
 import java.nio.file.Files
 import kotlin.io.path.isRegularFile
 
+val defaultLcaacFilename = "lcaac.yaml"
+
 fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
     return Files.walk(root.toPath())
         .filter { it.isRegularFile() }
