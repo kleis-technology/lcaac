@@ -25,32 +25,34 @@ import java.nio.file.Path
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
-            .help(
-                """
+        .help(
+            """
                     Specify a process label as a key value pair.
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
-            .associate()
+        .associate()
     private val getConfigPath = option("-c", "--config").file().default(File("lcaac.yaml")).help("Configuration file.")
     val configFile: File by getConfigPath
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
-            .help("""
+        .help("""
                 CSV file with parameter values.
                 Example: `lcaac assess <process name> -f params.csv`.
             """.trimIndent())
     val arguments: Map<String, String> by option("-D", "--parameter")
-            .help(
+        .help(
             """
                 Override parameter value as a key value pair.
                 Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
             """.trimIndent())
-            .associate()
+        .associate()
 
     override fun run() {
-        val config = configFile.inputStream().use {
+        val config = if (configFile.exists()) configFile.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
+        else LcaacConfig()
+
         val files = lcaFiles(Path.of(".").toFile())
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val processor = CsvProcessor(config, symbolTable)
@@ -72,7 +74,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
     private fun loadRequests(): Iterator<CsvRequest> {
         return file?.let { loadRequestsFrom(it) }
-                ?: listOf(defaultRequest()).iterator()
+            ?: listOf(defaultRequest()).iterator()
     }
 
     private fun loadRequestsFrom(file: File): Iterator<CsvRequest> {
@@ -85,10 +87,10 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
         val header = pairs.mapIndexed { index, pair -> pair.first to index }.toMap()
         val record = pairs.map { it.second }
         return CsvRequest(
-                name,
-                labels,
-                header,
-                record,
+            name,
+            labels,
+            header,
+            record,
         )
     }
 }

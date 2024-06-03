@@ -51,9 +51,10 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         .associate()
 
     override fun run() {
-        val config = configFile.inputStream().use {
+        val config = if (configFile.exists()) configFile.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
+        else LcaacConfig()
         val ops = BasicOperations
         val sourceOps = DefaultDataSourceOperations(config, ops)
 
@@ -97,7 +98,8 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             val demandedAmount = demandedProduct.quantity.amount
             val demandedUnit = demandedProduct.quantity.unit
             val demandedProductName = demandedProduct.product.name
-            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble() ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
+            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble()
+                ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
             observablePorts.asSequence()
                 .map { row ->
                     val supply = analysis.supplyOf(row)

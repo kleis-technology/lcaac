@@ -37,9 +37,10 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val config = configFile.inputStream().use {
+        val config = if (configFile.exists()) configFile.inputStream().use {
             Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
         }
+        else LcaacConfig()
 
         val ops = BasicOperations
         val sourceOps = DefaultDataSourceOperations(config, ops)
