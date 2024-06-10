@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig.Companion.CSV_CONNE
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
+import kotlin.io.path.pathString
 
 data class CsvConnectorConfig(
     val directory: File,
@@ -29,7 +30,11 @@ fun ConnectorConfig.csv(workingDirectory: String): CsvConnectorConfig? {
         return null
     }
     val directory = this.options[CSV_CONNECTOR_KEY_DIRECTORY]
-        ?.let { Paths.get(workingDirectory, it).toFile() }
+        ?.let {
+            val directoryPath = Path.of(it)
+            if (directoryPath.isAbsolute) directoryPath.toFile()
+            else Paths.get(workingDirectory, it).toFile()
+        }
         ?: Path.of(workingDirectory).toFile()
     return CsvConnectorConfig(
         directory,
