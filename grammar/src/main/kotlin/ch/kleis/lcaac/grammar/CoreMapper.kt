@@ -2,6 +2,7 @@
 
 package ch.kleis.lcaac.grammar
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
@@ -233,13 +234,16 @@ class CoreMapper<Q>(
                         val dataSource = dataSource(ctx.dataSourceExpression())
                         EFirstRecordOf(dataSource)
                     }
+
                     ctx.DEFAULT_RECORD()?.innerText() -> {
                         val dataSource = dataSource(ctx.dataSourceExpression())
                         EDefaultRecordOf(dataSource)
                     }
+
                     else -> throw IllegalStateException("parsing error: invalid primitive '${ctx.op.text}'")
                 }
             }
+
             is LcaLangParser.ColGroupContext -> {
                 when (ctx.op.text) {
                     ctx.SUM().innerText() -> {
@@ -322,7 +326,7 @@ class CoreMapper<Q>(
     fun LcaLangParser.ColumnRefContext.innerText(): String {
         return this.uid().innerText()
     }
-    
+
     fun LcaLangParser.UidContext.innerText(): String {
         return this.ID()?.innerText()
             ?: throw LoaderException("parsing error: invalid uid: ${this.text}")
@@ -364,18 +368,28 @@ class CoreMapper<Q>(
 
     fun dataSourceDefinition(ctx: LcaLangParser.DataSourceDefinitionContext): EDataSource<Q> {
         val name = ctx.dataSourceRef().uid().ID().innerText()
-        val locationField = ctx.locationField().firstOrNull()
-            ?: throw LoaderException("missing location field in datasource $name")
-        val location = locationField.STRING_LITERAL().innerText()
+        val location = ctx.locationField().firstOrNull()?.STRING_LITERAL()?.innerText()
         val schemaBlock = ctx.schema().firstOrNull() ?: throw LoaderException("missing schema in datasource $name")
         val schema = schemaBlock.columnDefinition().associate { column ->
             val key = column.columnRef().innerText()
             val value = dataExpression(column.dataExpression())
             key to value
         }
+        val options = ctx.block_meta().flatMap { it.meta_assignment() }
+            .associate { assignment ->
+                val key = assignment.STRING_LITERAL(0).innerText()
+                val value = assignment.STRING_LITERAL(1).innerText()
+                key to value
+            }
         return EDataSource(
-            location,
-            schema,
+            config = DataSourceConfig.completeWithDefaults(
+                DataSourceConfig(
+                    name = name,
+                    location = location,
+                    options = options,
+                )
+            ),
+            schema = schema,
         )
     }
 }

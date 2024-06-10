@@ -14,7 +14,7 @@ import ch.kleis.lcaac.core.lang.value.*
  */
 
 class DummySourceOperations<Q> : DataSourceOperations<Q> {
-    override fun readAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+    override fun getAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         return sequenceOf(ERecord(source.schema.mapValues { it.value.toDataExpression() }))
     }
 

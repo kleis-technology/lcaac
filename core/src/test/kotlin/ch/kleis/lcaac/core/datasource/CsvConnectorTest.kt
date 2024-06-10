@@ -1,16 +1,14 @@
 package ch.kleis.lcaac.core.datasource
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
+import ch.kleis.lcaac.core.datasource.csv.CsvConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
-import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -18,7 +16,7 @@ import org.junit.jupiter.api.assertThrows
 import java.io.InputStream
 import kotlin.test.assertEquals
 
-class CsvSourceOperationsTest {
+class CsvConnectorTest {
     private fun mockFileLoader(): (String) -> InputStream {
         val content = """
             geo,n_items,mass
@@ -35,15 +33,18 @@ class CsvSourceOperationsTest {
     private val ops = BasicOperations
 
     @Test
-    fun readAll() {
+    fun getAll() {
         // given
-        val sourceOps = CsvSourceOperations(
+        val connector = CsvConnector(
             mockk(),
             ops,
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -53,9 +54,13 @@ class CsvSourceOperationsTest {
                 "geo" to StringValue("FR")
             )
         )
+        val config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        )
 
         // when
-        val actual = sourceOps.readAll(source).toList()
+        val actual = connector.getAll(config, source).toList()
 
         // then
         val expected = listOf(
@@ -79,50 +84,18 @@ class CsvSourceOperationsTest {
     }
 
     @Test
-    fun sumProduct() {
-        // given
-        val sourceOps = CsvSourceOperations(
-            mockk(),
-            ops,
-            mockFileLoader(),
-        )
-        val source = DataSourceValue(
-            location = "source.csv",
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
-            filter = mapOf(
-                "geo" to StringValue("FR")
-            )
-        )
-
-        // when
-        val actual = sourceOps.sumProduct(source, listOf("n_items", "mass"))
-
-        // then
-        val expected = EQuantityScale(
-            BasicNumber(7.0),
-            EUnitLiteral(
-                UnitFixture.kg.symbol.multiply(UnitFixture.unit.symbol),
-                1.0,
-                UnitFixture.kg.dimension.multiply(UnitFixture.unit.dimension),
-            ),
-        )
-        assertEquals(expected, actual)
-    }
-
-    @Test
     fun getFirst() {
         // given
-        val sourceOps = CsvSourceOperations(
+        val connector = CsvConnector(
             mockk(),
             ops,
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -132,9 +105,13 @@ class CsvSourceOperationsTest {
                 "geo" to StringValue("UK")
             )
         )
+        val config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        )
 
         // when
-        val actual = sourceOps.getFirst(source)
+        val actual = connector.getFirst(config, source)
 
         // then
         val expected = ERecord(mapOf(
@@ -148,13 +125,16 @@ class CsvSourceOperationsTest {
     @Test
     fun getFirst_whenEmpty_throwEvaluatorException() {
         // given
-        val sourceOps = CsvSourceOperations(
+        val connector = CsvConnector(
             mockk(),
             ops,
             mockFileLoader(),
         )
         val source = DataSourceValue(
-            location = "source.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
             schema = mapOf(
                 "geo" to StringValue("FR"),
                 "n_items" to QuantityValueFixture.oneUnit,
@@ -164,9 +144,13 @@ class CsvSourceOperationsTest {
                 "geo" to StringValue("A_NON_EXISTING_COUNTRY")
             )
         )
+        val config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        )
 
         // when/then
-        val e = assertThrows<EvaluatorException> { sourceOps.getFirst(source) }
+        val e = assertThrows<EvaluatorException> { connector.getFirst(config, source) }
         assertEquals("no record found in 'source.csv' matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
     }
 }

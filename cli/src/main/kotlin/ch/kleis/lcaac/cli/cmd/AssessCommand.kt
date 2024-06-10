@@ -4,48 +4,61 @@ import ch.kleis.lcaac.cli.csv.CsvProcessor
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.CsvResultWriter
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
+import java.nio.file.Paths
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
-            .help(
-                """
+        .help(
+            """
                     Specify a process label as a key value pair.
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
-            .associate()
-    private val getPath = option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
-    val path: File by getPath
-    val dataSourcePath: File by option("--data-path").file(canBeFile = false)
-        .defaultLazy { getPath.value }
-        .help("Path to data folder. Default to root folder.")
+        .associate()
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
+
     val file: File? by option("-f", "--file").file(canBeDir = false)
-            .help("""
+        .help("""
                 CSV file with parameter values.
                 Example: `lcaac assess <process name> -f params.csv`.
             """.trimIndent())
     val arguments: Map<String, String> by option("-D", "--parameter")
-            .help(
+        .help(
             """
                 Override parameter value as a key value pair.
                 Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
             """.trimIndent())
-            .associate()
+        .associate()
 
     override fun run() {
-        val files = lcaFiles(path)
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
+            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+        }
+        else LcaacConfig()
+
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
-        val processor = CsvProcessor(dataSourcePath, symbolTable)
+        val processor = CsvProcessor(config, symbolTable, workingDirectory.path)
         val iterator = loadRequests()
         val writer = CsvResultWriter()
         var first = true
@@ -64,7 +77,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
     private fun loadRequests(): Iterator<CsvRequest> {
         return file?.let { loadRequestsFrom(it) }
-                ?: listOf(defaultRequest()).iterator()
+            ?: listOf(defaultRequest()).iterator()
     }
 
     private fun loadRequestsFrom(file: File): Iterator<CsvRequest> {
@@ -77,10 +90,10 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
         val header = pairs.mapIndexed { index, pair -> pair.first to index }.toMap()
         val record = pairs.map { it.second }
         return CsvRequest(
-                name,
-                labels,
-                header,
-                record,
+            name,
+            labels,
+            header,
+            record,
         )
     }
 }

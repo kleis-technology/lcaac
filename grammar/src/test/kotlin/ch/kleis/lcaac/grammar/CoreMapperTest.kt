@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.grammar
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -199,6 +200,9 @@ class CoreMapperTest {
                     mass = 1 kg
                     geo = "FR"
                 }
+                meta {
+                    "description": "This is a description"
+                }
             }
         """.trimIndent()).dataSourceDefinition()
         val mapper = CoreMapper(ops)
@@ -207,7 +211,16 @@ class CoreMapperTest {
         val actual = mapper.dataSourceDefinition(ctx)
 
         // then
-        val expected = EDataSource(location = "file.csv", schema = mapOf(
+        val expected = EDataSource(
+            config = DataSourceConfig(
+                name = "source",
+                location = "file.csv",
+                primaryKey = "id",
+                options = mapOf(
+                    "description" to "This is a description",
+                )
+            ),
+            schema = mapOf(
             "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
             "geo" to EStringLiteral("FR"),
         ))

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
@@ -16,7 +17,10 @@ class LcaExpressionReducerTest {
     private val ops = BasicOperations
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
     private val emptyDataSource = EDataSource<BasicNumber>(
-        "location.csv",
+        config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        ),
         emptyMap(),
         emptyMap()
     )
@@ -46,7 +50,7 @@ class LcaExpressionReducerTest {
             impacts = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -108,7 +112,7 @@ class LcaExpressionReducerTest {
             biosphere = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -170,7 +174,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -232,7 +236,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -277,7 +281,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(mapOf(
                 "mass" to QuantityFixture.oneKilogram,
             )),
@@ -352,7 +356,7 @@ class LcaExpressionReducerTest {
             inputs = listOf(block),
         )
         val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
-        every { sourceOps.readAll(any()) } returns sequenceOf(
+        every { sourceOps.getAll(any()) } returns sequenceOf(
             ERecord(emptyMap()),
             ERecord(emptyMap()),
         )

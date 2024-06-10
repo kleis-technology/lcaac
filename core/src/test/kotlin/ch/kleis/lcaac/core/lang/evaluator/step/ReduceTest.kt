@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator.step
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -38,7 +39,10 @@ class ReduceTest {
             )
         )
         val dataSource = EDataSource(
-            location = "foo.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "foo.csv",
+            ),
             schema = mapOf(
                 "mass" to QuantityFixture.oneLitre
             )

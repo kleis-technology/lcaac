@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.cli.cmd
 
-import ch.kleis.lcaac.core.datasource.CsvSourceOperations
+import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure
@@ -10,39 +11,61 @@ import ch.kleis.lcaac.grammar.CoreTestMapper
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.default
+import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 
 private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
-    private val getPath = option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
-    val path: File by getPath
-    val dataSourcePath: File by option("--data-path").file(canBeFile = false)
-        .defaultLazy { getPath.value }
-        .help("Path to data folder. Default to root folder.")
+    val name: String by argument().help("Process name").default("")
+
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
+
     val file: File? by option("-f", "--file").file(canBeDir = false)
-            .help("""
+        .help("""
                 CSV file with parameter values.
                 Example: `lcaac assess <process name> -f params.csv`.
             """.trimIndent())
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val files = lcaFiles(path)
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
+
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
+            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+        }
+        else LcaacConfig()
+
         val ops = BasicOperations
+        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
+
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val mapper = CoreTestMapper()
         val cases = files
             .flatMap { it.testDefinition() }
             .map { mapper.test(it) }
+            .filter { name.isBlank() || it.name == name }
         val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(
             symbolTable,
-            CsvSourceOperations(dataSourcePath, ops))
+            sourceOps,
+        )
         val results = cases.map { runner.run(it) }
 
         results.forEach { result ->

@@ -1,7 +1,8 @@
 package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
-import ch.kleis.lcaac.core.datasource.CsvSourceOperations
+import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -14,16 +15,21 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
 import ch.kleis.lcaac.core.prelude.Prelude.Companion.sanitize
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.File
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class TraceCommand : CliktCommand(name = "trace", help = "Trace the contributions") {
     val name: String by argument().help("Process name")
     val labels: Map<String, String> by option("-l", "--label")
@@ -33,11 +39,11 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
         .associate()
-    private val getPath = option("-p", "--path").file(canBeFile = false).default(File(".")).help("Path to root folder.")
-    val path: File by getPath
-    val dataSourcePath: File by option("--data-path").file(canBeFile = false)
-        .defaultLazy { getPath.value }
-        .help("Path to data folder. Default to root folder.")
+    private val getProjectPath = option("-p", "--project").file()
+        .default(File(defaultLcaacFilename))
+        .help("Path to project folder or yaml file.")
+    val projectPath: File by getProjectPath
+
     val arguments: Map<String, String> by option("-D", "--parameter")
         .help(
             """
@@ -47,9 +53,15 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         .associate()
 
     override fun run() {
+        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
+        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
+            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+        }
+        else LcaacConfig()
         val ops = BasicOperations
-        val sourceOps = CsvSourceOperations(dataSourcePath, ops)
-        val files = lcaFiles(path)
+        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
+
+        val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val template = symbolTable.getTemplate(name, labels)
@@ -89,7 +101,8 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             val demandedAmount = demandedProduct.quantity.amount
             val demandedUnit = demandedProduct.quantity.unit
             val demandedProductName = demandedProduct.product.name
-            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble() ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
+            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble()
+                ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
             observablePorts.asSequence()
                 .map { row ->
                     val supply = analysis.supplyOf(row)

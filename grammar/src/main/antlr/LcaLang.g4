@@ -35,7 +35,7 @@ globalAssignment
 dataSourceDefinition
     : DATASOURCE_KEYWORD dataSourceRef LBRACE
         (
-            locationField | schema
+            locationField | schema | block_meta
         )*
       RBRACE
     ;

@@ -15,7 +15,7 @@ class TemplateExpressionReducer<Q>(
     private val ops: QuantityOperations<Q>,
     private val sourceOps: DataSourceOperations<Q>,
     dataRegister: DataRegister<Q> = DataRegister.empty(),
-        dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
+    dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
 ) {
     private val dataRegister = Register(dataRegister)
     private val dataSourceRegister = Register(dataSourceRegister)

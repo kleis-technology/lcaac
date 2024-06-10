@@ -16,7 +16,19 @@ import java.io.File
 import java.io.InputStream
 import java.lang.Double.parseDouble
 import java.nio.file.Files
+import kotlin.io.path.Path
 import kotlin.io.path.isRegularFile
+
+const val defaultLcaacFilename = "lcaac.yaml"
+
+fun parseProjectPath(path: File): Pair<File, File> {
+    if (path.isDirectory) {
+        val configFile = Path(defaultLcaacFilename).toFile()
+        return path to configFile
+    }
+    val workingDirectory = path.parentFile ?: Path(".").toFile()
+    return workingDirectory to path
+}
 
 fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
     return Files.walk(root.toPath())
@@ -84,7 +96,8 @@ fun prepareArguments(
                         EStringLiteral(it)
                     } ?: defaultValue.toEStringLiteral()
 
-                    else -> throw EvaluatorException("datasource '${dataSource.location}': column '${schemaEntry.key}': invalid default value")
+                    else -> throw EvaluatorException("datasource '${dataSource.config.name}': column '${schemaEntry
+                        .key}': invalid default value")
                 }
             }
             ERecord(entries)

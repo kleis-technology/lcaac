@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.grammar
 
+import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
@@ -75,7 +76,10 @@ class LoaderTest {
 
         // then
         val expected = EDataSource(
-            location = "file.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "file.csv",
+            ),
             schema = mapOf(
                 "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
             )
@@ -105,7 +109,10 @@ class LoaderTest {
 
         // then
         val expected = EDataSource(
-            location = "file.csv",
+            config = DataSourceConfig(
+                name = "source",
+                location = "file.csv",
+            ),
             schema = mapOf(
                 "mass" to EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
                 "geo" to EStringLiteral("FR"),
