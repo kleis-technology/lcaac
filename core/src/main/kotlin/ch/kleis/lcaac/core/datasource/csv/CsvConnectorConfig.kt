@@ -1,12 +1,12 @@
 package ch.kleis.lcaac.core.datasource.csv
 
+import ch.kleis.lcaac.core.config.CacheConfig
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig.Companion.CSV_CONNECTOR_KEY_DIRECTORY
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig.Companion.CSV_CONNECTOR_NAME
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.pathString
 
 data class CsvConnectorConfig(
     val directory: File,
@@ -18,6 +18,10 @@ data class CsvConnectorConfig(
         fun default(): ConnectorConfig =
             ConnectorConfig(
                 name = CSV_CONNECTOR_NAME,
+                cache = CacheConfig(
+                    enabled = false,
+                    maxSize = 1024,
+                ),
                 options = mapOf(
                     CSV_CONNECTOR_KEY_DIRECTORY to "."
                 )

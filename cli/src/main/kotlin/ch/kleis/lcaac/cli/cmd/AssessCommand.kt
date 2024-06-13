@@ -8,7 +8,6 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
-import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -19,7 +18,6 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import java.nio.file.Paths
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
@@ -52,7 +50,7 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
-            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+            yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
 
