@@ -10,6 +10,8 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.CoreMapper
 import ch.kleis.lcaac.grammar.parser.LcaLangLexer
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import java.io.File
@@ -19,6 +21,9 @@ import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.isRegularFile
 
+val yaml = Yaml(configuration = YamlConfiguration(
+    strictMode = false
+))
 const val defaultLcaacFilename = "lcaac.yaml"
 
 fun parseProjectPath(path: File): Pair<File, File> {
