@@ -48,7 +48,7 @@ class CachedConnectorTest {
         val actual = connector.getAll(config, source)
 
         // then
-        assertEquals(expected, actual)
+        assertEquals(expected.toList(), actual.toList())
         verify(exactly = 1) { inner.getAll(config, source) }
     }
 
