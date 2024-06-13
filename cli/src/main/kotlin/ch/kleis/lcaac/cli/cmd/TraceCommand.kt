@@ -15,7 +15,6 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
 import ch.kleis.lcaac.core.prelude.Prelude.Companion.sanitize
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
-import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -55,7 +54,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
-            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+            yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
         val ops = BasicOperations

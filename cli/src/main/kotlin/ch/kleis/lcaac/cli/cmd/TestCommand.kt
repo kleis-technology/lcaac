@@ -11,7 +11,6 @@ import ch.kleis.lcaac.grammar.CoreTestMapper
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
-import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
@@ -48,7 +47,7 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
 
         val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
-            Yaml.default.decodeFromStream(LcaacConfig.serializer(), it)
+            yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
 
