@@ -49,6 +49,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
     implementation("org.apache.commons:commons-csv:1.10.0")
+    implementation("com.mayakapps.kache:kache:2.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
 
     testImplementation(kotlin("test"))
 }
