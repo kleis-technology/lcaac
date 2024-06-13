@@ -49,7 +49,7 @@ process electricity_mix {
 
 On the command line, setup the cli.
 ```bash
-git checkout lca-1.6.5
+git checkout lca-1.6.6
 ./gradlew :cli:installDist
 alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
 ```
