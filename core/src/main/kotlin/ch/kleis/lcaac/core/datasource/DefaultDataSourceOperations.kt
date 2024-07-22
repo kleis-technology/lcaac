@@ -13,11 +13,10 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 
 class DefaultDataSourceOperations<Q>(
-    private val config: LcaacConfig,
     private val ops: QuantityOperations<Q>,
-    private val workingDirectory: String,
-    private val connectorFactory: ConnectorFactory<Q> = ConnectorFactory(workingDirectory, config, ops)
+    private val connectorFactory: ConnectorFactory<Q>,
 ) : DataSourceOperations<Q> {
+    private val config: LcaacConfig = connectorFactory.getLcaacConfig()
     private val connectors = config.connectors
         .mapNotNull { connectorFactory.buildOrNull(it) }
         .associateBy { it.getName() }

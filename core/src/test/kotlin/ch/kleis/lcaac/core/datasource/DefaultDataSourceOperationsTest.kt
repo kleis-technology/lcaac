@@ -59,7 +59,7 @@ class DefaultDataSourceOperationsTest {
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
         val factory = ConnectorFactory(".", config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
+        val sourceOps = DefaultDataSourceOperations(ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -113,7 +113,7 @@ class DefaultDataSourceOperationsTest {
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
         val factory = ConnectorFactory(".", config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
+        val sourceOps = DefaultDataSourceOperations(ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -167,7 +167,7 @@ class DefaultDataSourceOperationsTest {
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
         val factory = ConnectorFactory(".", config, ops, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(config, ops, ".", factory)
+        val sourceOps = DefaultDataSourceOperations(ops, factory)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
