@@ -11,7 +11,7 @@ class OverriddenDataSourceOperations<Q>(
     private val content: Map<String, List<ERecord<Q>>>,
     private val ops: QuantityOperations<Q>,
     private val innerSourceOps: DataSourceOperations<Q>,
-): DataSourceOperations<Q> {
+) : DataSourceOperations<Q> {
     private val inMemoryConnector = InMemoryConnector(content, ops)
 
     override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
@@ -27,11 +27,13 @@ class OverriddenDataSourceOperations<Q>(
     }
 
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        return reduceSumProduct(
+        return if (!content.containsKey(source.config.name))
+            innerSourceOps.sumProduct(source, columns)
+        else reduceSumProduct(
             source.config.name,
             ops,
             this,
-            getAll(source),
+            inMemoryConnector.getAll(source.config, source),
             columns,
         )
     }
