@@ -2,7 +2,9 @@ package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -58,7 +60,8 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         }
         else LcaacConfig()
         val ops = BasicOperations
-        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
+        val factory = ConnectorFactory(workingDirectory.path, config, ops, listOf(CsvConnectorBuilder()))
+        val sourceOps = DefaultDataSourceOperations(ops, factory)
 
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))

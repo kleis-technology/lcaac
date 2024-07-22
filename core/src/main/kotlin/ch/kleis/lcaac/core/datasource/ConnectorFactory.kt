@@ -10,17 +10,12 @@ class ConnectorFactory<Q>(
     private val workingDirectory: String,
     private val lcaacConfig: LcaacConfig,
     private val ops: QuantityOperations<Q>,
-    builders: List<ConnectorBuilder<Q>> = listOf(CsvConnectorBuilder())
+    private val builders: List<ConnectorBuilder<Q>> = listOf(CsvConnectorBuilder())
 ) {
-    private val builders = ArrayList<ConnectorBuilder<Q>>(builders)
 
     fun getWorkingDirectory(): String = workingDirectory
     fun getLcaacConfig(): LcaacConfig = lcaacConfig
     fun getQuantityOperations(): QuantityOperations<Q> = ops
-
-    fun register(builder: ConnectorBuilder<Q>) {
-        builders.add(builder)
-    }
 
     fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
         return builders.firstNotNullOfOrNull {

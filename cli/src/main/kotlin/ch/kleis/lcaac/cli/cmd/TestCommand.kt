@@ -1,7 +1,9 @@
 package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure
@@ -52,7 +54,8 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
         else LcaacConfig()
 
         val ops = BasicOperations
-        val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory.path)
+        val factory = ConnectorFactory(workingDirectory.path, config, ops, listOf(CsvConnectorBuilder()))
+        val sourceOps = DefaultDataSourceOperations(ops, factory)
 
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))

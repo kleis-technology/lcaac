@@ -1,10 +1,8 @@
 package ch.kleis.lcaac.core.datasource.csv
 
-import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
-import ch.kleis.lcaac.core.datasource.ConnectorBuilder
-import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
+import ch.kleis.lcaac.core.datasource.misc.applyFilter
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.expression.DataExpression
@@ -61,24 +59,13 @@ class CsvConnector<Q>(
         val records = load(location, source.schema)
         val filter = source.filter
         return records
-            .filter { record ->
-                filter.entries.all {
-                    val expected = it.value
-                    if (expected is StringValue) {
-                        val actual = record.entries[it.key]
-                            ?.let { with(ToValue(ops)) { it.toValue() } }
-                            ?: throw IllegalStateException(
-                                "${source.config.name}: invalid schema: unknown column '${it.key}'"
-                            )
-                        actual == expected
-                    } else throw EvaluatorException("invalid matching condition $it")
-                }
-            }
+            .filter(applyFilter(source.config.name, ops, filter))
     }
 
     override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
         return getAll(config, source).firstOrNull()
-            ?: throw EvaluatorException("no record found in '${config.location}' matching ${source.filter}")
+            ?: throw EvaluatorException("no record found in datasource '${config.name}' [${config.location}] matching" +
+                " ${source.filter}")
     }
 
     override fun getName(): String {

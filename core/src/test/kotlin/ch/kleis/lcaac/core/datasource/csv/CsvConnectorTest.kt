@@ -1,7 +1,6 @@
-package ch.kleis.lcaac.core.datasource
+package ch.kleis.lcaac.core.datasource.csv
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
-import ch.kleis.lcaac.core.datasource.csv.CsvConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -151,6 +150,6 @@ class CsvConnectorTest {
 
         // when/then
         val e = assertThrows<EvaluatorException> { connector.getFirst(config, source) }
-        assertEquals("no record found in 'source.csv' matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
+        assertEquals("no record found in datasource 'source' [source.csv] matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
     }
 }
