@@ -37,13 +37,10 @@ class InMemoryConnectorTest {
                 "mass" to QuantityFixture.twoKilograms,
             )),
         )
-        val connectorConfig = InMemoryConnectorConfig(
+        val connector = InMemoryConnector(
             content = mapOf(
                 "inventory" to records
-            )
-        )
-        val connector = InMemoryConnector(
-            connectorConfig = connectorConfig,
+            ),
             ops = ops,
         )
         val config = DataSourceConfig(
@@ -108,13 +105,10 @@ class InMemoryConnectorTest {
                 "mass" to QuantityFixture.twoKilograms,
             )),
         )
-        val connectorConfig = InMemoryConnectorConfig(
+        val connector = InMemoryConnector(
             content = mapOf(
                 "inventory" to records
-            )
-        )
-        val connector = InMemoryConnector(
-            connectorConfig = connectorConfig,
+            ),
             ops = ops,
         )
         val config = DataSourceConfig(
@@ -151,13 +145,10 @@ class InMemoryConnectorTest {
     fun getFirst_whenEmpty_throwEvaluatorException() {
         // given
         val records = emptyList<ERecord<BasicNumber>>()
-        val connectorConfig = InMemoryConnectorConfig(
+        val connector = InMemoryConnector(
             content = mapOf(
                 "inventory" to records
-            )
-        )
-        val connector = InMemoryConnector(
-            connectorConfig = connectorConfig,
+            ),
             ops = ops,
         )
         val config = DataSourceConfig(

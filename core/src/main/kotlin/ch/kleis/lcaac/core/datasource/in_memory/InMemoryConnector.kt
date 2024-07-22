@@ -9,17 +9,22 @@ import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class InMemoryConnector<Q>(
-    private val connectorConfig: InMemoryConnectorConfig<Q>,
+    private val content: Map<String, List<ERecord<Q>>>,
     private val ops: QuantityOperations<Q>,
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
         return InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME
     }
 
+    private fun getRecordsOf(sourceName: String): List<ERecord<Q>> {
+        return content[sourceName]
+            ?: throw EvaluatorException("in_memory: unknown datasource '$sourceName'")
+    }
+
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val sourceName = config.name
         val filter = source.filter
-        val records = connectorConfig.getRecordsOf(sourceName)
+        val records = getRecordsOf(sourceName)
         return records.asSequence()
             .filter(applyFilter(source.config.name, ops, filter))
     }
