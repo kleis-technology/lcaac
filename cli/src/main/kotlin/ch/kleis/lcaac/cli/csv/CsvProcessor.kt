@@ -3,7 +3,9 @@ package ch.kleis.lcaac.cli.csv
 import ch.kleis.lcaac.cli.cmd.prepareArguments
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -17,7 +19,8 @@ class CsvProcessor(
     workingDirectory: String,
 ) {
     private val ops = BasicOperations
-    private val sourceOps = DefaultDataSourceOperations(config, ops, workingDirectory)
+    private val factory = ConnectorFactory(workingDirectory, config, ops, listOf(CsvConnectorBuilder()))
+    private val sourceOps = DefaultDataSourceOperations(ops, factory)
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
