@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
+import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import io.mockk.every
@@ -26,6 +27,27 @@ class CachedConnectorTest {
 
         // then
         assertEquals("source", actual)
+    }
+
+    @Test
+    fun sumProduct() {
+        // given
+        val inner = mockk<DataSourceConnector<BasicNumber>>()
+        val connector = CachedConnector(inner)
+        val config = mockk<DataSourceConfig>()
+        val source = mockk<DataSourceValue<BasicNumber>>()
+        val columns = listOf("foo")
+
+        val expected = QuantityFixture.oneKilogram
+        every { inner.sumProduct(config, source, columns) } returns expected
+
+        // when
+        connector.sumProduct(config, source, columns)
+        val actual = connector.sumProduct(config, source, columns)
+
+        // then
+        assertEquals(expected, actual)
+        verify(exactly = 1) { inner.sumProduct(config, source, columns) }
     }
 
     @Test
