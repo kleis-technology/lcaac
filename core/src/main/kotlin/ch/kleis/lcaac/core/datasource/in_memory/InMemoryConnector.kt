@@ -11,7 +11,7 @@ import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class InMemoryConnector<Q>(
-    private val content: Map<String, InMemoryDatasource<Q>>,
+    private val content: Map<String, InMemoryDatasource>,
     private val ops: QuantityOperations<Q>,
 ) : DataSourceConnector<Q> {
     override fun getName(): String {

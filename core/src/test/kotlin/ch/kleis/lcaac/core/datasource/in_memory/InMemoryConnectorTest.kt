@@ -29,7 +29,6 @@ class InMemoryConnectorTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("FR"),
@@ -94,7 +93,6 @@ class InMemoryConnectorTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("FR"),
@@ -166,7 +164,6 @@ class InMemoryConnectorTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("EN"),
@@ -226,7 +223,6 @@ class InMemoryConnectorTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = emptyList(),
         )
         val connector = InMemoryConnector(

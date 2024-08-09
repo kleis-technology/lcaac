@@ -10,8 +10,7 @@ import ch.kleis.lcaac.core.lang.value.RecordValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 
-data class InMemoryDatasource<Q>(
-    val schema: Map<String, DataValue<Q>>,
+data class InMemoryDatasource(
     val records: List<InMemoryRecord>,
 )
 typealias InMemoryRecord = Map<String, InMemoryValue>

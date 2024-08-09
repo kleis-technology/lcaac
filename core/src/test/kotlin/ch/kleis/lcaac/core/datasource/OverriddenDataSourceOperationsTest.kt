@@ -34,7 +34,6 @@ class OverriddenDataSourceOperationsTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("FR"),
@@ -100,7 +99,7 @@ class OverriddenDataSourceOperationsTest {
         )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to InMemoryDatasource(schema, emptyList()),
+                "no_match" to InMemoryDatasource(emptyList()),
             ),
             BasicOperations,
             innerSourceOps,
@@ -158,7 +157,6 @@ class OverriddenDataSourceOperationsTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("FR"),
@@ -218,7 +216,7 @@ class OverriddenDataSourceOperationsTest {
         )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to InMemoryDatasource(schema, emptyList()),
+                "no_match" to InMemoryDatasource(emptyList()),
             ),
             BasicOperations,
             innerSourceOps,
@@ -261,7 +259,6 @@ class OverriddenDataSourceOperationsTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val inMemoryDatasource = InMemoryDatasource(
-            schema = schema,
             records = listOf(
                 mapOf(
                     "geo" to InMemStr("FR"),
@@ -323,7 +320,7 @@ class OverriddenDataSourceOperationsTest {
         )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to InMemoryDatasource(schema, emptyList()),
+                "no_match" to InMemoryDatasource(emptyList()),
             ),
             BasicOperations,
             innerSourceOps,

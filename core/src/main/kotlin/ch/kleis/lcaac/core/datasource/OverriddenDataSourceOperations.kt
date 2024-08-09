@@ -8,7 +8,7 @@ import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class OverriddenDataSourceOperations<Q>(
-    private val content: Map<String, InMemoryDatasource<Q>>,
+    private val content: Map<String, InMemoryDatasource>,
     private val ops: QuantityOperations<Q>,
     private val innerSourceOps: DataSourceOperations<Q>,
 ) : DataSourceOperations<Q> {
