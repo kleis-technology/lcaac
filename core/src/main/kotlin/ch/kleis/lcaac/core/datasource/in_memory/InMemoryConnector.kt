@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.misc.applyFilter
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
@@ -14,6 +15,10 @@ class InMemoryConnector<Q>(
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
         return InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME
+    }
+
+    override fun sumProduct(config: DataSourceConfig, source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
+        TODO("Not yet implemented")
     }
 
     private fun getRecordsOf(sourceName: String): List<ERecord<Q>> {

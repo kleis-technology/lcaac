@@ -1,7 +1,6 @@
 package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
-import ch.kleis.lcaac.core.datasource.misc.reduceSumProduct
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
@@ -29,12 +28,6 @@ class OverriddenDataSourceOperations<Q>(
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
         return if (!content.containsKey(source.config.name))
             innerSourceOps.sumProduct(source, columns)
-        else reduceSumProduct(
-            source.config.name,
-            ops,
-            this,
-            inMemoryConnector.getAll(source.config, source),
-            columns,
-        )
+        else inMemoryConnector.sumProduct(source.config, source, columns)
     }
 }

@@ -43,12 +43,8 @@ class DefaultDataSourceOperations<Q>(
     }
 
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        return reduceSumProduct(
-            source.config.name,
-            ops,
-            this,
-            getAll(source),
-            columns,
-        )
+        val sourceConfig = configOf(source)
+        val connector = connectorOf(sourceConfig)
+        return connector.sumProduct(sourceConfig, source, columns)
     }
 }

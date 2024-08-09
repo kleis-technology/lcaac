@@ -2,12 +2,13 @@ package ch.kleis.lcaac.core.datasource.csv
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.ERecord
-import ch.kleis.lcaac.core.lang.expression.EStringLiteral
+import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
+import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
@@ -30,6 +31,50 @@ class CsvConnectorTest {
     }
 
     private val ops = BasicOperations
+
+    @Test
+    fun sumProduct() {
+        // given
+        val connector = CsvConnector(
+            mockk(),
+            ops,
+            mockFileLoader(),
+        )
+        val source = DataSourceValue(
+            config = DataSourceConfig(
+                name = "source",
+                location = "source.csv",
+            ),
+            schema = mapOf(
+                "geo" to StringValue("FR"),
+                "n_items" to QuantityValueFixture.oneUnit,
+                "mass" to QuantityValueFixture.oneKilogram,
+            ),
+            filter = mapOf(
+                "geo" to StringValue("FR")
+            )
+        )
+        val config = DataSourceConfig(
+            name = "source",
+            location = "source.csv",
+        )
+
+        // when
+        val actual = connector.sumProduct(config, source, listOf("n_items", "mass"))
+
+        // then
+        val u = UnitFixture.unit
+        val kg = UnitFixture.kg
+        val expected = EQuantityScale(
+            BasicNumber(7.0),
+            EUnitLiteral(
+                kg.symbol.multiply(u.symbol),
+                kg.scale*u.scale,
+                kg.dimension.multiply(u.dimension),
+            ),
+        )
+        assertEquals(expected, actual)
+    }
 
     @Test
     fun getAll() {

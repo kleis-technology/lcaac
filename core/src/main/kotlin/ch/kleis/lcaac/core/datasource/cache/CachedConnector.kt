@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.datasource.cache
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
+import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import com.mayakapps.kache.InMemoryKache
@@ -24,6 +25,9 @@ class CachedConnector<Q>(
     }
 
     override fun getName(): String = inner.getName()
+    override fun sumProduct(config: DataSourceConfig, source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
+        TODO("Not yet implemented")
+    }
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val result  = runBlocking {
