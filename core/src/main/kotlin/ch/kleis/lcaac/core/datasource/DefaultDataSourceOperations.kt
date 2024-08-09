@@ -2,7 +2,6 @@ package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.datasource.misc.reduceSumProduct
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue

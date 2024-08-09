@@ -146,23 +146,7 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
-        every { connector.getAll(any(), any()) } returns sequenceOf(
-            ERecord(mapOf(
-                "geo" to EStringLiteral("FR"),
-                "n_items" to QuantityFixture.oneUnit,
-                "mass" to QuantityFixture.oneKilogram,
-            )),
-            ERecord(mapOf(
-                "geo" to EStringLiteral("FR"),
-                "n_items" to QuantityFixture.twoUnits,
-                "mass" to QuantityFixture.twoKilograms,
-            )),
-            ERecord(mapOf(
-                "geo" to EStringLiteral("FR"),
-                "n_items" to QuantityFixture.oneUnit,
-                "mass" to QuantityFixture.twoKilograms,
-            )),
-        )
+        every { connector.sumProduct(any(), any(), any()) } returns QuantityFixture.oneKilogram
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
@@ -187,14 +171,7 @@ class DefaultDataSourceOperationsTest {
         val actual = sourceOps.sumProduct(source, listOf("n_items", "mass"))
 
         // then
-        val expected = EQuantityScale(
-            BasicNumber(7.0),
-            EUnitLiteral(
-                UnitFixture.kg.symbol.multiply(UnitFixture.unit.symbol),
-                1.0,
-                UnitFixture.kg.dimension.multiply(UnitFixture.unit.dimension),
-            ),
-        )
+        val expected = QuantityFixture.oneKilogram
         assertEquals(expected, actual)
     }
 }

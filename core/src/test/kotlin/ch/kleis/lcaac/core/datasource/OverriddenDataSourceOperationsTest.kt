@@ -2,6 +2,9 @@ package ch.kleis.lcaac.core.datasource
 
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
+import ch.kleis.lcaac.core.datasource.in_memory.InMemNum
+import ch.kleis.lcaac.core.datasource.in_memory.InMemStr
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -25,25 +28,34 @@ class OverriddenDataSourceOperationsTest {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
         every { innerSourceOps.getAll(any()) } returns emptySequence()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
+        val inMemoryDatasource = InMemoryDatasource(
+            schema = schema,
+            records = listOf(
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(1.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("UK"),
+                    "n_items" to InMemNum(2.0),
+                    "mass" to InMemNum(2.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(2.0),
+                ),
+            )
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "inventory" to listOf(
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.oneKilogram,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("UK"),
-                        "n_items" to QuantityFixture.twoUnits,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                )
+                "inventory" to inMemoryDatasource,
             ),
             BasicOperations,
             innerSourceOps,
@@ -52,11 +64,7 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )
@@ -85,9 +93,14 @@ class OverriddenDataSourceOperationsTest {
     fun getAll_whenNoMatchOverride() {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to emptyList(),
+                "no_match" to InMemoryDatasource(schema, emptyList()),
             ),
             BasicOperations,
             innerSourceOps,
@@ -96,11 +109,7 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )
@@ -143,25 +152,34 @@ class OverriddenDataSourceOperationsTest {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
         every { innerSourceOps.getAll(any()) } returns emptySequence()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
+        val inMemoryDatasource = InMemoryDatasource(
+            schema = schema,
+            records = listOf(
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(1.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("UK"),
+                    "n_items" to InMemNum(2.0),
+                    "mass" to InMemNum(2.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(2.0),
+                ),
+            )
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "inventory" to listOf(
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.oneKilogram,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("UK"),
-                        "n_items" to QuantityFixture.twoUnits,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                )
+                "inventory" to inMemoryDatasource,
             ),
             BasicOperations,
             innerSourceOps,
@@ -170,15 +188,12 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )
         )
+
 
         // when
         val actual = sourceOps.getFirst(source)
@@ -196,9 +211,14 @@ class OverriddenDataSourceOperationsTest {
     fun getFirst_whenNoMatchOverride() {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to emptyList(),
+                "no_match" to InMemoryDatasource(schema, emptyList()),
             ),
             BasicOperations,
             innerSourceOps,
@@ -207,11 +227,7 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )
@@ -239,25 +255,34 @@ class OverriddenDataSourceOperationsTest {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
         every { innerSourceOps.getAll(any()) } returns emptySequence()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
+        val inMemoryDatasource = InMemoryDatasource(
+            schema = schema,
+            records = listOf(
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(1.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("UK"),
+                    "n_items" to InMemNum(2.0),
+                    "mass" to InMemNum(2.0),
+                ),
+                mapOf(
+                    "geo" to InMemStr("FR"),
+                    "n_items" to InMemNum(1.0),
+                    "mass" to InMemNum(2.0),
+                ),
+            )
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "inventory" to listOf(
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.oneKilogram,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("UK"),
-                        "n_items" to QuantityFixture.twoUnits,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                    ERecord(mapOf(
-                        "geo" to EStringLiteral("FR"),
-                        "n_items" to QuantityFixture.oneUnit,
-                        "mass" to QuantityFixture.twoKilograms,
-                    )),
-                )
+                "inventory" to inMemoryDatasource,
             ),
             BasicOperations,
             innerSourceOps,
@@ -266,11 +291,7 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )
@@ -295,9 +316,14 @@ class OverriddenDataSourceOperationsTest {
     fun sumProduct_whenNoMatchOverride() {
         // given
         val innerSourceOps = mockk<DataSourceOperations<BasicNumber>>()
+        val schema = mapOf(
+            "geo" to StringValue("FR"),
+            "n_items" to QuantityValueFixture.oneUnit,
+            "mass" to QuantityValueFixture.oneKilogram,
+        )
         val sourceOps = OverriddenDataSourceOperations(
             content = mapOf(
-                "no_match" to emptyList(),
+                "no_match" to InMemoryDatasource(schema, emptyList()),
             ),
             BasicOperations,
             innerSourceOps,
@@ -306,11 +332,7 @@ class OverriddenDataSourceOperationsTest {
             config = DataSourceConfig(
                 name = "inventory",
             ),
-            schema = mapOf(
-                "geo" to StringValue("FR"),
-                "n_items" to QuantityValueFixture.oneUnit,
-                "mass" to QuantityValueFixture.oneKilogram,
-            ),
+            schema = schema,
             filter = mapOf(
                 "geo" to StringValue("FR")
             )

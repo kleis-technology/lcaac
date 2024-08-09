@@ -34,7 +34,7 @@ class CsvConnector<Q>(
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val location = config.location
-            ?: throw IllegalArgumentException("Missing location in configuration for datasource '${config.name}'")
+            ?: throw EvaluatorException("Missing location in configuration for datasource '${config.name}'")
         val (header, csvRecords) = csvRecords(location)
         val records = csvRecords
             .filter(applyFilter(header, source.filter))
@@ -52,9 +52,10 @@ class CsvConnector<Q>(
         return CsvConnectorConfig.CSV_CONNECTOR_NAME
     }
 
+    @Suppress("DuplicatedCode")
     override fun sumProduct(config: DataSourceConfig, source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
         val location = config.location
-            ?: throw IllegalArgumentException("Missing location in configuration for datasource '${config.name}'")
+            ?: throw EvaluatorException("Missing location in configuration for datasource '${config.name}'")
         val (header, csvRecords) = csvRecords(location)
         val schema = source.schema
 
@@ -63,7 +64,7 @@ class CsvConnector<Q>(
             .map { csvRecord ->
                 columns.map { column ->
                     val position = header[column]
-                        ?: throw IllegalArgumentException("Unknown column '$column'")
+                        ?: throw EvaluatorException("Unknown column '$column'")
                     parseDouble(csvRecord[position])
                 }.reduce(Double::times)
             }.reduce(Double::plus)
@@ -71,11 +72,11 @@ class CsvConnector<Q>(
         val unit = columns
             .map {
                 val defaultValue = schema[it]
-                    ?: throw IllegalArgumentException("Unknown column '$it'")
+                    ?: throw EvaluatorException("Unknown column '$it'")
                 when (defaultValue) {
                     is QuantityValue -> defaultValue.unit
-                    is RecordValue -> throw IllegalArgumentException("Expected 'QuantityValue' for column '$it', found 'RecordValue'")
-                    is StringValue -> throw IllegalArgumentException("Expected 'QuantityValue' for column '$it', found 'StringValue'")
+                    is RecordValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'RecordValue'")
+                    is StringValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'StringValue'")
                 }
             }.reduce { acc, unitValue -> acc.times(unitValue) }
         return EQuantityScale(
@@ -108,7 +109,7 @@ private fun <Q> applyFilter(
         val expected = it.value
         if (expected is StringValue) {
             val position = header[it.key]
-                ?: throw IllegalArgumentException("Unknown column '${it.key}'")
+                ?: throw EvaluatorException("Unknown column '${it.key}'")
             val actual = record[position]
             actual == expected.s
         } else throw EvaluatorException("invalid matching condition $it")

@@ -1,13 +1,14 @@
 package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class OverriddenDataSourceOperations<Q>(
-    private val content: Map<String, List<ERecord<Q>>>,
+    private val content: Map<String, InMemoryDatasource<Q>>,
     private val ops: QuantityOperations<Q>,
     private val innerSourceOps: DataSourceOperations<Q>,
 ) : DataSourceOperations<Q> {
