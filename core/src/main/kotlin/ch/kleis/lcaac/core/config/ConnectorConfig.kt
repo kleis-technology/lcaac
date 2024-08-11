@@ -13,4 +13,5 @@ data class ConnectorConfig(
 data class CacheConfig(
     val enabled: Boolean = false,
     val maxSize: Long = 1024,
+    val maxRecordsPerCacheLine: Long = 8192,
 )
