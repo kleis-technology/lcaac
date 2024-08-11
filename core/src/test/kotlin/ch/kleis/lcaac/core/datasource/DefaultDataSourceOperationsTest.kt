@@ -3,11 +3,10 @@ package ch.kleis.lcaac.core.datasource
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.datasource.in_memory.*
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
-import ch.kleis.lcaac.core.lang.expression.ERecord
-import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
+import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
@@ -34,6 +33,16 @@ class DefaultDataSourceOperationsTest {
         connectors = listOf(connectorConfig),
     )
     private val ops = BasicOperations
+
+    private fun str(s: String): DataExpression<BasicNumber> = EStringLiteral(s)
+    private fun numU(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+        BasicNumber(value),
+        UnitFixture.unit,
+    )
+    private fun numKg(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+        BasicNumber(value),
+        UnitFixture.kg,
+    )
 
     @Test
     fun getAll() {
@@ -274,28 +283,27 @@ class DefaultDataSourceOperationsTest {
         val inMemoryDatasource = InMemoryDatasource(
             records = listOf(
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(1.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(1.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("UK"),
-                    "n_items" to InMemNum(2.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("UK"),
+                    "n_items" to numU(2.0),
+                    "mass" to numKg(2.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(2.0),
                 ),
-            )
+            ).map { ERecord(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "inventory" to inMemoryDatasource,
             ),
-            ops = BasicOperations
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
@@ -360,12 +368,11 @@ class DefaultDataSourceOperationsTest {
                 "mass" to QuantityFixture.twoKilograms,
             )),
         )
-        val inMemoryConnector = InMemoryConnector(
+        val inMemoryConnector = InMemoryConnector<BasicNumber>(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "no_match" to InMemoryDatasource(emptyList()),
             ),
-            ops = BasicOperations
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
@@ -418,28 +425,27 @@ class DefaultDataSourceOperationsTest {
         val inMemoryDatasource = InMemoryDatasource(
             records = listOf(
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(1.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(1.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("UK"),
-                    "n_items" to InMemNum(2.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("UK"),
+                    "n_items" to numU(2.0),
+                    "mass" to numKg(2.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(2.0),
                 ),
-            )
+            ).map { ERecord(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "inventory" to inMemoryDatasource,
             ),
-            ops = BasicOperations
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
@@ -491,12 +497,11 @@ class DefaultDataSourceOperationsTest {
             "n_items" to QuantityFixture.oneUnit,
             "mass" to QuantityFixture.oneKilogram,
         ))
-        val inMemoryConnector = InMemoryConnector(
+        val inMemoryConnector = InMemoryConnector<BasicNumber>(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "no_match" to InMemoryDatasource(emptyList()),
             ),
-            ops = BasicOperations
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
@@ -543,26 +548,25 @@ class DefaultDataSourceOperationsTest {
         val inMemoryDatasource = InMemoryDatasource(
             records = listOf(
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(1.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(1.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("UK"),
-                    "n_items" to InMemNum(2.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("UK"),
+                    "n_items" to numU(2.0),
+                    "mass" to numKg(2.0),
                 ),
                 mapOf(
-                    "geo" to InMemStr("FR"),
-                    "n_items" to InMemNum(1.0),
-                    "mass" to InMemNum(2.0),
+                    "geo" to str("FR"),
+                    "n_items" to numU(1.0),
+                    "mass" to numKg(2.0),
                 ),
-            )
+            ).map { ERecord(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf("inventory" to inMemoryDatasource),
-            ops = BasicOperations,
         )
         val sourceOps = DefaultDataSourceOperations(
             ops = BasicOperations,
@@ -623,12 +627,11 @@ class DefaultDataSourceOperationsTest {
             "n_items" to QuantityValueFixture.oneUnit,
             "mass" to QuantityValueFixture.oneKilogram,
         )
-        val inMemoryConnector = InMemoryConnector(
+        val inMemoryConnector = InMemoryConnector<BasicNumber>(
             config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "no_match" to InMemoryDatasource(emptyList()),
             ),
-            ops = BasicOperations,
         )
         val sourceOps = DefaultDataSourceOperations(
             ops = BasicOperations,

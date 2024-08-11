@@ -4,16 +4,15 @@ import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.value.*
-import ch.kleis.lcaac.core.math.QuantityOperations
+import ch.kleis.lcaac.core.lang.value.DataSourceValue
+import ch.kleis.lcaac.core.lang.value.DataValue
+import ch.kleis.lcaac.core.lang.value.StringValue
 
 class InMemoryConnector<Q>(
     private val config: ConnectorConfig,
-    private val content: Map<String, InMemoryDatasource>,
-    private val ops: QuantityOperations<Q>,
+    private val content: Map<String, InMemoryDatasource<Q>>,
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
         return InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME
@@ -31,7 +30,6 @@ class InMemoryConnector<Q>(
         val records = content[sourceName]
             ?.records
             ?.filter(applyFilter(filter))
-            ?.map { eRecord(source.schema, it, ops) }
             ?: emptyList()
         return records.asSequence()
     }
@@ -44,40 +42,14 @@ class InMemoryConnector<Q>(
 
 private fun <Q> applyFilter(
     filter: Map<String, DataValue<Q>>,
-): (InMemoryRecord) -> Boolean = { record ->
+): (ERecord<Q>) -> Boolean = { record ->
     filter.entries.all {
         val expected = it.value
         if (expected is StringValue) {
-            when (val v = record[it.key]) {
-                is InMemStr -> expected.s == v.value
-                is InMemNum -> throw EvaluatorException("Invalid type for column '${it.key}': expected 'InMemStr', found 'InMemNum'")
-                null -> throw EvaluatorException("Unknown column '${it.key}'")
+            when (val v = record.entries[it.key]) {
+                is EStringLiteral -> expected.s == v.value
+                else -> throw EvaluatorException("invalid type for column '${it.key}': expected 'EStringLiteral', found '${v?.javaClass?.simpleName}'")
             }
         } else throw EvaluatorException("invalid matching condition $it")
     }
-}
-
-private fun <Q> eRecord(schema: Map<String, DataValue<Q>>, record: InMemoryRecord, ops: QuantityOperations<Q>): ERecord<Q> {
-    val entries = schema.mapValues {
-        when (val defaultValue = it.value) {
-            is QuantityValue -> when (val v = record[it.key]) {
-                is InMemNum -> EQuantityScale(ops.pure(v.value), defaultValue.unit.toEUnitLiteral())
-                is InMemStr -> throw EvaluatorException("Invalid type in column '${it.key}': expected " +
-                    "number, found string")
-
-                null -> throw EvaluatorException("Missing column '${it.key}'")
-            }
-
-            is StringValue -> when (val v = record[it.key]) {
-                is InMemStr -> EStringLiteral(v.value)
-                is InMemNum -> throw EvaluatorException("Invalid type in column '${it.key}': expected " +
-                    "string, found number")
-
-                null -> throw EvaluatorException("Missing column '${it.key}'")
-            }
-
-            is RecordValue -> throw EvaluatorException("Unsupported type: RecordValue")
-        }
-    }
-    return ERecord(entries)
 }
