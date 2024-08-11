@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.datasource.in_memory
 
+import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -10,12 +11,19 @@ import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class InMemoryConnector<Q>(
+    private val config: ConnectorConfig,
     private val content: Map<String, InMemoryDatasource>,
     private val ops: QuantityOperations<Q>,
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
-        return InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME
+        return InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME
     }
+
+    override fun getConfig(): ConnectorConfig {
+        return config
+    }
+
+    fun getSourceNames(): List<String> = content.keys.toList()
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val sourceName = config.name

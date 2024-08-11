@@ -16,9 +16,15 @@ class ConnectorFactory<Q>(
     fun getLcaacConfig(): LcaacConfig = lcaacConfig
     fun getQuantityOperations(): QuantityOperations<Q> = ops
 
-    fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
+    private fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
         return builders.firstNotNullOfOrNull {
             it.buildOrNull(this, config)
         }
+    }
+
+    fun buildConnectors(): Map<String, DataSourceConnector<Q>> {
+        return lcaacConfig.connectors.mapNotNull {
+            this.buildOrNull(it)
+        }.associateBy { it.getName() }
     }
 }

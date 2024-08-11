@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.datasource.csv
 
+import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -7,22 +8,21 @@ import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.value.*
+import ch.kleis.lcaac.core.lang.value.DataSourceValue
+import ch.kleis.lcaac.core.lang.value.DataValue
+import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVRecord
 import java.io.InputStream
 import java.lang.Double.parseDouble
-import java.nio.file.Paths
 
 class CsvConnector<Q>(
-    private val connectorConfig: CsvConnectorConfig,
+    private val config: ConnectorConfig,
     private val ops: QuantityOperations<Q>,
-    private val fileLoader: (String) -> InputStream = { location ->
-        val csvFile = Paths.get(connectorConfig.directory.absolutePath, location)
-        csvFile.toFile().inputStream()
-    }
+    private val fileLoader: (String) -> InputStream,
 ) : DataSourceConnector<Q> {
 
     private fun csvRecords(location: String): Pair<Map<String, Int>, Sequence<CSVRecord>> {
@@ -49,7 +49,11 @@ class CsvConnector<Q>(
     }
 
     override fun getName(): String {
-        return CsvConnectorConfig.CSV_CONNECTOR_NAME
+        return CsvConnectorKeys.CSV_CONNECTOR_NAME
+    }
+
+    override fun getConfig(): ConnectorConfig {
+        return config
     }
 }
 

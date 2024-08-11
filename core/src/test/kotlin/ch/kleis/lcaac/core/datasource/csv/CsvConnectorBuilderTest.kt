@@ -1,12 +1,11 @@
 package ch.kleis.lcaac.core.datasource.csv
 
 import ch.kleis.lcaac.core.config.ConnectorConfig
-import org.junit.jupiter.api.Assertions.*
-import java.io.File
+import org.junit.jupiter.api.Assertions.assertEquals
 import kotlin.io.path.Path
 import kotlin.test.Test
 
-class CsvConnectorConfigKtTest {
+class CsvConnectorBuilderTest {
     @Test
     fun csv() {
         // given
@@ -19,12 +18,10 @@ class CsvConnectorConfigKtTest {
         )
 
         // when
-        val actual = config.csv(workingDirectory)
+        val actual = CsvConnectorBuilder.directory(workingDirectory, config)
 
         // then
-        val expected = CsvConnectorConfig(
-            directory = Path("/foo/bar").toFile(),
-        )
+        val expected = Path("/foo/bar").toFile()
         assertEquals(expected, actual)
     }
 
@@ -40,12 +37,10 @@ class CsvConnectorConfigKtTest {
         )
 
         // when
-        val actual = config.csv(workingDirectory)
+        val actual = CsvConnectorBuilder.directory(workingDirectory, config)
 
         // then
-        val expected = CsvConnectorConfig(
-            directory = Path("/foo/bar").toFile(),
-        )
+        val expected = Path("/foo/bar").toFile()
         assertEquals(expected, actual)
     }
 
@@ -61,12 +56,10 @@ class CsvConnectorConfigKtTest {
         )
 
         // when
-        val actual = config.csv(workingDirectory)
+        val actual = CsvConnectorBuilder.directory(workingDirectory, config)
 
         // then
-        val expected = CsvConnectorConfig(
-            directory = Path("/foo/baz/bar").toFile(),
-        )
+        val expected = Path("/foo/baz/bar").toFile()
         assertEquals(expected, actual)
     }
 
@@ -82,12 +75,10 @@ class CsvConnectorConfigKtTest {
         )
 
         // when
-        val actual = config.csv(workingDirectory)
+        val actual = CsvConnectorBuilder.directory(workingDirectory, config)
 
         // then
-        val expected = CsvConnectorConfig(
-            directory = Path("/baz/bar").toFile(),
-        )
+        val expected = Path("/baz/bar").toFile()
         assertEquals(expected, actual)
     }
 
@@ -101,12 +92,10 @@ class CsvConnectorConfigKtTest {
         )
 
         // when
-        val actual = config.csv(workingDirectory)
+        val actual = CsvConnectorBuilder.directory(workingDirectory, config)
 
         // then
-        val expected = CsvConnectorConfig(
-            directory = Path("/foo/dot").toFile(),
-        )
+        val expected = Path("/foo/dot").toFile()
         assertEquals(expected, actual)
     }
 }

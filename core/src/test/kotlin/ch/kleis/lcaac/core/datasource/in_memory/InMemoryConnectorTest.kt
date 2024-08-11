@@ -44,6 +44,7 @@ class InMemoryConnectorTest {
             )
         )
         val connector = InMemoryConnector(
+            config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "inventory" to inMemoryDatasource
             ),
@@ -51,7 +52,7 @@ class InMemoryConnectorTest {
         )
         val config = DataSourceConfig(
             name = "inventory",
-            connector = InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME,
+            connector = InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME,
         )
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -115,6 +116,7 @@ class InMemoryConnectorTest {
             )
         )
         val connector = InMemoryConnector(
+            config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "inventory" to inMemoryDatasource
             ),
@@ -122,7 +124,7 @@ class InMemoryConnectorTest {
         )
         val config = DataSourceConfig(
             name = "inventory",
-            connector = InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME,
+            connector = InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME,
         )
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -158,6 +160,7 @@ class InMemoryConnectorTest {
             records = emptyList(),
         )
         val connector = InMemoryConnector(
+            config = InMemoryConnectorKeys.defaultConfig(),
             content = mapOf(
                 "inventory" to inMemoryDatasource,
             ),
@@ -165,7 +168,7 @@ class InMemoryConnectorTest {
         )
         val config = DataSourceConfig(
             name = "inventory",
-            connector = InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME,
+            connector = InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME,
         )
         val source = DataSourceValue(
             config = DataSourceConfig(

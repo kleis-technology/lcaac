@@ -7,7 +7,9 @@ object QuantityFixture {
     private val ops = BasicOperations
     val oneUnit = EQuantityScale(ops.pure(1.0), UnitFixture.unit)
     val twoUnits = EQuantityScale(ops.pure(2.0), UnitFixture.unit)
+    val zeroKilogram = EQuantityScale(ops.pure(0.0), UnitFixture.kg)
     val oneKilogram = EQuantityScale(ops.pure(1.0), UnitFixture.kg)
+    val threeKilograms = EQuantityScale(ops.pure(3.0), UnitFixture.kg)
     val oneGram = EQuantityScale(ops.pure(1.0), UnitFixture.g)
     val twoKilograms = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
     val oneLitre = EQuantityScale(ops.pure(1.0), UnitFixture.l)
