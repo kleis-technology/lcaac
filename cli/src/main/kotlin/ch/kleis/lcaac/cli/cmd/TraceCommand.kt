@@ -61,7 +61,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         else LcaacConfig()
         val ops = BasicOperations
         val factory = ConnectorFactory(workingDirectory.path, config, ops, listOf(CsvConnectorBuilder()))
-        val sourceOps = DefaultDataSourceOperations(ops, factory)
+        val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
 
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))

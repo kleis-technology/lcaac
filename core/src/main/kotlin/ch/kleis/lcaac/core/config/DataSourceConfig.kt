@@ -1,13 +1,13 @@
 package ch.kleis.lcaac.core.config
 
 import arrow.typeclasses.Semigroup
-import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorKeys
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class DataSourceConfig(
     val name: String,
-    val connector: String? = CsvConnectorConfig.CSV_CONNECTOR_NAME,
+    val connector: String? = CsvConnectorKeys.CSV_CONNECTOR_NAME,
     val location: String? = "$name.csv",
     val primaryKey: String? = "id",
     val options: Map<String, String> = emptyMap(),
@@ -16,7 +16,7 @@ data class DataSourceConfig(
         fun completeWithDefaults(config: DataSourceConfig): DataSourceConfig {
             val defaultConfig = DataSourceConfig(
                 name = config.name,
-                connector = CsvConnectorConfig.CSV_CONNECTOR_NAME,
+                connector = CsvConnectorKeys.CSV_CONNECTOR_NAME,
                 location = "${config.name}.csv",
                 primaryKey = "id",
                 options = emptyMap(),

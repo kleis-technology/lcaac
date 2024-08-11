@@ -1,6 +1,6 @@
 package ch.kleis.lcaac.core.config
 
-import ch.kleis.lcaac.core.datasource.csv.CsvConnectorConfig
+import ch.kleis.lcaac.core.datasource.csv.CsvConnectorKeys
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,7 +8,7 @@ data class LcaacConfig(
     val name: String = "",
     val description: String = "",
     val datasources: List<DataSourceConfig> = emptyList(),
-    val connectors: List<ConnectorConfig> = listOf(CsvConnectorConfig.default()),
+    val connectors: List<ConnectorConfig> = listOf(CsvConnectorKeys.defaultConfig()),
 ) {
     private val datasourcesMap = datasources.associateBy { it.name }
     private val connectorsMap = connectors.associateBy { it.name }

@@ -77,6 +77,12 @@ data class EUnitLiteral<Q>(val symbol: UnitSymbol, val scale: Double, val dimens
         return symbol.toString()
     }
 
+    fun times(other: EUnitLiteral<Q>): EUnitLiteral<Q> = EUnitLiteral(
+        symbol.multiply(other.symbol),
+        scale * other.scale,
+        dimension.multiply(other.dimension),
+    )
+
     companion object
 }
 
