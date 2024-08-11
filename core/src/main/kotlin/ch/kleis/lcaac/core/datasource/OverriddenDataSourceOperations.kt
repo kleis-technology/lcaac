@@ -27,8 +27,6 @@ class OverriddenDataSourceOperations<Q>(
     }
 
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        return if (!content.containsKey(source.config.name))
-            innerSourceOps.sumProduct(source, columns)
-        else inMemoryConnector.sumProduct(source.config, source, columns)
+        TODO()
     }
 }

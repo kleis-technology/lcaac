@@ -3,7 +3,6 @@ package ch.kleis.lcaac.core.datasource.in_memory
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -16,41 +15,6 @@ class InMemoryConnector<Q>(
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
         return InMemoryConnectorConfig.IN_MEMORY_CONNECTOR_NAME
-    }
-
-    @Suppress("DuplicatedCode")
-    override fun sumProduct(config: DataSourceConfig, source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        val sourceName = config.name
-        val schema = source.schema
-        val records = content[sourceName]
-            ?.records
-            ?.filter(applyFilter(source.filter))
-            ?: throw EvaluatorException("in_memory: unknown datasource '$sourceName'")
-        val amount = records
-            .map { record ->
-                columns.map { column ->
-                    when (val v = record[column]) {
-                        is InMemNum -> v.value
-                        is InMemStr -> throw EvaluatorException("Expected 'InMemNum' for column '$column', found 'InMemStr'")
-                        null -> throw EvaluatorException("Unknown column '$column'")
-                    }
-                }.reduce(Double::times)
-            }.reduce(Double::plus)
-
-        val unit = columns
-            .map {
-                val defaultValue = schema[it]
-                    ?: throw EvaluatorException("Unknown column '$it'")
-                when (defaultValue) {
-                    is QuantityValue -> defaultValue.unit
-                    is RecordValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'RecordValue'")
-                    is StringValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'StringValue'")
-                }
-            }.reduce { acc, unitValue -> acc.times(unitValue) }
-        return EQuantityScale(
-            ops.pure(amount),
-            unit.toEUnitLiteral(),
-        )
     }
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {

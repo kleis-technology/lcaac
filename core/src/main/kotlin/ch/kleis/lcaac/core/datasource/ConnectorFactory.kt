@@ -2,7 +2,6 @@ package ch.kleis.lcaac.core.datasource
 
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.datasource.cache.CachedConnector
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.math.QuantityOperations
 
@@ -19,10 +18,7 @@ class ConnectorFactory<Q>(
 
     fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
         return builders.firstNotNullOfOrNull {
-            if (config.cache.enabled)
-                it.buildOrNull(this, config)
-                    ?.let { c -> CachedConnector(c, config.cache.maxSize) }
-            else it.buildOrNull(this, config)
+            it.buildOrNull(this, config)
         }
     }
 }

@@ -51,39 +51,6 @@ class CsvConnector<Q>(
     override fun getName(): String {
         return CsvConnectorConfig.CSV_CONNECTOR_NAME
     }
-
-    @Suppress("DuplicatedCode")
-    override fun sumProduct(config: DataSourceConfig, source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        val location = config.location
-            ?: throw EvaluatorException("Missing location in configuration for datasource '${config.name}'")
-        val (header, csvRecords) = csvRecords(location)
-        val schema = source.schema
-
-        val amount = csvRecords
-            .filter(applyFilter(header, source.filter))
-            .map { csvRecord ->
-                columns.map { column ->
-                    val position = header[column]
-                        ?: throw EvaluatorException("Unknown column '$column'")
-                    parseDouble(csvRecord[position])
-                }.reduce(Double::times)
-            }.reduce(Double::plus)
-
-        val unit = columns
-            .map {
-                val defaultValue = schema[it]
-                    ?: throw EvaluatorException("Unknown column '$it'")
-                when (defaultValue) {
-                    is QuantityValue -> defaultValue.unit
-                    is RecordValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'RecordValue'")
-                    is StringValue -> throw EvaluatorException("Expected 'QuantityValue' for column '$it', found 'StringValue'")
-                }
-            }.reduce { acc, unitValue -> acc.times(unitValue) }
-        return EQuantityScale(
-            ops.pure(amount),
-            unit.toEUnitLiteral(),
-        )
-    }
 }
 
 private val format = CSVFormat.DEFAULT.builder()

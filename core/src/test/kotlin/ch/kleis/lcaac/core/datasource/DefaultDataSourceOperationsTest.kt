@@ -3,13 +3,10 @@ package ch.kleis.lcaac.core.datasource
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
-import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -146,7 +143,6 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
-        every { connector.sumProduct(any(), any(), any()) } returns QuantityFixture.oneKilogram
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
