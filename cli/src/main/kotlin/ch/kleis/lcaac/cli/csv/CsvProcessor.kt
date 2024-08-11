@@ -20,7 +20,7 @@ class CsvProcessor(
 ) {
     private val ops = BasicOperations
     private val factory = ConnectorFactory(workingDirectory, config, ops, listOf(CsvConnectorBuilder()))
-    private val sourceOps = DefaultDataSourceOperations(ops, factory)
+    private val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
