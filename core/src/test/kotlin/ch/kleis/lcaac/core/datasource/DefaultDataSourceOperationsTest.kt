@@ -40,6 +40,10 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
+        every { connector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { connector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -110,6 +114,10 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
+        every { connector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { connector.getFirst(any(), any()) } returns ERecord(mapOf(
             "geo" to EStringLiteral("FR"),
             "n_items" to QuantityFixture.oneUnit,
@@ -158,6 +166,10 @@ class DefaultDataSourceOperationsTest {
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
         every { connector.getAll(any(), any()) } returns sequenceOf()
+        every { connector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
@@ -199,6 +211,10 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
+        every { connector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { connector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -328,6 +344,10 @@ class DefaultDataSourceOperationsTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val innerConnector = mockk<DataSourceConnector<BasicNumber>>()
+        every { innerConnector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { innerConnector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -353,13 +373,13 @@ class DefaultDataSourceOperationsTest {
                 name = "test",
                 description = "description",
             ),
-            connectors = mapOf("inner" to innerConnector),
+            connectors = mapOf(connectorName to innerConnector),
             overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "inner"
+                connector = connectorName
             ),
             schema = schema,
             filter = mapOf(
@@ -462,6 +482,10 @@ class DefaultDataSourceOperationsTest {
             "mass" to QuantityValueFixture.oneKilogram,
         )
         val innerConnector = mockk<DataSourceConnector<BasicNumber>>()
+        every { innerConnector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { innerConnector.getFirst(any(), any()) } returns ERecord(mapOf(
             "geo" to EStringLiteral("FR"),
             "n_items" to QuantityFixture.oneUnit,
@@ -480,13 +504,13 @@ class DefaultDataSourceOperationsTest {
                 name = "test",
                 description = "description",
             ),
-            connectors = mapOf("inner" to innerConnector),
+            connectors = mapOf(connectorName to innerConnector),
             overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "inner",
+                connector = connectorName,
             ),
             schema = schema,
             filter = mapOf(
@@ -578,6 +602,10 @@ class DefaultDataSourceOperationsTest {
     fun sumProduct_override_whenNoMatchOverride() {
         // given
         val innerConnector = mockk<DataSourceConnector<BasicNumber>>()
+        every { innerConnector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
         every { innerConnector.getAll(any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
@@ -608,13 +636,13 @@ class DefaultDataSourceOperationsTest {
                 name = "test",
                 description = "description",
             ),
-            connectors = mapOf("inner" to innerConnector),
+            connectors = mapOf(connectorName to innerConnector),
             overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "inner",
+                connector = connectorName,
             ),
             schema = schema,
             filter = mapOf(

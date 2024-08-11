@@ -12,15 +12,61 @@ import ch.kleis.lcaac.core.lang.value.RecordValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
+import kotlinx.coroutines.runBlocking
 
 typealias ConnectorName = String
 typealias SourceName = String
+
+data class GetAllRequest<Q>(
+    val config: DataSourceConfig,
+    val source: DataSourceValue<Q>
+)
+
+data class GetFirstRequest<Q>(
+    val config: DataSourceConfig,
+    val source: DataSourceValue<Q>
+)
+
+data class SumProductRequest<Q>(
+    val config: DataSourceConfig,
+    val source: DataSourceValue<Q>,
+    val columns: List<String>,
+)
+
+
+class ConnectorCache<Q>(
+    private val maxSize: Long
+) {
+    val getAllCache = InMemoryKache<GetAllRequest<Q>, Sequence<ERecord<Q>>>(
+        maxSize = maxSize
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+
+    val getFirstCache = InMemoryKache<GetFirstRequest<Q>, ERecord<Q>>(
+        maxSize = maxSize,
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+    val sumProductCache = InMemoryKache<SumProductRequest<Q>, DataExpression<Q>>(
+        maxSize = maxSize,
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+}
 
 class DefaultDataSourceOperations<Q>(
     private val ops: QuantityOperations<Q>,
     private val config: LcaacConfig,
     private val connectors: Map<ConnectorName, DataSourceConnector<Q>>,
     private val overrides: Map<SourceName, ConnectorName>,
+    private val cache: Map<String, ConnectorCache<Q>> = connectors
+        .filter { it.value.getConfig().cache.enabled }
+        .mapValues {
+            ConnectorCache(it.value.getConfig().cache.maxSize)
+        }
 ) : DataSourceOperations<Q> {
 
     fun overrideWith(inMemoryConnector: InMemoryConnector<Q>): DefaultDataSourceOperations<Q> =
@@ -49,16 +95,58 @@ class DefaultDataSourceOperations<Q>(
     override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
         val sourceConfig = configOf(source)
         val connector = connectorOf(sourceConfig)
-        return connector.getFirst(sourceConfig, source)
+        if (connector.getConfig().cache.enabled) {
+            val connectorCache = cache[connector.getName()]
+                ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
+            val result = runBlocking {
+                connectorCache.getFirstCache.getOrPut(
+                    GetFirstRequest(sourceConfig, source)
+                ) {
+                    connector.getFirst(sourceConfig, source)
+                }
+            }
+            return result
+                ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
+        } else return connector.getFirst(sourceConfig, source)
     }
 
     override fun getAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val sourceConfig = configOf(source)
         val connector = connectorOf(sourceConfig)
-        return connector.getAll(sourceConfig, source)
+        if (connector.getConfig().cache.enabled) {
+            val connectorCache = cache[connector.getName()]
+                ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
+            val result = runBlocking {
+                connectorCache.getAllCache.getOrPut(
+                    GetAllRequest(sourceConfig, source)
+                ) {
+                    connector.getAll(sourceConfig, source)
+                }
+            }
+            return result
+                ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
+        } else return connector.getAll(sourceConfig, source)
     }
 
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
+        val sourceConfig = configOf(source)
+        val connector = connectorOf(sourceConfig)
+        if (connector.getConfig().cache.enabled) {
+            val connectorCache = cache[connector.getName()]
+                ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
+            val result = runBlocking {
+                connectorCache.sumProductCache.getOrPut(
+                    SumProductRequest(sourceConfig, source, columns)
+                ) {
+                    rawSumProduct(source, columns)
+                }
+            }
+            return result
+                ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
+        } else return rawSumProduct(source, columns)
+    }
+
+    private fun rawSumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
         val reducer = DataExpressionReducer(
             dataRegister = Prelude.units(),
             dataSourceRegister = DataSourceRegister.empty(),
@@ -97,5 +185,6 @@ class DefaultDataSourceOperations<Q>(
                 reducer.reduce(EQuantityMul(acc, expression))
             }
         }.fold(zero as DataExpression<Q>, ({ acc, expression -> reducer.reduce(EQuantityAdd(acc, expression)) }))
+
     }
 }
