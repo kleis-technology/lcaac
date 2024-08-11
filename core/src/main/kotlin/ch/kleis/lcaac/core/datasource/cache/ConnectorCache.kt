@@ -10,7 +10,7 @@ import com.mayakapps.kache.KacheStrategy
 class ConnectorCache<Q>(
     private val maxSize: Long
 ) {
-    val getAllCache = InMemoryKache<GetAllRequest<Q>, Sequence<ERecord<Q>>>(
+    val getAllCache = InMemoryKache<GetAllRequest<Q>, List<ERecord<Q>>>(
         maxSize = maxSize
     ) {
         strategy = KacheStrategy.LRU

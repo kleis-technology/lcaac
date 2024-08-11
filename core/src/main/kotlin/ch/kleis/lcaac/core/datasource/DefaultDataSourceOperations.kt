@@ -84,10 +84,11 @@ class DefaultDataSourceOperations<Q>(
                 connectorCache.getAllCache.getOrPut(
                     GetAllRequest(sourceConfig, source)
                 ) {
-                    connector.getAll(sourceConfig, source)
+                    connector.getAll(sourceConfig, source).toList()
                 }
             }
             return result
+                ?.asSequence()
                 ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
         } else return connector.getAll(sourceConfig, source)
     }
