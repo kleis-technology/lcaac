@@ -19,5 +19,7 @@ class QuantityValueFixture {
         val hundredPercent = QuantityValue(ops.pure(100.0), UnitValueFixture.percent())
         val twentyPiece = QuantityValue(ops.pure(20.0), UnitValueFixture.piece())
         val hundredPiece = QuantityValue(ops.pure(100.0), UnitValueFixture.piece())
+        val oneGb = QuantityValue(ops.pure(1.0), UnitValueFixture.gb())
+        val oneTb = QuantityValue(ops.pure(1.0), UnitValueFixture.tb())
     }
 }

@@ -91,6 +91,7 @@ class ResilioDbConnector<Q>(
             SupportedEndpoint.RACK_SERVER -> {
                 val deserializer = RdbRackServerDeserializer(
                     options.primaryKey,
+                    ops,
                     this::localEval
                 )
                 val auxiliaryDataSource = DataSourceValue(
