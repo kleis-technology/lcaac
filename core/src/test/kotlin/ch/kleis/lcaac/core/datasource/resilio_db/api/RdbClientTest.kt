@@ -1,9 +1,10 @@
 package ch.kleis.lcaac.core.datasource.resilio_db.api
 
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 
-//@Tag("Integration")
+@Tag("Integration")
 class RdbClientTest {
     private val lcStepMapping = LcStepMapping(
         key = "lc_step",
@@ -37,6 +38,6 @@ class RdbClientTest {
         val response = client.serverRack(request)
 
         // then
-        println()
+        assert(response.size == RdbLcStep.entries.size)
     }
 }

@@ -18,8 +18,8 @@ data class RdbServerRack(
             "assembly": false,
             "data": [
                 {
-                    "name": "$id",
-                    "wanted_name": "$modelName",
+                    "wanted_name": "$id",
+                    "name": "$modelName",
                     "cpus": [
                         $cpus
                     ],
