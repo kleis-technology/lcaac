@@ -2,29 +2,26 @@ package ch.kleis.lcaac.core.datasource.in_memory
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.DataExpression
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
-import ch.kleis.lcaac.core.lang.fixture.UnitFixture
-import ch.kleis.lcaac.core.lang.value.DataSourceValue
-import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.lang.fixture.UnitValueFixture
+import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class InMemoryConnectorTest {
-    private fun str(s: String): DataExpression<BasicNumber> = EStringLiteral(s)
-    private fun numU(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+    private fun str(s: String): DataValue<BasicNumber> = StringValue(s)
+    private fun numU(value: Double): DataValue<BasicNumber> = QuantityValue(
         BasicNumber(value),
-        UnitFixture.unit,
+        UnitValueFixture.unit(),
     )
-    private fun numKg(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+    private fun numKg(value: Double): DataValue<BasicNumber> = QuantityValue(
         BasicNumber(value),
-        UnitFixture.kg,
+        UnitValueFixture.kg(),
     )
 
     @Test
@@ -52,7 +49,7 @@ class InMemoryConnectorTest {
                     "n_items" to numU(1.0),
                     "mass" to numKg(2.0),
                 ),
-            ).map { ERecord(it) }
+            ).map { RecordValue(it) }
         )
         val connector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
@@ -123,7 +120,7 @@ class InMemoryConnectorTest {
                     "n_items" to numU(1.0),
                     "mass" to numKg(2.0),
                 ),
-            ).map { ERecord(it) }
+            ).map { RecordValue(it) }
         )
         val connector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),

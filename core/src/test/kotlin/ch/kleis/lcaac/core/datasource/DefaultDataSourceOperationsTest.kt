@@ -6,12 +6,15 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
-import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.expression.ERecord
+import ch.kleis.lcaac.core.lang.expression.EStringLiteral
+import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
 import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
-import ch.kleis.lcaac.core.lang.value.DataSourceValue
-import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.lang.fixture.UnitValueFixture
+import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.every
@@ -34,14 +37,14 @@ class DefaultDataSourceOperationsTest {
     )
     private val ops = BasicOperations
 
-    private fun str(s: String): DataExpression<BasicNumber> = EStringLiteral(s)
-    private fun numU(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+    private fun str(s: String): DataValue<BasicNumber> = StringValue(s)
+    private fun numU(value: Double): DataValue<BasicNumber> = QuantityValue(
         BasicNumber(value),
-        UnitFixture.unit,
+        UnitValueFixture.unit(),
     )
-    private fun numKg(value: Double): DataExpression<BasicNumber> = EQuantityScale(
+    private fun numKg(value: Double): DataValue<BasicNumber> = QuantityValue(
         BasicNumber(value),
-        UnitFixture.kg,
+        UnitValueFixture.kg(),
     )
 
     @Test
@@ -297,7 +300,7 @@ class DefaultDataSourceOperationsTest {
                     "n_items" to numU(1.0),
                     "mass" to numKg(2.0),
                 ),
-            ).map { ERecord(it) }
+            ).map { RecordValue(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
@@ -439,7 +442,7 @@ class DefaultDataSourceOperationsTest {
                     "n_items" to numU(1.0),
                     "mass" to numKg(2.0),
                 ),
-            ).map { ERecord(it) }
+            ).map { RecordValue(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
@@ -562,7 +565,7 @@ class DefaultDataSourceOperationsTest {
                     "n_items" to numU(1.0),
                     "mass" to numKg(2.0),
                 ),
-            ).map { ERecord(it) }
+            ).map { RecordValue(it) }
         )
         val inMemoryConnector = InMemoryConnector(
             config = InMemoryConnectorKeys.defaultConfig(),
@@ -663,6 +666,60 @@ class DefaultDataSourceOperationsTest {
                 1.0,
                 UnitFixture.kg.dimension.multiply(UnitFixture.unit.dimension),
             ),
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun sumProduct_whenHugeSequence() {
+        // given
+        val connector = mockk<DataSourceConnector<BasicNumber>>()
+        every { connector.getName() } returns connectorName
+        every { connector.getConfig() } returns ConnectorConfig(
+            name = connectorName,
+            options = emptyMap(),
+        )
+        val n = 5000
+        every { connector.getAll(any(), any()) } returns (1..n)
+            .map {
+                ERecord(mapOf(
+                    "geo" to EStringLiteral("FR"),
+                    "n_items" to QuantityFixture.oneUnit,
+                    "mass" to QuantityFixture.oneKilogram,
+                ))
+            }.asSequence()
+
+        val builder = mockk<ConnectorBuilder<BasicNumber>>()
+        every { builder.buildOrNull(any(), any()) } returns connector
+        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val sourceOps = DefaultDataSourceOperations(
+            ops,
+            factory.getLcaacConfig(),
+            factory.buildConnectors(),
+            emptyMap()
+        )
+        val source = DataSourceValue(
+            config = DataSourceConfig(
+                name = sourceName,
+                connector = connectorName,
+            ),
+            schema = mapOf(
+                "geo" to StringValue("FR"),
+                "n_items" to QuantityValueFixture.oneUnit,
+                "mass" to QuantityValueFixture.oneKilogram,
+            ),
+            filter = mapOf(
+                "geo" to StringValue("FR")
+            )
+        )
+
+        // when
+        val actual = sourceOps.sumProduct(source, listOf("n_items", "mass"))
+
+        // then
+        val expected = EQuantityScale(
+            BasicNumber(n.toDouble()),
+            UnitFixture.unit.times(UnitFixture.kg),
         )
         assertEquals(expected, actual)
     }
