@@ -83,19 +83,14 @@ class ResilioDbConnector<Q>(
         val auxiliaryConnector = factory
             .buildOrNull(auxiliaryConnectorConfig)
             ?: throw IllegalArgumentException("connector '${this.getName()}': cannot build auxiliary connector '$auxiliaryConnectorName'")
+        val auxiliaryFilter = source.filter[options.primaryKey]
+            ?.let { joinKeyValue ->
+                mapOf(
+                    options.foreignKey to joinKeyValue
+                )
+            } ?: emptyMap()
 
-        /*
-            expected filter:
-                (id="something", lc_step="manufacturing")
-            then should join on
-                foreignKey == filter[primaryKey] &&
-         */
-        val joinKeyValue = source.filter[options.primaryKey]
-            ?: throw IllegalArgumentException("connector '${this.getName()}': cannot iterate over datasource '${config.name}': missing match condition on primary key '${options.primaryKey}'")
-        val auxiliaryFilter = mapOf(
-            options.foreignKey to joinKeyValue
-        )
-        return when (options.endpoint) {
+        when (options.endpoint) {
             SupportedEndpoint.RACK_SERVER -> {
                 val deserializer = RdbRackServerDeserializer(
                     options.primaryKey,
