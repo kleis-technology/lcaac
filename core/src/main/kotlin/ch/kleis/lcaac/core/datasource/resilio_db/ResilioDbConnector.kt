@@ -115,9 +115,11 @@ class ResilioDbConnector<Q>(
                     deserializer.deserialize(it)
                 }
                 val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
-                requests.flatMap {
-                    rdbClient.serverRack(it)
-                }.filter(applyFilter(source.filter))
+                val responses = requests
+                    .flatMap {
+                        rdbClient.serverRack(it)
+                    }
+                return responses.filter(applyFilter(source.filter))
             }
         }
     }

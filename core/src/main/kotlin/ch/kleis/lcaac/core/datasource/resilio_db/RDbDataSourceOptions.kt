@@ -14,15 +14,14 @@ data class RDbDataSourceOptions(
     companion object {
         fun from(config: DataSourceConfig): RDbDataSourceOptions {
             val requiredOptionKeys = ResilioDbDataSourceKeys.requiredOptionKeys()
-            val actualOptionKeys = requiredOptionKeys
-                .mapNotNull { config.options[it] }
-                .toSet()
-            if (requiredOptionKeys.size > actualOptionKeys.size) {
-                val missingOptionsKeys = requiredOptionKeys.minus(actualOptionKeys)
+            val actualOptionKeys = config.options.keys
+            val missingOptionsKeys = requiredOptionKeys.minus(actualOptionKeys)
+            if (missingOptionsKeys.isNotEmpty()) {
                 throw IllegalArgumentException("connector '${ResilioDbConnectorKeys.RDB_CONNECTOR_NAME}': missing required options: $missingOptionsKeys")
             }
 
-            val primaryKey = config.options[ResilioDbDataSourceKeys.RDB_PRIMARY_KEY]!!
+            val primaryKey = config.primaryKey
+                ?: throw IllegalArgumentException("connector '${ResilioDbConnectorKeys.RDB_CONNECTOR_NAME}': missing primary key")
             val paramsFrom = config.options[ResilioDbDataSourceKeys.RDB_PARAMS_FROM]!!
             val foreignKey = config.options[ResilioDbDataSourceKeys.RDB_FOREIGN_KEY]!!
             val rawEndpoint = config.options[ResilioDbDataSourceKeys.RDB_ENDPOINT]
