@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
+import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorBuilder
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -60,11 +61,21 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         }
         else LcaacConfig()
         val ops = BasicOperations
-        val factory = ConnectorFactory(workingDirectory.path, config, ops, listOf(CsvConnectorBuilder()))
-        val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
-
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
+
+        val factory = ConnectorFactory(
+            workingDirectory.path,
+            config,
+            ops,
+            symbolTable,
+            listOf(
+                CsvConnectorBuilder(),
+                ResilioDbConnectorBuilder(),
+            )
+        )
+        val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
+
         val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val template = symbolTable.getTemplate(name, labels)
             ?: throw EvaluatorException("unknown template $name$labels")

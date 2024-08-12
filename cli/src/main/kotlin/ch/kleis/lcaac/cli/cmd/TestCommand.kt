@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
+import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorBuilder
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure
@@ -54,15 +55,25 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
         else LcaacConfig()
 
         val ops = BasicOperations
-        val factory = ConnectorFactory(workingDirectory.path, config, ops, listOf(CsvConnectorBuilder()))
+        val files = lcaFiles(workingDirectory)
+        val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
+
+        val factory = ConnectorFactory(
+            workingDirectory.path,
+            config,
+            ops,
+            symbolTable,
+            listOf(
+                CsvConnectorBuilder(),
+                ResilioDbConnectorBuilder(),
+            )
+        )
         val sourceOps = DefaultDataSourceOperations(
             ops,
             config,
             factory.buildConnectors(),
         )
 
-        val files = lcaFiles(workingDirectory)
-        val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
         val mapper = CoreTestMapper()
         val cases = files
             .flatMap { it.testDefinition() }
