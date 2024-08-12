@@ -24,7 +24,7 @@ class RdbClientTest {
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,
         )
-        val request = RdbServerRack(
+        val request = RdbRackServer(
             id = "server-01",
             modelName = "Foo",
             rackUnit = 3,

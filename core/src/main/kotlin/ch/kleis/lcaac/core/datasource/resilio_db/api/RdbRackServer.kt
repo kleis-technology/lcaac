@@ -1,6 +1,6 @@
 package ch.kleis.lcaac.core.datasource.resilio_db.api
 
-data class RdbServerRack(
+data class RdbRackServer(
     val id: String,
     val modelName: String,
     val rackUnit: Int,
