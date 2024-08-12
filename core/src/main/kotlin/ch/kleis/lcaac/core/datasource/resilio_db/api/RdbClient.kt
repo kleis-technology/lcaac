@@ -7,6 +7,18 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
+enum class SupportedEndpoint(private val value: String) {
+    RACK_SERVER("rack_server");
+
+    fun support(endpoint: String): Boolean = entries
+        .any { it.value == endpoint }
+
+    companion object {
+        fun from(endpoint: String): SupportedEndpoint? = entries
+            .firstOrNull { it.value == endpoint }
+    }
+}
+
 class RdbClient<Q>(
     private val url: String,
     private val accessToken: String,
