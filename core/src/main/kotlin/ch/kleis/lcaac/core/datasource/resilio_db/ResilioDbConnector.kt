@@ -5,11 +5,16 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.DummySourceOperations
-import ch.kleis.lcaac.core.datasource.resilio_db.api.*
+import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
+import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
+import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbRackServerDeserializer
+import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
-import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.DataExpression
+import ch.kleis.lcaac.core.lang.expression.ERecord
+import ch.kleis.lcaac.core.lang.expression.EStringLiteral
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.DataValue
 import ch.kleis.lcaac.core.lang.value.StringValue
@@ -55,7 +60,10 @@ class ResilioDbConnector<Q>(
     }
 
     override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
-        TODO()
+        return getAll(config, source)
+            .firstOrNull()
+            ?: throw IllegalArgumentException("connector '${this.getName()}': no records found in datasource " +
+                "'${source.config.name}'")
     }
 
     override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
