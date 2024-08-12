@@ -139,7 +139,7 @@ class DefaultDataSourceOperations<Q>(
             }.reduce { acc, expression ->
                 reducer.reduce(EQuantityMul(acc, expression))
             }
-        }.fold(zero as DataExpression<Q>, ({ acc, expression -> reducer.reduce(EQuantityAdd(acc, expression)) }))
-
+        }.fold(zero as DataExpression<Q>, ({ acc, expression ->
+            reducer.reduce(EQuantityAdd(acc, expression)) }))
     }
 }
