@@ -17,7 +17,7 @@ class ConnectorFactory<Q>(
     fun getLcaacConfig(): LcaacConfig = lcaacConfig
     fun getQuantityOperations(): QuantityOperations<Q> = ops
 
-    private fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
+    fun buildOrNull(config: ConnectorConfig): DataSourceConnector<Q>? {
         return builders.firstNotNullOfOrNull {
             it.buildOrNull(this, config)
         }

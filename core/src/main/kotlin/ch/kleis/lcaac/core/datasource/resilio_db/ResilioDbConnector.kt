@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.datasource.resilio_db
 
+import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
@@ -18,18 +19,37 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
+/*
+    ```lca
+    impact = lookup hw_impacts match (id = "srv-01")
+    ```
+
+    hw_impacts:
+        connector: resilio_db
+        primary_key: id
+        params_from: hw_inventory
+            foreign_key: id
+
+    getFirst. Assumption: filter (id = "...")
+    - For the given
+ */
 
 class ResilioDbConnector<Q>(
+    private val config: ConnectorConfig,
     private val factory: ConnectorFactory<Q>,
-    private val config: ResilioDbConnectorConfig,
+    private val url: String,
+    private val accessToken: String,
 ) : DataSourceConnector<Q> {
     override fun getName(): String {
-        return ResilioDbConnectorConfig.RESILIO_DB_CONNECTOR_NAME
+        return ResilioDbConnectorKeys.RESILIO_DB_CONNECTOR_NAME
+    }
+
+    override fun getConfig(): ConnectorConfig {
+        return config
     }
 
     override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
-        //
-        val paramsFrom = config.options[KEY_PARAMS_FROM]
+        val paramsDataSourceName = config.options[KEY_PARAMS_FROM]
             ?: throw IllegalArgumentException("Missing '$KEY_PARAMS_FROM'")
         val foreignKey = config.options[KEY_FOREIGN_KEY]
             ?: throw IllegalArgumentException("Missing '$KEY_FOREIGN_KEY'")
@@ -42,7 +62,7 @@ class ResilioDbConnector<Q>(
             }
             ?: TODO()
 
-        val paramsDataSource = factory.getLcaacConfig().getDataSource(paramsFrom)
+        val paramsDataSource = factory.getLcaacConfig().getDataSource(paramsDataSourceName)
             ?: TODO()
         val paramsConnectorConfig = paramsDataSource.connector
             ?.let { factory.getLcaacConfig().getConnector(it) }
@@ -95,8 +115,8 @@ class ResilioDbConnector<Q>(
                 }
             """.trimIndent()
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${this.config.url}/api/${params.entries[PARAM_KEY_ENDPOINT]}"))
-            .header("Authorization", this.config.accessToken)
+            .uri(URI.create("${this.url}/api/${params.entries[PARAM_KEY_ENDPOINT]}"))
+            .header("Authorization", this.accessToken)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
