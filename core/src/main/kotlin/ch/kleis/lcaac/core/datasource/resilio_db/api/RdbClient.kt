@@ -10,9 +10,17 @@ import java.net.http.HttpResponse
 class RdbClient<Q>(
     private val url: String,
     private val accessToken: String,
-    private val ops: QuantityOperations<Q>,
+    primaryKey: String,
+    lcStepMapping: LcStepMapping,
+    ops: QuantityOperations<Q>,
     private val httpClient: HttpClient = HttpClient.newHttpClient()
 ) {
+    private val deserializer = RdbResponseDeserializer(
+        primaryKey = primaryKey,
+        lcStepMapping = lcStepMapping,
+        ops = ops,
+    )
+
     fun serverRack(
         rdbServerRack: RdbServerRack,
     ): List<ERecord<Q>> {
@@ -24,6 +32,12 @@ class RdbClient<Q>(
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-        return emptyList()
+        val rdbResponse = deserializer.decodeFromString(rdbServerRack.id, response.body())
+        return listOf(
+            rdbResponse.manufacturing,
+            rdbResponse.transport,
+            rdbResponse.use,
+            rdbResponse.endOfLife,
+        )
     }
 }
