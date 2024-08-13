@@ -20,5 +20,13 @@ data class LcaacConfig(
     fun getConnector(name: String): ConnectorConfig? {
         return connectorsMap[name]
     }
+
+    fun modifyConnector(name: String, fn: (ConnectorConfig) -> ConnectorConfig): LcaacConfig =
+        this.copy(
+            connectors = this.connectors.map {
+                if (it.name == name) fn(it)
+                else it
+            }
+        )
 }
 
