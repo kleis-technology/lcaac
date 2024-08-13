@@ -33,6 +33,8 @@ class EvaluationTrace<Q> {
         }
     }
 
+    fun getDepthOf(element: MatrixColumnIndex<Q>): Int? = depthMap[element]
+
     fun getNumberOfStages(): Int {
         return nbStages
     }
