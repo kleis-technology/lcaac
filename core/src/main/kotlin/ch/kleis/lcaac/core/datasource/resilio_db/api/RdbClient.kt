@@ -4,6 +4,9 @@ import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.math.QuantityOperations
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
+import kotlinx.coroutines.runBlocking
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -23,16 +26,39 @@ class RdbClient<Q>(
         ops = ops,
     )
 
+    private val serverRackCache = InMemoryKache<RdbRackServer, List<ERecord<Q>>>(
+        maxSize = 1024
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+    private val switchCache = InMemoryKache<RdbSwitch, List<ERecord<Q>>>(
+        maxSize = 1024
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+
     fun serverRack(
         rdbServerRack: RdbRackServer,
     ): List<ERecord<Q>> {
-        return request(rdbServerRack.id, "rack_server", rdbServerRack.json())
+        val result = runBlocking {
+            serverRackCache.getOrPut(rdbServerRack) {
+                request(rdbServerRack.id, "rack_server", rdbServerRack.json())
+            }
+        }
+        return result
+            ?: throw IllegalStateException("rdb client: could not send request $rdbServerRack")
     }
 
     fun switch(
         rdbSwitch: RdbSwitch,
     ): List<ERecord<Q>> {
-        return request(rdbSwitch.id, "switch", rdbSwitch.json())
+        val result = runBlocking {
+            switchCache.getOrPut(rdbSwitch) {
+                request(rdbSwitch.id, "switch", rdbSwitch.json())
+            }
+        }
+        return result
+            ?: throw IllegalStateException("rdb client: could not send request $rdbSwitch")
     }
 
     private fun request(id: String, endpoint: String, requestBody: String): List<ERecord<Q>> {
