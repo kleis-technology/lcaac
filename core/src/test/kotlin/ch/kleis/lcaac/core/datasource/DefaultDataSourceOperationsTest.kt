@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -28,6 +29,8 @@ class DefaultDataSourceOperationsTest {
 
     private val sourceName = "source"
     private val sourceConfig = DataSourceConfig(name = sourceName, connector = connectorName)
+
+    private val symbolTable = SymbolTable.empty<BasicNumber>()
 
     private val config = LcaacConfig(
         name = "project",
@@ -75,7 +78,7 @@ class DefaultDataSourceOperationsTest {
         )
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
             factory.getLcaacConfig(),
@@ -138,7 +141,7 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
             factory.getLcaacConfig(),
@@ -185,7 +188,7 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
             factory.getLcaacConfig(),
@@ -242,7 +245,7 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
             factory.getLcaacConfig(),
@@ -691,7 +694,7 @@ class DefaultDataSourceOperationsTest {
 
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
-        val factory = ConnectorFactory(".", config, ops, listOf(builder))
+        val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
             factory.getLcaacConfig(),

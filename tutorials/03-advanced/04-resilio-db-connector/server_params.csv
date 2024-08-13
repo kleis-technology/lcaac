@@ -1,0 +1,9 @@
+id,model_name,rack_unit,cpu_name,cpu_quantity,ram_total_size_gb,ssd_total_size_gb
+srv-01,"Dell PowerEdge",1,"Intel Xeon",1,32,1024
+srv-02,"ThinkPad",1,"Intel Xeon",2,16,2048
+srv-03,"Dell PowerEdge",1,"Intel Xeon",1,32,1024
+srv-04,"ThinkPad",1,"Intel Xeon",2,16,2048
+srv-05,"Dell PowerEdge",1,"Intel Xeon",1,32,1024
+srv-06,"ThinkPad",1,"Intel Xeon",2,16,2048
+srv-07,"Dell PowerEdge",1,"Intel Xeon",1,32,1024
+srv-08,"ThinkPad",1,"Intel Xeon",2,16,2048

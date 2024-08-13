@@ -1,0 +1,9 @@
+id,cpu_name,cpu_quantity,ram_total_size_gb
+net-01,Intel Xeon,1,32
+net-02,Intel Xeon,2,16
+net-03,Intel Xeon,1,32
+net-04,Intel Xeon,2,16
+net-05,Intel Xeon,1,32
+net-06,Intel Xeon,2,16
+net-07,Intel Xeon,1,32
+net-08,Intel Xeon,2,16

@@ -10,6 +10,7 @@ object DimensionFixture {
     val length = Dimension.of("length")
     val time = Dimension.of("time")
     val volume = length.pow(3.0)
+    val memory = Dimension.of("memory")
 }
 
 object UnitFixture {
@@ -23,6 +24,8 @@ object UnitFixture {
     val s = EUnitLiteral<BasicNumber>(UnitSymbol.of("s"), 1.0, DimensionFixture.time)
     val hour = EUnitLiteral<BasicNumber>(UnitSymbol.of("hour"), 3600.0, DimensionFixture.time)
     val percent = EUnitLiteral<BasicNumber>(UnitSymbol.of("percent"), 1.0e-2, Dimension.None)
+    val gb = EUnitLiteral<BasicNumber>(UnitSymbol.of("GB"), 1.0, DimensionFixture.memory)
+    val tb = EUnitLiteral<BasicNumber>(UnitSymbol.of("TB"), 1.0e3, DimensionFixture.memory)
 
     val basicUnits = """
         package builtin_units

@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
+import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorBuilder
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
@@ -19,7 +20,16 @@ class CsvProcessor(
     workingDirectory: String,
 ) {
     private val ops = BasicOperations
-    private val factory = ConnectorFactory(workingDirectory, config, ops, listOf(CsvConnectorBuilder()))
+    private val factory = ConnectorFactory(
+        workingDirectory,
+        config,
+        ops,
+        symbolTable,
+        listOf(
+            CsvConnectorBuilder(),
+            ResilioDbConnectorBuilder(),
+        )
+    )
     private val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
@@ -36,14 +46,14 @@ class CsvProcessor(
         val program = ContributionAnalysisProgram(systemValue, entryPoint)
         val analysis = program.run()
         return entryPoint.products.map { output ->
-                val outputPort = output.product
-                val impacts = analysis.getUnitaryImpacts(outputPort)
-                CsvResult(
-                    request,
-                    outputPort,
-                    impacts,
-                )
-            }
+            val outputPort = output.product
+            val impacts = analysis.getUnitaryImpacts(outputPort)
+            CsvResult(
+                request,
+                outputPort,
+                impacts,
+            )
+        }
     }
 
 }
