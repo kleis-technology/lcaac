@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitchDeserializer
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -117,7 +118,31 @@ class ResilioDbConnector<Q>(
                 return responses.filter(applyFilter(source.filter))
             }
 
-            SupportedEndpoint.SWITCH -> TODO()
+            SupportedEndpoint.SWITCH -> {
+                val deserializer = RdbSwitchDeserializer(
+                    options.primaryKey,
+                    ops,
+                    this::localEval
+                )
+                val auxiliaryDataSource = DataSourceValue(
+                    config = auxiliaryDataSourceConfig,
+                    schema = deserializer.schema(),
+                    filter = auxiliaryFilter
+                )
+                val auxiliaryRecords = auxiliaryConnector.getAll(
+                    auxiliaryDataSourceConfig,
+                    auxiliaryDataSource,
+                )
+                val requests = auxiliaryRecords.map {
+                    deserializer.deserialize(it)
+                }
+                val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
+                val responses = requests
+                    .flatMap {
+                        rdbClient.switch(it)
+                    }
+                return responses.filter(applyFilter(source.filter))
+            }
         }
     }
 }
