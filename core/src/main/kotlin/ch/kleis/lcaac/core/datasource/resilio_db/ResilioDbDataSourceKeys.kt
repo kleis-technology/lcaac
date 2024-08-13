@@ -11,11 +11,15 @@ object ResilioDbDataSourceKeys {
     const val RDB_END_OF_LIFE = "endOfLife"
 
     fun requiredOptionKeys() = setOf(
-        RDB_PARAMS_FROM, RDB_FOREIGN_KEY,
+        RDB_PARAMS_FROM,
         RDB_ENDPOINT,
-        RDB_LC_STEP_KEY,
-        RDB_MANUFACTURING, RDB_TRANSPORT,
-        RDB_USE, RDB_END_OF_LIFE
     )
-    // TODO: default values, required keys = paramsFrom, endpoint
+
+    const val defaultPrimaryKey: String = "id"
+    const val defaultForeignKey: String = "id"
+    const val defaultLcStepKey: String = "lc_step"
+    const val defaultManufacturing: String = "manufacturing"
+    const val defaultTransport: String = "transport"
+    const val defaultUse: String = "use"
+    const val defaultEndOfLife: String = "end-of-life"
 }
