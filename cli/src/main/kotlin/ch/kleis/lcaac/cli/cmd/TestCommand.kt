@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorBuilder
+import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorKeys
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.BasicTestRunner
 import ch.kleis.lcaac.core.testing.GenericFailure
@@ -49,10 +50,17 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
 
-        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
+        val yamlConfig = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
+        val config = yamlConfig.modifyConnector(ResilioDbConnectorKeys.RDB_CONNECTOR_NAME) { connector ->
+            connector.modifyOption(ResilioDbConnectorKeys.RDB_URL) { url ->
+                System.getenv()[EnvVars.RESILIO_DB_URL.key] ?: url
+            }.modifyOption(ResilioDbConnectorKeys.RDB_ACCESS_TOKEN) { accessToken ->
+                System.getenv()[EnvVars.RESILIO_DB_ACCESS_TOKEN.key] ?: accessToken
+            }
+        }
 
         val ops = BasicOperations
         val files = lcaFiles(workingDirectory)

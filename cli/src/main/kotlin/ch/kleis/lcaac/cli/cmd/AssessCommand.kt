@@ -5,6 +5,7 @@ import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.CsvResultWriter
 import ch.kleis.lcaac.core.config.LcaacConfig
+import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorKeys
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
@@ -49,10 +50,18 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
-        val config = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
+        val yamlConfig = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
             yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
+        val config = yamlConfig.modifyConnector(ResilioDbConnectorKeys.RDB_CONNECTOR_NAME) { connector ->
+            connector.modifyOption(ResilioDbConnectorKeys.RDB_URL) { url ->
+                System.getenv()[EnvVars.RESILIO_DB_URL.key] ?: url
+            }.modifyOption(ResilioDbConnectorKeys.RDB_ACCESS_TOKEN) { accessToken ->
+                System.getenv()[EnvVars.RESILIO_DB_ACCESS_TOKEN.key] ?: accessToken
+            }
+        }
+
 
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
