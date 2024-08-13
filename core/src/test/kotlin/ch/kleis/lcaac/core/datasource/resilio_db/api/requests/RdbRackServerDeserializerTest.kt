@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.datasource.resilio_db.api
+package ch.kleis.lcaac.core.datasource.resilio_db.api.requests
 
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer

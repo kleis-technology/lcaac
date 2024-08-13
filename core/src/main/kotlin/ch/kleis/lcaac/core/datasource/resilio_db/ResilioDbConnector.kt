@@ -7,7 +7,7 @@ import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.DummySourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
-import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbRackServerDeserializer
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -116,6 +116,8 @@ class ResilioDbConnector<Q>(
                     }
                 return responses.filter(applyFilter(source.filter))
             }
+
+            SupportedEndpoint.SWITCH -> TODO()
         }
     }
 }

@@ -1,4 +1,4 @@
-package ch.kleis.lcaac.core.datasource.resilio_db.api
+package ch.kleis.lcaac.core.datasource.resilio_db.api.requests
 
 data class RdbRackServer(
     val id: String,

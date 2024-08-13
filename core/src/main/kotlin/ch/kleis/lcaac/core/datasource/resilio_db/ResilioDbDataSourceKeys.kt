@@ -17,4 +17,5 @@ object ResilioDbDataSourceKeys {
         RDB_MANUFACTURING, RDB_TRANSPORT,
         RDB_USE, RDB_END_OF_LIFE
     )
+    // TODO: default values, required keys = paramsFrom, endpoint
 }
