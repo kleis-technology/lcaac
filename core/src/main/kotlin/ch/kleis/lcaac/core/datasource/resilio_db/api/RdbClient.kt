@@ -69,6 +69,9 @@ class RdbClient<Q>(
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
+        if (response.statusCode() >= 400) {
+            throw IllegalStateException("rdb client: error ${response.statusCode()}: ${response.body()}")
+        }
         val rdbResponse = deserializer.decodeFromString(id, response.body())
         return listOf(
             rdbResponse.manufacturing,
