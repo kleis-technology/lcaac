@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
+import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
@@ -31,6 +32,7 @@ class ResilioDbConnectorTest {
         onRequestRackServer: List<ERecord<BasicNumber>> = emptyList(),
         onRequestSwitch: List<ERecord<BasicNumber>> = emptyList(),
     ) {
+        val caller = mockk<DefaultDataSourceOperations<BasicNumber>>()
         val rdbConnector: DataSourceConnector<BasicNumber>
         val rdbClient = mockk<RdbClient<BasicNumber>>()
 
@@ -44,7 +46,7 @@ class ResilioDbConnectorTest {
                 options = emptyMap(),
             )
             val inventoryConnector = mockk<DataSourceConnector<BasicNumber>>()
-            every { inventoryConnector.getAll(inventoryConfig, any()) } returns inventory.asSequence()
+            every { inventoryConnector.getAll(caller, inventoryConfig, any()) } returns inventory.asSequence()
 
             val lcaacConfig = LcaacConfig(
                 datasources = listOf(inventoryConfig),
@@ -138,7 +140,7 @@ class ResilioDbConnectorTest {
         )
 
         // when
-        val actual = context.rdbConnector.getAll(config, source).toList()
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
 
         // then
         val expected = onRequestRackServer
@@ -212,7 +214,7 @@ class ResilioDbConnectorTest {
         )
 
         // when
-        val actual = context.rdbConnector.getAll(config, source).toList()
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
 
         // then
         val expected = listOf(ERecord(mapOf(
@@ -288,7 +290,7 @@ class ResilioDbConnectorTest {
         )
 
         // when
-        val actual = context.rdbConnector.getAll(config, source).toList()
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
 
         // then
         val expected = onRequestSwitch
@@ -359,7 +361,7 @@ class ResilioDbConnectorTest {
         )
 
         // when
-        val actual = context.rdbConnector.getAll(config, source).toList()
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
 
         // then
         val expected = listOf(

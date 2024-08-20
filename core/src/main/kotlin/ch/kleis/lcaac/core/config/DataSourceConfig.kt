@@ -42,4 +42,8 @@ data class DataSourceConfig(
             )
         }
     }
+
+    fun setConnector(connector: String?): DataSourceConfig = this.copy(
+        connector = connector,
+    )
 }

@@ -4,11 +4,12 @@ import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.datasource.DummySourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
-import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitchDeserializer
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -60,14 +61,14 @@ class ResilioDbConnector<Q>(
         return config
     }
 
-    override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
-        return getAll(config, source)
+    override fun getFirst(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+        return getAll(caller, config, source)
             .firstOrNull()
             ?: throw IllegalArgumentException("connector '${this.getName()}': no records found in datasource " +
                 "'${source.config.name}'")
     }
 
-    override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+    override fun getAll(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val options = RDbDataSourceOptions.from(config)
 
         val auxiliaryDataSourceConfig = factory
@@ -103,7 +104,9 @@ class ResilioDbConnector<Q>(
                     schema = deserializer.schema(),
                     filter = auxiliaryFilter
                 )
+                // TODO: use caller
                 val auxiliaryRecords = auxiliaryConnector.getAll(
+                    caller,
                     auxiliaryDataSourceConfig,
                     auxiliaryDataSource,
                 )
@@ -129,7 +132,9 @@ class ResilioDbConnector<Q>(
                     schema = deserializer.schema(),
                     filter = auxiliaryFilter
                 )
+                // TODO: use caller
                 val auxiliaryRecords = auxiliaryConnector.getAll(
+                    caller,
                     auxiliaryDataSourceConfig,
                     auxiliaryDataSource,
                 )

@@ -59,7 +59,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { connector.getAll(any(), any()) } returns sequenceOf(
+        every { connector.getAll(any(), any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
                 "n_items" to QuantityFixture.oneUnit,
@@ -133,7 +133,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { connector.getFirst(any(), any()) } returns ERecord(mapOf(
+        every { connector.getFirst(any(), any(), any()) } returns ERecord(mapOf(
             "geo" to EStringLiteral("FR"),
             "n_items" to QuantityFixture.oneUnit,
             "mass" to QuantityFixture.oneKilogram,
@@ -180,7 +180,7 @@ class DefaultDataSourceOperationsTest {
         // given
         val connector = mockk<DataSourceConnector<BasicNumber>>()
         every { connector.getName() } returns connectorName
-        every { connector.getAll(any(), any()) } returns sequenceOf()
+        every { connector.getAll(any(), any(), any()) } returns sequenceOf()
         every { connector.getConfig() } returns ConnectorConfig(
             name = connectorName,
             options = emptyMap(),
@@ -230,7 +230,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { connector.getAll(any(), any()) } returns sequenceOf(
+        every { connector.getAll(any(), any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
                 "n_items" to QuantityFixture.oneUnit,
@@ -318,7 +318,6 @@ class DefaultDataSourceOperationsTest {
                 description = "description",
             ),
             connectors = emptyMap(),
-            overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -362,7 +361,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { innerConnector.getAll(any(), any()) } returns sequenceOf(
+        every { innerConnector.getAll(any(), any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
                 "n_items" to QuantityFixture.oneUnit,
@@ -387,7 +386,6 @@ class DefaultDataSourceOperationsTest {
                 description = "description",
             ),
             connectors = mapOf(connectorName to innerConnector),
-            overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -498,7 +496,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { innerConnector.getFirst(any(), any()) } returns ERecord(mapOf(
+        every { innerConnector.getFirst(any(), any(), any()) } returns ERecord(mapOf(
             "geo" to EStringLiteral("FR"),
             "n_items" to QuantityFixture.oneUnit,
             "mass" to QuantityFixture.oneKilogram,
@@ -516,7 +514,6 @@ class DefaultDataSourceOperationsTest {
                 description = "description",
             ),
             connectors = mapOf(connectorName to innerConnector),
-            overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -581,7 +578,6 @@ class DefaultDataSourceOperationsTest {
                 description = "description",
             ),
             connectors = emptyMap(),
-            overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -616,7 +612,7 @@ class DefaultDataSourceOperationsTest {
             name = connectorName,
             options = emptyMap(),
         )
-        every { innerConnector.getAll(any(), any()) } returns sequenceOf(
+        every { innerConnector.getAll(any(), any(), any()) } returns sequenceOf(
             ERecord(mapOf(
                 "geo" to EStringLiteral("FR"),
                 "n_items" to QuantityFixture.oneUnit,
@@ -646,7 +642,6 @@ class DefaultDataSourceOperationsTest {
                 description = "description",
             ),
             connectors = mapOf(connectorName to innerConnector),
-            overrides = emptyMap(),
         ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
@@ -683,7 +678,7 @@ class DefaultDataSourceOperationsTest {
             options = emptyMap(),
         )
         val n = 5000
-        every { connector.getAll(any(), any()) } returns (1..n)
+        every { connector.getAll(any(), any(), any()) } returns (1..n)
             .map {
                 ERecord(mapOf(
                     "geo" to EStringLiteral("FR"),

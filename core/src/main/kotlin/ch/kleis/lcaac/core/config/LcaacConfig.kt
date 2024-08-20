@@ -21,6 +21,22 @@ data class LcaacConfig(
         return connectorsMap[name]
     }
 
+    fun setOrModifyDatasource(datasource: DataSourceConfig): LcaacConfig {
+        val mergedConfig = this.datasources
+            .firstOrNull { it.name == datasource.name }
+            ?.let { with(DataSourceConfig.merger(it.name)) {
+                it.combine(datasource)
+            } }
+            ?: datasource
+        val newDatasources = this.datasources
+            .associateBy { it.name }
+            .plus(mergedConfig.name to mergedConfig)
+            .values.toList()
+        return this.copy(
+            datasources = newDatasources
+        )
+    }
+
     fun modifyConnector(name: String, fn: (ConnectorConfig) -> ConnectorConfig): LcaacConfig =
         this.copy(
             connectors = this.connectors.map {

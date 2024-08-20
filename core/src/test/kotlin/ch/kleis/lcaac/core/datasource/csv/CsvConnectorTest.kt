@@ -59,7 +59,7 @@ class CsvConnectorTest {
         )
 
         // when
-        val actual = connector.getAll(config, source).toList()
+        val actual = connector.getAll(mockk(), config, source).toList()
 
         // then
         val expected = listOf(
@@ -110,7 +110,7 @@ class CsvConnectorTest {
         )
 
         // when
-        val actual = connector.getFirst(config, source)
+        val actual = connector.getFirst(mockk(), config, source)
 
         // then
         val expected = ERecord(mapOf(
@@ -149,7 +149,7 @@ class CsvConnectorTest {
         )
 
         // when/then
-        val e = assertThrows<EvaluatorException> { connector.getFirst(config, source) }
+        val e = assertThrows<EvaluatorException> { connector.getFirst(mockk(), config, source) }
         assertEquals("no record found in datasource 'source' [source.csv] matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
     }
 }
