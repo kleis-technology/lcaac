@@ -4,7 +4,6 @@ import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.datasource.ConnectorBuilder
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
-import ch.kleis.lcaac.core.lang.SymbolTable
 
 class ResilioDbConnectorBuilder<Q> : ConnectorBuilder<Q> {
     override fun buildOrNull(factory: ConnectorFactory<Q>, config: ConnectorConfig): DataSourceConnector<Q>? {
@@ -27,7 +26,8 @@ class ResilioDbConnectorBuilder<Q> : ConnectorBuilder<Q> {
 
         return ResilioDbConnector(
             config = config,
-            factory = factory,
+            symbolTable = factory.getSymbolTable(),
+            ops = factory.getQuantityOperations(),
             url = url,
             accessToken = accessToken,
         )

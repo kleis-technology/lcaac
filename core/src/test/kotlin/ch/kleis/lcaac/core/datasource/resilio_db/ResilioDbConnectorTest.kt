@@ -45,13 +45,13 @@ class ResilioDbConnectorTest {
                 name = "inventory",
                 options = emptyMap(),
             )
-            val inventoryConnector = mockk<DataSourceConnector<BasicNumber>>()
-            every { inventoryConnector.getAll(caller, inventoryConfig, any()) } returns inventory.asSequence()
+            every { caller.getAll(any()) } returns inventory.asSequence()
 
             val lcaacConfig = LcaacConfig(
                 datasources = listOf(inventoryConfig),
                 connectors = listOf(inventoryConnectorConfig)
             )
+            every { caller.getConfig() } returns lcaacConfig
             val symbolTable = SymbolTable(
                 data = Prelude.units<BasicNumber>().plus(
                     mapOf(
@@ -63,7 +63,6 @@ class ResilioDbConnectorTest {
             every { factory.getSymbolTable() } returns symbolTable
             every { factory.getQuantityOperations() } returns BasicOperations
             every { factory.getLcaacConfig() } returns lcaacConfig
-            every { factory.buildOrNull(inventoryConnectorConfig) } returns inventoryConnector
 
             val rdbUrl = "https://test.db.resilio.tech"
             val rdbAccessToken = "my-access-token"
@@ -78,7 +77,8 @@ class ResilioDbConnectorTest {
             every { rdbClient.switch(any()) } returns onRequestSwitch
             rdbConnector = ResilioDbConnector(
                 config = connectorConfig,
-                factory = factory,
+                symbolTable = symbolTable,
+                ops = BasicOperations,
                 url = rdbUrl,
                 accessToken = rdbAccessToken,
                 rdbClientSupplier = { _, _ -> rdbClient }

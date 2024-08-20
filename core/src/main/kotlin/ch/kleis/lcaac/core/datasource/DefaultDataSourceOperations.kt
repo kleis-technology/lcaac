@@ -29,7 +29,7 @@ class DefaultDataSourceOperations<Q>(
                 it.value.getConfig().cache.maxRecordsPerCacheLine,
             )
         }
-) : DataSourceOperations<Q> {
+) : DataSourceOperationsWithConfig<Q> {
 
     fun overrideWith(inMemoryConnector: InMemoryConnector<Q>): DefaultDataSourceOperations<Q> =
         DefaultDataSourceOperations(
@@ -144,5 +144,9 @@ class DefaultDataSourceOperations<Q>(
         }.fold(zero as DataExpression<Q>, ({ acc, expression ->
             reducer.reduce(EQuantityAdd(acc, expression))
         }))
+    }
+
+    override fun getConfig(): LcaacConfig {
+        return config
     }
 }

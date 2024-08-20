@@ -3,7 +3,7 @@ package ch.kleis.lcaac.core.datasource.in_memory
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
-import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.datasource.DataSourceOperationsWithConfig
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
@@ -25,7 +25,11 @@ class InMemoryConnector<Q>(
 
     fun getSourceNames(): List<String> = content.keys.toList()
 
-    override fun getAll(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+    override fun getAll(
+        caller: DataSourceOperationsWithConfig<Q>,
+        config: DataSourceConfig,
+        source: DataSourceValue<Q>,
+    ): Sequence<ERecord<Q>> {
         val sourceName = config.name
         val filter = source.filter
         val records = content[sourceName]
@@ -37,7 +41,11 @@ class InMemoryConnector<Q>(
             .asSequence()
     }
 
-    override fun getFirst(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+    override fun getFirst(
+        caller: DataSourceOperationsWithConfig<Q>,
+        config: DataSourceConfig,
+        source: DataSourceValue<Q>,
+    ): ERecord<Q> {
         return getAll(caller, config, source).firstOrNull()
             ?: throw EvaluatorException("no record found in datasource '${config.name}' matching ${source.filter}")
     }
