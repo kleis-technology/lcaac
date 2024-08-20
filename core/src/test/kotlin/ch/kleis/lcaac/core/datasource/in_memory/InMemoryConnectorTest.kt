@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -19,6 +20,7 @@ class InMemoryConnectorTest {
         BasicNumber(value),
         UnitValueFixture.unit(),
     )
+
     private fun numKg(value: Double): DataValue<BasicNumber> = QuantityValue(
         BasicNumber(value),
         UnitValueFixture.kg(),
@@ -72,7 +74,7 @@ class InMemoryConnectorTest {
         )
 
         // when
-        val actual = connector.getAll(config, source).toList()
+        val actual = connector.getAll(mockk(), config, source).toList()
 
         // then
         val expected = listOf(
@@ -143,7 +145,7 @@ class InMemoryConnectorTest {
         )
 
         // when
-        val actual = connector.getFirst(config, source)
+        val actual = connector.getFirst(mockk(), config, source)
 
         // then
         val expected = ERecord(mapOf(
@@ -186,7 +188,7 @@ class InMemoryConnectorTest {
         )
 
         // when/then
-        val e = assertThrows<EvaluatorException> { connector.getFirst(config, source) }
+        val e = assertThrows<EvaluatorException> { connector.getFirst(mockk(), config, source) }
         assertEquals("no record found in datasource 'inventory' matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
     }
 }

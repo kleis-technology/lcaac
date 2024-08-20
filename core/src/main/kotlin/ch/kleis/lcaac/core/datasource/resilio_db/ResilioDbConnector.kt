@@ -2,14 +2,15 @@ package ch.kleis.lcaac.core.datasource.resilio_db
 
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
-import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
+import ch.kleis.lcaac.core.datasource.DataSourceOperationsWithConfig
 import ch.kleis.lcaac.core.datasource.DummySourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
-import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitchDeserializer
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -19,10 +20,12 @@ import ch.kleis.lcaac.core.lang.expression.EStringLiteral
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.DataValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.math.QuantityOperations
 
 class ResilioDbConnector<Q>(
     private val config: ConnectorConfig,
-    private val factory: ConnectorFactory<Q>,
+    symbolTable: SymbolTable<Q>,
+    private val ops: QuantityOperations<Q>,
     url: String,
     accessToken: String,
     private val rdbClientSupplier: (String, LcStepMapping) -> RdbClient<Q> =
@@ -32,12 +35,10 @@ class ResilioDbConnector<Q>(
                 accessToken = accessToken,
                 primaryKey = primaryKey,
                 lcStepMapping = lcStepMapping,
-                ops = factory.getQuantityOperations(),
+                ops = ops,
             )
         }
 ) : DataSourceConnector<Q> {
-    private val symbolTable = factory.getSymbolTable()
-    private val ops = factory.getQuantityOperations()
     private val dataReducer = DataExpressionReducer(
         dataRegister = symbolTable.data,
         dataSourceRegister = symbolTable.dataSources,
@@ -60,30 +61,19 @@ class ResilioDbConnector<Q>(
         return config
     }
 
-    override fun getFirst(config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
-        return getAll(config, source)
+    override fun getFirst(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+        return getAll(caller, config, source)
             .firstOrNull()
             ?: throw IllegalArgumentException("connector '${this.getName()}': no records found in datasource " +
                 "'${source.config.name}'")
     }
 
-    override fun getAll(config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+    override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val options = RDbDataSourceOptions.from(config)
 
-        val auxiliaryDataSourceConfig = factory
-            .getLcaacConfig()
+        val auxiliaryDataSourceConfig = caller.getConfig()
             .getDataSource(options.paramsFrom)
             ?: throw IllegalArgumentException("connector '${this.getName()}': missing configuration for auxiliary datasource '${options.paramsFrom}'")
-        val auxiliaryConnectorName = auxiliaryDataSourceConfig
-            .connector
-            ?: throw IllegalArgumentException("connector '${this.getName()}': missing connector in configuration of auxiliary datasource '${options.paramsFrom}'")
-        val auxiliaryConnectorConfig = factory
-            .getLcaacConfig()
-            .getConnector(auxiliaryConnectorName)
-            ?: throw IllegalArgumentException("connector '${this.getName()}': missing configuration for connector '$auxiliaryConnectorName'")
-        val auxiliaryConnector = factory
-            .buildOrNull(auxiliaryConnectorConfig)
-            ?: throw IllegalArgumentException("connector '${this.getName()}': cannot build auxiliary connector '$auxiliaryConnectorName'")
         val auxiliaryFilter = source.filter[options.primaryKey]
             ?.let { joinKeyValue ->
                 mapOf(
@@ -103,8 +93,7 @@ class ResilioDbConnector<Q>(
                     schema = deserializer.schema(),
                     filter = auxiliaryFilter
                 )
-                val auxiliaryRecords = auxiliaryConnector.getAll(
-                    auxiliaryDataSourceConfig,
+                val auxiliaryRecords = caller.getAll(
                     auxiliaryDataSource,
                 )
                 val requests = auxiliaryRecords.map {
@@ -129,8 +118,7 @@ class ResilioDbConnector<Q>(
                     schema = deserializer.schema(),
                     filter = auxiliaryFilter
                 )
-                val auxiliaryRecords = auxiliaryConnector.getAll(
-                    auxiliaryDataSourceConfig,
+                val auxiliaryRecords = caller.getAll(
                     auxiliaryDataSource,
                 )
                 val requests = auxiliaryRecords.map {
