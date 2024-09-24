@@ -16,4 +16,6 @@ object QuantityFixture {
     val twoKilograms = EQuantityScale(ops.pure(2.0), UnitFixture.kg)
     val oneLitre = EQuantityScale(ops.pure(1.0), UnitFixture.l)
     val twoLitres = EQuantityScale(ops.pure(2.0), UnitFixture.l)
+    val oneHour = EQuantityScale(ops.pure(1.0), UnitFixture.hour)
+    val hundredWatt = EQuantityScale(ops.pure(100.0), UnitFixture.watt)
 }

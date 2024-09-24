@@ -21,5 +21,7 @@ class QuantityValueFixture {
         val hundredPiece = QuantityValue(ops.pure(100.0), UnitValueFixture.piece())
         val oneGb = QuantityValue(ops.pure(1.0), UnitValueFixture.gb())
         val oneTb = QuantityValue(ops.pure(1.0), UnitValueFixture.tb())
+        val oneHour = QuantityValue(ops.pure(1.0), UnitValueFixture.hour())
+        val hundredWatt = QuantityValue(ops.pure(100.0), UnitValueFixture.watt())
     }
 }

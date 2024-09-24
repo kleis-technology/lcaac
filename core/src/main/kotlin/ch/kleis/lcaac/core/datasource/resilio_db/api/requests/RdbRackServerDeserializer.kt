@@ -22,6 +22,9 @@ class RdbRackServerDeserializer<Q>(
     private val keyCpuQuantity = "cpu_quantity"
     private val keyRamTotalSizeGb = "ram_total_size_gb"
     private val keySsdTotalSizeGb = "ssd_total_size_gb"
+    private val keyGeography = "geography"
+    private val keyPowerWatt = "power_watt"
+    private val keyDurationOfUseHour = "duration_of_use_hour"
 
     fun schema(): Map<String, DataValue<Q>> = mapOf(
         primaryKey to StringValue("server-01"),
@@ -31,6 +34,9 @@ class RdbRackServerDeserializer<Q>(
         keyCpuQuantity to eval(EDataRef("u")),
         keyRamTotalSizeGb to eval(EDataRef("GB")),
         keySsdTotalSizeGb to eval(EDataRef("GB")),
+        keyGeography to StringValue("global"),
+        keyPowerWatt to eval(EDataRef("W")),
+        keyDurationOfUseHour to eval(EDataRef("hour")),
     )
 
     fun deserialize(record: ERecord<Q>): RdbRackServer {
@@ -39,6 +45,7 @@ class RdbRackServerDeserializer<Q>(
             primaryKey, keyModelName, keyRackUnit,
             keyCpuName, keyCpuQuantity,
             keyRamTotalSizeGb, keySsdTotalSizeGb,
+            keyGeography, keyPowerWatt, keyDurationOfUseHour,
         )
         val missingKeys = requiredKeys.minus(entries.keys)
         if (missingKeys.isNotEmpty()) {
@@ -52,6 +59,11 @@ class RdbRackServerDeserializer<Q>(
             cpuQuantity = pojoDeserializer.readIntUnit(keyCpuQuantity, entries),
             ramTotalSizeGb = pojoDeserializer.readDoubleGb(keyRamTotalSizeGb, entries),
             ssdTotalSizeGb = pojoDeserializer.readDoubleGb(keySsdTotalSizeGb, entries),
+            usage = RdbUsage(
+                geography = pojoDeserializer.readString(keyGeography, entries),
+                powerWatt = pojoDeserializer.readDoubleWatt(keyPowerWatt, entries),
+                durationOfUseHour = pojoDeserializer.readDoubleHour(keyDurationOfUseHour, entries),
+            ),
         )
     }
 }

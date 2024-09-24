@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbUsage
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -121,6 +122,9 @@ class ResilioDbConnectorTest {
                     "cpu_quantity" to QuantityFixture.twoUnits,
                     "ram_total_size_gb" to QuantityFixture.oneGb,
                     "ssd_total_size_gb" to QuantityFixture.oneTb,
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
                 ))
             ),
             onRequestRackServer = onRequestRackServer
@@ -154,6 +158,11 @@ class ResilioDbConnectorTest {
                 cpuQuantity = 2,
                 ramTotalSizeGb = 1.0,
                 ssdTotalSizeGb = 1000.0,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
             ))
         }
     }
@@ -193,6 +202,9 @@ class ResilioDbConnectorTest {
                     "cpu_quantity" to QuantityFixture.twoUnits,
                     "ram_total_size_gb" to QuantityFixture.oneGb,
                     "ssd_total_size_gb" to QuantityFixture.oneTb,
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
                 ))
             ),
             onRequestRackServer = onRequestRackServer
@@ -232,6 +244,11 @@ class ResilioDbConnectorTest {
                 cpuQuantity = 2,
                 ramTotalSizeGb = 1.0,
                 ssdTotalSizeGb = 1000.0,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
             ))
         }
     }

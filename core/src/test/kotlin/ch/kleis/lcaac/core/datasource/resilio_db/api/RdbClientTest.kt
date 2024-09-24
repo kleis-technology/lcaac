@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.datasource.resilio_db.api
 
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbUsage
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -34,6 +35,11 @@ class RdbClientTest {
             cpuQuantity = 2,
             ramTotalSizeGb = 32.0,
             ssdTotalSizeGb = 2000.0,
+            usage = RdbUsage(
+                geography = "global",
+                powerWatt = 100.0,
+                durationOfUseHour = 1.0,
+            ),
         )
 
         // when

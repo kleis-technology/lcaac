@@ -55,6 +55,9 @@ class RdbRackServerDeserializerTest {
             "cpu_quantity" to QuantityValueFixture.oneUnit,
             "ram_total_size_gb" to QuantityValueFixture.oneGb,
             "ssd_total_size_gb" to QuantityValueFixture.oneGb,
+            "geography" to StringValue("geography"),
+            "power_watt" to QuantityValueFixture.hundredWatt,
+            "duration_of_use_hour" to QuantityValueFixture.oneHour,
         )
         assertEquals(expected, actual)
     }
@@ -81,6 +84,9 @@ class RdbRackServerDeserializerTest {
             "cpu_quantity" to QuantityFixture.oneUnit,
             "ram_total_size_gb" to QuantityFixture.oneGb,
             "ssd_total_size_gb" to QuantityFixture.oneTb,
+            "geography" to EStringLiteral("global"),
+            "power_watt" to QuantityFixture.hundredWatt,
+            "duration_of_use_hour" to QuantityFixture.oneHour,
         ))
 
         // when
@@ -95,6 +101,11 @@ class RdbRackServerDeserializerTest {
             cpuQuantity = 1,
             ramTotalSizeGb = 1.0,
             ssdTotalSizeGb = 1000.0,
+            usage = RdbUsage(
+                geography = "global",
+                powerWatt = 100.0,
+                durationOfUseHour = 1.0,
+            ),
         )
         assertEquals(expected, actual)
     }

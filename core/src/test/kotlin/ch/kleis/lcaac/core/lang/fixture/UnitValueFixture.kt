@@ -16,5 +16,7 @@ class UnitValueFixture {
         fun <Q> unit() = UnitValue<Q>(UnitSymbol.of("unit"), 1.0, Dimension.None)
         fun <Q> gb() = UnitValue<Q>(UnitSymbol.of("GB"), 1.0, DimensionFixture.memory)
         fun <Q> tb() = UnitValue<Q>(UnitSymbol.of("TB"), 1.0e3, DimensionFixture.memory)
+        fun <Q> hour() = UnitValue<Q>(UnitSymbol.of("hour"), 3600.0, DimensionFixture.time)
+        fun <Q> watt() = UnitValue<Q>(UnitSymbol.of("W"), 1.0, DimensionFixture.power)
     }
 }
