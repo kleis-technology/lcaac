@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.datasource.resilio_db.api
 
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbUserDevice
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.math.QuantityOperations
 import com.mayakapps.kache.InMemoryKache
@@ -15,6 +16,7 @@ import java.net.http.HttpResponse
 class RdbClient<Q>(
     private val url: String,
     private val accessToken: String,
+    private val version: String,
     primaryKey: String,
     lcStepMapping: LcStepMapping,
     ops: QuantityOperations<Q>,
@@ -32,6 +34,11 @@ class RdbClient<Q>(
         strategy = KacheStrategy.LRU
     }
     private val switchCache = InMemoryKache<RdbSwitch, List<ERecord<Q>>>(
+        maxSize = 1024
+    ) {
+        strategy = KacheStrategy.LRU
+    }
+    private val userDeviceCache = InMemoryKache<RdbUserDevice, List<ERecord<Q>>>(
         maxSize = 1024
     ) {
         strategy = KacheStrategy.LRU
@@ -61,9 +68,21 @@ class RdbClient<Q>(
             ?: throw IllegalStateException("rdb client: could not send request $rdbSwitch")
     }
 
+    fun userDevice(
+        rdbUserDevice: RdbUserDevice,
+    ): List<ERecord<Q>> {
+        val result = runBlocking {
+            userDeviceCache.getOrPut(rdbUserDevice) {
+                request(rdbUserDevice.id, rdbUserDevice.deviceType.endpoint, rdbUserDevice.json())
+            }
+        }
+        return result
+            ?: throw IllegalStateException("rdb client: could not send request $rdbUserDevice")
+    }
+
     private fun request(id: String, endpoint: String, requestBody: String): List<ERecord<Q>> {
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${this.url}/api/${endpoint}"))
+            .uri(URI.create("${this.url}/api/${endpoint}/${version}"))
             .header("Authorization", this.accessToken)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))

@@ -8,6 +8,7 @@ data class RdbRackServer(
     val cpuQuantity: Int,
     val ramTotalSizeGb: Double,
     val ssdTotalSizeGb: Double,
+    val usage: RdbUsage,
 ) {
     fun json(): String {
         val cpus = (1..cpuQuantity).joinToString(",") {
@@ -28,7 +29,12 @@ data class RdbRackServer(
                     ],
                     "ssd_disks": [
                         { "size_gb": $ssdTotalSizeGb }
-                    ]
+                    ],
+                    "usage": {
+                        "geography": "${usage.geography}",
+                        "power_watt": ${usage.powerWatt},
+                        "duration_of_use_hour": ${usage.durationOfUseHour}
+                    }
                 }
             ]
         }

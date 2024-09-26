@@ -33,9 +33,9 @@ class PojoDeserializer<Q>(
         }
     }
 
-    fun readDoubleGb(key: String, entries: Map<String, DataExpression<Q>>): Double {
+    private fun readDouble(key: String, entries: Map<String, DataExpression<Q>>, unitRef: String): Double {
         val data = entries[key]!!
-        val unit = EDataRef<Q>("GB")
+        val unit = EDataRef<Q>(unitRef)
         val ratio = EQuantityDiv(data, unit)
         return when (val value = eval(ratio)) {
             is QuantityValue -> with(ops) {
@@ -44,5 +44,11 @@ class PojoDeserializer<Q>(
 
             else -> throw IllegalArgumentException("${{}.javaClass.name}: invalid record entry '$key': expecting a quantity, found '$value'")
         }
+
     }
+
+    fun readDoubleGb(key: String, entries: Map<String, DataExpression<Q>>): Double = readDouble(key, entries, "GB")
+    fun readDoubleWatt(key: String, entries: Map<String, DataExpression<Q>>): Double = readDouble(key, entries, "W")
+    fun readDoubleHour(key: String, entries: Map<String, DataExpression<Q>>): Double = readDouble(key, entries, "hour")
+
 }

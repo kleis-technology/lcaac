@@ -11,10 +11,12 @@ object DimensionFixture {
     val time = Dimension.of("time")
     val volume = length.pow(3.0)
     val memory = Dimension.of("memory")
+    private val energy = Dimension.of("energy")
+    val power = energy.divide(time)
 }
 
 object UnitFixture {
-    val unit = EUnitLiteral<BasicNumber>(UnitSymbol.of("unit"), 1.0, Dimension.None)
+    val unit = EUnitLiteral<BasicNumber>(UnitSymbol.of("u"), 1.0, Dimension.None)
     val kg = EUnitLiteral<BasicNumber>(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass)
     val g = EUnitLiteral<BasicNumber>(UnitSymbol.of("g"), 1.0e-3, DimensionFixture.mass)
     val m = EUnitLiteral<BasicNumber>(UnitSymbol.of("m"), 1.0, DimensionFixture.length)
@@ -26,6 +28,7 @@ object UnitFixture {
     val percent = EUnitLiteral<BasicNumber>(UnitSymbol.of("percent"), 1.0e-2, Dimension.None)
     val gb = EUnitLiteral<BasicNumber>(UnitSymbol.of("GB"), 1.0, DimensionFixture.memory)
     val tb = EUnitLiteral<BasicNumber>(UnitSymbol.of("TB"), 1.0e3, DimensionFixture.memory)
+    val watt = EUnitLiteral<BasicNumber>(UnitSymbol.of("W"), 1.0/3600.0, DimensionFixture.power)
 
     val basicUnits = """
         package builtin_units

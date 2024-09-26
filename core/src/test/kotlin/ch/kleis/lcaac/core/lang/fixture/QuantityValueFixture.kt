@@ -1,7 +1,10 @@
 package ch.kleis.lcaac.core.lang.fixture
 
+import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import ch.kleis.lcaac.core.prelude.Prelude
 
 class QuantityValueFixture {
     companion object {
@@ -21,5 +24,9 @@ class QuantityValueFixture {
         val hundredPiece = QuantityValue(ops.pure(100.0), UnitValueFixture.piece())
         val oneGb = QuantityValue(ops.pure(1.0), UnitValueFixture.gb())
         val oneTb = QuantityValue(ops.pure(1.0), UnitValueFixture.tb())
+        val oneHour = QuantityValue(ops.pure(1.0), UnitValueFixture.hour())
+        private val watt = with(ToValue(ops)) { Prelude.unitMap<BasicNumber>()["W"]!!.toUnitValue() }
+        val oneWatt = QuantityValue(ops.pure(1.0), watt)
+        val hundredWatt = QuantityValue(ops.pure(100.0), watt)
     }
 }

@@ -10,6 +10,7 @@ import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitchDeserializer
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbUserDeviceDeserializer
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -28,12 +29,14 @@ class ResilioDbConnector<Q>(
     private val ops: QuantityOperations<Q>,
     url: String,
     accessToken: String,
+    version: String,
     private val rdbClientSupplier: (String, LcStepMapping) -> RdbClient<Q> =
         { primaryKey, lcStepMapping ->
             RdbClient(
                 url = url,
                 accessToken = accessToken,
                 primaryKey = primaryKey,
+                version = version,
                 lcStepMapping = lcStepMapping,
                 ops = ops,
             )
@@ -103,6 +106,31 @@ class ResilioDbConnector<Q>(
                 val responses = requests
                     .flatMap {
                         rdbClient.serverRack(it)
+                    }
+                return responses.filter(applyFilter(source.filter))
+            }
+
+            SupportedEndpoint.USER_DEVICE -> {
+                val deserializer = RdbUserDeviceDeserializer(
+                    options.primaryKey,
+                    ops,
+                    this::localEval,
+                )
+                val auxiliaryDataSource = DataSourceValue(
+                    config = auxiliaryDataSourceConfig,
+                    schema = deserializer.schema(),
+                    filter = auxiliaryFilter
+                )
+                val auxiliaryRecords = caller.getAll(
+                    auxiliaryDataSource,
+                )
+                val requests = auxiliaryRecords.map {
+                    deserializer.deserialize(it)
+                }
+                val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
+                val responses = requests
+                    .flatMap {
+                        rdbClient.userDevice(it)
                     }
                 return responses.filter(applyFilter(source.filter))
             }

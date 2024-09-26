@@ -7,8 +7,7 @@ import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
-import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServer
-import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitch
+import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.*
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
@@ -31,6 +30,7 @@ class ResilioDbConnectorTest {
         inventory: List<ERecord<BasicNumber>> = emptyList(),
         onRequestRackServer: List<ERecord<BasicNumber>> = emptyList(),
         onRequestSwitch: List<ERecord<BasicNumber>> = emptyList(),
+        onRequestUserDevice: List<ERecord<BasicNumber>> = emptyList(),
     ) {
         val caller = mockk<DefaultDataSourceOperations<BasicNumber>>()
         val rdbConnector: DataSourceConnector<BasicNumber>
@@ -66,6 +66,7 @@ class ResilioDbConnectorTest {
 
             val rdbUrl = "https://test.db.resilio.tech"
             val rdbAccessToken = "my-access-token"
+            val rdbVersion = "2024.5"
             val connectorConfig = ConnectorConfig(
                 name = ResilioDbConnectorKeys.RDB_CONNECTOR_NAME,
                 options = mapOf(
@@ -75,12 +76,14 @@ class ResilioDbConnectorTest {
             )
             every { rdbClient.serverRack(any()) } returns onRequestRackServer
             every { rdbClient.switch(any()) } returns onRequestSwitch
+            every { rdbClient.userDevice(any()) } returns onRequestUserDevice
             rdbConnector = ResilioDbConnector(
                 config = connectorConfig,
                 symbolTable = symbolTable,
                 ops = BasicOperations,
                 url = rdbUrl,
                 accessToken = rdbAccessToken,
+                version = rdbVersion,
                 rdbClientSupplier = { _, _ -> rdbClient }
             )
         }
@@ -121,6 +124,9 @@ class ResilioDbConnectorTest {
                     "cpu_quantity" to QuantityFixture.twoUnits,
                     "ram_total_size_gb" to QuantityFixture.oneGb,
                     "ssd_total_size_gb" to QuantityFixture.oneTb,
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
                 ))
             ),
             onRequestRackServer = onRequestRackServer
@@ -154,6 +160,11 @@ class ResilioDbConnectorTest {
                 cpuQuantity = 2,
                 ramTotalSizeGb = 1.0,
                 ssdTotalSizeGb = 1000.0,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
             ))
         }
     }
@@ -193,6 +204,9 @@ class ResilioDbConnectorTest {
                     "cpu_quantity" to QuantityFixture.twoUnits,
                     "ram_total_size_gb" to QuantityFixture.oneGb,
                     "ssd_total_size_gb" to QuantityFixture.oneTb,
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
                 ))
             ),
             onRequestRackServer = onRequestRackServer
@@ -232,6 +246,11 @@ class ResilioDbConnectorTest {
                 cpuQuantity = 2,
                 ramTotalSizeGb = 1.0,
                 ssdTotalSizeGb = 1000.0,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
             ))
         }
     }
@@ -378,6 +397,158 @@ class ResilioDbConnectorTest {
                 cpuName = "cpu name",
                 cpuQuantity = 2,
                 ramTotalSizeGb = 1.0,
+            ))
+        }
+    }
+
+    @Test
+    fun getAll_userDevice() {
+        // given
+        val onRequestUserDevice = listOf(
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("manufacturing"),
+                "GWP" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("transport"),
+                "GWP" to QuantityFixture.twoKilograms,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("use"),
+                "GWP" to QuantityFixture.zeroKilogram,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("end-of-life"),
+                "GWP" to QuantityFixture.oneKilogram,
+            )),
+        )
+        val context = Context(
+            inventory = listOf(
+                ERecord(mapOf(
+                    "id" to EStringLiteral("dev-01"),
+                    "model_name" to EStringLiteral("model name"),
+                    "device_type" to EStringLiteral("smartphone"),
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
+                ))
+            ),
+            onRequestUserDevice = onRequestUserDevice
+        )
+        val config = DataSourceConfig(
+            name = "impacts",
+            connector = ResilioDbConnectorKeys.RDB_CONNECTOR_NAME,
+            options = mapOf(
+                "paramsFrom" to "inventory",
+                "endpoint" to "user_device",
+            )
+        )
+        val source = DataSourceValue<BasicNumber>(
+            config = config,
+            schema = emptyMap(),
+            filter = emptyMap(),
+        )
+
+        // when
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
+
+        // then
+        val expected = onRequestUserDevice
+        assertEquals(expected, actual)
+        verify {
+            context.rdbClient.userDevice(RdbUserDevice(
+                id = "dev-01",
+                modelName = "model name",
+                deviceType = RdbUserDeviceType.SMARTPHONE,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
+            ))
+        }
+    }
+
+    @Test
+    fun getAll_userDevice_filterByLcStep() {
+        // given
+        val onRequestUserDevice = listOf(
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("manufacturing"),
+                "GWP" to QuantityFixture.oneKilogram,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("transport"),
+                "GWP" to QuantityFixture.twoKilograms,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("use"),
+                "GWP" to QuantityFixture.zeroKilogram,
+            )),
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("end-of-life"),
+                "GWP" to QuantityFixture.oneKilogram,
+            )),
+        )
+        val context = Context(
+            inventory = listOf(
+                ERecord(mapOf(
+                    "id" to EStringLiteral("dev-01"),
+                    "model_name" to EStringLiteral("model name"),
+                    "device_type" to EStringLiteral("smartphone"),
+                    "geography" to EStringLiteral("global"),
+                    "power_watt" to QuantityFixture.hundredWatt,
+                    "duration_of_use_hour" to QuantityFixture.oneHour,
+                ))
+            ),
+            onRequestUserDevice = onRequestUserDevice
+        )
+        val config = DataSourceConfig(
+            name = "impacts",
+            connector = ResilioDbConnectorKeys.RDB_CONNECTOR_NAME,
+            options = mapOf(
+                "paramsFrom" to "inventory",
+                "endpoint" to "user_device",
+            )
+        )
+        val source = DataSourceValue<BasicNumber>(
+            config = config,
+            schema = emptyMap(),
+            filter = mapOf(
+                "lc_step" to StringValue("use")
+            ),
+        )
+
+        // when
+        val actual = context.rdbConnector.getAll(context.caller, config, source).toList()
+
+        // then
+        val expected = listOf(
+            ERecord(mapOf(
+                "id" to EStringLiteral("foo"),
+                "lc_step" to EStringLiteral("use"),
+                "GWP" to QuantityFixture.zeroKilogram,
+            )),
+        )
+        assertEquals(expected, actual)
+        verify {
+            context.rdbClient.userDevice(RdbUserDevice(
+                id = "dev-01",
+                modelName = "model name",
+                deviceType = RdbUserDeviceType.SMARTPHONE,
+                usage = RdbUsage(
+                    geography = "global",
+                    powerWatt = 100.0,
+                    durationOfUseHour = 1.0,
+                ),
             ))
         }
     }
