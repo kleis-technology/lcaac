@@ -31,7 +31,7 @@ data class RdbRackServer(
                         { "size_gb": $ssdTotalSizeGb }
                     ],
                     "usage": {
-                        "geography": ${usage.geography},
+                        "geography": "${usage.geography}",
                         "power_watt": ${usage.powerWatt},
                         "duration_of_use_hour": ${usage.durationOfUseHour}
                     }
