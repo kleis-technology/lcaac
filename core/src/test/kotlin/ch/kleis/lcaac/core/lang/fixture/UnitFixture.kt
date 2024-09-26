@@ -16,7 +16,7 @@ object DimensionFixture {
 }
 
 object UnitFixture {
-    val unit = EUnitLiteral<BasicNumber>(UnitSymbol.of("unit"), 1.0, Dimension.None)
+    val unit = EUnitLiteral<BasicNumber>(UnitSymbol.of("u"), 1.0, Dimension.None)
     val kg = EUnitLiteral<BasicNumber>(UnitSymbol.of("kg"), 1.0, DimensionFixture.mass)
     val g = EUnitLiteral<BasicNumber>(UnitSymbol.of("g"), 1.0e-3, DimensionFixture.mass)
     val m = EUnitLiteral<BasicNumber>(UnitSymbol.of("m"), 1.0, DimensionFixture.length)

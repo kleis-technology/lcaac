@@ -1043,7 +1043,7 @@ class DataExpressionReducerTest {
         val expected = EQuantityScale(
             BasicNumber(1.0),
             EUnitLiteral(
-                UnitSymbol.of("unit").multiply(UnitSymbol.of("kg")),
+                UnitSymbol.of("u").multiply(UnitSymbol.of("kg")),
                 1.0,
                 Dimension.of("none").multiply(Dimension.of("mass"))
             )
