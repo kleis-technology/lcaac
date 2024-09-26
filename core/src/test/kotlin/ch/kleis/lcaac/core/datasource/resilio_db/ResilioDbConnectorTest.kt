@@ -66,6 +66,7 @@ class ResilioDbConnectorTest {
 
             val rdbUrl = "https://test.db.resilio.tech"
             val rdbAccessToken = "my-access-token"
+            val rdbVersion = "2024.5"
             val connectorConfig = ConnectorConfig(
                 name = ResilioDbConnectorKeys.RDB_CONNECTOR_NAME,
                 options = mapOf(
@@ -82,6 +83,7 @@ class ResilioDbConnectorTest {
                 ops = BasicOperations,
                 url = rdbUrl,
                 accessToken = rdbAccessToken,
+                version = rdbVersion,
                 rdbClientSupplier = { _, _ -> rdbClient }
             )
         }

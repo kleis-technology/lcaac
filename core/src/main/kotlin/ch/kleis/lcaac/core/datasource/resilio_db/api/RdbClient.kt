@@ -16,6 +16,7 @@ import java.net.http.HttpResponse
 class RdbClient<Q>(
     private val url: String,
     private val accessToken: String,
+    private val version: String,
     primaryKey: String,
     lcStepMapping: LcStepMapping,
     ops: QuantityOperations<Q>,
@@ -81,7 +82,7 @@ class RdbClient<Q>(
 
     private fun request(id: String, endpoint: String, requestBody: String): List<ERecord<Q>> {
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${this.url}/api/${endpoint}"))
+            .uri(URI.create("${this.url}/api/${endpoint}/${version}"))
             .header("Authorization", this.accessToken)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))

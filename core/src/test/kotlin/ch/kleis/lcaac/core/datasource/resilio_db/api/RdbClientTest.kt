@@ -21,6 +21,7 @@ class RdbClientTest {
         val client = RdbClient(
             url = "https://db.resilio.tech",
             accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
+            version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,
@@ -53,6 +54,7 @@ class RdbClientTest {
         val client = RdbClient(
             url = "https://db.resilio.tech",
             accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
+            version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,
@@ -77,6 +79,7 @@ class RdbClientTest {
         val client = RdbClient(
             url = "https://db.resilio.tech",
             accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
+            version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,
@@ -105,6 +108,7 @@ class RdbClientTest {
         val client = RdbClient(
             url = "https://db.resilio.tech",
             accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
+            version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,
@@ -133,6 +137,7 @@ class RdbClientTest {
         val client = RdbClient(
             url = "https://db.resilio.tech",
             accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
+            version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
             ops = BasicOperations,

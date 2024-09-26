@@ -23,6 +23,8 @@ class ResilioDbConnectorBuilder<Q> : ConnectorBuilder<Q> {
             ?: throw IllegalArgumentException("connector '${ResilioDbConnectorKeys.RDB_CONNECTOR_NAME}': missing option '${ResilioDbConnectorKeys.RDB_URL}'")
         val accessToken = config.options[ResilioDbConnectorKeys.RDB_ACCESS_TOKEN]
             ?: throw IllegalArgumentException("connector '${ResilioDbConnectorKeys.RDB_CONNECTOR_NAME}': missing option '${ResilioDbConnectorKeys.RDB_ACCESS_TOKEN}'")
+        val version = config.options[ResilioDbConnectorKeys.RDB_VERSION]
+            ?: throw IllegalArgumentException("connector '${ResilioDbConnectorKeys.RDB_CONNECTOR_NAME}': missing option '${ResilioDbConnectorKeys.RDB_VERSION}'")
 
         return ResilioDbConnector(
             config = config,
@@ -30,6 +32,7 @@ class ResilioDbConnectorBuilder<Q> : ConnectorBuilder<Q> {
             ops = factory.getQuantityOperations(),
             url = url,
             accessToken = accessToken,
+            version = version,
         )
     }
 }

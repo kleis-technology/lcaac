@@ -55,8 +55,8 @@ class RdbRackServerDeserializerTest {
             "cpu_quantity" to QuantityValueFixture.oneUnit,
             "ram_total_size_gb" to QuantityValueFixture.oneGb,
             "ssd_total_size_gb" to QuantityValueFixture.oneGb,
-            "geography" to StringValue("geography"),
-            "power_watt" to QuantityValueFixture.hundredWatt,
+            "geography" to StringValue("global"),
+            "power_watt" to QuantityValueFixture.oneWatt,
             "duration_of_use_hour" to QuantityValueFixture.oneHour,
         )
         assertEquals(expected, actual)

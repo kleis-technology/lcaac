@@ -29,12 +29,14 @@ class ResilioDbConnector<Q>(
     private val ops: QuantityOperations<Q>,
     url: String,
     accessToken: String,
+    version: String,
     private val rdbClientSupplier: (String, LcStepMapping) -> RdbClient<Q> =
         { primaryKey, lcStepMapping ->
             RdbClient(
                 url = url,
                 accessToken = accessToken,
                 primaryKey = primaryKey,
+                version = version,
                 lcStepMapping = lcStepMapping,
                 ops = ops,
             )
