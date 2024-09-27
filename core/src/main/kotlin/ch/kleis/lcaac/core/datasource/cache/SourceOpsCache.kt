@@ -28,18 +28,26 @@ class SourceOpsCache<Q>(
         strategy = KacheStrategy.LRU
     }
 
+    private fun <K : Any, V : Any> InMemoryKache<K, V>.safeGetOrPut(key: K, fn: (K) -> V): V {
+        return when (val found = getIfAvailable(key)) {
+            null -> {
+                val value = fn(key)
+                runBlocking { put(key, value) }
+                return value
+            }
+
+            else -> found
+        }
+    }
+
     fun recordGetFirst(
         config: DataSourceConfig,
         source: DataSourceValue<Q>,
         fn: () -> ERecord<Q>,
     ): ERecord<Q> {
-        val result = runBlocking {
-            getFirstCache.getOrPut(
-                GetFirstRequest(config, source)
-            ) { fn() }
-        }
+        val key = GetFirstRequest(config, source)
+        val result = getFirstCache.safeGetOrPut(key) { fn() }
         return result
-            ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
     }
 
     fun recordGetAll(
@@ -68,13 +76,9 @@ class SourceOpsCache<Q>(
         columns: List<String>,
         fn: () -> DataExpression<Q>,
     ): DataExpression<Q> {
-        val result = runBlocking {
-            sumProductCache.getOrPut(
-                SumProductRequest(config, source, columns)
-            ) { fn() }
-        }
+        val key = SumProductRequest(config, source, columns)
+        val result = sumProductCache.safeGetOrPut(key) { fn() }
         return result
-            ?: throw IllegalArgumentException("cannot fetch records from datasource $config")
     }
 }
 
