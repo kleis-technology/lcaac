@@ -65,5 +65,17 @@ class Register<K, E> (
             data.plus(key to value)
         )
     }
+
+    fun override(map: Map<K, E>): Register<K,E> {
+        return Register(
+            data.plus(map)
+        )
+    }
+
+    fun override(pairs: Iterable<Pair<K,E>>): Register<K,E> {
+        return Register(
+            data.plus(pairs)
+        )
+    }
 }
 
