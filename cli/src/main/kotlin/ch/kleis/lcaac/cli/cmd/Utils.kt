@@ -3,8 +3,10 @@ package ch.kleis.lcaac.cli.cmd
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.CoreMapper
@@ -49,6 +51,22 @@ fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
         .asSequence()
 }
 
+fun <Q> dataExpressionMap(
+    ops: QuantityOperations<Q>,
+    globals: Map<String, String>,
+): Map<DataKey, DataExpression<Q>> {
+    val mapper = CoreMapper(ops)
+    return globals
+        .mapKeys { DataKey(it.key) }
+        .mapValues {
+            val lexer = LcaLangLexer(CharStreams.fromString(it.value))
+            val tokens = CommonTokenStream(lexer)
+            val parser = LcaLangParser(tokens)
+            val ctx = parser.dataExpression()
+            mapper.dataExpression(ctx)
+        }
+}
+
 private fun lcaFile(inputStream: InputStream): LcaLangParser.LcaFileContext {
     val lexer = LcaLangLexer(CharStreams.fromStream(inputStream))
     val tokens = CommonTokenStream(lexer)
@@ -79,17 +97,17 @@ fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<Bas
     }
 }
 
-fun prepareArguments(
+fun parseOverrides(
     dataReducer: DataExpressionReducer<BasicNumber>,
-    template: EProcessTemplate<BasicNumber>,
-    request: Map<String, String>,
-) = template.params.mapValues { entry ->
+    current: Map<String, DataExpression<BasicNumber>>,
+    overrides: Map<String, String>,
+): Map<String, DataExpression<BasicNumber>> = current.mapValues { entry ->
     when (val v = entry.value) {
-        is QuantityExpression<*> -> request[entry.key]?.let {
+        is QuantityExpression<*> -> overrides[entry.key]?.let {
             smartParseQuantityWithDefaultUnit(it, EUnitOf(v))
         } ?: entry.value
 
-        is StringExpression -> request[entry.key]?.let {
+        is StringExpression -> overrides[entry.key]?.let {
             EStringLiteral(it)
         } ?: entry.value
 
@@ -98,16 +116,18 @@ fun prepareArguments(
             val schema = dataSource.schema
             val entries = schema.mapValues { schemaEntry ->
                 when (val defaultValue = schemaEntry.value) {
-                    is QuantityValue -> request[schemaEntry.key]?.let {
+                    is QuantityValue -> overrides[schemaEntry.key]?.let {
                         smartParseQuantityWithDefaultUnit(it, defaultValue.unit.toEUnitLiteral())
                     } ?: defaultValue.toEQuantityScale()
 
-                    is StringValue -> request[schemaEntry.key]?.let {
+                    is StringValue -> overrides[schemaEntry.key]?.let {
                         EStringLiteral(it)
                     } ?: defaultValue.toEStringLiteral()
 
-                    else -> throw EvaluatorException("datasource '${dataSource.config.name}': column '${schemaEntry
-                        .key}': invalid default value")
+                    else -> throw EvaluatorException("datasource '${dataSource.config.name}': column '${
+                        schemaEntry
+                            .key
+                    }': invalid default value")
                 }
             }
             ERecord(entries)
@@ -116,3 +136,9 @@ fun prepareArguments(
         else -> throw EvaluatorException("$v is not a supported data expression")
     }
 }
+
+fun prepareArguments(
+    dataReducer: DataExpressionReducer<BasicNumber>,
+    template: EProcessTemplate<BasicNumber>,
+    request: Map<String, String>,
+) = parseOverrides(dataReducer, template.params, request)

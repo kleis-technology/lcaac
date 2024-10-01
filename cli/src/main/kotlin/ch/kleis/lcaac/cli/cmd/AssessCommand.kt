@@ -6,6 +6,7 @@ import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.CsvResultWriter
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorKeys
+import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
@@ -47,6 +48,13 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
                 Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
             """.trimIndent())
         .associate()
+    val globals: Map<String, String> by option("-G", "--global")
+        .help(
+            """
+                Override global variable as a key value pair.
+                Example: `lcaac assess <process name> -G x="12 kg"`.
+            """.trimIndent()
+        ).associate()
 
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
@@ -64,7 +72,11 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
 
         val files = lcaFiles(workingDirectory)
-        val symbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
+        val symbolTable = Loader(
+            ops = BasicOperations,
+            overriddenGlobals = dataExpressionMap(BasicOperations, globals),
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
+
         val processor = CsvProcessor(config, symbolTable, workingDirectory.path)
         val iterator = loadRequests()
         val writer = CsvResultWriter()

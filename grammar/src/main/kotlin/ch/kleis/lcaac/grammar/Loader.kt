@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.*
+import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
@@ -12,6 +13,7 @@ enum class LoaderOption {
 
 class Loader<Q>(
     ops: QuantityOperations<Q>,
+    private val overriddenGlobals: Map<DataKey, DataExpression<Q>> = emptyMap(),
 ) {
     private val mapper = CoreMapper(ops)
 
@@ -72,7 +74,9 @@ class Loader<Q>(
                     )
                     .plus(
                         globalDefinitions
-                            .map { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
+                            .associate { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
+                            .plus(overriddenGlobals)
+                            .toList()
                             .asIterable()
                     )
             } catch (e: RegisterException) {

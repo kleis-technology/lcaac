@@ -54,6 +54,13 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
                 Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
             """.trimIndent())
         .associate()
+    val globals: Map<String, String> by option("-G", "--global")
+        .help(
+            """
+                Override global variable as a key value pair.
+                Example: `lcaac assess <process name> -G x="12 kg"`.
+            """.trimIndent()
+        ).associate()
 
     override fun run() {
         val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
@@ -70,7 +77,10 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         }
         val ops = BasicOperations
         val files = lcaFiles(workingDirectory)
-        val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
+        val symbolTable = Loader(
+            ops = BasicOperations,
+            overriddenGlobals = dataExpressionMap(BasicOperations, globals),
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
         val factory = ConnectorFactory(
             workingDirectory.path,
