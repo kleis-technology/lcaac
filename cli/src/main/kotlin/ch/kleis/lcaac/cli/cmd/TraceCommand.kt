@@ -116,7 +116,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             .sortedBy { it.getShortName() }
 
         val header = listOf(
-            "d_amount", "d_unit", "d_product", "alloc",
+            "depth", "d_amount", "d_unit", "d_product", "alloc",
             "name", "a", "b", "c", "amount", "unit",
         ).plus(
             controllablePorts.flatMap {
@@ -137,10 +137,14 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             observablePorts.asSequence()
                 .map { row ->
                     val supply = analysis.supplyOf(row)
+                    val depth = trace.getDepthOf(row)
+                        ?.let { it.toString() }
+                        ?: ""
                     val supplyAmount = supply.amount.value * allocationAmount
                     val prefix = when (row) {
                         is IndicatorValue -> {
                             listOf(
+                                depth,
                                 demandedAmount.toString(),
                                 demandedUnit.toString(),
                                 demandedProductName,
@@ -156,6 +160,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
 
                         is ProductValue -> {
                             listOf(
+                                depth,
                                 demandedAmount.toString(),
                                 demandedUnit.toString(),
                                 demandedProductName,
@@ -171,6 +176,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
 
                         is FullyQualifiedSubstanceValue -> {
                             listOf(
+                                depth,
                                 demandedAmount.toString(),
                                 demandedUnit.toString(),
                                 demandedProductName,
@@ -186,6 +192,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
 
                         is PartiallyQualifiedSubstanceValue -> {
                             listOf(
+                                depth,
                                 demandedAmount.toString(),
                                 demandedUnit.toString(),
                                 demandedProductName,
