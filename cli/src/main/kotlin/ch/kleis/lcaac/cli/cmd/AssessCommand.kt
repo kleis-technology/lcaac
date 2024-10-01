@@ -72,12 +72,10 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
 
 
         val files = lcaFiles(workingDirectory)
-        val originalSymbolTable = Loader(BasicOperations).load(files, listOf(LoaderOption.WITH_PRELUDE))
-        val symbolTable = originalSymbolTable.copy(
-            data = originalSymbolTable.data.override(
-                dataExpressionMap(BasicOperations, globals)
-            )
-        )
+        val symbolTable = Loader(
+            ops = BasicOperations,
+            overriddenGlobals = dataExpressionMap(BasicOperations, globals),
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
         val processor = CsvProcessor(config, symbolTable, workingDirectory.path)
         val iterator = loadRequests()
