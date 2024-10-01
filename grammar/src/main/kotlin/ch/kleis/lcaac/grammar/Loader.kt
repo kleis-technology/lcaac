@@ -74,8 +74,9 @@ class Loader<Q>(
                     )
                     .plus(
                         globalDefinitions
-                            .map { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
-                            .plus(overriddenGlobals.toList())
+                            .associate { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
+                            .plus(overriddenGlobals)
+                            .toList()
                             .asIterable()
                     )
             } catch (e: RegisterException) {

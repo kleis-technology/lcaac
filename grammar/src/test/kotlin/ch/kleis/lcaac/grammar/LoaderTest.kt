@@ -15,6 +15,28 @@ import kotlin.test.assertNotNull
 
 class LoaderTest {
     @Test
+    fun load_overriddenGlobals() {
+        // given
+        val file = LcaLangFixture.parser("""
+            variables {
+               x = hour
+            }
+        """.trimIndent()).lcaFile()
+        val loader = Loader(
+            BasicOperations,
+            mapOf(DataKey("x") to EDataRef("day"))
+        )
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+            .getData("x")
+
+        // then
+        val expected = EDataRef<BasicNumber>("day")
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun load_params_defaultRecord() {
         // given
         val file = LcaLangFixture.parser("""
