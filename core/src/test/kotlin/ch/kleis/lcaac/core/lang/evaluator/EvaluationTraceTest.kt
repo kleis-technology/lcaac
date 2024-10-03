@@ -52,6 +52,57 @@ class EvaluationTraceTest {
     }
 
     @Test
+    fun trace_productOrder2() {
+        // given
+        val oneKg = QuantityValueFixture.oneKilogram
+        val product1 = ProductValueFixture.product("product1")
+        val product2 = ProductValueFixture.product("product2")
+        val product3 = ProductValueFixture.product("product3")
+        val product4 = ProductValueFixture.product("product4")
+
+        val p1 = ProcessValue(
+            name = "p1",
+            products = listOf(TechnoExchangeValue(oneKg, product1)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product2),
+                TechnoExchangeValue(oneKg, product4),
+            ),
+        )
+        val p2 = ProcessValue(
+            name = "p2",
+            products = listOf(TechnoExchangeValue(oneKg, product2)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product3),
+            ),
+        )
+        val p3 = ProcessValue(
+            name = "p3",
+            products = listOf(TechnoExchangeValue(oneKg, product3)),
+            inputs = listOf(
+                TechnoExchangeValue(oneKg, product4),
+            )
+        )
+        val trace = EvaluationTrace<BasicNumber>()
+        trace.addProcess(p1)
+        trace.commit()
+        trace.addProcess(p2)
+        trace.commit()
+        trace.addProcess(p3)
+        trace.commit()
+
+        // when
+        val actual = trace.getComparator()
+
+        // then
+        assert(actual.compare(product1, product2) < 0)
+        assert(actual.compare(product1, product3) < 0)
+        assert(actual.compare(product1, product4) < 0)
+        assert(actual.compare(product2, product3) < 0)
+        assert(actual.compare(product2, product4) < 0)
+        assert(actual.compare(product3, product4) < 0)
+    }
+
+    // Cannot satisfy both this test and the previous one
     fun trace_productOrder_withLongCycle() {
         // given
         val oneKg = QuantityValueFixture.oneKilogram

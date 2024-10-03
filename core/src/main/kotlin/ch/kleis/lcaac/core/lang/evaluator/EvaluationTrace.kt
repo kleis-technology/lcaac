@@ -135,8 +135,7 @@ class EvaluationTrace<Q> {
 
     private fun updateDepthMap(port: MatrixColumnIndex<Q>, depth: Int) {
         depthMap[port] = depthMap[port]?.let {
-            if (it >= depth - 1) max(it, depth)
-            else it
+            max(it, depth)
         } ?: depth
     }
 }
