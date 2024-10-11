@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    tags: [ "release/**" ]
+    tags: [ "lca-*" ]
 
 jobs:
   publish:
