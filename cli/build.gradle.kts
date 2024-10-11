@@ -1,3 +1,5 @@
+import java.util.*
+
 fun properties(key: String) = project.findProperty(key).toString()
 
 plugins {
@@ -49,6 +51,18 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.build {
+    val props = Properties()
+    val propsFile = File("${project.projectDir}/src/main/resources/META-INF/lcaac.properties")
+    propsFile.inputStream().use { props.load(it) }
+    props.setProperty("author", "Kleis Technology")
+    props.setProperty("description", "LCA as Code CLI")
+    props.setProperty("version", artifactVersion)
+    propsFile.outputStream().use {
+        props.store(it, null)
+    }
 }
 
 publishing {
