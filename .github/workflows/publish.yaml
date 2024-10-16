@@ -34,7 +34,7 @@ jobs:
 
       - name: Package CLI
         run: |
-          ./gradlew :cli:installDist
+          ./gradlew :cli:build :cli:installDist
           tar -czvf lcaac-cli-${{ github.ref_name }}.tar.gz -C cli/build/install lcaac
 
       - name: Create a GitHub release
