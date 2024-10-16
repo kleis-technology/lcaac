@@ -2,7 +2,7 @@ name: Publish
 
 on:
   push:
-    tags: [ "lca-*.*.*" ]
+    tags: [ "v*.*.*" ]
   workflow_dispatch:
 
 jobs:
