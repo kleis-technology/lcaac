@@ -24,6 +24,23 @@ See our [book](https://lca-as-code.com/book) to learn more about the language.
 
 ## Getting started
 
+### Install
+
+From the source
+```bash
+git checkout v1.7.10
+./gradlew :cli:installDist
+alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
+lcaac version
+```
+
+From Homebrew
+```bash
+brew tap kleis-technology/lcaac
+brew install lcaac-cli
+lcaac version
+```
+
 ### Impact assessment
 
 Check the sample file in `$GIT_ROOT/cli/samples/main.lca`.
@@ -47,12 +64,6 @@ process electricity_mix {
 // rest of the file omitted
 ```
 
-On the command line, setup the cli.
-```bash
-git checkout lca-1.6.6
-./gradlew :cli:installDist
-alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
-```
 
 Now you can assess the process `electricity_mix`.
 ```bash
