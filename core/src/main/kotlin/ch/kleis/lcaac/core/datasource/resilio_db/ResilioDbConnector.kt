@@ -34,7 +34,6 @@ class ResilioDbConnector<Q>(
         { primaryKey, lcStepMapping ->
             RdbClient(
                 url = url,
-                accessToken = accessToken,
                 primaryKey = primaryKey,
                 version = version,
                 lcStepMapping = lcStepMapping,

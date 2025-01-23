@@ -18,9 +18,9 @@ class RdbClientTest {
     @Test
     fun serverRack() {
         // given
+        val accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN")
         val client = RdbClient(
             url = "https://db.resilio.tech",
-            accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
             version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
@@ -42,7 +42,7 @@ class RdbClientTest {
         )
 
         // when
-        val response = client.serverRack(request)
+        val response = client.serverRack(accessToken, request)
 
         // then
         assert(response.size == RdbLcStep.entries.size)
@@ -51,9 +51,9 @@ class RdbClientTest {
     @Test
     fun switch() {
         // given
+        val accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN")
         val client = RdbClient(
             url = "https://db.resilio.tech",
-            accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
             version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
@@ -67,7 +67,7 @@ class RdbClientTest {
         )
 
         // when
-        val response = client.switch(request)
+        val response = client.switch(accessToken, request)
 
         // then
         assert(response.size == RdbLcStep.entries.size)
@@ -76,9 +76,9 @@ class RdbClientTest {
     @Test
     fun userDevice_smartphone() {
         // given
+        val accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN")
         val client = RdbClient(
             url = "https://db.resilio.tech",
-            accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
             version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
@@ -96,7 +96,7 @@ class RdbClientTest {
         )
 
         // when
-        val response = client.userDevice(request)
+        val response = client.userDevice(accessToken, request)
 
         // then
         assert(response.size == RdbLcStep.entries.size)
@@ -105,9 +105,9 @@ class RdbClientTest {
     @Test
     fun userDevice_laptop() {
         // given
+        val accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN")
         val client = RdbClient(
             url = "https://db.resilio.tech",
-            accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
             version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
@@ -125,7 +125,7 @@ class RdbClientTest {
         )
 
         // when
-        val response = client.userDevice(request)
+        val response = client.userDevice(accessToken, request)
 
         // then
         assert(response.size == RdbLcStep.entries.size)
@@ -134,9 +134,9 @@ class RdbClientTest {
     @Test
     fun userDevice_desktop() {
         // given
+        val accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN")
         val client = RdbClient(
             url = "https://db.resilio.tech",
-            accessToken = System.getenv("RESILIO_DB_ACCESS_TOKEN"),
             version = "2024.5",
             primaryKey = "foo_id",
             lcStepMapping = lcStepMapping,
@@ -154,7 +154,7 @@ class RdbClientTest {
         )
 
         // when
-        val response = client.userDevice(request)
+        val response = client.userDevice(accessToken, request)
 
         // then
         assert(response.size == RdbLcStep.entries.size)

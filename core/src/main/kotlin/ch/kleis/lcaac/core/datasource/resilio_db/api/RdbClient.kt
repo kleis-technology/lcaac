@@ -15,7 +15,6 @@ import java.net.http.HttpResponse
 
 class RdbClient<Q>(
     private val url: String,
-    private val accessToken: String,
     private val version: String,
     primaryKey: String,
     lcStepMapping: LcStepMapping,
@@ -28,7 +27,7 @@ class RdbClient<Q>(
         ops = ops,
     )
 
-    // TODO: The caches are useless if the client is transient.
+    // TODO: Remove caches. They are useless when the client is transient.
     private val serverRackCache = InMemoryKache<RdbRackServer, List<ERecord<Q>>>(
         maxSize = 1024
     ) {
@@ -46,11 +45,12 @@ class RdbClient<Q>(
     }
 
     fun serverRack(
+        accessToken: String,
         rdbServerRack: RdbRackServer,
     ): List<ERecord<Q>> {
         val result = runBlocking {
             serverRackCache.getOrPut(rdbServerRack) {
-                request(rdbServerRack.id, "rack_server", rdbServerRack.json())
+                request(rdbServerRack.id, "rack_server", rdbServerRack.json(), accessToken)
             }
         }
         return result
@@ -58,11 +58,12 @@ class RdbClient<Q>(
     }
 
     fun switch(
+        accessToken: String,
         rdbSwitch: RdbSwitch,
     ): List<ERecord<Q>> {
         val result = runBlocking {
             switchCache.getOrPut(rdbSwitch) {
-                request(rdbSwitch.id, "switch", rdbSwitch.json())
+                request(rdbSwitch.id, "switch", rdbSwitch.json(), accessToken)
             }
         }
         return result
@@ -70,21 +71,27 @@ class RdbClient<Q>(
     }
 
     fun userDevice(
+        accessToken: String,
         rdbUserDevice: RdbUserDevice,
     ): List<ERecord<Q>> {
         val result = runBlocking {
             userDeviceCache.getOrPut(rdbUserDevice) {
-                request(rdbUserDevice.id, rdbUserDevice.deviceType.endpoint, rdbUserDevice.json())
+                request(rdbUserDevice.id, rdbUserDevice.deviceType.endpoint, rdbUserDevice.json(), accessToken)
             }
         }
         return result
             ?: throw IllegalStateException("rdb client: could not send request $rdbUserDevice")
     }
 
-    private fun request(id: String, endpoint: String, requestBody: String): List<ERecord<Q>> {
+    private fun request(
+        id: String,
+        endpoint: String,
+        requestBody: String,
+        accessToken: String,
+    ): List<ERecord<Q>> {
         val request = HttpRequest.newBuilder()
             .uri(URI.create("${this.url}/api/${endpoint}/${version}"))
-            .header("Authorization", this.accessToken)
+            .header("Authorization", accessToken)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
