@@ -28,6 +28,7 @@ class RdbClient<Q>(
         ops = ops,
     )
 
+    // TODO: The caches are useless if the client is transient.
     private val serverRackCache = InMemoryKache<RdbRackServer, List<ERecord<Q>>>(
         maxSize = 1024
     ) {
