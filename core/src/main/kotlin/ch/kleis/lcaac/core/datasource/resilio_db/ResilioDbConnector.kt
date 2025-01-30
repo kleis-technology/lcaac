@@ -42,6 +42,8 @@ class ResilioDbConnector<Q>(
             )
         }
 ) : DataSourceConnector<Q> {
+    private var hits: Int = 0
+
     private val dataReducer = DataExpressionReducer(
         dataRegister = symbolTable.data,
         dataSourceRegister = symbolTable.dataSources,
@@ -65,6 +67,7 @@ class ResilioDbConnector<Q>(
     }
 
     override fun getFirst(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+        hits += 1
         return getAll(caller, config, source)
             .firstOrNull()
             ?: throw IllegalArgumentException("connector '${this.getName()}': no records found in datasource " +
@@ -72,6 +75,7 @@ class ResilioDbConnector<Q>(
     }
 
     override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
+        hits += 1
         val options = RDbDataSourceOptions.from(config)
 
         val auxiliaryDataSourceConfig = caller.getConfig()
