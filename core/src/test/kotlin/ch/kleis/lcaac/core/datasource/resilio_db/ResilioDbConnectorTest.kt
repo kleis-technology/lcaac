@@ -84,7 +84,7 @@ class ResilioDbConnectorTest {
                 url = rdbUrl,
                 accessToken = rdbAccessToken,
                 version = rdbVersion,
-                rdbClientSupplier = { _, _ -> rdbClient }
+                rdbClientPool = { _, _ -> rdbClient }
             )
         }
     }

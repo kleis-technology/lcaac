@@ -12,12 +12,13 @@ class RdbResponseDeserializer<Q>(
     private val ops: QuantityOperations<Q>,
 ) {
     fun decodeFromString(
+        responseKey: String,
         id: String,
         body: String,
     ): RdbResponse<Q> {
         val root = Json.decodeFromString<JsonObject>(body)
         val results = root["results"] as JsonObject
-        val impacts = results[id] as JsonObject
+        val impacts = results[responseKey] as JsonObject
         val perLcStep = impacts["per_lc_step"] as JsonObject
         return RdbResponse(
             id = id,
