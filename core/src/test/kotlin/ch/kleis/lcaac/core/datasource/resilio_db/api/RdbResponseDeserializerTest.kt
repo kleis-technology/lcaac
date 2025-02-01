@@ -30,6 +30,7 @@ class RdbResponseDeserializerTest {
         // when
         val actual = deserializer.decodeFromString(
             "server-01",
+            "server-01",
             body,
         )
 
@@ -53,6 +54,7 @@ class RdbResponseDeserializerTest {
         // when
         val actual = deserializer.decodeFromString(
             "server-01",
+            "server-01",
             body,
         )
 
@@ -74,6 +76,7 @@ class RdbResponseDeserializerTest {
 
         // when
         val actual = deserializer.decodeFromString(
+            "server-01",
             "server-01",
             body,
         )

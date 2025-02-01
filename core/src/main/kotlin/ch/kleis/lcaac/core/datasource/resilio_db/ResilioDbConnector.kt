@@ -5,8 +5,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.DataSourceOperationsWithConfig
 import ch.kleis.lcaac.core.datasource.DummySourceOperations
-import ch.kleis.lcaac.core.datasource.resilio_db.api.LcStepMapping
-import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
+import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClientPool
 import ch.kleis.lcaac.core.datasource.resilio_db.api.SupportedEndpoint
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbRackServerDeserializer
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.RdbSwitchDeserializer
@@ -30,18 +29,14 @@ class ResilioDbConnector<Q>(
     url: String,
     accessToken: String,
     version: String,
-    private val rdbClientSupplier: (String, LcStepMapping) -> RdbClient<Q> =
-        { primaryKey, lcStepMapping ->
-            RdbClient(
-                url = url,
-                accessToken = accessToken,
-                primaryKey = primaryKey,
-                version = version,
-                lcStepMapping = lcStepMapping,
-                ops = ops,
-            )
-        }
+    private val rdbClientPool: RdbClientPool<Q> = RdbClientPool(
+        url = url,
+        accessToken = accessToken,
+        version = version,
+        ops = ops,
+    )
 ) : DataSourceConnector<Q> {
+
     private val dataReducer = DataExpressionReducer(
         dataRegister = symbolTable.data,
         dataSourceRegister = symbolTable.dataSources,
@@ -73,6 +68,7 @@ class ResilioDbConnector<Q>(
 
     override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
         val options = RDbDataSourceOptions.from(config)
+        val rdbClient = rdbClientPool.get(options.primaryKey, options.lcStepMapping)
 
         val auxiliaryDataSourceConfig = caller.getConfig()
             .getDataSource(options.paramsFrom)
@@ -102,7 +98,6 @@ class ResilioDbConnector<Q>(
                 val requests = auxiliaryRecords.map {
                     deserializer.deserialize(it)
                 }
-                val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
                 val responses = requests
                     .flatMap {
                         rdbClient.serverRack(it)
@@ -127,7 +122,6 @@ class ResilioDbConnector<Q>(
                 val requests = auxiliaryRecords.map {
                     deserializer.deserialize(it)
                 }
-                val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
                 val responses = requests
                     .flatMap {
                         rdbClient.userDevice(it)
@@ -152,7 +146,6 @@ class ResilioDbConnector<Q>(
                 val requests = auxiliaryRecords.map {
                     deserializer.deserialize(it)
                 }
-                val rdbClient = rdbClientSupplier(options.primaryKey, options.lcStepMapping)
                 val responses = requests
                     .flatMap {
                         rdbClient.switch(it)
