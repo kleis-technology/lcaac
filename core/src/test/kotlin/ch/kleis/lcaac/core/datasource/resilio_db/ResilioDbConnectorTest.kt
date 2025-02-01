@@ -7,6 +7,7 @@ import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClient
+import ch.kleis.lcaac.core.datasource.resilio_db.api.RdbClientPool
 import ch.kleis.lcaac.core.datasource.resilio_db.api.requests.*
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.ERecord
@@ -35,6 +36,7 @@ class ResilioDbConnectorTest {
         val caller = mockk<DefaultDataSourceOperations<BasicNumber>>()
         val rdbConnector: DataSourceConnector<BasicNumber>
         val rdbClient = mockk<RdbClient<BasicNumber>>()
+        val rdbClientPool = mockk<RdbClientPool<BasicNumber>>()
 
         init {
             val inventoryConfig = DataSourceConfig(
@@ -77,6 +79,8 @@ class ResilioDbConnectorTest {
             every { rdbClient.serverRack(any()) } returns onRequestRackServer
             every { rdbClient.switch(any()) } returns onRequestSwitch
             every { rdbClient.userDevice(any()) } returns onRequestUserDevice
+            every { rdbClientPool.get(any(), any()) } returns rdbClient
+
             rdbConnector = ResilioDbConnector(
                 config = connectorConfig,
                 symbolTable = symbolTable,
@@ -84,7 +88,7 @@ class ResilioDbConnectorTest {
                 url = rdbUrl,
                 accessToken = rdbAccessToken,
                 version = rdbVersion,
-                rdbClientPool = { _, _ -> rdbClient }
+                rdbClientPool = rdbClientPool,
             )
         }
     }
