@@ -97,15 +97,13 @@ class RdbClient<Q>(
 
     private fun request(responseKey: String, id: String, endpoint: String, requestBody: String): List<ERecord<Q>> {
         hits += 1
+        logger.info("hit #$hits: ${this.url}/api/${endpoint}/${version}")
         val request = HttpRequest.newBuilder()
             .uri(URI.create("${this.url}/api/${endpoint}/${version}"))
             .header("Authorization", this.accessToken)
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
-        logger.info("--------------------------------------------")
-        logger.info("${this.url}/api/${endpoint}/${version}")
-        logger.info(requestBody)
         val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
         if (response.statusCode() >= 400) {
             throw IllegalStateException("rdb client: error ${response.statusCode()}: ${response.body()}")

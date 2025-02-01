@@ -36,7 +36,6 @@ class ResilioDbConnector<Q>(
         ops = ops,
     )
 ) : DataSourceConnector<Q> {
-    private var hits: Int = 0
 
     private val dataReducer = DataExpressionReducer(
         dataRegister = symbolTable.data,
@@ -68,7 +67,6 @@ class ResilioDbConnector<Q>(
     }
 
     override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        hits += 1
         val options = RDbDataSourceOptions.from(config)
         val rdbClient = rdbClientPool.get(options.primaryKey, options.lcStepMapping)
 
