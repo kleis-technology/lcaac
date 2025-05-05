@@ -9,25 +9,61 @@ import ch.kleis.lcaac.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaac.core.lang.resolver.ProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaac.core.math.QuantityOperations
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
+import com.mayakapps.kache.ObjectKache
+import kotlinx.coroutines.runBlocking
 
-class Oracle<Q>(
+interface Oracle<Q> {
+    fun answer(ports: Set<Request<Q>>): Set<Response<Q>> {
+        return ports.mapNotNull {
+            answerRequest(it)
+        }.toSet()
+    }
+    fun answerRequest(request: Request<Q>): Response<Q>?
+}
+
+class CachedOracle<Q>(
+    private val inner: Oracle<Q>,
+    private val cache: ObjectKache<Request<Q>, Response<Q>> = InMemoryKache(maxSize = 1024) {
+        strategy = KacheStrategy.LRU
+    }
+) : Oracle<Q> {
+    constructor(
+        symbolTable: SymbolTable<Q>,
+        ops: QuantityOperations<Q>,
+        sourceOps: DataSourceOperations<Q>,
+        cache: ObjectKache<Request<Q>, Response<Q>> = InMemoryKache(maxSize = 1024) {
+            strategy = KacheStrategy.LRU
+        }
+    ): this(
+        inner = BareOracle(symbolTable, ops, sourceOps),
+        cache = cache,
+    )
+
+    override fun answerRequest(request: Request<Q>): Response<Q>? {
+        return runBlocking {
+            cache.getOrPut(request) {
+                inner.answerRequest(request)
+            }
+        }
+    }
+}
+
+class BareOracle<Q>(
     val symbolTable: SymbolTable<Q>,
     val ops: QuantityOperations<Q>,
     sourceOps: DataSourceOperations<Q>,
-) {
+): Oracle<Q> {
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)
     private val processResolver = ProcessResolver(symbolTable)
     private val substanceCharacterizationResolver = SubstanceCharacterizationResolver(symbolTable)
 
-    fun answer(ports: Set<Request<Q>>): Set<Response<Q>> {
-        return ports.mapNotNull { answerRequest(it) }.toSet()
-    }
-
-    private fun answerRequest(expression: Request<Q>): Response<Q>? {
-        return when (expression) {
-            is ProductRequest -> answerProductRequest(expression)
-            is SubstanceRequest -> answerSubstanceRequest(expression)
+    override fun answerRequest(request: Request<Q>): Response<Q>? {
+        return when (request) {
+            is ProductRequest -> answerProductRequest(request)
+            is SubstanceRequest -> answerSubstanceRequest(request)
         }
     }
 
