@@ -8,3 +8,4 @@ local
 .local
 out/
 tmp.units.lca.jar
+.direnv
