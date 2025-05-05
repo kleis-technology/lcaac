@@ -45,6 +45,7 @@ open class IndexedCollection<V : HasUID>(elements: Collection<V>) {
     }
 
     fun contains(element: V): Boolean {
-        return elements.contains(element)
+        val id = element.getUID()
+        return byUniqueId.containsKey(id)
     }
 }
