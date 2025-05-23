@@ -1,3 +1,12 @@
+This project is dual licensed under the GNU Affero General Public License
+v3.0 (AGPLv3) and a commercial license.
+- You may use, modify, and distribute this software under the terms of
+  the AGPLv3 as published by the Free Software Foundation.
+- Alternatively, commercial licensing is available for organizations or
+  individuals who wish to use this software under different terms.
+For more information about commercial licensing, please contact `contact@kleis.ch`.
+
+--
                     GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 

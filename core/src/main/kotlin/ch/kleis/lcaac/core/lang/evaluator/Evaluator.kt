@@ -3,7 +3,8 @@ package ch.kleis.lcaac.core.lang.evaluator
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
+import ch.kleis.lcaac.core.lang.evaluator.protocol.BareOracle
+import ch.kleis.lcaac.core.lang.evaluator.protocol.CachedOracle
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.math.QuantityOperations
@@ -16,10 +17,10 @@ class Evaluator<Q>(
 ) {
     @Suppress("PrivatePropertyName")
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
+    private val oracle = CachedOracle(symbolTable, ops, sourceOps)
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
         val learner = Learner(initialRequests, ops)
-        val oracle = Oracle(symbolTable, ops, sourceOps)
         LOG.info("Start evaluation")
         try {
             var requests = learner.start()
