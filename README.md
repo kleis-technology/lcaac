@@ -156,9 +156,10 @@ This editor provides facilities to develop and interact with LCAAC models. E.g.
 
 ## License
 
-This work is dual licensed:
-- For commercial use: commercial license. Reach out to `contact@kleis.ch` for more information.
-- For non-commercial use: AGPL v3. See `LICENSE-AGPL.txt`.
+This work is dual licensed (see [LICENSE](LICENSE.txt)):
+- AGPL v3
+- or commercial license. 
+Reach out to `contact@kleis.ch` for more information.
 
 ## About us
 
