@@ -45,7 +45,7 @@ sealed interface ColumnOperationExpression<Q>
 
 @optics
 data class ESumProduct<Q>(val dataSource: DataSourceExpression<Q>, val columns: List<String>)
-    : DataExpression<Q>, ColumnOperationExpression<Q> {
+    : QuantityExpression<Q>, DataExpression<Q>, ColumnOperationExpression<Q> {
     companion object
 }
 

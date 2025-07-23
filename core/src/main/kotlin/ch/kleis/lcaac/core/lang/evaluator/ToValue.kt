@@ -141,12 +141,12 @@ class ToValue<Q>(
             this.name,
             this.matchLabels.elements.mapValues { it.value.toValue() as StringValue },
             this.arguments.mapValues {
-                when (val e = it.value) {
-                    is QuantityExpression<*> -> e.toValue()
-                    is StringExpression -> e.toValue()
-                    is ERecord -> RecordValue(e.entries.mapValues { it.value.toValue() })
+                when (val arg = it.value) {
+                    is QuantityExpression<*> -> arg.toValue()
+                    is StringExpression -> arg.toValue()
+                    is ERecord -> RecordValue(arg.entries.mapValues { entry -> entry.value.toValue() })
                     is EDataRef, is ERecordEntry,
-                    is EDefaultRecordOf, is ESumProduct, is EFirstRecordOf -> throw EvaluatorException("$it is not " +
+                    is EDefaultRecordOf, is EFirstRecordOf -> throw EvaluatorException("$it is not " +
                         "reduced")
                 }
             },
