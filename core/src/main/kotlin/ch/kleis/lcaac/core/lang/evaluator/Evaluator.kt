@@ -2,9 +2,8 @@ package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
-import ch.kleis.lcaac.core.lang.evaluator.protocol.BareOracle
 import ch.kleis.lcaac.core.lang.evaluator.protocol.CachedOracle
+import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.math.QuantityOperations

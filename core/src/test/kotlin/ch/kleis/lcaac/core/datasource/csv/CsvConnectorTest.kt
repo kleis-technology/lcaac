@@ -9,7 +9,10 @@ import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.InputStream
@@ -30,6 +33,106 @@ class CsvConnectorTest {
     }
 
     private val ops = BasicOperations
+
+    @Nested
+    inner class CsvCache {
+        @Test
+        fun whenSameLocationsShouldCacheCsvRecords() {
+            // Given
+            val location = "source.csv"
+            val spiedFileLoader: (String) -> InputStream = mockk()
+
+            every { spiedFileLoader.invoke(location) } answers {
+                mockFileLoader().invoke(location)
+            }
+
+            val sut = CsvConnector(mockk(), ops, spiedFileLoader)
+
+            val source = DataSourceValue(
+                config = DataSourceConfig(
+                    name = "source",
+                    location = location,
+                ),
+                schema = mapOf(
+                    "geo" to StringValue("FR"),
+                    "n_items" to QuantityValueFixture.oneUnit,
+                    "mass" to QuantityValueFixture.oneKilogram,
+                ),
+                filter = mapOf(
+                    "geo" to StringValue("FR")
+                )
+            )
+
+            val config = DataSourceConfig(name = "source", location = location)
+
+            // When
+            sut.getAll(mockk(), config, source)
+            sut.getAll(mockk(), config, source)
+
+            // Then
+            verify(exactly = 1) { spiedFileLoader.invoke(location) }
+        }
+
+        @Test
+        fun whenDifferentLocationsShouldCacheDifferentCsvRecords() {
+            // Given
+            val spiedFileLoader: (String) -> InputStream = mockk()
+
+            val location1 = "source.csv"
+            every { spiedFileLoader.invoke(location1) } answers {
+                mockFileLoader().invoke(location1)
+            }
+
+            val source1 = DataSourceValue(
+                config = DataSourceConfig(
+                    name = "source",
+                    location = location1,
+                ),
+                schema = mapOf(
+                    "geo" to StringValue("FR"),
+                    "n_items" to QuantityValueFixture.oneUnit,
+                    "mass" to QuantityValueFixture.oneKilogram,
+                ),
+                filter = mapOf(
+                    "geo" to StringValue("FR")
+                )
+            )
+
+            val config1 = DataSourceConfig(name = "source", location = location1)
+
+            val location2 = "source.csv"
+            every { spiedFileLoader.invoke(location2) } answers {
+                mockFileLoader().invoke(location2)
+            }
+
+            val source2 = DataSourceValue(
+                config = DataSourceConfig(
+                    name = "source",
+                    location = location2,
+                ),
+                schema = mapOf(
+                    "geo" to StringValue("FR"),
+                    "n_items" to QuantityValueFixture.oneUnit,
+                    "mass" to QuantityValueFixture.oneKilogram,
+                ),
+                filter = mapOf(
+                    "geo" to StringValue("FR")
+                )
+            )
+
+            val config2 = DataSourceConfig(name = "source", location = location2)
+
+            val sut = CsvConnector(mockk(), ops, spiedFileLoader)
+
+            // When
+            sut.getAll(mockk(), config1, source1)
+            sut.getAll(mockk(), config2, source2)
+
+            // Then
+            verify(exactly = 1) { spiedFileLoader.invoke(location1) }
+            verify(exactly = 1) { spiedFileLoader.invoke(location2) }
+        }
+    }
 
     @Test
     fun getAll() {
