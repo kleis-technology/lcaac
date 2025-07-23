@@ -26,11 +26,18 @@ class CsvConnector<Q>(
     private val fileLoader: (String) -> InputStream,
 ) : DataSourceConnector<Q> {
 
+    private val csvCache: HashMap<String, Pair<Map<String, Int>, List<CSVRecord>>> = hashMapOf()
+
     private fun csvRecords(location: String): Pair<Map<String, Int>, Sequence<CSVRecord>> {
-        val inputStream = fileLoader(location)
-        val parser = CSVParser(inputStream.reader(), format)
-        val header = parser.headerMap
-        return header to parser.iterator().asSequence()
+        if (!csvCache.containsKey(location)) {
+            val inputStream = fileLoader(location)
+            val parser = CSVParser(inputStream.reader(), format)
+            val header = parser.headerMap
+            csvCache.put(location, header to parser.records)
+        }
+
+        val (header, records) = csvCache.getValue(location)
+        return header to records.iterator().asSequence()
     }
 
     override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>):
