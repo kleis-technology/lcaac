@@ -5,8 +5,6 @@ import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
-import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorBuilder
-import ch.kleis.lcaac.core.datasource.resilio_db.ResilioDbConnectorKeys
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
@@ -68,13 +66,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             yaml.decodeFromStream(LcaacConfig.serializer(), it)
         }
         else LcaacConfig()
-        val config = yamlConfig.modifyConnector(ResilioDbConnectorKeys.RDB_CONNECTOR_NAME) { connector ->
-            connector.modifyOption(ResilioDbConnectorKeys.RDB_URL) { url ->
-                System.getenv()[EnvVars.RESILIO_DB_URL.key] ?: url
-            }.modifyOption(ResilioDbConnectorKeys.RDB_ACCESS_TOKEN) { accessToken ->
-                System.getenv()[EnvVars.RESILIO_DB_ACCESS_TOKEN.key] ?: accessToken
-            }
-        }
+
         val ops = BasicOperations
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(
@@ -84,15 +76,12 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
 
         val factory = ConnectorFactory(
             workingDirectory.path,
-            config,
+            yamlConfig,
             ops,
             symbolTable,
-            listOf(
-                CsvConnectorBuilder(),
-                ResilioDbConnectorBuilder(),
-            )
+            listOf(CsvConnectorBuilder())
         )
-        val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
+        val sourceOps = DefaultDataSourceOperations(ops, yamlConfig, factory.buildConnectors())
 
         val evaluator = Evaluator(symbolTable, ops, sourceOps)
         val template = symbolTable.getTemplate(name, labels)
@@ -137,9 +126,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
             observablePorts.asSequence()
                 .map { row ->
                     val supply = analysis.supplyOf(row)
-                    val depth = trace.getDepthOf(row)
-                        ?.let { it.toString() }
-                        ?: ""
+                    val depth = trace.getDepthOf(row)?.toString() ?: ""
                     val supplyAmount = supply.amount.value * allocationAmount
                     val prefix = when (row) {
                         is IndicatorValue -> {
