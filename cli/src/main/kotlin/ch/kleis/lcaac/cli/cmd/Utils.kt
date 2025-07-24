@@ -23,11 +23,6 @@ import java.nio.file.Files
 import kotlin.io.path.Path
 import kotlin.io.path.isRegularFile
 
-enum class EnvVars(val key: String) {
-    RESILIO_DB_URL("RESILIO_DB_URL"),
-    RESILIO_DB_ACCESS_TOKEN("RESILIO_DB_ACCESS_TOKEN");
-}
-
 val yaml = Yaml(configuration = YamlConfiguration(
     strictMode = false
 ))
