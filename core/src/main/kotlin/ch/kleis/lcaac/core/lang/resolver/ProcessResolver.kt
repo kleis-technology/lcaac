@@ -23,19 +23,17 @@ class CachedProcessResolver<Q, M>(
     val ops: Operations<Q, M>,
     val sourceOps: DataSourceOperations<Q>,
 ) : ProcessResolver<Q, M> {
+    private val eMapper = EMapper()
+
     override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {
         val trace = getTrace(template, spec)
         val entryPoint = trace.getEntryPoint()
         val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
 
-        val inputs = analysis.impactFactors.getInputs().map {
-            ETechnoExchange(
-                quantity = getInputQuantity(entryPoint.products, it, analysis.impactFactors, ops).toEQuantityScale(),
-                product = EProductSpec(
-                    it.name,
-                    it.referenceUnit.toEUnitLiteral(),
-                    it.fromProcessRef?.let { toFromProcess(it) }
-                )
+        val inputs = analysis.impactFactors.getInputs()
+            .map { eMapper.toETechnoExchange(
+                getInputQuantity(entryPoint.products, it, analysis.impactFactors, ops),
+                it
             )
         }
 

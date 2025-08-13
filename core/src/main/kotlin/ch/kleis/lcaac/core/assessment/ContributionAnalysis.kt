@@ -148,17 +148,6 @@ class ContributionAnalysis<Q, M>(
         }
     }
 
-    fun asProcess(): EProcess<Q> {
-        val name = entryPoint.name
-        val labels = entryPoint.labels.map { it.key to it.value.toEStringLiteral() }.toMap()
-//        val products = entryPoint.products.map { it.toETechnoExchange() }
-        val products = listOf<ETechnoExchange<Q>>()
-        val inputs = emptyList<TechnoBlock<Q>>()
-        val biosphere = emptyList<BioBlock<Q>>()
-        val impacts = emptyList<ImpactBlock<Q>>()
-        return EProcess(name, labels, products, inputs, biosphere, impacts)
-    }
-
     private class IndexByShortName<Q>(
         private val elements: List<MatrixColumnIndex<Q>>,
     ) {
