@@ -27,4 +27,44 @@ class EMapper {
             )
         )
     }
+
+    fun <Q> toETechnoExchange(value: TechnoExchangeValue<Q>): ETechnoExchange<Q> {
+        return ETechnoExchange(
+            quantity = value.quantity.toEQuantityScale(),
+            product = EProductSpec(
+                value.product.name,
+                value.product.referenceUnit.toEUnitLiteral(),
+                value.product.fromProcessRef?.let { toFromProcess(it) }
+            ),
+            allocation = value.allocation?.toEQuantityScale()
+        )
+    }
+
+    fun <Q> toEBioExchange(quantity: QuantityValue<Q>, substance: SubstanceValue<Q>): EBioExchange<Q> {
+        return EBioExchange(
+            quantity = quantity.toEQuantityScale(),
+            substance = when (substance) {
+                is FullyQualifiedSubstanceValue -> ESubstanceSpec(
+                    name = substance.getShortName(),
+                    displayName = substance.getDisplayName(),
+                    type = substance.type,
+                    compartment = substance.compartment,
+                    subCompartment = substance.subcompartment,
+                    referenceUnit = substance.referenceUnit.toEUnitLiteral()
+                )
+                is PartiallyQualifiedSubstanceValue -> ESubstanceSpec(
+                    name = substance.getShortName(),
+                    displayName = substance.getDisplayName(),
+                    referenceUnit = substance.referenceUnit.toEUnitLiteral()
+                )
+            }
+        )
+    }
+
+    fun <Q> toEImpact(quantity: QuantityValue<Q>, value: IndicatorValue<Q>): EImpact<Q> {
+        return EImpact(
+            quantity = quantity.toEQuantityScale(),
+            indicator = EIndicatorSpec(value.name, value.referenceUnit.toEUnitLiteral())
+        )
+    }
 }
