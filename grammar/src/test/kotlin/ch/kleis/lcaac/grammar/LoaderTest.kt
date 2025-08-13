@@ -4,7 +4,9 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.ProcessAnnotation.CACHED
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -12,6 +14,7 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 class LoaderTest {
     @Test
@@ -544,6 +547,31 @@ class LoaderTest {
             )
         )
         assertEquals(expected, actual.getTemplate("p", mapOf("geo" to "FR")))
+    }
+
+    @Test
+    fun load_process_with_cached_annotation() {
+        // given
+        val file = LcaLangFixture.parser(
+            """
+                @cached
+                process p {
+                }
+            """.trimIndent()
+        ).lcaFile()
+        val loader = Loader(BasicOperations)
+
+        // when
+        val actual = loader.load(sequenceOf(file))
+
+        // then
+        val expected = EProcessTemplate<BasicNumber>(
+            body = EProcess(
+                "p",
+            ),
+            annotations = setOf(CACHED)
+        )
+        assertEquals(expected, actual.getTemplate("p"))
     }
 
     @Test

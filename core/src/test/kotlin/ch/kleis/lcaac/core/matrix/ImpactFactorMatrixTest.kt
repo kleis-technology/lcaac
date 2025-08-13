@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.matrix
 
+import ch.kleis.lcaac.core.lang.expression.SubstanceType
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -75,5 +76,69 @@ class ImpactFactorMatrixTest {
 
         // Then
         assertEquals(6, result)
+    }
+
+    @Test
+    fun getImpacts() {
+        // Given
+        val input1 = ProductValue("oil", literValue, null)
+        val input2 = IndicatorValue("water", literValue)
+        val input3 = PartiallyQualifiedSubstanceValue("pqsv", literValue)
+        val input4 = FullyQualifiedSubstanceValue("fqsv", SubstanceType.EMISSION, "", "", literValue)
+        val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
+            IndexedCollection(listOf(input1, input2, input3, input4))
+        val data = MatrixFixture.basic(0, 0, arrayOf()
+        )
+        val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
+
+        // When
+        val actual = sut.getImpacts()
+
+        // Then
+        assertEquals(1, actual.size)
+        assertEquals(input2, actual[0])
+    }
+
+    @Test
+    fun getEmissions() {
+        // Given
+        val input1 = ProductValue("oil", literValue, null)
+        val input2 = IndicatorValue("water", literValue)
+        val input3 = PartiallyQualifiedSubstanceValue("pqsv", literValue)
+        val input4 = FullyQualifiedSubstanceValue("fqsv", SubstanceType.EMISSION, "", "", literValue)
+        val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
+            IndexedCollection(listOf(input1, input2, input3, input4))
+        val data = MatrixFixture.basic(0, 0, arrayOf()
+        )
+        val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
+
+        // When
+        val actual = sut.getEmissions()
+
+        // Then
+        assertEquals(2, actual.size)
+        assertEquals(input3, actual[0])
+        assertEquals(input4, actual[1])
+    }
+
+    @Test
+    fun getInputs() {
+        // Given
+        val input1 = ProductValue("oil", literValue, null)
+        val input2 = IndicatorValue("water", literValue)
+        val input3 = PartiallyQualifiedSubstanceValue("pqsv", literValue)
+        val input4 = FullyQualifiedSubstanceValue("fqsv", SubstanceType.EMISSION, "", "", literValue)
+        val inputs: IndexedCollection<MatrixColumnIndex<BasicNumber>> =
+            IndexedCollection(listOf(input1, input2, input3, input4))
+        val data = MatrixFixture.basic(0, 0, arrayOf()
+        )
+        val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
+
+        // When
+        val actual = sut.getInputs()
+
+        // Then
+        assertEquals(1, actual.size)
+        assertEquals(input1, actual[0])
     }
 }

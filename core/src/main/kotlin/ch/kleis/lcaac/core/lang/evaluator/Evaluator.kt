@@ -6,12 +6,13 @@ import ch.kleis.lcaac.core.lang.evaluator.protocol.CachedOracle
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.math.Operations
 import ch.kleis.lcaac.core.math.QuantityOperations
 import org.slf4j.LoggerFactory
 
-class Evaluator<Q>(
+class Evaluator<Q, M>(
     private val symbolTable: SymbolTable<Q>,
-    private val ops: QuantityOperations<Q>,
+    private val ops: Operations<Q, M>,
     private val sourceOps: DataSourceOperations<Q>,
 ) {
     @Suppress("PrivatePropertyName")
@@ -35,7 +36,7 @@ class Evaluator<Q>(
         }
     }
 
-    fun with(template: EProcessTemplate<Q>): Evaluator<Q> {
+    fun with(template: EProcessTemplate<Q>): Evaluator<Q, M> {
         val processKey = ProcessKey(template.body.name)
         if (symbolTable.processTemplates[processKey] != null) throw IllegalStateException("Process ${template.body.name} already exists")
         val st = this.symbolTable.copy(

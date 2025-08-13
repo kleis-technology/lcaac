@@ -1,8 +1,13 @@
 package ch.kleis.lcaac.core.matrix
 
+import ch.kleis.lcaac.core.lang.value.FullyQualifiedSubstanceValue
+import ch.kleis.lcaac.core.lang.value.IndicatorValue
 import ch.kleis.lcaac.core.lang.value.MatrixColumnIndex
+import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
+import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.QuantityValueOperations
+import ch.kleis.lcaac.core.lang.value.SubstanceValue
 import ch.kleis.lcaac.core.lang.value.UnitValue
 import ch.kleis.lcaac.core.math.Operations
 
@@ -57,5 +62,15 @@ class ImpactFactorMatrix<Q, M>(
         return observablePorts.size() * controllablePorts.size()
     }
 
+    fun getImpacts(): List<IndicatorValue<Q>> {
+        return controllablePorts.getElements().filter { it is IndicatorValue }.map { it as IndicatorValue }
+    }
 
+    fun getEmissions(): List<SubstanceValue<Q>> {
+        return controllablePorts.getElements().filter { it is SubstanceValue }.map { it as SubstanceValue }
+    }
+
+    fun getInputs(): List<ProductValue<Q>> {
+        return controllablePorts.getElements().filter { it is ProductValue }.map { it as ProductValue }
+    }
 }

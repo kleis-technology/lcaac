@@ -1,6 +1,11 @@
 package ch.kleis.lcaac.core.assessment
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.expression.BioBlock
+import ch.kleis.lcaac.core.lang.expression.EProcess
+import ch.kleis.lcaac.core.lang.expression.ETechnoExchange
+import ch.kleis.lcaac.core.lang.expression.ImpactBlock
+import ch.kleis.lcaac.core.lang.expression.TechnoBlock
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.matrix.ImpactFactorMatrix
@@ -141,6 +146,17 @@ class ContributionAnalysis<Q, M>(
         return with(quantityOps) {
             supply * factor
         }
+    }
+
+    fun asProcess(): EProcess<Q> {
+        val name = entryPoint.name
+        val labels = entryPoint.labels.map { it.key to it.value.toEStringLiteral() }.toMap()
+//        val products = entryPoint.products.map { it.toETechnoExchange() }
+        val products = listOf<ETechnoExchange<Q>>()
+        val inputs = emptyList<TechnoBlock<Q>>()
+        val biosphere = emptyList<BioBlock<Q>>()
+        val impacts = emptyList<ImpactBlock<Q>>()
+        return EProcess(name, labels, products, inputs, biosphere, impacts)
     }
 
     private class IndexByShortName<Q>(
