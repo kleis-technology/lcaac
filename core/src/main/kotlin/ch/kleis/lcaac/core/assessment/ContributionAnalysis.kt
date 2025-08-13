@@ -1,11 +1,6 @@
 package ch.kleis.lcaac.core.assessment
 
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.expression.BioBlock
-import ch.kleis.lcaac.core.lang.expression.EProcess
-import ch.kleis.lcaac.core.lang.expression.ETechnoExchange
-import ch.kleis.lcaac.core.lang.expression.ImpactBlock
-import ch.kleis.lcaac.core.lang.expression.TechnoBlock
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.matrix.ImpactFactorMatrix

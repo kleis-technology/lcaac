@@ -31,20 +31,18 @@ class CachedProcessResolver<Q, M>(
         val trace = getTrace(template, spec)
         val entryPoint = trace.getEntryPoint()
         val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
+        val inputQty = inputQtyAnalysis(entryPoint.products, analysis.impactFactors)
 
         val inputs = analysis.impactFactors.getInputs().map {
-            val qty = getInputQuantity(entryPoint.products, it, analysis.impactFactors)
-            eMapper.toETechnoExchange(qty, it)
+            eMapper.toETechnoExchange(inputQty(it), it)
         }
 
         val biosphere = analysis.impactFactors.getEmissions().map {
-            val qty = getInputQuantity(entryPoint.products, it, analysis.impactFactors)
-            eMapper.toEBioExchange(qty, it)
+            eMapper.toEBioExchange(inputQty(it), it)
         }
 
         val impacts = analysis.impactFactors.getImpacts().map {
-            val qty = getInputQuantity(entryPoint.products, it, analysis.impactFactors)
-            eMapper.toEImpact(qty, it)
+            eMapper.toEImpact(inputQty(it), it)
         }
 
         return template.body.copy(
@@ -69,11 +67,16 @@ class CachedProcessResolver<Q, M>(
         return evaluator.trace(newTemplate, arguments)
     }
 
-    private fun getInputQuantity(products: List<TechnoExchangeValue<Q>>, input: MatrixColumnIndex<Q>, impactFactors: ImpactFactorMatrix<Q, M>): QuantityValue<Q> {
-        return  with(QuantityValueOperations(ops)) {
-            products
-                .map { impactFactors.characterizationFactor(it.port(), input) * it.quantity }
-                .reduce { a, b -> a + b }
+    private fun inputQtyAnalysis(
+        products: List<TechnoExchangeValue<Q>>,
+        impactFactors: ImpactFactorMatrix<Q, M>
+    ): (MatrixColumnIndex<Q>) -> QuantityValue<Q> {
+        return { inputPort: MatrixColumnIndex<Q> ->
+            with(QuantityValueOperations(ops)) {
+                products
+                    .map { impactFactors.characterizationFactor(it.port(), inputPort) * it.quantity }
+                    .reduce { a, b -> a + b }
+            }
         }
     }
 }
