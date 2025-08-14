@@ -8,11 +8,16 @@ sealed interface ProcessTemplateExpression<Q> {
     companion object
 }
 
+enum class ProcessAnnotation {
+    CACHED
+}
+
 @optics
 data class EProcessTemplate<Q>(
     val params: Map<String, DataExpression<Q>> = emptyMap(),
     val locals: Map<String, DataExpression<Q>> = emptyMap(),
     val body: EProcess<Q>,
+    val annotations: Set<ProcessAnnotation> = emptySet(),
 ) : ProcessTemplateExpression<Q> {
     companion object
 }

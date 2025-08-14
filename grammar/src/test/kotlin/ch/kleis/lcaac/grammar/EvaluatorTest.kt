@@ -405,4 +405,71 @@ class EvaluatorTest {
         assertEquals(expected, actual)
     }
 
+
+    @Test
+    fun cachedProcess() {
+        // given
+        val content = """
+            process main {
+                products {
+                    1 kg carrot
+                }
+                inputs {
+                    2 kg grass
+                    3 l fertilizer_a
+                }
+                emissions {
+                    1 kg co2
+                }
+            }
+            
+            process bar {
+                products {
+                    1 kg grass
+                }
+                inputs {
+                    4 kg fertilizer_b
+                }
+                emissions {
+                    5 l bar
+                }
+                impacts {
+                    6 kg foo
+                }
+            }
+        """.trimIndent()
+
+        val fileWithoutCache = LcaLangFixture.parser(content).lcaFile()
+        val fileWithCache = LcaLangFixture.parser("@cached\n$content").lcaFile()
+
+        val loader = Loader(ops)
+        val spec = EProductSpec<BasicNumber>(name = "carrot")
+
+        val expectedSymbolTable = loader.load(sequenceOf(fileWithoutCache), listOf(LoaderOption.WITH_PRELUDE))
+        val expectedTrace = Evaluator(expectedSymbolTable, ops, sourceOps).trace(setOf(spec))
+        val expectedProgram = ContributionAnalysisProgram(expectedTrace.getSystemValue(), expectedTrace.getEntryPoint())
+        val expectedAnalysis = expectedProgram.run()
+
+        // when
+        val actualSymbolTable = loader.load(sequenceOf(fileWithCache), listOf(LoaderOption.WITH_PRELUDE))
+        val actualTrace = Evaluator(actualSymbolTable, ops, sourceOps).trace(setOf(spec))
+        val actualProgram = ContributionAnalysisProgram(actualTrace.getSystemValue(), actualTrace.getEntryPoint())
+        val actualAnalysis = actualProgram.run()
+
+        // then
+        assertEquals(1, actualAnalysis.getObservablePorts().size())
+        assertEquals(expectedAnalysis.getObservablePorts().get("carrot from main{}{}"),actualAnalysis.getObservablePorts().get("carrot from main{}{}"))
+
+        val port = expectedAnalysis.getObservablePorts().get("carrot from main{}{}")
+        val indicators = listOf(
+            expectedAnalysis.getControllablePorts().get("fertilizer_a"),
+            expectedAnalysis.getControllablePorts().get("fertilizer_b"),
+            expectedAnalysis.getControllablePorts().get("bar"),
+            expectedAnalysis.getControllablePorts().get("co2"),
+            expectedAnalysis.getControllablePorts().get("foo"),
+        )
+        indicators.forEach { indicator ->
+            assertEquals(expectedAnalysis.getPortContribution(port, indicator), actualAnalysis.getPortContribution(port, indicator))
+        }
+    }
 }

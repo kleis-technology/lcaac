@@ -137,11 +137,19 @@ meta_assignment
     ;
 
 /*
+    Annotation
+*/
+
+annotation
+    : AT_CACHE_KEYWORD
+    ;
+
+/*
     Process
 */
 
 processDefinition
-    : PROCESS_KEYWORD name=processRef LBRACE
+    : annotation* PROCESS_KEYWORD name=processRef LBRACE
         (
             params
             | labels
@@ -361,6 +369,7 @@ RESOURCES_KEYWORD : 'resources' ;
 MATCH_KEYWORD : 'match' ;
 WHERE_KEYWORD : 'where' ;
 LABELS_KEYWORD : 'labels' ;
+AT_CACHE_KEYWORD: '@cached' ;
 
 DATASOURCE_KEYWORD : 'datasource' ;
 LOCATION : 'location' ;

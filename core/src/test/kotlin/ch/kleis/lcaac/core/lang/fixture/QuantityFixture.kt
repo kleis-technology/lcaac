@@ -18,4 +18,5 @@ object QuantityFixture {
     val twoLitres = EQuantityScale(ops.pure(2.0), UnitFixture.l)
     val oneHour = EQuantityScale(ops.pure(1.0), UnitFixture.hour)
     val hundredWatt = EQuantityScale(ops.pure(100.0), UnitFixture.watt)
+    val fiftyPercent = EQuantityScale(ops.pure(50.0), UnitFixture.percent)
 }

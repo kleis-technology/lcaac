@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class ProcessResolverTest {
+class ProcessTemplateResolverTest {
     @Test
     fun resolve_withLabelMatching() {
         // given
@@ -50,7 +50,7 @@ class ProcessResolverTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val resolver = ProcessResolver(symbolTable)
+        val resolver = ProcessTemplateResolver(symbolTable)
 
         // when
         val actual = resolver.resolve(carrotSpec)
@@ -91,7 +91,7 @@ class ProcessResolverTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val resolver = ProcessResolver(symbolTable)
+        val resolver = ProcessTemplateResolver(symbolTable)
 
         // when/then
         val e = assertFailsWith(EvaluatorException::class) {
@@ -143,7 +143,7 @@ class ProcessResolverTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val resolver = ProcessResolver(symbolTable)
+        val resolver = ProcessTemplateResolver(symbolTable)
 
         // when
         val actual = resolver.resolve(carrotSpec)
@@ -193,7 +193,7 @@ class ProcessResolverTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val resolver = ProcessResolver(symbolTable)
+        val resolver = ProcessTemplateResolver(symbolTable)
 
         // when
         val actual = resolver.resolve(carrotSpec)
@@ -252,7 +252,7 @@ class ProcessResolverTest {
         val symbolTable = SymbolTable(
             processTemplates = processTemplates,
         )
-        val resolver = ProcessResolver(symbolTable)
+        val resolver = ProcessTemplateResolver(symbolTable)
 
         // {w,t}hen
         val exception = assertFailsWith(EvaluatorException::class) { resolver.resolve(carrotSpec) }

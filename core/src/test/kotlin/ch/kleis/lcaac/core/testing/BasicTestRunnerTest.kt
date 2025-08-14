@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.lang.fixture.ProcessFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitFixture
 import ch.kleis.lcaac.core.lang.fixture.UnitValueFixture
 import ch.kleis.lcaac.core.lang.value.QuantityValue
+import ch.kleis.lcaac.core.math.basic.BasicMatrix
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import io.mockk.every
 import io.mockk.mockk
@@ -138,7 +139,7 @@ class BasicTestRunnerTest {
         val carrotProduction = EProcessTemplate(
             body = ProcessFixture.carrotProduction
         )
-        val evaluator = mockk<Evaluator<BasicNumber>>()
+        val evaluator = mockk<Evaluator<BasicNumber, BasicMatrix>>()
         every { evaluator.with(carrotProduction) } returns evaluator
         every { evaluator.trace(carrotProduction) } throws EvaluatorException("some error")
         val runner = BasicTestRunner<String>(SymbolTable.empty(), mockk(),  evaluator)

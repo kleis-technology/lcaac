@@ -2,12 +2,18 @@ package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.ProcessAnnotation.CACHED
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
+import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import io.mockk.mockk
+import org.junit.jupiter.api.Nested
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.fail
 
 class CoreMapperTest {
     private val ops = BasicOperations
@@ -300,5 +306,60 @@ class CoreMapperTest {
             ESubstanceSpec("co2", compartment = "air", type = substanceType, referenceUnit = referenceUnit),
         ))))
         assertEquals(expected, actual)
+    }
+
+    @Test
+    fun load_process_with_cached_annotation() {
+        // given
+        val ctx = LcaLangFixture.parser(
+            """
+                @cached
+                process p {
+                }
+            """.trimIndent()).processDefinition()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.process(ctx, DataRegister.empty(), DataRegister.empty())
+
+        // then
+        val expected = EProcessTemplate<BasicNumber>(
+            body = EProcess(
+                "p",
+            ),
+            annotations = setOf(CACHED)
+        )
+        assertEquals(expected, actual)
+    }
+
+    @Nested
+    inner class ToProcessAnnotation {
+        @Test
+        fun `when cached return cached annotation`() {
+            // given
+            val annotation = "@cached"
+            val mapper = CoreMapper(ops)
+
+            // when
+            val actual = mapper.toProcessAnnotation(annotation)
+
+            // then
+            assertEquals(CACHED, actual)
+        }
+
+        @Test
+        fun `when invalid value throw`() {
+            // given
+            val annotation = "@invalid_annotation"
+            val mapper = CoreMapper(ops)
+
+            // when + then
+            try {
+                mapper.toProcessAnnotation(annotation)
+                fail("Expected an EvaluatorException to be thrown")
+            } catch (e: EvaluatorException) {
+                assertEquals("Invalid process annotation: @invalid_annotation", e.message)
+            }
+        }
     }
 }

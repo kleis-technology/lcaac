@@ -10,13 +10,14 @@ import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.value.DataValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.QuantityValueOperations
+import ch.kleis.lcaac.core.math.basic.BasicMatrix
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 
 class BasicTestRunner<S>(
     symbolTable: SymbolTable<BasicNumber>,
     sourceOps: DataSourceOperations<BasicNumber>,
-    private val evaluator: Evaluator<BasicNumber> = Evaluator(symbolTable, BasicOperations, sourceOps),
+    private val evaluator: Evaluator<BasicNumber, BasicMatrix> = Evaluator(symbolTable, BasicOperations, sourceOps),
     private val dataReducer: DataExpressionReducer<BasicNumber> = DataExpressionReducer(
         symbolTable.data,
         symbolTable.dataSources,
