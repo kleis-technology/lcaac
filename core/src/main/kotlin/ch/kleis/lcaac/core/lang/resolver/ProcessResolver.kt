@@ -25,8 +25,6 @@ class CachedProcessResolver<Q, M>(
     val ops: Operations<Q, M>,
     val sourceOps: DataSourceOperations<Q>,
 ) : ProcessResolver<Q, M> {
-    private val eMapper = EMapper()
-
     override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {
         val trace = getTrace(template, spec)
         val entryPoint = trace.getEntryPoint()
@@ -34,19 +32,19 @@ class CachedProcessResolver<Q, M>(
         val inputQuantity = inputQuantityAnalysis(entryPoint.products, analysis.impactFactors)
 
         val inputs = analysis.impactFactors.getInputProducts().map {
-            eMapper.toETechnoExchange(inputQuantity(it), it)
+            EMapper.toETechnoExchange(inputQuantity(it), it)
         }
 
         val biosphere = analysis.impactFactors.getSubstances().map {
-            eMapper.toEBioExchange(inputQuantity(it), it)
+            EMapper.toEBioExchange(inputQuantity(it), it)
         }
 
         val impacts = analysis.impactFactors.getIndicators().map {
-            eMapper.toEImpact(inputQuantity(it), it)
+            EMapper.toEImpact(inputQuantity(it), it)
         }
 
         return template.body.copy(
-            products = entryPoint.products.map { eMapper.toETechnoExchange(it)},
+            products = entryPoint.products.map { EMapper.toETechnoExchange(it)},
             inputs = inputs.map { ETechnoBlockEntry(it) },
             biosphere = biosphere.map { EBioBlockEntry(it) },
             impacts = impacts.map { EImpactBlockEntry(it)}

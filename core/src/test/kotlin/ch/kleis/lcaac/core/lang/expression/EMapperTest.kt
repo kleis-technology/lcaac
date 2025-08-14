@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 import kotlin.to
 
 class EMapperTest {
-    private val sut = EMapper()
+    private val sut = EMapper
 
     @Nested
     inner class ToDataExpression {

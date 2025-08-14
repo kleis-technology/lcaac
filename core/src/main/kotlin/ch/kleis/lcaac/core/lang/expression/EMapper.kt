@@ -2,7 +2,7 @@ package ch.kleis.lcaac.core.lang.expression
 
 import ch.kleis.lcaac.core.lang.value.*
 
-class EMapper {
+object EMapper {
     fun <Q> toDataExpression(value: DataValue<Q>): DataExpression<Q> {
         return when (value) {
             is QuantityValue -> value.toEQuantityScale()
