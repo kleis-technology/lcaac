@@ -33,15 +33,15 @@ class CachedProcessResolver<Q, M>(
         val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
         val inputQuantity = inputQuantityAnalysis(entryPoint.products, analysis.impactFactors)
 
-        val inputs = analysis.impactFactors.getInputs().map {
+        val inputs = analysis.impactFactors.getInputProducts().map {
             eMapper.toETechnoExchange(inputQuantity(it), it)
         }
 
-        val biosphere = analysis.impactFactors.getEmissions().map {
+        val biosphere = analysis.impactFactors.getSubstances().map {
             eMapper.toEBioExchange(inputQuantity(it), it)
         }
 
-        val impacts = analysis.impactFactors.getImpacts().map {
+        val impacts = analysis.impactFactors.getIndicators().map {
             eMapper.toEImpact(inputQuantity(it), it)
         }
 

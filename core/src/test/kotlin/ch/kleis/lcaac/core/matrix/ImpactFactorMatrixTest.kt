@@ -79,7 +79,7 @@ class ImpactFactorMatrixTest {
     }
 
     @Test
-    fun getImpacts() {
+    fun getIndicators() {
         // Given
         val input1 = ProductValue("oil", literValue, null)
         val input2 = IndicatorValue("water", literValue)
@@ -92,7 +92,7 @@ class ImpactFactorMatrixTest {
         val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
         // When
-        val actual = sut.getImpacts()
+        val actual = sut.getIndicators()
 
         // Then
         assertEquals(1, actual.size)
@@ -100,7 +100,7 @@ class ImpactFactorMatrixTest {
     }
 
     @Test
-    fun getEmissions() {
+    fun getSubstances() {
         // Given
         val input1 = ProductValue("oil", literValue, null)
         val input2 = IndicatorValue("water", literValue)
@@ -113,7 +113,7 @@ class ImpactFactorMatrixTest {
         val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
         // When
-        val actual = sut.getEmissions()
+        val actual = sut.getSubstances()
 
         // Then
         assertEquals(2, actual.size)
@@ -122,7 +122,7 @@ class ImpactFactorMatrixTest {
     }
 
     @Test
-    fun getInputs() {
+    fun getInputProducts() {
         // Given
         val input1 = ProductValue("oil", literValue, null)
         val input2 = IndicatorValue("water", literValue)
@@ -135,7 +135,7 @@ class ImpactFactorMatrixTest {
         val sut = ImpactFactorMatrix(outputs, inputs, data, ops)
 
         // When
-        val actual = sut.getInputs()
+        val actual = sut.getInputProducts()
 
         // Then
         assertEquals(1, actual.size)
