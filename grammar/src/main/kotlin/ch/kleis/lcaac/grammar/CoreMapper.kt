@@ -26,11 +26,6 @@ class CoreMapper<Q>(
         val labels = ctx.labels().flatMap { it.label_assignment() }.associate { it.labelRef().innerText() to EStringLiteral<Q>(it.STRING_LITERAL().innerText()) }
         val annotations = ctx.annotation().mapNotNull { ProcessAnnotation.fromValue(it.text) }.toSet()
 
-        if(annotations.size != annotations.toSet().size) {
-            val annotationTexts = ctx.annotation().mapNotNull { it.text }
-            throw EvaluatorException("Duplicate annotations found for process $name: ${annotationTexts}.")
-        }
-
         val locals = ctx.variables().flatMap { it.assignment() }.associate { assignment(it) }
         val params = ctx.params().flatMap { it.assignment() }.associate { assignment(it) }
         val symbolTable = SymbolTable(
