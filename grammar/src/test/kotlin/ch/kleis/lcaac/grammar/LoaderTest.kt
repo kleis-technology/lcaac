@@ -550,31 +550,6 @@ class LoaderTest {
     }
 
     @Test
-    fun load_process_with_cached_annotation() {
-        // given
-        val file = LcaLangFixture.parser(
-            """
-                @cached
-                process p {
-                }
-            """.trimIndent()
-        ).lcaFile()
-        val loader = Loader(BasicOperations)
-
-        // when
-        val actual = loader.load(sequenceOf(file))
-
-        // then
-        val expected = EProcessTemplate<BasicNumber>(
-            body = EProcess(
-                "p",
-            ),
-            annotations = setOf(CACHED)
-        )
-        assertEquals(expected, actual.getTemplate("p"))
-    }
-
-    @Test
     fun load_process_products() {
         // given
         val file = LcaLangFixture.parser(

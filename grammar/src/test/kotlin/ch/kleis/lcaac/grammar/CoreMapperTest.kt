@@ -3,6 +3,8 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.expression.ProcessAnnotation.CACHED
+import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.mockk
@@ -299,6 +301,30 @@ class CoreMapperTest {
             EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
             ESubstanceSpec("co2", compartment = "air", type = substanceType, referenceUnit = referenceUnit),
         ))))
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun load_process_with_cached_annotation() {
+        // given
+        val ctx = LcaLangFixture.parser(
+            """
+                @cached
+                process p {
+                }
+            """.trimIndent()).processDefinition()
+        val mapper = CoreMapper(ops)
+
+        // when
+        val actual = mapper.process(ctx, DataRegister.empty(), DataRegister.empty())
+
+        // then
+        val expected = EProcessTemplate<BasicNumber>(
+            body = EProcess(
+                "p",
+            ),
+            annotations = setOf(CACHED)
+        )
         assertEquals(expected, actual)
     }
 }
