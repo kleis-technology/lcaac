@@ -8,13 +8,8 @@ sealed interface ProcessTemplateExpression<Q> {
     companion object
 }
 
-enum class ProcessAnnotation(val value: String) {
-    CACHED("@cached");
-
-
-    companion object {
-        fun fromValue(value: String) = ProcessAnnotation.entries.find { it.value == value }
-    }
+enum class ProcessAnnotation {
+    CACHED
 }
 
 @optics

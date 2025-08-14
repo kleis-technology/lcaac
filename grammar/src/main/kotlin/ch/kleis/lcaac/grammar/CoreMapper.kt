@@ -24,7 +24,7 @@ class CoreMapper<Q>(
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
         val labels = ctx.labels().flatMap { it.label_assignment() }.associate { it.labelRef().innerText() to EStringLiteral<Q>(it.STRING_LITERAL().innerText()) }
-        val annotations = ctx.annotation().mapNotNull { ProcessAnnotation.fromValue(it.text) }.toSet()
+        val annotations = ctx.annotation().mapNotNull { toProcessAnnotation(it.text) }.toSet()
 
         val locals = ctx.variables().flatMap { it.assignment() }.associate { assignment(it) }
         val params = ctx.params().flatMap { it.assignment() }.associate { assignment(it) }
@@ -394,5 +394,12 @@ class CoreMapper<Q>(
             ),
             schema = schema,
         )
+    }
+
+    fun toProcessAnnotation(value: String): ProcessAnnotation {
+        return when (value) {
+            "@cached" -> ProcessAnnotation.CACHED
+            else -> throw EvaluatorException("Invalid process annotation: $value")
+        }
     }
 }
