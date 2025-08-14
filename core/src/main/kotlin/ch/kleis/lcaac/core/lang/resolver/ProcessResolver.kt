@@ -31,18 +31,18 @@ class CachedProcessResolver<Q, M>(
         val trace = getTrace(template, spec)
         val entryPoint = trace.getEntryPoint()
         val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
-        val inputQty = inputQtyAnalysis(entryPoint.products, analysis.impactFactors)
+        val inputQuantity = inputQuantityAnalysis(entryPoint.products, analysis.impactFactors)
 
         val inputs = analysis.impactFactors.getInputs().map {
-            eMapper.toETechnoExchange(inputQty(it), it)
+            eMapper.toETechnoExchange(inputQuantity(it), it)
         }
 
         val biosphere = analysis.impactFactors.getEmissions().map {
-            eMapper.toEBioExchange(inputQty(it), it)
+            eMapper.toEBioExchange(inputQuantity(it), it)
         }
 
         val impacts = analysis.impactFactors.getImpacts().map {
-            eMapper.toEImpact(inputQty(it), it)
+            eMapper.toEImpact(inputQuantity(it), it)
         }
 
         return template.body.copy(
@@ -67,7 +67,7 @@ class CachedProcessResolver<Q, M>(
         return evaluator.trace(newTemplate, arguments)
     }
 
-    private fun inputQtyAnalysis(
+    private fun inputQuantityAnalysis(
         products: List<TechnoExchangeValue<Q>>,
         impactFactors: ImpactFactorMatrix<Q, M>
     ): (MatrixColumnIndex<Q>) -> QuantityValue<Q> {
