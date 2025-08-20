@@ -26,9 +26,9 @@ interface ProcessResolver<Q, M> {
 }
 
 class CachedProcessResolver<Q, M>(
-    val symbolTable: SymbolTable<Q>,
-    val ops: Operations<Q, M>,
-    val sourceOps: DataSourceOperations<Q>,
+    private val symbolTable: SymbolTable<Q>,
+    private val ops: Operations<Q, M>,
+    private val sourceOps: DataSourceOperations<Q>,
     private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
 ) : ProcessResolver<Q, M> {
 
@@ -93,9 +93,9 @@ class CachedProcessResolver<Q, M>(
 }
 
 class BareProcessResolver<Q, M>(
-    val symbolTable: SymbolTable<Q>,
-    val ops: Operations<Q, M>,
-    val sourceOps: DataSourceOperations<Q>,
+    symbolTable: SymbolTable<Q>,
+    ops: Operations<Q, M>,
+    sourceOps: DataSourceOperations<Q>,
 ) : ProcessResolver<Q, M> {
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)
