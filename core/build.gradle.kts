@@ -61,6 +61,15 @@ tasks.test {
     }
 }
 
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(kotlin.sourceSets.main.get().kotlin)
+}
+
+artifacts {
+    add("archives", tasks.named<Jar>("sourcesJar"))
+}
+
 publishing {
     repositories {
         maven {
@@ -78,6 +87,7 @@ publishing {
             artifactId = artifactId
             version = artifactVersion
             from(components["java"])
+            artifact(tasks.named("sourcesJar"))
         }
     }
 }

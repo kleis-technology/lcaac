@@ -46,6 +46,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
+
 sourceSets {
     main {
         java {
@@ -55,6 +56,18 @@ sourceSets {
             srcDirs("src/main/antlr")
         }
     }
+}
+
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from("src/main/kotlin")
+    from("src/main/antlr")
+    from("src/main/gen")
+    dependsOn("generateGrammarSource")
+}
+
+artifacts {
+    add("archives", tasks.named<Jar>("sourcesJar"))
 }
 
 tasks {
@@ -95,6 +108,7 @@ publishing {
             artifactId = artifactId
             version = artifactVersion
             from(components["java"])
+            artifact(tasks.named("sourcesJar"))
         }
     }
 }
