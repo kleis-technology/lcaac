@@ -2,8 +2,8 @@ package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
+import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.math.Operations
@@ -12,19 +12,22 @@ import com.mayakapps.kache.KacheStrategy
 import com.mayakapps.kache.ObjectKache
 import org.slf4j.LoggerFactory
 
-class Evaluator<Q, M>(
+class Evaluator<Q, M> private constructor(
     private val symbolTable: SymbolTable<Q>,
     private val ops: Operations<Q, M>,
     private val sourceOps: DataSourceOperations<Q>,
-    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>> = InMemoryKache(
-        maxSize = 1024
-    ) {
-        strategy = KacheStrategy.LRU
-    }
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
 ) {
     @Suppress("PrivatePropertyName")
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
     private val oracle = Oracle(symbolTable, ops, sourceOps, cache)
+
+    constructor(symbolTable: SymbolTable<Q>, ops: Operations<Q, M>, sourceOps: DataSourceOperations<Q>) : this(
+        symbolTable,
+        ops,
+        sourceOps,
+        InMemoryKache(maxSize = 1024) { strategy = KacheStrategy.LRU }
+    )
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
         val learner = Learner(initialRequests, ops)
@@ -51,7 +54,7 @@ class Evaluator<Q, M>(
                     mapOf(processKey to template)
                 )
             )
-        return Evaluator(st, ops, sourceOps, cache) // TODO: since we modify the symbol table, is it ok?
+        return Evaluator(st, ops, sourceOps, cache)
     }
 
     fun trace(

@@ -29,11 +29,7 @@ class CachedProcessResolver<Q, M>(
     val symbolTable: SymbolTable<Q>,
     val ops: Operations<Q, M>,
     val sourceOps: DataSourceOperations<Q>,
-    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>> = InMemoryKache(
-        maxSize = 1024
-    ) {
-        strategy = KacheStrategy.LRU
-    }
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
 ) : ProcessResolver<Q, M> {
 
     override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {

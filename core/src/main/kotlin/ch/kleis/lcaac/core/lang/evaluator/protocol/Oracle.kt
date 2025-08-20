@@ -13,19 +13,13 @@ import ch.kleis.lcaac.core.lang.resolver.CachedProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.ProcessTemplateResolver
 import ch.kleis.lcaac.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaac.core.math.Operations
-import com.mayakapps.kache.InMemoryKache
-import com.mayakapps.kache.KacheStrategy
 import com.mayakapps.kache.ObjectKache
 
 class Oracle<Q, M>(
-    val symbolTable: SymbolTable<Q>,
-    val ops: Operations<Q, M>,
-    val sourceOps: DataSourceOperations<Q>,
-    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>> = InMemoryKache(
-        maxSize = 1024
-    ) {
-        strategy = KacheStrategy.LRU
-    }
+    private val symbolTable: SymbolTable<Q>,
+    private val ops: Operations<Q, M>,
+    private val sourceOps: DataSourceOperations<Q>,
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
 ) {
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)

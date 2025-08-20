@@ -51,7 +51,7 @@ class OracleTest {
                     ProcessKey("eProcess") to template
                 ))
             )
-            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk()))
+            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk(), mockk()))
 
             mockkConstructor(CachedProcessResolver::class)
             every {
@@ -89,7 +89,7 @@ class OracleTest {
                     ProcessKey("eProcess") to template
                 ))
             )
-            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk()))
+            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk(), mockk()))
 
             mockkConstructor(BareProcessResolver::class)
             every {
