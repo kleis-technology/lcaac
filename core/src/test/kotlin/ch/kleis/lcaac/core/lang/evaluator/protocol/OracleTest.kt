@@ -25,45 +25,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
 class OracleTest {
-    @Test
-    fun cachedOracle() {
-        // given
-        val template = EProcessTemplate(
-            body = EProcess(
-                name = "eProcess",
-                products = listOf(
-                    ETechnoExchange(QuantityFixture.oneKilogram, ProductFixture.carrot)
-                ),
-                impacts = listOf(
-                    ImpactBlockFixture.oneClimateChange
-                ),
-            )
-        )
-        val symbolTable = SymbolTable(
-            processTemplates = ProcessTemplateRegister.from(mapOf(
-                ProcessKey("eProcess") to template
-            ))
-        )
-        val inner = spyk(BareOracle(symbolTable, BasicOperations, mockk()))
-        val oracle = CachedOracle(inner = inner)
-        val requests = setOf(
-            ProductRequest(
-                address = Address(0, 0),
-                value = EProductSpec<BasicNumber>(
-                    "carrot",
-                )
-            )
-        )
-        // when
-        oracle.answer(requests)
-        oracle.answer(requests)
-
-        // then
-        verify(exactly = 1) {
-            inner.answerRequest(any())
-        }
-    }
-
     @Nested
     inner class AnswerProductRequest {
         private val spec = EProductSpec<BasicNumber>("carrot")
@@ -90,7 +51,7 @@ class OracleTest {
                     ProcessKey("eProcess") to template
                 ))
             )
-            val oracle = spyk(BareOracle(symbolTable, BasicOperations, mockk()))
+            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk(), mockk()))
 
             mockkConstructor(CachedProcessResolver::class)
             every {
@@ -128,7 +89,7 @@ class OracleTest {
                     ProcessKey("eProcess") to template
                 ))
             )
-            val oracle = spyk(BareOracle(symbolTable, BasicOperations, mockk()))
+            val oracle = spyk(Oracle(symbolTable, BasicOperations, mockk(), mockk()))
 
             mockkConstructor(BareProcessResolver::class)
             every {
