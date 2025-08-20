@@ -49,20 +49,19 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.59.0")
 }
 
+tasks.build {
+    finalizedBy("writeProperties")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.build {
-    val props = Properties()
-    val propsFile = File("${project.projectDir}/src/main/resources/META-INF/lcaac.properties")
-    propsFile.inputStream().use { props.load(it) }
-    props.setProperty("author", "Kleis Technology")
-    props.setProperty("description", "LCA as Code CLI")
-    props.setProperty("version", artifactVersion)
-    propsFile.outputStream().use {
-        props.store(it, null)
-    }
+tasks.register<WriteProperties>("writeProperties") {
+    outputFile = file("src/main/resources/META-INF/lcaac.properties")
+    property("author", "Kleis Technology")
+    property("description", "LCA as Code CLI")
+    property("version", artifactVersion)
 }
 
 publishing {
