@@ -7,16 +7,24 @@ import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.math.Operations
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
+import com.mayakapps.kache.ObjectKache
 import org.slf4j.LoggerFactory
 
 class Evaluator<Q, M>(
     private val symbolTable: SymbolTable<Q>,
     private val ops: Operations<Q, M>,
     private val sourceOps: DataSourceOperations<Q>,
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>> = InMemoryKache(
+        maxSize = 1024
+    ) {
+        strategy = KacheStrategy.LRU
+    }
 ) {
     @Suppress("PrivatePropertyName")
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
-    private val oracle = Oracle(symbolTable, ops, sourceOps)
+    private val oracle = Oracle(symbolTable, ops, sourceOps, cache)
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
         val learner = Learner(initialRequests, ops)
@@ -43,7 +51,7 @@ class Evaluator<Q, M>(
                     mapOf(processKey to template)
                 )
             )
-        return Evaluator(st, ops, sourceOps)
+        return Evaluator(st, ops, sourceOps, cache) // TODO: since we modify the symbol table, is it ok?
     }
 
     fun trace(

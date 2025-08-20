@@ -5,17 +5,27 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.step.CompleteTerminals
 import ch.kleis.lcaac.core.lang.evaluator.step.Reduce
 import ch.kleis.lcaac.core.lang.expression.EProcess
+import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
+import ch.kleis.lcaac.core.lang.expression.EProductSpec
 import ch.kleis.lcaac.core.lang.expression.ProcessAnnotation
 import ch.kleis.lcaac.core.lang.resolver.BareProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.CachedProcessResolver
 import ch.kleis.lcaac.core.lang.resolver.ProcessTemplateResolver
 import ch.kleis.lcaac.core.lang.resolver.SubstanceCharacterizationResolver
 import ch.kleis.lcaac.core.math.Operations
+import com.mayakapps.kache.InMemoryKache
+import com.mayakapps.kache.KacheStrategy
+import com.mayakapps.kache.ObjectKache
 
 class Oracle<Q, M>(
     val symbolTable: SymbolTable<Q>,
     val ops: Operations<Q, M>,
     val sourceOps: DataSourceOperations<Q>,
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>> = InMemoryKache(
+        maxSize = 1024
+    ) {
+        strategy = KacheStrategy.LRU
+    }
 ) {
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)
@@ -41,7 +51,7 @@ class Oracle<Q, M>(
         val template = processTemplateResolver.resolve(spec) ?: return null
 
         val processResolver = if (template.annotations.contains(ProcessAnnotation.CACHED)) {
-            CachedProcessResolver(symbolTable, ops, sourceOps)
+            CachedProcessResolver(symbolTable, ops, sourceOps, cache)
         } else {
             BareProcessResolver(symbolTable, ops, sourceOps)
         }
