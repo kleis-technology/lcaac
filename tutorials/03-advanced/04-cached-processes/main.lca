@@ -1,0 +1,56 @@
+process sandwich_factory {
+    products {
+        1 u sandwich
+    }
+    inputs {
+        200 g bread
+        50 g ham
+    }
+}
+
+@cached
+process bake {
+    products {
+        1 kg bread
+    }
+    inputs {
+        1 kg flour
+        30 g salt
+    }
+}
+
+process flour_production {
+    products {
+        1 kg flour
+    }
+    impacts {
+        2 kg_CO2_Eq GWP
+    }
+}
+
+process salt_production {
+    products {
+        1 g salt
+    }
+    impacts {
+        0.05 kg_CO2_Eq GWP
+    }
+}
+
+process ham_production {
+    products {
+        1 g ham
+    }
+    impacts {
+        0.7 kg_CO2_Eq GWP
+    }
+}
+
+test main_with_mock_data {
+    given {
+        1 u sandwich from sandwich_factory
+    }
+    assert {
+        GWP between 35.6 kg_CO2_Eq and 35.7 kg_CO2_Eq
+    }
+}
