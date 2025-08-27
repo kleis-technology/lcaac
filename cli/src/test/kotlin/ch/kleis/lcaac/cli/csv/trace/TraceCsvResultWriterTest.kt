@@ -5,11 +5,15 @@ import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicNumber
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 
 class TraceCsvResultWriterTest {
+    private val kWh = UnitValue<BasicNumber>(UnitSymbol.of("kWh"), 1000.0, Dimension.of("energy"))
+    private val kg = UnitValue<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
+    private val u = UnitValue<BasicNumber>(UnitSymbol.of("u"), 1.0, Dimension.None)
+
     @Test
     fun header() {
         // given
@@ -19,9 +23,10 @@ class TraceCsvResultWriterTest {
             header = mapOf("id" to 0, "x" to 1),
             record = listOf("id-0", "0.5")
         )
-        val kWh = UnitValue<BasicNumber>(UnitSymbol.of("kWh"), 1000.0, Dimension.of("energy"))
-        val kg = UnitValue<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
-        val u = UnitValue<BasicNumber>(UnitSymbol.of("u"), 1.0, Dimension.None)
+        val demandedProduct = TechnoExchangeValue(
+            QuantityValue(BasicNumber(1.0), u),
+            ProductValue("foo", u, FromProcessRefValue("foo")),
+        )
         val output = ProductValue(
             name = "electricity",
             referenceUnit = kWh,
@@ -32,6 +37,7 @@ class TraceCsvResultWriterTest {
                 )
             )
         )
+        val supply = QuantityValue(BasicNumber(1.0), kWh)
         val impacts = mapOf(
             IndicatorValue("co2", kg) as MatrixColumnIndex<BasicNumber>
                     to QuantityValue(BasicNumber(0.5), kg)
@@ -40,12 +46,9 @@ class TraceCsvResultWriterTest {
             request,
             trace = listOf(
                 TraceCsvResultItem(
-                    1,
-                    output,
-                    impacts,
-                ),
-                TraceCsvResultItem(
-                    2,
+                    0,
+                    demandedProduct,
+                    supply,
                     output,
                     impacts,
                 )
@@ -57,7 +60,7 @@ class TraceCsvResultWriterTest {
         val actual = writer.header(result)
 
         // then
-        assertEquals("id,x,depth,product,amount,reference unit,co2,co2_unit\n", actual)
+        assertEquals("id,x,depth,d_amount,d_unit,d_product,alloc,name,a,b,c,amount,unit,co2,co2_unit\n", actual)
     }
 
     @Test
@@ -69,9 +72,10 @@ class TraceCsvResultWriterTest {
             header = mapOf("id" to 0, "x" to 1),
             record = listOf("id-0", "0.5")
         )
-        val kWh = UnitValue<BasicNumber>(UnitSymbol.of("kWh"), 1000.0, Dimension.of("energy"))
-        val kg = UnitValue<BasicNumber>(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))
-        val u = UnitValue<BasicNumber>(UnitSymbol.of("u"), 1.0, Dimension.None)
+        val demandedProduct = TechnoExchangeValue(
+            QuantityValue(BasicNumber(1.0), u),
+            ProductValue("foo", u, FromProcessRefValue("foo")),
+        )
         val output = ProductValue(
             name = "electricity",
             referenceUnit = kWh,
@@ -82,6 +86,7 @@ class TraceCsvResultWriterTest {
                 )
             )
         )
+        val supply = QuantityValue(BasicNumber(1.0), kWh)
         val impacts = mapOf(
             IndicatorValue("co2", kg) as MatrixColumnIndex<BasicNumber>
                     to QuantityValue(BasicNumber(0.5), kg)
@@ -90,12 +95,16 @@ class TraceCsvResultWriterTest {
             request,
             trace = listOf(
                 TraceCsvResultItem(
-                    1,
+                    0,
+                    demandedProduct,
+                    supply,
                     output,
                     impacts,
                 ),
                 TraceCsvResultItem(
-                    2,
+                    1,
+                    demandedProduct,
+                    supply,
                     output,
                     impacts,
                 )
@@ -109,8 +118,8 @@ class TraceCsvResultWriterTest {
         // then
         assertEquals(
             listOf(
-                "id-0,0.5,1,electricity,1.0,kWh,0.5,kg\n",
-                "id-0,0.5,2,electricity,1.0,kWh,0.5,kg\n",
+                "id-0,0.5,0,1.0,u,foo,1.0,electricity,main,{},{x=0.5 u},1.0,kWh,0.5,kg\n",
+                "id-0,0.5,1,1.0,u,foo,1.0,electricity,main,{},{x=0.5 u},1.0,kWh,0.5,kg\n",
             ), actual
         )
     }

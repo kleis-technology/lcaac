@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.csv.trace
 
+import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
@@ -27,4 +28,7 @@ class TraceCsvProcessor(
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
+    fun process(request: CsvRequest): List<TraceCsvResult> {
+        TODO()
+    }
 }
