@@ -10,7 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
-class AssessAssessCsvResultWriterTest {
+class AssessCsvResultWriterTest {
     @Test
     fun header() {
         // given
