@@ -1,6 +1,6 @@
-package ch.kleis.lcaac.cli.csv
+package ch.kleis.lcaac.cli.csv.assess
 
-import ch.kleis.lcaac.cli.csv.assess.AssessCsvProcessor
+import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
