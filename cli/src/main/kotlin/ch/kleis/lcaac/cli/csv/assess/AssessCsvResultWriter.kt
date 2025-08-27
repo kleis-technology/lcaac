@@ -1,17 +1,17 @@
-package ch.kleis.lcaac.cli.csv
+package ch.kleis.lcaac.cli.csv.assess
 
 import ch.kleis.lcaac.core.prelude.Prelude
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 
-class CsvResultWriter {
+class AssessCsvResultWriter {
     private val format = CSVFormat.DEFAULT.builder()
         .setHeader()
         .setSkipHeaderRecord(true)
         .setRecordSeparator(System.lineSeparator())
         .build()
 
-    fun header(first: CsvResult): String {
+    fun header(first: AssessCsvResult): String {
         val header = first.request.columns()
             .plus(listOf("product", "amount", "reference unit"))
             .plus(first.impacts.toList()
@@ -26,7 +26,7 @@ class CsvResultWriter {
         return s.toString()
     }
 
-    fun row(result: CsvResult): String {
+    fun row(result: AssessCsvResult): String {
         val line = result.request.arguments()
             .plus(listOf(result.output.getShortName(), "1.0", result.output.referenceUnit().symbol))
             .plus(result.impacts.toList()

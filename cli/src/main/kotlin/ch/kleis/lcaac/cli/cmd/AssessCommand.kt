@@ -1,9 +1,9 @@
 package ch.kleis.lcaac.cli.cmd
 
-import ch.kleis.lcaac.cli.csv.CsvProcessor
+import ch.kleis.lcaac.cli.csv.assess.AssessCsvProcessor
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
-import ch.kleis.lcaac.cli.csv.CsvResultWriter
+import ch.kleis.lcaac.cli.csv.assess.AssessCsvResultWriter
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
@@ -67,9 +67,9 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
         ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
-        val processor = CsvProcessor(yamlConfig, symbolTable, workingDirectory.path)
+        val processor = AssessCsvProcessor(yamlConfig, symbolTable, workingDirectory.path)
         val iterator = loadRequests()
-        val writer = CsvResultWriter()
+        val writer = AssessCsvResultWriter()
         var first = true
         while (iterator.hasNext()) {
             val request = iterator.next()

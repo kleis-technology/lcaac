@@ -1,6 +1,7 @@
-package ch.kleis.lcaac.cli.csv
+package ch.kleis.lcaac.cli.csv.assess
 
 import ch.kleis.lcaac.cli.cmd.prepareArguments
+import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
@@ -13,7 +14,7 @@ import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 
-class CsvProcessor(
+class AssessCsvProcessor(
     config: LcaacConfig,
     private val symbolTable: SymbolTable<BasicNumber>,
     workingDirectory: String,
@@ -30,7 +31,7 @@ class CsvProcessor(
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
-    fun process(request: CsvRequest): List<CsvResult> {
+    fun process(request: CsvRequest): List<AssessCsvResult> {
         val reqName = request.processName
         val reqLabels = request.matchLabels
         val template = symbolTable.getTemplate(reqName, reqLabels)
@@ -44,7 +45,7 @@ class CsvProcessor(
         return entryPoint.products.map { output ->
             val outputPort = output.product
             val impacts = analysis.getUnitaryImpacts(outputPort)
-            CsvResult(
+            AssessCsvResult(
                 request,
                 outputPort,
                 impacts,

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.csv
 
+import ch.kleis.lcaac.cli.csv.assess.AssessCsvProcessor
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
@@ -16,7 +17,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
-class CsvProcessorTest {
+class AssessCsvProcessorTest {
     @Test
     fun processWithRecordParam_withMissingColumn_shouldThrow() {
         // given
@@ -42,7 +43,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable, ".")
+        val processor = AssessCsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -106,7 +107,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable, ".")
+        val processor = AssessCsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),
@@ -162,7 +163,7 @@ class CsvProcessorTest {
         """.trimIndent()
         val symbolTable = load(content)
         val config = LcaacConfig()
-        val processor = CsvProcessor(config, symbolTable, ".")
+        val processor = AssessCsvProcessor(config, symbolTable, ".")
         val request = CsvRequest(
             "main",
             emptyMap(),
