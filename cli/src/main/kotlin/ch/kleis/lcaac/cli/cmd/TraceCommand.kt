@@ -1,20 +1,11 @@
 package ch.kleis.lcaac.cli.cmd
 
-import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.cli.csv.CsvRequest
+import ch.kleis.lcaac.cli.csv.CsvRequestReader
+import ch.kleis.lcaac.cli.csv.trace.TraceCsvProcessor
+import ch.kleis.lcaac.cli.csv.trace.TraceCsvResultWriter
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.datasource.ConnectorFactory
-import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
-import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
-import ch.kleis.lcaac.core.lang.evaluator.Evaluator
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
-import ch.kleis.lcaac.core.lang.value.FullyQualifiedSubstanceValue
-import ch.kleis.lcaac.core.lang.value.IndicatorValue
-import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
-import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.math.basic.BasicOperations
-import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
-import ch.kleis.lcaac.core.prelude.Prelude.Companion.sanitize
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import com.charleskorn.kaml.decodeFromStream
@@ -26,8 +17,6 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
-import org.apache.commons.csv.CSVFormat
-import org.apache.commons.csv.CSVPrinter
 import java.io.File
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
@@ -45,6 +34,11 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         .help("Path to project folder or yaml file.")
     val projectPath: File by getProjectPath
 
+    val file: File? by option("-f", "--file").file(canBeDir = false)
+        .help("""
+                CSV file with parameter values.
+                Example: `lcaac trace <process name> -f params.csv`.
+            """.trimIndent())
     val arguments: Map<String, String> by option("-D", "--parameter")
         .help(
             """
@@ -67,159 +61,48 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
         }
         else LcaacConfig()
 
-        val ops = BasicOperations
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
         ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
-        val factory = ConnectorFactory(
-            workingDirectory.path,
-            yamlConfig,
-            ops,
-            symbolTable,
-            listOf(CsvConnectorBuilder())
-        )
-        val sourceOps = DefaultDataSourceOperations(ops, yamlConfig, factory.buildConnectors())
-
-        val evaluator = Evaluator(symbolTable, ops, sourceOps)
-        val template = symbolTable.getTemplate(name, labels)
-            ?: throw EvaluatorException("unknown template $name$labels")
-        val args = prepareArguments(
-            DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps),
-            template,
-            arguments,
-        )
-        val trace = evaluator.trace(template, args)
-        val system = trace.getSystemValue()
-        val entryPoint = trace.getEntryPoint()
-
-        val program = ContributionAnalysisProgram(system, entryPoint)
-        val analysis = program.run()
-
-        val observablePorts = analysis.getObservablePorts()
-            .getElements()
-            .sortedWith(trace.getComparator())
-        val controllablePorts = analysis.getControllablePorts().getElements()
-            .sortedBy { it.getShortName() }
-
-        val header = listOf(
-            "depth", "d_amount", "d_unit", "d_product", "alloc",
-            "name", "a", "b", "c", "amount", "unit",
-        ).plus(
-            controllablePorts.flatMap {
-                listOf(
-                    sanitize(it.getDisplayName()),
-                    "${sanitize(it.getDisplayName())}_unit"
-                )
+        val processor = TraceCsvProcessor(yamlConfig, symbolTable, workingDirectory.path)
+        val iterator = loadRequests()
+        val writer = TraceCsvResultWriter()
+        var first = true
+        while (iterator.hasNext()) {
+            val request = iterator.next()
+            val result = processor.process(request)
+            if (first) {
+                echo(writer.header(result), trailingNewline = false)
+                first = false
             }
-        )
-
-        val products = entryPoint.products.asSequence()
-        val lines = products.flatMap { demandedProduct ->
-            val demandedAmount = demandedProduct.quantity.amount
-            val demandedUnit = demandedProduct.quantity.unit
-            val demandedProductName = demandedProduct.product.name
-            val allocationAmount = (demandedProduct.allocation?.amount?.toDouble()
-                ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
-            observablePorts.asSequence()
-                .map { row ->
-                    val supply = analysis.supplyOf(row)
-                    val depth = trace.getDepthOf(row)?.toString() ?: ""
-                    val supplyAmount = supply.amount.value * allocationAmount
-                    val prefix = when (row) {
-                        is IndicatorValue -> {
-                            listOf(
-                                depth,
-                                demandedAmount.toString(),
-                                demandedUnit.toString(),
-                                demandedProductName,
-                                allocationAmount.toString(),
-                                row.name,
-                                "",
-                                "",
-                                "",
-                                supplyAmount.toString(),
-                                supply.unit.toString(),
-                            )
-                        }
-
-                        is ProductValue -> {
-                            listOf(
-                                depth,
-                                demandedAmount.toString(),
-                                demandedUnit.toString(),
-                                demandedProductName,
-                                allocationAmount.toString(),
-                                row.name,
-                                row.fromProcessRef?.name ?: "",
-                                row.fromProcessRef?.matchLabels?.toString() ?: "",
-                                row.fromProcessRef?.arguments?.toString() ?: "",
-                                supplyAmount.toString(),
-                                supply.unit.toString(),
-                            )
-                        }
-
-                        is FullyQualifiedSubstanceValue -> {
-                            listOf(
-                                depth,
-                                demandedAmount.toString(),
-                                demandedUnit.toString(),
-                                demandedProductName,
-                                allocationAmount.toString(),
-                                row.name,
-                                row.compartment,
-                                row.subcompartment ?: "",
-                                row.type.toString(),
-                                supplyAmount.toString(),
-                                supply.unit.toString(),
-                            )
-                        }
-
-                        is PartiallyQualifiedSubstanceValue -> {
-                            listOf(
-                                depth,
-                                demandedAmount.toString(),
-                                demandedUnit.toString(),
-                                demandedProductName,
-                                allocationAmount.toString(),
-                                row.name,
-                                "",
-                                "",
-                                "",
-                                supplyAmount.toString(),
-                                supply.unit.toString(),
-                            )
-                        }
-                    }
-                    val impacts = controllablePorts.flatMap { col ->
-                        val impact = analysis.getPortContribution(row, col)
-                        val impactAmount = impact.amount.value * allocationAmount
-                        listOf(
-                            impactAmount.toString(),
-                            impact.unit.toString(),
-                        )
-                    }
-                    prefix.plus(impacts)
-                }
+            writer.rows(result).forEach {
+                echo(it, trailingNewline = false)
+            }
         }
-
-
-        val s = StringBuilder()
-        CSVPrinter(s, format).printRecord(header)
-        echo(s.toString(), trailingNewline = false)
-        lines
-            .forEach {
-                s.clear()
-                CSVPrinter(s, format).printRecord(it)
-                echo(s.toString(), trailingNewline = false)
-            }
     }
 
-    private val format = CSVFormat.DEFAULT.builder()
-        .setHeader()
-        .setSkipHeaderRecord(true)
-        .setRecordSeparator(System.lineSeparator())
-        .build()
+    private fun loadRequests(): Iterator<CsvRequest> {
+        return file?.let { loadRequestsFrom(it) }
+            ?: listOf(defaultRequest()).iterator()
+    }
+
+    private fun loadRequestsFrom(file: File): Iterator<CsvRequest> {
+        val reader = CsvRequestReader(name, labels, file.inputStream(), arguments)
+        return reader.iterator()
+    }
+
+    private fun defaultRequest(): CsvRequest {
+        val pairs = arguments.toList()
+        val header = pairs.mapIndexed { index, pair -> pair.first to index }.toMap()
+        val record = pairs.map { it.second }
+        return CsvRequest(
+            name,
+            labels,
+            header,
+            record,
+        )
+    }
 }

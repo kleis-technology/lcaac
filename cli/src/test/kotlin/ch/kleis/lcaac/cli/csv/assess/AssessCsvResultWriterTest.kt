@@ -1,5 +1,6 @@
-package ch.kleis.lcaac.cli.csv
+package ch.kleis.lcaac.cli.csv.assess
 
+import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.value.*
@@ -8,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 
-class CsvResultWriterTest {
+class AssessCsvResultWriterTest {
     @Test
     fun header() {
         // given
@@ -35,8 +36,8 @@ class CsvResultWriterTest {
             IndicatorValue("co2", kg) as MatrixColumnIndex<BasicNumber>
                 to QuantityValue(BasicNumber(0.5), kg)
         )
-        val result = CsvResult(request, output, impacts)
-        val writer = CsvResultWriter()
+        val result = AssessCsvResult(request, output, impacts)
+        val writer = AssessCsvResultWriter()
 
         // when
         val actual = writer.header(result)
@@ -71,8 +72,8 @@ class CsvResultWriterTest {
             IndicatorValue("co2", kg) as MatrixColumnIndex<BasicNumber>
                 to QuantityValue(BasicNumber(0.5), kg)
         )
-        val result = CsvResult(request, output, impacts)
-        val writer = CsvResultWriter()
+        val result = AssessCsvResult(request, output, impacts)
+        val writer = AssessCsvResultWriter()
 
         // when
         val actual = writer.row(result)
