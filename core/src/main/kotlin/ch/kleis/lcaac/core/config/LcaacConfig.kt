@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class LcaacConfig(
     val name: String = "",
     val description: String = "",
+    // TODO clean datasources
     val datasources: List<DataSourceConfig> = emptyList(),
     val connectors: List<ConnectorConfig> = listOf(CsvConnectorKeys.defaultConfig()),
 ) {

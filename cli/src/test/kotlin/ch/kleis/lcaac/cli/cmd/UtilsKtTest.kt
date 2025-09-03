@@ -19,54 +19,30 @@ import kotlin.test.assertEquals
 
 
 class UtilsKtTest {
-
     @Nested
-    inner class ParseProjectPath {
+    inner class ParseLcaacConfig {
         @Test
-        fun whenSimpleFile() {
+        fun `when file exists decode it`() {
             // given
-            val path = mockk<File>()
-            every { path.isDirectory } returns false
-            every { path.parentFile } returns null
-            every { path.path } returns "lcaac.yaml"
+            val path = File("src/test/resources/validLcaacConfig.yaml")
 
             // when
-            val (workingDir, configFile) = parseProjectPath(path)
+            val config = parseLcaacConfig(path)
 
-            // then
-            assertEquals(".", workingDir.path)
-            assertEquals("lcaac.yaml", configFile.path)
+            //
+            assertEquals("Valid LCAAC Config", config.name)
         }
 
         @Test
-        fun whenFileWithParentDirectory() {
+        fun `when file does not exist return default config`() {
             // given
-            val path = mockk<File>()
-            every { path.isDirectory } returns false
-            every { path.parentFile } returns Paths.get("some", "directory").toFile()
-            every { path.path } returns "lcaac.yaml"
+            val path = File("")
 
             // when
-            val (workingDir, configFile) = parseProjectPath(path)
+            val config = parseLcaacConfig(path)
 
-            // then
-            assertEquals("some/directory", workingDir.path)
-            assertEquals("lcaac.yaml", configFile.path)
-        }
-
-        @Test
-        fun whenDirectory() {
-            // given
-            val path = mockk<File>()
-            every { path.isDirectory } returns true
-            every { path.path } returns "some/directory"
-
-            // when
-            val (workingDir, configFile) = parseProjectPath(path)
-
-            // then
-            assertEquals("some/directory", workingDir.path)
-            assertEquals("lcaac.yaml", configFile.path)
+            //
+            assertEquals("", config.name)
         }
     }
 

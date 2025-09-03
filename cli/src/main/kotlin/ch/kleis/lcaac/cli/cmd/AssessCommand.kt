@@ -4,19 +4,19 @@ import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.assess.AssessCsvProcessor
 import ch.kleis.lcaac.cli.csv.assess.AssessCsvResultWriter
-import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
-import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
+import kotlin.io.path.Path
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
 class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
@@ -29,7 +29,9 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
                 """.trimIndent())
         .associate()
 
-    val projectPath = File(defaultLcaacFilename)
+    val configFile: File by option("-c", "--config", help = "Path to LCAAC config file").file(canBeDir = false)
+        .default(File(defaultLcaacFilename))
+        .help("Path to LCAAC config file. Defaults to 'lcaac.yaml'")
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""
@@ -52,11 +54,8 @@ class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary 
         ).associate()
 
     override fun run() {
-        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
-        val yamlConfig = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
-            yaml.decodeFromStream(LcaacConfig.serializer(), it)
-        }
-        else LcaacConfig()
+        val workingDirectory = Path(".").toFile()
+        val yamlConfig = parseLcaacConfig(configFile)
 
         val files = lcaFiles(workingDirectory)
         val symbolTable = Loader(

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.*
@@ -14,6 +15,7 @@ import ch.kleis.lcaac.grammar.parser.LcaLangLexer
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.charleskorn.kaml.decodeFromStream
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import java.io.File
@@ -28,13 +30,10 @@ val yaml = Yaml(configuration = YamlConfiguration(
 ))
 const val defaultLcaacFilename = "lcaac.yaml"
 
-fun parseProjectPath(path: File): Pair<File, File> {
-    if (path.isDirectory) {
-        val configFile = Path(defaultLcaacFilename).toFile()
-        return path to configFile
-    }
-    val workingDirectory = path.parentFile ?: Path(".").toFile()
-    return workingDirectory to path
+fun parseLcaacConfig(path: File): LcaacConfig {
+    return if (path.exists()) path.inputStream().use {
+        yaml.decodeFromStream(LcaacConfig.serializer(), it)
+    } else LcaacConfig()
 }
 
 fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {

@@ -1,6 +1,5 @@
 package ch.kleis.lcaac.cli.cmd
 
-import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
@@ -13,17 +12,18 @@ import ch.kleis.lcaac.grammar.CoreTestMapper
 import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
-import com.charleskorn.kaml.decodeFromStream
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
+import kotlin.io.path.Path
 
 private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
@@ -32,7 +32,9 @@ private const val redCross = "\u274C"
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val name: String by argument().help("Process name").default("")
 
-    val projectPath = File(defaultLcaacFilename)
+    val configFile: File by option("-c", "--config", help = "Path to LCAAC config file").file(canBeDir = false)
+        .default(File(defaultLcaacFilename))
+        .help("Path to LCAAC config file. Defaults to 'lcaac.yaml'")
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""
@@ -42,12 +44,8 @@ class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val (workingDirectory, lcaacConfigFile) = parseProjectPath(projectPath)
-
-        val yamlConfig = if (lcaacConfigFile.exists()) projectPath.inputStream().use {
-            yaml.decodeFromStream(LcaacConfig.serializer(), it)
-        }
-        else LcaacConfig()
+        val workingDirectory = Path(".").toFile()
+        val yamlConfig = parseLcaacConfig(configFile)
 
         val ops = BasicOperations
         val files = lcaFiles(workingDirectory)
