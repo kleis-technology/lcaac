@@ -19,7 +19,6 @@ import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
@@ -33,10 +32,7 @@ private const val redCross = "\u274C"
 class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
     val name: String by argument().help("Process name").default("")
 
-    private val getProjectPath = option("-p", "--project").file()
-        .default(File(defaultLcaacFilename))
-        .help("Path to project folder or yaml file.")
-    val projectPath: File by getProjectPath
+    val projectPath = File(defaultLcaacFilename)
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""

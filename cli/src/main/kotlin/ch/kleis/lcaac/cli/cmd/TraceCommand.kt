@@ -13,7 +13,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.options.associate
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
@@ -29,10 +28,7 @@ class TraceCommand : CliktCommand(name = "trace", help = "Trace the contribution
                     Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
                 """.trimIndent())
         .associate()
-    private val getProjectPath = option("-p", "--project").file()
-        .default(File(defaultLcaacFilename))
-        .help("Path to project folder or yaml file.")
-    val projectPath: File by getProjectPath
+    val projectPath = File(defaultLcaacFilename)
 
     val file: File? by option("-f", "--file").file(canBeDir = false)
         .help("""

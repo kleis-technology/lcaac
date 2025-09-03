@@ -20,6 +20,7 @@ if ! [ -f $LCAAC_PATH/lcaac ]; then
 fi
 
 # Check all lca tests
+#TODO adapt command with new --source parameter
 lcaac test -p $TUTORIALS_PATH/01-basics/01-getting-started
 lcaac test -p $TUTORIALS_PATH/01-basics/02-biosphere
 lcaac test -p $TUTORIALS_PATH/01-basics/03-impacts

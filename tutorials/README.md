@@ -4,7 +4,9 @@ This folder contains multiple code samples covering the main LCAAC language feat
 Each code sample takes the form a `.lca` file.
 Use the [cli](../cli/README.md) to interact with the code.
 Moreover, each code sample contains tests. You can run the tests manually, e.g.,
+
 ```bash
+#TODO adapt command with new --source parameter
 lcaac test -p 01-basics/01-getting-started
 ```
 
