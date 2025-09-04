@@ -50,11 +50,7 @@ class TestCommand : CliktCommand(name = testCommandName, help = "Run specified t
             symbolTable,
             listOf(CsvConnectorBuilder())
         )
-        val sourceOps = DefaultDataSourceOperations(
-            ops,
-            yamlConfig,
-            factory.buildConnectors(),
-        )
+        val sourceOps = DefaultDataSourceOperations(ops,factory.buildConnectors())
 
         val mapper = CoreTestMapper()
         val cases = files
