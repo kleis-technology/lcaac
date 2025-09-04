@@ -18,42 +18,20 @@ import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 import kotlin.io.path.Path
 
-@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-class TraceCommand : CliktCommand(name = "trace", help = "Trace the contributions") {
-    val name: String by argument().help("Process name")
-    val labels: Map<String, String> by option("-l", "--label")
-        .help(
-            """
-                    Specify a process label as a key value pair.
-                    Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
-                """.trimIndent())
-        .associate()
-    val configFile: File by option("-c", "--config", help = "Path to LCAAC config file").file(canBeDir = false)
-        .default(File(defaultLcaacFilename))
-        .help("Path to LCAAC config file. Defaults to 'lcaac.yaml'")
+const val traceCommandName = "trace"
 
-    val file: File? by option("-f", "--file").file(canBeDir = false)
-        .help("""
-                CSV file with parameter values.
-                Example: `lcaac trace <process name> -f params.csv`.
-            """.trimIndent())
-    val arguments: Map<String, String> by option("-D", "--parameter")
-        .help(
-            """
-                Override parameter value as a key value pair.
-                Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
-            """.trimIndent())
-        .associate()
-    val globals: Map<String, String> by option("-G", "--global")
-        .help(
-            """
-                Override global variable as a key value pair.
-                Example: `lcaac assess <process name> -G x="12 kg"`.
-            """.trimIndent()
-        ).associate()
+@Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
+class TraceCommand : CliktCommand(name = traceCommandName, help = "Trace the contributions") {
+    val name: String by argument().help("Process name")
+    val configFile: File by configFileOption()
+    val source: File by sourceOption()
+    val file: File? by fileOption(traceCommandName)
+    val labels: Map<String, String> by labelsOption(traceCommandName)
+    val arguments: Map<String, String> by argumentsOption(traceCommandName)
+    val globals: Map<String, String> by globalsOption(traceCommandName)
 
     override fun run() {
-        val workingDirectory = Path(".").toFile()
+        val workingDirectory = parseSource(source)
         val yamlConfig = parseLcaacConfig(configFile)
 
         val files = lcaFiles(workingDirectory)

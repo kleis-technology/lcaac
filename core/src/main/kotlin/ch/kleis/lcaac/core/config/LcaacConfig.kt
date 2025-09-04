@@ -12,14 +12,9 @@ data class LcaacConfig(
     val connectors: List<ConnectorConfig> = listOf(CsvConnectorKeys.defaultConfig()),
 ) {
     private val datasourcesMap = datasources.associateBy { it.name }
-    private val connectorsMap = connectors.associateBy { it.name }
 
     fun getDataSource(name: String): DataSourceConfig? {
         return datasourcesMap[name]
-    }
-
-    fun getConnector(name: String): ConnectorConfig? {
-        return connectorsMap[name]
     }
 
     fun setOrModifyDatasource(datasource: DataSourceConfig): LcaacConfig {
@@ -37,13 +32,5 @@ data class LcaacConfig(
             datasources = newDatasources
         )
     }
-
-    fun modifyConnector(name: String, fn: (ConnectorConfig) -> ConnectorConfig): LcaacConfig =
-        this.copy(
-            connectors = this.connectors.map {
-                if (it.name == name) fn(it)
-                else it
-            }
-        )
 }
 

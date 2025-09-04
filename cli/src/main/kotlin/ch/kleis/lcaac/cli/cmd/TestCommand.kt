@@ -17,34 +17,26 @@ import com.github.ajalt.clikt.core.ProgramResult
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import kotlin.io.path.Path
 
 private const val greenTick = "\u2705"
 private const val redCross = "\u274C"
 
+const val testCommandName = "test"
+
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-class TestCommand : CliktCommand(name = "test", help = "Run specified tests") {
+class TestCommand : CliktCommand(name = testCommandName, help = "Run specified tests") {
     val name: String by argument().help("Process name").default("")
-
-    val configFile: File by option("-c", "--config", help = "Path to LCAAC config file").file(canBeDir = false)
-        .default(File(defaultLcaacFilename))
-        .help("Path to LCAAC config file. Defaults to 'lcaac.yaml'")
-
-    val file: File? by option("-f", "--file").file(canBeDir = false)
-        .help("""
-                CSV file with parameter values.
-                Example: `lcaac assess <process name> -f params.csv`.
-            """.trimIndent())
+    val configFile: File by configFileOption()
+    val source: File by sourceOption()
+    val file: File? by fileOption(testCommandName)
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val workingDirectory = Path(".").toFile()
+        val workingDirectory = parseSource(source)
         val yamlConfig = parseLcaacConfig(configFile)
 
         val ops = BasicOperations

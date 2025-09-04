@@ -6,19 +6,61 @@ import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.prelude.Prelude
-import io.mockk.every
-import io.mockk.mockk
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.Path
+import java.nio.file.Files
+import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
-class UtilsKtTest {
+class UtilsTest {
+    @Nested
+    inner class ParseSourceTest {
+        @Test
+        fun `directory should be returned as-is`() {
+            // given
+            val tmpDir = createTempDirectory().toFile()
+
+            // when
+            val result = parseSource(tmpDir)
+
+            // then
+            assertEquals(tmpDir.absoluteFile, result.absoluteFile)
+        }
+
+        @Test
+        fun `archived sources should be extracted`() {
+            val extensions = listOf("zip", "tar.gz", "tgz")
+            extensions.forEach { extension ->
+                // given
+                val zipFile = File("src/test/resources/main.$extension")
+
+                // when
+                val result = parseSource(zipFile)
+
+                // then
+                val extractedMainFile = File(result, "src/main.lca")
+                assertTrue(
+                    extractedMainFile.exists() && extractedMainFile.isFile,
+                    "Expected main.lca to exist inside extracted directory"
+                )
+            }
+        }
+
+        @Test
+        fun `unsupported file format should throw`() {
+            val tmpFile = Files.createTempFile("test", ".txt").toFile()
+            val exception = assertFailsWith<IllegalStateException> {
+                parseSource(tmpFile)
+            }
+            assertEquals(exception.message, "Unsupported file format: ${tmpFile.name}. Supported file formats are zip, tar.gz and tgz.")
+        }
+    }
+
     @Nested
     inner class ParseLcaacConfig {
         @Test

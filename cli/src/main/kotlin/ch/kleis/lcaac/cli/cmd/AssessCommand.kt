@@ -10,60 +10,32 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
-import com.github.ajalt.clikt.parameters.options.associate
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.help
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
-import kotlin.io.path.Path
+
+const val assessCommandName = "assess"
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-class AssessCommand : CliktCommand(name = "assess", help = "Returns the unitary impacts of a process in CSV format") {
+class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
-    val labels: Map<String, String> by option("-l", "--label")
-        .help(
-            """
-                    Specify a process label as a key value pair.
-                    Example: lcaac assess <process name> -l model="ABC" -l geo="FR".
-                """.trimIndent())
-        .associate()
-
-    val configFile: File by option("-c", "--config", help = "Path to LCAAC config file").file(canBeDir = false)
-        .default(File(defaultLcaacFilename))
-        .help("Path to LCAAC config file. Defaults to 'lcaac.yaml'")
-
-    val file: File? by option("-f", "--file").file(canBeDir = false)
-        .help("""
-                CSV file with parameter values.
-                Example: `lcaac assess <process name> -f params.csv`.
-            """.trimIndent())
-    val arguments: Map<String, String> by option("-D", "--parameter")
-        .help(
-            """
-                Override parameter value as a key value pair.
-                Example: `lcaac assess <process name> -D x="12 kg" -D geo="UK" -f params.csv`.
-            """.trimIndent())
-        .associate()
-    val globals: Map<String, String> by option("-G", "--global")
-        .help(
-            """
-                Override global variable as a key value pair.
-                Example: `lcaac assess <process name> -G x="12 kg"`.
-            """.trimIndent()
-        ).associate()
+    val configFile: File by configFileOption()
+    val source: File by sourceOption()
+    val file: File? by fileOption(assessCommandName)
+    val labels: Map<String, String> by labelsOption(assessCommandName)
+    val arguments: Map<String, String> by argumentsOption(assessCommandName)
+    val globals: Map<String, String> by globalsOption(assessCommandName)
 
     override fun run() {
-        val workingDirectory = Path(".").toFile()
+        val sourceDirectory = parseSource(source)
+        val projectDirectory = configFile.parentFile
         val yamlConfig = parseLcaacConfig(configFile)
 
-        val files = lcaFiles(workingDirectory)
+        val files = lcaFiles(sourceDirectory)
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
         ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
-        val processor = AssessCsvProcessor(yamlConfig, symbolTable, workingDirectory.path)
+        val processor = AssessCsvProcessor(yamlConfig, symbolTable, projectDirectory.path)
         val iterator = loadRequests()
         val writer = AssessCsvResultWriter()
         var first = true
