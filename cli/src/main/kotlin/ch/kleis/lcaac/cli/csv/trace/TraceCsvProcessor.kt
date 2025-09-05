@@ -27,7 +27,7 @@ class TraceCsvProcessor(
         symbolTable,
         listOf(CsvConnectorBuilder())
     )
-    private val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
+    private val sourceOps = DefaultDataSourceOperations(ops, factory.buildConnectors())
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 

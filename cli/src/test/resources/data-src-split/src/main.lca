@@ -1,0 +1,25 @@
+datasource foo_inventory {
+    schema {
+        id = "foo-01"
+        quantity = 1 u
+    }
+}
+process main {
+    products {
+        1 u main
+    }
+    inputs {
+        for_each foo from foo_inventory {
+            foo.quantity foo_fn
+        }
+    }
+}
+
+test main {
+    given {
+        1 u main
+    }
+    assert {
+        foo_fn between 6 u and 6 u
+    }
+}

@@ -7,14 +7,14 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class ConnectorFactory<Q>(
-    private val workingDirectory: String,
+    private val projectDirectory: String,
     private val lcaacConfig: LcaacConfig,
     private val ops: QuantityOperations<Q>,
     private val symbolTable: SymbolTable<Q>,
     private val builders: List<ConnectorBuilder<Q>> = listOf(CsvConnectorBuilder())
 ) {
 
-    fun getWorkingDirectory(): String = workingDirectory
+    fun getProjectDirectory(): String = projectDirectory
     fun getLcaacConfig(): LcaacConfig = lcaacConfig
     fun getQuantityOperations(): QuantityOperations<Q> = ops
     fun getSymbolTable(): SymbolTable<Q> = symbolTable

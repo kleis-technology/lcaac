@@ -25,7 +25,7 @@ class CsvConnectorBuilder<Q> : ConnectorBuilder<Q> {
         if (config.name != CsvConnectorKeys.CSV_CONNECTOR_NAME) {
             return null
         }
-        val directory = directory(factory.getWorkingDirectory(), config)
+        val directory = directory(factory.getProjectDirectory(), config)
         return CsvConnector(
             config,
             factory.getQuantityOperations()

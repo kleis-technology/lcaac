@@ -3,7 +3,7 @@ package ch.kleis.lcaac.core.datasource.in_memory
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
-import ch.kleis.lcaac.core.datasource.DataSourceOperationsWithConfig
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.ERecord
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
@@ -26,7 +26,7 @@ class InMemoryConnector<Q>(
     fun getSourceNames(): List<String> = content.keys.toList()
 
     override fun getAll(
-        caller: DataSourceOperationsWithConfig<Q>,
+        caller: DataSourceOperations<Q>,
         config: DataSourceConfig,
         source: DataSourceValue<Q>,
     ): Sequence<ERecord<Q>> {
@@ -42,7 +42,7 @@ class InMemoryConnector<Q>(
     }
 
     override fun getFirst(
-        caller: DataSourceOperationsWithConfig<Q>,
+        caller: DataSourceOperations<Q>,
         config: DataSourceConfig,
         source: DataSourceValue<Q>,
     ): ERecord<Q> {

@@ -3,7 +3,7 @@ package ch.kleis.lcaac.core.datasource.csv
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceConnector
-import ch.kleis.lcaac.core.datasource.DataSourceOperationsWithConfig
+import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
@@ -40,7 +40,7 @@ class CsvConnector<Q>(
         return header to records.iterator().asSequence()
     }
 
-    override fun getAll(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>):
+    override fun getAll(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>):
         Sequence<ERecord<Q>> {
         val location = config.location
             ?: throw EvaluatorException("Missing location in configuration for datasource '${config.name}'")
@@ -51,7 +51,7 @@ class CsvConnector<Q>(
         return records
     }
 
-    override fun getFirst(caller: DataSourceOperationsWithConfig<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
+    override fun getFirst(caller: DataSourceOperations<Q>, config: DataSourceConfig, source: DataSourceValue<Q>): ERecord<Q> {
         return getAll(caller, config, source).firstOrNull()
             ?: throw EvaluatorException("no record found in datasource '${config.name}' [${config.location}] matching" +
                 " ${source.filter}")

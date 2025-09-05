@@ -17,17 +17,17 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 class AssessCsvProcessor(
     config: LcaacConfig,
     private val symbolTable: SymbolTable<BasicNumber>,
-    workingDirectory: String,
+    projectDirectory: String,
 ) {
     private val ops = BasicOperations
     private val factory = ConnectorFactory(
-        workingDirectory,
+        projectDirectory,
         config,
         ops,
         symbolTable,
         listOf(CsvConnectorBuilder())
     )
-    private val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
+    private val sourceOps = DefaultDataSourceOperations(ops, factory.buildConnectors())
     private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 

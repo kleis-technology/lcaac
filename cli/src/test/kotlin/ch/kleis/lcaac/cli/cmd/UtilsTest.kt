@@ -6,64 +6,86 @@ import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.prelude.Prelude
-import io.mockk.every
-import io.mockk.mockk
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.Path
+import java.nio.file.Files
+import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 
-class UtilsKtTest {
+class UtilsTest {
+    @Nested
+    inner class ParseSourceTest {
+        @Test
+        fun `directory should be returned as-is`() {
+            // given
+            val tmpDir = createTempDirectory().toFile()
 
-    @Test
-    fun parseProjectPath_whenSimpleFile() {
-        // given
-        val path = mockk<File>()
-        every { path.isDirectory } returns false
-        every { path.parentFile } returns null
-        every { path.path } returns "lcaac.yaml"
+            // when
+            val result = parseSource(tmpDir)
 
-        // when
-        val (workingDir, configFile) = parseProjectPath(path)
+            // then
+            assertEquals(tmpDir.absoluteFile, result.absoluteFile)
+        }
 
-        // then
-        assertEquals(".", workingDir.path)
-        assertEquals("lcaac.yaml", configFile.path)
+        @Test
+        fun `archived sources should be extracted`() {
+            val extensions = listOf("zip", "tar.gz", "tgz")
+            extensions.forEach { extension ->
+                // given
+                val zipFile = File("src/test/resources/main.$extension")
+
+                // when
+                val result = parseSource(zipFile)
+
+                // then
+                val extractedMainFile = File(result, "src/main.lca")
+                assertTrue(
+                    extractedMainFile.exists() && extractedMainFile.isFile,
+                    "Expected main.lca to exist inside extracted directory"
+                )
+            }
+        }
+
+        @Test
+        fun `unsupported file format should throw`() {
+            val tmpFile = Files.createTempFile("test", ".txt").toFile()
+            val exception = assertFailsWith<IllegalStateException> {
+                parseSource(tmpFile)
+            }
+            assertEquals(exception.message, "Unsupported file format: ${tmpFile.name}. Supported file formats are zip, tar.gz and tgz.")
+        }
     }
 
-    @Test
-    fun parseProjectPath_whenFileWithParentDirectory() {
-        // given
-        val path = mockk<File>()
-        every { path.isDirectory } returns false
-        every { path.parentFile } returns Paths.get("some", "directory").toFile()
-        every { path.path } returns "lcaac.yaml"
+    @Nested
+    inner class ParseLcaacConfig {
+        @Test
+        fun `when file exists decode it`() {
+            // given
+            val path = File("src/test/resources/validLcaacConfig.yaml")
 
-        // when
-        val (workingDir, configFile) = parseProjectPath(path)
+            // when
+            val config = parseLcaacConfig(path)
 
-        // then
-        assertEquals("some/directory", workingDir.path)
-        assertEquals("lcaac.yaml", configFile.path)
-    }
+            //
+            assertEquals("Valid LCAAC Config", config.name)
+        }
 
-    @Test
-    fun parseProjectPath_whenDirectory() {
-        // given
-        val path = mockk<File>()
-        every { path.isDirectory } returns true
-        every { path.path } returns "some/directory"
+        @Test
+        fun `when file does not exist return default config`() {
+            // given
+            val path = File("")
 
-        // when
-        val (workingDir, configFile) = parseProjectPath(path)
+            // when
+            val config = parseLcaacConfig(path)
 
-        // then
-        assertEquals("some/directory", workingDir.path)
-        assertEquals("lcaac.yaml", configFile.path)
+            //
+            assertEquals("", config.name)
+        }
     }
 
     @Test

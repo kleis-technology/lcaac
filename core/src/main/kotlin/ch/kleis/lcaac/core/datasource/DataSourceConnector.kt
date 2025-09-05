@@ -9,11 +9,11 @@ interface DataSourceConnector<Q> {
     fun getName(): String
     fun getConfig(): ConnectorConfig
     fun getFirst(
-        caller: DataSourceOperationsWithConfig<Q>,
+        caller: DataSourceOperations<Q>,
         config: DataSourceConfig,
         source: DataSourceValue<Q>): ERecord<Q>
     fun getAll(
-        caller: DataSourceOperationsWithConfig<Q>,
+        caller: DataSourceOperations<Q>,
         config: DataSourceConfig,
         source: DataSourceValue<Q>): Sequence<ERecord<Q>>
 }
