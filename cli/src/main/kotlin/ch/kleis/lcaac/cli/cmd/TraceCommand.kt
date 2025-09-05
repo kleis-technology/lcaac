@@ -31,16 +31,17 @@ class TraceCommand : CliktCommand(name = traceCommandName, help = "Trace the con
     val globals: Map<String, String> by globalsOption(traceCommandName)
 
     override fun run() {
-        val workingDirectory = parseSource(source)
+        val sourceDirectory = parseSource(source)
+        val projectDirectory = configFile.parentFile
         val yamlConfig = parseLcaacConfig(configFile)
 
-        val files = lcaFiles(workingDirectory)
+        val files = lcaFiles(sourceDirectory)
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
         ).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
-        val processor = TraceCsvProcessor(yamlConfig, symbolTable, workingDirectory.path)
+        val processor = TraceCsvProcessor(yamlConfig, symbolTable, projectDirectory.path)
         val iterator = loadRequests()
         val writer = TraceCsvResultWriter()
         var first = true
