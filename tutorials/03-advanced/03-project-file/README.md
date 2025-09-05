@@ -25,3 +25,10 @@ connectors:
     options:
       directory: mock
 ```
+
+Here each file specifies a different location for the folder containing the CSV files supporting the datasources.
+You can choose which settings to use with the cli option `-c` or `--config`.
+```bash
+lcaac assess --config lcaac.yaml main
+lcaac assess --config lcaac-mock.yaml main
+```

@@ -36,15 +36,16 @@ class TestCommand : CliktCommand(name = testCommandName, help = "Run specified t
     val showSuccess: Boolean by option("--show-success").flag(default = false).help("Show successful assertions")
 
     override fun run() {
-        val workingDirectory = parseSource(source)
+        val sourceDirectory = parseSource(source)
+        val projectDirectory = configFile.parentFile
         val yamlConfig = parseLcaacConfig(configFile)
 
         val ops = BasicOperations
-        val files = lcaFiles(workingDirectory)
+        val files = lcaFiles(sourceDirectory)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
         val factory = ConnectorFactory(
-            workingDirectory.path,
+            projectDirectory.path,
             yamlConfig,
             ops,
             symbolTable,

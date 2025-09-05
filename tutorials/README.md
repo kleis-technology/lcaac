@@ -6,8 +6,7 @@ Use the [cli](../cli/README.md) to interact with the code.
 Moreover, each code sample contains tests. You can run the tests manually, e.g.,
 
 ```bash
-#TODO adapt command with new --source parameter
-lcaac test -p 01-basics/01-getting-started
+lcaac test -s 01-basics/01-getting-started
 ```
 
 The script `run.sh` runs all the tests.
