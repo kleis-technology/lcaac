@@ -19,6 +19,7 @@ typealias ConnectorName = String
 
 class DefaultDataSourceOperations<Q>(
     private val ops: QuantityOperations<Q>,
+    private val config: LcaacConfig,
     private val connectors: Map<ConnectorName, DataSourceConnector<Q>>,
     private val cache: Map<ConnectorName, SourceOpsCache<Q>> = connectors
         .filter { it.value.getConfig().cache.enabled }
@@ -28,41 +29,72 @@ class DefaultDataSourceOperations<Q>(
                 it.value.getConfig().cache.maxRecordsPerCacheLine,
             )
         }
-) : DataSourceOperations<Q> {
+) : DataSourceOperationsWithConfig<Q> {
+
+    fun overrideWith(inMemoryConnector: InMemoryConnector<Q>): DefaultDataSourceOperations<Q> =
+        DefaultDataSourceOperations(
+            ops,
+            inMemoryConnector.getSourceNames()
+                .fold(config) { cfg, source ->
+                    cfg.setOrModifyDatasource(DataSourceConfig(
+                        name = source,
+                        connector = InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME,
+                    ))
+                },
+            connectors.plus(inMemoryConnector.getName() to inMemoryConnector),
+            if (inMemoryConnector.getConfig().cache.enabled)
+                cache.plus(inMemoryConnector.getName() to SourceOpsCache(
+                    inMemoryConnector.getConfig().cache.maxSize,
+                    inMemoryConnector.getConfig().cache.maxRecordsPerCacheLine,
+                ))
+            else cache
+        )
+
+    private fun configOf(source: DataSourceValue<Q>): DataSourceConfig {
+        return with(DataSourceConfig.merger(source.config.name)) {
+            config.getDataSource(source.config.name)
+                ?.let { source.config.combine(it) } // lcaac config takes precedence
+                ?: source.config
+        }
+    }
+
     private fun connectorOf(config: DataSourceConfig): DataSourceConnector<Q> {
         return connectors[config.connector]
             ?: throw IllegalArgumentException("Unknown connector '${config.connector}'")
     }
 
     override fun getFirst(source: DataSourceValue<Q>): ERecord<Q> {
-        val connector = connectorOf(source.config)
+        val sourceConfig = configOf(source)
+        val connector = connectorOf(sourceConfig)
         if (connector.getConfig().cache.enabled) {
             val connectorCache = cache[connector.getName()]
                 ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
-            return connectorCache.recordGetFirst(source.config, source) {
-                connector.getFirst(this, source.config, source)
+            return connectorCache.recordGetFirst(sourceConfig, source) {
+                connector.getFirst(this, sourceConfig, source)
             }
-        } else return connector.getFirst(this, source.config, source)
+        } else return connector.getFirst(this, sourceConfig, source)
     }
 
     override fun getAll(source: DataSourceValue<Q>): Sequence<ERecord<Q>> {
-        val connector = connectorOf(source.config)
+        val sourceConfig = configOf(source)
+        val connector = connectorOf(sourceConfig)
         if (connector.getConfig().cache.enabled) {
             val connectorCache = cache[connector.getName()]
                 ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
-            return connectorCache.recordGetAll(source.config, source) {
-                connector.getAll(this, source.config, source).toList()
+            return connectorCache.recordGetAll(sourceConfig, source) {
+                connector.getAll(this, sourceConfig, source).toList()
             }.asSequence()
-        } else return connector.getAll(this, source.config, source)
+        } else return connector.getAll(this, sourceConfig, source)
     }
 
     override fun sumProduct(source: DataSourceValue<Q>, columns: List<String>): DataExpression<Q> {
-        val connector = connectorOf(source.config)
+        val sourceConfig = configOf(source)
+        val connector = connectorOf(sourceConfig)
         if (connector.getConfig().cache.enabled) {
             val connectorCache = cache[connector.getName()]
                 ?: throw IllegalStateException("internal error: cache not found for cache-enabled connector '${connector.getName()}'")
             return connectorCache.recordSumProduct(
-                source.config,
+                sourceConfig,
                 source,
                 columns,
             ) {
@@ -112,5 +144,9 @@ class DefaultDataSourceOperations<Q>(
         }.fold(zero as DataExpression<Q>, ({ acc, expression ->
             reducer.reduce(EQuantityAdd(acc, expression))
         }))
+    }
+
+    override fun getConfig(): LcaacConfig {
+        return config
     }
 }

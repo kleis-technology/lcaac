@@ -3,7 +3,6 @@ package ch.kleis.lcaac.core.datasource
 import ch.kleis.lcaac.core.config.ConnectorConfig
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
-import ch.kleis.lcaac.core.datasource.csv.CsvConnectorKeys
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
@@ -29,12 +28,14 @@ class DefaultDataSourceOperationsTest {
     private val connectorConfig = ConnectorConfig(name = connectorName, options = emptyMap())
 
     private val sourceName = "source"
+    private val sourceConfig = DataSourceConfig(name = sourceName, connector = connectorName)
 
     private val symbolTable = SymbolTable.empty<BasicNumber>()
 
     private val config = LcaacConfig(
         name = "project",
         description = "description",
+        datasources = listOf(sourceConfig),
         connectors = listOf(connectorConfig),
     )
     private val ops = BasicOperations
@@ -78,7 +79,12 @@ class DefaultDataSourceOperationsTest {
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
         val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(ops, factory.buildConnectors(), emptyMap())
+        val sourceOps = DefaultDataSourceOperations(
+            ops,
+            factory.getLcaacConfig(),
+            factory.buildConnectors(),
+            emptyMap(),
+        )
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
@@ -138,7 +144,7 @@ class DefaultDataSourceOperationsTest {
         val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
-
+            factory.getLcaacConfig(),
             factory.buildConnectors(),
             emptyMap()
         )
@@ -185,7 +191,7 @@ class DefaultDataSourceOperationsTest {
         val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
-
+            factory.getLcaacConfig(),
             factory.buildConnectors(),
             emptyMap()
         )
@@ -242,7 +248,7 @@ class DefaultDataSourceOperationsTest {
         val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
         val sourceOps = DefaultDataSourceOperations(
             ops,
-
+            factory.getLcaacConfig(),
             factory.buildConnectors(),
             emptyMap()
         )
@@ -307,12 +313,15 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
-            connectors = mapOf(inMemoryConnector.getName() to inMemoryConnector),
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            connectors = emptyMap(),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "in_memory",
             ),
             schema = schema,
             filter = mapOf(
@@ -372,8 +381,12 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
-            connectors = mapOf(connectorName to innerConnector, inMemoryConnector.getName() to inMemoryConnector),
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            connectors = mapOf(connectorName to innerConnector),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
@@ -440,12 +453,16 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
-            mapOf(inMemoryConnector.getName() to inMemoryConnector)
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            emptyMap(),
+            emptyMap(),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "in_memory",
             ),
             schema = schema,
             filter = mapOf(
@@ -492,8 +509,12 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             BasicOperations,
-            connectors = mapOf(connectorName to innerConnector, inMemoryConnector.getName() to inMemoryConnector),
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            connectors = mapOf(connectorName to innerConnector),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
@@ -552,12 +573,15 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             ops = BasicOperations,
-            connectors = mapOf(inMemoryConnector.getName() to inMemoryConnector),
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            connectors = emptyMap(),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
-                connector = "in_memory",
             ),
             schema = schema,
             filter = mapOf(
@@ -613,8 +637,12 @@ class DefaultDataSourceOperationsTest {
         )
         val sourceOps = DefaultDataSourceOperations(
             ops = BasicOperations,
-            connectors = mapOf(connectorName to innerConnector, inMemoryConnector.getName() to inMemoryConnector),
-        )
+            config = LcaacConfig(
+                name = "test",
+                description = "description",
+            ),
+            connectors = mapOf(connectorName to innerConnector),
+        ).overrideWith(inMemoryConnector)
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
@@ -662,7 +690,12 @@ class DefaultDataSourceOperationsTest {
         val builder = mockk<ConnectorBuilder<BasicNumber>>()
         every { builder.buildOrNull(any(), any()) } returns connector
         val factory = ConnectorFactory(".", config, ops, symbolTable, listOf(builder))
-        val sourceOps = DefaultDataSourceOperations(ops, factory.buildConnectors(), emptyMap())
+        val sourceOps = DefaultDataSourceOperations(
+            ops,
+            factory.getLcaacConfig(),
+            factory.buildConnectors(),
+            emptyMap()
+        )
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = sourceName,
