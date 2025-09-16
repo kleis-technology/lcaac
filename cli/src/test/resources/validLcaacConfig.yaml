@@ -1,0 +1,8 @@
+name: Valid LCAAC Config
+description: Valid LCAAC Config for test purposes
+connectors:
+  - name: csv
+    cache:
+      enabled: true
+    options:
+      directory: data

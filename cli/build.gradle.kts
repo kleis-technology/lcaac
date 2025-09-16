@@ -47,6 +47,8 @@ dependencies {
     implementation("org.apache.commons:commons-csv:1.10.0")
 
     implementation("com.charleskorn.kaml:kaml:0.59.0")
+
+    implementation("org.apache.commons:commons-compress:1.28.0")
 }
 
 tasks.build {
