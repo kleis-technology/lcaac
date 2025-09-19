@@ -5,6 +5,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnector
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
+import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
@@ -28,14 +29,12 @@ class DefaultDataSourceOperationsTest {
     private val connectorConfig = ConnectorConfig(name = connectorName, options = emptyMap())
 
     private val sourceName = "source"
-    private val sourceConfig = DataSourceConfig(name = sourceName, connector = connectorName)
 
     private val symbolTable = SymbolTable.empty<BasicNumber>()
 
     private val config = LcaacConfig(
         name = "project",
         description = "description",
-        datasources = listOf(sourceConfig),
         connectors = listOf(connectorConfig),
     )
     private val ops = BasicOperations
@@ -322,6 +321,7 @@ class DefaultDataSourceOperationsTest {
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
+                connector = IN_MEMORY_CONNECTOR_NAME
             ),
             schema = schema,
             filter = mapOf(
@@ -463,6 +463,7 @@ class DefaultDataSourceOperationsTest {
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
+                connector = IN_MEMORY_CONNECTOR_NAME
             ),
             schema = schema,
             filter = mapOf(
@@ -582,6 +583,7 @@ class DefaultDataSourceOperationsTest {
         val source = DataSourceValue(
             config = DataSourceConfig(
                 name = "inventory",
+                connector = IN_MEMORY_CONNECTOR_NAME
             ),
             schema = schema,
             filter = mapOf(

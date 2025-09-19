@@ -21,6 +21,13 @@ data class SymbolTable<Q>(
         return "[symbolTable]"
     }
 
+    fun overrideDatasourceConnector(key: DataSourceKey, connector: String?): SymbolTable<Q> {
+        val dataSource = dataSources[key] ?: throw IllegalStateException("DataSource $key does not exist")
+        val newConfig = dataSource.config.copy(connector = connector)
+        val newDataSource = dataSource.copy(config = newConfig)
+        val newDataSources = dataSources.override(key, newDataSource)
+        return this.copy(dataSources = newDataSources)
+    }
 
     /*
         Templates
