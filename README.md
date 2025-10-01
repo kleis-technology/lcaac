@@ -130,6 +130,7 @@ For users
 - [Code samples](./tutorials/README.md)
 
 For developers
+- [Release management](./RELEASE-MANAGEMENT.md)
 - Core concepts *\[coming soon\]*
 - Contribution guide *\[coming soon\]*
 
