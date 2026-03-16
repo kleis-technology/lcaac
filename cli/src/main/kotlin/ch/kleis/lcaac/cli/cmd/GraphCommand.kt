@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.cli.mermaid.MermaidGraph
+import ch.kleis.lcaac.cli.mermaid.MermaidGraphOption
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
@@ -13,6 +14,8 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
 import java.io.File
 
 const val graphCommandName = "graph"
@@ -24,6 +27,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val labels: Map<String, String> by labelsOption(graphCommandName)
     val arguments: Map<String, String> by argumentsOption(graphCommandName)
     val globals: Map<String, String> by globalsOption(graphCommandName)
+    val showProducts: Boolean by option("--show-products", help = "Show product names on edges").flag(default = false)
+    val showQuantities: Boolean by option("--show-quantities", help = "Show quantities on edges").flag(default = false)
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -53,6 +58,10 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
         val args = prepareArguments(dataReducer, template, arguments)
         val trace = evaluator.trace(template, args)
 
-        echo(MermaidGraph(trace).render(), trailingNewline = false)
+        val graphOptions = buildSet {
+            if (showProducts) add(MermaidGraphOption.SHOW_PRODUCTS)
+            if (showQuantities) add(MermaidGraphOption.SHOW_QUANTITIES)
+        }
+        echo(MermaidGraph(trace, graphOptions).render(), trailingNewline = false)
     }
 }
