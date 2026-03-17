@@ -186,19 +186,9 @@ class MermaidGraph(
 
     private fun nodeLabel(product: ProductValue<BasicNumber>): String {
         val ref = product.fromProcessRef ?: return product.name
-        val labelParts = mutableListOf<String>()
-        if (ref.matchLabels.isNotEmpty()) {
-            labelParts.add(ref.matchLabels.entries.sortedBy { it.key }
-                .joinToString(", ") { "${it.key}: ${it.value.s}" })
-        }
-        val displayLabels = if (labelParts.isEmpty()) null else labelParts.joinToString(", ").let { "{$it}" }
-
-        val argumentParts = mutableListOf<String>()
-        if (ref.arguments.isNotEmpty()) {
-            argumentParts.add(ref.arguments.entries.sortedBy { it.key }.joinToString(", ") { "${it.key}: ${it.value}" })
-        }
-        val displayArguments = if (argumentParts.isEmpty()) null else argumentParts.joinToString(", ").let { "{$it}" }
-
-        return listOfNotNull(ref.name, displayLabels, displayArguments).joinToString("\\n")
+        val parts = mutableListOf(ref.name)
+        ref.matchLabels.entries.sortedBy { it.key }.forEach { (k, v) -> parts.add("$k: ${v.s}") }
+        ref.arguments.entries.sortedBy { it.key }.forEach { (k, v) -> parts.add("$k: $v") }
+        return parts.joinToString("\\n")
     }
 }

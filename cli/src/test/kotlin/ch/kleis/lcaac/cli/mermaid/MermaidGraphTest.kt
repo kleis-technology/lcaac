@@ -276,7 +276,7 @@ class MermaidGraphTest {
             flowchart BT
                 classDef invisible fill:none,stroke:none
                 ep0[ ]:::invisible
-                prod0["main\n{x: 1.0 kg}"]
+                prod0["main\nx: 1.0 kg"]
                 dang0["flour from mill{}{x=2.0 kg}"]
                 prod0 -->|"1.0 kWh electricity"| ep0
                 dang0 -->|"1.0 kg flour"| prod0
