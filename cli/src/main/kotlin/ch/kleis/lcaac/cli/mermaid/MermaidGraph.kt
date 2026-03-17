@@ -3,13 +3,15 @@ package ch.kleis.lcaac.cli.mermaid
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.value.BioExchangeValue
 import ch.kleis.lcaac.core.lang.value.ImpactValue
-import ch.kleis.lcaac.core.lang.value.ProcessValue
+import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.TechnoExchangeValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 
 enum class MermaidGraphOption {
     SHOW_PRODUCTS,
     SHOW_QUANTITIES,
+    SHOW_BIOSPHERE,
+    SHOW_IMPACTS,
 }
 
 class MermaidGraph(
@@ -18,31 +20,44 @@ class MermaidGraph(
 ) {
     fun render(): String {
         val system = trace.getSystemValue()
-        val processes = system.processes
         val substanceCharacterizations = system.substanceCharacterizations
 
+        val entryPoint = trace.getEntryPoint()
+        val entryPointProductIdMap = entryPoint.products
+            .mapIndexed { i, output -> output.product to "ep$i" }.toMap()
+
         // Nodes
-        val processIdMap = processes.mapIndexed { i, p -> p to "p$i" }.toMap()
-        val danglingProducts = processes.flatMap { it.inputs }
+        val productIdMap = system.productToProcessMap.keys.mapIndexed { i, prod -> prod to "prod$i" }.toMap()
+        val danglingProducts = system.processes.flatMap { it.inputs }
             .map { it.product }
             .filter { system.productToProcessMap[it] == null }
             .toSet()
-        val danglingProductIdMap = danglingProducts.mapIndexed { i, prod -> prod to "prod$i" }.toMap()
-        val danglingSubstances = processes.flatMap { it.biosphere }
+        val danglingProductIdMap = danglingProducts.mapIndexed { i, prod -> prod to "dang$i" }.toMap()
+        val danglingSubstances = system.processes.flatMap { it.biosphere }
             .map { it.substance }
             .filter { system.substanceToSubstanceCharacterizationMap[it] == null }
             .toSet()
-        val danglingSubstanceIdMap = danglingSubstances.mapIndexed { i, sub -> sub to "sub$i" }.toMap()
+        val danglingSubstanceIdMap =
+            if (MermaidGraphOption.SHOW_BIOSPHERE in options)
+                danglingSubstances.mapIndexed { i, sub -> sub to "sub$i" }.toMap()
+            else emptyMap()
         val indicators = (
-            processes.flatMap { it.impacts } +
-            substanceCharacterizations.flatMap { it.impacts }
-        ).map { it.indicator }.toSet()
-        val indicatorIdMap = indicators.mapIndexed { i, ind -> ind to "ind$i" }.toMap()
+                system.processes.flatMap { it.impacts } +
+                        substanceCharacterizations.flatMap { it.impacts }
+                ).map { it.indicator }.toSet()
+        val indicatorIdMap =
+            if (MermaidGraphOption.SHOW_IMPACTS in options)
+                indicators.mapIndexed { i, ind -> ind to "ind$i" }.toMap()
+            else emptyMap()
 
         return buildString {
             appendLine("flowchart BT")
-            processes.forEach { process ->
-                appendLine("    ${processIdMap[process]}[\"${nodeLabel(process)}\"]")
+            appendLine("    classDef invisible fill:none,stroke:none")
+            entryPointProductIdMap.forEach { (_, id) ->
+                appendLine("    $id[ ]:::invisible")
+            }
+            productIdMap.forEach { (product, id) ->
+                appendLine("    $id[\"${nodeLabel(product)}\"]")
             }
             danglingProductIdMap.forEach { (product, id) ->
                 appendLine("    $id[\"${product.getDisplayName()}\"]")
@@ -54,54 +69,66 @@ class MermaidGraph(
                 appendLine("    $id[\"${indicator.name}\"]")
             }
 
-            // Edges from process inputs
-            processes.forEach { consumer ->
-                consumer.inputs.forEach { input ->
-                    val producer = system.productToProcessMap[input.product]
-                    val sourceId = producer?.let { processIdMap[it] } ?: danglingProductIdMap[input.product]
+            // Edges from entrypoint product nodes to invisible terminal nodes
+            entryPoint.products.forEach { output ->
+                val label = edgeLabel(output)
+                if (label != null) {
+                    appendLine("    ${productIdMap[output.product]} -->|\"$label\"| ${entryPointProductIdMap[output.product]}")
+                } else {
+                    appendLine("    ${productIdMap[output.product]} --> ${entryPointProductIdMap[output.product]}")
+                }
+            }
+
+            // Edges derived from each produced product's process
+            system.productToProcessMap.forEach { (product, process) ->
+                val targetId = productIdMap[product]!!
+
+                // Edges from process inputs
+                process.inputs.forEach { input ->
+                    val sourceId = productIdMap[input.product] ?: danglingProductIdMap[input.product]
                     if (sourceId != null) {
                         val label = edgeLabel(input)
                         if (label != null) {
-                            appendLine("    $sourceId -->|\"$label\"| ${processIdMap[consumer]}")
+                            appendLine("    $sourceId -->|\"$label\"| $targetId")
                         } else {
-                            appendLine("    $sourceId --> ${processIdMap[consumer]}")
+                            appendLine("    $sourceId --> $targetId")
                         }
                     }
                 }
-            }
 
-            // Edges from process biosphere
-            processes.forEach { consumer ->
-                consumer.biosphere.forEach { emission ->
-                    val sc = system.substanceToSubstanceCharacterizationMap[emission.substance]
-                    if (sc != null) {
-                        sc.impacts.forEach { impact ->
-                            val label = edgeLabel(impact)
+                // Edges from process biosphere
+                if (MermaidGraphOption.SHOW_BIOSPHERE in options) {
+                    process.biosphere.forEach { emission ->
+                        val sc = system.substanceToSubstanceCharacterizationMap[emission.substance]
+                        if (sc != null) {
+                            sc.impacts.forEach { impact ->
+                                val label = edgeLabel(impact)
+                                if (label != null) {
+                                    appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| $targetId")
+                                } else {
+                                    appendLine("    ${indicatorIdMap[impact.indicator]} --> $targetId")
+                                }
+                            }
+                        } else {
+                            val label = edgeLabel(emission)
                             if (label != null) {
-                                appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| ${processIdMap[consumer]}")
+                                appendLine("    ${danglingSubstanceIdMap[emission.substance]} -->|\"$label\"| $targetId")
                             } else {
-                                appendLine("    ${indicatorIdMap[impact.indicator]} --> ${processIdMap[consumer]}")
+                                appendLine("    ${danglingSubstanceIdMap[emission.substance]} --> $targetId")
                             }
                         }
-                    } else {
-                        val label = edgeLabel(emission)
-                        if (label != null) {
-                            appendLine("    ${danglingSubstanceIdMap[emission.substance]} -->|\"$label\"| ${processIdMap[consumer]}")
-                        } else {
-                            appendLine("    ${danglingSubstanceIdMap[emission.substance]} --> ${processIdMap[consumer]}")
-                        }
                     }
                 }
-            }
 
-            // Edges from process direct impacts
-            processes.forEach { consumer ->
-                consumer.impacts.forEach { impact ->
-                    val label = edgeLabel(impact)
-                    if (label != null) {
-                        appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| ${processIdMap[consumer]}")
-                    } else {
-                        appendLine("    ${indicatorIdMap[impact.indicator]} --> ${processIdMap[consumer]}")
+                // Edges from process direct impacts
+                if (MermaidGraphOption.SHOW_IMPACTS in options) {
+                    process.impacts.forEach { impact ->
+                        val label = edgeLabel(impact)
+                        if (label != null) {
+                            appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| $targetId")
+                        } else {
+                            appendLine("    ${indicatorIdMap[impact.indicator]} --> $targetId")
+                        }
                     }
                 }
             }
@@ -129,11 +156,21 @@ class MermaidGraph(
         return if (parts.isEmpty()) null else parts.joinToString(" ")
     }
 
-    private fun nodeLabel(process: ProcessValue<BasicNumber>): String {
-        if (process.labels.isEmpty()) return process.name
-        val labelsStr = process.labels.entries
-            .sortedBy { it.key }
-            .joinToString(", ") { "${it.key}: ${it.value.s}" }
-        return "${process.name}\\n{$labelsStr}"
+    private fun nodeLabel(product: ProductValue<BasicNumber>): String {
+        val ref = product.fromProcessRef ?: return product.name
+        val labelParts = mutableListOf<String>()
+        if (ref.matchLabels.isNotEmpty()) {
+            labelParts.add(ref.matchLabels.entries.sortedBy { it.key }
+                .joinToString(", ") { "${it.key}: ${it.value.s}" })
+        }
+        val displayLabels = if (labelParts.isEmpty()) null else labelParts.joinToString(", ").let { "{$it}" }
+
+        val argumentParts = mutableListOf<String>()
+        if (ref.arguments.isNotEmpty()) {
+            argumentParts.add(ref.arguments.entries.sortedBy { it.key }.joinToString(", ") { "${it.key}: ${it.value}" })
+        }
+        val displayArguments = if (argumentParts.isEmpty()) null else argumentParts.joinToString(", ").let { "{$it}" }
+
+        return listOfNotNull(ref.name, displayLabels, displayArguments).joinToString("\n")
     }
 }

@@ -29,6 +29,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val globals: Map<String, String> by globalsOption(graphCommandName)
     val showProducts: Boolean by option("--show-products", help = "Show product names on edges").flag(default = false)
     val showQuantities: Boolean by option("--show-quantities", help = "Show quantities on edges").flag(default = false)
+    val showBiosphere: Boolean by option("--show-biosphere", help = "Show biosphere edges").flag(default = false)
+    val showImpacts: Boolean by option("--show-impacts", help = "Show impact edges").flag(default = false)
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -61,6 +63,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
         val graphOptions = buildSet {
             if (showProducts) add(MermaidGraphOption.SHOW_PRODUCTS)
             if (showQuantities) add(MermaidGraphOption.SHOW_QUANTITIES)
+            if (showBiosphere) add(MermaidGraphOption.SHOW_BIOSPHERE)
+            if (showImpacts) add(MermaidGraphOption.SHOW_IMPACTS)
         }
         echo(MermaidGraph(trace, graphOptions).render(), trailingNewline = false)
     }
