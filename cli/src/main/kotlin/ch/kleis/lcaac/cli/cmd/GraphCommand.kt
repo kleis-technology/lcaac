@@ -27,8 +27,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val labels: Map<String, String> by labelsOption(graphCommandName)
     val arguments: Map<String, String> by argumentsOption(graphCommandName)
     val globals: Map<String, String> by globalsOption(graphCommandName)
-    val showProducts: Boolean by option("--show-products", help = "Show product names on edges").flag(default = false)
-    val showQuantities: Boolean by option("--show-quantities", help = "Show quantities on edges").flag(default = false)
+    val hideProducts: Boolean by option("--hide-products", help = "Hide product names on edges").flag(default = false)
+    val hideQuantities: Boolean by option("--hide-quantities", help = "Hide quantities on edges").flag(default = false)
     val showBiosphere: Boolean by option("--show-biosphere", help = "Show biosphere edges").flag(default = false)
     val showImpacts: Boolean by option("--show-impacts", help = "Show impact edges").flag(default = false)
 
@@ -61,8 +61,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
         val trace = evaluator.trace(template, args)
 
         val graphOptions = buildSet {
-            if (showProducts) add(MermaidGraphOption.SHOW_PRODUCTS)
-            if (showQuantities) add(MermaidGraphOption.SHOW_QUANTITIES)
+            if (hideProducts) add(MermaidGraphOption.HIDE_PRODUCTS)
+            if (hideQuantities) add(MermaidGraphOption.HIDE_QUANTITIES)
             if (showBiosphere) add(MermaidGraphOption.SHOW_BIOSPHERE)
             if (showImpacts) add(MermaidGraphOption.SHOW_IMPACTS)
         }

@@ -12,8 +12,8 @@ import ch.kleis.lcaac.core.math.basic.BasicMatrix
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 
 enum class MermaidGraphOption {
-    SHOW_PRODUCTS,
-    SHOW_QUANTITIES,
+    HIDE_PRODUCTS,
+    HIDE_QUANTITIES,
     SHOW_BIOSPHERE,
     SHOW_IMPACTS,
 }
@@ -154,8 +154,8 @@ class MermaidGraph(
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     ): String? {
         val parts = mutableListOf<String>()
-        if (MermaidGraphOption.SHOW_QUANTITIES in options) parts.add(supplyLabel(input.product, contributionAnalysis))
-        if (MermaidGraphOption.SHOW_PRODUCTS in options) parts.add(input.product.name)
+        if (MermaidGraphOption.HIDE_QUANTITIES !in options) parts.add(supplyLabel(input.product, contributionAnalysis))
+        if (MermaidGraphOption.HIDE_PRODUCTS !in options) parts.add(input.product.name)
         return if (parts.isEmpty()) null else parts.joinToString(" ")
     }
 
@@ -164,8 +164,8 @@ class MermaidGraph(
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     ): String? {
         val parts = mutableListOf<String>()
-        if (MermaidGraphOption.SHOW_QUANTITIES in options) parts.add(supplyLabel(emission.substance, contributionAnalysis))
-        if (MermaidGraphOption.SHOW_PRODUCTS in options) parts.add(emission.substance.getDisplayName())
+        if (MermaidGraphOption.HIDE_QUANTITIES !in options) parts.add(supplyLabel(emission.substance, contributionAnalysis))
+        if (MermaidGraphOption.HIDE_PRODUCTS !in options) parts.add(emission.substance.getDisplayName())
         return if (parts.isEmpty()) null else parts.joinToString(" ")
     }
 
@@ -174,8 +174,8 @@ class MermaidGraph(
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     ): String? {
         val parts = mutableListOf<String>()
-        if (MermaidGraphOption.SHOW_QUANTITIES in options) parts.add(supplyLabel(impact.indicator, contributionAnalysis))
-        if (MermaidGraphOption.SHOW_PRODUCTS in options) parts.add(impact.indicator.name)
+        if (MermaidGraphOption.HIDE_QUANTITIES !in options) parts.add(supplyLabel(impact.indicator, contributionAnalysis))
+        if (MermaidGraphOption.HIDE_PRODUCTS !in options) parts.add(impact.indicator.name)
         return if (parts.isEmpty()) null else parts.joinToString(" ")
     }
 

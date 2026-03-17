@@ -56,7 +56,7 @@ class MermaidGraphTest {
                 classDef invisible fill:none,stroke:none
                 ep0[ ]:::invisible
                 prod0["main"]
-                prod0 --> ep0
+                prod0 -->|"1.0 kWh electricity"| ep0
 
         """.trimIndent()
         assertEquals(expected, result)
@@ -88,16 +88,16 @@ class MermaidGraphTest {
                 prod0["main"]
                 prod1["mill"]
                 dang0["wheat"]
-                prod0 --> ep0
-                prod1 --> prod0
-                dang0 --> prod1
+                prod0 -->|"1.0 kWh electricity"| ep0
+                prod1 -->|"1.0 kg flour"| prod0
+                dang0 -->|"1.0 kg wheat"| prod1
 
         """.trimIndent()
         assertEquals(expected, result)
     }
 
     @Test
-    fun `SHOW_PRODUCTS on technosphere edge`() {
+    fun `HIDE_PRODUCTS on technosphere edge`() {
         // given
         val content = """
             process main {
@@ -111,38 +111,7 @@ class MermaidGraphTest {
         val trace = trace(content, "main")
 
         // when
-        val result = MermaidGraph(trace, setOf(MermaidGraphOption.SHOW_PRODUCTS)).render()
-
-        // then
-        val expected = """
-            flowchart BT
-                classDef invisible fill:none,stroke:none
-                ep0[ ]:::invisible
-                prod0["main"]
-                prod1["mill"]
-                prod0 -->|"electricity"| ep0
-                prod1 -->|"flour"| prod0
-
-        """.trimIndent()
-        assertEquals(expected, result)
-    }
-
-    @Test
-    fun `SHOW_QUANTITIES on technosphere edge`() {
-        // given
-        val content = """
-            process main {
-                products { 1 kWh electricity }
-                inputs { 1 kg flour from mill }
-            }
-            process mill {
-                products { 1 kg flour }
-            }
-        """.trimIndent()
-        val trace = trace(content, "main")
-
-        // when
-        val result = MermaidGraph(trace, setOf(MermaidGraphOption.SHOW_QUANTITIES)).render()
+        val result = MermaidGraph(trace, setOf(MermaidGraphOption.HIDE_PRODUCTS)).render()
 
         // then
         val expected = """
@@ -153,6 +122,37 @@ class MermaidGraphTest {
                 prod1["mill"]
                 prod0 -->|"1.0 kWh"| ep0
                 prod1 -->|"1.0 kg"| prod0
+
+        """.trimIndent()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `HIDE_QUANTITIES on technosphere edge`() {
+        // given
+        val content = """
+            process main {
+                products { 1 kWh electricity }
+                inputs { 1 kg flour from mill }
+            }
+            process mill {
+                products { 1 kg flour }
+            }
+        """.trimIndent()
+        val trace = trace(content, "main")
+
+        // when
+        val result = MermaidGraph(trace, setOf(MermaidGraphOption.HIDE_QUANTITIES)).render()
+
+        // then
+        val expected = """
+            flowchart BT
+                classDef invisible fill:none,stroke:none
+                ep0[ ]:::invisible
+                prod0["main"]
+                prod1["mill"]
+                prod0 -->|"electricity"| ep0
+                prod1 -->|"flour"| prod0
 
         """.trimIndent()
         assertEquals(expected, result)
@@ -188,8 +188,8 @@ class MermaidGraphTest {
                 ep0[ ]:::invisible
                 prod0["main"]
                 ind0["climate_change"]
-                prod0 --> ep0
-                ind0 --> prod0
+                prod0 -->|"1.0 kWh electricity"| ep0
+                ind0 -->|"1.0 kg climate_change"| prod0
 
         """.trimIndent()
         assertEquals(expected, result)
@@ -216,8 +216,8 @@ class MermaidGraphTest {
                 ep0[ ]:::invisible
                 prod0["main"]
                 sub0["[Emission] CO2(air)"]
-                prod0 --> ep0
-                sub0 --> prod0
+                prod0 -->|"1.0 kWh electricity"| ep0
+                sub0 -->|"1.0 kg [Emission] CO2(air)"| prod0
 
         """.trimIndent()
         assertEquals(expected, result)
@@ -244,8 +244,8 @@ class MermaidGraphTest {
                 ep0[ ]:::invisible
                 prod0["main"]
                 ind0["climate_change"]
-                prod0 --> ep0
-                ind0 --> prod0
+                prod0 -->|"1.0 kWh electricity"| ep0
+                ind0 -->|"1.0 kg climate_change"| prod0
 
         """.trimIndent()
         assertEquals(expected, result)
@@ -278,8 +278,8 @@ class MermaidGraphTest {
                 ep0[ ]:::invisible
                 prod0["main\n{x: 1.0 kg}"]
                 dang0["flour from mill{}{x=2.0 kg}"]
-                prod0 --> ep0
-                dang0 --> prod0
+                prod0 -->|"1.0 kWh electricity"| ep0
+                dang0 -->|"1.0 kg flour"| prod0
 
         """.trimIndent()
         assertEquals(expected, result)
