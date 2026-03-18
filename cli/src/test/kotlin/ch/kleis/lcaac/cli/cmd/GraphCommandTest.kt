@@ -17,11 +17,16 @@ class GraphCommandTest {
         // then
         assertEquals(
             "flowchart BT\n" +
-                    "    p0[\"main\"]\n" +
-                    "    p1[\"mill\"]\n" +
-                    "    p2[\"wheat\"]\n" +
-                    "    p1 --> p0\n" +
-                    "    p2 --> p1\n",
+                    "    classDef invisible fill:none,stroke:none\n" +
+                    "    ep0[ ]:::invisible\n" +
+                    "    prod0[\"main\"]\n" +
+                    "    prod1[\"mill\"]\n" +
+                    "    prod2[\"wheat\"]\n" +
+                    "    dang0[\"grass\"]\n" +
+                    "    prod0 -->|\"1.0 kg bread\"| ep0\n" +
+                    "    prod1 -->|\"1.0 kg flour\"| prod0\n" +
+                    "    prod2 -->|\"2.0 kg wheat\"| prod1\n" +
+                    "    dang0 -->|\"2.0 kg grass\"| prod2\n",
             result.output
         )
     }
