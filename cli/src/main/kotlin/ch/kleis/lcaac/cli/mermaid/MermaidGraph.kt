@@ -237,7 +237,7 @@ class MermaidGraph(
         }
         if (exchangeParts.isNotEmpty()) parts.add(exchangeParts.joinToString(" "))
         if (indicator != null) {
-            val contribution = contributionAnalysis.getPortContribution(input.port(), indicator)
+            val contribution = contributionAnalysis.getExchangeContribution(output.port(), input, indicator)
             parts.add(formatContribution(contribution, totalImpact))
         }
         return if (parts.isEmpty()) null else parts.joinToString("\\n")
