@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.core.subcommands
 fun main(args: Array<String>): Unit = LcaacCommand()
     .subcommands(
         AssessCommand(),
+        EvalCommand(),
         GraphCommand(),
         TestCommand(),
         TraceCommand(),
