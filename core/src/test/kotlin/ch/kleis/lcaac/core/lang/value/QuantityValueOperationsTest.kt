@@ -174,4 +174,44 @@ class QuantityValueOperationsTest {
             assertEquals(expected, actual)
         }
     }
+
+    @Test
+    fun toUnit() {
+        // given
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+
+        // when
+        with(quantityOps) {
+            val actual = a.toUnit(UnitValueFixture.g())
+
+            // then
+            val expected = QuantityValue(ops.pure(2000.0), UnitValueFixture.g())
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun toUnit_sameUnit() {
+        // given
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+
+        // when
+        with(quantityOps) {
+            val actual = a.toUnit(UnitValueFixture.kg())
+
+            // then
+            val expected = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun toUnit_whenIncompatibleDims() {
+        // given
+        val a = QuantityValue(ops.pure(2.0), UnitValueFixture.kg())
+
+        // when
+        val e = assertThrows(EvaluatorException::class.java) { with(quantityOps) { a.toUnit(UnitValueFixture.l()) } }
+        assertEquals("incompatible dimensions: mass vs length³", e.message)
+    }
 }
