@@ -90,6 +90,16 @@ class QuantityValueOperations<Q>(
         }
     }
 
+    fun QuantityValue<Q>.toUnit(unit: UnitValue<Q>): QuantityValue<Q> {
+        if (this.unit.dimension != unit.dimension) {
+            throw EvaluatorException("incompatible dimensions: ${this.unit.dimension} vs ${unit.dimension}")
+        }
+        with(ops) {
+            val newAmount = this@toUnit.amount * pure(this@toUnit.unit.scale) / pure(unit.scale)
+            return QuantityValue(newAmount, unit)
+        }
+    }
+
     override fun pure(value: Double): QuantityValue<Q> {
         with(ops) {
             return QuantityValue(
