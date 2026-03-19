@@ -12,7 +12,7 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 
 enum class MermaidGraphOption {
     HIDE_PRODUCTS,
-    HIDE_QUANTITIES,
+    SHOW_QUANTITIES,
     SHOW_BIOSPHERE,
     SHOW_IMPACTS,
 }
@@ -193,7 +193,7 @@ class MermaidGraph(
     ): String? {
         val parts = mutableListOf<String>()
         val exchangeParts = mutableListOf<String>()
-        if (MermaidGraphOption.HIDE_QUANTITIES !in options) {
+        if (MermaidGraphOption.SHOW_QUANTITIES in options) {
             val outputSupply = contributionAnalysis.supplyOf(output.product)
             exchangeParts.add(formatQuantity(outputSupply))
         }
@@ -217,7 +217,7 @@ class MermaidGraph(
         val parts = mutableListOf<String>()
 
         val exchangeParts = mutableListOf<String>()
-        if (MermaidGraphOption.HIDE_QUANTITIES !in options) {
+        if (MermaidGraphOption.SHOW_QUANTITIES in options) {
             val outputQuantity = output.quantity()
             val outputSupply = contributionAnalysis.supplyOf(output.port())
             val inputQuantity = input.quantity()
