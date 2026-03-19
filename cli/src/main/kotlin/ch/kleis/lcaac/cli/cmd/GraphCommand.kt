@@ -2,6 +2,7 @@ package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.cli.mermaid.MermaidGraph
 import ch.kleis.lcaac.cli.mermaid.MermaidGraphOption
+import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
@@ -31,6 +32,7 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val hideQuantities: Boolean by option("--hide-quantities", help = "Hide quantities on edges").flag(default = false)
     val showBiosphere: Boolean by option("--show-biosphere", help = "Show biosphere edges").flag(default = false)
     val showImpacts: Boolean by option("--show-impacts", help = "Show impact edges").flag(default = false)
+    val indicatorName: String? by option("-i", "--indicator", help = "Show port contribution for this indicator on each edge")
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -66,6 +68,13 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
             if (showBiosphere) add(MermaidGraphOption.SHOW_BIOSPHERE)
             if (showImpacts) add(MermaidGraphOption.SHOW_IMPACTS)
         }
-        echo(MermaidGraph(trace, graphOptions).render(), trailingNewline = false)
+        val indicator = indicatorName?.let { name ->
+            val system = trace.getSystemValue()
+            val entryPoint = trace.getEntryPoint()
+            val analysis = ContributionAnalysisProgram(system, entryPoint).run()
+            analysis.getIndicators().firstOrNull { it.name == name }
+                ?: throw EvaluatorException("Indicator not found: $name")
+        }
+        echo(MermaidGraph(trace, graphOptions, indicator).render(), trailingNewline = false)
     }
 }

@@ -23,10 +23,10 @@ class GraphCommandTest {
                     "    prod1[\"mill\"]\n" +
                     "    prod2[\"wheat\"]\n" +
                     "    dang0[\"grass\"]\n" +
-                    "    prod0 -->|\"1.0 kg bread\"| ep0\n" +
-                    "    prod1 -->|\"1.0 kg flour\"| prod0\n" +
-                    "    prod2 -->|\"2.0 kg wheat\"| prod1\n" +
-                    "    dang0 -->|\"2.0 kg grass\"| prod2\n",
+                    "    prod0 -->|\"1.00e+00 kg bread\"| ep0\n" +
+                    "    prod1 -->|\"1.00e+00 kg flour\"| prod0\n" +
+                    "    prod2 -->|\"2.00e+00 kg wheat\"| prod1\n" +
+                    "    dang0 -->|\"2.00e+00 kg grass\"| prod2\n",
             result.output
         )
     }

@@ -3,13 +3,7 @@ package ch.kleis.lcaac.cli.mermaid
 import ch.kleis.lcaac.core.assessment.ContributionAnalysis
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
-import ch.kleis.lcaac.core.lang.value.ExchangeValue
-import ch.kleis.lcaac.core.lang.value.FullyQualifiedSubstanceValue
-import ch.kleis.lcaac.core.lang.value.IndicatorValue
-import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
-import ch.kleis.lcaac.core.lang.value.ProductValue
-import ch.kleis.lcaac.core.lang.value.QuantityValueOperations
-import ch.kleis.lcaac.core.lang.value.TechnoExchangeValue
+import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicMatrix
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
@@ -24,6 +18,7 @@ enum class MermaidGraphOption {
 class MermaidGraph(
     private val trace: EvaluationTrace<BasicNumber>,
     private val options: Set<MermaidGraphOption> = emptySet(),
+    private val indicator: IndicatorValue<BasicNumber>? = null,
 ) {
     fun render(): String {
         val system = trace.getSystemValue()
@@ -153,19 +148,28 @@ class MermaidGraph(
         }
     }
 
+    private fun formatQuantity(quantity: QuantityValue<BasicNumber>): String =
+        "${"%.2e".format(quantity.amount.value)} ${quantity.unit}"
+
     private fun danglingEdgeLabel(
         output: TechnoExchangeValue<BasicNumber>,
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>
     ): String? {
         val parts = mutableListOf<String>()
+        val exchangeParts = mutableListOf<String>()
         if (MermaidGraphOption.HIDE_QUANTITIES !in options) {
             val outputSupply = contributionAnalysis.supplyOf(output.product)
-            parts.add(outputSupply.toString())
+            exchangeParts.add(formatQuantity(outputSupply))
         }
         if (MermaidGraphOption.HIDE_PRODUCTS !in options) {
-            parts.add(output.port().getShortName())
+            exchangeParts.add(output.port().getShortName())
         }
-        return if (parts.isEmpty()) null else parts.joinToString(" ")
+        if (exchangeParts.isNotEmpty()) parts.add(exchangeParts.joinToString(" "))
+        if (indicator != null) {
+            val contribution = contributionAnalysis.getPortContribution(output.product, indicator)
+            parts.add("${formatQuantity(contribution)} ${indicator.name}")
+        }
+        return if (parts.isEmpty()) null else parts.joinToString("\\n")
     }
 
     private fun edgeLabel(
@@ -174,6 +178,8 @@ class MermaidGraph(
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
     ): String? {
         val parts = mutableListOf<String>()
+
+        val exchangeParts = mutableListOf<String>()
         if (MermaidGraphOption.HIDE_QUANTITIES !in options) {
             val outputQuantity = output.quantity()
             val outputSupply = contributionAnalysis.supplyOf(output.port())
@@ -181,7 +187,7 @@ class MermaidGraph(
             val quantityOps = QuantityValueOperations(BasicOperations)
             with(quantityOps) {
                 val quantity = ((outputSupply / outputQuantity) * inputQuantity).toUnit(inputQuantity.unit)
-                parts.add(quantity.toString())
+                exchangeParts.add(formatQuantity(quantity))
             }
         }
         if (MermaidGraphOption.HIDE_PRODUCTS !in options) {
@@ -191,9 +197,14 @@ class MermaidGraph(
                 is FullyQualifiedSubstanceValue<*> -> input.port().getDisplayName()
                 is PartiallyQualifiedSubstanceValue<*> -> input.port().getDisplayName()
             }
-            parts.add(portName)
+            exchangeParts.add(portName)
         }
-        return if (parts.isEmpty()) null else parts.joinToString(" ")
+        if (exchangeParts.isNotEmpty()) parts.add(exchangeParts.joinToString(" "))
+        if (indicator != null) {
+            val contribution = contributionAnalysis.getPortContribution(input.port(), indicator)
+            parts.add("${formatQuantity(contribution)} ${indicator.name}")
+        }
+        return if (parts.isEmpty()) null else parts.joinToString("\\n")
     }
 
     private fun nodeLabel(product: ProductValue<BasicNumber>): String {
