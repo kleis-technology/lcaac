@@ -15,11 +15,15 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import java.io.File
 
 const val graphCommandName = "graph"
+
+enum class GraphFormat { MERMAID, HTML }
 
 class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Mermaid graph of processes") {
     val name: String by argument().help("Process name")
@@ -33,6 +37,9 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val showBiosphere: Boolean by option("--show-biosphere", help = "Show biosphere edges").flag(default = false)
     val showImpacts: Boolean by option("--show-impacts", help = "Show impact edges").flag(default = false)
     val indicatorName: String? by option("-i", "--indicator", help = "Show port contribution for this indicator on each edge")
+    val outputFormat: GraphFormat by option("-o", "--output", help = "Output format (mermaid or html)")
+        .choice("mermaid" to GraphFormat.MERMAID, "html" to GraphFormat.HTML)
+        .default(GraphFormat.MERMAID)
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -75,6 +82,26 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
             analysis.getIndicators().firstOrNull { it.name == name }
                 ?: throw EvaluatorException("Indicator not found: $name")
         }
-        echo(MermaidGraph(trace, graphOptions, indicator).render(), trailingNewline = false)
+        val mermaid = MermaidGraph(trace, graphOptions, indicator).render()
+        val output = when (outputFormat) {
+            GraphFormat.MERMAID -> mermaid
+            GraphFormat.HTML -> renderHtml(mermaid)
+        }
+        echo(output, trailingNewline = false)
     }
+
+    private fun renderHtml(mermaid: String): String = """
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body>
+        <pre class="mermaid">
+        $mermaid</pre>
+        <script type="module">
+            import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+        </body>
+        </html>
+    """.trimIndent()
 }
