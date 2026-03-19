@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.cli.mermaid.ImpactMode
 import ch.kleis.lcaac.cli.mermaid.MermaidGraph
 import ch.kleis.lcaac.cli.mermaid.MermaidGraphOption
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
@@ -37,6 +38,7 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
     val showBiosphere: Boolean by option("--show-biosphere", help = "Show biosphere edges").flag(default = false)
     val showImpacts: Boolean by option("--show-impacts", help = "Show impact edges").flag(default = false)
     val indicatorName: String? by option("-i", "--indicator", help = "Show port contribution for this indicator on each edge")
+    val absolute: Boolean by option("--absolute", help = "Report indicator contributions in absolute values (default: relative %)").flag(default = false)
     val outputFormat: GraphFormat by option("-o", "--output", help = "Output format (mermaid or html)")
         .choice("mermaid" to GraphFormat.MERMAID, "html" to GraphFormat.HTML)
         .default(GraphFormat.MERMAID)
@@ -82,7 +84,8 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
             analysis.getIndicators().firstOrNull { it.name == name }
                 ?: throw EvaluatorException("Indicator not found: $name")
         }
-        val mermaid = MermaidGraph(trace, graphOptions, indicator).render()
+        val impactMode = if (absolute) ImpactMode.ABSOLUTE else ImpactMode.RELATIVE
+        val mermaid = MermaidGraph(trace, graphOptions, indicator, impactMode).render()
         val output = when (outputFormat) {
             GraphFormat.MERMAID -> mermaid
             GraphFormat.HTML -> renderHtml(mermaid)

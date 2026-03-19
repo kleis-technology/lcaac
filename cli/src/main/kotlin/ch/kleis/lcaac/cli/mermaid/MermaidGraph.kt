@@ -2,6 +2,8 @@ package ch.kleis.lcaac.cli.mermaid
 
 import ch.kleis.lcaac.core.assessment.ContributionAnalysis
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
+import ch.kleis.lcaac.core.lang.dimension.Dimension
+import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.basic.BasicMatrix
@@ -15,11 +17,16 @@ enum class MermaidGraphOption {
     SHOW_IMPACTS,
 }
 
+enum class ImpactMode { RELATIVE, ABSOLUTE }
+
 class MermaidGraph(
     private val trace: EvaluationTrace<BasicNumber>,
     private val options: Set<MermaidGraphOption> = emptySet(),
     private val indicator: IndicatorValue<BasicNumber>? = null,
+    private val impactMode: ImpactMode = ImpactMode.RELATIVE,
 ) {
+    private val quantityOps = QuantityValueOperations(BasicOperations)
+
     fun render(): String {
         val system = trace.getSystemValue()
         val entryPoint = trace.getEntryPoint()
@@ -29,6 +36,17 @@ class MermaidGraph(
         val substanceCharacterizations = system.substanceCharacterizations
         val entryPointProductIdMap = entryPoint.products
             .mapIndexed { i, output -> output.product to "ep$i" }.toMap()
+
+        val totalImpact = indicator?.let { ind ->
+            entryPoint
+                .products.map {
+                    contributionAnalysis.getPortContribution(it.product, ind)
+                }.reduce { acc, value ->
+                    with(quantityOps) {
+                        acc + value
+                    }
+                }
+        }
 
         // Nodes
         val productIdMap = system.productToProcessMap.keys
@@ -83,7 +101,7 @@ class MermaidGraph(
 
             // Edges from entrypoint product nodes to invisible terminal nodes
             entryPoint.products.forEach { output ->
-                val label = danglingEdgeLabel(output, contributionAnalysis)
+                val label = danglingEdgeLabel(output, contributionAnalysis, totalImpact)
                 if (label != null) {
                     appendLine("    ${productIdMap[output.product]} -->|\"$label\"| ${entryPointProductIdMap[output.product]}")
                 } else {
@@ -100,7 +118,7 @@ class MermaidGraph(
                 process.inputs.forEach { input ->
                     val sourceId = productIdMap[input.product] ?: danglingProductIdMap[input.product]
                     if (sourceId != null) {
-                        val label = edgeLabel(output, input, contributionAnalysis)
+                        val label = edgeLabel(output, input, contributionAnalysis, totalImpact)
                         if (label != null) {
                             appendLine("    $sourceId -->|\"$label\"| $targetId")
                         } else {
@@ -115,7 +133,7 @@ class MermaidGraph(
                         val sc = system.substanceToSubstanceCharacterizationMap[emission.substance]
                         if (sc != null) {
                             sc.impacts.forEach { impact ->
-                                val label = edgeLabel(output, impact, contributionAnalysis)
+                                val label = edgeLabel(output, impact, contributionAnalysis, totalImpact)
                                 if (label != null) {
                                     appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| $targetId")
                                 } else {
@@ -123,7 +141,7 @@ class MermaidGraph(
                                 }
                             }
                         } else {
-                            val label = edgeLabel(output, emission, contributionAnalysis)
+                            val label = edgeLabel(output, emission, contributionAnalysis, totalImpact)
                             if (label != null) {
                                 appendLine("    ${danglingSubstanceIdMap[emission.substance]} -->|\"$label\"| $targetId")
                             } else {
@@ -136,7 +154,7 @@ class MermaidGraph(
                 // Edges from process direct impacts
                 if (MermaidGraphOption.SHOW_IMPACTS in options) {
                     process.impacts.forEach { impact ->
-                        val label = edgeLabel(output, impact, contributionAnalysis)
+                        val label = edgeLabel(output, impact, contributionAnalysis, totalImpact)
                         if (label != null) {
                             appendLine("    ${indicatorIdMap[impact.indicator]} -->|\"$label\"| $targetId")
                         } else {
@@ -151,9 +169,27 @@ class MermaidGraph(
     private fun formatQuantity(quantity: QuantityValue<BasicNumber>): String =
         "${"%.2e".format(quantity.amount.value)} ${quantity.unit}"
 
+    private fun formatContribution(
+        contribution: QuantityValue<BasicNumber>,
+        totalImpact: QuantityValue<BasicNumber>?,
+    ): String {
+        if (indicator == null) return ""
+        return when (impactMode) {
+            ImpactMode.ABSOLUTE -> "${formatQuantity(contribution)} ${indicator.name}"
+            ImpactMode.RELATIVE -> {
+                val percent = with(quantityOps) {
+                    contribution.absoluteScaleValue().value /
+                        (totalImpact?.absoluteScaleValue()?.value ?: 1.0) * 100.0
+                }
+                "${"%.1f".format(percent)}% ${indicator.name}"
+            }
+        }
+    }
+
     private fun danglingEdgeLabel(
         output: TechnoExchangeValue<BasicNumber>,
-        contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>
+        contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
+        totalImpact: QuantityValue<BasicNumber>?,
     ): String? {
         val parts = mutableListOf<String>()
         val exchangeParts = mutableListOf<String>()
@@ -167,7 +203,7 @@ class MermaidGraph(
         if (exchangeParts.isNotEmpty()) parts.add(exchangeParts.joinToString(" "))
         if (indicator != null) {
             val contribution = contributionAnalysis.getPortContribution(output.product, indicator)
-            parts.add("${formatQuantity(contribution)} ${indicator.name}")
+            parts.add(formatContribution(contribution, totalImpact))
         }
         return if (parts.isEmpty()) null else parts.joinToString("\\n")
     }
@@ -176,6 +212,7 @@ class MermaidGraph(
         output: ExchangeValue<BasicNumber>,
         input: ExchangeValue<BasicNumber>,
         contributionAnalysis: ContributionAnalysis<BasicNumber, BasicMatrix>,
+        totalImpact: QuantityValue<BasicNumber>?,
     ): String? {
         val parts = mutableListOf<String>()
 
@@ -184,14 +221,13 @@ class MermaidGraph(
             val outputQuantity = output.quantity()
             val outputSupply = contributionAnalysis.supplyOf(output.port())
             val inputQuantity = input.quantity()
-            val quantityOps = QuantityValueOperations(BasicOperations)
             with(quantityOps) {
                 val quantity = ((outputSupply / outputQuantity) * inputQuantity).toUnit(inputQuantity.unit)
                 exchangeParts.add(formatQuantity(quantity))
             }
         }
         if (MermaidGraphOption.HIDE_PRODUCTS !in options) {
-            val portName = when(input.port()) {
+            val portName = when (input.port()) {
                 is IndicatorValue<*> -> input.port().getShortName()
                 is ProductValue<*> -> input.port().getShortName()
                 is FullyQualifiedSubstanceValue<*> -> input.port().getDisplayName()
@@ -202,7 +238,7 @@ class MermaidGraph(
         if (exchangeParts.isNotEmpty()) parts.add(exchangeParts.joinToString(" "))
         if (indicator != null) {
             val contribution = contributionAnalysis.getPortContribution(input.port(), indicator)
-            parts.add("${formatQuantity(contribution)} ${indicator.name}")
+            parts.add(formatContribution(contribution, totalImpact))
         }
         return if (parts.isEmpty()) null else parts.joinToString("\\n")
     }

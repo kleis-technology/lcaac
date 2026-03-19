@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.mermaid
 
+import ch.kleis.lcaac.cli.mermaid.ImpactMode
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
@@ -272,6 +273,41 @@ class MermaidGraphTest {
 
         // when
         val result = MermaidGraph(trace, indicator = indicator).render()
+
+        // then
+        val expected = """
+        flowchart BT
+            classDef invisible fill:none,stroke:none
+            ep0[ ]:::invisible
+            prod0["main"]
+            prod1["mill"]
+            prod0 -->|"1.00e+00 kWh electricity\n100.0% climate_change"| ep0
+            prod1 -->|"1.00e+00 kg flour\n60.0% climate_change"| prod0
+
+        """.trimIndent()
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `indicator contribution on edges, absolute mode`() {
+        // given
+        val content = """
+            process main {
+                products { 1 kWh electricity }
+                inputs { 1 kg flour from mill }
+                impacts { 2 kg climate_change }
+            }
+            process mill {
+                products { 1 kg flour }
+                impacts { 3 kg climate_change }
+            }
+        """.trimIndent()
+        val trace = trace(content, "main")
+        val analysis = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint()).run()
+        val indicator = analysis.getIndicators().first { it.name == "climate_change" }
+
+        // when
+        val result = MermaidGraph(trace, indicator = indicator, impactMode = ImpactMode.ABSOLUTE).render()
 
         // then
         val expected = """
