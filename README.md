@@ -28,7 +28,7 @@ See our [book](https://lca-as-code.com/book) to learn more about the language.
 
 From the source
 ```bash
-git checkout v2.1.0
+git checkout v2.2.0
 ./gradlew :cli:installDist
 alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
 lcaac version
@@ -70,16 +70,60 @@ Now you can assess the process `electricity_mix`.
 cd $GIT_ROOT/cli/samples
 lcaac assess "electricity_mix"
 ```
-The result is printed on the standard output in CSV format.
-```csv
-product,amount,reference unit,co2,co2_unit
-electricity,1.0,kWh,5.4,kg
+The result is printed on the standard output in tabular format.
+```
+product      amount  reference unit  co2  co2_unit
+-----------  ------  --------------  ---  --------
+electricity  1.0     kWh             5.4  kg
+```
+
+Use `-o csv` or `-o json` for machine-readable output, and `-i <indicator>` to filter the indicators shown.
+```bash
+lcaac assess "electricity_mix" -o csv
+lcaac assess "electricity_mix" -o json -i co2
 ```
 
 You can also run multiple assessments with an external data csv file providing values for the process parameters.
 ```bash
 lcaac assess "electricity_mix" --file params.csv
 ```
+
+### Graph
+
+The `graph` command renders the process supply chain as a [Mermaid](https://mermaid.js.org) flowchart.
+
+```bash
+cd $GIT_ROOT/cli/samples
+lcaac graph "electricity_mix"
+```
+
+```
+flowchart BT
+    classDef invisible fill:none,stroke:none
+    ep0[ ]:::invisible
+    prod0["electricity_mix"]
+    prod1["fossil"]
+    prod2["nuclear"]
+    prod3["hydro"]
+    prod0 -->|"electricity"| ep0
+    prod1 -->|"electricity"| prod0
+    prod2 -->|"electricity"| prod0
+    prod3 -->|"electricity"| prod0
+```
+
+Use `-o html` to get a self-contained HTML page with the graph rendered in the browser.
+```bash
+lcaac graph "electricity_mix" -o html > graph.html
+```
+
+Use `-i <indicator>` to display each process's contribution to an indicator on the edges.
+By default, the contribution is shown as a percentage; use `--absolute` for absolute values.
+```bash
+lcaac graph "electricity_mix" -i co2
+lcaac graph "electricity_mix" -i co2 --absolute
+```
+
+Additional display options: `--show-biosphere`, `--show-impacts`, `--show-quantities`, `--hide-products`.
 
 ### Tests
 
