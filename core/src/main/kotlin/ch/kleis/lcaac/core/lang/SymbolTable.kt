@@ -84,5 +84,12 @@ data class SymbolTable<Q>(
         return dataSources[DataSourceKey(name)]
     }
 
+    fun overrideGlobalParameters(params: Map<String, DataExpression<Q>>): SymbolTable<Q> {
+        return this.copy(
+            globalParameters = globalParameters.override(
+                params.mapKeys { DataKey(it.key) },
+            ),
+        )
+    }
 }
 
