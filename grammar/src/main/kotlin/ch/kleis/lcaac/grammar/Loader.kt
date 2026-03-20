@@ -26,7 +26,9 @@ class Loader<Q>(
             val processDefinitions = files.flatMap { it.processDefinition() }
             val substanceDefinitions = files.flatMap { it.substanceDefinition() }
             val dataSourceDefinitions = files.flatMap { it.dataSourceDefinition() }
-            val globalDefinitions = files.flatMap { it.globalVariables() }
+            val globalParameterDefinitions = files.flatMap { it.globalParameters() }
+                .flatMap { it.globalAssignment() }
+            val globalVariableDefinitions = files.flatMap { it.globalVariables() }
                 .flatMap { it.globalAssignment() }
 
             val dimensions = try {
@@ -55,7 +57,7 @@ class Loader<Q>(
                 throw LoaderException("Duplicate substance ${e.duplicates} defined")
             }
 
-            val globals = try {
+            val globalVariables = try {
                 val register: DataRegister<Q> =
                     if (options.contains(LoaderOption.WITH_PRELUDE)) Prelude.units()
                     else DataRegister()
@@ -73,14 +75,25 @@ class Loader<Q>(
                             .asIterable()
                     )
                     .plus(
-                        globalDefinitions
+                        globalVariableDefinitions
+                            .associate { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
+                            .toList()
+                            .asIterable()
+                    )
+            } catch (e: RegisterException) {
+                throw LoaderException("Duplicate global variable ${e.duplicates} defined")
+            }
+            val globalParameters = try {
+                DataRegister<Q>()
+                    .plus(
+                        globalParameterDefinitions
                             .associate { DataKey(it.dataRef().innerText()) to dataExpression(it.dataExpression()) }
                             .plus(overriddenGlobals)
                             .toList()
                             .asIterable()
                     )
             } catch (e: RegisterException) {
-                throw LoaderException("Duplicate global variable ${e.duplicates} defined")
+                throw LoaderException("Duplicate global parameters ${e.duplicates} defined")
             }
 
             val dataSources = try {
@@ -98,7 +111,7 @@ class Loader<Q>(
                 ProcessTemplateRegister<Q>()
                     .plus(
                         processDefinitions
-                            .map { Pair(it.buildUniqueKey(), process(it, globals, dataSources)) }
+                            .map { Pair(it.buildUniqueKey(), process(it, globalVariables, dataSources)) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {
@@ -106,7 +119,8 @@ class Loader<Q>(
             }
 
             return SymbolTable(
-                data = globals,
+                globalParameters = globalParameters,
+                globalVariables = globalVariables,
                 processTemplates = processTemplates,
                 dataSources = dataSources,
                 dimensions = dimensions,

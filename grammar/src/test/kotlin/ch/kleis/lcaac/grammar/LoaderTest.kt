@@ -4,9 +4,7 @@ import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
-import ch.kleis.lcaac.core.lang.expression.ProcessAnnotation.CACHED
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.math.basic.BasicNumber
@@ -14,14 +12,13 @@ import ch.kleis.lcaac.core.math.basic.BasicOperations
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.fail
 
 class LoaderTest {
     @Test
     fun load_overriddenGlobals() {
         // given
         val file = LcaLangFixture.parser("""
-            variables {
+            params {
                x = hour
             }
         """.trimIndent()).lcaFile()
@@ -32,7 +29,7 @@ class LoaderTest {
 
         // when
         val actual = loader.load(sequenceOf(file))
-            .getData("x")
+            .getGlobalParameter("x")
 
         // then
         val expected = EDataRef<BasicNumber>("day")
@@ -252,7 +249,7 @@ class LoaderTest {
         val loader = Loader(BasicOperations)
 
         // when
-        val actual = loader.load(sequenceOf(file)).getData("foo") as EUnitLiteral<BasicNumber>
+        val actual = loader.load(sequenceOf(file)).getGlobalVariable("foo") as EUnitLiteral<BasicNumber>
 
         // then
         val expected = EUnitLiteral<BasicNumber>(UnitSymbol.of("foo"), 1.0, Dimension.of("foo"))
@@ -273,7 +270,7 @@ class LoaderTest {
         val loader = Loader(BasicOperations)
 
         // when
-        val actual = loader.load(sequenceOf(file)).getData("foo") as EUnitAlias<BasicNumber>
+        val actual = loader.load(sequenceOf(file)).getGlobalVariable("foo") as EUnitAlias<BasicNumber>
 
         // then
         val expected = EUnitAlias("foo", EQuantityScale(BasicNumber(2.0), EDataRef("bar")))
@@ -610,7 +607,7 @@ class LoaderTest {
         // then
         val sum = EQuantityAdd<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val localTable = SymbolTable(
-            data = DataRegister(
+            globalVariables = DataRegister(
                 mapOf(
                     "x" to oneKg,
                     "y" to oneKg,
@@ -1062,11 +1059,11 @@ class LoaderTest {
         val div = EQuantityDiv<BasicNumber>(EDataRef("x"), EDataRef("y"))
         val scale = EQuantityScale(BasicNumber(2.0), EDataRef("x"))
         val pow = EQuantityPow<BasicNumber>(EDataRef("x"), 2.0)
-        assertEquals(sum, actual.getData("op_sum"))
-        assertEquals(mul, actual.getData("op_mul"))
-        assertEquals(div, actual.getData("op_div"))
-        assertEquals(scale, actual.getData("op_scale"))
-        assertEquals(pow, actual.getData("op_pow"))
+        assertEquals(sum, actual.getGlobalVariable("op_sum"))
+        assertEquals(mul, actual.getGlobalVariable("op_mul"))
+        assertEquals(div, actual.getGlobalVariable("op_div"))
+        assertEquals(scale, actual.getGlobalVariable("op_scale"))
+        assertEquals(pow, actual.getGlobalVariable("op_pow"))
     }
 
     @Test
@@ -1088,8 +1085,8 @@ class LoaderTest {
         // then
         val a = EQuantityAdd<BasicNumber>(EQuantityMul(EDataRef("x"), EDataRef("y")), EDataRef("z"))
         val b = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityMul(EDataRef("y"), EDataRef("z")))
-        assertEquals(a, actual.getData("a"))
-        assertEquals(b, actual.getData("b"))
+        assertEquals(a, actual.getGlobalVariable("a"))
+        assertEquals(b, actual.getGlobalVariable("b"))
     }
 
     @Test
@@ -1111,8 +1108,8 @@ class LoaderTest {
         // then
         val a = EQuantityAdd<BasicNumber>(EQuantityDiv(EDataRef("x"), EDataRef("y")), EDataRef("z"))
         val b = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityDiv(EDataRef("y"), EDataRef("z")))
-        assertEquals(a, actual.getData("a"))
-        assertEquals(b, actual.getData("b"))
+        assertEquals(a, actual.getGlobalVariable("a"))
+        assertEquals(b, actual.getGlobalVariable("b"))
     }
 
     @Test
@@ -1134,8 +1131,8 @@ class LoaderTest {
         // then
         val a = EQuantityScale(BasicNumber(3.0), EQuantityMul(EDataRef("x"), EDataRef("y")))
         val b = EQuantityMul(EDataRef("x"), EQuantityScale(BasicNumber(4.0), EDataRef("y")))
-        assertEquals(a, actual.getData("a"))
-        assertEquals(b, actual.getData("b"))
+        assertEquals(a, actual.getGlobalVariable("a"))
+        assertEquals(b, actual.getGlobalVariable("b"))
     }
 
     @Test
@@ -1157,8 +1154,8 @@ class LoaderTest {
         // then
         val a = EQuantityScale(BasicNumber(3.0), EQuantityDiv(EDataRef("x"), EDataRef("y")))
         val b = EQuantityDiv(EDataRef("x"), EQuantityScale(BasicNumber(4.0), EDataRef("y")))
-        assertEquals(a, actual.getData("a"))
-        assertEquals(b, actual.getData("b"))
+        assertEquals(a, actual.getGlobalVariable("a"))
+        assertEquals(b, actual.getGlobalVariable("b"))
     }
 
     @Test
@@ -1180,8 +1177,8 @@ class LoaderTest {
         // then
         val a = EQuantityAdd<BasicNumber>(EDataRef("x"), EQuantityPow(EDataRef("y"), 2.0))
         val b = EQuantityAdd<BasicNumber>(EQuantityPow(EDataRef("x"), 2.0), EDataRef("y"))
-        assertEquals(a, actual.getData("a"))
-        assertEquals(b, actual.getData("b"))
+        assertEquals(a, actual.getGlobalVariable("a"))
+        assertEquals(b, actual.getGlobalVariable("b"))
     }
 
     @Test
@@ -1201,6 +1198,6 @@ class LoaderTest {
 
         // then
         val a = EQuantityDiv<BasicNumber>(EQuantityDiv(EDataRef("x"), EDataRef("y")), EDataRef("z"))
-        assertEquals(a, actual.getData("a"))
+        assertEquals(a, actual.getGlobalVariable("a"))
     }
 }

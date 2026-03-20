@@ -29,7 +29,7 @@ class CoreMapper<Q>(
         val locals = ctx.variables().flatMap { it.assignment() }.associate { assignment(it) }
         val params = ctx.params().flatMap { it.assignment() }.associate { assignment(it) }
         val symbolTable = SymbolTable(
-            data = try {
+            globalVariables = try {
                 DataRegister(globals.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
