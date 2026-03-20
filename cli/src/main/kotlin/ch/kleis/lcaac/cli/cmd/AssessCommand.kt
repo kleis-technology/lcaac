@@ -10,6 +10,10 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.multiple
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
 import java.io.File
 
 const val assessCommandName = "assess"
@@ -23,6 +27,10 @@ class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the
     val labels: Map<String, String> by labelsOption(assessCommandName)
     val arguments: Map<String, String> by argumentsOption(assessCommandName)
     val globals: Map<String, String> by globalsOption(assessCommandName)
+    val outputFormat: OutputFormat by option("-o", "--output", help = "Output format (text, csv, or json)")
+        .choice("csv" to OutputFormat.CSV, "text" to OutputFormat.TEXT, "json" to OutputFormat.JSON)
+        .default(OutputFormat.TEXT)
+    val indicators: List<String> by option("-i", "--indicators", help = "Filter indicators by name (repeatable)").multiple()
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -37,7 +45,7 @@ class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the
 
         val processor = AssessCsvProcessor(yamlConfig, symbolTable, projectDirectory.path)
         val iterator = loadRequests()
-        val writer = AssessCsvResultWriter()
+        val writer = AssessCsvResultWriter(outputFormat, indicators.toSet())
         var first = true
         while (iterator.hasNext()) {
             val request = iterator.next()
@@ -50,6 +58,7 @@ class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the
                 echo(writer.row(it), trailingNewline = false)
             }
         }
+        echo(writer.footer(), trailingNewline = false)
     }
 
     private fun loadRequests(): Iterator<CsvRequest> {

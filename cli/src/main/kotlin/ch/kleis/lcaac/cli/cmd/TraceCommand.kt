@@ -13,7 +13,9 @@ import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 import kotlin.io.path.Path
@@ -29,6 +31,10 @@ class TraceCommand : CliktCommand(name = traceCommandName, help = "Trace the con
     val labels: Map<String, String> by labelsOption(traceCommandName)
     val arguments: Map<String, String> by argumentsOption(traceCommandName)
     val globals: Map<String, String> by globalsOption(traceCommandName)
+    val outputFormat: OutputFormat by option("-o", "--output", help = "Output format (text, csv, or json)")
+        .choice("csv" to OutputFormat.CSV, "text" to OutputFormat.TEXT, "json" to OutputFormat.JSON)
+        .default(OutputFormat.TEXT)
+    val indicators: List<String> by option("-i", "--indicators", help = "Filter indicators by name (repeatable)").multiple()
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -43,7 +49,7 @@ class TraceCommand : CliktCommand(name = traceCommandName, help = "Trace the con
 
         val processor = TraceCsvProcessor(yamlConfig, symbolTable, projectDirectory.path)
         val iterator = loadRequests()
-        val writer = TraceCsvResultWriter()
+        val writer = TraceCsvResultWriter(outputFormat, indicators.toSet())
         var first = true
         while (iterator.hasNext()) {
             val request = iterator.next()
@@ -56,6 +62,7 @@ class TraceCommand : CliktCommand(name = traceCommandName, help = "Trace the con
                 echo(it, trailingNewline = false)
             }
         }
+        echo(writer.footer(), trailingNewline = false)
     }
 
     private fun loadRequests(): Iterator<CsvRequest> {
