@@ -39,6 +39,10 @@ class Register<K, E> (
         return data.hashCode()
     }
 
+    fun plus(other: Register<K, E>): Register<K, E> {
+        return plus(other.data)
+    }
+
     fun plus(map: Map<K, E>): Register<K, E> {
         return plus(map.map { it.key to it.value })
     }

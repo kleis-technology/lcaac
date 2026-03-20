@@ -973,10 +973,32 @@ class DataExpressionReducerTest {
     }
 
     @Test
-    fun reduce_whenUnitClosure_shouldReduceWithGivenTable() {
+    fun reduce_whenUnitClosure_globalVariable_shouldReduceWithGivenTable() {
         // given
         val symbolTable = SymbolTable(
-            data = DataRegister(mapOf(DataKey("a") to UnitFixture.kg)),
+            globalVariables = DataRegister(mapOf(DataKey("a") to UnitFixture.kg)),
+        )
+        val unit = EQuantityClosure(symbolTable, EDataRef("a"))
+        val reducer = DataExpressionReducer(
+            DataRegister(mapOf(DataKey("a") to UnitFixture.l)),
+            Register.empty(),
+            ops,
+            sourceOps,
+        )
+
+        // when
+        val actual = reducer.reduce(unit)
+
+        // then
+        val expected = QuantityFixture.oneKilogram
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun reduce_whenUnitClosure_globalParameter_shouldReduceWithGivenTable() {
+        // given
+        val symbolTable = SymbolTable(
+            globalParameters = DataRegister(mapOf(DataKey("a") to UnitFixture.kg)),
         )
         val unit = EQuantityClosure(symbolTable, EDataRef("a"))
         val reducer = DataExpressionReducer(
