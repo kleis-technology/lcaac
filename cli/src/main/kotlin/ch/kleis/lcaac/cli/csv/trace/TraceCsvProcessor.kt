@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.csv.trace
 
+import ch.kleis.lcaac.cli.cmd.parseOverrides
 import ch.kleis.lcaac.cli.cmd.prepareArguments
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
@@ -28,16 +29,23 @@ class TraceCsvProcessor(
         listOf(CsvConnectorBuilder())
     )
     private val sourceOps = DefaultDataSourceOperations(ops, config, factory.buildConnectors())
-    private val dataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
-    private val evaluator = Evaluator(symbolTable, ops, sourceOps)
 
     fun process(request: CsvRequest): TraceCsvResult {
+        val initialDataReducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
+        val globalParameters = parseOverrides(
+            initialDataReducer,
+            symbolTable.globalParameters.toMap().mapKeys { it.key.name },
+            request.toMap(),
+        )
         val reqName = request.processName
         val reqLabels = request.matchLabels
         val template = symbolTable.getTemplate(reqName, reqLabels)
             ?: throw EvaluatorException("Could not get template for ${reqName}${reqLabels}")
-        val arguments = prepareArguments(dataReducer, template, request.toMap())
-        val trace = evaluator.trace(template, arguments)
+        val processParameters = prepareArguments(initialDataReducer, template, request.toMap())
+
+        val st = symbolTable.overrideGlobalParameters(globalParameters)
+        val evaluator = Evaluator(st, ops, sourceOps)
+        val trace = evaluator.trace(template, processParameters)
         val systemValue = trace.getSystemValue()
         val entryPoint = trace.getEntryPoint()
         val program = ContributionAnalysisProgram(systemValue, entryPoint)
