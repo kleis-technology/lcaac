@@ -26,4 +26,11 @@ data class ParameterVector<Q>(
     fun indexOf(name: ParameterName): Int {
         return names.indexOf(name)
     }
+
+    operator fun plus(other: ParameterVector<Q>): ParameterVector<Q> {
+        return ParameterVector(
+            IndexedCollection(names.getElements() + other.names.getElements()),
+            data + other.data,
+        )
+    }
 }
