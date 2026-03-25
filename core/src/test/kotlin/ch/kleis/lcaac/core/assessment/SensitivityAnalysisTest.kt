@@ -9,7 +9,6 @@ import ch.kleis.lcaac.core.matrix.IndexedCollection
 import ch.kleis.lcaac.core.matrix.ParameterVector
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class SensitivityAnalysisTest {
     private val ops = DualOperations(2)
@@ -73,7 +72,8 @@ class SensitivityAnalysisTest {
             ParameterVector(
                 names = IndexedCollection(listOf(xName, yName)),
                 data = listOf(x, y),
-            )
+            ),
+            ops,
         )
 
         // when
@@ -151,7 +151,8 @@ class SensitivityAnalysisTest {
             ParameterVector(
                 names = IndexedCollection(listOf(xName, yName)),
                 data = listOf(x, y),
-            )
+            ),
+            ops,
         )
 
         // when

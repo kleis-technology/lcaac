@@ -11,6 +11,7 @@ class SensitivityAnalysisProgram(
     private val system: SystemValue<DualNumber>,
     private val targetProcess: ProcessValue<DualNumber>,
     private val parameters: ParameterVector<DualNumber>,
+    private val ops: DualOperations,
 ) {
     fun run(): SensitivityAnalysis {
         if (parameters.names.size() == 0) {
@@ -22,7 +23,7 @@ class SensitivityAnalysisProgram(
         val results = AnalysisProgram(
             system,
             targetProcess,
-            DualOperations(parameters.size()),
+            ops,
         ).run()
         return SensitivityAnalysis(
             targetProcess,
