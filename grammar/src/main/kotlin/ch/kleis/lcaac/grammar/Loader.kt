@@ -111,7 +111,7 @@ class Loader<Q>(
                 ProcessTemplateRegister<Q>()
                     .plus(
                         processDefinitions
-                            .map { Pair(it.buildUniqueKey(), process(it, globalVariables, dataSources)) }
+                            .map { Pair(it.buildUniqueKey(), process(it, globalParameters, globalVariables, dataSources)) }
                             .asIterable()
                     )
             } catch (e: RegisterException) {

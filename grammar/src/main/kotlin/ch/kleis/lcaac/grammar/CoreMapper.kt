@@ -19,7 +19,8 @@ class CoreMapper<Q>(
 ) {
     fun process(
         ctx: LcaLangParser.ProcessDefinitionContext,
-        globals: DataRegister<Q> = DataRegister.empty(),
+        globalParameters: DataRegister<Q> = DataRegister.empty(),
+        globalVariables: DataRegister<Q> = DataRegister.empty(),
         dataSources: Register<DataSourceKey, EDataSource<Q>>,
     ): EProcessTemplate<Q> {
         val name = ctx.name.innerText()
@@ -29,8 +30,9 @@ class CoreMapper<Q>(
         val locals = ctx.variables().flatMap { it.assignment() }.associate { assignment(it) }
         val params = ctx.params().flatMap { it.assignment() }.associate { assignment(it) }
         val symbolTable = SymbolTable(
+            globalParameters = globalParameters,
             globalVariables = try {
-                DataRegister(globals.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
+                DataRegister(globalVariables.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
                 throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
             },
