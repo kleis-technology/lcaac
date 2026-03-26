@@ -21,6 +21,43 @@ class EvaluatorTest {
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>()
 
     @Test
+    fun globalParams() {
+        // given
+        val file = LcaLangFixture.parser("""
+            params {
+                x = 1 year
+            }
+            process p {
+                products {
+                    x out
+                }
+                impacts {
+                    1 kg co2
+                }
+            }
+        """.trimIndent()).lcaFile()
+        val loader = Loader(ops)
+        val symbolTable = loader.load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
+        val spec = EProductSpec<BasicNumber>(
+            name = "out",
+            fromProcess = FromProcess("p", MatchLabels(emptyMap())),
+        )
+        val evaluator = Evaluator(symbolTable, ops, sourceOps)
+
+        // when
+        val trace = evaluator.trace(setOf(spec))
+        val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
+        val analysis = program.run()
+
+        // then
+        val port = analysis.getObservablePorts().get("out from p{}{}")
+        val indicator = analysis.getControllablePorts().get("co2")
+        val expected = QuantityValue(BasicNumber(1.0), UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass")))
+        val actual = analysis.getPortContribution(port, indicator)
+        assertEquals(expected, actual)
+    }
+
+    @Test
     fun arena_shouldHandleDefaultRecordOf() {
         // given
         val file = LcaLangFixture.parser("""

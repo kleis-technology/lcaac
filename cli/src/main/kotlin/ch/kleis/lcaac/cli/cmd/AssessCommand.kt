@@ -19,7 +19,8 @@ import java.io.File
 const val assessCommandName = "assess"
 
 @Suppress("MemberVisibilityCanBePrivate", "DuplicatedCode")
-class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the unitary impacts of a process in CSV format") {
+class AssessCommand :
+    CliktCommand(name = assessCommandName, help = "Returns the unitary impacts of a process in CSV format") {
     val name: String by argument().help("Process name")
     val configFile: File by configFileOption()
     val source: File by sourceOption()
@@ -30,7 +31,11 @@ class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the
     val outputFormat: OutputFormat by option("-o", "--output", help = "Output format (text, csv, or json)")
         .choice("csv" to OutputFormat.CSV, "text" to OutputFormat.TEXT, "json" to OutputFormat.JSON)
         .default(OutputFormat.TEXT)
-    val indicators: List<String> by option("-i", "--indicators", help = "Filter indicators by name (repeatable)").multiple()
+    val indicators: List<String> by option(
+        "-i",
+        "--indicators",
+        help = "Filter indicators by name (repeatable)"
+    ).multiple()
 
     override fun run() {
         val sourceDirectory = parseSource(source)
@@ -67,7 +72,12 @@ class AssessCommand : CliktCommand(name = assessCommandName, help = "Returns the
     }
 
     private fun loadRequestsFrom(file: File): Iterator<CsvRequest> {
-        val reader = CsvRequestReader(name, labels, file.inputStream(), arguments)
+        val reader = CsvRequestReader(
+            name,
+            labels,
+            file.inputStream(),
+            globals + arguments,
+        )
         return reader.iterator()
     }
 

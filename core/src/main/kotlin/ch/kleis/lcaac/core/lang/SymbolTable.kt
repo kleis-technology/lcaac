@@ -6,12 +6,15 @@ import ch.kleis.lcaac.core.lang.register.*
 
 
 data class SymbolTable<Q>(
-        val data: DataRegister<Q> = DataRegister.empty(),
-        val dimensions: DimensionRegister = DimensionRegister.empty(),
-        val processTemplates: ProcessTemplateRegister<Q> = ProcessTemplateRegister.empty(),
-        val substanceCharacterizations: SubstanceCharacterizationRegister<Q> = SubstanceCharacterizationRegister.empty(),
-        val dataSources: DataSourceRegister<Q> = DataSourceRegister.empty(),
+    val globalParameters: DataRegister<Q> = DataRegister.empty(),
+    val globalVariables: DataRegister<Q> = DataRegister.empty(),
+    val dimensions: DimensionRegister = DimensionRegister.empty(),
+    val processTemplates: ProcessTemplateRegister<Q> = ProcessTemplateRegister.empty(),
+    val substanceCharacterizations: SubstanceCharacterizationRegister<Q> = SubstanceCharacterizationRegister.empty(),
+    val dataSources: DataSourceRegister<Q> = DataSourceRegister.empty(),
 ) {
+    val data: DataRegister<Q> = globalParameters.plus(globalVariables)
+
     companion object {
         fun <Q> empty() = SymbolTable<Q>()
     }
@@ -69,13 +72,24 @@ data class SymbolTable<Q>(
     /*
         Data
      */
-    fun getData(name: String): DataExpression<Q>? {
-        return data[DataKey(name)]
+    fun getGlobalParameter(name: String): DataExpression<Q>? {
+        return globalParameters[DataKey(name)]
+    }
+
+    fun getGlobalVariable(name: String): DataExpression<Q>? {
+        return globalVariables[DataKey(name)]
     }
 
     fun getDataSource(name: String): EDataSource<Q>? {
         return dataSources[DataSourceKey(name)]
     }
 
+    fun overrideGlobalParameters(params: Map<String, DataExpression<Q>>): SymbolTable<Q> {
+        return this.copy(
+            globalParameters = globalParameters.override(
+                params.mapKeys { DataKey(it.key) },
+            ),
+        )
+    }
 }
 

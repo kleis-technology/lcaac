@@ -2,7 +2,7 @@ grammar LcaLang;
 
 lcaFile
 	:	pkg? pkgImport* ( processDefinition | dataSourceDefinition | testDefinition | unitDefinition |
-	substanceDefinition | globalVariables )* EOF
+	substanceDefinition | globalParameters | globalVariables )* EOF
 	;
 
 /*
@@ -18,15 +18,19 @@ pkgImport
     ;
 
 /*
-    Global variables
+    Global parameters and variables
 */
 
+globalParameters
+    : PARAMETERS_KEYWORD LBRACE globalAssignment* RBRACE
+    ;
 globalVariables
     : VARIABLES_KEYWORD LBRACE globalAssignment* RBRACE
     ;
 globalAssignment
     : dataRef EQUAL dataExpression
     ;
+
 
 /*
     Data source

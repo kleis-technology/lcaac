@@ -23,6 +23,10 @@ class Register<K, E> (
             .groupBy(keySelector = { it.first }, valueTransform = { it.second })
     }
 
+    fun getKeys(): Set<K> = data.keys
+
+    fun toMap(): Map<K, E> = HashMap(data)
+
     operator fun get(key: K): E? {
         return data[key]
     }
@@ -37,6 +41,10 @@ class Register<K, E> (
 
     override fun hashCode(): Int {
         return data.hashCode()
+    }
+
+    fun plus(other: Register<K, E>): Register<K, E> {
+        return plus(other.data)
     }
 
     fun plus(map: Map<K, E>): Register<K, E> {

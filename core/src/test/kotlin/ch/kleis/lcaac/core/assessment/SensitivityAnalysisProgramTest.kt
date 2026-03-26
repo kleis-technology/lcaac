@@ -35,11 +35,11 @@ class SensitivityAnalysisProgramTest {
             data = listOf(
                 QuantityValue(
                     ops.pure(1.0),
-                    UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.Companion.of("mass")),
+                    UnitValue(UnitSymbol.of("kg"), 1.0, Dimension.of("mass")),
                 )
             )
         )
-        val program = SensitivityAnalysisProgram(system, targetProcess, parameters)
+        val program = SensitivityAnalysisProgram(system, targetProcess, parameters, ops)
 
         // when/then
         val e = assertThrows(EvaluatorException::class.java) {
@@ -58,11 +58,12 @@ class SensitivityAnalysisProgramTest {
             processes = setOf(ProcessValue("p"))
         )
         val targetProcess = system.processes.first()
+        val ops = DualOperations(0)
         val parameters = ParameterVector<DualNumber>(
             names = IndexedCollection(emptyList()),
             data = emptyList(),
         )
-        val program = SensitivityAnalysisProgram(system, targetProcess, parameters)
+        val program = SensitivityAnalysisProgram(system, targetProcess, parameters, ops)
 
         // when/then
         val e = assertThrows(EvaluatorException::class.java) {

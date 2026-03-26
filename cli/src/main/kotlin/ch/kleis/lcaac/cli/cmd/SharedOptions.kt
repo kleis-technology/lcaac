@@ -50,7 +50,7 @@ fun CliktCommand.argumentsOption(commandName: String) = option("-D", "--paramete
 fun CliktCommand.globalsOption(commandName: String) = option("-G", "--global")
     .help(
         """
-                Override global variable as a key value pair.
+                Override global parameters as a key value pair.
                 Example: `lcaac $commandName <process name> -G x="12 kg"`.
             """.trimIndent()
     ).associate()
