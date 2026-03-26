@@ -271,11 +271,29 @@ class SharedOptionTest {
             // when
             val helpText = cmd.getFormattedHelp()
 
-            assertTrue(
-                helpText!!.contains("-G, --global=<value>     Override global variable as a key value pair.\n" +
-                        "                           Example: lcaac dummy"),
-                "Help for -l options should contain an example with the corresponding command."
-            )
+            // then
+            val expected = """
+                Usage: dummy [<options>]
+
+                Options:
+                  -c, --config=<path>      Path to LCAAC config file. Defaults to 'lcaac.yaml'
+                                           The location of the config file is the project
+                                           directory. Defaults to current working directory.
+                  -s, --source=<path>      Path to LCAAC source folder or zip/tar.gz/tgz file.
+                                           Defaults to current working directory.
+                  -f, --file=<path>        CSV file with parameter values. Example: lcaac dummy
+                                           <process name> -f params.csv
+                  -l, --label=<value>      Specify a process label as a key value pair.
+                                           Example: lcaac dummy <process name> -l model="ABC"
+                                           -l geo="FR".
+                  -D, --parameter=<value>  Override parameter value as a key value pair.
+                                           Example: lcaac dummy <process name> -D x="12 kg" -D
+                                           geo="UK" -f params.csv.
+                  -G, --global=<value>     Override global parameters as a key value pair.
+                                           Example: lcaac dummy <process name> -G x="12 kg".
+                  -h, --help               Show this message and exit
+            """.trimIndent()
+            assertEquals(expected, helpText)
         }
     }
 }
