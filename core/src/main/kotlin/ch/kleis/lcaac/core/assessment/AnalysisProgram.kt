@@ -24,11 +24,12 @@ class AnalysisProgram<Q, M>(
         val processes = allocatedSystem.processes
         val substanceCharacterizations = allocatedSystem.substanceCharacterizations
 
-        val observableProducts = processes
-            .flatMap { it.products }
-            .map { it.product }
+        val observableProducts = processes.flatMap { it.products }.map { it.product }
+        val observableProductSet = observableProducts.toSet() // Optimised with Set
+
         val observableSubstances = substanceCharacterizations
             .map { it.referenceExchange.substance }
+        val observableSubstanceSet = observableSubstances.toSet() // Optimised with Set
 
         val observableMatrix = ObservableMatrix(
             processes,
@@ -38,17 +39,19 @@ class AnalysisProgram<Q, M>(
             ops,
         )
 
-        val terminalProducts = processes
-            .flatMap { it.inputs }
+        // Terminal Products/Substances : optimised to reduce useless loops
+        val terminalProducts = processes.flatMap { it.inputs }
             .map { it.product }
-            .filter { !observableProducts.contains(it) }
-        val terminalSubstances = processes
-            .flatMap { it.biosphere }
+            .filter { it !in observableProductSet }
+
+        val terminalSubstances = processes.flatMap { it.biosphere }
             .map { it.substance }
-            .filter { !observableSubstances.contains(it) }
+            .filter { it !in observableSubstanceSet }
+
         val indicators = (processes + substanceCharacterizations)
             .flatMap { it.impacts }
             .map { it.indicator }
+
         val controllableMatrix = ControllableMatrix(
             processes,
             substanceCharacterizations,
