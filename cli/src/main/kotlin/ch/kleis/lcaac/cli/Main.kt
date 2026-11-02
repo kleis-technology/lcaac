@@ -7,6 +7,7 @@ fun main(args: Array<String>): Unit = LcaacCommand()
     .subcommands(
         AssessCommand(),
         EvalCommand(),
+        ExplainCommand(),
         GraphCommand(),
         TestCommand(),
         TraceCommand(),

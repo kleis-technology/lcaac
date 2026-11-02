@@ -1,0 +1,95 @@
+variables {
+    grid_loss = 10 percent
+}
+
+params {
+    efficiency = 80 percent
+}
+
+datasource machines {
+    location = "machines.csv"
+    schema {
+        id = "m1"
+        consumption = 1 kWh
+        runs = 1 u
+    }
+}
+
+datasource parts {
+    location = "parts.csv"
+    schema {
+        id = "p1"
+        machine_id = "m1"
+        mass = 1 kg
+        count = 1 u
+    }
+}
+
+datasource runs_log {
+    location = "runs_log.csv"
+    schema {
+        machine_id = "m1"
+        sku = "sku-a"
+        runs = 1 u
+    }
+}
+
+process assembly {
+    params {
+        machine = "m1"
+    }
+    variables {
+        mach = lookup machines match id = machine
+        energy = mach.consumption * mach.runs / efficiency * (1 u + grid_loss)
+        steel_mass = sum(parts match machine_id = machine, mass * count)
+        logged_runs = sum(runs_log match machine_id = machine, runs)
+    }
+    products {
+        1 p widget allocate 75 percent
+        1 p scrap allocate 25 percent
+    }
+    inputs {
+        energy electricity
+        steel_mass steel from steel_mill(grade = "A")
+        for_each part from parts match machine_id = machine {
+            variables {
+                wrap = 10 percent * part.mass
+            }
+            wrap packaging
+        }
+    }
+    emissions {
+        200 g co2(compartment = "air")
+    }
+}
+
+process electricity_supply {
+    products {
+        1 kWh electricity
+    }
+    emissions {
+        0.5 kg co2(compartment = "air")
+    }
+}
+
+process steel_mill {
+    params {
+        grade = "B"
+    }
+    products {
+        1 ton steel
+    }
+    impacts {
+        1800 kg_CO2_Eq climate_change
+    }
+}
+
+substance co2 {
+    name = "co2"
+    type = Emission
+    compartment = "air"
+    reference_unit = kg
+    impacts {
+        1 kg_CO2_Eq climate_change
+    }
+}
