@@ -1,0 +1,4 @@
+machine_id,sku,runs
+m1,sku-a,4
+m1,sku-b,6
+m2,sku-c,9

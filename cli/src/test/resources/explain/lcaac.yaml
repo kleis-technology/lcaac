@@ -1,0 +1,4 @@
+connectors:
+  - name: csv
+    options:
+      directory: data
