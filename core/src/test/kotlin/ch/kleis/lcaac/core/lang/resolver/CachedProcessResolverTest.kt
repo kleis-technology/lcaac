@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.lang.resolver
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.IndicatorFixture.Companion.climateChange
 import ch.kleis.lcaac.core.lang.fixture.ProductFixture.Companion.carrot
@@ -26,10 +27,13 @@ import com.mayakapps.kache.KacheStrategy
 import io.mockk.mockk
 import io.mockk.spyk
 import io.mockk.verify
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.Nested
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.assertThrows
 
 class CachedProcessResolverTest {
     private val ops = BasicOperations
@@ -313,11 +317,54 @@ class CachedProcessResolverTest {
             sut.resolve(template, spec)
 
             // Then
+            // Evaluated once: the second resolve reads the cached process
             verify(exactly = 2) {
                 runBlocking {
-                    cache.getOrPut(template to spec, any())
+                    cache.get(template to spec)
+                }
+            }
+            verify(exactly = 1) {
+                runBlocking {
+                    cache.put(template to spec, any<EProcess<BasicNumber>>())
                 }
             }
         }
+    }
+
+    @Test
+    fun resolve_whenTheEvaluationFailsBeforeItsResultIsAwaited_shouldThrowItsError() {
+        // Given: a cache that runs the evaluation in the calling thread, so that it fails and is removed
+        // from the cache before its result is awaited
+        val cache = InMemoryKache<Pair<EProcessTemplate<BasicNumber>, EProductSpec<BasicNumber>>, EProcess<BasicNumber>>(
+            maxSize = 1024
+        ) {
+            creationScope = CoroutineScope(Dispatchers.Unconfined)
+        }
+        val template = EProcessTemplate(
+            body = EProcess(
+                name = "steel_mill",
+                products = listOf(ETechnoExchange(oneKilogram, EProductSpec("steel"))),
+                inputs = listOf(
+                    ETechnoBlockEntry(ETechnoExchange(oneKilogram, EProductSpec("iron", fromProcess = FromProcess("other", MatchLabels(emptyMap()))))),
+                ),
+            ),
+            annotations = setOf(ProcessAnnotation.CACHED),
+        )
+        val other = EProcessTemplate(
+            body = EProcess(name = "other", products = listOf(ETechnoExchange(oneKilogram, EProductSpec("copper")))),
+        )
+        val symbolTable = SymbolTable(
+            processTemplates = ProcessTemplateRegister.from(
+                mapOf(ProcessKey("steel_mill") to template, ProcessKey("other") to other)
+            )
+        )
+        val sut = CachedProcessResolver(symbolTable, ops, sourceOps, cache)
+
+        // When
+        val error = assertThrows<EvaluatorException> { sut.resolve(template, EProductSpec("steel")) }
+
+        // Then: the error of the evaluation, with its frame
+        assertEquals("no process 'other' providing 'iron' found", error.message)
+        assertEquals(1, error.frames.size)
     }
 }

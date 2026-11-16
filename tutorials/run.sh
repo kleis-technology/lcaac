@@ -47,6 +47,11 @@ lcaac test -s "$TUTORIALS_PATH"/03-advanced/03-project-file -c "$TUTORIALS_PATH"
 
 lcaac test -s "$TUTORIALS_PATH"/03-advanced/04-cached-processes
 
+cd "$TUTORIALS_PATH"/03-advanced/05-explain
+lcaac test
+lcaac explain bakery > /dev/null
+cd -
+
 # Check custom dimensions tutorial
 set -euo
 # The following assessment is expected to fail.

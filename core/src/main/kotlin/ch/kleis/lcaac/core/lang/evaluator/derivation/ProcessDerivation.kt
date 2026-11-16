@@ -88,4 +88,30 @@ data class ProcessDerivation<Q>(
     /** The exchange as written in the process, before parameters are replaced by their values. */
     fun expressionOf(origin: ExchangeOrigin): LcaExchangeExpression<Q>? =
         (template.body.blockAt(origin.path.block) as? EBlockEntry<*, Q>)?.entry as? LcaExchangeExpression<Q>
+
+    private val variablesByKey by lazy { variables.associateBy { it.path to it.rows } }
+
+    /**
+     * The value of [name] where the evaluation was in the for_each [rows], with the rules of the evaluator:
+     * the row and variables of each enclosing for_each, from the innermost, then the variables, parameters and
+     * labels of the process, then the globals. Null for a unit, or for a name that the evaluation did not use.
+     */
+    fun valueOf(name: String, rows: List<RowRef> = emptyList()): DataExpression<Q>? {
+        for (i in rows.indices.reversed()) {
+            val row = rows[i]
+            val block = template.body.blockAt(row.forEach.block) as? EBlockForEach<*, Q> ?: continue
+            if (name == block.rowRef) {
+                val enclosing = rows.subList(0, i)
+                return forEach.firstOrNull { it.path == row.forEach && it.rows == enclosing }
+                    ?.read?.records?.getOrNull(row.row)
+            }
+            if (block.locals.containsKey(name)) {
+                return variablesByKey[SourcePath.Variable(process, name, row.forEach.block) to rows.subList(0, i + 1)]?.value
+            }
+        }
+        if (template.locals.containsKey(name)) return variablesByKey[SourcePath.Variable(process, name) to emptyList()]?.value
+        parameters.firstOrNull { it.path.name == name }?.let { return it.value }
+        template.body.labels[name]?.let { return it }
+        return variablesByKey[SourcePath.Global(name) to emptyList()]?.value
+    }
 }

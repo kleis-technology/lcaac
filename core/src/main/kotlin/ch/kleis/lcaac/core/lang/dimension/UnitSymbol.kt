@@ -37,6 +37,12 @@ class UnitSymbol(
         val None = UnitSymbol(emptyMap())
     }
 
+    /** The base symbols of this symbol, with their exponents, e.g. `kWh.u²` is `{kWh: 1, u: 2}`. */
+    fun components(): Map<String, Double> = elements
+
+    /** The factor of this symbol, e.g. `1000 kg` has a factor of 1000. */
+    fun factor(): Double = scale
+
     fun multiply(other: UnitSymbol): UnitSymbol {
         return UnitSymbol(multiply(elements, other.elements), scale * other.scale)
     }

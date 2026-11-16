@@ -2,10 +2,12 @@ package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.dimension.Dimension
+import ch.kleis.lcaac.core.lang.dimension.UnitSimplifier
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorOptions
+import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessDerivation
 import ch.kleis.lcaac.core.lang.evaluator.derivation.ReadKind
 import ch.kleis.lcaac.core.lang.evaluator.derivation.RowRef
@@ -15,6 +17,7 @@ import ch.kleis.lcaac.core.lang.source.BlockPath
 import ch.kleis.lcaac.core.lang.source.Section
 import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.lang.value.ProcessValue
+import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.every
@@ -212,5 +215,50 @@ class DerivationRecordingTest {
         // Written as in the source, before parameters are replaced
         val steel = trace.derivation("assembly").let { it.expressionOf(it.origins.inputs[1]) }
         assertEquals(EDataRef("steel_mass"), steel?.quantity)
+    }
+
+    @Test
+    fun valueOf_shouldFollowTheScopingRules() {
+        val derivation = trace().derivation("assembly")
+        val firstRow = listOf(RowRef(forEach, 0))
+        val secondRow = listOf(RowRef(forEach, 1))
+
+        // process variables, parameters, globals
+        assertEquals(2.2, scaleOf(derivation.valueOf("energy")), 1e-9)
+        assertEquals(EStringLiteral("m1"), derivation.valueOf("machine"))
+        assertEquals(10.0, scaleOf(derivation.valueOf("grid_loss")), 1e-9)
+        assertIs<ERecord<BasicNumber>>(derivation.valueOf("mach"))
+
+        // the row and the variables of a for_each, in each row
+        assertEquals(EStringLiteral("p2"), assertIs<ERecord<BasicNumber>>(derivation.valueOf("part", secondRow)).entries["id"])
+        assertEquals(15.0, scaleOf(derivation.valueOf("wrap", firstRow)), 1e-9)
+        assertEquals(5.0, scaleOf(derivation.valueOf("wrap", secondRow)), 1e-9)
+        // process variables are visible in the rows
+        assertEquals(2.2, scaleOf(derivation.valueOf("energy", firstRow)), 1e-9)
+    }
+
+    @Test
+    fun valueOf_whenUnitOrUnknownName_shouldBeNull() {
+        val derivation = trace().derivation("assembly")
+        assertNull(derivation.valueOf("kWh"))
+        assertNull(derivation.valueOf("nope"))
+        // a for_each variable is not visible outside its rows
+        assertNull(derivation.valueOf("wrap"))
+    }
+
+    @Test
+    fun unitSimplifier_shouldKnowTheUnitsOfTheModel() {
+        // given: wrap = 10 percent * 1.5 kg, computed as 15 kg.percent
+        val wrap = with(ToValue(ops)) {
+            assertNotNull(trace().derivation("assembly").valueOf("wrap", listOf(RowRef(forEach, 0)))).toValue()
+        }
+        assertIs<QuantityValue<BasicNumber>>(wrap)
+
+        // when
+        val actual = assertNotNull(UnitSimplifier.of(symbolTable, ops).simplify(wrap))
+
+        // then
+        assertEquals("kg", actual.unit.symbol.toString())
+        assertEquals(0.15, actual.amount.value, 1e-9)
     }
 }
