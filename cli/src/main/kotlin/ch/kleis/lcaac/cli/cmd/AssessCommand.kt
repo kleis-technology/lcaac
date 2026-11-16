@@ -46,7 +46,7 @@ class AssessCommand :
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
-        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE)).withGivenGlobals(globals)
 
         val processor = AssessCsvProcessor(yamlConfig, symbolTable, projectDirectory.path)
         val iterator = loadRequests()

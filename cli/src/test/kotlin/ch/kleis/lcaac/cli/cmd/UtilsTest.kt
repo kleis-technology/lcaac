@@ -1,13 +1,21 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
+import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.expression.EDataRef
 import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.source.SourceLocation
+import ch.kleis.lcaac.core.lang.source.SourceMap
+import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.SyntaxException
+import io.mockk.mockk
 import java.io.File
 import java.nio.file.Files
 import java.util.zip.ZipEntry
@@ -129,6 +137,34 @@ class UtilsTest {
             dataExpressionMap(BasicOperations, mapOf("efficiency" to "80 percent)"))
         }
         assertEquals("<global efficiency>:1:11: unexpected input ')'", actual.message)
+    }
+
+    @Test
+    fun parseOverrides_whenGivenValueFails_shouldReportTheArgument() {
+        // given
+        val reducer = DataExpressionReducer<BasicNumber>(Prelude.units(), DataSourceRegister.empty(), BasicOperations, mockk())
+        val current = mapOf<String, DataExpression<BasicNumber>>("factor" to EQuantityScale(BasicNumber(2.0), Prelude.unitMap<BasicNumber>()["kg"]!!))
+
+        // when/then
+        val actual = assertThrows<EvaluatorException> { parseOverrides(reducer, current, mapOf("factor" to "1 kg + 1 kWh")) }
+        assertEquals(
+            "incompatible dimensions: mass vs energy in left=kg and right=kWh\n  in argument 'factor' = 1 kg + 1 kWh",
+            actual.describe(),
+        )
+    }
+
+    @Test
+    fun withGivenGlobals_shouldDescribeTheGivenValue() {
+        // given
+        val global = SourcePath.Global("efficiency")
+        val symbolTable = SymbolTable<BasicNumber>(sourceMap = SourceMap(mapOf(global to SourceLocation("main.lca", 2, 5))))
+
+        // when
+        val actual = symbolTable.withGivenGlobals(mapOf("efficiency" to "50 percent")).sourceMap
+
+        // then
+        assertEquals(null, actual[global])
+        assertEquals("global 'efficiency' = 50 percent (given with -G)", actual.nameOf(global))
     }
 
     @Test

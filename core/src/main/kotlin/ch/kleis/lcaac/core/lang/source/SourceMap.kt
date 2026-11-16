@@ -52,6 +52,9 @@ sealed interface SourcePath {
 
     /** The [index]-th assertion of the test that [test] is generated for. */
     data class Assertion(val test: Process, val index: Int) : SourcePath
+
+    /** A value given for [name] outside the source, e.g. on the command line. */
+    data class Argument(val name: String) : SourcePath
     data class Parameter(val process: ProcessKey, val name: String) : SourcePath
 
     /** A process variable, or a for_each variable when [block] is the path of the for_each. */
@@ -82,6 +85,9 @@ data class SourceMap(
     fun paths(): Set<SourcePath> = locations.keys
 
     operator fun plus(other: SourceMap): SourceMap = SourceMap(locations + other.locations, names + other.names)
+
+    /** The same map, where [path] has no location and is described as [name], e.g. a value given on the command line. */
+    fun describedAs(path: SourcePath, name: String): SourceMap = SourceMap(locations - path, names + (path to name))
 
     override fun toString(): String = "[sourceMap]"
 

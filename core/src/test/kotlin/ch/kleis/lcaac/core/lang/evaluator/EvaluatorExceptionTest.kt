@@ -101,6 +101,19 @@ class EvaluatorExceptionTest {
     }
 
     @Test
+    fun describe_whenGivenValue_shouldHaveNoLocation() {
+        // given: a global given on the command line instead of its definition in a file
+        val global = SourcePath.Global("efficiency")
+        val sourceMap = SourceMap(mapOf(global to SourceLocation("main.lca", 2, 5)))
+            .describedAs(global, "global 'efficiency' = 1 kWh (given with -G)")
+        val error = EvaluatorException("boom").within(VariableFrame(global)).withSourceMap(sourceMap)
+
+        // then
+        assertEquals("boom\n  in global 'efficiency' = 1 kWh (given with -G)", error.describe())
+        assertEquals("argument 'factor' = 1 kWh", ArgumentFrame(SourcePath.Argument("factor"), "1 kWh").description)
+    }
+
+    @Test
     fun frameDescriptions() {
         assertEquals("input 'flour'", ExchangeFrame(forEach, "input", "flour").description)
         assertEquals("row #2 of for_each 'row'", ForEachFrame(forEach, "row", 1).description)

@@ -100,6 +100,11 @@ data class ProductFrame(
     override fun describe(sourceMap: SourceMap): String = "product '$product' of ${describe(process, sourceMap)}"
 }
 
+/** A value given for a name outside the source, e.g. on the command line. */
+data class ArgumentFrame(override val path: SourcePath.Argument, val value: String) : EvaluationFrame {
+    override val description: String get() = "argument '${path.name}' = $value"
+}
+
 /** A process, by its display name if it has one (e.g. a test). */
 private fun describe(process: ProcessKey, sourceMap: SourceMap): String =
     sourceMap.nameOf(SourcePath.Process(process)) ?: "process '$process'"

@@ -52,7 +52,7 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
-        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE)).withGivenGlobals(globals)
 
         val factory = ConnectorFactory(
             projectDirectory.path,
