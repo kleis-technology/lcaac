@@ -125,6 +125,7 @@ class Loader<Q>(
                 globalVariableDefinitions.map { globalLocation(it) },
                 unitDefinitions.map { unitLocation(it) },
                 dataSourceDefinitions.map { dataSourceLocation(it) },
+                substanceDefinitions.map { substanceLocations(it) },
             ).flatten().fold(SourceMap.empty()) { acc, locations -> acc + locations }
 
             return SymbolTable(

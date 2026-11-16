@@ -5,11 +5,14 @@ import ch.kleis.lcaac.core.datasource.DummySourceOperations
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
+import ch.kleis.lcaac.core.lang.evaluator.VariableFrame
+import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.math.QuantityOperations
 import kotlin.math.pow
@@ -19,6 +22,8 @@ class DataExpressionReducer<Q>(
     dataSourceRegister: DataSourceRegister<Q>,
     private val ops: QuantityOperations<Q>,
     private val sourceOps: DataSourceOperations<Q>,
+    /** Where a name is defined, to locate errors in its definition. */
+    private val pathOf: (String) -> SourcePath? = { null },
 ) {
     private val dataRegister = DataRegister(dataRegister)
     private val dataSourceRegister = DataSourceRegister(dataSourceRegister)
@@ -196,7 +201,9 @@ class DataExpressionReducer<Q>(
 
     private fun reduceRef(expression: EDataRef<Q>): DataExpression<Q> {
         val key = DataKey(expression.name)
-        return dataRegister[key]?.let { reduce(it) } ?: expression
+        return dataRegister[key]
+            ?.let { within({ pathOf(expression.name)?.let { VariableFrame(it) } }) { reduce(it) } }
+            ?: expression
     }
 
     private fun reduceScale(expression: EQuantityScale<Q>): DataExpression<Q> {
@@ -254,6 +261,6 @@ class DataExpressionReducer<Q>(
 
 
     private fun dummyReducer(): DataExpressionReducer<Q> {
-        return DataExpressionReducer(dataRegister, dataSourceRegister, ops, DummySourceOperations())
+        return DataExpressionReducer(dataRegister, dataSourceRegister, ops, DummySourceOperations(), pathOf)
     }
 }

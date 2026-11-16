@@ -4,11 +4,18 @@ import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.Helper
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
+import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaac.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.EProcess
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplateApplication
 import ch.kleis.lcaac.core.lang.expression.ESubstanceCharacterization
+import ch.kleis.lcaac.core.lang.register.DataKey
+import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.lang.source.processKey
+import ch.kleis.lcaac.core.lang.source.substanceKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class Reduce<Q>(
@@ -21,6 +28,8 @@ class Reduce<Q>(
         symbolTable.dataSources,
         ops,
         sourceOps,
+        // Substances only see globals
+        pathOf = { name -> if (symbolTable.data[DataKey(name)] != null) SourcePath.Global(name) else null },
     )
     private val templateReducer = TemplateExpressionReducer(
         ops,
@@ -29,23 +38,25 @@ class Reduce<Q>(
         symbolTable.dataSources,
     )
 
-    fun apply(expression: EProcessTemplateApplication<Q>): EProcess<Q> {
-        val reduced = templateReducer.reduce(expression)
-        val unboundedReferences = Helper<Q>().allRequiredRefs(reduced)
-        if (unboundedReferences.isNotEmpty()) {
-            throw EvaluatorException("unbounded references: $unboundedReferences")
+    fun apply(expression: EProcessTemplateApplication<Q>): EProcess<Q> =
+        within({ ProcessFrame(SourcePath.Process(expression.template.body.processKey())) }) {
+            val reduced = templateReducer.reduce(expression)
+            val unboundedReferences = Helper<Q>().allRequiredRefs(reduced)
+            if (unboundedReferences.isNotEmpty()) {
+                throw EvaluatorException("unbounded references: $unboundedReferences")
+            }
+            reduced
         }
-        return reduced
-    }
 
-    fun apply(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
-        val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
-        val unboundedReferences = Helper<Q>().allRequiredRefs(reduced)
-        if (unboundedReferences.isNotEmpty()) {
-            throw EvaluatorException("unbounded references: $unboundedReferences")
+    fun apply(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> =
+        within({ SubstanceFrame(SourcePath.Substance(expression.substanceKey())) }) {
+            val reduced = lcaReducer.reduceSubstanceCharacterization(expression)
+            val unboundedReferences = Helper<Q>().allRequiredRefs(reduced)
+            if (unboundedReferences.isNotEmpty()) {
+                throw EvaluatorException("unbounded references: $unboundedReferences")
+            }
+            reduced
         }
-        return reduced
-    }
 
 
 }

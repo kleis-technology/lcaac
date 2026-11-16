@@ -41,5 +41,5 @@ fun <T> withCleanErrors(block: () -> T): T = try {
 } catch (e: LoaderException) {
     throw CliktError(e.message, e)
 } catch (e: EvaluatorException) {
-    throw CliktError(e.message, e)
+    throw CliktError(e.describe(), e)
 }

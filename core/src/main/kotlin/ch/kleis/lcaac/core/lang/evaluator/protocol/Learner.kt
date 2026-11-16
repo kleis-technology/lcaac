@@ -1,11 +1,20 @@
 package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import arrow.optics.Every
+import ch.kleis.lcaac.core.lang.evaluator.CharacterizationFrame
+import ch.kleis.lcaac.core.lang.evaluator.EvaluationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
+import ch.kleis.lcaac.core.lang.evaluator.SupplierFrame
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
+import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
+import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.lang.source.processKey
+import ch.kleis.lcaac.core.lang.source.substanceKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 /*
@@ -110,12 +119,30 @@ class Learner<Q>(
         staging.popAll().forEach { connection ->
             with(ToValue(ops)) {
                 when (connection) {
-                    is EProcess -> trace.add(connection.toValue())
-                    is ESubstanceCharacterization -> trace.add(connection.toValue())
+                    is EProcess -> within({ ProcessFrame(SourcePath.Process(connection.processKey())) }) {
+                        trace.add(connection.toValue())
+                    }
+                    is ESubstanceCharacterization -> within({ SubstanceFrame(SourcePath.Substance(connection.substanceKey())) }) {
+                        trace.add(connection.toValue())
+                    }
                 }
             }
         }
         trace.commit()
+    }
+
+    /** The process that sent [request], to locate errors raised while answering it. */
+    fun requesterFrame(request: Request<Q>): EvaluationFrame? {
+        val address = when (request) {
+            is ProductRequest -> request.address
+            is SubstanceRequest -> request.address
+        }
+        val process = staging.find(address.connectionIndex) as? EProcess<Q> ?: return null
+        val path = SourcePath.Process(process.processKey())
+        return when (request) {
+            is ProductRequest -> SupplierFrame(path, request.value.name)
+            is SubstanceRequest -> CharacterizationFrame(path, request.value.name)
+        }
     }
 
     private fun updateStagingAndKnowledge(response: Response<Q>) {

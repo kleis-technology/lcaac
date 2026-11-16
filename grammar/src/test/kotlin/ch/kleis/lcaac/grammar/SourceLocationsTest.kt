@@ -2,7 +2,9 @@ package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.expression.BlockExpression
 import ch.kleis.lcaac.core.lang.expression.EBlockForEach
+import ch.kleis.lcaac.core.lang.expression.SubstanceType
 import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.source.*
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import java.nio.file.Files
@@ -71,12 +73,29 @@ class SourceLocationsTest {
                 1 u climate_change
             }
         }
+
+        substance co2 {
+            name = "co2"
+            type = Emission
+            compartment = "air"
+            reference_unit = kg
+            impacts {
+                1 kg_CO2_Eq climate_change
+                for_each part from parts {
+                    variables {
+                        factor = 2 u
+                    }
+                    factor * 1 kg acidification
+                }
+            }
+        }
     """.trimIndent()
 
     private val path = Files.createTempFile("source-locations", ".lca").also { Files.writeString(it, content) }
     private val symbolTable = Loader(BasicOperations).load(sequenceOf(parseLcaFile(path)))
     private val sourceMap = symbolTable.sourceMap
-    private val assembly = ProcessKey("assembly", mapOf("geo" to "FR"))
+    private val assembly = SourcePath.Process(ProcessKey("assembly", mapOf("geo" to "FR")))
+    private val co2 = SourcePath.Substance(SubstanceKey("co2", SubstanceType.EMISSION, "air"))
 
     private fun at(line: Int, column: Int) = SourceLocation(path.toString(), line, column)
     private fun exchange(section: Section, vararg indices: Int) =
@@ -91,13 +110,29 @@ class SourceLocationsTest {
     }
 
     @Test
+    fun substances() {
+        assertEquals(at(60, 1), sourceMap[co2])
+    }
+
+    @Test
+    fun substanceImpacts_withForEach() {
+        assertEquals(at(66, 9), sourceMap[SourcePath.Exchange(co2, BlockPath.of(Section.IMPACTS, 0))])
+        assertEquals(at(67, 9), sourceMap[SourcePath.Exchange(co2, BlockPath.of(Section.IMPACTS, 1))])
+        assertEquals(at(71, 13), sourceMap[SourcePath.Exchange(co2, BlockPath(Section.IMPACTS, listOf(1, 0)))])
+        assertEquals(
+            at(69, 17),
+            sourceMap[SourcePath.Variable(co2, "factor", BlockPath.of(Section.IMPACTS, 1))],
+        )
+    }
+
+    @Test
     fun process_shouldPointAtProcessKeywordAfterAnnotations() {
-        assertEquals(at(22, 1), sourceMap[SourcePath.Process(assembly)])
+        assertEquals(at(22, 1), sourceMap[assembly])
     }
 
     @Test
     fun parametersAndVariables() {
-        assertEquals(at(27, 9), sourceMap[SourcePath.Parameter(assembly, "machine")])
+        assertEquals(at(27, 9), sourceMap[SourcePath.Parameter(assembly.process, "machine")])
         assertEquals(at(30, 9), sourceMap[SourcePath.Variable(assembly, "energy")])
     }
 
@@ -137,12 +172,23 @@ class SourceLocationsTest {
     fun exchangePaths_shouldMatchTheProcessExpression() {
         // given
         val body = assertNotNull(symbolTable.getTemplate("assembly", mapOf("geo" to "FR"))).body
-        val paths = sourceMap.paths().filterIsInstance<SourcePath.Exchange>()
+        val paths = sourceMap.paths().filterIsInstance<SourcePath.Exchange>().filter { it.owner == assembly }
 
         // then: every path points to a block, and every block has a path
         paths.forEach { assertNotNull(body.blockAt(it.block), "no block at $it") }
         val nbBlocks = listOf(body.inputs, body.biosphere, body.impacts).sumOf { countBlocks(it) } + body.products.size
         assertEquals(nbBlocks, paths.size)
+    }
+
+    @Test
+    fun exchangePaths_shouldMatchTheSubstanceExpression() {
+        // given
+        val characterization = assertNotNull(symbolTable.getSubstanceCharacterization("co2", SubstanceType.EMISSION, "air"))
+        val paths = sourceMap.paths().filterIsInstance<SourcePath.Exchange>().filter { it.owner == co2 }
+
+        // then
+        paths.forEach { assertNotNull(characterization.blockAt(it.block), "no block at $it") }
+        assertEquals(countBlocks(characterization.impacts), paths.size)
     }
 
     private fun countBlocks(blocks: List<BlockExpression<*, *>>): Int = blocks.sumOf {

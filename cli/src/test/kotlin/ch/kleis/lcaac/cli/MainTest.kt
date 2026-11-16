@@ -3,6 +3,11 @@ package ch.kleis.lcaac.cli
 import ch.kleis.lcaac.cli.cmd.LcaacCommand
 import ch.kleis.lcaac.cli.cmd.VersionCommand
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourceLocation
+import ch.kleis.lcaac.core.lang.source.SourceMap
+import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.grammar.LoaderException
 import ch.kleis.lcaac.grammar.SyntaxError
 import ch.kleis.lcaac.grammar.SyntaxException
@@ -33,6 +38,18 @@ class MainTest {
             assertEquals(error.message, actual.message)
             assertEquals(1, actual.statusCode)
         }
+    }
+
+    @Test
+    fun withCleanErrors_whenEvaluatorErrorHasFrames_shouldPrintThem() {
+        val process = ProcessKey("p")
+        val error = EvaluatorException("incompatible dimensions")
+            .within(ProcessFrame(SourcePath.Process(process)))
+            .withSourceMap(SourceMap(mapOf(SourcePath.Process(process) to SourceLocation("src/main.lca", 3, 1))))
+
+        val actual = assertThrows<CliktError> { withCleanErrors { throw error } }
+
+        assertEquals("incompatible dimensions\n  in process 'p' (src/main.lca:3:1)", actual.message)
     }
 
     @Test

@@ -35,13 +35,16 @@ class Evaluator<Q, M> private constructor(
         try {
             var requests = learner.start()
             while (requests.isNotEmpty()) {
-                val responses = oracle.answer(requests)
+                val responses = requests.mapNotNull { request ->
+                    within({ learner.requesterFrame(request) }) { oracle.answerRequest(request) }
+                }.toSet()
                 requests = learner.receive(responses)
             }
             LOG.info("End evaluation, found ${learner.trace.getNumberOfProcesses()} processes and ${learner.trace.getNumberOfSubstanceCharacterizations()} substances")
             return learner.trace
         } catch (e: Exception) {
             LOG.info("End evaluation with error $e")
+            if (e is EvaluatorException) e.withSourceMap(symbolTable.sourceMap)
             throw e
         }
     }

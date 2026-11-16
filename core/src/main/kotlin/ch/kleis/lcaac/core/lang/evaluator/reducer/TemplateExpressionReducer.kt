@@ -7,8 +7,13 @@ import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.Register
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.Helper
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.lang.source.processKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class TemplateExpressionReducer<Q>(
@@ -23,31 +28,45 @@ class TemplateExpressionReducer<Q>(
 
     fun reduce(expression: EProcessTemplateApplication<Q>): EProcess<Q> {
         val template = expression.template
+        val process = template.body.processKey()
+        return within({ ProcessFrame(SourcePath.Process(process)) }) {
+            val unknownParameters = expression.arguments.keys
+                .minus(template.params.keys)
+            if (unknownParameters.isNotEmpty()) {
+                throw EvaluatorException("unknown parameters: $unknownParameters")
+            }
 
-        val unknownParameters = expression.arguments.keys
-            .minus(template.params.keys)
-        if (unknownParameters.isNotEmpty()) {
-            throw EvaluatorException("unknown parameters: $unknownParameters")
+            val actualArguments = template.params
+                .plus(expression.arguments)
+
+            val localRegister = DataRegister(dataRegister)
+                .plus(actualArguments.mapKeys { DataKey(it.key) })
+                .plus(template.locals.mapKeys { DataKey(it.key) })
+                .plus(template.body.labels.mapKeys { DataKey(it.key) })
+            val pathOf = pathsIn(process, template)
+
+            val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, SourcePath.Process(process), pathOf)
+            val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, pathOf)
+
+            var result = template.body
+            actualArguments.forEach {
+                result = helper.substitute(it.key, it.value, result)
+            }
+            result = reducer.reduce(result) as EProcess
+            result = concretizeProducts(result, actualArguments, dataReducer)
+            result
         }
+    }
 
-        val actualArguments = template.params
-            .plus(expression.arguments)
-
-        val localRegister = DataRegister(dataRegister)
-            .plus(actualArguments.mapKeys { DataKey(it.key) })
-            .plus(template.locals.mapKeys { DataKey(it.key) })
-            .plus(template.body.labels.mapKeys { DataKey(it.key) })
-
-        val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
-        val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
-
-        var result = template.body
-        actualArguments.forEach {
-            result = helper.substitute(it.key, it.value, result)
+    /** Where the names visible in a process are defined: its variables, its parameters or the globals. */
+    private fun pathsIn(process: ProcessKey, template: EProcessTemplate<Q>): (String) -> SourcePath? = { name ->
+        when {
+            template.locals.containsKey(name) -> SourcePath.Variable(SourcePath.Process(process), name)
+            template.params.containsKey(name) -> SourcePath.Parameter(process, name)
+            template.body.labels.containsKey(name) -> null
+            dataRegister[DataKey(name)] != null -> SourcePath.Global(name)
+            else -> null
         }
-        result = reducer.reduce(result) as EProcess
-        result = concretizeProducts(result, actualArguments, dataReducer)
-        return result
     }
 
     private fun concretizeProducts(

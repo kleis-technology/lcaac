@@ -1,10 +1,17 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
+import ch.kleis.lcaac.core.lang.evaluator.ForEachFrame
+import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.source.BlockPath
+import ch.kleis.lcaac.core.lang.source.Section
+import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.lang.source.substanceKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 class LcaExpressionReducer<Q>(
@@ -12,13 +19,20 @@ class LcaExpressionReducer<Q>(
     private val dataSourceRegister: DataSourceRegister<Q> = DataSourceRegister.empty(),
     private val ops: QuantityOperations<Q>,
     private val sourceOps: DataSourceOperations<Q>,
+    /** The process or substance being reduced, to locate errors in its exchanges. */
+    private val owner: SourcePath.ExchangeOwner? = null,
+    /** Where a name is defined, to locate errors in its definition. */
+    private val pathOf: (String) -> SourcePath? = { null },
 ) {
-    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps)
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps, pathOf)
 
-    private fun push(data: Map<DataKey, DataExpression<Q>>): LcaExpressionReducer<Q> {
+    private fun push(
+        data: Map<DataKey, DataExpression<Q>>,
+        paths: (String) -> SourcePath? = { null },
+    ): LcaExpressionReducer<Q> {
         val localRegister = DataRegister(dataRegister)
             .plus(data)
-        return LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps)
+        return LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, owner) { paths(it) ?: pathOf(it) }
     }
 
     fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
@@ -37,9 +51,15 @@ class LcaExpressionReducer<Q>(
     }
 
     fun reduceSubstanceCharacterization(expression: ESubstanceCharacterization<Q>): ESubstanceCharacterization<Q> {
+        val reducer = LcaExpressionReducer(
+            dataRegister, dataSourceRegister, ops, sourceOps,
+            SourcePath.Substance(expression.substanceKey()), pathOf,
+        )
         return ESubstanceCharacterization(
-            reduceBioExchange(expression.referenceExchange),
-            expression.impacts.flatMap { reduceImpactBlock(it) },
+            reducer.reduceBioExchange(expression.referenceExchange),
+            expression.impacts.flatMapIndexed { i, block ->
+                reducer.reduceBlock(block, BlockPath.of(Section.IMPACTS, i), impactLabel) { reduceImpact(it) }
+            },
         )
     }
 
@@ -48,10 +68,19 @@ class LcaExpressionReducer<Q>(
         return EProcess(
             expression.name,
             expression.labels,
-            expression.products.map(::reduceTechnoExchange),
-            expression.inputs.flatMap { reduceTechnoBlock(it) },
-            expression.biosphere.flatMap { reduceBioBlock(it) },
-            expression.impacts.flatMap { reduceImpactBlock(it) },
+            expression.products.mapIndexed { i, exchange ->
+                val path = BlockPath.of(Section.PRODUCTS, i)
+                within({ exchangeFrame(path, "product", exchange.product.name) }) { reduceTechnoExchange(exchange) }
+            },
+            expression.inputs.flatMapIndexed { i, block ->
+                reduceBlock(block, BlockPath.of(Section.INPUTS, i), inputLabel) { reduceTechnoExchange(it) }
+            },
+            expression.biosphere.flatMapIndexed { i, block ->
+                reduceBlock(block, BlockPath.of(Section.BIOSPHERE, i), bioLabel) { reduceBioExchange(it) }
+            },
+            expression.impacts.flatMapIndexed { i, block ->
+                reduceBlock(block, BlockPath.of(Section.IMPACTS, i), impactLabel) { reduceImpact(it) }
+            },
         )
     }
 
@@ -73,82 +102,64 @@ class LcaExpressionReducer<Q>(
         )
     }
 
-    private fun reduceTechnoBlock(expression: TechnoBlock<Q>):
-        List<ETechnoBlockEntry<Q>> {
-        return when (expression) {
-            is EBlockEntry -> listOf(
-                ETechnoBlockEntry(
-                    reduceTechnoExchange(expression.entry)
-                )
-            )
+    /*
+        Blocks
+     */
 
-            is EBlockForEach -> {
-                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
+    /** Kind and name of an exchange, to describe it in errors. */
+    private val inputLabel: (ETechnoExchange<Q>) -> Pair<String, String> = { "input" to it.product.name }
+    private val bioLabel: (EBioExchange<Q>) -> Pair<String, String> =
+        { (it.substance.type?.value?.lowercase() ?: "biosphere exchange") to it.substance.name }
+    private val impactLabel: (EImpact<Q>) -> Pair<String, String> = { "impact" to it.indicator.name }
+
+    /**
+     * Reduces an exchange, or expands a for_each block into the exchanges of each row.
+     * [path] is where the block is written in the process, or null outside of a process.
+     */
+    private fun <E> reduceBlock(
+        block: BlockExpression<E, Q>,
+        path: BlockPath?,
+        label: (E) -> Pair<String, String>,
+        reduceEntry: LcaExpressionReducer<Q>.(E) -> E,
+    ): List<EBlockEntry<E, Q>> {
+        return when (block) {
+            is EBlockEntry -> within({ label(block.entry).let { (kind, name) -> exchangeFrame(path, kind, name) } }) {
+                listOf(EBlockEntry(reduceEntry(block.entry)))
+            }
+
+            is EBlockForEach -> within({ forEachFrame(path, block.rowRef, null) }) {
+                val ds = dataExpressionReducer.evalDataSource(block.dataSource)
                 sourceOps.getAll(ds)
                     .map { dataExpressionReducer.reduce(it) }
-                    .flatMap { record ->
-                        val reducer = push(mapOf(
-                            DataKey(expression.rowRef) to record
-                        )).push(
-                            expression.locals.mapKeys { DataKey(it.key) }
-                        )
-                        expression.body
-                            .flatMap { reducer.reduceTechnoBlock(it) }
+                    .withIndex()
+                    .flatMap { (row, record) ->
+                        within({ forEachFrame(path, block.rowRef, row) }) {
+                            val reducer = push(mapOf(
+                                DataKey(block.rowRef) to record
+                            )).push(
+                                block.locals.mapKeys { DataKey(it.key) },
+                                localPaths(block.locals.keys, path),
+                            )
+                            block.body.flatMapIndexed { i, child ->
+                                reducer.reduceBlock(child, path?.child(i), label, reduceEntry)
+                            }
+                        }
                     }.toList()
             }
         }
     }
-    
-    private fun reduceBioBlock(expression: BioBlock<Q>):
-        List<EBioBlockEntry<Q>> {
-        return when (expression) {
-            is EBlockEntry -> listOf(
-                EBioBlockEntry(
-                    reduceBioExchange(expression.entry)
-                )
-            )
 
-            is EBlockForEach -> {
-                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
-                sourceOps.getAll(ds)
-                    .map { dataExpressionReducer.reduce(it) }
-                    .flatMap { record ->
-                        val reducer = push(mapOf(
-                            DataKey(expression.rowRef) to record
-                        )).push(
-                            expression.locals.mapKeys { DataKey(it.key) }
-                        )
-                        expression.body
-                            .flatMap { reducer.reduceBioBlock(it) }
-                    }.toList()
-            }
-        }
-    }
-    
-    private fun reduceImpactBlock(expression: ImpactBlock<Q>):
-        List<EImpactBlockEntry<Q>> {
-        return when (expression) {
-            is EBlockEntry -> listOf(
-                EImpactBlockEntry(
-                    reduceImpact(expression.entry)
-                )
-            )
+    private fun exchangeFrame(path: BlockPath?, kind: String, name: String): ExchangeFrame? =
+        exchangePath(path)?.let { ExchangeFrame(it, kind, name) }
 
-            is EBlockForEach -> {
-                val ds = dataExpressionReducer.evalDataSource(expression.dataSource)
-                sourceOps.getAll(ds)
-                    .map { dataExpressionReducer.reduce(it) }
-                    .flatMap { record ->
-                        val reducer = push(mapOf(
-                            DataKey(expression.rowRef) to record
-                        )).push(
-                            expression.locals.mapKeys { DataKey(it.key) }
-                        )
-                        expression.body
-                            .flatMap { reducer.reduceImpactBlock(it) }
-                    }.toList()
-            }
-        }
+    private fun forEachFrame(path: BlockPath?, rowRef: String, row: Int?): ForEachFrame? =
+        exchangePath(path)?.let { ForEachFrame(it, rowRef, row) }
+
+    private fun exchangePath(path: BlockPath?): SourcePath.Exchange? =
+        if (owner != null && path != null) SourcePath.Exchange(owner, path) else null
+
+    private fun localPaths(names: Set<String>, path: BlockPath?): (String) -> SourcePath? = { name ->
+        if (owner != null && name in names) SourcePath.Variable(owner, name, path) else null
     }
 
     private fun reduceProductSpec(expression: EProductSpec<Q>): EProductSpec<Q> {

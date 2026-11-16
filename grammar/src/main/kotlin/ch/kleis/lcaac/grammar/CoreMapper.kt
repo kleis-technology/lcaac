@@ -210,7 +210,7 @@ class CoreMapper<Q>(
         val substanceSpec = substanceSpec(ctx)
         val quantity = dataExpression(ctx.referenceUnitField().dataExpression())
         val referenceExchange = EBioExchange(quantity, substanceSpec)
-        val impacts = ctx.block_impacts().flatMap { it.impactExchange() }.map { impactExchange(it) }
+        val impacts = ctx.impactExchanges().map { impactExchange(it) }
         return ESubstanceCharacterization(
             referenceExchange,
             impacts,
@@ -407,9 +407,10 @@ class CoreMapper<Q>(
     }
 
     /*
-        Exchanges of a process, in the order of the process sections.
-        Both process() and processLocations() use them, so that a BlockPath points
-        to the same exchange in the expression and in the source map.
+        Exchanges of a process or a substance, in the order of the sections.
+        Both the expressions (process(), substanceCharacterization()) and the source map
+        (processLocations(), substanceLocations()) use them, so that a BlockPath points
+        to the same exchange in both.
      */
 
     private fun LcaLangParser.ProcessDefinitionContext.productExchanges() =
@@ -426,48 +427,59 @@ class CoreMapper<Q>(
     private fun LcaLangParser.ProcessDefinitionContext.impactExchanges() =
         block_impacts().flatMap { it.impactExchange() }
 
+    private fun LcaLangParser.SubstanceDefinitionContext.impactExchanges() =
+        block_impacts().flatMap { it.impactExchange() }
+
     /*
         Source locations
      */
 
     fun processLocations(ctx: LcaLangParser.ProcessDefinitionContext): SourceMap {
         val key = ctx.buildUniqueKey()
+        val owner = SourcePath.Process(key)
         val locations = LinkedHashMap<SourcePath, SourceLocation>()
-        locations[SourcePath.Process(key)] = location(ctx.PROCESS_KEYWORD().symbol)
+        locations[owner] = location(ctx.PROCESS_KEYWORD().symbol)
         ctx.params().flatMap { it.assignment() }.forEach {
             locations[SourcePath.Parameter(key, it.dataRef().innerText())] = location(it.start)
         }
         ctx.variables().flatMap { it.assignment() }.forEach {
-            locations[SourcePath.Variable(key, it.dataRef().innerText())] = location(it.start)
+            locations[SourcePath.Variable(owner, it.dataRef().innerText())] = location(it.start)
         }
-
-        fun addBlock(path: BlockPath, block: ParserRuleContext, variables: List<LcaLangParser.VariablesContext>, body: List<ParserRuleContext>) {
-            locations[SourcePath.Exchange(key, path)] = location(block.start)
-            variables.flatMap { it.assignment() }.forEach {
-                locations[SourcePath.Variable(key, it.dataRef().innerText(), path)] = location(it.start)
-            }
-            body.forEachIndexed { i, child -> addExchange(child, path.child(i), ::addBlock) }
-        }
-
         ctx.productExchanges().forEachIndexed { i, it ->
-            locations[SourcePath.Exchange(key, BlockPath.of(Section.PRODUCTS, i))] = location(it.start)
+            locations[SourcePath.Exchange(owner, BlockPath.of(Section.PRODUCTS, i))] = location(it.start)
         }
-        ctx.inputExchanges().forEachIndexed { i, it -> addExchange(it, BlockPath.of(Section.INPUTS, i), ::addBlock) }
-        ctx.biosphereExchanges().forEachIndexed { i, (it, _) -> addExchange(it, BlockPath.of(Section.BIOSPHERE, i), ::addBlock) }
-        ctx.impactExchanges().forEachIndexed { i, it -> addExchange(it, BlockPath.of(Section.IMPACTS, i), ::addBlock) }
+        ctx.inputExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.INPUTS, i)) }
+        ctx.biosphereExchanges().forEachIndexed { i, (it, _) -> addExchange(locations, owner, it, BlockPath.of(Section.BIOSPHERE, i)) }
+        ctx.impactExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.IMPACTS, i)) }
         return SourceMap(locations)
     }
 
-    /** Calls [addBlock] with the variables and body of a for_each, or without any for an exchange entry. */
+    fun substanceLocations(ctx: LcaLangParser.SubstanceDefinitionContext): SourceMap {
+        val owner = SourcePath.Substance(ctx.buildUniqueKey())
+        val locations = LinkedHashMap<SourcePath, SourceLocation>()
+        locations[owner] = location(ctx.start)
+        ctx.impactExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.IMPACTS, i)) }
+        return SourceMap(locations)
+    }
+
+    /** Adds the location of an exchange or for_each block, and of the variables and exchanges of a for_each. */
     private fun addExchange(
+        locations: MutableMap<SourcePath, SourceLocation>,
+        owner: SourcePath.ExchangeOwner,
         ctx: ParserRuleContext,
         path: BlockPath,
-        addBlock: (BlockPath, ParserRuleContext, List<LcaLangParser.VariablesContext>, List<ParserRuleContext>) -> Unit,
-    ) = when (ctx) {
-        is LcaLangParser.TechnoBlockForEachContext -> addBlock(path, ctx, ctx.variables(), ctx.technoInputExchange())
-        is LcaLangParser.BioBlockForEachContext -> addBlock(path, ctx, ctx.variables(), ctx.bioExchange())
-        is LcaLangParser.ImpactBlockForEachContext -> addBlock(path, ctx, ctx.variables(), ctx.impactExchange())
-        else -> addBlock(path, ctx, emptyList(), emptyList())
+    ) {
+        locations[SourcePath.Exchange(owner, path)] = location(ctx.start)
+        val (variables, body) = when (ctx) {
+            is LcaLangParser.TechnoBlockForEachContext -> ctx.variables() to ctx.technoInputExchange()
+            is LcaLangParser.BioBlockForEachContext -> ctx.variables() to ctx.bioExchange()
+            is LcaLangParser.ImpactBlockForEachContext -> ctx.variables() to ctx.impactExchange()
+            else -> emptyList<LcaLangParser.VariablesContext>() to emptyList<ParserRuleContext>()
+        }
+        variables.flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Variable(owner, it.dataRef().innerText(), path)] = location(it.start)
+        }
+        body.forEachIndexed { i, child -> addExchange(locations, owner, child, path.child(i)) }
     }
 
     fun globalLocation(ctx: LcaLangParser.GlobalAssignmentContext): SourceMap =
