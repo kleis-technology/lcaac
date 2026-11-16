@@ -36,33 +36,38 @@ class CachedProcessResolver<Q, M>(
 
     // A cached process is evaluated as a separate system: its derivation is not recorded
     override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>, recorder: DerivationRecorder<Q>?): EProcess<Q> {
-        return runBlocking {
-            cache.getOrPut(template to spec) {
-                val trace = getTrace(template, spec)
-                val entryPoint = trace.getEntryPoint()
-                val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
-                val inputQuantity = inputQuantityAnalysis(entryPoint.products, analysis.impactFactors)
+        val key = template to spec
+        // The evaluation runs here, not as a creation of the cache: the cache creates values in another
+        // thread, and loses the error of a creation that fails before its result is awaited.
+        return runBlocking { cache.get(key) }
+            ?: aggregate(template, spec).also { runBlocking { cache.put(key, it) } }
+    }
 
-                val inputs = analysis.impactFactors.getInputProducts().map {
-                    EMapper.toETechnoExchange(inputQuantity(it), it)
-                }
+    /** The process as a single process, whose exchanges are the aggregated exchanges of its supply chain. */
+    private fun aggregate(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {
+        val trace = getTrace(template, spec)
+        val entryPoint = trace.getEntryPoint()
+        val analysis = AnalysisProgram(trace.getSystemValue(), entryPoint, ops).run()
+        val inputQuantity = inputQuantityAnalysis(entryPoint.products, analysis.impactFactors)
 
-                val biosphere = analysis.impactFactors.getSubstances().map {
-                    EMapper.toEBioExchange(inputQuantity(it), it)
-                }
-
-                val impacts = analysis.impactFactors.getIndicators().map {
-                    EMapper.toEImpact(inputQuantity(it), it)
-                }
-
-                template.body.copy(
-                    products = entryPoint.products.map { EMapper.toETechnoExchange(it) },
-                    inputs = inputs.map { ETechnoBlockEntry(it) },
-                    biosphere = biosphere.map { EBioBlockEntry(it) },
-                    impacts = impacts.map { EImpactBlockEntry(it) }
-                )
-            } ?: throw EvaluatorException("Failed to resolve process for spec $spec")
+        val inputs = analysis.impactFactors.getInputProducts().map {
+            EMapper.toETechnoExchange(inputQuantity(it), it)
         }
+
+        val biosphere = analysis.impactFactors.getSubstances().map {
+            EMapper.toEBioExchange(inputQuantity(it), it)
+        }
+
+        val impacts = analysis.impactFactors.getIndicators().map {
+            EMapper.toEImpact(inputQuantity(it), it)
+        }
+
+        return template.body.copy(
+            products = entryPoint.products.map { EMapper.toETechnoExchange(it) },
+            inputs = inputs.map { ETechnoBlockEntry(it) },
+            biosphere = biosphere.map { EBioBlockEntry(it) },
+            impacts = impacts.map { EImpactBlockEntry(it) }
+        )
     }
 
     private fun getTrace(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EvaluationTrace<Q> {
