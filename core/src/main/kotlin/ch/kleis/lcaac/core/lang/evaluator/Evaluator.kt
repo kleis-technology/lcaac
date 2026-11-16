@@ -12,21 +12,36 @@ import com.mayakapps.kache.KacheStrategy
 import com.mayakapps.kache.ObjectKache
 import org.slf4j.LoggerFactory
 
+/**
+ * [recordDerivations]: record how each process is evaluated, see [EvaluationTrace.getDerivation].
+ * This keeps the values of all variables and data source reads, and reads the rows of sums again.
+ */
+data class EvaluatorOptions(
+    val recordDerivations: Boolean = false,
+)
+
 class Evaluator<Q, M> private constructor(
     private val symbolTable: SymbolTable<Q>,
     private val ops: Operations<Q, M>,
     private val sourceOps: DataSourceOperations<Q>,
-    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
+    private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>,
+    private val options: EvaluatorOptions,
 ) {
     @Suppress("PrivatePropertyName")
     private val LOG = LoggerFactory.getLogger(Evaluator::class.java)
-    private val oracle = Oracle(symbolTable, ops, sourceOps, cache)
+    private val oracle = Oracle(symbolTable, ops, sourceOps, cache, options.recordDerivations)
 
-    constructor(symbolTable: SymbolTable<Q>, ops: Operations<Q, M>, sourceOps: DataSourceOperations<Q>) : this(
+    constructor(
+        symbolTable: SymbolTable<Q>,
+        ops: Operations<Q, M>,
+        sourceOps: DataSourceOperations<Q>,
+        options: EvaluatorOptions = EvaluatorOptions(),
+    ) : this(
         symbolTable,
         ops,
         sourceOps,
-        InMemoryKache(maxSize = 1024) { strategy = KacheStrategy.LRU }
+        InMemoryKache(maxSize = 1024) { strategy = KacheStrategy.LRU },
+        options,
     )
 
     fun trace(initialRequests: Set<EProductSpec<Q>>): EvaluationTrace<Q> {
@@ -57,7 +72,7 @@ class Evaluator<Q, M> private constructor(
                     mapOf(processKey to template)
                 )
             )
-        return Evaluator(st, ops, sourceOps, cache)
+        return Evaluator(st, ops, sourceOps, cache, options)
     }
 
     fun trace(

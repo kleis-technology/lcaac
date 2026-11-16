@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
 import ch.kleis.lcaac.core.lang.evaluator.step.CompleteTerminals
 import ch.kleis.lcaac.core.lang.evaluator.step.Reduce
 import ch.kleis.lcaac.core.lang.expression.*
@@ -22,7 +23,8 @@ import com.mayakapps.kache.ObjectKache
 import kotlinx.coroutines.runBlocking
 
 interface ProcessResolver<Q, M> {
-    fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q>
+    /** [recorder], when given, records how the process is evaluated. */
+    fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>, recorder: DerivationRecorder<Q>? = null): EProcess<Q>
 }
 
 class CachedProcessResolver<Q, M>(
@@ -32,7 +34,8 @@ class CachedProcessResolver<Q, M>(
     private val cache: ObjectKache<Pair<EProcessTemplate<Q>, EProductSpec<Q>>, EProcess<Q>>
 ) : ProcessResolver<Q, M> {
 
-    override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {
+    // A cached process is evaluated as a separate system: its derivation is not recorded
+    override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>, recorder: DerivationRecorder<Q>?): EProcess<Q> {
         return runBlocking {
             cache.getOrPut(template to spec) {
                 val trace = getTrace(template, spec)
@@ -100,11 +103,11 @@ class BareProcessResolver<Q, M>(
     private val reduceDataExpressions = Reduce(symbolTable, ops, sourceOps)
     private val completeTerminals = CompleteTerminals(ops)
 
-    override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>): EProcess<Q> {
+    override fun resolve(template: EProcessTemplate<Q>, spec: EProductSpec<Q>, recorder: DerivationRecorder<Q>?): EProcess<Q> {
         val arguments = template.params.plus(spec.fromProcess?.arguments ?: emptyMap())
         val expression = EProcessTemplateApplication(template, arguments)
         return expression
-            .let(reduceDataExpressions::apply)
+            .let { reduceDataExpressions.apply(it, recorder) }
             .let(completeTerminals::apply)
     }
 }

@@ -7,6 +7,9 @@ import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.VariableFrame
 import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DataSourceRead
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ReadKind
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
@@ -24,7 +27,10 @@ class DataExpressionReducer<Q>(
     private val sourceOps: DataSourceOperations<Q>,
     /** Where a name is defined, to locate errors in its definition. */
     private val pathOf: (String) -> SourcePath? = { null },
+    /** Records the values of variables and the data source reads, when given. */
+    private val recorder: DerivationRecorder<Q>? = null,
 ) {
+    private val recordsValues = recorder?.recordsValues == true
     private val dataRegister = DataRegister(dataRegister)
     private val dataSourceRegister = DataSourceRegister(dataSourceRegister)
     private val infiniteUnitLoopChecker = InfiniteUnitLoopChecker<Q>()
@@ -55,7 +61,9 @@ class DataExpressionReducer<Q>(
 
     private fun reduceFirstRecordOf(expression: EFirstRecordOf<Q>): DataExpression<Q> {
         val dataSource = evalDataSource(expression.dataSource)
-        return reduceMap(sourceOps.getFirst(dataSource))
+        val record = reduceMap(sourceOps.getFirst(dataSource))
+        if (recordsValues) recorder?.read(DataSourceRead(ReadKind.LOOKUP, dataSource, listOfNotNull(record as? ERecord)))
+        return record
     }
 
     fun reduceDataSource(expression: DataSourceExpression<Q>, filter: Map<String, DataExpression<Q>> = emptyMap()): EDataSource<Q> {
@@ -91,13 +99,20 @@ class DataExpressionReducer<Q>(
 
     private fun reduceESumProduct(expression: ESumProduct<Q>): DataExpression<Q> {
         val dataSource = evalDataSource(expression.dataSource)
+        if (recordsValues) {
+            // The connector only returns the sum: read the rows again to record them
+            val records = sourceOps.getAll(dataSource).map { reduceMap(it) }.filterIsInstance<ERecord<Q>>().toList()
+            recorder?.read(DataSourceRead(ReadKind.SUM, dataSource, records, expression.columns))
+        }
         return reduce(sourceOps.sumProduct(dataSource, expression.columns))
     }
 
     private fun reduceDefaultRecordOf(expression: EDefaultRecordOf<Q>): DataExpression<Q> {
         val dataSource = reduceDataSource(expression.dataSource)
         val schema = dataSource.schema
-        return ERecord(schema.mapValues { reduce(it.value) })
+        val record = ERecord(schema.mapValues { reduce(it.value) })
+        if (recordsValues) recorder?.read(DataSourceRead(ReadKind.DEFAULT_RECORD, evalDataSource(dataSource), listOf(record)))
+        return record
     }
 
     private fun reduceMapEntry(expression: ERecordEntry<Q>): DataExpression<Q> {
@@ -201,9 +216,13 @@ class DataExpressionReducer<Q>(
 
     private fun reduceRef(expression: EDataRef<Q>): DataExpression<Q> {
         val key = DataKey(expression.name)
-        return dataRegister[key]
-            ?.let { within({ pathOf(expression.name)?.let { VariableFrame(it) } }) { reduce(it) } }
-            ?: expression
+        val definition = dataRegister[key] ?: return expression
+        return within({ pathOf(expression.name)?.let { VariableFrame(it) } }) {
+            // Units are definitions, not computations: they are not recorded
+            val path = if (recordsValues && definition !is EUnitLiteral && definition !is EUnitAlias) pathOf(expression.name) else null
+            if (path != null) recorder!!.variable(path, definition) { reduce(definition) }
+            else reduce(definition)
+        }
     }
 
     private fun reduceScale(expression: EQuantityScale<Q>): DataExpression<Q> {

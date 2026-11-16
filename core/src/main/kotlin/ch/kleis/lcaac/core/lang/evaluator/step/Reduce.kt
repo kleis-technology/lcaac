@@ -7,6 +7,7 @@ import ch.kleis.lcaac.core.lang.evaluator.Helper
 import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
 import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
 import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
 import ch.kleis.lcaac.core.lang.evaluator.reducer.LcaExpressionReducer
 import ch.kleis.lcaac.core.lang.evaluator.reducer.TemplateExpressionReducer
 import ch.kleis.lcaac.core.lang.expression.EProcess
@@ -38,9 +39,9 @@ class Reduce<Q>(
         symbolTable.dataSources,
     )
 
-    fun apply(expression: EProcessTemplateApplication<Q>): EProcess<Q> =
+    fun apply(expression: EProcessTemplateApplication<Q>, recorder: DerivationRecorder<Q>? = null): EProcess<Q> =
         within({ ProcessFrame(SourcePath.Process(expression.template.body.processKey())) }) {
-            val reduced = templateReducer.reduce(expression)
+            val reduced = templateReducer.reduce(expression, recorder)
             val unboundedReferences = Helper<Q>().allRequiredRefs(reduced)
             if (unboundedReferences.isNotEmpty()) {
                 throw EvaluatorException("unbounded references: $unboundedReferences")

@@ -75,7 +75,7 @@ class EvaluationErrorLocationTest {
               in variable 'energy' ($file:12:9)
               in input 'electricity' ($file:18:9)
               in process 'steel_mill' ($file:10:1)
-              in supplier of 'steel' for process 'main' ($file:1:1)
+              in supplier of 'steel' for process 'main' ($file:6:9)
             """.trimIndent(),
             error.describe(),
         )
@@ -176,7 +176,7 @@ class EvaluationErrorLocationTest {
         assertEquals(
             """
             no process 'other' providing 'steel' found
-              in supplier of 'steel' for process 'main' ($file:1:1)
+              in supplier of 'steel' for process 'main' ($file:6:9)
             """.trimIndent(),
             error.describe(),
         )
@@ -212,7 +212,7 @@ class EvaluationErrorLocationTest {
             incompatible dimensions: mass vs energy in left=kg and right=kWh
               in impact 'climate_change' ($file:16:9)
               in substance 'co2' ($file:10:1)
-              in characterization of 'co2' for process 'p' ($file:1:1)
+              in characterization of 'co2' for process 'p' ($file:6:9)
             """.trimIndent(),
             error.describe(),
         )
@@ -254,7 +254,7 @@ class EvaluationErrorLocationTest {
               in variable 'total' ($file:15:9)
               in input 'iron' ($file:21:9)
               in process 'mill' ($file:10:1)
-              in supplier of 'steel' for process 'main' ($file:1:1)
+              in supplier of 'steel' for process 'main' ($file:6:9)
             """.trimIndent(),
             error.describe(),
         )

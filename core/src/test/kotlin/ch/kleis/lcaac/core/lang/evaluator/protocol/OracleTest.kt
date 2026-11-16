@@ -93,7 +93,7 @@ class OracleTest {
 
             mockkConstructor(BareProcessResolver::class)
             every {
-                anyConstructed<BareProcessResolver<BasicNumber, String>>().resolve(template, spec)
+                anyConstructed<BareProcessResolver<BasicNumber, String>>().resolve(template, spec, any())
             } returns mockProcess
 
             // when
@@ -103,7 +103,7 @@ class OracleTest {
             assertTrue(result is ProductResponse<BasicNumber>)
             verify {
                 anyConstructed<BareProcessResolver<BasicNumber, String>>()
-                    .resolve(template, spec)
+                    .resolve(template, spec, any())
             }
         }
     }

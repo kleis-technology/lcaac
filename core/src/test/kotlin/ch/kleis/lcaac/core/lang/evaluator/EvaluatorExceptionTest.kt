@@ -56,11 +56,11 @@ class EvaluatorExceptionTest {
         assertEquals("for_each 'row'", ForEachFrame(forEach, "row").description)
         assertEquals("parameter 'a'", VariableFrame(SourcePath.Parameter(process, "a")).description)
         assertEquals("global 'g'", VariableFrame(SourcePath.Global("g")).description)
-        assertEquals("supplier of 'flour' for process 'p'", SupplierFrame(SourcePath.Process(process), "flour").description)
+        assertEquals("supplier of 'flour' for process 'p'", SupplierFrame(forEach, "flour", process).description)
         assertEquals("substance 'co2'", SubstanceFrame(SourcePath.Substance(SubstanceKey("co2"))).description)
         assertEquals(
             "characterization of 'co2' for process 'p'",
-            CharacterizationFrame(SourcePath.Process(process), "co2").description,
+            CharacterizationFrame(SourcePath.Process(process), "co2", process).description,
         )
     }
 }

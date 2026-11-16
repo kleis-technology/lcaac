@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
+import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
 
 /**
@@ -45,24 +46,32 @@ data class VariableFrame(override val path: SourcePath) : EvaluationFrame {
         }
 }
 
-/** The search for the supplier of [product], required by the process at [path]. */
+/**
+ * The search for the supplier of [product], required by [process]. [path] is the input
+ * that requires it, or the process when the input is not known (e.g. a cached process).
+ */
 data class SupplierFrame(
-    override val path: SourcePath.Process,
+    override val path: SourcePath,
     val product: String,
+    val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "supplier of '$product' for process '${path.process}'"
+    override val description: String get() = "supplier of '$product' for process '$process'"
 }
 
 data class SubstanceFrame(override val path: SourcePath.Substance) : EvaluationFrame {
     override val description: String get() = "substance '${path.substance.name}'"
 }
 
-/** The search for the characterization of [substance], emitted or consumed by the process at [path]. */
+/**
+ * The search for the characterization of [substance], emitted or consumed by [process].
+ * [path] is the exchange that requires it, or the process when the exchange is not known.
+ */
 data class CharacterizationFrame(
-    override val path: SourcePath.Process,
+    override val path: SourcePath,
     val substance: String,
+    val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "characterization of '$substance' for process '${path.process}'"
+    override val description: String get() = "characterization of '$substance' for process '$process'"
 }
 
 /**

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessDerivation
 import ch.kleis.lcaac.core.lang.value.*
 import kotlin.math.max
 
@@ -10,6 +11,7 @@ class EvaluationTrace<Q> {
     private val processes = HashSet<ProcessValue<Q>>()
     private val substanceCharacterizations = HashSet<SubstanceCharacterizationValue<Q>>()
     private val depthMap = HashMap<MatrixColumnIndex<Q>, Int>()
+    private val derivations = HashMap<ProcessValue<Q>, ProcessDerivation<Q>>()
 
     companion object {
         fun <Q> empty(): EvaluationTrace<Q> {
@@ -59,6 +61,14 @@ class EvaluationTrace<Q> {
             processes,
             substanceCharacterizations,
         )
+    }
+
+    /** How [process] was evaluated, if the evaluator recorded derivations and it is not a cached process. */
+    fun getDerivation(process: ProcessValue<Q>): ProcessDerivation<Q>? = derivations[process]
+
+    /** Equal processes are one process of the system: the first derivation is kept. */
+    fun addDerivation(process: ProcessValue<Q>, derivation: ProcessDerivation<Q>) {
+        derivations.putIfAbsent(process, derivation)
     }
 
     fun contains(process: ProcessValue<Q>): Boolean {

@@ -4,6 +4,9 @@ import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
 import ch.kleis.lcaac.core.lang.evaluator.ForEachFrame
 import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DataSourceRead
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ReadKind
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
@@ -23,8 +26,10 @@ class LcaExpressionReducer<Q>(
     private val owner: SourcePath.ExchangeOwner? = null,
     /** Where a name is defined, to locate errors in its definition. */
     private val pathOf: (String) -> SourcePath? = { null },
+    /** Records where the exchanges come from and, if asked, how they were evaluated. */
+    private val recorder: DerivationRecorder<Q>? = null,
 ) {
-    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps, pathOf)
+    private val dataExpressionReducer = DataExpressionReducer(dataRegister, dataSourceRegister, ops, sourceOps, pathOf, recorder)
 
     private fun push(
         data: Map<DataKey, DataExpression<Q>>,
@@ -32,7 +37,11 @@ class LcaExpressionReducer<Q>(
     ): LcaExpressionReducer<Q> {
         val localRegister = DataRegister(dataRegister)
             .plus(data)
-        return LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, owner) { paths(it) ?: pathOf(it) }
+        return LcaExpressionReducer(
+            localRegister, dataSourceRegister, ops, sourceOps, owner,
+            pathOf = { paths(it) ?: pathOf(it) },
+            recorder = recorder,
+        )
     }
 
     fun reduce(expression: LcaExpression<Q>): LcaExpression<Q> {
@@ -70,7 +79,9 @@ class LcaExpressionReducer<Q>(
             expression.labels,
             expression.products.mapIndexed { i, exchange ->
                 val path = BlockPath.of(Section.PRODUCTS, i)
-                within({ exchangeFrame(path, "product", exchange.product.name) }) { reduceTechnoExchange(exchange) }
+                within({ exchangeFrame(path, "product", exchange.product.name) }) {
+                    recording(path) { reduceTechnoExchange(exchange) }
+                }
             },
             expression.inputs.flatMapIndexed { i, block ->
                 reduceBlock(block, BlockPath.of(Section.INPUTS, i), inputLabel) { reduceTechnoExchange(it) }
@@ -124,29 +135,42 @@ class LcaExpressionReducer<Q>(
     ): List<EBlockEntry<E, Q>> {
         return when (block) {
             is EBlockEntry -> within({ label(block.entry).let { (kind, name) -> exchangeFrame(path, kind, name) } }) {
-                listOf(EBlockEntry(reduceEntry(block.entry)))
+                listOf(EBlockEntry(recording(path) { reduceEntry(block.entry) }))
             }
 
             is EBlockForEach -> within({ forEachFrame(path, block.rowRef, null) }) {
                 val ds = dataExpressionReducer.evalDataSource(block.dataSource)
-                sourceOps.getAll(ds)
+                val records = sourceOps.getAll(ds)
                     .map { dataExpressionReducer.reduce(it) }
-                    .withIndex()
-                    .flatMap { (row, record) ->
-                        within({ forEachFrame(path, block.rowRef, row) }) {
-                            val reducer = push(mapOf(
-                                DataKey(block.rowRef) to record
-                            )).push(
-                                block.locals.mapKeys { DataKey(it.key) },
-                                localPaths(block.locals.keys, path),
-                            )
+                    .toList()
+                val forEach = exchangePath(path)
+                if (recorder != null && forEach != null) {
+                    recorder.forEach(forEach, block.rowRef, DataSourceRead(ReadKind.FOR_EACH, ds, records.filterIsInstance<ERecord<Q>>()))
+                }
+                records.withIndex().flatMap { (row, record) ->
+                    within({ forEachFrame(path, block.rowRef, row) }) {
+                        val reducer = push(mapOf(
+                            DataKey(block.rowRef) to record
+                        )).push(
+                            block.locals.mapKeys { DataKey(it.key) },
+                            localPaths(block.locals.keys, path),
+                        )
+                        val reduceRow = {
                             block.body.flatMapIndexed { i, child ->
                                 reducer.reduceBlock(child, path?.child(i), label, reduceEntry)
                             }
                         }
-                    }.toList()
+                        if (recorder != null && forEach != null) recorder.row(forEach, row, reduceRow) else reduceRow()
+                    }
+                }
             }
         }
+    }
+
+    /** Reduces the exchange written at [path], recording its origin. */
+    private inline fun <T> recording(path: BlockPath?, crossinline reduce: () -> T): T {
+        val exchange = exchangePath(path)
+        return if (recorder != null && exchange != null) recorder.exchange(exchange) { reduce() } else reduce()
     }
 
     private fun exchangeFrame(path: BlockPath?, kind: String, name: String): ExchangeFrame? =

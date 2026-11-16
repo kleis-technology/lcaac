@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.Helper
 import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
 import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.lang.register.ProcessKey
@@ -26,7 +27,7 @@ class TemplateExpressionReducer<Q>(
     private val dataSourceRegister = Register(dataSourceRegister)
     private val helper = Helper<Q>()
 
-    fun reduce(expression: EProcessTemplateApplication<Q>): EProcess<Q> {
+    fun reduce(expression: EProcessTemplateApplication<Q>, recorder: DerivationRecorder<Q>? = null): EProcess<Q> {
         val template = expression.template
         val process = template.body.processKey()
         return within({ ProcessFrame(SourcePath.Process(process)) }) {
@@ -45,8 +46,20 @@ class TemplateExpressionReducer<Q>(
                 .plus(template.body.labels.mapKeys { DataKey(it.key) })
             val pathOf = pathsIn(process, template)
 
-            val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, SourcePath.Process(process), pathOf)
+            val reducer = LcaExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, SourcePath.Process(process), pathOf, recorder)
             val dataReducer = DataExpressionReducer(localRegister, dataSourceRegister, ops, sourceOps, pathOf)
+
+            if (recorder?.recordsValues == true) {
+                actualArguments.forEach { (name, argument) ->
+                    // An argument that cannot be evaluated is only an error if the process uses it
+                    val value = try {
+                        dataReducer.reduce(argument)
+                    } catch (e: EvaluatorException) {
+                        null
+                    }
+                    recorder.parameter(SourcePath.Parameter(process, name), argument, template.params[name], value)
+                }
+            }
 
             var result = template.body
             actualArguments.forEach {

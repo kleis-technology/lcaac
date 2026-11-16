@@ -10,6 +10,8 @@ import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
 import ch.kleis.lcaac.core.lang.evaluator.SupplierFrame
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
 import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessDerivation
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessOrigins
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
 import ch.kleis.lcaac.core.lang.source.SourcePath
@@ -43,6 +45,8 @@ class Learner<Q>(
     private val ops: QuantityOperations<Q>,
 ) {
     private val staging = Heap<ConnectionExpression<Q>>()
+    private val stagingOrigins = HashMap<Int, ProcessOrigins>()
+    private val stagingDerivations = HashMap<Int, ProcessDerivation<Q>>()
     private val start = Heap<PortExpression<Q>>()
     private val knowledge = HashMap<PortExpression<Q>, PortExpression<Q>?>()
     val trace = EvaluationTrace.empty<Q>()
@@ -94,17 +98,23 @@ class Learner<Q>(
         return substanceCharacterization
     }
 
-    private fun applyKnowledge(responses: Set<Response<Q>>): Set<ConnectionExpression<Q>> =
+    /** The connection of each response, with knowledge applied; equal connections are kept once. */
+    private fun applyKnowledge(responses: Set<Response<Q>>): List<Pair<ConnectionExpression<Q>, Response<Q>>> =
         responses.map { response ->
             when (response) {
                 is ProductResponse -> applyKnowledge(response.value)
                 is SubstanceResponse -> applyKnowledge(response.value)
-            }
-        }.toSet()
+            } to response
+        }.distinctBy { it.first }
 
-    private fun addToStaging(connections: Set<ConnectionExpression<Q>>): Set<Pair<ConnectionExpression<Q>, Int>> =
-        connections.map { connection ->
-            connection to staging.add(connection)
+    private fun addToStaging(connections: List<Pair<ConnectionExpression<Q>, Response<Q>>>): Set<Pair<ConnectionExpression<Q>, Int>> =
+        connections.map { (connection, response) ->
+            val index = staging.add(connection)
+            if (response is ProductResponse) {
+                response.origins?.let { stagingOrigins[index] = it }
+                response.derivation?.let { stagingDerivations[index] = it }
+            }
+            connection to index
         }.toSet()
 
     private fun nextRequests(pairs: Set<Pair<ConnectionExpression<Q>, Int>>): Set<Request<Q>> =
@@ -116,11 +126,15 @@ class Learner<Q>(
         }.filter { !knowledge.containsKey(it.value) }.toSet()
 
     private fun commitStaging() {
-        staging.popAll().forEach { connection ->
+        staging.popAllIndexed().forEach { (index, connection) ->
+            stagingOrigins.remove(index)
+            val derivation = stagingDerivations.remove(index)
             with(ToValue(ops)) {
                 when (connection) {
                     is EProcess -> within({ ProcessFrame(SourcePath.Process(connection.processKey())) }) {
-                        trace.add(connection.toValue())
+                        val process = connection.toValue()
+                        trace.add(process)
+                        derivation?.let { trace.addDerivation(process, it) }
                     }
                     is ESubstanceCharacterization -> within({ SubstanceFrame(SourcePath.Substance(connection.substanceKey())) }) {
                         trace.add(connection.toValue())
@@ -138,10 +152,21 @@ class Learner<Q>(
             is SubstanceRequest -> request.address
         }
         val process = staging.find(address.connectionIndex) as? EProcess<Q> ?: return null
-        val path = SourcePath.Process(process.processKey())
+        val key = process.processKey()
+        // Locate the request at the exchange that made it, when its origin is known
+        val origins = stagingOrigins[address.connectionIndex]
         return when (request) {
-            is ProductRequest -> SupplierFrame(path, request.value.name)
-            is SubstanceRequest -> CharacterizationFrame(path, request.value.name)
+            is ProductRequest -> SupplierFrame(
+                origins?.inputs?.getOrNull(address.portIndex)?.path ?: SourcePath.Process(key),
+                request.value.name,
+                key,
+            )
+
+            is SubstanceRequest -> CharacterizationFrame(
+                origins?.biosphere?.getOrNull(address.portIndex)?.path ?: SourcePath.Process(key),
+                request.value.name,
+                key,
+            )
         }
     }
 
