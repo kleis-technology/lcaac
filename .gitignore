@@ -8,4 +8,8 @@ local
 .local
 out/
 tmp.units.lca.jar
-.direnv
+
+# devenv
+.devenv*
+devenv.local.nix
+devenv.local.yaml
