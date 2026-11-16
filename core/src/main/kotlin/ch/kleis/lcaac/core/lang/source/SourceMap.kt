@@ -67,13 +67,21 @@ sealed interface SourcePath {
 
 /**
  * Locations of definitions, filled in by the parser. Empty when the expressions were not parsed from a source.
+ *
+ * A definition can also have a display name, used instead of its default description in errors:
+ * e.g. the process generated for a test is described as the test.
  */
-data class SourceMap(private val locations: Map<SourcePath, SourceLocation> = emptyMap()) {
+data class SourceMap(
+    private val locations: Map<SourcePath, SourceLocation> = emptyMap(),
+    private val names: Map<SourcePath, String> = emptyMap(),
+) {
     operator fun get(path: SourcePath): SourceLocation? = locations[path]
+
+    fun nameOf(path: SourcePath): String? = names[path]
 
     fun paths(): Set<SourcePath> = locations.keys
 
-    operator fun plus(other: SourceMap): SourceMap = SourceMap(locations + other.locations)
+    operator fun plus(other: SourceMap): SourceMap = SourceMap(locations + other.locations, names + other.names)
 
     override fun toString(): String = "[sourceMap]"
 

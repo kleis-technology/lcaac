@@ -22,9 +22,5 @@ data class TestCase<S>(
 
         /** The name of the product of the process generated for a test. */
         fun productName(test: String): String = "${PROCESS_PREFIX}product__$test"
-
-        /** The test that a generated process stands for, or null for another process. */
-        fun testNameOf(processName: String): String? =
-            if (processName.startsWith(PROCESS_PREFIX)) processName.removePrefix(PROCESS_PREFIX) else null
     }
 }

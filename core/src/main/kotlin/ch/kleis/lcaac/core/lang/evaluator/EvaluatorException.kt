@@ -41,7 +41,7 @@ class EvaluatorException(message: String) : Exception(message) {
     }
 
     private fun StringBuilder.line(prefix: String, frame: EvaluationFrame) {
-        append("\n  $prefix ${frame.description}")
+        append("\n  $prefix ${frame.describe(sourceMap)}")
         sourceMap[frame.path]?.let { append(" ($it)") }
     }
 }

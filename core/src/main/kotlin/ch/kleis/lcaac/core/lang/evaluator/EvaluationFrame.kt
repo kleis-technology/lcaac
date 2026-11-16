@@ -2,8 +2,8 @@ package ch.kleis.lcaac.core.lang.evaluator
 
 import ch.kleis.lcaac.core.lang.expression.ESubstanceSpec
 import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourceMap
 import ch.kleis.lcaac.core.lang.source.SourcePath
-import ch.kleis.lcaac.core.testing.TestCase
 
 /**
  * A step of the evaluation in which an error occurred, e.g. the variable being evaluated.
@@ -12,10 +12,13 @@ import ch.kleis.lcaac.core.testing.TestCase
 sealed interface EvaluationFrame {
     val path: SourcePath
     val description: String
+
+    /** The description, using the display names of [sourceMap], e.g. a test instead of the process generated for it. */
+    fun describe(sourceMap: SourceMap): String = sourceMap.nameOf(path) ?: description
 }
 
 data class ProcessFrame(override val path: SourcePath.Process) : EvaluationFrame {
-    override val description: String get() = describe(path.process)
+    override val description: String get() = "process '${path.process}'"
 }
 
 /** [kind] is e.g. "input" or "emission", [name] the product, substance or indicator. */
@@ -57,7 +60,8 @@ data class SupplierFrame(
     val product: String,
     val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "supplier of '$product' for ${describe(process)}"
+    override val description: String get() = "supplier of '$product' for process '$process'"
+    override fun describe(sourceMap: SourceMap): String = "supplier of '$product' for ${describe(process, sourceMap)}"
 }
 
 data class SubstanceFrame(override val path: SourcePath.Substance) : EvaluationFrame {
@@ -73,7 +77,8 @@ data class CharacterizationFrame(
     val substance: String,
     val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "characterization of '$substance' for ${describe(process)}"
+    override val description: String get() = "characterization of '$substance' for process '$process'"
+    override fun describe(sourceMap: SourceMap): String = "characterization of '$substance' for ${describe(process, sourceMap)}"
 }
 
 data class ReferenceUnitFrame(override val path: SourcePath.ReferenceUnit) : EvaluationFrame {
@@ -91,12 +96,13 @@ data class ProductFrame(
     val product: String,
     val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "product '$product' of ${describe(process)}"
+    override val description: String get() = "product '$product' of process '$process'"
+    override fun describe(sourceMap: SourceMap): String = "product '$product' of ${describe(process, sourceMap)}"
 }
 
-/** A process, or the test that a generated process stands for. */
-private fun describe(process: ProcessKey): String =
-    TestCase.testNameOf(process.name)?.let { "test '$it'" } ?: "process '$process'"
+/** A process, by its display name if it has one (e.g. a test). */
+private fun describe(process: ProcessKey, sourceMap: SourceMap): String =
+    sourceMap.nameOf(SourcePath.Process(process)) ?: "process '$process'"
 
 /** The kind of a biosphere exchange, e.g. "emission". */
 internal fun <Q> kindOf(substance: ESubstanceSpec<Q>): String =

@@ -486,9 +486,13 @@ class CoreMapper<Q>(
         return SourceMap(locations)
     }
 
-    /** Locations of a test, as the process [owner] generated for it, with its variables, given exchanges and assertions. */
+    /**
+     * Locations of a test, as the process [owner] generated for it, with its variables, given exchanges and
+     * assertions. The generated process is described as the test.
+     */
     internal fun testLocations(
         ctx: LcaLangParser.TestDefinitionContext,
+        test: String,
         owner: SourcePath.Process,
         given: List<LcaLangParser.TechnoInputExchangeContext>,
         assertions: List<LcaLangParser.RangeAssertionContext>,
@@ -500,7 +504,7 @@ class CoreMapper<Q>(
         }
         given.forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.INPUTS, i)) }
         assertions.forEachIndexed { i, it -> locations[SourcePath.Assertion(owner, i)] = location(it.start) }
-        return SourceMap(locations)
+        return SourceMap(locations, mapOf(owner to "test '$test'"))
     }
 
     fun substanceLocations(ctx: LcaLangParser.SubstanceDefinitionContext): SourceMap {

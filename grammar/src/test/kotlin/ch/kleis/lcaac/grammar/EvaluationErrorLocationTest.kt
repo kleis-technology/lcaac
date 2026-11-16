@@ -881,4 +881,25 @@ class EvaluationErrorLocationTest {
             error.describe(),
         )
     }
+
+    @Test
+    fun processNamedLikeAGeneratedTestProcess_shouldBeDescribedAsAProcess() {
+        val (error, file) = evaluate(
+            """
+            process __test__fake {
+                variables {
+                    x = 1 kg + 1 kWh
+                }
+                products {
+                    1 p a
+                }
+                inputs {
+                    x steel
+                }
+            }
+            """, "__test__fake"
+        )
+
+        assertEquals("  in process '__test__fake' ($file:1:1)", framesOf(error).last())
+    }
 }

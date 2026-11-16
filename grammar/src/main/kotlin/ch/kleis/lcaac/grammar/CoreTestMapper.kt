@@ -47,7 +47,7 @@ class CoreTestMapper {
                 )
             ),
             arguments = emptyMap(),
-            sourceMap = coreMapper.testLocations(ctx, owner, given, assertions),
+            sourceMap = coreMapper.testLocations(ctx, name, owner, given, assertions),
         )
     }
 

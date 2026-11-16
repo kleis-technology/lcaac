@@ -71,10 +71,33 @@ class EvaluatorExceptionTest {
     }
 
     @Test
-    fun processGeneratedForATest_shouldBeDescribedAsTheTest() {
+    fun describe_shouldUseTheDisplayNamesOfTheSourceMap() {
+        // given: a process generated for a test is named after the test
         val test = ProcessKey(TestCase.processName("my_test"))
-        assertEquals("test 'my_test'", ProcessFrame(SourcePath.Process(test)).description)
-        assertEquals("supplier of 'flour' for test 'my_test'", SupplierFrame(SourcePath.Process(test), "flour", test).description)
+        val sourceMap = SourceMap(
+            mapOf(SourcePath.Process(test) to SourceLocation("main.lca", 7, 1)),
+            mapOf(SourcePath.Process(test) to "test 'my_test'"),
+        )
+        val error = EvaluatorException("boom")
+            .within(SupplierFrame(forEach, "flour", test))
+            .within(ProcessFrame(SourcePath.Process(test)))
+            .withSourceMap(sourceMap)
+
+        // then
+        assertEquals(
+            """
+            boom
+              in supplier of 'flour' for test 'my_test'
+              in test 'my_test' (main.lca:7:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun describe_withoutDisplayName_shouldDescribeTheProcess() {
+        val process = ProcessKey(TestCase.processName("not_a_test"))
+        assertEquals("process '__test__not_a_test'", ProcessFrame(SourcePath.Process(process)).describe(SourceMap.empty()))
     }
 
     @Test
