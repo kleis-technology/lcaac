@@ -5,7 +5,9 @@ import ch.kleis.lcaac.core.lang.expression.EDataRef
 import ch.kleis.lcaac.core.lang.expression.EQuantityMul
 import ch.kleis.lcaac.core.lang.expression.EQuantityScale
 import ch.kleis.lcaac.core.math.basic.BasicNumber
+import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.prelude.Prelude
+import ch.kleis.lcaac.grammar.SyntaxException
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.assertThrows
 import java.io.File
@@ -86,6 +88,29 @@ class UtilsTest {
             //
             assertEquals("", config.name)
         }
+    }
+
+    @Test
+    fun lcaFiles_whenSyntaxError_shouldLocateIt() {
+        // given
+        val root = createTempDirectory().toFile()
+        File(root, "ok.lca").writeText("process ok {\n    products {\n        1 kg ok\n    }\n}\n")
+        val broken = File(root, "broken.lca")
+        broken.writeText("process broken {\n    products {\n        1 kg\n    }\n}\n")
+
+        // when/then
+        val actual = assertThrows<SyntaxException> { lcaFiles(root) }
+        assertEquals(1, actual.errors.size)
+        assertTrue(actual.message!!.startsWith("${broken.path}:4:5: "), actual.message)
+    }
+
+    @Test
+    fun dataExpressionMap_whenTrailingInput_shouldThrow() {
+        // when/then
+        val actual = assertThrows<SyntaxException> {
+            dataExpressionMap(BasicOperations, mapOf("efficiency" to "80 percent)"))
+        }
+        assertEquals("<global efficiency>:1:11: unexpected input ')'", actual.message)
     }
 
     @Test

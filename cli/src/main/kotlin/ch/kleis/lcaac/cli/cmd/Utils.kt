@@ -11,20 +11,19 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.CoreMapper
-import ch.kleis.lcaac.grammar.parser.LcaLangLexer
+import ch.kleis.lcaac.grammar.SyntaxException
+import ch.kleis.lcaac.grammar.parseDataExpression
+import ch.kleis.lcaac.grammar.parseLcaFile
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import com.charleskorn.kaml.decodeFromStream
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
 import org.apache.commons.compress.archivers.examples.Expander
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.lang.Double.parseDouble
 import java.nio.file.Files
 import kotlin.io.path.isRegularFile
@@ -83,7 +82,7 @@ fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
     return Files.walk(root.toPath())
         .filter { it.isRegularFile() }
         .filter { it.toString().endsWith(".lca") }
-        .map { lcaFile(it.toFile().inputStream()) }
+        .map { parseLcaFile(it) }
         .toList()
         .asSequence()
 }
@@ -96,19 +95,8 @@ fun <Q> dataExpressionMap(
     return globals
         .mapKeys { DataKey(it.key) }
         .mapValues {
-            val lexer = LcaLangLexer(CharStreams.fromString(it.value))
-            val tokens = CommonTokenStream(lexer)
-            val parser = LcaLangParser(tokens)
-            val ctx = parser.dataExpression()
-            mapper.dataExpression(ctx)
+            mapper.dataExpression(parseDataExpression(it.value, "<global ${it.key.name}>"))
         }
-}
-
-private fun lcaFile(inputStream: InputStream): LcaLangParser.LcaFileContext {
-    val lexer = LcaLangLexer(CharStreams.fromStream(inputStream))
-    val tokens = CommonTokenStream(lexer)
-    val parser = LcaLangParser(tokens)
-    return parser.lcaFile()
 }
 
 fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
@@ -122,12 +110,10 @@ fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<Bas
         }
         EQuantityScale(BasicNumber(amount), defaultUnit)
     } else {
-        val lexer = LcaLangLexer(CharStreams.fromString(s))
-        val tokens = CommonTokenStream(lexer)
-        val parser = LcaLangParser(tokens)
-        val ctx = parser.dataExpression()
         try {
-            CoreMapper(BasicOperations).dataExpression(ctx)
+            CoreMapper(BasicOperations).dataExpression(parseDataExpression(s))
+        } catch (e: SyntaxException) {
+            throw EvaluatorException("'$s' is not a valid quantity")
         } catch (e: IllegalStateException) {
             throw EvaluatorException("'$s' is not a valid quantity")
         }
