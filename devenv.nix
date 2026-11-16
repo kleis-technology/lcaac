@@ -9,4 +9,9 @@
   };
 
   env.GIT_ROOT = config.devenv.root;
+
+  scripts.lcaac = {
+    description = "Run the CLI built in this repository (./gradlew :cli:installDist)";
+    exec = ''"$GIT_ROOT/cli/build/install/lcaac/bin/lcaac" "$@"'';
+  };
 }
