@@ -36,8 +36,14 @@ class DerivationRecordingCornerCasesTest {
         }
 
         process main {
+            params {
+                key = "p1"
+            }
             variables {
                 def = default_record from parts
+                unused = 42 kg
+                with_key = lookup parts match id = key
+                broken_unused = 1 kg + 1 kWh
             }
             products {
                 1 p widget
@@ -49,6 +55,12 @@ class DerivationRecordingCornerCasesTest {
                 1 kg steel from mill(grade = "B")
                 for_each row from empty {
                     row.mass lead
+                }
+                for_each part from parts {
+                    variables {
+                        unused_in_row = part.mass
+                    }
+                    1 kg tin
                 }
             }
         }
@@ -81,6 +93,7 @@ class DerivationRecordingCornerCasesTest {
         every { it.getAll(match { source -> source.config.name == "parts" }) } returns
             sequenceOf(ERecord(mapOf("id" to EStringLiteral("p1"), "mass" to kg(2.0))))
         every { it.sumProduct(any(), any()) } returns kg(2.0)
+        every { it.getFirst(any()) } returns ERecord(mapOf("id" to EStringLiteral("p1"), "mass" to kg(2.0)))
     }
     private val symbolTable = Loader(BasicOperations)
         .load(sequenceOf(LcaLangFixture.parser(content).lcaFile()), listOf(LoaderOption.WITH_PRELUDE))
@@ -104,8 +117,9 @@ class DerivationRecordingCornerCasesTest {
     @Test
     fun emptyForEach_shouldRecordTheReadWithoutRows() {
         val derivation = assertNotNull(trace.getDerivation(processes("main").single()))
-        assertEquals(0, derivation.forEach.single().read.records.size)
+        assertEquals(0, derivation.forEach.single { it.rowRef == "row" }.read.records.size)
         assertTrue(derivation.origins.inputs.none { it.path.block == BlockPath(Section.INPUTS, listOf(4, 0)) })
+        assertEquals(1, derivation.forEach.count { it.read.records.isEmpty() })
         assertEquals(processes("main").single().inputs.size, derivation.origins.inputs.size)
     }
 
@@ -122,5 +136,27 @@ class DerivationRecordingCornerCasesTest {
         val derivation = assertNotNull(trace.getDerivation(processes("main").single()))
         val def = derivation.variables.single { (it.path as? SourcePath.Variable)?.name == "def" }
         assertEquals(ReadKind.DEFAULT_RECORD, def.reads.single().kind)
+    }
+
+    private fun variableNamesOf(name: String) = assertNotNull(trace.getDerivation(processes(name).single()))
+        .variables.mapNotNull { (it.path as? SourcePath.Variable)?.name }
+
+    @Test
+    fun unusedVariables_shouldBeRecorded() {
+        val names = variableNamesOf("main")
+        assertTrue("unused" in names)
+        assertTrue("unused_in_row" in names)
+    }
+
+    @Test
+    fun unusedVariableWithAnError_shouldNotFailTheEvaluation() {
+        assertFalse("broken_unused" in variableNamesOf("main"))
+    }
+
+    @Test
+    fun parameters_shouldNotBeRecordedAsVariables() {
+        val derivation = assertNotNull(trace.getDerivation(processes("main").single()))
+        assertTrue(derivation.variables.none { it.path is SourcePath.Parameter })
+        assertEquals(listOf("key"), derivation.parameters.map { it.path.name })
     }
 }

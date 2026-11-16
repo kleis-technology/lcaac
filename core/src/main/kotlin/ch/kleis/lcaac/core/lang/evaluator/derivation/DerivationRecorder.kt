@@ -70,6 +70,9 @@ class DerivationRecorder<Q>(val recordsValues: Boolean = false) {
         return value
     }
 
+    /** Whether the variable at [path] is already recorded, in the current rows. */
+    fun hasVariable(path: SourcePath): Boolean = variables.containsKey(path to rowsOf(path))
+
     /** Adds a data source read to the variable or exchange being reduced. */
     fun read(read: DataSourceRead<Q>) {
         if (recordsValues) readCollectors.lastOrNull()?.add(read)

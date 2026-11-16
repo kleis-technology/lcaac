@@ -218,8 +218,10 @@ class DataExpressionReducer<Q>(
         val key = DataKey(expression.name)
         val definition = dataRegister[key] ?: return expression
         return within({ pathOf(expression.name)?.let { VariableFrame(it) } }) {
-            // Units are definitions, not computations: they are not recorded
-            val path = if (recordsValues && definition !is EUnitLiteral && definition !is EUnitAlias) pathOf(expression.name) else null
+            // Units are definitions, not computations, and parameters are recorded as such
+            val path = if (recordsValues && definition !is EUnitLiteral && definition !is EUnitAlias) {
+                pathOf(expression.name)?.takeIf { it !is SourcePath.Parameter }
+            } else null
             if (path != null) recorder!!.variable(path, definition) { reduce(definition) }
             else reduce(definition)
         }

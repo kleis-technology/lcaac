@@ -167,7 +167,7 @@ class LcaExpressionReducer<Q>(
                         val reduceRow = {
                             block.body.flatMapIndexed { i, child ->
                                 reducer.reduceBlock(child, path?.child(i), label, reduceEntry)
-                            }
+                            }.also { reducer.recordUnusedVariables(block.locals.keys) }
                         }
                         if (recorder != null && forEach != null) recorder.row(forEach, row, reduceRow) else reduceRow()
                     }
@@ -186,6 +186,23 @@ class LcaExpressionReducer<Q>(
             ?.let { localPaths(block.locals.keys, path)(it) }
             ?.let { error.within(VariableFrame(it)) }
         return error
+    }
+
+    /**
+     * Records the variables among [names] that the exchanges did not use, when recording values.
+     * An error in such a variable is ignored: evaluating the process does not need it.
+     */
+    internal fun recordUnusedVariables(names: Collection<String>) {
+        if (recorder?.recordsValues != true) return
+        names.forEach { name ->
+            val path = pathOf(name) ?: return@forEach
+            if (recorder.hasVariable(path)) return@forEach
+            try {
+                dataExpressionReducer.reduce(EDataRef(name))
+            } catch (e: EvaluatorException) {
+                // not used, not recorded
+            }
+        }
     }
 
     /** Reduces the exchange written at [path], recording its origin. */

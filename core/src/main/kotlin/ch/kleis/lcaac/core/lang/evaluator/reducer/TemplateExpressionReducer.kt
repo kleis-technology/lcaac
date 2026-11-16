@@ -66,6 +66,7 @@ class TemplateExpressionReducer<Q>(
                 result = helper.substitute(it.key, it.value, result)
             }
             result = reducer.reduce(result) as EProcess
+            reducer.recordUnusedVariables(template.locals.keys)
             result = concretizeProducts(result, actualArguments, dataReducer)
             result
         }
