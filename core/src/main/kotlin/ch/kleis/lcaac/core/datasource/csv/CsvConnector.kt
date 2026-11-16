@@ -17,6 +17,7 @@ import ch.kleis.lcaac.core.math.QuantityOperations
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVParser
 import org.apache.commons.csv.CSVRecord
+import java.io.IOException
 import java.io.InputStream
 import java.lang.Double.parseDouble
 
@@ -28,9 +29,13 @@ class CsvConnector<Q>(
 
     private val csvCache: HashMap<String, Pair<Map<String, Int>, List<CSVRecord>>> = hashMapOf()
 
-    private fun csvRecords(location: String): Pair<Map<String, Int>, Sequence<CSVRecord>> {
+    private fun csvRecords(dataSource: String, location: String): Pair<Map<String, Int>, Sequence<CSVRecord>> {
         if (!csvCache.containsKey(location)) {
-            val inputStream = fileLoader(location)
+            val inputStream = try {
+                fileLoader(location)
+            } catch (e: IOException) {
+                throw EvaluatorException("cannot read data source '$dataSource': ${e.message}")
+            }
             val parser = CSVParser(inputStream.reader(), format)
             val header = parser.headerMap
             csvCache.put(location, header to parser.records)
@@ -44,7 +49,7 @@ class CsvConnector<Q>(
         Sequence<ERecord<Q>> {
         val location = config.location
             ?: throw EvaluatorException("Missing location in configuration for datasource '${config.name}'")
-        val (header, csvRecords) = csvRecords(location)
+        val (header, csvRecords) = csvRecords(config.name, location)
         val records = csvRecords
             .filter(applyFilter(header, source.filter))
             .map { eRecord(ops, header, source.schema, it) }

@@ -1,7 +1,9 @@
 package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
+import ch.kleis.lcaac.core.lang.evaluator.VariableFrame
 import ch.kleis.lcaac.core.lang.evaluator.ForEachFrame
 import ch.kleis.lcaac.core.lang.evaluator.ReferenceUnitFrame
 import ch.kleis.lcaac.core.lang.evaluator.kindOf
@@ -13,6 +15,7 @@ import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.register.DataRegister
 import ch.kleis.lcaac.core.lang.register.DataSourceRegister
+import ch.kleis.lcaac.core.lang.register.RegisterException
 import ch.kleis.lcaac.core.lang.source.BlockPath
 import ch.kleis.lcaac.core.lang.source.Section
 import ch.kleis.lcaac.core.lang.source.SourcePath
@@ -151,12 +154,16 @@ class LcaExpressionReducer<Q>(
                 }
                 records.withIndex().flatMap { (row, record) ->
                     within({ forEachFrame(path, block.rowRef, row) }) {
-                        val reducer = push(mapOf(
-                            DataKey(block.rowRef) to record
-                        )).push(
-                            block.locals.mapKeys { DataKey(it.key) },
-                            localPaths(block.locals.keys, path),
-                        )
+                        val reducer = try {
+                            push(mapOf(
+                                DataKey(block.rowRef) to record
+                            )).push(
+                                block.locals.mapKeys { DataKey(it.key) },
+                                localPaths(block.locals.keys, path),
+                            )
+                        } catch (e: RegisterException) {
+                            throw conflictError(e, block, path)
+                        }
                         val reduceRow = {
                             block.body.flatMapIndexed { i, child ->
                                 reducer.reduceBlock(child, path?.child(i), label, reduceEntry)
@@ -167,6 +174,18 @@ class LcaExpressionReducer<Q>(
                 }
             }
         }
+    }
+
+    /** A for_each whose row or variables have the name of an existing definition. */
+    private fun <E> conflictError(e: RegisterException, block: EBlockForEach<E, Q>, path: BlockPath?): EvaluatorException {
+        val error = EvaluatorException(
+            "for_each '${block.rowRef}' defines ${e.duplicates.joinToString(", ") { "'$it'" }}, " +
+                "already defined in the process or as a global"
+        )
+        e.duplicates.firstOrNull { it in block.locals }
+            ?.let { localPaths(block.locals.keys, path)(it) }
+            ?.let { error.within(VariableFrame(it)) }
+        return error
     }
 
     /** Reduces the exchange written at [path], recording its origin. */

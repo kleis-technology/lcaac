@@ -51,7 +51,7 @@ class TestCommand : CliktCommand(name = testCommandName, help = "Run specified t
         val yamlConfig = parseLcaacConfig(configFile)
 
         val ops = BasicOperations
-        val files = lcaFiles(sourceDirectory)
+        val files = lcaFiles(sourceDirectory, source)
         val symbolTable = Loader(ops).load(files, listOf(LoaderOption.WITH_PRELUDE))
 
         val factory = ConnectorFactory(

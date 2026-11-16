@@ -42,7 +42,7 @@ class AssessCommand :
         val projectDirectory = configFile.parentFile
         val yamlConfig = parseLcaacConfig(configFile)
 
-        val files = lcaFiles(sourceDirectory)
+        val files = lcaFiles(sourceDirectory, source)
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),

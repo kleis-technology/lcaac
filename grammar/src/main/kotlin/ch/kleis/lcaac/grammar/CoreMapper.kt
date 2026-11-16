@@ -7,6 +7,8 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.VariableFrame
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.*
 import ch.kleis.lcaac.core.lang.source.*
@@ -38,7 +40,7 @@ class CoreMapper<Q>(
             globalVariables = try {
                 DataRegister(globalVariables.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
-                throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
+                throw conflictError(ctx, e.duplicates, params, locals, globalVariables)
             },
             dataSources = dataSources,
         )
@@ -60,6 +62,36 @@ class CoreMapper<Q>(
             body,
             annotations
         )
+    }
+
+    /**
+     * A parameter or variable of a process that has the name of a global definition (e.g. the unit `m`),
+     * or of another parameter or variable of the process. Located at the first of them.
+     */
+    private fun conflictError(
+        ctx: LcaLangParser.ProcessDefinitionContext,
+        duplicates: Set<String>,
+        params: Map<String, DataExpression<Q>>,
+        locals: Map<String, DataExpression<Q>>,
+        globalVariables: DataRegister<Q>,
+    ): EvaluatorException {
+        val key = ctx.buildUniqueKey()
+        fun kindOf(name: String) = if (locals.containsKey(name)) "variable" else "parameter"
+        fun conflictOf(name: String) = when (val global = globalVariables[DataKey(name)]) {
+            is EUnitLiteral, is EUnitAlias -> "the unit '$name'"
+            null -> "the parameter '$name'"
+            else -> "the global variable '$name'"
+        }
+        val error = EvaluatorException(duplicates.joinToString("; ") {
+            "${kindOf(it)} '$it' of process '$key' has the name of ${conflictOf(it)}"
+        })
+        val name = duplicates.first()
+        val path = if (locals.containsKey(name)) SourcePath.Variable(SourcePath.Process(key), name)
+        else SourcePath.Parameter(key, name)
+        return error
+            .within(VariableFrame(path))
+            .within(ProcessFrame(SourcePath.Process(key)))
+            .withSourceMap(processLocations(ctx))
     }
 
     fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {

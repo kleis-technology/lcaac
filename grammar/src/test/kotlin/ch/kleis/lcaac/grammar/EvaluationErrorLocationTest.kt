@@ -724,6 +724,74 @@ class EvaluationErrorLocationTest {
      */
 
     @Test
+    fun undefinedName_shouldBeLocatedAtTheExchangeUsingIt() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel
+                    mass_typo iron
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            unbounded references: [mass_typo]
+              in input 'iron' ($file:7:9)
+              in process 'p' ($file:1:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun forEachVariableWithTheNameOfAProcessVariable_shouldBeLocated() {
+        val (error, file) = evaluate(
+            """
+            datasource parts {
+                location = "parts.csv"
+                schema {
+                    id = "p1"
+                    mass = 1 kg
+                }
+            }
+
+            process p {
+                variables {
+                    w = 1 kg
+                }
+                products {
+                    1 p a
+                }
+                inputs {
+                    for_each part from parts {
+                        variables {
+                            w = part.mass
+                        }
+                        w packaging
+                    }
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            for_each 'part' defines 'w', already defined in the process or as a global
+              in variable 'w' ($file:19:17)
+              in row #1 of for_each 'part' ($file:17:9)
+              in process 'p' ($file:9:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
     fun allocationWithoutPercent_shouldBeAccepted() {
         val path = Files.createTempFile("allocation", ".lca")
         Files.writeString(path, """
@@ -786,4 +854,31 @@ class EvaluationErrorLocationTest {
         )
     }
 
+    @Test
+    fun variableWithTheNameOfAUnit_shouldBeLocatedWhenLoading() {
+        val path = Files.createTempFile("conflict", ".lca")
+        Files.writeString(path, """
+            process p {
+                variables {
+                    m = 1 kg
+                }
+                products {
+                    1 p a
+                }
+            }
+        """.trimIndent())
+
+        val error = assertThrows<EvaluatorException> {
+            Loader(ops).load(sequenceOf(parseLcaFile(path)), listOf(LoaderOption.WITH_PRELUDE))
+        }
+
+        assertEquals(
+            """
+            variable 'm' of process 'p' has the name of the unit 'm'
+              in variable 'm' ($path:3:9)
+              in process 'p' ($path:1:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
 }

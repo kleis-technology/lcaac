@@ -24,7 +24,13 @@ fun main(args: Array<String>) {
         withCleanErrors { command.parse(args) }
     } catch (e: CliktError) {
         val cause = e.cause
-        if (command.stacktrace && cause != null) throw cause
+        if (command.stacktrace && cause != null) {
+            // The frames of an evaluation error are not part of its stack trace
+            if (cause is EvaluatorException && (cause.frames.isNotEmpty() || cause.related.isNotEmpty())) {
+                command.echo(cause.describe(), err = true)
+            }
+            throw cause
+        }
         command.echoFormattedHelp(e)
         exitProcess(e.statusCode)
     }

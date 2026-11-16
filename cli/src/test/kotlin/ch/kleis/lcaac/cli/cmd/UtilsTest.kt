@@ -8,15 +8,17 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.SyntaxException
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.nio.file.Files
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.assertThrows
 
 
 class UtilsTest {
@@ -88,6 +90,22 @@ class UtilsTest {
             //
             assertEquals("", config.name)
         }
+    }
+
+    @Test
+    fun lcaFiles_whenArchive_shouldNameFilesInsideTheArchive() {
+        // given
+        val dir = createTempDirectory().toFile()
+        val archive = File(dir, "model.zip")
+        ZipOutputStream(archive.outputStream()).use { zip ->
+            zip.putNextEntry(ZipEntry("src/main.lca"))
+            zip.write("process broken {\n    products {\n        1 kg\n    }\n}\n".toByteArray())
+            zip.closeEntry()
+        }
+
+        // when/then
+        val actual = assertThrows<SyntaxException> { lcaFiles(parseSource(archive), archive) }
+        assertTrue(actual.message!!.startsWith("${archive.path}!/src/main.lca:4:5: "), actual.message)
     }
 
     @Test

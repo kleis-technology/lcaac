@@ -3,6 +3,7 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.grammar.parser.LcaLangLexer
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import org.antlr.v4.runtime.*
+import java.nio.file.Files
 import java.nio.file.Path
 
 data class SyntaxError(
@@ -18,10 +19,11 @@ class SyntaxException(val errors: List<SyntaxError>) : Exception(errors.joinToSt
 
 /**
  * Parses an LCA file, failing with a [SyntaxException] that locates every syntax error
- * instead of printing them on the console and recovering.
+ * instead of printing them on the console and recovering. [sourceName] names the file in the
+ * locations of errors.
  */
-fun parseLcaFile(path: Path): LcaLangParser.LcaFileContext =
-    parse(CharStreams.fromPath(path)) { it.lcaFile() }
+fun parseLcaFile(path: Path, sourceName: String = path.toString()): LcaLangParser.LcaFileContext =
+    parse(Files.newBufferedReader(path).use { CharStreams.fromReader(it, sourceName) }) { it.lcaFile() }
 
 /**
  * Parses a whole data expression, e.g. a value given on the command line.

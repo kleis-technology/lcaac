@@ -78,11 +78,19 @@ fun parseLcaacConfig(path: File): LcaacConfig {
     } else LcaacConfig()
 }
 
-fun lcaFiles(root: File): Sequence<LcaLangParser.LcaFileContext> {
-    return Files.walk(root.toPath())
+/**
+ * Parses the LCA files under [root]. When [root] is where the archive [source] is extracted, the files
+ * are named after the archive in the locations of errors, e.g. `model.zip!/src/main.lca`.
+ */
+fun lcaFiles(root: File, source: File = root): Sequence<LcaLangParser.LcaFileContext> {
+    val rootPath = root.toPath()
+    return Files.walk(rootPath)
         .filter { it.isRegularFile() }
         .filter { it.toString().endsWith(".lca") }
-        .map { parseLcaFile(it) }
+        .map { path ->
+            val sourceName = if (source == root) path.toString() else "${source.path}!/${rootPath.relativize(path)}"
+            parseLcaFile(path, sourceName)
+        }
         .toList()
         .asSequence()
 }
