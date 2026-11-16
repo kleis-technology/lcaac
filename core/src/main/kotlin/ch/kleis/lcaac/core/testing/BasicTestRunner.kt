@@ -3,6 +3,7 @@ package ch.kleis.lcaac.core.testing
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.SymbolTable
+import ch.kleis.lcaac.core.lang.evaluator.AssertionFrame
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -15,7 +16,7 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 
 class BasicTestRunner<S>(
-    symbolTable: SymbolTable<BasicNumber>,
+    private val symbolTable: SymbolTable<BasicNumber>,
     sourceOps: DataSourceOperations<BasicNumber>,
     private val evaluator: Evaluator<BasicNumber, BasicMatrix> = Evaluator(symbolTable, BasicOperations, sourceOps),
     private val dataReducer: DataExpressionReducer<BasicNumber> = DataExpressionReducer(
@@ -27,24 +28,30 @@ class BasicTestRunner<S>(
 ) {
     fun run(case: TestCase<S>): TestResult<S> {
         try {
-            val trace = evaluator.with(case.template).trace(case.template)
+            val trace = evaluator.with(case.template, case.sourceMap).trace(case.template)
             val program = ContributionAnalysisProgram(trace.getSystemValue(), trace.getEntryPoint())
             val analysis = program.run()
             val target = trace.getEntryPoint().products.first().port()
+            // An error in an assertion only fails this assertion
             val results = case.assertions.map { assertion ->
-                val ports = analysis.findAllPortsByShortName(assertion.ref)
-                if (ports.isEmpty()) {
-                    GenericFailure("unknown reference '${assertion.ref}'")
-                } else {
-                    val impact = with(QuantityValueOperations(BasicOperations)) {
-                        ports.map {
-                            if (analysis.isControllable(it)) analysis.getPortContribution(target, it)
-                            else analysis.supplyOf(it)
-                        }.reduce { acc, quantityValue -> acc + quantityValue }
+                try {
+                    val ports = analysis.findAllPortsByShortName(assertion.ref)
+                    if (ports.isEmpty()) {
+                        GenericFailure("unknown reference '${assertion.ref}'")
+                    } else {
+                        val impact = with(QuantityValueOperations(BasicOperations)) {
+                            ports.map {
+                                if (analysis.isControllable(it)) analysis.getPortContribution(target, it)
+                                else analysis.supplyOf(it)
+                            }.reduce { acc, quantityValue -> acc + quantityValue }
+                        }
+                        val lo = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.lo).toValue() }
+                        val hi = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.hi).toValue() }
+                        test(assertion.ref, impact, lo, hi)
                     }
-                    val lo = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.lo).toValue() }
-                    val hi = with(ToValue(BasicOperations)) { dataReducer.reduce(assertion.hi).toValue() }
-                    test(assertion.ref, impact, lo, hi)
+                } catch (e: EvaluatorException) {
+                    assertion.path?.let { e.within(AssertionFrame(it, assertion.ref)) }
+                    GenericFailure(e.message ?: "unknown error", e.withSourceMap(symbolTable.sourceMap + case.sourceMap))
                 }
             }
             return TestResult(
@@ -57,7 +64,7 @@ class BasicTestRunner<S>(
                 case.source,
                 case.name,
                 listOf(
-                    GenericFailure(e.message ?: "unknown error"),
+                    GenericFailure(e.message ?: "unknown error", e),
                 )
             )
         }

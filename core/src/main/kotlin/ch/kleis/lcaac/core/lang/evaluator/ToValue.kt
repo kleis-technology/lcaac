@@ -53,14 +53,14 @@ class ToValue<Q>(
         )
     }
 
-    private fun EBioExchange<Q>.toValue(): BioExchangeValue<Q> {
+    fun EBioExchange<Q>.toValue(): BioExchangeValue<Q> {
         return BioExchangeValue(
             this.quantity.toValue() as QuantityValue<Q>,
             this.substance.toValue(),
         )
     }
 
-    private fun EImpact<Q>.toValue(): ImpactValue<Q> {
+    fun EImpact<Q>.toValue(): ImpactValue<Q> {
         return ImpactValue(
             this.quantity.toValue() as QuantityValue<Q>,
             this.indicator.toValue(),

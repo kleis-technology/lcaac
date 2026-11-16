@@ -7,10 +7,16 @@ import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.dimension.Dimension
 import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.VariableFrame
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.*
+import ch.kleis.lcaac.core.lang.source.*
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
+import org.antlr.v4.runtime.IntStream
+import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.lang.Double.parseDouble
 
@@ -34,17 +40,14 @@ class CoreMapper<Q>(
             globalVariables = try {
                 DataRegister(globalVariables.plus(params.mapKeys { DataKey(it.key) }).plus(locals.mapKeys { DataKey(it.key) }))
             } catch (e: RegisterException) {
-                throw EvaluatorException("Conflict between local variable(s) ${e.duplicates} and a global definition.")
+                throw conflictError(ctx, e.duplicates, params, locals, globalVariables)
             },
             dataSources = dataSources,
         )
-        val products = ctx.block_products().flatMap { it.technoProductExchange() }.map { technoProductExchange(it, symbolTable) }
-        val inputs = ctx.block_inputs().flatMap { it.technoInputExchange() }.map { technoInputExchange(it) }
-        val emissions = ctx.block_emissions().flatMap { it.bioExchange() }.map { bioExchange(it, symbolTable, SubstanceType.EMISSION) }
-        val resources = ctx.block_resources().flatMap { it.bioExchange() }.map { bioExchange(it, symbolTable, SubstanceType.RESOURCE) }
-        val landUse = ctx.block_land_use().flatMap { it.bioExchange() }.map { bioExchange(it, symbolTable, SubstanceType.LAND_USE) }
-        val biosphere = emissions.plus(resources).plus(landUse)
-        val impacts = ctx.block_impacts().flatMap { it.impactExchange() }.map { impactExchange(it) }
+        val products = ctx.productExchanges().map { technoProductExchange(it, symbolTable) }
+        val inputs = ctx.inputExchanges().map { technoInputExchange(it) }
+        val biosphere = ctx.biosphereExchanges().map { (exchange, type) -> bioExchange(exchange, symbolTable, type) }
+        val impacts = ctx.impactExchanges().map { impactExchange(it) }
         val body = EProcess(
             name = name,
             labels = labels,
@@ -59,6 +62,36 @@ class CoreMapper<Q>(
             body,
             annotations
         )
+    }
+
+    /**
+     * A parameter or variable of a process that has the name of a global definition (e.g. the unit `m`),
+     * or of another parameter or variable of the process. Located at the first of them.
+     */
+    private fun conflictError(
+        ctx: LcaLangParser.ProcessDefinitionContext,
+        duplicates: Set<String>,
+        params: Map<String, DataExpression<Q>>,
+        locals: Map<String, DataExpression<Q>>,
+        globalVariables: DataRegister<Q>,
+    ): EvaluatorException {
+        val key = ctx.buildUniqueKey()
+        fun kindOf(name: String) = if (locals.containsKey(name)) "variable" else "parameter"
+        fun conflictOf(name: String) = when (val global = globalVariables[DataKey(name)]) {
+            is EUnitLiteral, is EUnitAlias -> "the unit '$name'"
+            null -> "the parameter '$name'"
+            else -> "the global variable '$name'"
+        }
+        val error = EvaluatorException(duplicates.joinToString("; ") {
+            "${kindOf(it)} '$it' of process '$key' has the name of ${conflictOf(it)}"
+        })
+        val name = duplicates.first()
+        val path = if (locals.containsKey(name)) SourcePath.Variable(SourcePath.Process(key), name)
+        else SourcePath.Parameter(key, name)
+        return error
+            .within(VariableFrame(path))
+            .within(ProcessFrame(SourcePath.Process(key)))
+            .withSourceMap(processLocations(ctx))
     }
 
     fun assignment(ctx: LcaLangParser.AssignmentContext): Pair<String, DataExpression<Q>> {
@@ -209,7 +242,7 @@ class CoreMapper<Q>(
         val substanceSpec = substanceSpec(ctx)
         val quantity = dataExpression(ctx.referenceUnitField().dataExpression())
         val referenceExchange = EBioExchange(quantity, substanceSpec)
-        val impacts = ctx.block_impacts().flatMap { it.impactExchange() }.map { impactExchange(it) }
+        val impacts = ctx.impactExchanges().map { impactExchange(it) }
         return ESubstanceCharacterization(
             referenceExchange,
             impacts,
@@ -404,4 +437,119 @@ class CoreMapper<Q>(
             else -> throw EvaluatorException("Invalid process annotation: $value")
         }
     }
+
+    /*
+        Exchanges of a process or a substance, in the order of the sections.
+        Both the expressions (process(), substanceCharacterization()) and the source map
+        (processLocations(), substanceLocations()) use them, so that a BlockPath points
+        to the same exchange in both.
+     */
+
+    private fun LcaLangParser.ProcessDefinitionContext.productExchanges() =
+        block_products().flatMap { it.technoProductExchange() }
+
+    private fun LcaLangParser.ProcessDefinitionContext.inputExchanges() =
+        block_inputs().flatMap { it.technoInputExchange() }
+
+    private fun LcaLangParser.ProcessDefinitionContext.biosphereExchanges() =
+        block_emissions().flatMap { it.bioExchange() }.map { it to SubstanceType.EMISSION } +
+            block_resources().flatMap { it.bioExchange() }.map { it to SubstanceType.RESOURCE } +
+            block_land_use().flatMap { it.bioExchange() }.map { it to SubstanceType.LAND_USE }
+
+    private fun LcaLangParser.ProcessDefinitionContext.impactExchanges() =
+        block_impacts().flatMap { it.impactExchange() }
+
+    private fun LcaLangParser.SubstanceDefinitionContext.impactExchanges() =
+        block_impacts().flatMap { it.impactExchange() }
+
+    /*
+        Source locations
+     */
+
+    fun processLocations(ctx: LcaLangParser.ProcessDefinitionContext): SourceMap {
+        val key = ctx.buildUniqueKey()
+        val owner = SourcePath.Process(key)
+        val locations = LinkedHashMap<SourcePath, SourceLocation>()
+        locations[owner] = location(ctx.PROCESS_KEYWORD().symbol)
+        ctx.params().flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Parameter(key, it.dataRef().innerText())] = location(it.start)
+        }
+        ctx.variables().flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Variable(owner, it.dataRef().innerText())] = location(it.start)
+        }
+        ctx.productExchanges().forEachIndexed { i, it ->
+            locations[SourcePath.Exchange(owner, BlockPath.of(Section.PRODUCTS, i))] = location(it.start)
+        }
+        ctx.inputExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.INPUTS, i)) }
+        ctx.biosphereExchanges().forEachIndexed { i, (it, _) -> addExchange(locations, owner, it, BlockPath.of(Section.BIOSPHERE, i)) }
+        ctx.impactExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.IMPACTS, i)) }
+        return SourceMap(locations)
+    }
+
+    /**
+     * Locations of a test, as the process [owner] generated for it, with its variables, given exchanges and
+     * assertions. The generated process is described as the test.
+     */
+    internal fun testLocations(
+        ctx: LcaLangParser.TestDefinitionContext,
+        test: String,
+        owner: SourcePath.Process,
+        given: List<LcaLangParser.TechnoInputExchangeContext>,
+        assertions: List<LcaLangParser.RangeAssertionContext>,
+    ): SourceMap {
+        val locations = LinkedHashMap<SourcePath, SourceLocation>()
+        locations[owner] = location(ctx.start)
+        ctx.variables().flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Variable(owner, it.dataRef().innerText())] = location(it.start)
+        }
+        given.forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.INPUTS, i)) }
+        assertions.forEachIndexed { i, it -> locations[SourcePath.Assertion(owner, i)] = location(it.start) }
+        return SourceMap(locations, mapOf(owner to "test '$test'"))
+    }
+
+    fun substanceLocations(ctx: LcaLangParser.SubstanceDefinitionContext): SourceMap {
+        val key = ctx.buildUniqueKey()
+        val owner = SourcePath.Substance(key)
+        val locations = LinkedHashMap<SourcePath, SourceLocation>()
+        locations[owner] = location(ctx.start)
+        locations[SourcePath.ReferenceUnit(key)] = location(ctx.referenceUnitField().start)
+        ctx.impactExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.IMPACTS, i)) }
+        return SourceMap(locations)
+    }
+
+    /** Adds the location of an exchange or for_each block, and of the variables and exchanges of a for_each. */
+    private fun addExchange(
+        locations: MutableMap<SourcePath, SourceLocation>,
+        owner: SourcePath.ExchangeOwner,
+        ctx: ParserRuleContext,
+        path: BlockPath,
+    ) {
+        locations[SourcePath.Exchange(owner, path)] = location(ctx.start)
+        val (variables, body) = when (ctx) {
+            is LcaLangParser.TechnoBlockForEachContext -> ctx.variables() to ctx.technoInputExchange()
+            is LcaLangParser.BioBlockForEachContext -> ctx.variables() to ctx.bioExchange()
+            is LcaLangParser.ImpactBlockForEachContext -> ctx.variables() to ctx.impactExchange()
+            else -> emptyList<LcaLangParser.VariablesContext>() to emptyList<ParserRuleContext>()
+        }
+        variables.flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Variable(owner, it.dataRef().innerText(), path)] = location(it.start)
+        }
+        body.forEachIndexed { i, child -> addExchange(locations, owner, child, path.child(i)) }
+    }
+
+    fun globalLocation(ctx: LcaLangParser.GlobalAssignmentContext): SourceMap =
+        SourceMap(mapOf(SourcePath.Global(ctx.dataRef().innerText()) to location(ctx.start)))
+
+    fun unitLocation(ctx: LcaLangParser.UnitDefinitionContext): SourceMap =
+        SourceMap(mapOf(SourcePath.Global(ctx.dataRef().innerText()) to location(ctx.start)))
+
+    fun dataSourceLocation(ctx: LcaLangParser.DataSourceDefinitionContext): SourceMap =
+        SourceMap(mapOf(SourcePath.DataSource(ctx.dataSourceRef().innerText()) to location(ctx.start)))
+
+    private fun location(token: Token): SourceLocation = SourceLocation(
+        source = token.tokenSource?.sourceName ?: IntStream.UNKNOWN_SOURCE_NAME,
+        line = token.line,
+        // ANTLR columns start at 0, editors count from 1
+        column = token.charPositionInLine + 1,
+    )
 }

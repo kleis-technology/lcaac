@@ -48,11 +48,11 @@ class GraphCommand : CliktCommand(name = graphCommandName, help = "Generate a Me
         val projectDirectory = configFile.parentFile
         val yamlConfig = parseLcaacConfig(configFile)
 
-        val files = lcaFiles(sourceDirectory)
+        val files = lcaFiles(sourceDirectory, source)
         val symbolTable = Loader(
             ops = BasicOperations,
             overriddenGlobals = dataExpressionMap(BasicOperations, globals),
-        ).load(files, listOf(LoaderOption.WITH_PRELUDE))
+        ).load(files, listOf(LoaderOption.WITH_PRELUDE)).withGivenGlobals(globals)
 
         val factory = ConnectorFactory(
             projectDirectory.path,

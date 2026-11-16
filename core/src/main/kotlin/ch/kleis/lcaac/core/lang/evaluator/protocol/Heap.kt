@@ -28,6 +28,13 @@ class Heap<D> {
         data.remove(index)
     }
 
+    /** Removes and returns all the elements with their index. */
+    fun popAllIndexed(): Map<Int, D> {
+        val result = HashMap(data)
+        data.clear()
+        return result
+    }
+
     fun popAll(): Collection<D> {
         val result = data.values.toMutableList()
         data.clear()

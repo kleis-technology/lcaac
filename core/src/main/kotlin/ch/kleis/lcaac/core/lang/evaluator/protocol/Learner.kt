@@ -1,11 +1,29 @@
 package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import arrow.optics.Every
+import ch.kleis.lcaac.core.allocation.Allocation
+import ch.kleis.lcaac.core.lang.evaluator.CharacterizationFrame
+import ch.kleis.lcaac.core.lang.evaluator.EvaluationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
+import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
+import ch.kleis.lcaac.core.lang.evaluator.ProductFrame
+import ch.kleis.lcaac.core.lang.evaluator.ReferenceUnitFrame
+import ch.kleis.lcaac.core.lang.evaluator.kindOf
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
+import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
+import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
+import ch.kleis.lcaac.core.lang.evaluator.SupplierFrame
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
+import ch.kleis.lcaac.core.lang.evaluator.within
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessDerivation
+import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessOrigins
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.register.SubstanceKey
+import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.lang.source.processKey
+import ch.kleis.lcaac.core.lang.source.substanceKey
 import ch.kleis.lcaac.core.math.QuantityOperations
 
 /*
@@ -34,6 +52,8 @@ class Learner<Q>(
     private val ops: QuantityOperations<Q>,
 ) {
     private val staging = Heap<ConnectionExpression<Q>>()
+    private val stagingOrigins = HashMap<Int, ProcessOrigins>()
+    private val stagingDerivations = HashMap<Int, ProcessDerivation<Q>>()
     private val start = Heap<PortExpression<Q>>()
     private val knowledge = HashMap<PortExpression<Q>, PortExpression<Q>?>()
     val trace = EvaluationTrace.empty<Q>()
@@ -85,17 +105,23 @@ class Learner<Q>(
         return substanceCharacterization
     }
 
-    private fun applyKnowledge(responses: Set<Response<Q>>): Set<ConnectionExpression<Q>> =
+    /** The connection of each response, with knowledge applied; equal connections are kept once. */
+    private fun applyKnowledge(responses: Set<Response<Q>>): List<Pair<ConnectionExpression<Q>, Response<Q>>> =
         responses.map { response ->
             when (response) {
                 is ProductResponse -> applyKnowledge(response.value)
                 is SubstanceResponse -> applyKnowledge(response.value)
-            }
-        }.toSet()
+            } to response
+        }.distinctBy { it.first }
 
-    private fun addToStaging(connections: Set<ConnectionExpression<Q>>): Set<Pair<ConnectionExpression<Q>, Int>> =
-        connections.map { connection ->
-            connection to staging.add(connection)
+    private fun addToStaging(connections: List<Pair<ConnectionExpression<Q>, Response<Q>>>): Set<Pair<ConnectionExpression<Q>, Int>> =
+        connections.map { (connection, response) ->
+            val index = staging.add(connection)
+            if (response is ProductResponse) {
+                response.origins?.let { stagingOrigins[index] = it }
+                response.derivation?.let { stagingDerivations[index] = it }
+            }
+            connection to index
         }.toSet()
 
     private fun nextRequests(pairs: Set<Pair<ConnectionExpression<Q>, Int>>): Set<Request<Q>> =
@@ -107,15 +133,119 @@ class Learner<Q>(
         }.filter { !knowledge.containsKey(it.value) }.toSet()
 
     private fun commitStaging() {
-        staging.popAll().forEach { connection ->
+        staging.popAllIndexed().forEach { (index, connection) ->
+            val origins = stagingOrigins.remove(index)
+            val derivation = stagingDerivations.remove(index)
             with(ToValue(ops)) {
                 when (connection) {
-                    is EProcess -> trace.add(connection.toValue())
-                    is ESubstanceCharacterization -> trace.add(connection.toValue())
+                    is EProcess -> within({ ProcessFrame(SourcePath.Process(connection.processKey())) }) {
+                        val process = try {
+                            connection.toValue()
+                        } catch (e: EvaluatorException) {
+                            throw locateExchange(e, connection, origins)
+                        }
+                        Allocation(ops).problemOf(process)?.let { problem ->
+                            val error = EvaluatorException(problem.message)
+                            problem.productIndex?.let { i ->
+                                origins?.products?.getOrNull(i)
+                                    ?.let { error.within(ExchangeFrame(it.path, "product", process.products[i].product.name)) }
+                            }
+                            throw error
+                        }
+                        trace.add(process)
+                        derivation?.let { trace.addDerivation(process, it) }
+                    }
+                    is ESubstanceCharacterization -> within({ SubstanceFrame(SourcePath.Substance(connection.substanceKey())) }) {
+                        trace.add(connection.toValue())
+                    }
                 }
             }
         }
         trace.commit()
+    }
+
+    /**
+     * Locates an error raised while converting [process] to its value, e.g. a quantity that does not
+     * match the reference unit of its product or substance: finds the exchange whose conversion fails,
+     * and refers to the definition that it does not match.
+     */
+    private fun ToValue<Q>.locateExchange(
+        error: EvaluatorException,
+        process: EProcess<Q>,
+        origins: ProcessOrigins?,
+    ): EvaluatorException {
+        if (origins == null) return error
+        fun fails(convert: () -> Any) = try {
+            convert()
+            false
+        } catch (e: EvaluatorException) {
+            true
+        }
+
+        process.products.forEachIndexed { i, exchange ->
+            if (fails { exchange.toValue() }) {
+                origins.products.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "product", exchange.product.name)) }
+                return error
+            }
+        }
+        process.inputs.forEachIndexed { i, block ->
+            val exchange = (block as? ETechnoBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                origins.inputs.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "input", exchange.product.name)) }
+                supplierOf(exchange.product)?.let { error.seeAlso(ProductFrame(SourcePath.Process(it), exchange.product.name, it)) }
+                return error
+            }
+        }
+        process.biosphere.forEachIndexed { i, block ->
+            val exchange = (block as? EBioBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                val substance = exchange.substance
+                origins.biosphere.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, kindOf(substance), substance.name)) }
+                val key = SubstanceKey(substance.name, substance.type, substance.compartment, substance.subCompartment)
+                error.seeAlso(ReferenceUnitFrame(SourcePath.ReferenceUnit(key)))
+                return error
+            }
+        }
+        process.impacts.forEachIndexed { i, block ->
+            val exchange = (block as? EImpactBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                origins.impacts.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "impact", exchange.indicator.name)) }
+                return error
+            }
+        }
+        return error
+    }
+
+    /** The process supplying [product], once the knowledge is applied. */
+    private fun supplierOf(product: EProductSpec<Q>): ProcessKey? {
+        val from = product.fromProcess ?: return null
+        val labels = from.matchLabels.elements.mapValues { (it.value as? EStringLiteral<Q>)?.value ?: return null }
+        return ProcessKey(from.name, labels)
+    }
+
+    /** The process that sent [request], to locate errors raised while answering it. */
+    fun requesterFrame(request: Request<Q>): EvaluationFrame? {
+        val address = when (request) {
+            is ProductRequest -> request.address
+            is SubstanceRequest -> request.address
+        }
+        val process = staging.find(address.connectionIndex) as? EProcess<Q> ?: return null
+        val key = process.processKey()
+        // Locate the request at the exchange that made it, when its origin is known
+        val origins = stagingOrigins[address.connectionIndex]
+        return when (request) {
+            is ProductRequest -> SupplierFrame(
+                origins?.inputs?.getOrNull(address.portIndex)?.path ?: SourcePath.Process(key),
+                request.value.name,
+                key,
+            )
+
+            is SubstanceRequest -> CharacterizationFrame(
+                origins?.biosphere?.getOrNull(address.portIndex)?.path ?: SourcePath.Process(key),
+                request.value.name,
+                key,
+            )
+        }
     }
 
     private fun updateStagingAndKnowledge(response: Response<Q>) {

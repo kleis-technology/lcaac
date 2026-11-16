@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.lang.evaluator.reducer
 
 import ch.kleis.lcaac.core.config.DataSourceConfig
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
+import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.fixture.*
 import ch.kleis.lcaac.core.lang.register.*
@@ -9,9 +10,9 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.every
 import io.mockk.mockk
+import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 
 class LcaExpressionReducerTest {
     private val ops = BasicOperations
@@ -256,8 +257,8 @@ class LcaExpressionReducerTest {
         )
 
         // when/then
-        val e = assertThrows<RegisterException> {  reducer.reduce(expression) }
-        assertEquals("[row] is already bound", e.message)
+        val e = assertThrows<EvaluatorException> {  reducer.reduce(expression) }
+        assertEquals("for_each 'row' defines 'row', already defined in the process or as a global", e.message)
     }
 
     @Test

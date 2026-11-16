@@ -169,4 +169,11 @@ class BasicTestRunnerTest {
             actual.results[0]
         )
     }
+
+    @Test
+    fun genericFailure_equality_shouldIgnoreTheError() {
+        val error = EvaluatorException("some error")
+        assertEquals(GenericFailure("some error"), GenericFailure("some error", error))
+        assertEquals(error, GenericFailure("some error", error).error)
+    }
 }

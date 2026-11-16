@@ -1,6 +1,8 @@
 package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.core.testing.RangeAssertion
@@ -15,18 +17,20 @@ class CoreTestMapper {
         ctx: LcaLangParser.TestDefinitionContext,
     ): TestCase<LcaLangParser.TestDefinitionContext> {
         val name = ctx.testRef().uid().ID().innerText()
-        val processName = "__test__${name}"
-        val productName = "__test__product__${name}"
+        val processName = TestCase.processName(name)
+        val productName = TestCase.productName(name)
+        val owner = SourcePath.Process(ProcessKey(processName))
+        // Shared by the expressions and their locations, so that they are numbered the same way
+        val given = ctx.block_given().flatMap { it.technoInputExchange() }
+        val assertions = ctx.block_assert().flatMap { it.rangeAssertion() }
         return TestCase(
             source = ctx,
             name = name,
-            assertions = ctx.block_assert().flatMap {
-                it.rangeAssertion().map { assertion ->
-                    val ref = assertion.uid().ID().innerText()
-                    val lo = coreMapper.dataExpression(assertion.dataExpression(0))
-                    val hi = coreMapper.dataExpression(assertion.dataExpression(1))
-                    RangeAssertion(ref, lo, hi)
-                }
+            assertions = assertions.mapIndexed { i, assertion ->
+                val ref = assertion.uid().ID().innerText()
+                val lo = coreMapper.dataExpression(assertion.dataExpression(0))
+                val hi = coreMapper.dataExpression(assertion.dataExpression(1))
+                RangeAssertion(ref, lo, hi, SourcePath.Assertion(owner, i))
             },
             template = EProcessTemplate(
                 locals = ctx.variables().flatMap { it.assignment() }
@@ -39,12 +43,11 @@ class CoreTestMapper {
                             EProductSpec(productName, EDataRef("u"))
                         )
                     ),
-                    inputs = ctx.block_given().flatMap {
-                        it.technoInputExchange().map { coreMapper.technoInputExchange(it) }
-                    }
+                    inputs = given.map { coreMapper.technoInputExchange(it) }
                 )
             ),
-            arguments = emptyMap()
+            arguments = emptyMap(),
+            sourceMap = coreMapper.testLocations(ctx, name, owner, given, assertions),
         )
     }
 

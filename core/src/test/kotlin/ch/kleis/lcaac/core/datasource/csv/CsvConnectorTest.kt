@@ -8,15 +8,17 @@ import ch.kleis.lcaac.core.lang.fixture.QuantityFixture
 import ch.kleis.lcaac.core.lang.fixture.QuantityValueFixture
 import ch.kleis.lcaac.core.lang.value.DataSourceValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.io.FileNotFoundException
+import java.io.InputStream
+import kotlin.test.assertEquals
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import java.io.InputStream
-import kotlin.test.assertEquals
 
 class CsvConnectorTest {
     private fun mockFileLoader(): (String) -> InputStream {
@@ -254,5 +256,19 @@ class CsvConnectorTest {
         // when/then
         val e = assertThrows<EvaluatorException> { connector.getFirst(mockk(), config, source) }
         assertEquals("no record found in datasource 'source' [source.csv] matching {geo=A_NON_EXISTING_COUNTRY}", e.message)
+    }
+
+    @Test
+    fun getAll_whenTheFileCannotBeRead_shouldThrowAnEvaluatorException() {
+        // Given
+        val connector = CsvConnector<BasicNumber>(mockk(), ops) { throw FileNotFoundException("nope.csv (No such file or directory)") }
+        val config = DataSourceConfig(name = "parts", location = "nope.csv")
+        val source = DataSourceValue<BasicNumber>(config = config, schema = emptyMap())
+
+        // When
+        val error = assertThrows<EvaluatorException> { connector.getAll(mockk(), config, source).toList() }
+
+        // Then
+        assertEquals("cannot read data source 'parts': nope.csv (No such file or directory)", error.message)
     }
 }
