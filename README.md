@@ -28,7 +28,7 @@ See our [book](https://lca-as-code.com/book) to learn more about the language.
 
 From the source
 ```bash
-git checkout v3.0.0
+git checkout v3.1.0
 ./gradlew :cli:installDist
 alias lcaac=$GIT_ROOT/cli/build/install/lcaac/bin/lcaac
 lcaac version
