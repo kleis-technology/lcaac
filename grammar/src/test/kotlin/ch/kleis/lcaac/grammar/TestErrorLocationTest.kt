@@ -8,6 +8,12 @@ import ch.kleis.lcaac.core.testing.GenericFailure
 import ch.kleis.lcaac.core.testing.RangeAssertionFailure
 import ch.kleis.lcaac.core.testing.RangeAssertionSuccess
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
+import ch.kleis.lcaac.core.lang.dimension.Dimension
+import ch.kleis.lcaac.core.lang.dimension.UnitSymbol
+import ch.kleis.lcaac.core.lang.expression.EQuantityScale
+import ch.kleis.lcaac.core.lang.expression.ERecord
+import ch.kleis.lcaac.core.lang.expression.EUnitLiteral
+import io.mockk.every
 import io.mockk.mockk
 import java.nio.file.Files
 import kotlin.test.Test
@@ -55,12 +61,50 @@ class TestErrorLocationTest {
                 steel between 10 kg and 20 kg
             }
         }
+
+        datasource parts {
+            location = "parts.csv"
+            schema {
+                mass = 1 kg
+            }
+        }
+
+        test for_each_given {
+            given {
+                for_each part from parts {
+                    variables {
+                        w = part.mass + 1 kWh
+                    }
+                    w steel
+                }
+            }
+            assert {
+                steel between 0 kg and 10 kg
+            }
+        }
+
+        test two_blocks {
+            given {
+                12 kg steel
+            }
+            assert {
+                steel between 0 kg and 20 kg
+            }
+            assert {
+                steel between 0 kg and 10 kg
+            }
+        }
     """.trimIndent()
 
     private val path = Files.createTempFile("tests", ".lca").also { Files.writeString(it, content) }
     private val file = parseLcaFile(path)
     private val symbolTable = Loader(BasicOperations).load(sequenceOf(file), listOf(LoaderOption.WITH_PRELUDE))
-    private val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(symbolTable, mockk<DataSourceOperations<BasicNumber>>())
+    private val sourceOps = mockk<DataSourceOperations<BasicNumber>>().also {
+        every { it.getAll(any()) } returns sequenceOf(
+            ERecord(mapOf("mass" to EQuantityScale(BasicNumber(1.0), EUnitLiteral(UnitSymbol.of("kg"), 1.0, Dimension.of("mass"))))),
+        )
+    }
+    private val runner = BasicTestRunner<LcaLangParser.TestDefinitionContext>(symbolTable, sourceOps)
 
     private fun case(test: String) = file.testDefinition().map { CoreTestMapper().test(it) }.first { it.name == test }
 
@@ -115,5 +159,28 @@ class TestErrorLocationTest {
             """.trimIndent(),
             describe("wrong_supplier"),
         )
+    }
+
+    @Test
+    fun forEachInGiven_shouldGiveTheRow() {
+        assertEquals(
+            """
+            incompatible dimensions: mass vs energy in left=kg and right=kWh
+              in variable 'w' ($path:50:17)
+              in input 'steel' ($path:52:13)
+              in row #1 of for_each 'part' ($path:48:9)
+              in test 'for_each_given' ($path:46:1)
+            """.trimIndent(),
+            describe("for_each_given"),
+        )
+    }
+
+    @Test
+    fun severalAssertBlocks_shouldBeNumberedAsOneList() {
+        val case = case("two_blocks")
+        assertEquals(68, case.sourceMap[assertNotNull(case.assertions[1].path)]?.line)
+        val results = runner.run(case).results
+        assertIs<RangeAssertionSuccess>(results[0])
+        assertIs<RangeAssertionFailure>(results[1])
     }
 }

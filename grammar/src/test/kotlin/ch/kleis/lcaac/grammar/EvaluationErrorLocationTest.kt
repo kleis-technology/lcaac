@@ -28,16 +28,21 @@ class EvaluationErrorLocationTest {
 
     private val sourceOps = mockk<DataSourceOperations<BasicNumber>>().also {
         // row #1 is consistent, row #2 mixes mass and energy
+        every { it.getFirst(any()) } throws EvaluatorException("no record found in datasource 'broken'")
         every { it.getAll(any()) } returns sequenceOf(
             ERecord(mapOf("id" to EStringLiteral("p1"), "mass" to kWh(1.0))),
             ERecord(mapOf("id" to EStringLiteral("p2"), "mass" to kg(2.0))),
         )
     }
 
-    private fun evaluate(content: String, process: String): Pair<EvaluatorException, String> {
+    private fun evaluate(
+        content: String,
+        process: String,
+        labels: Map<String, String> = emptyMap(),
+    ): Pair<EvaluatorException, String> {
         val path = Files.createTempFile("errors", ".lca").also { Files.writeString(it, content.trimIndent()) }
         val symbolTable = Loader(ops).load(sequenceOf(parseLcaFile(path)), listOf(LoaderOption.WITH_PRELUDE))
-        val template = assertNotNull(symbolTable.getTemplate(process))
+        val template = assertNotNull(symbolTable.getTemplate(process, labels))
         val error = assertThrows<EvaluatorException> { Evaluator(symbolTable, ops, sourceOps).trace(template) }
         return error to path.toString()
     }
@@ -358,6 +363,357 @@ class EvaluationErrorLocationTest {
               in input 'iron' ($file:21:9)
               in process 'mill' ($file:10:1)
               in supplier of 'steel' for process 'main' ($file:6:9)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    /*
+        Corner cases
+     */
+
+    private fun framesOf(error: EvaluatorException) = error.describe().lines().drop(1)
+
+    @Test
+    fun processWithLabels_shouldShowTheLabels() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                labels {
+                    geo = "FR"
+                }
+                variables {
+                    x = 1 kg + 1 kWh
+                }
+                products {
+                    1 p a
+                }
+                inputs {
+                    x steel
+                }
+            }
+            """, "p", mapOf("geo" to "FR")
+        )
+
+        assertEquals(
+            listOf(
+                "  in variable 'x' ($file:6:9)",
+                "  in input 'steel' ($file:12:9)",
+                "  in process 'p{geo=FR}' ($file:1:1)",
+            ),
+            framesOf(error),
+        )
+    }
+
+    @Test
+    fun nestedForEach_shouldGiveTheRowOfEachBlock() {
+        val (error, file) = evaluate(
+            """
+            datasource parts {
+                location = "parts.csv"
+                schema {
+                    id = "p1"
+                    mass = 1 kg
+                }
+            }
+
+            process p {
+                products {
+                    1 p a
+                }
+                inputs {
+                    for_each outer from parts {
+                        for_each inner from parts {
+                            variables {
+                                w = outer.mass * inner.mass + 1 kWh
+                            }
+                            w packaging
+                        }
+                    }
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            listOf(
+                "  in variable 'w' ($file:17:21)",
+                "  in input 'packaging' ($file:19:17)",
+                "  in row #1 of for_each 'inner' ($file:15:13)",
+                "  in row #1 of for_each 'outer' ($file:14:9)",
+                "  in process 'p' ($file:9:1)",
+            ),
+            framesOf(error),
+        )
+    }
+
+    @Test
+    fun errorInsideCachedProcess() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel
+                }
+            }
+
+            @cached
+            process steel_mill {
+                variables {
+                    e = 1 kWh + 1 kg
+                }
+                products {
+                    1 kg steel
+                }
+                inputs {
+                    e electricity
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            listOf(
+                "  in variable 'e' ($file:13:9)",
+                "  in input 'electricity' ($file:19:9)",
+                "  in process 'steel_mill' ($file:11:1)",
+                "  in supplier of 'steel' for process 'main' ($file:6:9)",
+            ),
+            framesOf(error),
+        )
+    }
+
+    @Test
+    fun supplierErrorInsideCachedProcess() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel
+                }
+            }
+
+            @cached
+            process steel_mill {
+                products {
+                    1 kg steel
+                }
+                inputs {
+                    1 kg iron from other
+                }
+            }
+
+            process other {
+                products {
+                    1 kg copper
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            """
+            no process 'other' providing 'iron' found
+              in supplier of 'iron' for process 'steel_mill' ($file:16:9)
+              in supplier of 'steel' for process 'main' ($file:6:9)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun errorInALoop() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel
+                }
+            }
+
+            process steel_mill {
+                products {
+                    1 kg steel
+                }
+                inputs {
+                    3 kWh electricity
+                }
+            }
+
+            process power_plant {
+                variables {
+                    sv = 0.1 kg + 1 kWh
+                }
+                products {
+                    1 kWh electricity
+                }
+                inputs {
+                    sv steel
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            listOf(
+                "  in variable 'sv' ($file:21:9)",
+                "  in input 'steel' ($file:27:9)",
+                "  in process 'power_plant' ($file:19:1)",
+                "  in supplier of 'electricity' for process 'steel_mill' ($file:15:9)",
+            ),
+            framesOf(error),
+        )
+    }
+
+    @Test
+    fun sameProductFromTwoSuppliers_shouldLocateTheRightInput() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel from mill_a
+                    1 kWh steel from mill_b
+                }
+            }
+
+            process mill_a {
+                products {
+                    1 kg steel
+                }
+            }
+
+            process mill_b {
+                products {
+                    1 kg steel
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            """
+            incompatible dimensions: energy vs mass for product steel
+              in input 'steel' ($file:7:9)
+              in process 'main' ($file:1:1)
+              see product 'steel' of process 'mill_b' ($file:17:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun unknownParameter_shouldBeLocatedAtTheInput() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 kg steel from mill(nope = 2 kg)
+                }
+            }
+
+            process mill {
+                products {
+                    1 kg steel
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            """
+            unknown parameters: [nope]
+              in process 'mill' ($file:10:1)
+              in supplier of 'steel' for process 'main' ($file:6:9)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun errorOfTheDataSource_shouldBeLocatedAtTheLookup() {
+        val (error, file) = evaluate(
+            """
+            datasource broken {
+                location = "broken.csv"
+                schema {
+                    id = "p1"
+                    mass = 1 kg
+                }
+            }
+
+            process p {
+                variables {
+                    rec = lookup broken match id = "zzz"
+                }
+                products {
+                    1 p a
+                }
+                inputs {
+                    rec.mass steel
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            no record found in datasource 'broken'
+              in variable 'rec' ($file:11:9)
+              in input 'steel' ($file:17:9)
+              in process 'p' ($file:9:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun recursiveUnits_shouldListTheUnits() {
+        val (error, file) = evaluate(
+            """
+            unit foo {
+                symbol = "foo"
+                alias_for = 2 bar
+            }
+
+            unit bar {
+                symbol = "bar"
+                alias_for = 3 foo
+            }
+
+            process p {
+                products {
+                    1 p a
+                }
+                inputs {
+                    1 foo steel
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            Recursive dependency for unit foo
+              in global 'foo' ($file:1:1)
+              in global 'bar' ($file:6:1)
+              in global 'foo' ($file:1:1)
+              in input 'steel' ($file:16:9)
+              in process 'p' ($file:11:1)
             """.trimIndent(),
             error.describe(),
         )

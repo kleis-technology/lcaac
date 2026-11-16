@@ -194,4 +194,19 @@ class SourceLocationsTest {
     private fun countBlocks(blocks: List<BlockExpression<*, *>>): Int = blocks.sumOf {
         1 + if (it is EBlockForEach) countBlocks(it.body) else 0
     }
+
+    @Test
+    fun columns_shouldCountCharacters_withTabsAndWindowsLineEndings() {
+        // given: a tab is one character, as in the syntax errors
+        val path = Files.createTempFile("tabs", ".lca")
+        Files.writeString(path, "process p {\r\n\tvariables {\r\n\t\tx = 1 kg\r\n\t}\r\n\tproducts {\r\n\t\t1 p a\r\n\t}\r\n}\r\n")
+
+        // when
+        val sourceMap = Loader(BasicOperations).load(sequenceOf(parseLcaFile(path))).sourceMap
+
+        // then
+        val p = SourcePath.Process(ProcessKey("p"))
+        assertEquals(SourceLocation(path.toString(), 3, 3), sourceMap[SourcePath.Variable(p, "x")])
+        assertEquals(SourceLocation(path.toString(), 6, 3), sourceMap[SourcePath.Exchange(p, BlockPath.of(Section.PRODUCTS, 0))])
+    }
 }
