@@ -1,6 +1,7 @@
 package ch.kleis.lcaac.core.lang.evaluator.protocol
 
 import arrow.optics.Every
+import ch.kleis.lcaac.core.allocation.Allocation
 import ch.kleis.lcaac.core.lang.evaluator.CharacterizationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
@@ -142,6 +143,14 @@ class Learner<Q>(
                             connection.toValue()
                         } catch (e: EvaluatorException) {
                             throw locateExchange(e, connection, origins)
+                        }
+                        Allocation(ops).problemOf(process)?.let { problem ->
+                            val error = EvaluatorException(problem.message)
+                            problem.productIndex?.let { i ->
+                                origins?.products?.getOrNull(i)
+                                    ?.let { error.within(ExchangeFrame(it.path, "product", process.products[i].product.name)) }
+                            }
+                            throw error
                         }
                         trace.add(process)
                         derivation?.let { trace.addDerivation(process, it) }

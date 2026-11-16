@@ -718,4 +718,72 @@ class EvaluationErrorLocationTest {
             error.describe(),
         )
     }
+
+    /*
+        Fixed corner cases
+     */
+
+    @Test
+    fun allocationWithoutPercent_shouldBeAccepted() {
+        val path = Files.createTempFile("allocation", ".lca")
+        Files.writeString(path, """
+            process p {
+                products {
+                    1 p a allocate 1 kg
+                    1 p b allocate 3 kg
+                }
+            }
+        """.trimIndent())
+        val symbolTable = Loader(ops).load(sequenceOf(parseLcaFile(path)), listOf(LoaderOption.WITH_PRELUDE))
+
+        val trace = Evaluator(symbolTable, ops, sourceOps).trace(assertNotNull(symbolTable.getTemplate("p")))
+
+        assertEquals(1, trace.getNumberOfProcesses())
+    }
+
+    @Test
+    fun missingAllocation_shouldBeLocatedAtTheProduct() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                products {
+                    1 p a allocate 80 percent
+                    1 p b
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            missing allocation for product 'b' (process: p)
+              in product 'b' ($file:4:9)
+              in process 'p' ($file:1:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun allocationsOfDifferentDimensions_shouldBeLocatedAtTheProduct() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                products {
+                    1 p a allocate 1 kg
+                    1 p b allocate 20 percent
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            listOf(
+                "  in product 'b' ($file:4:9)",
+                "  in process 'p' ($file:1:1)",
+            ),
+            framesOf(error),
+        )
+    }
+
 }
