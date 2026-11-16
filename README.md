@@ -88,6 +88,19 @@ You can also run multiple assessments with an external data csv file providing v
 lcaac assess "electricity_mix" --file params.csv
 ```
 
+### Explain
+
+The `explain` command shows how the impacts of a process are obtained, step by step: the parameters,
+variables and data source reads of each process of the supply chain, and how the impact per unit of
+each product is obtained from its exchanges, checked against the solver.
+
+```bash
+cd $GIT_ROOT/cli/samples
+lcaac explain "electricity_mix"
+```
+
+See the tutorial [Explaining a result](tutorials/03-advanced/05-explain/README.md) to read its output.
+
 ### Graph
 
 The `graph` command renders the process supply chain as a [Mermaid](https://mermaid.js.org) flowchart.

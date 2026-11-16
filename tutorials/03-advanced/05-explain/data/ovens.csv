@@ -1,0 +1,3 @@
+id,energy_per_batch,batch_size
+small,12,40
+large,30,120

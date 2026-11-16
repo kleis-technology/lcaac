@@ -1,0 +1,70 @@
+datasource ovens {
+    location = "data/ovens.csv"
+    schema {
+        id = "small"
+        energy_per_batch = 1 kWh
+        batch_size = 1 u
+    }
+}
+
+datasource ingredients {
+    location = "data/ingredients.csv"
+    schema {
+        recipe = "bread"
+        ingredient = "flour"
+        mass = 1 kg
+    }
+}
+
+process bakery {
+    params {
+        oven = "large"
+    }
+    variables {
+        selected = lookup ovens match id = oven
+        energy = selected.energy_per_batch / selected.batch_size
+    }
+    products {
+        1 kg bread allocate 95 percent
+        50 g crumbs allocate 5 percent
+    }
+    inputs {
+        energy electricity
+        for_each item from ingredients match recipe = "bread" {
+            item.mass delivery from truck(distance = 200 km)
+        }
+    }
+}
+
+process power_grid {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.1 kg_CO2_Eq climate_change
+    }
+}
+
+process truck {
+    params {
+        distance = 100 km
+    }
+    variables {
+        factor = 0.0002 kg_CO2_Eq / km
+    }
+    products {
+        1 kg delivery
+    }
+    impacts {
+        factor * distance climate_change
+    }
+}
+
+test bread {
+    given {
+        1 kg bread from bakery
+    }
+    assert {
+        climate_change between 0.0603 kg_CO2_Eq and 0.0604 kg_CO2_Eq
+    }
+}
