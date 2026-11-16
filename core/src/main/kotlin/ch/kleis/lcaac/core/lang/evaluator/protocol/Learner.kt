@@ -4,6 +4,10 @@ import arrow.optics.Every
 import ch.kleis.lcaac.core.lang.evaluator.CharacterizationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationFrame
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
+import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
+import ch.kleis.lcaac.core.lang.evaluator.ProductFrame
+import ch.kleis.lcaac.core.lang.evaluator.ReferenceUnitFrame
+import ch.kleis.lcaac.core.lang.evaluator.kindOf
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ProcessFrame
 import ch.kleis.lcaac.core.lang.evaluator.SubstanceFrame
@@ -14,6 +18,8 @@ import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessDerivation
 import ch.kleis.lcaac.core.lang.evaluator.derivation.ProcessOrigins
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.expression.optics.everyEntry
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.lang.source.processKey
 import ch.kleis.lcaac.core.lang.source.substanceKey
@@ -127,12 +133,16 @@ class Learner<Q>(
 
     private fun commitStaging() {
         staging.popAllIndexed().forEach { (index, connection) ->
-            stagingOrigins.remove(index)
+            val origins = stagingOrigins.remove(index)
             val derivation = stagingDerivations.remove(index)
             with(ToValue(ops)) {
                 when (connection) {
                     is EProcess -> within({ ProcessFrame(SourcePath.Process(connection.processKey())) }) {
-                        val process = connection.toValue()
+                        val process = try {
+                            connection.toValue()
+                        } catch (e: EvaluatorException) {
+                            throw locateExchange(e, connection, origins)
+                        }
                         trace.add(process)
                         derivation?.let { trace.addDerivation(process, it) }
                     }
@@ -143,6 +153,65 @@ class Learner<Q>(
             }
         }
         trace.commit()
+    }
+
+    /**
+     * Locates an error raised while converting [process] to its value, e.g. a quantity that does not
+     * match the reference unit of its product or substance: finds the exchange whose conversion fails,
+     * and refers to the definition that it does not match.
+     */
+    private fun ToValue<Q>.locateExchange(
+        error: EvaluatorException,
+        process: EProcess<Q>,
+        origins: ProcessOrigins?,
+    ): EvaluatorException {
+        if (origins == null) return error
+        fun fails(convert: () -> Any) = try {
+            convert()
+            false
+        } catch (e: EvaluatorException) {
+            true
+        }
+
+        process.products.forEachIndexed { i, exchange ->
+            if (fails { exchange.toValue() }) {
+                origins.products.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "product", exchange.product.name)) }
+                return error
+            }
+        }
+        process.inputs.forEachIndexed { i, block ->
+            val exchange = (block as? ETechnoBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                origins.inputs.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "input", exchange.product.name)) }
+                supplierOf(exchange.product)?.let { error.seeAlso(ProductFrame(SourcePath.Process(it), exchange.product.name, it)) }
+                return error
+            }
+        }
+        process.biosphere.forEachIndexed { i, block ->
+            val exchange = (block as? EBioBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                val substance = exchange.substance
+                origins.biosphere.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, kindOf(substance), substance.name)) }
+                val key = SubstanceKey(substance.name, substance.type, substance.compartment, substance.subCompartment)
+                error.seeAlso(ReferenceUnitFrame(SourcePath.ReferenceUnit(key)))
+                return error
+            }
+        }
+        process.impacts.forEachIndexed { i, block ->
+            val exchange = (block as? EImpactBlockEntry<Q>)?.entry ?: return@forEachIndexed
+            if (fails { exchange.toValue() }) {
+                origins.impacts.getOrNull(i)?.let { error.within(ExchangeFrame(it.path, "impact", exchange.indicator.name)) }
+                return error
+            }
+        }
+        return error
+    }
+
+    /** The process supplying [product], once the knowledge is applied. */
+    private fun supplierOf(product: EProductSpec<Q>): ProcessKey? {
+        val from = product.fromProcess ?: return null
+        val labels = from.matchLabels.elements.mapValues { (it.value as? EStringLiteral<Q>)?.value ?: return null }
+        return ProcessKey(from.name, labels)
     }
 
     /** The process that sent [request], to locate errors raised while answering it. */

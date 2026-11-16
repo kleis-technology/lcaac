@@ -8,6 +8,11 @@ class EvaluatorException(message: String) : Exception(message) {
     /** Where the error occurred, from the innermost to the outermost step. */
     val frames: List<EvaluationFrame> get() = frameList
 
+    private val relatedList = ArrayList<EvaluationFrame>()
+
+    /** Other definitions involved in the error, e.g. a reference unit that a quantity does not match. */
+    val related: List<EvaluationFrame> get() = relatedList
+
     /** Locations of the frames, set by the evaluator. */
     var sourceMap: SourceMap = SourceMap.empty()
         private set
@@ -18,17 +23,25 @@ class EvaluatorException(message: String) : Exception(message) {
         return this
     }
 
+    fun seeAlso(frame: EvaluationFrame): EvaluatorException {
+        relatedList.add(frame)
+        return this
+    }
+
     fun withSourceMap(sourceMap: SourceMap): EvaluatorException {
         this.sourceMap = sourceMap
         return this
     }
 
-    /** The message followed by one line per frame, with its location when known. */
+    /** The message followed by one line per frame and per related definition, with its location when known. */
     fun describe(): String = buildString {
         append(message)
-        frames.forEach { frame ->
-            append("\n  in ${frame.description}")
-            sourceMap[frame.path]?.let { append(" ($it)") }
-        }
+        frames.forEach { line("in", it) }
+        related.forEach { line("see", it) }
+    }
+
+    private fun StringBuilder.line(prefix: String, frame: EvaluationFrame) {
+        append("\n  $prefix ${frame.description}")
+        sourceMap[frame.path]?.let { append(" ($it)") }
     }
 }

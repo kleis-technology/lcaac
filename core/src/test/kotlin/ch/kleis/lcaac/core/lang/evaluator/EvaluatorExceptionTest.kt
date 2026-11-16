@@ -50,6 +50,26 @@ class EvaluatorExceptionTest {
     }
 
     @Test
+    fun describe_shouldListRelatedDefinitionsAfterTheFrames() {
+        // given
+        val co2 = SubstanceKey("co2")
+        val error = EvaluatorException("boom")
+            .within(ProcessFrame(SourcePath.Process(process)))
+            .seeAlso(ReferenceUnitFrame(SourcePath.ReferenceUnit(co2)))
+            .withSourceMap(SourceMap(mapOf(SourcePath.ReferenceUnit(co2) to SourceLocation("main.lca", 14, 5))))
+
+        // then
+        assertEquals(
+            """
+            boom
+              in process 'p'
+              see reference unit of substance 'co2' (main.lca:14:5)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
     fun frameDescriptions() {
         assertEquals("input 'flour'", ExchangeFrame(forEach, "input", "flour").description)
         assertEquals("row #2 of for_each 'row'", ForEachFrame(forEach, "row", 1).description)
@@ -62,5 +82,7 @@ class EvaluatorExceptionTest {
             "characterization of 'co2' for process 'p'",
             CharacterizationFrame(SourcePath.Process(process), "co2", process).description,
         )
+        assertEquals("reference unit of substance 'co2'", ReferenceUnitFrame(SourcePath.ReferenceUnit(SubstanceKey("co2"))).description)
+        assertEquals("product 'steel' of process 'p'", ProductFrame(SourcePath.Process(process), "steel", process).description)
     }
 }

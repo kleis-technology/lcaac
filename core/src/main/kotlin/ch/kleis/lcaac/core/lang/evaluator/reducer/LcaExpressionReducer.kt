@@ -3,6 +3,8 @@ package ch.kleis.lcaac.core.lang.evaluator.reducer
 import ch.kleis.lcaac.core.datasource.DataSourceOperations
 import ch.kleis.lcaac.core.lang.evaluator.ExchangeFrame
 import ch.kleis.lcaac.core.lang.evaluator.ForEachFrame
+import ch.kleis.lcaac.core.lang.evaluator.ReferenceUnitFrame
+import ch.kleis.lcaac.core.lang.evaluator.kindOf
 import ch.kleis.lcaac.core.lang.evaluator.within
 import ch.kleis.lcaac.core.lang.evaluator.derivation.DataSourceRead
 import ch.kleis.lcaac.core.lang.evaluator.derivation.DerivationRecorder
@@ -64,8 +66,9 @@ class LcaExpressionReducer<Q>(
             dataRegister, dataSourceRegister, ops, sourceOps,
             SourcePath.Substance(expression.substanceKey()), pathOf,
         )
+        val referenceUnit = SourcePath.ReferenceUnit(expression.substanceKey())
         return ESubstanceCharacterization(
-            reducer.reduceBioExchange(expression.referenceExchange),
+            within({ ReferenceUnitFrame(referenceUnit) }) { reducer.reduceBioExchange(expression.referenceExchange) },
             expression.impacts.flatMapIndexed { i, block ->
                 reducer.reduceBlock(block, BlockPath.of(Section.IMPACTS, i), impactLabel) { reduceImpact(it) }
             },
@@ -119,8 +122,7 @@ class LcaExpressionReducer<Q>(
 
     /** Kind and name of an exchange, to describe it in errors. */
     private val inputLabel: (ETechnoExchange<Q>) -> Pair<String, String> = { "input" to it.product.name }
-    private val bioLabel: (EBioExchange<Q>) -> Pair<String, String> =
-        { (it.substance.type?.value?.lowercase() ?: "biosphere exchange") to it.substance.name }
+    private val bioLabel: (EBioExchange<Q>) -> Pair<String, String> = { kindOf(it.substance) to it.substance.name }
     private val impactLabel: (EImpact<Q>) -> Pair<String, String> = { "impact" to it.indicator.name }
 
     /**

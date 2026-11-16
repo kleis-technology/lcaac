@@ -48,6 +48,7 @@ sealed interface SourcePath {
 
     data class Process(val process: ProcessKey) : ExchangeOwner
     data class Substance(val substance: SubstanceKey) : ExchangeOwner
+    data class ReferenceUnit(val substance: SubstanceKey) : SourcePath
     data class Parameter(val process: ProcessKey, val name: String) : SourcePath
 
     /** A process variable, or a for_each variable when [block] is the path of the for_each. */

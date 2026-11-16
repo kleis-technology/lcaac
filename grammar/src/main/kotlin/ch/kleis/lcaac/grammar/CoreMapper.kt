@@ -455,9 +455,11 @@ class CoreMapper<Q>(
     }
 
     fun substanceLocations(ctx: LcaLangParser.SubstanceDefinitionContext): SourceMap {
-        val owner = SourcePath.Substance(ctx.buildUniqueKey())
+        val key = ctx.buildUniqueKey()
+        val owner = SourcePath.Substance(key)
         val locations = LinkedHashMap<SourcePath, SourceLocation>()
         locations[owner] = location(ctx.start)
+        locations[SourcePath.ReferenceUnit(key)] = location(ctx.referenceUnitField().start)
         ctx.impactExchanges().forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.IMPACTS, i)) }
         return SourceMap(locations)
     }

@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.lang.evaluator
 
+import ch.kleis.lcaac.core.lang.expression.ESubstanceSpec
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
 
@@ -13,7 +14,7 @@ sealed interface EvaluationFrame {
 }
 
 data class ProcessFrame(override val path: SourcePath.Process) : EvaluationFrame {
-    override val description: String get() = "process '${path.process}'"
+    override val description: String get() = describe(path.process)
 }
 
 /** [kind] is e.g. "input" or "emission", [name] the product, substance or indicator. */
@@ -55,7 +56,7 @@ data class SupplierFrame(
     val product: String,
     val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "supplier of '$product' for process '$process'"
+    override val description: String get() = "supplier of '$product' for ${describe(process)}"
 }
 
 data class SubstanceFrame(override val path: SourcePath.Substance) : EvaluationFrame {
@@ -71,8 +72,27 @@ data class CharacterizationFrame(
     val substance: String,
     val process: ProcessKey,
 ) : EvaluationFrame {
-    override val description: String get() = "characterization of '$substance' for process '$process'"
+    override val description: String get() = "characterization of '$substance' for ${describe(process)}"
 }
+
+data class ReferenceUnitFrame(override val path: SourcePath.ReferenceUnit) : EvaluationFrame {
+    override val description: String get() = "reference unit of substance '${path.substance.name}'"
+}
+
+/** The product [product] of [process], e.g. as the definition that an input refers to. */
+data class ProductFrame(
+    override val path: SourcePath,
+    val product: String,
+    val process: ProcessKey,
+) : EvaluationFrame {
+    override val description: String get() = "product '$product' of ${describe(process)}"
+}
+
+private fun describe(process: ProcessKey): String = "process '$process'"
+
+/** The kind of a biosphere exchange, e.g. "emission". */
+internal fun <Q> kindOf(substance: ESubstanceSpec<Q>): String =
+    substance.type?.value?.lowercase() ?: "biosphere exchange"
 
 /**
  * Runs [block], adding the frame given by [frame] to any [EvaluatorException] it throws.

@@ -219,6 +219,109 @@ class EvaluationErrorLocationTest {
     }
 
     @Test
+    fun referenceUnitOfSubstance() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                products {
+                    1 p a
+                }
+                emissions {
+                    1 kg co2(compartment = "air")
+                }
+            }
+
+            substance co2 {
+                name = "co2"
+                type = Emission
+                compartment = "air"
+                reference_unit = 1 kg + 1 kWh
+                impacts {
+                    1 u climate_change
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            """
+            incompatible dimensions: mass vs energy in left=kg and right=kWh
+              in reference unit of substance 'co2' ($file:14:5)
+              in substance 'co2' ($file:10:1)
+              in characterization of 'co2' for process 'p' ($file:6:9)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
+    fun emissionNotMatchingTheReferenceUnit_shouldReferToIt() {
+        val (error, file) = evaluate(
+            """
+            process p {
+                products {
+                    1 p a
+                }
+                emissions {
+                    1 kWh co2(compartment = "air")
+                }
+            }
+
+            substance co2 {
+                name = "co2"
+                type = Emission
+                compartment = "air"
+                reference_unit = kg
+                impacts {
+                    1 u climate_change
+                }
+            }
+            """, "p"
+        )
+
+        assertEquals(
+            listOf(
+                "  in emission 'co2' ($file:6:9)",
+                "  in process 'p' ($file:1:1)",
+                "  see reference unit of substance 'co2' ($file:14:5)",
+            ),
+            error.describe().lines().drop(1),
+        )
+    }
+
+    @Test
+    fun inputNotMatchingTheSupplierProduct_shouldReferToIt() {
+        val (error, file) = evaluate(
+            """
+            process main {
+                products {
+                    1 p widget
+                }
+                inputs {
+                    2 kWh steel
+                }
+            }
+
+            process steel_mill {
+                products {
+                    1 kg steel
+                }
+            }
+            """, "main"
+        )
+
+        assertEquals(
+            """
+            incompatible dimensions: energy vs mass for product steel
+              in input 'steel' ($file:6:9)
+              in process 'main' ($file:1:1)
+              see product 'steel' of process 'steel_mill' ($file:10:1)
+            """.trimIndent(),
+            error.describe(),
+        )
+    }
+
+    @Test
     fun parameterOfSupplier() {
         val (error, file) = evaluate(
             """
