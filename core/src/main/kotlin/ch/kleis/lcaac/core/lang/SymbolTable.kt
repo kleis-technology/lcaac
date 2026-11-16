@@ -3,6 +3,7 @@ package ch.kleis.lcaac.core.lang
 import arrow.optics.Every
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.*
+import ch.kleis.lcaac.core.lang.source.SourceMap
 
 
 data class SymbolTable<Q>(
@@ -12,6 +13,7 @@ data class SymbolTable<Q>(
     val processTemplates: ProcessTemplateRegister<Q> = ProcessTemplateRegister.empty(),
     val substanceCharacterizations: SubstanceCharacterizationRegister<Q> = SubstanceCharacterizationRegister.empty(),
     val dataSources: DataSourceRegister<Q> = DataSourceRegister.empty(),
+    val sourceMap: SourceMap = SourceMap.empty(),
 ) {
     val data: DataRegister<Q> = globalParameters.plus(globalVariables)
 

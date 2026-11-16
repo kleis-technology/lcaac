@@ -3,6 +3,7 @@ package ch.kleis.lcaac.grammar
 import ch.kleis.lcaac.core.lang.*
 import ch.kleis.lcaac.core.lang.expression.DataExpression
 import ch.kleis.lcaac.core.lang.register.*
+import ch.kleis.lcaac.core.lang.source.SourceMap
 import ch.kleis.lcaac.core.math.QuantityOperations
 import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
@@ -118,6 +119,14 @@ class Loader<Q>(
                 throw LoaderException("Duplicate process ${e.duplicates} defined")
             }
 
+            val sourceMap = sequenceOf(
+                processDefinitions.map { processLocations(it) },
+                globalParameterDefinitions.map { globalLocation(it) },
+                globalVariableDefinitions.map { globalLocation(it) },
+                unitDefinitions.map { unitLocation(it) },
+                dataSourceDefinitions.map { dataSourceLocation(it) },
+            ).flatten().fold(SourceMap.empty()) { acc, locations -> acc + locations }
+
             return SymbolTable(
                 globalParameters = globalParameters,
                 globalVariables = globalVariables,
@@ -125,6 +134,7 @@ class Loader<Q>(
                 dataSources = dataSources,
                 dimensions = dimensions,
                 substanceCharacterizations = substanceCharacterizations,
+                sourceMap = sourceMap,
             )
         }
     }
