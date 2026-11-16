@@ -3,6 +3,7 @@ package ch.kleis.lcaac.core.lang.evaluator
 import ch.kleis.lcaac.core.lang.expression.ESubstanceSpec
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
+import ch.kleis.lcaac.core.testing.TestCase
 
 /**
  * A step of the evaluation in which an error occurred, e.g. the variable being evaluated.
@@ -79,6 +80,11 @@ data class ReferenceUnitFrame(override val path: SourcePath.ReferenceUnit) : Eva
     override val description: String get() = "reference unit of substance '${path.substance.name}'"
 }
 
+/** An assertion of a test, on the impact or quantity named [ref]. */
+data class AssertionFrame(override val path: SourcePath.Assertion, val ref: String) : EvaluationFrame {
+    override val description: String get() = "assertion on '$ref'"
+}
+
 /** The product [product] of [process], e.g. as the definition that an input refers to. */
 data class ProductFrame(
     override val path: SourcePath,
@@ -88,7 +94,9 @@ data class ProductFrame(
     override val description: String get() = "product '$product' of ${describe(process)}"
 }
 
-private fun describe(process: ProcessKey): String = "process '$process'"
+/** A process, or the test that a generated process stands for. */
+private fun describe(process: ProcessKey): String =
+    TestCase.testNameOf(process.name)?.let { "test '$it'" } ?: "process '$process'"
 
 /** The kind of a biosphere exchange, e.g. "emission". */
 internal fun <Q> kindOf(substance: ESubstanceSpec<Q>): String =

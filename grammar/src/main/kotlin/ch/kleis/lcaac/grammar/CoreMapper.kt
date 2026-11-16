@@ -454,6 +454,23 @@ class CoreMapper<Q>(
         return SourceMap(locations)
     }
 
+    /** Locations of a test, as the process [owner] generated for it, with its variables, given exchanges and assertions. */
+    internal fun testLocations(
+        ctx: LcaLangParser.TestDefinitionContext,
+        owner: SourcePath.Process,
+        given: List<LcaLangParser.TechnoInputExchangeContext>,
+        assertions: List<LcaLangParser.RangeAssertionContext>,
+    ): SourceMap {
+        val locations = LinkedHashMap<SourcePath, SourceLocation>()
+        locations[owner] = location(ctx.start)
+        ctx.variables().flatMap { it.assignment() }.forEach {
+            locations[SourcePath.Variable(owner, it.dataRef().innerText())] = location(it.start)
+        }
+        given.forEachIndexed { i, it -> addExchange(locations, owner, it, BlockPath.of(Section.INPUTS, i)) }
+        assertions.forEachIndexed { i, it -> locations[SourcePath.Assertion(owner, i)] = location(it.start) }
+        return SourceMap(locations)
+    }
+
     fun substanceLocations(ctx: LcaLangParser.SubstanceDefinitionContext): SourceMap {
         val key = ctx.buildUniqueKey()
         val owner = SourcePath.Substance(key)

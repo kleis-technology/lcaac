@@ -1,6 +1,8 @@
 package ch.kleis.lcaac.grammar
 
 import ch.kleis.lcaac.core.lang.expression.*
+import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.testing.RangeAssertion
 import kotlin.test.Test
@@ -39,6 +41,7 @@ class CoreTestMapperTest {
                     ref = "co2",
                     lo = EQuantityScale(BasicNumber(1.0), EDataRef("kg")),
                     hi = EQuantityScale(BasicNumber(2.0), EDataRef("kg")),
+                    path = SourcePath.Assertion(SourcePath.Process(ProcessKey("__test__foo")), 0),
                 )
             ), actual.assertions
         )

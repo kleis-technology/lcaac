@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.lang.evaluator.protocol.Learner
 import ch.kleis.lcaac.core.lang.evaluator.protocol.Oracle
 import ch.kleis.lcaac.core.lang.expression.*
 import ch.kleis.lcaac.core.lang.register.ProcessKey
+import ch.kleis.lcaac.core.lang.source.SourceMap
 import ch.kleis.lcaac.core.math.Operations
 import com.mayakapps.kache.InMemoryKache
 import com.mayakapps.kache.KacheStrategy
@@ -64,13 +65,15 @@ class Evaluator<Q, M> private constructor(
         }
     }
 
-    fun with(template: EProcessTemplate<Q>): Evaluator<Q, M> {
+    /** An evaluator that also knows [template], defined at the locations given by [sourceMap]. */
+    fun with(template: EProcessTemplate<Q>, sourceMap: SourceMap = SourceMap.empty()): Evaluator<Q, M> {
         val processKey = ProcessKey(template.body.name)
         if (symbolTable.processTemplates[processKey] != null) throw IllegalStateException("Process ${template.body.name} already exists")
         val st = this.symbolTable.copy(
                 processTemplates = this.symbolTable.processTemplates.plus(
                     mapOf(processKey to template)
-                )
+                ),
+                sourceMap = this.symbolTable.sourceMap + sourceMap,
             )
         return Evaluator(st, ops, sourceOps, cache, options)
     }

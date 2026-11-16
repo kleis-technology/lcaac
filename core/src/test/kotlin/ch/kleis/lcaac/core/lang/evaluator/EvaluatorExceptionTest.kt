@@ -3,6 +3,7 @@ package ch.kleis.lcaac.core.lang.evaluator
 import ch.kleis.lcaac.core.lang.register.ProcessKey
 import ch.kleis.lcaac.core.lang.register.SubstanceKey
 import ch.kleis.lcaac.core.lang.source.*
+import ch.kleis.lcaac.core.testing.TestCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -67,6 +68,13 @@ class EvaluatorExceptionTest {
             """.trimIndent(),
             error.describe(),
         )
+    }
+
+    @Test
+    fun processGeneratedForATest_shouldBeDescribedAsTheTest() {
+        val test = ProcessKey(TestCase.processName("my_test"))
+        assertEquals("test 'my_test'", ProcessFrame(SourcePath.Process(test)).description)
+        assertEquals("supplier of 'flour' for test 'my_test'", SupplierFrame(SourcePath.Process(test), "flour", test).description)
     }
 
     @Test

@@ -49,6 +49,9 @@ sealed interface SourcePath {
     data class Process(val process: ProcessKey) : ExchangeOwner
     data class Substance(val substance: SubstanceKey) : ExchangeOwner
     data class ReferenceUnit(val substance: SubstanceKey) : SourcePath
+
+    /** The [index]-th assertion of the test that [test] is generated for. */
+    data class Assertion(val test: Process, val index: Int) : SourcePath
     data class Parameter(val process: ProcessKey, val name: String) : SourcePath
 
     /** A process variable, or a for_each variable when [block] is the path of the for_each. */
