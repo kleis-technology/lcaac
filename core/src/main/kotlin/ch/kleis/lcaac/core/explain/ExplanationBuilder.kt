@@ -2,6 +2,7 @@ package ch.kleis.lcaac.core.explain
 
 import ch.kleis.lcaac.core.allocation.Allocation
 import ch.kleis.lcaac.core.assessment.ContributionAnalysis
+import ch.kleis.lcaac.core.graph.stronglyConnectedComponents
 import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.derivation.VariableDerivation
 import ch.kleis.lcaac.core.lang.source.SourcePath
@@ -88,46 +89,19 @@ class ExplanationBuilder<Q, M>(
     }
 
     /**
-     * The loops of the supply chain: for each process in a loop, the processes of its loop
-     * (the strongly connected components of the supplier graph, with Tarjan's algorithm).
+     * The loops of the supply chain: for each process in a loop, the processes of its loop,
+     * i.e. of its strongly connected component in the supplier graph.
      */
     private fun loops(
         processes: Set<ProcessValue<Q>>,
         suppliers: Map<ProductValue<Q>, ProcessValue<Q>>,
     ): Map<ProcessValue<Q>, List<ProcessValue<Q>>> {
-        val index = HashMap<ProcessValue<Q>, Int>()
-        val lowLink = HashMap<ProcessValue<Q>, Int>()
-        val stack = ArrayDeque<ProcessValue<Q>>()
-        val onStack = HashSet<ProcessValue<Q>>()
-        val result = HashMap<ProcessValue<Q>, List<ProcessValue<Q>>>()
         fun next(process: ProcessValue<Q>) = process.inputs.mapNotNull { suppliers[it.product] }.distinct()
-
-        fun visit(process: ProcessValue<Q>) {
-            index[process] = index.size
-            lowLink[process] = index.getValue(process)
-            stack.addLast(process)
-            onStack.add(process)
-            next(process).forEach { supplier ->
-                if (supplier !in index) {
-                    visit(supplier)
-                    lowLink[process] = minOf(lowLink.getValue(process), lowLink.getValue(supplier))
-                } else if (supplier in onStack) {
-                    lowLink[process] = minOf(lowLink.getValue(process), index.getValue(supplier))
-                }
-            }
-            if (lowLink[process] == index[process]) {
-                val component = ArrayList<ProcessValue<Q>>()
-                do {
-                    val member = stack.removeLast()
-                    onStack.remove(member)
-                    component.add(member)
-                } while (member != process)
-                // A single process is a loop only if it uses its own product
-                if (component.size > 1 || process in next(process)) component.forEach { result[it] = component }
-            }
-        }
-        processes.forEach { if (it !in index) visit(it) }
-        return result
+        return stronglyConnectedComponents(processes, ::next)
+            // A single process is a loop only if it uses its own product
+            .filter { it.size > 1 || it.single() in next(it.single()) }
+            .flatMap { component -> component.map { it to component } }
+            .toMap()
     }
 
     private fun contributions(
