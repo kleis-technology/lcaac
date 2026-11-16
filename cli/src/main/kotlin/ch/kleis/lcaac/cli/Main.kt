@@ -19,10 +19,12 @@ fun main(args: Array<String>) {
             VersionCommand(),
         )
     // Same as CliktCommand.main, except that errors in the user's model or arguments
-    // are printed as a message instead of a stack trace.
+    // are printed as a message instead of a stack trace, unless --stacktrace is given.
     try {
         withCleanErrors { command.parse(args) }
     } catch (e: CliktError) {
+        val cause = e.cause
+        if (command.stacktrace && cause != null) throw cause
         command.echoFormattedHelp(e)
         exitProcess(e.statusCode)
     }
