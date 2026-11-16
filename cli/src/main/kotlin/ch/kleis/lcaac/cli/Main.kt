@@ -13,6 +13,7 @@ fun main(args: Array<String>) {
         .subcommands(
             AssessCommand(),
             EvalCommand(),
+            ExplainCommand(),
             GraphCommand(),
             TestCommand(),
             TraceCommand(),
