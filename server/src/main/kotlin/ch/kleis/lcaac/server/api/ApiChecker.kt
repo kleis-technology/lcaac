@@ -114,8 +114,21 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
             if (name in operation.inputs) {
                 error(listOf("data", name), "'$name' is already an input")
             }
-            if (symbolTable.getDataSource(data.datasource) == null) {
+            val schema = symbolTable.getDataSource(data.datasource)?.schema
+            if (schema == null) {
                 error(listOf("data", name, "datasource"), "unknown data source '${data.datasource}'")
+            } else {
+                data.columns.forEach { (field, column) ->
+                    if (column !in schema) {
+                        error(listOf("data", name, "columns", field), "unknown column '$column' of data source '${data.datasource}'")
+                    }
+                }
+            }
+            data.columns.entries.groupBy { it.value }.filterValues { it.size > 1 }.forEach { (column, fields) ->
+                error(
+                    listOf("data", name, "columns"),
+                    "column '$column' is given by several fields: ${fields.joinToString(", ") { it.key }}",
+                )
             }
         }
 

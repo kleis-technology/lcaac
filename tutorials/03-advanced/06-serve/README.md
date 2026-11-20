@@ -93,7 +93,7 @@ product, as `lcaac assess` does.
 | `process` | the process to evaluate |
 | `labels` | labels fixed by the API, to select a variant of the process, e.g. `labels: { model: standard }` |
 | `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process, or to a global parameter of the model (`{ global: name }`), for this request only. The name of a field may differ from the name in the model. |
-| `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows |
+| `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows. With `columns`, the rows give exactly the declared columns, under the names of the request: `columns: { cpus: vcpu }` |
 | `for_each` | evaluates the process once per row of a `data` field, with columns of the row as arguments (see below) |
 | `outputs` | the outputs of the response (see below) |
 
@@ -309,6 +309,19 @@ curl -X POST localhost:8080/vm_fleet -H 'Content-Type: application/json' -d '{"v
 
 The request is repeated as it was sent, rows included: the values actually used, with their defaults,
 are in `arguments`.
+
+By default, a row gives any column of the data source, under its own name. With `columns`, the API
+chooses the columns of the rows and their names, as `inputs` does for parameters:
+
+```yaml
+data:
+  vms:
+    datasource: vm_inventory
+    columns: { id: id, cpus: vcpu, hours: hours }   # name in the request: column of the data source
+```
+
+The rows then give `id`, `cpus` and `hours` only; the other columns, here `region`, keep their default.
+Errors, the OpenAPI document and the rows repeated in responses use the names of the request.
 
 The rows of `per_vm` are in the order of the trace, not of the request: use `arguments` to tell them
 apart. The total of the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electricity,

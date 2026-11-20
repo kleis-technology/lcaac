@@ -15,7 +15,9 @@ import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parseLcaText
 import ch.kleis.lcaac.server.api.ApiDefinitionLoader
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -35,6 +37,7 @@ class ForEachTest {
             schema {
                 id = "vm-1"
                 vcpu = 2 u
+                region = "FR"
             }
         }
 
@@ -94,6 +97,15 @@ class ForEachTest {
                 arguments: { id: id }
               outputs:
                 total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
+            renamed:
+              process: virtual_machine
+              data:
+                machines: { datasource: vms, columns: { name: id, cpus: vcpu } }
+              for_each:
+                rows: machines
+                arguments: { id: id }
+              outputs:
+                total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
     """.trimIndent())!!.definition
 
     @TempDir
@@ -116,7 +128,7 @@ class ForEachTest {
 
     @BeforeTest
     fun setUp() {
-        File(directory, "vms.csv").writeText("id,vcpu\nvm-1,2\nvm-2,4\n")
+        File(directory, "vms.csv").writeText("id,vcpu,region\nvm-1,2,FR\nvm-2,4,FR\n")
         File(directory, "grid_mix.csv").writeText("region,gwp\nFR,0.05\n")
         val config = LcaacConfig(connectors = listOf(ConnectorConfig("csv", mapOf("directory" to directory.path))))
         val symbolTable = Loader(BasicOperations).load(
@@ -128,8 +140,8 @@ class ForEachTest {
         runner = OperationRunner(symbolTable, config, mapOf("csv" to connector), api.units)
     }
 
-    private fun run(request: String) =
-        runner.run(api.operations["virtual_machines"]!!, Json.parseToJsonElement(request).jsonObject)
+    private fun run(request: String, operation: String = "virtual_machines") =
+        runner.run(api.operations[operation]!!, Json.parseToJsonElement(request).jsonObject)
 
     private fun json(text: String) = Json.parseToJsonElement(text)
 
@@ -171,9 +183,9 @@ class ForEachTest {
             {
               "request": {},
               "results": [
-                { "row": { "id": "vm-1", "vcpu": { "amount": 2.0, "unit": "u" } },
+                { "row": { "id": "vm-1", "vcpu": { "amount": 2.0, "unit": "u" }, "region": "FR" },
                   "outputs": { "total": { "GWP": { "amount": 0.1, "unit": "kg CO2-Eq" } } } },
-                { "row": { "id": "vm-2", "vcpu": { "amount": 4.0, "unit": "u" } },
+                { "row": { "id": "vm-2", "vcpu": { "amount": 4.0, "unit": "u" }, "region": "FR" },
                   "outputs": { "total": { "GWP": { "amount": 0.2, "unit": "kg CO2-Eq" } } } }
               ]
             }
@@ -193,6 +205,49 @@ class ForEachTest {
 
         assertEquals(400, actual.status)
         assertEquals("incompatible dimensions: expected none, found mass", actual.body.error)
+    }
+
+    @Test
+    fun run_withColumns_shouldReadTheRowsUnderTheNamesOfTheRequest() {
+        val actual = assertIs<OperationResult.Success>(run("""{ "machines": [ { "name": "a", "cpus": 3 } ] }""", "renamed")).body
+
+        assertEquals(json("""
+            {
+              "request": {},
+              "results": [
+                { "row": { "name": "a", "cpus": 3 }, "outputs": { "total": { "GWP": { "amount": 0.15, "unit": "kg CO2-Eq" } } } }
+              ]
+            }
+        """), rounded(actual))
+    }
+
+    @Test
+    fun run_withColumns_shouldRefuseTheOtherColumns() {
+        assertEquals(
+            OperationResult.Failure(400, ErrorBody("field 'machines[0]': unknown column 'vcpu'")),
+            run("""{ "machines": [ { "name": "a", "vcpu": 3 } ] }""", "renamed"),
+        )
+        assertEquals(
+            OperationResult.Failure(400, ErrorBody("field 'machines[0]': unknown column 'region'")),
+            run("""{ "machines": [ { "name": "a", "region": "DE" } ] }""", "renamed"),
+        )
+    }
+
+    @Test
+    fun run_withColumns_shouldNameTheFieldsOfTheRequestInErrors() {
+        val actual = assertIs<OperationResult.Failure>(run("""{ "machines": [ { "name": "a", "cpus": "3 kg" } ] }""", "renamed"))
+
+        assertEquals(listOf(ErrorFrame("argument 'machines[0].cpus' = 3 kg")), actual.body.frames)
+    }
+
+    @Test
+    fun run_withColumnsWithoutRows_shouldGiveTheRowsOfTheModelUnderTheNamesOfTheRequest() {
+        val actual = assertIs<OperationResult.Success>(run("{}", "renamed")).body
+
+        assertEquals(
+            json("""[ { "name": "vm-1", "cpus": { "amount": 2.0, "unit": "u" } }, { "name": "vm-2", "cpus": { "amount": 4.0, "unit": "u" } } ]"""),
+            JsonArray(actual["results"]!!.jsonArray.map { it.jsonObject["row"]!! }),
+        )
     }
 
     @Test

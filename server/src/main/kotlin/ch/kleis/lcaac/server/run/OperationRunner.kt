@@ -35,6 +35,7 @@ import ch.kleis.lcaac.grammar.parseOverrides
 import ch.kleis.lcaac.grammar.smartParseQuantityWithDefaultUnit
 import ch.kleis.lcaac.server.api.Aggregate
 import ch.kleis.lcaac.server.api.Columns
+import ch.kleis.lcaac.server.api.DataInput
 import ch.kleis.lcaac.server.api.ForEach
 import ch.kleis.lcaac.server.api.Output
 import ch.kleis.lcaac.server.api.UnitResolver
@@ -190,7 +191,8 @@ class OperationRunner(
         prepared: Prepared,
         session: Session,
     ): List<Pair<JsonElement, RecordValue<BasicNumber>>> {
-        val dataSource = operation.data[forEach.rows]!!.datasource
+        val data = operation.data[forEach.rows]!!
+        val dataSource = data.datasource
         request[forEach.rows]?.let { json -> return (json as JsonArray).zip(prepared.rows[dataSource]!!) }
         val reducer = session.reducer(prepared.symbolTable)
         val source = reducer.evalDataSource(symbolTable.getDataSource(dataSource)!!)
@@ -198,8 +200,8 @@ class OperationRunner(
             val value = RecordValue(record.entries.mapValues { (_, v) ->
                 with(ToValue(ops)) { reducer.reduce(v).toValue() }
             })
-            JsonObject(value.entries.mapValues { (_, v) ->
-                when (v) {
+            JsonObject(data.columnsOf(value.entries.keys).mapValues { (_, column) ->
+                when (val v = value.entries[column]!!) {
                     is QuantityValue -> quantity(v.amount.value, v.unit)
                     else -> JsonPrimitive((v as? StringValue)?.s ?: v.toString())
                 }
@@ -354,7 +356,7 @@ class OperationRunner(
         val arguments = values(request, parameterInputs.mapValues { template.params[it.value.parameter]!! }, reducer)
 
         val rows = operation.data.mapNotNull { (name, data) ->
-            request[name]?.let { data.datasource to records(name, data.datasource, it, reducer) }
+            request[name]?.let { data.datasource to records(name, data, it, reducer) }
         }.toMap()
         return Prepared(
             symbolTable, globalValues, template, arguments.mapKeys { parameterInputs[it.key]!!.parameter!! }, rows,
@@ -379,21 +381,24 @@ class OperationRunner(
 
     private fun records(
         field: String,
-        dataSourceName: String,
+        data: DataInput,
         json: JsonElement,
         reducer: DataExpressionReducer<BasicNumber>,
     ): List<RecordValue<BasicNumber>> {
         val array = json as? JsonArray ?: throw RequestException(ErrorBody("field '$field': expected a list of rows"))
-        val schema = reducer.evalDataSource(symbolTable.getDataSource(dataSourceName)!!).schema
+        val schema = reducer.evalDataSource(symbolTable.getDataSource(data.datasource)!!).schema
+        // The name in the request of each column given by the rows
+        val fields = data.columnsOf(schema.keys).entries.associate { (field, column) -> column to field }
         return array.mapIndexed { index, element ->
             val rowName = "$field[$index]"
             val row = element as? JsonObject ?: throw RequestException(ErrorBody("field '$rowName': expected a row"))
-            row.keys.firstOrNull { it !in schema }?.let {
+            row.keys.firstOrNull { it !in fields.values }?.let {
                 throw RequestException(ErrorBody("field '$rowName': unknown column '$it'"))
             }
             RecordValue(schema.mapValues { (column, default) ->
-                val name = "$rowName.$column"
-                val value = row[column] ?: return@mapValues default
+                val rowField = fields[column] ?: return@mapValues default
+                val name = "$rowName.$rowField"
+                val value = row[rowField] ?: return@mapValues default
                 when (default) {
                     is QuantityValue -> {
                         val text = textOf(name, value)

@@ -423,6 +423,30 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun check_whenInvalidColumns_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  data:
+                    vms: { datasource: vm_inventory, columns: { name: id, cpus: vcpu, cores: vcpu, ram: ram_size } }
+                  outputs:
+                    total: { select: [GWP], where: { product: fleet }, aggregate: one }
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:8:93: api.operations.vm_fleet.data.vms.columns.ram: unknown column 'ram_size' of data source 'vm_inventory'",
+                "lcaac.yaml:8:51: api.operations.vm_fleet.data.vms.columns: column 'vcpu' is given by several fields: cpus, cores",
+            ),
+            check(api),
+        )
+    }
+
+    @Test
     fun load_whenUnknownAggregate_shouldFail() {
         val api = """
             api:

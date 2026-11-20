@@ -73,7 +73,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 }
                 operation.data.forEach { (field, data) ->
                     val rowSchema = "$prefix${pascal(field)}Row"
-                    schemas[rowSchema] = rowSchema(data.datasource)
+                    schemas[rowSchema] = rowSchema(data)
                     putJsonObject(field) {
                         put("type", "array")
                         put("description", data.description.ifEmpty {
@@ -196,13 +196,13 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             else -> valueSchema(value(template.params[input.parameter]!!), input.description)
         }
 
-    private fun rowSchema(dataSource: String): JsonObject {
-        val schema = reducer.evalDataSource(symbolTable.getDataSource(dataSource)!!).schema
+    private fun rowSchema(data: DataInput): JsonObject {
+        val schema = reducer.evalDataSource(symbolTable.getDataSource(data.datasource)!!).schema
         return buildJsonObject {
             put("type", "object")
             put("additionalProperties", false)
             putJsonObject("properties") {
-                schema.forEach { (column, default) -> put(column, valueSchema(default, "")) }
+                data.columnsOf(schema.keys).forEach { (field, column) -> put(field, valueSchema(schema[column], "")) }
             }
         }
     }

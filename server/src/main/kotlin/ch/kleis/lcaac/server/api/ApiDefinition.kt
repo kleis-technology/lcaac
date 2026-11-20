@@ -74,13 +74,19 @@ data class Input(
 )
 
 /**
- * A field of the request whose rows replace the rows of [datasource].
+ * A field of the request whose rows replace the rows of [datasource]. With [columns], a row gives exactly
+ * these columns, under the names of the request; otherwise all the columns, under their own names.
  */
 @Serializable
 data class DataInput(
     val datasource: String,
     val description: String = "",
-)
+    val columns: Map<String, String> = emptyMap(),
+) {
+    /** The columns of a row: the name in the request, and the column of the data source among [schema]. */
+    fun columnsOf(schema: Collection<String>): Map<String, String> =
+        columns.ifEmpty { schema.associateWith { it } }
+}
 
 /**
  * A field of the response: the columns [select] of the rows of the trace table matching [where], one element

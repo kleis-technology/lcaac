@@ -91,7 +91,7 @@ class OpenApiGeneratorTest {
               process: virtual_machine
               labels: { model: standard }
               data:
-                vms: { datasource: vm_inventory }
+                vms: { datasource: vm_inventory, columns: { name: id, cpus: vcpu } }
               for_each: { rows: vms, arguments: { id: id } }
               outputs:
                 total: { select: [GWP], where: { product: vm_hour }, aggregate: one }
@@ -237,6 +237,14 @@ class OpenApiGeneratorTest {
         assertEquals(json("""{ "${'$'}ref": "#/components/schemas/VirtualMachinesVmsRow" }"""),
             results["items"]!!.jsonObject["properties"]!!.jsonObject["row"]!!.jsonObject["allOf"]!!.jsonArray.single())
         assertEquals(json("""["row", "outputs"]"""), results["items"]!!.jsonObject["required"])
+    }
+
+    @Test
+    fun generate_withColumns_shouldDescribeTheRowsUnderTheNamesOfTheRequest() {
+        assertEquals(
+            setOf("name", "cpus"),
+            schema("VirtualMachinesVmsRow")!!.jsonObject["properties"]!!.jsonObject.keys,
+        )
     }
 
     @Test
