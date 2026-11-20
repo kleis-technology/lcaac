@@ -9,6 +9,7 @@ import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaac.core.lang.value.DataValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.lang.value.UnitValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import kotlinx.serialization.json.*
@@ -23,12 +24,15 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         symbolTable.data, symbolTable.dataSources, BasicOperations, DummySourceOperations(),
     )
 
+    private val unitResolver = UnitResolver(symbolTable)
+
     fun generate(definition: ApiDefinition): JsonObject {
+        val units = unitResolver.resolve(definition.units)
         val schemas = mutableMapOf<String, JsonObject>()
         val paths = buildJsonObject {
             definition.operations.forEach { (name, operation) ->
                 putJsonObject("/$name") {
-                    putJsonObject("post") { operation(name, operation, schemas) }
+                    putJsonObject("post") { operation(name, operation, units, schemas) }
                 }
                 putJsonObject("/$name/batch") {
                     putJsonObject("post") { batch(name, operation, schemas) }
@@ -49,7 +53,12 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         }
     }
 
-    private fun JsonObjectBuilder.operation(name: String, operation: Operation, schemas: MutableMap<String, JsonObject>) {
+    private fun JsonObjectBuilder.operation(
+        name: String,
+        operation: Operation,
+        units: ResolvedUnits,
+        schemas: MutableMap<String, JsonObject>,
+    ) {
         val prefix = pascal(name)
         put("operationId", name)
         if (operation.description.isNotEmpty()) put("summary", operation.description)
@@ -87,7 +96,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                     put("type", "object")
                     putJsonArray("required") { operation.outputs.keys.forEach { add(it) } }
                     putJsonObject("properties") {
-                        operation.outputs.forEach { (field, output) -> put(field, outputSchema(output)) }
+                        operation.outputs.forEach { (field, output) -> put(field, outputSchema(output, units)) }
                     }
                 }
             }
@@ -105,6 +114,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             put("200", response("Results", "${prefix}Response"))
             put("400", response("A value of the request cannot be read, or has the wrong dimension", "Error"))
             put("422", response("The evaluation failed", "Error"))
+            put("500", response("The API does not fit the model", "Error"))
         }
     }
 
@@ -144,6 +154,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             put("200", response("One result per request", "${prefix}BatchResponse"))
             put("400", response("A request cannot be read, or the batch is too large", "Error"))
             put("422", response("The evaluation of a request failed", "Error"))
+            put("500", response("The API does not fit the model", "Error"))
         }
     }
 
@@ -191,7 +202,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         }
     }
 
-    private fun outputSchema(output: Output): JsonObject {
+    private fun outputSchema(output: Output, units: ResolvedUnits): JsonObject {
         val row = buildJsonObject {
             put("type", "object")
             putJsonArray("required") { output.select.forEach { add(it) } }
@@ -200,7 +211,9 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                     put(column, when (column) {
                         Columns.PRODUCT, Columns.PROCESS -> buildJsonObject { put("type", "string") }
                         Columns.LABELS, Columns.ARGUMENTS -> ref("Strings")
-                        else -> ref("Quantity")
+                        else -> quantitySchema(
+                            if (column == Columns.AMOUNT) units.products[output.where.product] else units.impacts[column]
+                        )
                     })
                 }
             }
@@ -220,6 +233,19 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             }
 
             else -> JsonObject(row + ("description" to JsonPrimitive(description)))
+        }
+    }
+
+    /** A quantity in [unit], the unit of the API. */
+    private fun quantitySchema(unit: UnitValue<BasicNumber>?) = if (unit == null) ref("Quantity") else buildJsonObject {
+        put("type", "object")
+        putJsonArray("required") { add("amount"); add("unit") }
+        putJsonObject("properties") {
+            putJsonObject("amount") { put("type", "number") }
+            putJsonObject("unit") {
+                put("type", "string")
+                putJsonArray("enum") { add(unit.toString()) }
+            }
         }
     }
 

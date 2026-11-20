@@ -35,6 +35,9 @@ api:
   name: cloud-assess
   version: 1.0.0
   description: Impacts of cloud resources
+  units:
+    impacts: { GWP: kg_CO2_Eq }
+    products: { vm_hour: hour, electricity: kWh }
   operations:
     virtual_machine:
       description: Impacts of one hour of a virtual machine
@@ -79,6 +82,8 @@ product, as `lcaac assess` does.
 | `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows |
 | `outputs` | the outputs of the response (see below) |
 
+`units`, for the whole API, gives the units of the quantities of the responses (see below).
+
 Parameters that are not given in the request keep their default values, and the API cannot set the
 other parameters of the model.
 
@@ -110,7 +115,7 @@ An output picks rows with `where`, and columns with `select`:
 - `where` gives conditions on the rows: `product`, `process`, `labels` and `arguments` (string arguments
   only). Each condition narrows the selection, and at least one is required.
 - `select` lists the columns: `product`, `process`, `labels`, `arguments`, `amount`, or the name of an
-  indicator.
+  indicator. `amount` is the amount of one product, so it requires `where.product`.
 
 A label or an argument takes a value, a list of values, or `null` for a row without it:
 
@@ -130,8 +135,21 @@ empty when no row matches. With `aggregate`, it is a single element:
 - `aggregate: one`: the only matching row. The request fails if not exactly one row matches.
 - `aggregate: sum`: the sum of the matching rows, for the indicators and `amount` only. Since each row
   includes everything upstream, the request fails if a matching row is upstream of another one: it would
-  be counted twice. `amount` adds up for one product only, so it requires `where.product`. With no
-  matching row, the sum is 0.
+  be counted twice. With no matching row, the sum is 0.
+
+### Units
+
+The quantities of the responses are in the units declared under `units`, whatever the units of the
+model: `impacts` for the indicators (and substances), `products` for the column `amount` of each product.
+The values of the model are converted, so that the model can change its units without changing the
+contract. Every column of quantities that an output selects needs a unit, in the syntax of the language
+(`kg_CO2_Eq`, `kW * year`): the units of the prelude, or those that the model declares.
+
+An indicator that the evaluated system does not contain is 0: it has no contribution.
+
+The dimensions of the units cannot be checked at startup. A unit of another dimension than the values
+of the model, e.g. `kWh` for `GWP`, fails the requests with a 500 error, since the API does not fit the
+model.
 
 To get one row per VM, the model passes the id of each VM to `virtual_machine`
 (`from virtual_machine(id = vm.id, ...)`). Otherwise, two VMs with the same parameters would be the same
@@ -197,7 +215,7 @@ A quantity can be given in three ways:
 - a number, in the unit of the default value: `4`;
 - an amount and a unit: `{"amount": 720, "unit": "hour"}`.
 
-In responses, quantities are always an amount and a unit.
+In responses, quantities are always an amount and a unit, the unit of the API.
 
 ### Rows of a data source
 
@@ -383,6 +401,7 @@ lcaac api openapi > openapi.json
 ```
 
 The document is derived from the definition and the model: the types, units and default values of the
-fields come from the parameters and data sources of the model, and the values of a label are listed.
+fields come from the parameters and data sources of the model, and the values of a label are listed. The
+unit of each quantity of a response is the unit of the API.
 It describes the contract only: the names of the processes, parameters and data sources behind it are
 not in it, so that the model can change without changing the contract.

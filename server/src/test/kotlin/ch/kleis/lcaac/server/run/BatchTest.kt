@@ -83,6 +83,8 @@ class BatchTest {
         api:
           name: cloud-assess
           version: 1.0.0
+          units:
+            impacts: { GWP: kg_CO2_Eq }
           operations:
             virtual_machine:
               process: virtual_machine
@@ -130,6 +132,7 @@ class BatchTest {
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
         LcaacConfig(),
         mapOf("csv" to connector),
+        api.units,
     )
 
     private fun requests(vararg texts: String): List<JsonObject> = texts.map { Json.parseToJsonElement(it).jsonObject }

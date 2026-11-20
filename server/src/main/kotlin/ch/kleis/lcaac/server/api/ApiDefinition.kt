@@ -22,7 +22,18 @@ data class ApiDefinition(
     val name: String,
     val version: String,
     val description: String = "",
+    val units: Units = Units(),
     val operations: Map<String, Operation> = emptyMap(),
+)
+
+/**
+ * The units of the quantities of the responses, in the syntax of the language: of the indicators and
+ * substances, and of the amounts of each product. The values of the model are converted into them.
+ */
+@Serializable
+data class Units(
+    val impacts: Map<String, String> = emptyMap(),
+    val products: Map<String, String> = emptyMap(),
 )
 
 /**

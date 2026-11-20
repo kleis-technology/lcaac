@@ -5,6 +5,9 @@ api:
   name: cloud-assess
   version: 1.0.0
   description: Impacts of cloud resources
+  units:
+    impacts: { GWP: kg_CO2_Eq }
+    products: { vm_hour: hour, electricity: kWh }
   operations:
     virtual_machine:
       description: Impacts of one hour of a virtual machine

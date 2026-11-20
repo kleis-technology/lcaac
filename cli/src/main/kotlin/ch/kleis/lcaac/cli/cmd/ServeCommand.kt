@@ -37,7 +37,7 @@ class ServeCommand : CliktCommand(
         val connectors = ConnectorFactory(
             project.projectDirectory.path, project.config, BasicOperations, project.symbolTable, listOf(CsvConnectorBuilder()),
         ).buildConnectors()
-        val runner = OperationRunner(project.symbolTable, project.config, connectors, showLocations = !hideLocations)
+        val runner = OperationRunner(project.symbolTable, project.config, connectors, project.definition.units, showLocations = !hideLocations)
         val openApi = OpenApiGenerator(project.symbolTable).generate(project.definition)
         val api = project.definition
         echo("Serving ${api.name} ${api.version} on http://$host:$port", err = true)

@@ -6,6 +6,8 @@ import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parseLcaText
 import ch.kleis.lcaac.server.api.ApiDefinitionLoader
+import ch.kleis.lcaac.server.api.Operation
+import ch.kleis.lcaac.server.api.Units
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -60,6 +62,11 @@ class SelectionTest {
             }
         }
 
+        unit g_CO2_Eq {
+            symbol = "g CO2-Eq"
+            alias_for = 0.001 kg_CO2_Eq
+        }
+
         process grid {
             products {
                 1 kWh electricity
@@ -74,16 +81,20 @@ class SelectionTest {
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
         LcaacConfig(),
         emptyMap(),
+        Units(
+            impacts = mapOf("GWP" to "kg_CO2_Eq", "ADPe" to "kg_Sb_Eq"),
+            products = mapOf("vm" to "hour", "electricity" to "kWh"),
+        ),
     )
 
+    /** An operation on `vm_fn` with the given outputs. */
+    private fun operation(outputs: String): Operation = ApiDefinitionLoader.load(
+        "api:\n  name: a\n  version: \"1\"\n  operations:\n    vm:\n      process: vm_fn\n      outputs:\n" +
+            outputs.trimIndent().prependIndent("        ")
+    )!!.definition.operations["vm"]!!
+
     /** Runs an operation on `vm_fn` with the given outputs, without a request. */
-    private fun run(outputs: String): OperationResult {
-        val operation = ApiDefinitionLoader.load(
-            "api:\n  name: a\n  version: \"1\"\n  operations:\n    vm:\n      process: vm_fn\n      outputs:\n" +
-                outputs.trimIndent().prependIndent("        ")
-        )!!.definition.operations["vm"]!!
-        return runner.run(operation, JsonObject(emptyMap()))
-    }
+    private fun run(outputs: String): OperationResult = runner.run(operation(outputs), JsonObject(emptyMap()))
 
     private fun success(outputs: String): JsonObject =
         rounded(assertIs<OperationResult.Success>(run(outputs)).body["outputs"]!!.jsonObject)
@@ -183,11 +194,49 @@ class SelectionTest {
     }
 
     @Test
-    fun run_whenSumOfNoRowAndNoSuchColumn_shouldBeNull() {
+    fun run_whenTheSystemHasNoSuchColumn_shouldBeZero() {
         val actual = success("""
-            none: { select: [amount, ADPe], where: { product: steel }, aggregate: sum }
+            total: { select: [ADPe], where: { process: vm_fn, labels: { phase: null } }, aggregate: one }
         """)
 
-        assertEquals(json("""{ "none": { "amount": null, "ADPe": null } }"""), actual)
+        assertEquals(json("""{ "total": { "ADPe": { "amount": 0.0, "unit": "kg Sb-Eq" } } }"""), actual)
+    }
+
+    @Test
+    fun run_shouldConvertIntoTheUnitsOfTheApi() {
+        val runner = OperationRunner(
+            Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
+            LcaacConfig(),
+            emptyMap(),
+            Units(impacts = mapOf("GWP" to "g_CO2_Eq"), products = mapOf("electricity" to "kWh")),
+        )
+
+        val actual = runner.run(operation("""
+            total: { select: [GWP], where: { process: vm_fn, labels: { phase: null } }, aggregate: one }
+        """), JsonObject(emptyMap()))
+
+        assertEquals(
+            json("""{ "total": { "GWP": { "amount": 3500.0, "unit": "g CO2-Eq" } } }"""),
+            rounded(assertIs<OperationResult.Success>(actual).body["outputs"]!!.jsonObject),
+        )
+    }
+
+    @Test
+    fun run_whenTheUnitOfTheApiHasAnotherDimension_shouldFailWith500() {
+        val runner = OperationRunner(
+            Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
+            LcaacConfig(),
+            emptyMap(),
+            Units(impacts = mapOf("GWP" to "kWh")),
+        )
+
+        assertEquals(
+            OperationResult.Failure(500, ErrorBody(
+                "output 'total': column 'GWP': the model gives kg CO2-Eq, which does not convert into kWh, the unit of the API"
+            )),
+            runner.run(operation("""
+                total: { select: [GWP], where: { process: vm_fn, labels: { phase: null } }, aggregate: one }
+            """), JsonObject(emptyMap())),
+        )
     }
 }

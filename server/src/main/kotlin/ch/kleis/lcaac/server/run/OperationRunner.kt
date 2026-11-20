@@ -35,6 +35,8 @@ import ch.kleis.lcaac.grammar.smartParseQuantityWithDefaultUnit
 import ch.kleis.lcaac.server.api.Aggregate
 import ch.kleis.lcaac.server.api.Columns
 import ch.kleis.lcaac.server.api.Output
+import ch.kleis.lcaac.server.api.UnitResolver
+import ch.kleis.lcaac.server.api.Units
 import ch.kleis.lcaac.server.api.Operation
 import ch.kleis.lcaac.server.api.RowSelector
 import ch.kleis.lcaac.server.api.satisfies
@@ -54,13 +56,14 @@ data class ErrorBody(
 sealed interface OperationResult {
     data class Success(val body: JsonObject) : OperationResult
 
-    /** [status] is 400 when the request cannot be read, 422 when the evaluation fails. */
+    /** [status] is 400 when the request cannot be read, 422 when the evaluation fails, 500 when the API does not fit the model. */
     data class Failure(val status: Int, val body: ErrorBody) : OperationResult
 }
 
 private class RequestException(val body: ErrorBody) : Exception(body.error)
 
-private class OutputException(message: String) : Exception(message)
+/** [status] is 422 when the evaluation does not fit an output, 500 when the API does not fit the model. */
+private class OutputException(val status: Int, message: String) : Exception(message)
 
 /**
  * Runs the operations of an API on a model: maps a request onto the process, evaluates it, and returns
@@ -70,9 +73,11 @@ class OperationRunner(
     private val symbolTable: SymbolTable<BasicNumber>,
     private val config: LcaacConfig,
     private val connectors: Map<String, DataSourceConnector<BasicNumber>>,
+    units: Units,
     private val showLocations: Boolean = true,
 ) {
     private val ops = BasicOperations
+    private val units = UnitResolver(symbolTable).resolve(units)
 
     /**
      * What the requests of a batch share: the reads of the data sources, and the evaluator, hence the
@@ -138,20 +143,20 @@ class OperationRunner(
         }
 
         val referenceRows = rows.takeWhile { it.demandedProduct == rows.first().demandedProduct }
-        val outputs = try {
-            operation.outputs.mapValues { (name, output) ->
+        val outputs = operation.outputs.mapValues { (name, output) ->
+            try {
                 val matched = referenceRows.filter { it.matches(output.where) }
                 when (output.aggregate) {
-                    null -> JsonArray(matched.map { it.cells(output.select) })
-                    Aggregate.ONE -> matched.singleOrNull()?.cells(output.select) ?: throw OutputException(
-                        "output '$name': expected exactly one matching row, found ${matched.size}"
+                    null -> JsonArray(matched.map { cells(it, output) })
+                    Aggregate.ONE -> matched.singleOrNull()?.let { cells(it, output) } ?: throw OutputException(
+                        422, "expected exactly one matching row, found ${matched.size}"
                     )
 
-                    Aggregate.SUM -> sum(name, trace, matched, output)
+                    Aggregate.SUM -> sum(trace, matched, output)
                 }
+            } catch (e: OutputException) {
+                return OperationResult.Failure(e.status, ErrorBody("output '$name': ${e.message}"))
             }
-        } catch (e: OutputException) {
-            return OperationResult.Failure(422, ErrorBody(e.message!!))
         }
         // The request as sent, so that each result is self-contained, e.g. in a batch
         return OperationResult.Success(buildJsonObject {
@@ -160,58 +165,56 @@ class OperationRunner(
         })
     }
 
-    /**
-     * The sum of [rows] for each selected column. With no rows, the sum is 0 in the unit of the column in
-     * the evaluated system, or null if the system has no such column, as for a single row.
-     */
-    private fun sum(
-        name: String,
-        trace: EvaluationTrace<BasicNumber>,
-        rows: List<TraceRow>,
-        output: Output,
-    ): JsonObject {
-        val select = output.select
-        if (rows.isEmpty()) return buildJsonObject {
-            select.forEach { column ->
-                val unit = unitOf(trace, column, output.where.product)
-                put(column, unit?.let { buildJsonObject { put("amount", 0.0); put("unit", it.toString()) } } ?: JsonNull)
-            }
-        }
-        upstreamRow(trace, rows)?.let {
-            throw OutputException(
-                "output '$name': the matching row '${it.describe()}' is upstream of another one, and would be counted twice"
-            )
-        }
+    /** The selected cells of [row], with quantities in the units of the API. */
+    private fun cells(row: TraceRow, output: Output): JsonObject {
+        val product = row.output as? ProductValue
+        val ref = product?.fromProcessRef
         return buildJsonObject {
-            select.forEach { column ->
-                val quantities = rows.mapNotNull { row -> row.column(column)?.let { row to it } }
-                if (quantities.isEmpty()) {
-                    put(column, JsonNull)
-                    return@forEach
+            output.select.forEach { column ->
+                when (column) {
+                    Columns.PRODUCT -> put(column, product?.name)
+                    Columns.PROCESS -> put(column, ref?.name)
+                    Columns.LABELS -> put(column, strings(ref?.matchLabels.orEmpty()))
+                    Columns.ARGUMENTS -> put(column, strings(ref?.arguments.orEmpty()))
+                    else -> {
+                        val unit = unitOf(column, output)
+                        put(column, quantity(amountIn(column, row, unit), unit))
+                    }
                 }
-                val unit = quantities.first().second.unit
-                if (quantities.any { it.second.unit.dimension != unit.dimension }) {
-                    throw OutputException("output '$name': column '$column' mixes dimensions")
-                }
-                val total = quantities.sumOf { (row, q) -> q.amount.value * q.unit.scale * row.allocation }
-                put(column, buildJsonObject {
-                    put("amount", total / unit.scale)
-                    put("unit", unit.toString())
-                })
             }
         }
     }
 
-    /** The unit of a column of quantities in the evaluated system: of an indicator or substance, or of [product]. */
-    private fun unitOf(trace: EvaluationTrace<BasicNumber>, column: String, product: String?): UnitValue<BasicNumber>? {
-        val system = trace.getSystemValue()
-        return if (column == Columns.AMOUNT) {
-            system.processes.flatMap { it.products + it.inputs }.firstOrNull { it.product.name == product }?.product?.referenceUnit
-        } else {
-            val ports = system.processes.flatMap { p -> p.impacts.map { it.indicator } + p.biosphere.map { it.substance } } +
-                system.substanceCharacterizations.flatMap { c -> c.impacts.map { it.indicator } + c.referenceExchange.substance }
-            ports.firstOrNull { it.getShortName() == column }?.referenceUnit()
+    /** The sum of [rows] for each selected column, in the units of the API: 0 with no rows. */
+    private fun sum(trace: EvaluationTrace<BasicNumber>, rows: List<TraceRow>, output: Output): JsonObject {
+        upstreamRow(trace, rows)?.let {
+            throw OutputException(
+                422, "the matching row '${it.describe()}' is upstream of another one, and would be counted twice"
+            )
         }
+        return buildJsonObject {
+            output.select.forEach { column ->
+                val unit = unitOf(column, output)
+                put(column, quantity(rows.sumOf { amountIn(column, it, unit) }, unit))
+            }
+        }
+    }
+
+    /** The unit of the API for a column of quantities, required by the checker. */
+    private fun unitOf(column: String, output: Output): UnitValue<BasicNumber> =
+        (if (column == Columns.AMOUNT) units.products[output.where.product] else units.impacts[column])
+            ?: throw OutputException(500, "no unit for column '$column'")
+
+    /**
+     * The amount of [column] in [row], allocated, in [unit]: 0 when the evaluated system has no such column,
+     * i.e. no contribution.
+     */
+    private fun amountIn(column: String, row: TraceRow, unit: UnitValue<BasicNumber>): Double {
+        val value = row.column(column) ?: return 0.0
+        if (value.unit.dimension != unit.dimension) throw OutputException(
+            500, "column '$column': the model gives ${value.unit}, which does not convert into $unit, the unit of the API"
+        )
+        return value.amount.value * value.unit.scale * row.allocation / unit.scale
     }
 
     /** A row of [rows] upstream of another one, if any: the supply chains of the rows overlap. */
@@ -381,25 +384,9 @@ private fun TraceRow.describe(): String {
     return "${product.name} from ${ref.name}${if (ref.matchLabels.isEmpty()) "" else labels}$arguments"
 }
 
-private fun TraceRow.cells(select: List<String>): JsonObject {
-    val product = output as? ProductValue
-    val ref = product?.fromProcessRef
-    return buildJsonObject {
-        select.forEach { column ->
-            when (column) {
-                Columns.PRODUCT -> put(column, product?.name)
-                Columns.PROCESS -> put(column, ref?.name)
-                Columns.LABELS -> put(column, strings(ref?.matchLabels.orEmpty()))
-                Columns.ARGUMENTS -> put(column, strings(ref?.arguments.orEmpty()))
-                else -> put(column, column(column)?.let { quantity(it) } ?: JsonNull)
-            }
-        }
-    }
-}
-
-private fun TraceRow.quantity(value: QuantityValue<BasicNumber>) = buildJsonObject {
-    put("amount", value.amount.value * allocation)
-    put("unit", value.unit.toString())
+private fun quantity(amount: Double, unit: UnitValue<BasicNumber>) = buildJsonObject {
+    put("amount", amount)
+    put("unit", unit.toString())
 }
 
 private fun strings(values: Map<String, DataValue<BasicNumber>>) =

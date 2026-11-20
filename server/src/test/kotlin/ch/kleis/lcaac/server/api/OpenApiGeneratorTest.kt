@@ -74,6 +74,9 @@ class OpenApiGeneratorTest {
           name: cloud-assess
           version: 2.1.0
           description: Impacts of cloud resources
+          units:
+            impacts: { GWP: kg_CO2_Eq }
+            products: { vm_hour: hour }
           operations:
             vm_fleet:
               description: Impacts of a fleet of virtual machines
@@ -178,7 +181,14 @@ class OpenApiGeneratorTest {
                           "product": { "type": "string" },
                           "process": { "type": "string" },
                           "labels": { "${'$'}ref": "#/components/schemas/Strings" },
-                          "GWP": { "${'$'}ref": "#/components/schemas/Quantity" }
+                          "GWP": {
+                            "type": "object",
+                            "required": ["amount", "unit"],
+                            "properties": {
+                              "amount": { "type": "number" },
+                              "unit": { "type": "string", "enum": ["kg CO2-Eq"] }
+                            }
+                          }
                         }
                       }
                     }
@@ -196,7 +206,14 @@ class OpenApiGeneratorTest {
               "type": "object",
               "required": ["GWP"],
               "properties": {
-                "GWP": { "${'$'}ref": "#/components/schemas/Quantity" }
+                "GWP": {
+                            "type": "object",
+                            "required": ["amount", "unit"],
+                            "properties": {
+                              "amount": { "type": "number" },
+                              "unit": { "type": "string", "enum": ["kg CO2-Eq"] }
+                            }
+                          }
               },
               "description": "The only matching row of the trace."
             }

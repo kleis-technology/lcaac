@@ -65,6 +65,9 @@ class OperationRunnerTest {
         api:
           name: cloud-assess
           version: 2.1.0
+          units:
+            impacts: { GWP: kg_CO2_Eq }
+            products: { vm_hour: hour, electricity: kWh }
           operations:
             vm_fleet:
               process: vm_fleet
@@ -94,6 +97,7 @@ class OperationRunnerTest {
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
         LcaacConfig(),
         emptyMap(),
+        api.units,
     )
 
     private fun run(operation: String, request: String): OperationResult =

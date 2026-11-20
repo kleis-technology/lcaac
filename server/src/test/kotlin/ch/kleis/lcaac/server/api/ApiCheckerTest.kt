@@ -79,8 +79,16 @@ class ApiCheckerTest {
     private val symbolTable: SymbolTable<BasicNumber> =
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
 
+    /** The units of the model, appended to [api] unless it declares its own: the locations stay the same. */
+    private val units = """
+        |  units:
+        |    impacts: { GWP: kg_CO2_Eq }
+        |    products: { fleet: p, vm_hour: hour, electricity: kWh }
+    """.trimMargin()
+
     private fun check(api: String): List<String> {
-        val located = ApiDefinitionLoader.load(api.trimIndent())!!
+        val text = api.trimIndent().let { if ("  units:" in it) it else it + "\n" + units }
+        val located = ApiDefinitionLoader.load(text)!!
         return ApiChecker(symbolTable).check(located).map { it.toString() }
     }
 
@@ -212,6 +220,8 @@ class ApiCheckerTest {
                   process: vm
                   outputs:
                     total: { select: [amount], where: { product: vm } }
+              units:
+                products: { vm: hour }
         """
 
         assertEquals(emptyList(), ApiChecker(st).check(ApiDefinitionLoader.load(api.trimIndent())!!).map { it.toString() })
@@ -280,7 +290,36 @@ class ApiCheckerTest {
             listOf(
                 "lcaac.yaml:10:35: api.operations.vm_fleet.outputs.total.where.labels.mix: a condition needs at least one value, or null for an absent value",
                 "lcaac.yaml:9:19: api.operations.vm_fleet.outputs.total.select: column 'process' cannot be summed",
-                "lcaac.yaml:9:19: api.operations.vm_fleet.outputs.total.select: column 'amount' is summed for one product only: set 'where.product'",
+                "lcaac.yaml:9:19: api.operations.vm_fleet.outputs.total.select: column 'amount' is the amount of one product: set 'where.product'",
+            ),
+            check(api),
+        )
+    }
+
+    @Test
+    fun check_whenUnitsAreMissingOrUnknown_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              units:
+                impacts: { CO2: kg, GWP: kg_CO2 }
+                products: { vm_hour: hour }
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  outputs:
+                    per_vm: { select: [amount, GWP], where: { product: vm_hour } }
+                    electricity: { select: [amount], where: { product: electricity } }
+                    all: { select: [amount], where: { process: grid } }
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:5:21: api.units.impacts.CO2: unknown indicator or substance 'CO2'",
+                "lcaac.yaml:5:30: api.units.impacts.GWP: unknown unit 'kg_CO2'",
+                "lcaac.yaml:12:32: api.operations.vm_fleet.outputs.electricity.select: no unit for the amounts of 'electricity': declare it under 'api.units.products'",
+                "lcaac.yaml:13:24: api.operations.vm_fleet.outputs.all.select: column 'amount' is the amount of one product: set 'where.product'",
             ),
             check(api),
         )

@@ -6,12 +6,14 @@ import ch.kleis.lcaac.core.lang.expression.EBlockEntry
 import ch.kleis.lcaac.core.lang.expression.EBlockForEach
 import ch.kleis.lcaac.core.lang.expression.EProcessTemplate
 import ch.kleis.lcaac.core.lang.expression.EStringLiteral
+import ch.kleis.lcaac.core.math.basic.BasicNumber
 
 /**
  * Checks an API definition against the model: every name it refers to must exist, and the labels of each
  * operation must select a process.
  */
-class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
+class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
+    private val unitResolver = UnitResolver(symbolTable)
     private val templates = symbolTable.processTemplates.toMap().values.toList()
     private val processNames = templates.map { it.body.name }.toSet()
     private val productNames = templates.flatMap { t -> t.body.products.map { it.product.name } }.toSet()
@@ -26,7 +28,7 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
      * The processes that an operation can evaluate: those named [Operation.process] with exactly the labels
      * fixed by the operation or given by its inputs, with the fixed values.
      */
-    fun candidates(operation: Operation): List<EProcessTemplate<Q>> = templates.filter { t ->
+    fun candidates(operation: Operation): List<EProcessTemplate<BasicNumber>> = templates.filter { t ->
         t.body.name == operation.process &&
             t.body.labels.keys == labelKeys(operation) &&
             operation.labels.all { (k, v) -> t.body.labels[k]?.value == v }
@@ -42,9 +44,22 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
         candidates(operation).mapNotNull { it.body.labels[label]?.value }.distinct().sorted()
 
     fun check(located: LocatedApiDefinition): List<ApiDefinitionError> =
-        located.definition.operations.flatMap { (name, operation) ->
+        checkUnits(located) + located.definition.operations.flatMap { (name, operation) ->
             checkOperation(located, listOf("operations", name), operation)
         }
+
+    private fun checkUnits(located: LocatedApiDefinition): List<ApiDefinitionError> {
+        val units = located.definition.units
+        fun check(kind: String, entries: Map<String, String>, names: Set<String>, what: String) =
+            entries.flatMap { (name, unit) ->
+                listOfNotNull(
+                    if (name !in names) located.error(listOf("units", kind, name), "unknown $what '$name'") else null,
+                    if (unitResolver.resolve(unit) == null) located.error(listOf("units", kind, name), "unknown unit '$unit'") else null,
+                )
+            }
+        return check("impacts", units.impacts, impactColumns, "indicator or substance") +
+            check("products", units.products, productNames, "product")
+    }
 
     private fun checkOperation(
         located: LocatedApiDefinition,
@@ -100,7 +115,7 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
             error(emptyList(), "an operation has at least one output")
         }
         operation.outputs.forEach { (name, output) ->
-            checkOutput(listOf("outputs", name), output, ::error)
+            checkOutput(listOf("outputs", name), output, located.definition.units, ::error)
         }
         return errors
     }
@@ -108,6 +123,7 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
     private fun checkOutput(
         path: List<String>,
         output: Output,
+        units: Units,
         error: (List<String>, String) -> Unit,
     ) {
         val where = output.where
@@ -152,9 +168,17 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
             output.select.filter { it in Columns.identity }.forEach {
                 error(path + "select", "column '$it' cannot be summed")
             }
-            if (Columns.AMOUNT in output.select && where.product == null) {
-                error(path + "select", "column '${Columns.AMOUNT}' is summed for one product only: set 'where.product'")
+        }
+        // The quantities of the response are in the units of the API
+        if (Columns.AMOUNT in output.select) {
+            if (where.product == null) {
+                error(path + "select", "column '${Columns.AMOUNT}' is the amount of one product: set 'where.product'")
+            } else if (where.product in productNames && where.product !in units.products) {
+                error(path + "select", "no unit for the amounts of '${where.product}': declare it under 'api.units.products'")
             }
+        }
+        output.select.filter { it in impactColumns && it !in Columns.fixed && it !in units.impacts }.distinct().forEach {
+            error(path + "select", "no unit for column '$it': declare it under 'api.units.impacts'")
         }
     }
 

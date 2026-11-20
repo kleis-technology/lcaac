@@ -51,6 +51,8 @@ class ApiServerTest {
         api:
           name: cloud-assess
           version: 2.1.0
+          units:
+            impacts: { GWP: kg_CO2_Eq }
           operations:
             virtual_machine:
               process: virtual_machine
@@ -66,7 +68,7 @@ class ApiServerTest {
 
     private val symbolTable = Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
 
-    private val runner = OperationRunner(symbolTable, LcaacConfig(), emptyMap())
+    private val runner = OperationRunner(symbolTable, LcaacConfig(), emptyMap(), definition.units)
 
     private fun test(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
         application { lcaacApi(definition, runner, OpenApiGenerator(symbolTable).generate(definition), maxBatch = 3) }
