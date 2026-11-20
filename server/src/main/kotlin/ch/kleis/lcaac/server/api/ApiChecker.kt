@@ -23,12 +23,17 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
     }
 
     /**
-     * The processes that an operation can evaluate: those named [Operation.process] with the fixed labels.
+     * The processes that an operation can evaluate: those named [Operation.process] with exactly the labels
+     * fixed by the operation or given by its inputs, with the fixed values.
      */
     fun candidates(operation: Operation): List<EProcessTemplate<Q>> = templates.filter { t ->
         t.body.name == operation.process &&
+            t.body.labels.keys == labelKeys(operation) &&
             operation.labels.all { (k, v) -> t.body.labels[k]?.value == v }
     }
+
+    private fun labelKeys(operation: Operation): Set<String> =
+        operation.labels.keys + operation.inputs.values.mapNotNull { it.label }
 
     /**
      * The values of the label [label] among the processes of [operation].
@@ -53,20 +58,8 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
             error(listOf("process"), "unknown process '${operation.process}'")
             return errors
         }
+        val named = templates.filter { it.body.name == operation.process }
         val candidates = candidates(operation)
-        if (candidates.isEmpty()) {
-            error(listOf("labels"), "no process '${operation.process}' has the labels ${operation.labels}")
-            return errors
-        }
-        val labelInputs = operation.inputs.filterValues { it.label != null }.values.map { it.label!! }
-        val givenLabels = operation.labels.keys + labelInputs
-        candidates.forEach { t ->
-            val missing = t.body.labels.keys - givenLabels
-            if (missing.isNotEmpty()) {
-                error(listOf("labels"), "process '${operation.process}' with labels ${t.body.labels.mapValues { it.value.value }} " +
-                    "has labels ${missing.sorted()} that are neither fixed nor given by an input")
-            }
-        }
 
         operation.inputs.forEach { (name, input) ->
             val inputPath = listOf("inputs", name)
@@ -74,16 +67,24 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
                 (input.parameter == null) == (input.label == null) ->
                     error(inputPath, "an input maps to exactly one of 'parameter' or 'label'")
 
-                input.parameter != null -> if (candidates.any { input.parameter !in it.params }) {
+                input.parameter != null -> if (candidates.isNotEmpty() && candidates.any { input.parameter !in it.params }) {
                     error(inputPath + "parameter", "unknown parameter '${input.parameter}' of process '${operation.process}'")
                 }
 
                 input.label != null -> if (input.label in operation.labels) {
                     error(inputPath + "label", "label '${input.label}' is already fixed")
-                } else if (candidates.none { input.label in it.body.labels }) {
+                } else if (named.none { input.label in it.body.labels }) {
                     error(inputPath + "label", "unknown label '${input.label}' of process '${operation.process}'")
                 }
             }
+        }
+        if (candidates.isEmpty()) {
+            val labels = operation.labels.map { (k, v) -> "$k=$v" } +
+                operation.inputs.values.mapNotNull { it.label }.filter { it !in operation.labels }.map { "$it=<input>" }
+            error(
+                listOf("labels"),
+                "no process '${operation.process}' has exactly the labels ${labels.joinToString(", ", "{", "}")}",
+            )
         }
 
         operation.data.forEach { (name, data) ->

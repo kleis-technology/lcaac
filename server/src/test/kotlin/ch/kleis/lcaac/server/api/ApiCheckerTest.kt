@@ -178,12 +178,43 @@ class ApiCheckerTest {
         """
 
         assertEquals(
-            listOf(
-                "lcaac.yaml:6:7: api.operations.electricity.labels: process 'grid' with labels {mix=average} has labels [mix] that are neither fixed nor given by an input",
-                "lcaac.yaml:6:7: api.operations.electricity.labels: process 'grid' with labels {mix=marginal} has labels [mix] that are neither fixed nor given by an input",
-            ),
+            listOf("lcaac.yaml:6:7: api.operations.electricity.labels: no process 'grid' has exactly the labels {}"),
             check(api),
         )
+    }
+
+    @Test
+    fun check_whenAnUnlabeledProcessHasLabeledVariants_shouldSelectIt() {
+        val st = Loader(BasicOperations).load(sequenceOf(parseLcaText("""
+            process vm {
+                products {
+                    1 hour vm
+                }
+                inputs {
+                    1 hour vm from vm() match (phase = "use")
+                }
+            }
+            process vm {
+                labels {
+                    phase = "use"
+                }
+                products {
+                    1 hour vm
+                }
+            }
+        """.trimIndent(), "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm:
+                  process: vm
+                  outputs:
+                    total: { select: [amount], where: { product: vm } }
+        """
+
+        assertEquals(emptyList(), ApiChecker(st).check(ApiDefinitionLoader.load(api.trimIndent())!!).map { it.toString() })
     }
 
     @Test
@@ -201,7 +232,7 @@ class ApiCheckerTest {
         """
 
         assertEquals(
-            listOf("lcaac.yaml:7:15: api.operations.electricity.labels: no process 'grid' has the labels {mix=residual}"),
+            listOf("lcaac.yaml:7:15: api.operations.electricity.labels: no process 'grid' has exactly the labels {mix=residual}"),
             check(api),
         )
     }
@@ -238,7 +269,7 @@ class ApiCheckerTest {
 
     @Test
     fun labelValues_shouldListTheValuesOfTheProcesses() {
-        val operation = Operation(process = "grid")
+        val operation = Operation(process = "grid", inputs = mapOf("mix" to Input(label = "mix")))
 
         assertEquals(listOf("average", "marginal"), ApiChecker(symbolTable).labelValues(operation, "mix"))
     }
