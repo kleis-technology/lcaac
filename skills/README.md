@@ -28,11 +28,12 @@ argument, then grades the outputs. It uses `lcaac` on the `PATH`, or the one giv
 ```bash
 ./gradlew :cli:installDist
 LCAAC=$PWD/cli/build/install/lcaac/bin/lcaac python3 skills/evals.py run \
-    --agent "claude -p --permission-mode acceptEdits --allowedTools Bash(lcaac:*)" \
+    --agent "claude -p --permission-mode acceptEdits --allowedTools=Bash(lcaac:*)" \
     --skills-dir .claude/skills
 ```
 
-Options: `--skill` and `--case` to select cases, `--configs with_skill` to skip the baseline, `--runs` for several
+Options of the agent that take several values (as `--allowedTools`) would take the prompt too: give them one value
+with `=`. Options: `--skill` and `--case` to select cases, `--configs with_skill` to skip the baseline, `--runs` for several
 runs per case, `--workspace` (by default in the temporary directory, outside the repository, so that the agent sees
 nothing of it). Each run leaves its outputs, transcript, timing and grading in the workspace, and the iteration a
 `benchmark.json`. `evals.py grade <iteration>` grades an iteration again; `evals.py check <check> ...` runs a check

@@ -10,6 +10,7 @@
       "assertions": [
         {"text": "The tests of the model pass", "check": "tests-pass"},
         {"text": "One cup of espresso emits 0.0375 kg CO2-eq", "check": "impact-between espresso 'kg CO2-Eq' 0.0374 0.0376"},
+        {"text": "The climate impact is in the prelude's unit kg_CO2_Eq, not in a unit declared by the model", "check": "impact-unit espresso 'kg CO2-Eq'"},
         {"text": "The model keeps the data given by the user as named parameters or variables, not only in formulas"}
       ]
     },
@@ -34,6 +35,7 @@
       "files": ["evals/files/servers"],
       "assertions": [
         {"text": "The fleet emits 724.2 kg CO2-eq per year", "check": "impact-between fleet 'kg CO2-Eq' 724.1 724.3"},
+        {"text": "The climate impact is in the prelude's unit kg_CO2_Eq, not in a unit declared by the model", "check": "impact-unit fleet 'kg CO2-Eq'"},
         {"text": "The trace of fleet shows each server", "check": "trace-mentions fleet s1 s2 s3"},
         {"text": "The model reads the inventory from data/servers.csv, rather than copying its values"}
       ]

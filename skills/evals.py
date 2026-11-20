@@ -7,7 +7,7 @@ An assertion with a "check" is graded by a command of this script, run in the di
 the others are for a human or an LLM judge.
 
     # Run every case with and without the skills, with any agent that takes a prompt as its last argument
-    python3 skills/evals.py run --agent "claude -p --permission-mode acceptEdits --allowedTools Bash(lcaac:*)" \\
+    python3 skills/evals.py run --agent "claude -p --permission-mode acceptEdits --allowedTools=Bash(lcaac:*)" \\
         --skills-dir .claude/skills
 
     # Grade an iteration again (e.g. after changing the checks)
@@ -67,11 +67,22 @@ def check_tests_pass(cwd):
     return passed, output[-400:]
 
 
+def same_unit(a, b):
+    """The same unit, however spelled: `kg CO2-Eq`, `kg_CO2_eq`, ... The prelude's own is checked by impact-unit."""
+    normalize = lambda u: re.sub(r"[^a-z0-9]", "", u.lower())
+    return normalize(a) == normalize(b)
+
+
 def check_impact_between(cwd, process, unit, lo, hi):
     impacts = assess_impacts(cwd, process)
-    found = {k: v for k, v in impacts.items() if v["unit"] == unit}
+    found = {k: v for k, v in impacts.items() if same_unit(v["unit"], unit)}
     passed = any(float(lo) <= v["amount"] <= float(hi) for v in found.values())
     return passed, f"impacts of {process}: {impacts}"
+
+
+def check_impact_unit(cwd, process, unit):
+    impacts = assess_impacts(cwd, process)
+    return any(v["unit"] == unit for v in impacts.values()), f"units of {process}: {[v['unit'] for v in impacts.values()]}"
 
 
 def check_impacts_only(cwd, process, *names):
@@ -148,6 +159,7 @@ def check_serve_post(cwd, operation, body, expected):
 CHECKS = {
     "tests-pass": check_tests_pass,
     "impact-between": check_impact_between,
+    "impact-unit": check_impact_unit,
     "impacts-only": check_impacts_only,
     "trace-mentions": check_trace_mentions,
     "file-numbers": check_file_numbers,
