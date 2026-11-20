@@ -1,0 +1,37 @@
+name: serve
+description: Sample project to illustrate lcaac serve
+
+api:
+  name: cloud-assess
+  version: 1.0.0
+  description: Impacts of cloud resources
+  operations:
+    virtual_machine:
+      description: Impacts of one hour of a virtual machine
+      process: virtual_machine
+      inputs:
+        vcpu: { parameter: vcpu, description: Number of virtual CPUs }
+        region: { parameter: region }
+      outputs:
+        impacts:
+          select: [GWP]
+          where: { product: vm_hour, process: virtual_machine }
+        electricity:
+          select: [amount]
+          where: { product: electricity, process: grid }
+
+    vm_fleet:
+      description: Impacts of a fleet of virtual machines
+      process: vm_fleet
+      data:
+        vms: { datasource: vm_inventory, description: The virtual machines of the fleet }
+      outputs:
+        total:
+          select: [GWP]
+          where: { product: fleet, process: vm_fleet }
+        per_vm:
+          select: [arguments, amount, GWP]
+          where: { product: vm_hour, process: virtual_machine }
+        electricity:
+          select: [arguments, amount, GWP]
+          where: { product: electricity, process: grid }

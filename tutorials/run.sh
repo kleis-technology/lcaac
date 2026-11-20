@@ -52,6 +52,11 @@ lcaac test
 lcaac explain bakery > /dev/null
 cd -
 
+cd "$TUTORIALS_PATH"/03-advanced/06-serve
+lcaac test
+lcaac api openapi > /dev/null
+cd -
+
 # Check custom dimensions tutorial
 set -euo
 # The following assessment is expected to fail.
