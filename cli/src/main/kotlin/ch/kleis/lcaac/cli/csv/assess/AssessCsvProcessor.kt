@@ -1,7 +1,7 @@
 package ch.kleis.lcaac.cli.csv.assess
 
-import ch.kleis.lcaac.cli.cmd.parseOverrides
-import ch.kleis.lcaac.cli.cmd.prepareArguments
+import ch.kleis.lcaac.grammar.parseOverrides
+import ch.kleis.lcaac.grammar.prepareArguments
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.core.assessment.ContributionAnalysisProgram
 import ch.kleis.lcaac.core.config.LcaacConfig

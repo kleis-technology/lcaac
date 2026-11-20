@@ -1,5 +1,7 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.grammar.dataExpressionMap
+import ch.kleis.lcaac.grammar.prepareArguments
 import ch.kleis.lcaac.cli.mermaid.ImpactMode
 import ch.kleis.lcaac.cli.mermaid.MermaidGraph
 import ch.kleis.lcaac.cli.mermaid.MermaidGraphOption

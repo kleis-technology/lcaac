@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.grammar.dataExpressionMap
 import ch.kleis.lcaac.cli.csv.CsvRequest
 import ch.kleis.lcaac.cli.csv.CsvRequestReader
 import ch.kleis.lcaac.cli.csv.assess.AssessCsvProcessor

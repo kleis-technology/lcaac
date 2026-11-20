@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.cli.cmd
 
+import ch.kleis.lcaac.grammar.dataExpressionMap
 import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.DefaultDataSourceOperations
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
