@@ -1,5 +1,6 @@
 package ch.kleis.lcaac.core.assessment
 
+import ch.kleis.lcaac.core.allocation.Allocation
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.value.*
 import ch.kleis.lcaac.core.math.QuantityOperations
@@ -15,6 +16,7 @@ class ContributionAnalysis<Q, M>(
     ops: QuantityOperations<Q>,
 ) {
     private val quantityOps = QuantityValueOperations(ops)
+    private val allocation = Allocation(ops)
     private val allPorts = IndexByShortName(
         impactFactors.observablePorts.getElements()
             + impactFactors.controllablePorts.getElements()
@@ -89,13 +91,11 @@ class ContributionAnalysis<Q, M>(
         }
     }
 
+    /** The supply of [port] for [product] of the entry point: its share of the supply for the whole demand. */
     fun allocatedSupplyOf(port: MatrixColumnIndex<Q>, product: ProductValue<Q>): QuantityValue<Q> {
         with(quantityOps) {
             val exchange = entryPoint.products.firstOrNull { it.product == product } ?: throw EvaluatorException("$product does not belong to the demand")
-            val allocation = exchange.allocation
-                ?.let { pure(it.toDouble()) }
-                ?: pure(1.0)
-            return allocation * supplyOf(port)
+            return pure(allocation.ratioOf(exchange, entryPoint)) * supplyOf(port)
         }
     }
 
