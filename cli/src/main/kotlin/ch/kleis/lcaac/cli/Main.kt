@@ -8,19 +8,23 @@ import com.github.ajalt.clikt.core.CliktError
 import com.github.ajalt.clikt.core.subcommands
 import kotlin.system.exitProcess
 
+/** The command `lcaac` and its subcommands. */
+fun lcaacCommand(): LcaacCommand = LcaacCommand()
+    .subcommands(
+        ApiCommand().subcommands(OpenApiCommand()),
+        AssessCommand(),
+        EvalCommand(),
+        ExplainCommand(),
+        GraphCommand(),
+        ServeCommand(),
+        SkillsCommand().subcommands(InstallSkillsCommand(), ListSkillsCommand()),
+        TestCommand(),
+        TraceCommand(),
+        VersionCommand(),
+    )
+
 fun main(args: Array<String>) {
-    val command = LcaacCommand()
-        .subcommands(
-            ApiCommand().subcommands(OpenApiCommand()),
-            AssessCommand(),
-            EvalCommand(),
-            ExplainCommand(),
-            GraphCommand(),
-            ServeCommand(),
-            TestCommand(),
-            TraceCommand(),
-            VersionCommand(),
-        )
+    val command = lcaacCommand()
     // Same as CliktCommand.main, except that errors in the user's model or arguments
     // are printed as a message instead of a stack trace, unless --stacktrace is given.
     try {

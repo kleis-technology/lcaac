@@ -1,0 +1,4 @@
+id,pool,power,hours,embodied
+web-1,a,300,8760,100
+web-2,a,300,8760,100
+web-1,b,600,8760,200

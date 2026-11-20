@@ -1,0 +1,66 @@
+process bread {
+    products {
+        1 kg bread
+    }
+    inputs {
+        0.8 kg flour
+        0.5 kWh heat from oven match (energy = "gas")
+    }
+    emissions {
+        0.2 kg co2
+    }
+}
+
+process flour {
+    products {
+        1 kg flour
+    }
+    impacts {
+        0.5 kg_CO2_Eq GWP
+    }
+}
+
+process oven {
+    labels {
+        energy = "gas"
+        country = "FR"
+    }
+    products {
+        1 kWh heat
+    }
+    impacts {
+        0.25 kg_CO2_Eq GWP
+    }
+}
+
+process oven {
+    labels {
+        energy = "electric"
+        country = "FR"
+    }
+    products {
+        1 kWh heat
+    }
+    impacts {
+        0.06 kg_CO2_Eq GWP
+    }
+}
+
+substance co2 {
+    name = "carbon dioxide"
+    type = Emission
+    compartment = "air"
+    reference_unit = kg
+    impacts {
+        1 kg_CO2_Eq GWP
+    }
+}
+
+test bread {
+    given {
+        1 kg bread
+    }
+    assert {
+        GWP between 0.3 kg_CO2_Eq and 1 kg_CO2_Eq
+    }
+}

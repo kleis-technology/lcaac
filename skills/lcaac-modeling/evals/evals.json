@@ -1,0 +1,157 @@
+{
+  "skill_name": "lcaac-modeling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "espresso",
+      "prompt": "Using lcaac, model the carbon footprint of one cup of espresso: 7 g of ground coffee at 5 kg CO2-eq per kg, 0.05 kWh of electricity from the French grid at 0.05 kg CO2-eq per kWh, and 50 ml of tap water whose impacts we ignore. Call the main process espresso, and add a test.",
+      "expected_output": "An .lca model with a process espresso whose climate impact is 0.0375 kg CO2-eq per cup (0.035 from coffee, 0.0025 from electricity), and a passing test.",
+      "files": [
+        "evals/files/espresso"
+      ],
+      "assertions": [
+        {
+          "text": "The tests of the model pass",
+          "check": "tests-pass"
+        },
+        {
+          "text": "One cup of espresso emits 0.0375 kg CO2-eq",
+          "check": "impact-between espresso 'kg CO2-Eq' 0.0374 0.0376"
+        },
+        {
+          "text": "The climate impact is in the prelude's unit kg_CO2_Eq, not in a unit declared by the model",
+          "check": "impact-unit espresso 'kg CO2-Eq'"
+        },
+        {
+          "text": "The model keeps the data given by the user as named parameters or variables, not only in formulas"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bread-too-low",
+      "prompt": "The climate impact of my bread in this lcaac model looks too low to me. Can you find out why and fix it?",
+      "expected_output": "Both silent errors are fixed: the heat input selects the gas oven with all its labels (energy and country), and the CO2 emission gives the compartment air. The bread then emits 0.725 kg CO2-eq per kg (0.4 flour, 0.125 heat, 0.2 CO2), and no unresolved flow remains.",
+      "files": [
+        "evals/files/bread"
+      ],
+      "assertions": [
+        {
+          "text": "One kg of bread emits 0.725 kg CO2-eq",
+          "check": "impact-between bread 'kg CO2-Eq' 0.724 0.726"
+        },
+        {
+          "text": "No unresolved flow remains in the results of bread",
+          "check": "impacts-only bread GWP"
+        },
+        {
+          "text": "The tests of the model pass",
+          "check": "tests-pass"
+        },
+        {
+          "text": "The explanation names both causes: the incomplete match of the oven's labels, and the missing compartment of the CO2 emission"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "server-fleet",
+      "prompt": "I have an inventory of servers in data/servers.csv: id, power (W), hours of use per year, and embodied GWP per year (kg CO2-eq). Write an lcaac model of the yearly GWP of the fleet: the embodied impacts plus the electricity they consume, at 0.06 kg CO2-eq per kWh. I want to see the contribution of each server. The main process should be called fleet.",
+      "expected_output": "A model reading data/servers.csv as a data source, with one process per server (for_each over the rows, passing the id), and a process fleet whose GWP is 724.2 kg CO2-eq per year (330 embodied, 394.2 from 6570 kWh of electricity). lcaac trace fleet shows a row per server.",
+      "files": [
+        "evals/files/servers"
+      ],
+      "assertions": [
+        {
+          "text": "The fleet emits 724.2 kg CO2-eq per year",
+          "check": "impact-between fleet 'kg CO2-Eq' 724.1 724.3"
+        },
+        {
+          "text": "The climate impact is in the prelude's unit kg_CO2_Eq, not in a unit declared by the model",
+          "check": "impact-unit fleet 'kg CO2-Eq'"
+        },
+        {
+          "text": "The trace of fleet shows each server",
+          "check": "trace-mentions fleet s1 s2 s3"
+        },
+        {
+          "text": "The model reads the inventory from data/servers.csv, rather than copying its values"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pool-lookup",
+      "prompt": "In my lcaac model, pool b has a single server, web-1, which draws 600 W all year and has 200 kg CO2-eq of embodied impacts per year. The GWP of pool b looks too low to me, though. Can you find the problem and fix it?",
+      "expected_output": "The lookup of a server by id alone takes the first row with that id, web-1 of pool a: the fix filters on the pool too (match (id = id, pool = pool), passing the pool), or on a unique key. Pool b then emits 462.8 kg CO2-eq per year (5256 kWh at 0.05, plus 200), and pool a is unchanged at 462.8.",
+      "files": [
+        "evals/files/pool-lookup"
+      ],
+      "assertions": [
+        {
+          "text": "Pool b emits 462.8 kg CO2-eq per year",
+          "check": "impact-between pool 'kg CO2-Eq' 462.7 462.9 -D pool=b"
+        },
+        {
+          "text": "Pool a still emits 462.8 kg CO2-eq per year",
+          "check": "impact-between pool 'kg CO2-Eq' 462.7 462.9 -D pool=a"
+        },
+        {
+          "text": "The tests of the model pass",
+          "check": "tests-pass"
+        },
+        {
+          "text": "The explanation names the cause: a lookup by id alone takes the first of several matching rows"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "study-period",
+      "prompt": "My lcaac model assesses a web service over one year: 8760 hours, hard-coded. Make the period a global parameter named period, so that I can assess the service over a month (720 hours) without editing the model.",
+      "expected_output": "A global parameter period (params block at the top level), defaulting to 8760 hour and used by the service for both inputs. lcaac assess service gives 219 kg CO2-eq, and with -G period=\"720 hour\" 18 kg CO2-eq.",
+      "files": [
+        "evals/files/study-period"
+      ],
+      "assertions": [
+        {
+          "text": "Over a year (the default), the service emits 219 kg CO2-eq",
+          "check": "impact-between service 'kg CO2-Eq' 218.9 219.1"
+        },
+        {
+          "text": "Over a month, set with -G period, the service emits 18 kg CO2-eq",
+          "check": "impact-between service 'kg CO2-Eq' 17.99 18.01 -G 'period=720 hour'"
+        },
+        {
+          "text": "The answer tells how to assess another period (lcaac assess service -G period=...)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "heat-pump",
+      "prompt": "Model with lcaac the yearly climate impact of a 3 kW heat pump running 2000 hours a year, on electricity at 0.06 kg CO2-eq per kWh. It also leaks 0.5 kg of R410A refrigerant to the air every year (GWP 2088 kg CO2-eq per kg). Call the main process heat_pump.",
+      "expected_output": "A model with a process heat_pump: 6000 kWh of electricity (360 kg CO2-eq) and the leak (1044 kg CO2-eq), 1404 kg CO2-eq a year, in the prelude's kg_CO2_Eq. kW declared as a unit (the prelude has W only), the leak characterized (a substance with its compartment, or an impact), no unresolved flow.",
+      "files": [
+        "evals/files/heat-pump"
+      ],
+      "assertions": [
+        {
+          "text": "The heat pump emits 1404 kg CO2-eq per year",
+          "check": "impact-between heat_pump 'kg CO2-Eq' 1403.9 1404.1"
+        },
+        {
+          "text": "The climate impact is in the prelude's unit kg_CO2_Eq, not in a unit declared by the model",
+          "check": "impact-unit heat_pump 'kg CO2-Eq'"
+        },
+        {
+          "text": "No unresolved product or substance is left (the electricity and the refrigerant are characterized)",
+          "check": "no-flows heat_pump 'kg CO2-Eq'"
+        },
+        {
+          "text": "The power and the leak are parameters of the model"
+        }
+      ]
+    }
+  ]
+}

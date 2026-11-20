@@ -1,0 +1,60 @@
+datasource servers {
+    location = "data/servers.csv"
+    schema {
+        id = "web-1"
+        pool = "a"
+        power = 300 W
+        hours = 8760 hour
+        embodied = 100 kg_CO2_Eq
+    }
+}
+
+process server {
+    params {
+        id = "web-1"
+    }
+    variables {
+        srv = lookup servers match id = id
+    }
+    products {
+        1 year server
+    }
+    inputs {
+        srv.power * srv.hours electricity
+    }
+    impacts {
+        srv.embodied GWP
+    }
+}
+
+process pool {
+    params {
+        pool = "a"
+    }
+    products {
+        1 year pool
+    }
+    inputs {
+        for_each row from servers match pool = pool {
+            1 year server from server(id = row.id)
+        }
+    }
+}
+
+process grid {
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.05 kg_CO2_Eq GWP
+    }
+}
+
+test pool_b {
+    given {
+        1 year pool from pool(pool = "b")
+    }
+    assert {
+        GWP between 100 kg_CO2_Eq and 1000 kg_CO2_Eq
+    }
+}

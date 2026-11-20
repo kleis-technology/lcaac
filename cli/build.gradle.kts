@@ -54,6 +54,26 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.28.0")
 }
 
+// The agent skills of the repository, bundled with an index of their files: a directory cannot be listed in a jar.
+// Only the skill directories, without their evals: the tooling at the top of skills/ is for their development.
+val bundleSkills = tasks.register<Sync>("bundleSkills") {
+    from(rootProject.file("skills")) {
+        exclude { !it.isDirectory && it.relativePath.segments.size == 1 }
+        exclude("*/evals/**")
+        into("skills")
+    }
+    into(layout.buildDirectory.dir("generated/skills"))
+    doLast {
+        val root = destinationDir.resolve("skills")
+        val files = root.walkTopDown().filter { it.isFile }.map { it.relativeTo(root).invariantSeparatorsPath }.sorted()
+        root.resolve("index.txt").writeText(files.joinToString("\n", postfix = "\n"))
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(bundleSkills)
+}
+
 tasks.build {
     finalizedBy("writeProperties")
 }
@@ -88,4 +108,11 @@ publishing {
             from(components["java"])
         }
     }
+}
+
+// The command reference of the skill lcaac-cli, generated from the help of the commands
+tasks.register<JavaExec>("writeCommandReference") {
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("ch.kleis.lcaac.cli.skills.CommandReferenceKt")
+    args(rootProject.file("skills/lcaac-cli/references/commands.md").path)
 }

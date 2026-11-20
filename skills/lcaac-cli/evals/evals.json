@@ -1,0 +1,60 @@
+{
+  "skill_name": "lcaac-cli",
+  "evals": [
+    {
+      "id": 1,
+      "name": "vm-results-csv",
+      "prompt": "With lcaac, compute the GWP of one hour of a virtual_machine with 2, 4 and 8 vCPUs, all in region DE, and save the results in results.csv.",
+      "expected_output": "results.csv, produced by lcaac (e.g. assess -f with a CSV of parameters, or -D and -o csv), with GWP 0.008, 0.016 and 0.032 kg CO2-eq.",
+      "files": [
+        "evals/files/vms"
+      ],
+      "assertions": [
+        {
+          "text": "results.csv gives the GWP of the three configurations",
+          "check": "file-numbers results.csv 0.008 0.016 0.032"
+        },
+        {
+          "text": "The results come from lcaac, without editing the model"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "serve-vm",
+      "prompt": "Configure this lcaac project so that lcaac serve exposes one operation, virtual_machine, that takes the fields vcpu and region and returns the GWP of one hour of a virtual machine. Don't leave a server running.",
+      "expected_output": "An api section in lcaac.yaml with an operation virtual_machine mapping vcpu and region to the parameters of the process, an output selecting GWP with its unit declared, accepted by lcaac at startup. A request {vcpu: 4, region: DE} returns 0.016 kg CO2-eq.",
+      "files": [
+        "evals/files/vms"
+      ],
+      "assertions": [
+        {
+          "text": "lcaac accepts the API definition",
+          "check": "openapi"
+        },
+        {
+          "text": "POST /virtual_machine with vcpu 4 in DE returns 0.016 kg CO2-eq",
+          "check": "serve-post virtual_machine '{\"vcpu\": 4, \"region\": \"DE\"}' 0.016"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "grid-mix",
+      "prompt": "According to this lcaac model, what is the GWP of 1 kWh of electricity in Germany, with the average mix? Write just the number, in kg CO2-eq, in answer.txt.",
+      "expected_output": "0.38, obtained with lcaac assess electricity -l geo=DE -l mix=average (the process has two labels, both needed).",
+      "files": [
+        "evals/files/grid-mix"
+      ],
+      "assertions": [
+        {
+          "text": "answer.txt gives 0.38",
+          "check": "file-numbers answer.txt 0.38"
+        },
+        {
+          "text": "The number comes from lcaac (assess with both labels), not from reading the model"
+        }
+      ]
+    }
+  ]
+}
