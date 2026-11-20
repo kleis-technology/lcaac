@@ -85,4 +85,40 @@ class TraceTableTest {
         )
         assertEquals(setOf("bread"), actual.map { it.demandedProduct.product.name }.toSet())
     }
+
+    @Test
+    fun run_whenEconomicAllocation_shouldGiveTheShareOfEachProduct() {
+        // given: the revenue of each product as weight, 15 CHF of milk and 5 CHF of meat
+        val content = """
+            unit CHF {
+                symbol = "CHF"
+                dimension = "currency"
+            }
+            process cow {
+                products {
+                    10 kg milk allocate 15 CHF
+                    2 kg meat allocate 5 CHF
+                }
+                inputs {
+                    100 kg feed
+                }
+            }
+            process feed_production {
+                products {
+                    1 kg feed
+                }
+                impacts {
+                    1 kg_CO2_Eq climate_change
+                }
+            }
+        """
+
+        // when
+        val actual = table(content, "cow")
+
+        // then
+        val feed = actual.filter { (it.output as ProductValue<BasicNumber>).name == "feed" }
+            .associate { it.demandedProduct.product.name to it.allocation }
+        assertEquals(mapOf("milk" to 0.75, "meat" to 0.25), feed)
+    }
 }

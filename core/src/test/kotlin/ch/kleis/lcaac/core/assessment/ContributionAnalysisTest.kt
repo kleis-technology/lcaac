@@ -442,4 +442,36 @@ class ContributionAnalysisTest {
             actual,
         )
     }
+
+    @Test
+    fun allocatedSupply_whenWeightsAreNotFractions_shouldUseTheShareOfEachProduct() {
+        // given
+        val a1 = ProductValue("a1", UnitValueFixture.kg<BasicNumber>())
+        val a2 = ProductValue("a2", UnitValueFixture.kg<BasicNumber>())
+        val b = ProductValue("b", UnitValueFixture.kg<BasicNumber>())
+        val pa = ProcessValue(
+            name = "pa",
+            products = listOf(
+                TechnoExchangeValue(QuantityValueFixture.twoKilograms, a1, QuantityValueFixture.threeKilograms),
+                TechnoExchangeValue(QuantityValueFixture.twoKilograms, a2, QuantityValueFixture.oneKilogram),
+            ),
+            inputs = listOf(
+                TechnoExchangeValue(QuantityValueFixture.twoKilograms, b),
+            ),
+        )
+        val pb = ProcessValue(
+            name = "pb",
+            products = listOf(TechnoExchangeValue(QuantityValueFixture.oneKilogram, b)),
+        )
+
+        // when
+        val analysis = ContributionAnalysisProgram(SystemValue(setOf(pa, pb)), pa).run()
+
+        // then
+        with(QuantityValueOperations(BasicOperations)) {
+            val total = QuantityValueFixture.twoKilograms
+            assertEquals(pure(0.75) * total, analysis.allocatedSupplyOf(b, a1))
+            assertEquals(pure(0.25) * total, analysis.allocatedSupplyOf(b, a2))
+        }
+    }
 }

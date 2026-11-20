@@ -38,7 +38,7 @@ class TraceCsvResultWriterTest {
     private fun result(vararg depths: Int) = TraceCsvResult(
         request,
         trace = depths.map { depth ->
-            TraceCsvResultItem(depth, demandedProduct, supply, output, impacts)
+            TraceCsvResultItem(depth, demandedProduct, supply, output, impacts, allocation = 1.0)
         }
     )
 
@@ -128,7 +128,7 @@ class TraceCsvResultWriterTest {
         )
         val resultWithTwo = TraceCsvResult(
             request,
-            trace = listOf(TraceCsvResultItem(0, demandedProduct, supply, output, twoImpacts))
+            trace = listOf(TraceCsvResultItem(0, demandedProduct, supply, output, twoImpacts, allocation = 1.0))
         )
         val writer = TraceCsvResultWriter(OutputFormat.CSV, indicators = setOf("co2"))
 
