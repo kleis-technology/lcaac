@@ -159,6 +159,56 @@ Run the tests using
 lcaac test --show-success
 ```
 
+### Serve
+
+The `serve` command serves a model as an HTTP API. The API is declared under the key `api` of `lcaac.yaml`: each
+operation maps the fields of a JSON request onto the parameters of a process, and returns selected results.
+
+```yaml
+api:
+  name: electricity
+  version: 1.0.0
+  units:
+    impacts: { co2: kg }
+  operations:
+    electricity_mix:
+      process: electricity_mix
+      inputs:
+        fossil: { parameter: from_fossil }
+        nuclear: { parameter: from_nuclear }
+        hydro: { parameter: from_hydro }
+      outputs:
+        impacts: { select: [co2], where: { process: electricity_mix }, aggregate: one }
+```
+
+The definition is checked against the model at startup. Then each operation is served at `POST /<operation>`,
+and at `POST /<operation>/batch` for several requests at once.
+```bash
+lcaac serve
+curl -X POST localhost:8080/electricity_mix -H 'Content-Type: application/json' \
+  -d '{"fossil": "10 percent", "hydro": "70 percent"}'
+```
+```json
+{"request":{"fossil":"10 percent","hydro":"70 percent"},"outputs":{"impacts":{"co2":{"amount":2.7,"unit":"kg"}}}}
+```
+
+`lcaac api openapi` prints the OpenAPI document of the API. See the tutorial
+[Serving a model as an HTTP API](tutorials/03-advanced/06-serve/README.md) for the whole definition: data sources
+given by requests, one result per row, global parameters, units.
+
+### Agent skills
+
+lcaac ships [agent skills](https://agentskills.io), to help AI agents write models and use the CLI:
+`lcaac-modeling` (the language, modeling patterns, pitfalls) and `lcaac-cli` (the commands, `lcaac.yaml`,
+`lcaac serve`). Install them into your project, where agents that support skills will find them.
+```bash
+lcaac skills install                         # into .agents/skills
+lcaac skills install --user                  # into ~/.agents/skills, for all your projects
+lcaac skills install --dir .claude/skills    # for an agent with its own directory, here Claude Code
+```
+
+The skills installed match the version of lcaac. See [skills](skills/README.md) to develop and evaluate them.
+
 ## What's inside
 
 This repository contains the core libraries to handle LCAAC code.
@@ -180,14 +230,25 @@ The package `grammar` contains:
 
 The package `cli` contains the code for the command-line interface.
 
+### Package `server`
+
+The package `server` contains the HTTP server of `lcaac serve`: the API definition, its checks, and the OpenAPI
+document.
+
+### Skills
+
+The directory `skills` contains the agent skills bundled with the CLI, and their evaluations.
+
 ## Documentation
 
 For users
 - [Walkthrough](https://lca-as-code.com/book)
 - [Code samples](./tutorials/README.md)
+- [Serving a model as an HTTP API](./tutorials/03-advanced/06-serve/README.md)
 
 For developers
 - [Release management](./RELEASE-MANAGEMENT.md)
+- [Agent skills](./skills/README.md)
 - Core concepts *\[coming soon\]*
 - Contribution guide *\[coming soon\]*
 
