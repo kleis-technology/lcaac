@@ -54,9 +54,14 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.28.0")
 }
 
-// The agent skills of the repository, bundled with an index of their files: a directory cannot be listed in a jar
+// The agent skills of the repository, bundled with an index of their files: a directory cannot be listed in a jar.
+// Only the skill directories, without their evals: the tooling at the top of skills/ is for their development.
 val bundleSkills = tasks.register<Sync>("bundleSkills") {
-    from(rootProject.file("skills")) { into("skills") }
+    from(rootProject.file("skills")) {
+        exclude { !it.isDirectory && it.relativePath.segments.size == 1 }
+        exclude("*/evals/**")
+        into("skills")
+    }
     into(layout.buildDirectory.dir("generated/skills"))
     doLast {
         val root = destinationDir.resolve("skills")

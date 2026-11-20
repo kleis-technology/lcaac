@@ -1,0 +1,42 @@
+{
+  "skill_name": "lcaac-modeling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "espresso",
+      "prompt": "Using lcaac, model the carbon footprint of one cup of espresso: 7 g of ground coffee at 5 kg CO2-eq per kg, 0.05 kWh of electricity from the French grid at 0.05 kg CO2-eq per kWh, and 50 ml of tap water whose impacts we ignore. Call the main process espresso, and add a test.",
+      "expected_output": "An .lca model with a process espresso whose climate impact is 0.0375 kg CO2-eq per cup (0.035 from coffee, 0.0025 from electricity), and a passing test.",
+      "files": ["evals/files/espresso"],
+      "assertions": [
+        {"text": "The tests of the model pass", "check": "tests-pass"},
+        {"text": "One cup of espresso emits 0.0375 kg CO2-eq", "check": "impact-between espresso 'kg CO2-Eq' 0.0374 0.0376"},
+        {"text": "The model keeps the data given by the user as named parameters or variables, not only in formulas"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "bread-too-low",
+      "prompt": "The climate impact of my bread in this lcaac model looks too low to me. Can you find out why and fix it?",
+      "expected_output": "Both silent errors are fixed: the heat input selects the gas oven with all its labels (energy and country), and the CO2 emission gives the compartment air. The bread then emits 0.725 kg CO2-eq per kg (0.4 flour, 0.125 heat, 0.2 CO2), and no unresolved flow remains.",
+      "files": ["evals/files/bread"],
+      "assertions": [
+        {"text": "One kg of bread emits 0.725 kg CO2-eq", "check": "impact-between bread 'kg CO2-Eq' 0.724 0.726"},
+        {"text": "No unresolved flow remains in the results of bread", "check": "impacts-only bread GWP"},
+        {"text": "The tests of the model pass", "check": "tests-pass"},
+        {"text": "The explanation names both causes: the incomplete match of the oven's labels, and the missing compartment of the CO2 emission"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "server-fleet",
+      "prompt": "I have an inventory of servers in data/servers.csv: id, power (W), hours of use per year, and embodied GWP per year (kg CO2-eq). Write an lcaac model of the yearly GWP of the fleet: the embodied impacts plus the electricity they consume, at 0.06 kg CO2-eq per kWh. I want to see the contribution of each server. The main process should be called fleet.",
+      "expected_output": "A model reading data/servers.csv as a data source, with one process per server (for_each over the rows, passing the id), and a process fleet whose GWP is 724.2 kg CO2-eq per year (330 embodied, 394.2 from 6570 kWh of electricity). lcaac trace fleet shows a row per server.",
+      "files": ["evals/files/servers"],
+      "assertions": [
+        {"text": "The fleet emits 724.2 kg CO2-eq per year", "check": "impact-between fleet 'kg CO2-Eq' 724.1 724.3"},
+        {"text": "The trace of fleet shows each server", "check": "trace-mentions fleet s1 s2 s3"},
+        {"text": "The model reads the inventory from data/servers.csv, rather than copying its values"}
+      ]
+    }
+  ]
+}

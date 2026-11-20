@@ -1,0 +1,4 @@
+id,vcpu,hours,region
+vm-001,4,720,FR
+vm-002,2,720,DE
+vm-003,8,360,FR

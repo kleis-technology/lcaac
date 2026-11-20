@@ -1,0 +1,67 @@
+datasource vm_inventory {
+    location = "data/vm_inventory.csv"
+    schema {
+        id = "vm-001"
+        vcpu = 2 u
+        hours = 720 hour
+        region = "FR"
+    }
+}
+
+datasource grid_mix {
+    location = "data/grid_mix.csv"
+    schema {
+        region = "FR"
+        gwp = 0.05 kg_CO2_Eq
+    }
+}
+
+process vm_fleet {
+    products {
+        1 p fleet
+    }
+    inputs {
+        for_each vm from vm_inventory {
+            // Passing the id makes each VM a process instance of its own: a row of `lcaac trace`
+            vm.hours vm_hour from virtual_machine(id = vm.id, vcpu = vm.vcpu, region = vm.region)
+        }
+    }
+}
+
+process virtual_machine {
+    params {
+        id = "vm-001"
+        vcpu = 2 u
+        region = "FR"
+    }
+    products {
+        1 hour vm_hour
+    }
+    inputs {
+        vcpu * 0.01 kWh electricity from grid(region = region)
+    }
+}
+
+process grid {
+    params {
+        region = "FR"
+    }
+    variables {
+        mix = lookup grid_mix match region = region
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        mix.gwp GWP
+    }
+}
+
+test fleet {
+    given {
+        1 p fleet from vm_fleet
+    }
+    assert {
+        GWP between 8.63 kg_CO2_Eq and 8.65 kg_CO2_Eq
+    }
+}
