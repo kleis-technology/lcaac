@@ -84,7 +84,15 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 }
             }
         }
-        schemas["${prefix}Response"] = buildJsonObject {
+        val outputs = buildJsonObject {
+            put("type", "object")
+            putJsonArray("required") { operation.outputs.keys.forEach { add(it) } }
+            putJsonObject("properties") {
+                operation.outputs.forEach { (field, output) -> put(field, outputSchema(output, units)) }
+            }
+        }
+        val forEach = operation.forEach
+        schemas["${prefix}Response"] = if (forEach == null) buildJsonObject {
             put("type", "object")
             putJsonArray("required") { add("request"); add("outputs") }
             putJsonObject("properties") {
@@ -92,11 +100,29 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                     putJsonArray("allOf") { add(ref("${prefix}Request")) }
                     put("description", "The request, as sent.")
                 }
-                putJsonObject("outputs") {
-                    put("type", "object")
-                    putJsonArray("required") { operation.outputs.keys.forEach { add(it) } }
-                    putJsonObject("properties") {
-                        operation.outputs.forEach { (field, output) -> put(field, outputSchema(output, units)) }
+                put("outputs", outputs)
+            }
+        } else buildJsonObject {
+            put("type", "object")
+            putJsonArray("required") { add("request"); add("results") }
+            putJsonObject("properties") {
+                putJsonObject("request") {
+                    putJsonArray("allOf") { add(ref("${prefix}Request")) }
+                    put("description", "The request, as sent, without '${forEach.rows}'.")
+                }
+                putJsonObject("results") {
+                    put("type", "array")
+                    put("description", "One result per row of '${forEach.rows}', in the same order.")
+                    putJsonObject("items") {
+                        put("type", "object")
+                        putJsonArray("required") { add("row"); add("outputs") }
+                        putJsonObject("properties") {
+                            putJsonObject("row") {
+                                putJsonArray("allOf") { add(ref("$prefix${pascal(forEach.rows)}Row")) }
+                                put("description", "The row, as sent.")
+                            }
+                            put("outputs", outputs)
+                        }
                     }
                 }
             }

@@ -326,6 +326,62 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun check_whenForEach_shouldAcceptIt() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                virtual_machines:
+                  process: virtual_machine
+                  data:
+                    vms: { datasource: vm_inventory }
+                  for_each: { rows: vms, arguments: { id: id, vcpu: vcpu } }
+                  outputs:
+                    total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
+        """
+
+        assertEquals(emptyList(), check(api))
+    }
+
+    @Test
+    fun check_whenInvalidForEach_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                virtual_machines:
+                  process: virtual_machine
+                  inputs:
+                    cpus: { parameter: vcpu }
+                  data:
+                    vms: { datasource: vm_inventory }
+                  for_each: { rows: vms, arguments: { id: vcpu, vcpu: vcpu, region: id, name: label } }
+                  outputs:
+                    total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
+                others:
+                  process: virtual_machine
+                  for_each: { rows: vms }
+                  outputs:
+                    total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:11:47: api.operations.virtual_machines.for_each.arguments.id: column 'vcpu' and parameter 'id' are not of the same type",
+                "lcaac.yaml:11:59: api.operations.virtual_machines.for_each.arguments.vcpu: parameter 'vcpu' is already an input",
+                "lcaac.yaml:11:73: api.operations.virtual_machines.for_each.arguments.region: unknown parameter 'region' of process 'virtual_machine'",
+                "lcaac.yaml:11:83: api.operations.virtual_machines.for_each.arguments.name: unknown parameter 'name' of process 'virtual_machine'",
+                "lcaac.yaml:11:83: api.operations.virtual_machines.for_each.arguments.name: unknown column 'label' of 'vms'",
+                "lcaac.yaml:16:25: api.operations.others.for_each.rows: 'vms' is not a field of 'data'",
+                "lcaac.yaml:16:17: api.operations.others.for_each.arguments: 'for_each' needs at least one argument, from a column of the rows",
+            ),
+            check(api),
+        )
+    }
+
+    @Test
     fun load_whenUnknownAggregate_shouldFail() {
         val api = """
             api:

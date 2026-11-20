@@ -7,6 +7,7 @@ import ch.kleis.lcaac.grammar.parseLcaText
 import io.swagger.v3.parser.OpenAPIV3Parser
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -86,6 +87,14 @@ class OpenApiGeneratorTest {
               outputs:
                 total: { select: [GWP], where: { product: fleet }, aggregate: one }
                 per_vm: { select: [arguments, amount, GWP], where: { product: vm_hour } }
+            virtual_machines:
+              process: virtual_machine
+              labels: { model: standard }
+              data:
+                vms: { datasource: vm_inventory }
+              for_each: { rows: vms, arguments: { id: id } }
+              outputs:
+                total: { select: [GWP], where: { product: vm_hour }, aggregate: one }
             virtual_machine:
               process: virtual_machine
               inputs:
@@ -110,7 +119,7 @@ class OpenApiGeneratorTest {
         assertEquals(emptyList(), result.messages)
         assertNotNull(result.openAPI)
         assertEquals(
-            setOf("/vm_fleet", "/vm_fleet/batch", "/virtual_machine", "/virtual_machine/batch"),
+            setOf("/vm_fleet", "/vm_fleet/batch", "/virtual_machines", "/virtual_machines/batch", "/virtual_machine", "/virtual_machine/batch"),
             result.openAPI.paths.keys,
         )
     }
@@ -219,6 +228,15 @@ class OpenApiGeneratorTest {
             }
         """), schema("VmFleetResponse")!!.jsonObject["properties"]!!.jsonObject["outputs"]!!
             .jsonObject["properties"]!!.jsonObject["total"])
+    }
+
+    @Test
+    fun generate_whenForEach_shouldGiveOneResultPerRow() {
+        val results = schema("VirtualMachinesResponse")!!.jsonObject["properties"]!!.jsonObject["results"]!!.jsonObject
+
+        assertEquals(json("""{ "${'$'}ref": "#/components/schemas/VirtualMachinesVmsRow" }"""),
+            results["items"]!!.jsonObject["properties"]!!.jsonObject["row"]!!.jsonObject["allOf"]!!.jsonArray.single())
+        assertEquals(json("""["row", "outputs"]"""), results["items"]!!.jsonObject["required"])
     }
 
     @Test

@@ -111,6 +111,8 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
             }
         }
 
+        operation.forEach?.let { checkForEach(operation, it, candidates, ::error) }
+
         if (operation.outputs.isEmpty()) {
             error(emptyList(), "an operation has at least one output")
         }
@@ -179,6 +181,41 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
         }
         output.select.filter { it in impactColumns && it !in Columns.fixed && it !in units.impacts }.distinct().forEach {
             error(path + "select", "no unit for column '$it': declare it under 'api.units.impacts'")
+        }
+    }
+
+    private fun checkForEach(
+        operation: Operation,
+        forEach: ForEach,
+        candidates: List<EProcessTemplate<BasicNumber>>,
+        error: (List<String>, String) -> Unit,
+    ) {
+        val path = listOf("for_each")
+        val schema = operation.data[forEach.rows]?.let { symbolTable.getDataSource(it.datasource)?.schema }
+        if (forEach.rows !in operation.data) {
+            error(path + "rows", "'${forEach.rows}' is not a field of 'data'")
+        }
+        if (forEach.arguments.isEmpty()) {
+            error(path + "arguments", "'for_each' needs at least one argument, from a column of the rows")
+        }
+        val inputParameters = operation.inputs.values.mapNotNull { it.parameter }.toSet()
+        forEach.arguments.forEach { (parameter, column) ->
+            val argumentPath = path + listOf("arguments", parameter)
+            val defaults = candidates.mapNotNull { it.params[parameter] }
+            when {
+                candidates.isNotEmpty() && defaults.size < candidates.size ->
+                    error(argumentPath, "unknown parameter '$parameter' of process '${operation.process}'")
+
+                parameter in inputParameters -> error(argumentPath, "parameter '$parameter' is already an input")
+            }
+            if (schema != null) {
+                val columnDefault = schema[column]
+                if (columnDefault == null) {
+                    error(argumentPath, "unknown column '$column' of '${forEach.rows}'")
+                } else if (defaults.any { (it is EStringLiteral<*>) != (columnDefault is EStringLiteral<*>) }) {
+                    error(argumentPath, "column '$column' and parameter '$parameter' are not of the same type")
+                }
+            }
         }
     }
 

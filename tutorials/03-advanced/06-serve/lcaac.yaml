@@ -39,3 +39,17 @@ api:
         electricity:
           select: [arguments, amount, GWP]
           where: { product: electricity, process: grid }
+
+    virtual_machines:
+      description: Impacts of one hour of each virtual machine of an inventory
+      process: virtual_machine
+      data:
+        vms: { datasource: vm_inventory, description: The virtual machines to assess }
+      for_each:
+        rows: vms
+        arguments: { id: id, vcpu: vcpu, region: region }
+      outputs:
+        impacts:
+          select: [GWP]
+          where: { product: vm_hour, process: virtual_machine }
+          aggregate: one

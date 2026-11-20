@@ -28,12 +28,14 @@ import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.RecordValue
 import ch.kleis.lcaac.core.lang.value.StringValue
 import ch.kleis.lcaac.core.lang.value.UnitValue
+import ch.kleis.lcaac.core.math.basic.BasicMatrix
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.parseOverrides
 import ch.kleis.lcaac.grammar.smartParseQuantityWithDefaultUnit
 import ch.kleis.lcaac.server.api.Aggregate
 import ch.kleis.lcaac.server.api.Columns
+import ch.kleis.lcaac.server.api.ForEach
 import ch.kleis.lcaac.server.api.Output
 import ch.kleis.lcaac.server.api.UnitResolver
 import ch.kleis.lcaac.server.api.Units
@@ -116,23 +118,103 @@ class OperationRunner(
         } catch (e: EvaluatorException) {
             return OperationResult.Failure(400, errorBody(e))
         }
+        val evaluator = evaluator(prepared, session)
+        val forEach = operation.forEach
+            // The request as sent, so that each result is self-contained, e.g. in a batch
+            ?: return when (val outputs = evaluate(operation, evaluator, prepared.template, prepared.arguments)) {
+                is OperationResult.Failure -> outputs
+                is OperationResult.Success -> OperationResult.Success(buildJsonObject {
+                    put("request", request)
+                    put("outputs", outputs.body)
+                })
+            }
 
+        val rows = try {
+            rowsOf(operation, forEach, request, prepared, session)
+        } catch (e: EvaluatorException) {
+            return OperationResult.Failure(422, errorBody(e))
+        }
+        val results = rows.mapIndexed { index, (json, record) ->
+            val arguments = prepared.arguments + forEach.arguments.mapValues { (_, column) ->
+                expressionOf(record.entries[column]!!)
+            }
+            when (val outputs = evaluate(operation, evaluator, prepared.template, arguments)) {
+                is OperationResult.Failure -> return OperationResult.Failure(
+                    outputs.status,
+                    outputs.body.copy(frames = outputs.body.frames + ErrorFrame("row '${forEach.rows}[$index]'")),
+                )
+
+                is OperationResult.Success -> buildJsonObject {
+                    put("row", json)
+                    put("outputs", outputs.body)
+                }
+            }
+        }
+        // Each row is repeated in its result, not in the request
+        return OperationResult.Success(buildJsonObject {
+            put("request", JsonObject(request - forEach.rows))
+            put("results", JsonArray(results))
+        })
+    }
+
+    private fun evaluator(prepared: Prepared, session: Session): Evaluator<BasicNumber, BasicMatrix> =
+        // Rows given by the request replace a data source, which a cached process may read:
+        // the evaluator of the session cannot be used
+        if (prepared.rows.isEmpty()) session.evaluator else Evaluator(
+            prepared.rows.keys.fold(symbolTable) { st, name ->
+                st.overrideDatasourceConnector(DataSourceKey(name), InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME)
+            },
+            ops,
+            session.sourceOps.overrideWith(
+                InMemoryConnector(
+                    InMemoryConnectorKeys.defaultConfig(cacheEnabled = false),
+                    prepared.rows.mapValues { InMemoryDatasource(it.value) },
+                )
+            ),
+        )
+
+    /**
+     * The rows of a `for_each`, as sent and as values: those of the request, or else those of the model,
+     * written as a request would give them.
+     */
+    private fun rowsOf(
+        operation: Operation,
+        forEach: ForEach,
+        request: JsonObject,
+        prepared: Prepared,
+        session: Session,
+    ): List<Pair<JsonElement, RecordValue<BasicNumber>>> {
+        val dataSource = operation.data[forEach.rows]!!.datasource
+        request[forEach.rows]?.let { json -> return (json as JsonArray).zip(prepared.rows[dataSource]!!) }
+        val source = session.reducer.evalDataSource(symbolTable.getDataSource(dataSource)!!)
+        return session.sourceOps.getAll(source).map { record ->
+            val value = RecordValue(record.entries.mapValues { (_, v) ->
+                with(ToValue(ops)) { session.reducer.reduce(v).toValue() }
+            })
+            JsonObject(value.entries.mapValues { (_, v) ->
+                when (v) {
+                    is QuantityValue -> quantity(v.amount.value, v.unit)
+                    else -> JsonPrimitive((v as? StringValue)?.s ?: v.toString())
+                }
+            }) to value
+        }.toList()
+    }
+
+    private fun expressionOf(value: DataValue<BasicNumber>): DataExpression<BasicNumber> = when (value) {
+        is QuantityValue -> value.toEQuantityScale()
+        is StringValue -> EStringLiteral(value.s)
+        else -> throw EvaluatorException("unsupported argument $value")
+    }
+
+    /** The outputs of [template] evaluated with [arguments], as the body of a success. */
+    private fun evaluate(
+        operation: Operation,
+        evaluator: Evaluator<BasicNumber, BasicMatrix>,
+        template: EProcessTemplate<BasicNumber>,
+        arguments: Map<String, DataExpression<BasicNumber>>,
+    ): OperationResult {
         val (trace, rows) = try {
-            // Rows given by the request replace a data source, which a cached process may read:
-            // the evaluator of the session cannot be used
-            val evaluator = if (prepared.rows.isEmpty()) session.evaluator else Evaluator(
-                prepared.rows.keys.fold(symbolTable) { st, name ->
-                    st.overrideDatasourceConnector(DataSourceKey(name), InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME)
-                },
-                ops,
-                session.sourceOps.overrideWith(
-                    InMemoryConnector(
-                        InMemoryConnectorKeys.defaultConfig(cacheEnabled = false),
-                        prepared.rows.mapValues { InMemoryDatasource(it.value) },
-                    )
-                ),
-            )
-            val trace = evaluator.trace(prepared.template, prepared.arguments)
+            val trace = evaluator.trace(template, arguments)
             trace to TraceTableProgram(trace).run()
         } catch (e: EvaluatorException) {
             return OperationResult.Failure(422, errorBody(e))
@@ -158,11 +240,7 @@ class OperationRunner(
                 return OperationResult.Failure(e.status, ErrorBody("output '$name': ${e.message}"))
             }
         }
-        // The request as sent, so that each result is self-contained, e.g. in a batch
-        return OperationResult.Success(buildJsonObject {
-            put("request", request)
-            put("outputs", JsonObject(outputs))
-        })
+        return OperationResult.Success(JsonObject(outputs))
     }
 
     /** The selected cells of [row], with quantities in the units of the API. */

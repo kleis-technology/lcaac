@@ -69,6 +69,20 @@ api:
         electricity:
           select: [arguments, amount, GWP]
           where: { product: electricity, process: grid }
+
+    virtual_machines:
+      description: Impacts of one hour of each virtual machine of an inventory
+      process: virtual_machine
+      data:
+        vms: { datasource: vm_inventory, description: The virtual machines to assess }
+      for_each:
+        rows: vms
+        arguments: { id: id, vcpu: vcpu, region: region }
+      outputs:
+        impacts:
+          select: [GWP]
+          where: { product: vm_hour, process: virtual_machine }
+          aggregate: one
 ```
 
 Each operation is served at `POST /<operation>`. It evaluates `process`, for one unit of its reference
@@ -80,6 +94,7 @@ product, as `lcaac assess` does.
 | `labels` | labels fixed by the API, to select a variant of the process, e.g. `labels: { model: standard }` |
 | `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process. The name of a field may differ from the name in the model. |
 | `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows |
+| `for_each` | evaluates the process once per row of a `data` field, with columns of the row as arguments (see below) |
 | `outputs` | the outputs of the response (see below) |
 
 `units`, for the whole API, gives the units of the quantities of the responses (see below).
@@ -296,6 +311,42 @@ apart. The total of the fleet is the sum of the VMs (46.08 + 0.2), and also the 
 since each row includes everything upstream. It is not the sum of both: with `aggregate: sum`, an output
 with `where: { arguments: { region: FR } }`, which matches the VMs in France and their electricity, is
 refused.
+
+### One result per row
+
+An operation with `for_each` evaluates its process once per row of a `data` field: `arguments` gives,
+for each parameter of the process, the column of the row that it takes. The other fields of the request
+are shared by all the rows:
+
+```bash
+curl -X POST localhost:8080/virtual_machines -H 'Content-Type: application/json' -d '{"vms": [
+  {"id": "web-1", "vcpu": "4 u"},
+  {"id": "db-1", "vcpu": 16, "region": "DE"}
+]}'
+```
+
+```json
+{
+  "request": {},
+  "results": [
+    {
+      "row": { "id": "web-1", "vcpu": "4 u" },
+      "outputs": { "impacts": { "GWP": { "amount": 0.002, "unit": "kg CO2-Eq" } } }
+    },
+    {
+      "row": { "id": "db-1", "vcpu": 16, "region": "DE" },
+      "outputs": { "impacts": { "GWP": { "amount": 0.064, "unit": "kg CO2-Eq" } } }
+    }
+  ]
+}
+```
+
+Each result repeats its row, and the request is repeated without the rows. Without `vms`, the operation
+runs over the rows of `data/vm_inventory.csv`, each written as a request would give it.
+
+The rows replace the data source once for all of them, and the evaluations share an evaluator: a process
+of the model can look up the row of its id, or sum over all the rows, and a process annotated with
+`@cached` is evaluated once for all the rows. One failing row fails the request, and the error names it.
 
 ### Several requests at once
 

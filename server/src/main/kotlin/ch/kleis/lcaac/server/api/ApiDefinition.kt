@@ -46,7 +46,19 @@ data class Operation(
     val labels: Map<String, String> = emptyMap(),
     val inputs: Map<String, Input> = emptyMap(),
     val data: Map<String, DataInput> = emptyMap(),
+    @SerialName("for_each")
+    val forEach: ForEach? = null,
     val outputs: Map<String, Output> = emptyMap(),
+)
+
+/**
+ * Evaluates the process once per row of the field [rows] of `data`, with [arguments]: a parameter of the
+ * process for each column of the row. The rows replace the data source once for all of them.
+ */
+@Serializable
+data class ForEach(
+    val rows: String,
+    val arguments: Map<String, String> = emptyMap(),
 )
 
 /**
