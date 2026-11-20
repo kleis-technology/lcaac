@@ -48,6 +48,8 @@ data class Operation(
     val data: Map<String, DataInput> = emptyMap(),
     @SerialName("for_each")
     val forEach: ForEach? = null,
+    @SerialName("pass_through")
+    val passThrough: List<String> = emptyList(),
     val outputs: Map<String, Output> = emptyMap(),
 )
 
@@ -75,13 +77,16 @@ data class Input(
 
 /**
  * A field of the request whose rows replace the rows of [datasource]. With [columns], a row gives exactly
- * these columns, under the names of the request; otherwise all the columns, under their own names.
+ * these columns, under the names of the request; otherwise all the columns, under their own names. The
+ * fields [passThrough] of a row are not read, and repeated with it.
  */
 @Serializable
 data class DataInput(
     val datasource: String,
     val description: String = "",
     val columns: Map<String, String> = emptyMap(),
+    @SerialName("pass_through")
+    val passThrough: List<String> = emptyList(),
 ) {
     /** The columns of a row: the name in the request, and the column of the data source among [schema]. */
     fun columnsOf(schema: Collection<String>): Map<String, String> =

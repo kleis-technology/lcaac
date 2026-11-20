@@ -447,6 +447,32 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun check_whenPassThroughIsAlreadyAField_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  pass_through: [vms, meta]
+                  data:
+                    vms: { datasource: vm_inventory, pass_through: [meta, hours] }
+                    machines: { datasource: vm_inventory, columns: { name: id }, pass_through: [id] }
+                  outputs:
+                    total: { select: [GWP], where: { product: fleet }, aggregate: one }
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:9:56: api.operations.vm_fleet.data.vms.pass_through: 'hours' is already a column of the rows",
+                "lcaac.yaml:7:21: api.operations.vm_fleet.pass_through: 'vms' is already a field of the request",
+            ),
+            check(api),
+        )
+    }
+
+    @Test
     fun load_whenUnknownAggregate_shouldFail() {
         val api = """
             api:

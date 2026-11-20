@@ -331,7 +331,7 @@ class OperationRunner(
     )
 
     private fun prepare(operation: Operation, request: JsonObject, session: Session): Prepared {
-        request.keys.firstOrNull { it !in operation.inputs && it !in operation.data }?.let {
+        request.keys.firstOrNull { it !in operation.inputs && it !in operation.data && it !in operation.passThrough }?.let {
             throw RequestException(ErrorBody("unknown field '$it'"))
         }
 
@@ -392,7 +392,7 @@ class OperationRunner(
         return array.mapIndexed { index, element ->
             val rowName = "$field[$index]"
             val row = element as? JsonObject ?: throw RequestException(ErrorBody("field '$rowName': expected a row"))
-            row.keys.firstOrNull { it !in fields.values }?.let {
+            row.keys.firstOrNull { it !in fields.values && it !in data.passThrough }?.let {
                 throw RequestException(ErrorBody("field '$rowName': unknown column '$it'"))
             }
             RecordValue(schema.mapValues { (column, default) ->

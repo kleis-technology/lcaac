@@ -71,6 +71,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 operation.inputs.forEach { (field, input) ->
                     put(field, inputSchema(operation, template, input))
                 }
+                operation.passThrough.forEach { put(it, passThroughSchema("Not read by the server: repeated in the response.")) }
                 operation.data.forEach { (field, data) ->
                     val rowSchema = "$prefix${pascal(field)}Row"
                     schemas[rowSchema] = rowSchema(data)
@@ -203,9 +204,13 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             put("additionalProperties", false)
             putJsonObject("properties") {
                 data.columnsOf(schema.keys).forEach { (field, column) -> put(field, valueSchema(schema[column], "")) }
+                data.passThrough.forEach { put(it, passThroughSchema("Not read by the server: repeated with its row.")) }
             }
         }
     }
+
+    /** Any value: the server does not read it. */
+    private fun passThroughSchema(description: String) = buildJsonObject { put("description", description) }
 
     private fun valueSchema(default: DataValue<BasicNumber>?, description: String): JsonObject = when (default) {
         is QuantityValue -> buildJsonObject {

@@ -90,8 +90,9 @@ class OpenApiGeneratorTest {
             virtual_machines:
               process: virtual_machine
               labels: { model: standard }
+              pass_through: [meta]
               data:
-                vms: { datasource: vm_inventory, columns: { name: id, cpus: vcpu } }
+                vms: { datasource: vm_inventory, columns: { name: id, cpus: vcpu }, pass_through: [meta] }
               for_each: { rows: vms, arguments: { id: id } }
               outputs:
                 total: { select: [GWP], where: { product: vm_hour }, aggregate: one }
@@ -242,8 +243,12 @@ class OpenApiGeneratorTest {
     @Test
     fun generate_withColumns_shouldDescribeTheRowsUnderTheNamesOfTheRequest() {
         assertEquals(
-            setOf("name", "cpus"),
+            setOf("name", "cpus", "meta"),
             schema("VirtualMachinesVmsRow")!!.jsonObject["properties"]!!.jsonObject.keys,
+        )
+        assertEquals(
+            json("""{ "description": "Not read by the server: repeated in the response." }"""),
+            schema("VirtualMachinesRequest")!!.jsonObject["properties"]!!.jsonObject["meta"],
         )
     }
 

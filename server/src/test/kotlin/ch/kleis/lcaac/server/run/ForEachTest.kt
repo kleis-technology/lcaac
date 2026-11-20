@@ -99,8 +99,9 @@ class ForEachTest {
                 total: { select: [GWP], where: { process: virtual_machine }, aggregate: one }
             renamed:
               process: virtual_machine
+              pass_through: [meta]
               data:
-                machines: { datasource: vms, columns: { name: id, cpus: vcpu } }
+                machines: { datasource: vms, columns: { name: id, cpus: vcpu }, pass_through: [meta, tags] }
               for_each:
                 rows: machines
                 arguments: { id: id }
@@ -247,6 +248,38 @@ class ForEachTest {
         assertEquals(
             json("""[ { "name": "vm-1", "cpus": { "amount": 2.0, "unit": "u" } }, { "name": "vm-2", "cpus": { "amount": 4.0, "unit": "u" } } ]"""),
             JsonArray(actual["results"]!!.jsonArray.map { it.jsonObject["row"]!! }),
+        )
+    }
+
+    @Test
+    fun run_withPassThrough_shouldRepeatTheFieldsWithoutReadingThem() {
+        val actual = assertIs<OperationResult.Success>(run("""
+            {
+              "meta": { "request": "r-1" },
+              "machines": [ { "name": "a", "cpus": 3, "meta": { "env": "production" }, "tags": ["x", 1] } ]
+            }
+        """, "renamed")).body
+
+        assertEquals(json("""
+            {
+              "request": { "meta": { "request": "r-1" } },
+              "results": [
+                { "row": { "name": "a", "cpus": 3, "meta": { "env": "production" }, "tags": ["x", 1] },
+                  "outputs": { "total": { "GWP": { "amount": 0.15, "unit": "kg CO2-Eq" } } } }
+              ]
+            }
+        """), rounded(actual))
+    }
+
+    @Test
+    fun run_withUndeclaredField_shouldFail() {
+        assertEquals(
+            OperationResult.Failure(400, ErrorBody("field 'machines[0]': unknown column 'metta'")),
+            run("""{ "machines": [ { "name": "a", "metta": {} } ] }""", "renamed"),
+        )
+        assertEquals(
+            OperationResult.Failure(400, ErrorBody("unknown field 'tags'")),
+            run("""{ "tags": [] }""", "renamed"),
         )
     }
 

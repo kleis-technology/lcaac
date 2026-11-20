@@ -123,6 +123,9 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
                         error(listOf("data", name, "columns", field), "unknown column '$column' of data source '${data.datasource}'")
                     }
                 }
+                data.passThrough.filter { it in data.columnsOf(schema.keys) }.forEach {
+                    error(listOf("data", name, "pass_through"), "'$it' is already a column of the rows")
+                }
             }
             data.columns.entries.groupBy { it.value }.filterValues { it.size > 1 }.forEach { (column, fields) ->
                 error(
@@ -133,6 +136,9 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
         }
 
         operation.forEach?.let { checkForEach(operation, it, candidates, ::error) }
+        operation.passThrough.filter { it in operation.inputs || it in operation.data }.forEach {
+            error(listOf("pass_through"), "'$it' is already a field of the request")
+        }
 
         if (operation.outputs.isEmpty()) {
             error(emptyList(), "an operation has at least one output")

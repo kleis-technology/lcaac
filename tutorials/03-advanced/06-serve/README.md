@@ -95,6 +95,7 @@ product, as `lcaac assess` does.
 | `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process, or to a global parameter of the model (`{ global: name }`), for this request only. The name of a field may differ from the name in the model. |
 | `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows. With `columns`, the rows give exactly the declared columns, under the names of the request: `columns: { cpus: vcpu }` |
 | `for_each` | evaluates the process once per row of a `data` field, with columns of the row as arguments (see below) |
+| `pass_through` | the fields of the request that the server accepts without reading them, repeated in the response (see below) |
 | `outputs` | the outputs of the response (see below) |
 
 `units`, for the whole API, gives the units of the quantities of the responses (see below).
@@ -322,6 +323,20 @@ data:
 
 The rows then give `id`, `cpus` and `hours` only; the other columns, here `region`, keep their default.
 Errors, the OpenAPI document and the rows repeated in responses use the names of the request.
+
+A field that the server should accept without reading it, e.g. labels of the client, is declared with
+`pass_through`: on a `data` field for the rows, and on the operation for the request. It may hold any
+value, and comes back with its row, or with the request:
+
+```yaml
+pass_through: [meta]                 # in the request
+data:
+  vms:
+    datasource: vm_inventory
+    pass_through: [meta]             # in each row
+```
+
+Any other field is refused, so that a misspelled field is an error rather than ignored.
 
 The rows of `per_vm` are in the order of the trace, not of the request: use `arguments` to tell them
 apart. The total of the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electricity,
