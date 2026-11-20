@@ -15,6 +15,7 @@ fun main(args: Array<String>) {
             EvalCommand(),
             ExplainCommand(),
             GraphCommand(),
+            ServeCommand(),
             TestCommand(),
             TraceCommand(),
             VersionCommand(),

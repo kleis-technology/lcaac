@@ -33,6 +33,8 @@ dependencies {
     implementation(project(":grammar"))
     testImplementation(project(":grammar"))
 
+    implementation(project(":server"))
+
     testImplementation("io.mockk:mockk:1.13.4")
     implementation(kotlin("stdlib-jdk8"))
 
