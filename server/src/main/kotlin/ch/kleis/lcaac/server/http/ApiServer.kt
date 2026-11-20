@@ -7,7 +7,7 @@ import ch.kleis.lcaac.server.run.OperationRunner
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.cio.*
+import io.ktor.server.netty.*
 import io.ktor.server.engine.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
@@ -19,9 +19,15 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 /**
- * The HTTP routes of an API: `GET /`, `GET /health`, `GET /openapi.json`, and `POST /{operation}` for each operation.
+ * The HTTP routes of an API: `GET /`, `GET /health`, `GET /openapi.json`, and for each operation,
+ * `POST /{operation}` and `POST /{operation}/batch`, which runs at most [maxBatch] requests.
  */
-fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner, openApi: JsonObject) {
+fun Application.lcaacApi(
+    definition: ApiDefinition,
+    runner: OperationRunner,
+    openApi: JsonObject,
+    maxBatch: Int = DEFAULT_MAX_BATCH,
+) {
     install(ContentNegotiation) {
         json(Json { encodeDefaults = false })
     }
@@ -52,19 +58,54 @@ fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner, ope
             } catch (e: IllegalArgumentException) {
                 return@post call.respond(HttpStatusCode.BadRequest, ErrorBody("the request is not a JSON object"))
             }
-            when (val result = withContext(Dispatchers.Default) { runner.run(operation, request) }) {
-                is OperationResult.Success -> call.respond(result.body)
-                is OperationResult.Failure -> call.respond(HttpStatusCode.fromValue(result.status), result.body)
+            respond(call, withContext(Dispatchers.Default) { runner.run(operation, request) })
+        }
+        post("/{operation}/batch") {
+            val name = call.parameters["operation"]!!
+            val operation = definition.operations[name]
+                ?: return@post call.respond(HttpStatusCode.NotFound, ErrorBody("unknown operation '$name'"))
+            val requests = try {
+                val body = Json.parseToJsonElement(call.receiveText()).jsonObject
+                if (body.keys != setOf("requests")) throw IllegalArgumentException()
+                body["requests"]!!.jsonArray.map { it.jsonObject }
+            } catch (e: SerializationException) {
+                return@post call.respond(HttpStatusCode.BadRequest, ErrorBody("the request is not valid JSON"))
+            } catch (e: IllegalArgumentException) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorBody("expected an object with 'requests', a list of requests"),
+                )
             }
+            if (requests.size > maxBatch) {
+                return@post call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorBody("too many requests: ${requests.size}, at most $maxBatch in a batch"),
+                )
+            }
+            respond(call, withContext(Dispatchers.Default) { runner.runBatch(operation, requests) })
         }
     }
+}
+
+const val DEFAULT_MAX_BATCH = 10_000
+
+private suspend fun respond(call: ApplicationCall, result: OperationResult) = when (result) {
+    is OperationResult.Success -> call.respond(result.body)
+    is OperationResult.Failure -> call.respond(HttpStatusCode.fromValue(result.status), result.body)
 }
 
 /**
  * Serves an API until the process stops.
  */
-fun serve(definition: ApiDefinition, runner: OperationRunner, openApi: JsonObject, host: String, port: Int) {
-    embeddedServer(CIO, host = host, port = port) {
-        lcaacApi(definition, runner, openApi)
+fun serve(
+    definition: ApiDefinition,
+    runner: OperationRunner,
+    openApi: JsonObject,
+    host: String,
+    port: Int,
+    maxBatch: Int = DEFAULT_MAX_BATCH,
+) {
+    embeddedServer(Netty, host = host, port = port) {
+        lcaacApi(definition, runner, openApi, maxBatch)
     }.start(wait = true)
 }

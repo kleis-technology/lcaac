@@ -106,7 +106,10 @@ class OpenApiGeneratorTest {
 
         assertEquals(emptyList(), result.messages)
         assertNotNull(result.openAPI)
-        assertEquals(setOf("/vm_fleet", "/virtual_machine"), result.openAPI.paths.keys)
+        assertEquals(
+            setOf("/vm_fleet", "/vm_fleet/batch", "/virtual_machine", "/virtual_machine/batch"),
+            result.openAPI.paths.keys,
+        )
     }
 
     @Test

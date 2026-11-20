@@ -30,6 +30,9 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 putJsonObject("/$name") {
                     putJsonObject("post") { operation(name, operation, schemas) }
                 }
+                putJsonObject("/$name/batch") {
+                    putJsonObject("post") { batch(name, operation, schemas) }
+                }
             }
         }
         return buildJsonObject {
@@ -92,6 +95,45 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             put("200", response("Results", "${prefix}Response"))
             put("400", response("A value of the request cannot be read, or has the wrong dimension", "Error"))
             put("422", response("The evaluation failed", "Error"))
+        }
+    }
+
+    private fun JsonObjectBuilder.batch(name: String, operation: Operation, schemas: MutableMap<String, JsonObject>) {
+        val prefix = pascal(name)
+        put("operationId", "${name}_batch")
+        put("summary", listOf(operation.description, "Several requests at once.").filter { it.isNotEmpty() }.joinToString(" "))
+        schemas["${prefix}BatchRequest"] = buildJsonObject {
+            put("type", "object")
+            put("additionalProperties", false)
+            putJsonArray("required") { add("requests") }
+            putJsonObject("properties") {
+                putJsonObject("requests") {
+                    put("type", "array")
+                    put("items", ref("${prefix}Request"))
+                }
+            }
+        }
+        schemas["${prefix}BatchResponse"] = buildJsonObject {
+            put("type", "object")
+            putJsonArray("required") { add("results") }
+            putJsonObject("properties") {
+                putJsonObject("results") {
+                    put("type", "array")
+                    put("description", "One result per request, in the order of the requests.")
+                    put("items", ref("${prefix}Response"))
+                }
+            }
+        }
+        putJsonObject("requestBody") {
+            put("required", true)
+            putJsonObject("content") {
+                putJsonObject("application/json") { put("schema", ref("${prefix}BatchRequest")) }
+            }
+        }
+        putJsonObject("responses") {
+            put("200", response("One result per request", "${prefix}BatchResponse"))
+            put("400", response("A request cannot be read, or the batch is too large", "Error"))
+            put("422", response("The evaluation of a request failed", "Error"))
         }
     }
 

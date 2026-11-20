@@ -4,6 +4,7 @@ import ch.kleis.lcaac.core.datasource.ConnectorFactory
 import ch.kleis.lcaac.core.datasource.csv.CsvConnectorBuilder
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.server.api.OpenApiGenerator
+import ch.kleis.lcaac.server.http.DEFAULT_MAX_BATCH
 import ch.kleis.lcaac.server.http.serve
 import ch.kleis.lcaac.server.run.OperationRunner
 import com.github.ajalt.clikt.core.CliktCommand
@@ -24,6 +25,8 @@ class ServeCommand : CliktCommand(
     val source: File by sourceOption()
     val host: String by option("--host", help = "Host to listen on").default("127.0.0.1")
     val port: Int by option("-p", "--port", help = "Port to listen on").int().default(8080)
+    val maxBatch: Int by option("--max-batch", help = "Maximum number of requests in a batch")
+        .int().default(DEFAULT_MAX_BATCH)
     val hideLocations: Boolean by option(
         "--hide-locations",
         help = "Do not show the locations of the model in the errors returned to clients",
@@ -38,6 +41,6 @@ class ServeCommand : CliktCommand(
         val openApi = OpenApiGenerator(project.symbolTable).generate(project.definition)
         val api = project.definition
         echo("Serving ${api.name} ${api.version} on http://$host:$port", err = true)
-        serve(project.definition, runner, openApi, host, port)
+        serve(project.definition, runner, openApi, host, port, maxBatch)
     }
 }

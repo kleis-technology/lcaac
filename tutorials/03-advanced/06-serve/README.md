@@ -242,6 +242,53 @@ The rows of `per_vm` are in the order of the trace, not of the request: use `arg
 apart. The values of the rows do not add up, since each one includes everything upstream: the total of
 the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electricity.
 
+### Several requests at once
+
+Each operation is also served at `POST /<operation>/batch`, to run several requests in one call, as
+`lcaac assess -f` does with the rows of a CSV file. The body lists the requests, each one as it would be
+sent alone, and the response gives their results in the same order:
+
+```bash
+curl -X POST localhost:8080/virtual_machine/batch -H 'Content-Type: application/json' \
+  -d '{"requests": [{"vcpu": 4, "region": "DE"}, {"vcpu": 2}]}'
+```
+
+```json
+{
+  "results": [
+    {
+      "impacts": [ { "GWP": { "amount": 0.016, "unit": "kg CO2-Eq" } } ],
+      "electricity": [ { "amount": { "amount": 0.04, "unit": "kWh" } } ]
+    },
+    {
+      "impacts": [ { "GWP": { "amount": 0.001, "unit": "kg CO2-Eq" } } ],
+      "electricity": [ { "amount": { "amount": 0.02, "unit": "kWh" } } ]
+    }
+  ]
+}
+```
+
+The requests are assessed one after the other, with the same evaluator: a process annotated with
+`@cached` is evaluated once for the whole batch, instead of once per request. A request that gives rows
+of a data source is the exception: a cached process may read these rows, so it is evaluated on its own.
+
+To assess many items, a batch of small requests is much faster than one request with many rows: each
+request is a small system. With this model, a batch of 100,000 VMs takes a few seconds.
+
+A batch fails as a whole when one of its requests fails, and the error names the request:
+
+```json
+{
+  "error": "incompatible dimensions: expected none, found mass",
+  "frames": [
+    { "description": "argument 'vcpu' = 2 kg" },
+    { "description": "request 'requests[1]'" }
+  ]
+}
+```
+
+A batch holds at most 10,000 requests, unless the server is started with e.g. `--max-batch 100000`.
+
 ### Errors
 
 A request that cannot be read is a `400` error: an unknown field, or a value that is not a quantity or

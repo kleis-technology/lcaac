@@ -66,11 +66,38 @@ class OperationRunner(
 ) {
     private val ops = BasicOperations
 
-    fun run(operation: Operation, request: JsonObject): OperationResult {
+    /**
+     * What the requests of a batch share: the reads of the data sources, and the evaluator, hence the
+     * processes evaluated once with `@cached`.
+     */
+    private inner class Session {
         val sourceOps = DefaultDataSourceOperations(ops, config, connectors)
         val reducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
+        val evaluator by lazy { Evaluator(symbolTable, ops, sourceOps) }
+    }
+
+    fun run(operation: Operation, request: JsonObject): OperationResult = run(operation, request, Session())
+
+    /**
+     * Runs the requests one after the other, with the same evaluator. One failure fails the whole batch.
+     */
+    fun runBatch(operation: Operation, requests: List<JsonObject>): OperationResult {
+        val session = Session()
+        val results = requests.mapIndexed { index, request ->
+            when (val result = run(operation, request, session)) {
+                is OperationResult.Success -> result.body
+                is OperationResult.Failure -> return OperationResult.Failure(
+                    result.status,
+                    result.body.copy(frames = result.body.frames + ErrorFrame("request 'requests[$index]'")),
+                )
+            }
+        }
+        return OperationResult.Success(buildJsonObject { put("results", JsonArray(results)) })
+    }
+
+    private fun run(operation: Operation, request: JsonObject, session: Session): OperationResult {
         val prepared = try {
-            prepare(operation, request, reducer)
+            prepare(operation, request, session.reducer)
         } catch (e: RequestException) {
             return OperationResult.Failure(400, e.body)
         } catch (e: EvaluatorException) {
@@ -78,16 +105,21 @@ class OperationRunner(
         }
 
         val rows = try {
-            val st = prepared.rows.keys.fold(symbolTable) { st, name ->
-                st.overrideDatasourceConnector(DataSourceKey(name), InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME)
-            }
-            val evaluatorSourceOps = if (prepared.rows.isEmpty()) sourceOps else sourceOps.overrideWith(
-                InMemoryConnector(
-                    InMemoryConnectorKeys.defaultConfig(cacheEnabled = false),
-                    prepared.rows.mapValues { InMemoryDatasource(it.value) },
-                )
+            // Rows given by the request replace a data source, which a cached process may read:
+            // the evaluator of the session cannot be used
+            val evaluator = if (prepared.rows.isEmpty()) session.evaluator else Evaluator(
+                prepared.rows.keys.fold(symbolTable) { st, name ->
+                    st.overrideDatasourceConnector(DataSourceKey(name), InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME)
+                },
+                ops,
+                session.sourceOps.overrideWith(
+                    InMemoryConnector(
+                        InMemoryConnectorKeys.defaultConfig(cacheEnabled = false),
+                        prepared.rows.mapValues { InMemoryDatasource(it.value) },
+                    )
+                ),
             )
-            val trace = Evaluator(st, ops, evaluatorSourceOps).trace(prepared.template, prepared.arguments)
+            val trace = evaluator.trace(prepared.template, prepared.arguments)
             TraceTableProgram(trace).run()
         } catch (e: EvaluatorException) {
             return OperationResult.Failure(422, errorBody(e))

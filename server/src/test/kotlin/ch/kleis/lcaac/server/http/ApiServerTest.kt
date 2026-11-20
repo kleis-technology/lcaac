@@ -69,7 +69,7 @@ class ApiServerTest {
     private val runner = OperationRunner(symbolTable, LcaacConfig(), emptyMap())
 
     private fun test(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
-        application { lcaacApi(definition, runner, OpenApiGenerator(symbolTable).generate(definition)) }
+        application { lcaacApi(definition, runner, OpenApiGenerator(symbolTable).generate(definition), maxBatch = 3) }
         block()
     }
 
@@ -116,6 +116,50 @@ class ApiServerTest {
 
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals(json("""{"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}"""), json(response.bodyAsText()))
+    }
+
+    @Test
+    fun postBatch_shouldRunEachRequest() = test {
+        val response = client.post("/virtual_machine/batch") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"requests": [{"cpus": 4}, {}]}""")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(
+            json("""{"results":[
+                {"impacts":[{"GWP":{"amount":0.08,"unit":"kg CO2-Eq"}}]},
+                {"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}
+            ]}"""),
+            json(response.bodyAsText()),
+        )
+    }
+
+    @Test
+    fun postBatch_tooLarge_shouldBe400() = test {
+        val response = client.post("/virtual_machine/batch") { setBody("""{"requests": [{}, {}, {}, {}]}""") }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(json("""{"error":"too many requests: 4, at most 3 in a batch"}"""), json(response.bodyAsText()))
+    }
+
+    @Test
+    fun postBatch_withoutRequests_shouldBe400() = test {
+        val response = client.post("/virtual_machine/batch") { setBody("""[{}]""") }
+
+        assertEquals(HttpStatusCode.BadRequest, response.status)
+        assertEquals(
+            json("""{"error":"expected an object with 'requests', a list of requests"}"""),
+            json(response.bodyAsText()),
+        )
+    }
+
+    @Test
+    fun postBatch_whenARequestFails_shouldBe422() = test {
+        val response = client.post("/broken/batch") { setBody("""{"requests": [{}]}""") }
+
+        assertEquals(HttpStatusCode.UnprocessableEntity, response.status)
+        assert(response.bodyAsText().contains("request 'requests[0]'")) { response.bodyAsText() }
     }
 
     @Test
