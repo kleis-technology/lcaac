@@ -8,7 +8,6 @@ import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
 import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 
@@ -95,8 +94,7 @@ class TraceCsvResultWriter(
         val demandedAmount = line.demandedProduct.quantity.amount
         val demandedUnit = line.demandedProduct.quantity.unit
         val demandedProductName = line.demandedProduct.product.name
-        val allocationAmount = (line.demandedProduct.allocation?.amount?.toDouble()
-            ?: 1.0) * (line.demandedProduct.allocation?.unit?.scale ?: 1.0)
+        val allocationAmount = line.allocation
         val supplyAmount = line.supply.amount.value * allocationAmount
         val prefix = result.request.arguments().plus(
             when (val output = line.output) {
@@ -176,8 +174,7 @@ class TraceCsvResultWriter(
             val demandedAmount = line.demandedProduct.quantity.amount
             val demandedUnit = line.demandedProduct.quantity.unit
             val demandedProductName = line.demandedProduct.product.name
-            val allocationAmount = (line.demandedProduct.allocation?.amount?.toDouble()
-                ?: 1.0) * (line.demandedProduct.allocation?.unit?.scale ?: 1.0)
+            val allocationAmount = line.allocation
             val supplyAmount = line.supply.amount.value * allocationAmount
             val (name, a, b, c) = when (val output = line.output) {
                 is IndicatorValue<*> -> listOf(output.name, "", "", "")

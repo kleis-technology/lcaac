@@ -16,7 +16,11 @@ data class TraceRow(
     val supply: QuantityValue<BasicNumber>,
     val output: MatrixColumnIndex<BasicNumber>,
     val impacts: Map<MatrixColumnIndex<BasicNumber>, QuantityValue<BasicNumber>>,
-)
+) {
+    /** The factor applied to [supply] and [impacts] for the allocation of [demandedProduct], as `lcaac trace` shows it. */
+    val allocation: Double
+        get() = (demandedProduct.allocation?.amount?.value ?: 1.0) * (demandedProduct.allocation?.unit?.scale ?: 1.0)
+}
 
 /**
  * The table of `lcaac trace` for an evaluated process: for each of its products, one row per product
