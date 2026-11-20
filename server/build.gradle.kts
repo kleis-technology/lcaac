@@ -31,6 +31,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22")
 
     testImplementation("io.mockk:mockk:1.13.4")
     testImplementation(kotlin("test"))

@@ -34,6 +34,7 @@ dependencies {
     testImplementation(project(":grammar"))
 
     implementation(project(":server"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     testImplementation("io.mockk:mockk:1.13.4")
     implementation(kotlin("stdlib-jdk8"))

@@ -19,9 +19,9 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.*
 
 /**
- * The HTTP routes of an API: `GET /`, `GET /health`, and `POST /{operation}` for each operation.
+ * The HTTP routes of an API: `GET /`, `GET /health`, `GET /openapi.json`, and `POST /{operation}` for each operation.
  */
-fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner) {
+fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner, openApi: JsonObject) {
     install(ContentNegotiation) {
         json(Json { encodeDefaults = false })
     }
@@ -36,6 +36,9 @@ fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner) {
         }
         get("/health") {
             call.respond(buildJsonObject { put("status", "ok") })
+        }
+        get("/openapi.json") {
+            call.respond(openApi)
         }
         post("/{operation}") {
             val name = call.parameters["operation"]!!
@@ -60,8 +63,8 @@ fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner) {
 /**
  * Serves an API until the process stops.
  */
-fun serve(definition: ApiDefinition, runner: OperationRunner, host: String, port: Int) {
+fun serve(definition: ApiDefinition, runner: OperationRunner, openApi: JsonObject, host: String, port: Int) {
     embeddedServer(CIO, host = host, port = port) {
-        lcaacApi(definition, runner)
+        lcaacApi(definition, runner, openApi)
     }.start(wait = true)
 }

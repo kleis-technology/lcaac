@@ -6,6 +6,7 @@ import ch.kleis.lcaac.grammar.Loader
 import ch.kleis.lcaac.grammar.LoaderOption
 import ch.kleis.lcaac.grammar.parseLcaText
 import ch.kleis.lcaac.server.api.ApiDefinitionLoader
+import ch.kleis.lcaac.server.api.OpenApiGenerator
 import ch.kleis.lcaac.server.run.OperationRunner
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -61,14 +62,12 @@ class ApiServerTest {
               impacts: { select: [GWP], where: { process: broken } }
     """.trimIndent()).definition
 
-    private val runner = OperationRunner(
-        Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),
-        LcaacConfig(),
-        emptyMap(),
-    )
+    private val symbolTable = Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
+
+    private val runner = OperationRunner(symbolTable, LcaacConfig(), emptyMap())
 
     private fun test(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
-        application { lcaacApi(definition, runner) }
+        application { lcaacApi(definition, runner, OpenApiGenerator(symbolTable).generate(definition)) }
         block()
     }
 
@@ -88,6 +87,14 @@ class ApiServerTest {
     @Test
     fun getHealth_shouldBeOk() = test {
         assertEquals(HttpStatusCode.OK, client.get("/health").status)
+    }
+
+    @Test
+    fun getOpenApi_shouldServeTheDocument() = test {
+        val response = client.get("/openapi.json")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assert(response.bodyAsText().contains("\"operationId\":\"virtual_machine\"")) { response.bodyAsText() }
     }
 
     @Test
