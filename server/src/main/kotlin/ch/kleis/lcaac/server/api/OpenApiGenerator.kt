@@ -212,6 +212,10 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
     /** Any value: the server does not read it. */
     private fun passThroughSchema(description: String) = buildJsonObject { put("description", description) }
 
+    /**
+     * The schema of a value of the type of [default]. The default itself is left out: it may be computed by
+     * the model, e.g. from the rows of the request, or from a global parameter given by the request.
+     */
     private fun valueSchema(default: DataValue<BasicNumber>?, description: String): JsonObject = when (default) {
         is QuantityValue -> buildJsonObject {
             putJsonArray("allOf") { addJsonObject { put("\$ref", "#/components/schemas/QuantityInput") } }
@@ -220,13 +224,11 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 description.trimEnd('.').let { if (it.isEmpty()) it else "$it." },
                 "Quantity of dimension ${unit.dimension}. Default unit ${unit.symbol}.",
             ).filter { it.isNotEmpty() }.joinToString(" "))
-            put("default", default.toString())
         }
 
         is StringValue -> buildJsonObject {
             put("type", "string")
             if (description.isNotEmpty()) put("description", description)
-            put("default", default.s)
         }
 
         else -> buildJsonObject {

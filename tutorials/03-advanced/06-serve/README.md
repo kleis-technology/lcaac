@@ -483,8 +483,9 @@ generated without a server, e.g. to publish it, review its changes, or generate 
 lcaac api openapi > openapi.json
 ```
 
-The document is derived from the definition and the model: the types, units and default values of the
-fields come from the parameters and data sources of the model, and the values of a label are listed. The
+The document is derived from the definition and the model: the types and units of the fields come from
+the parameters and data sources of the model, and the values of a label are listed. Default values are
+not given: the model may compute them, e.g. from the rows of the request. The
 unit of each quantity of a response is the unit of the API.
 It describes the contract only: the names of the processes, parameters and data sources behind it are
 not in it, so that the model can change without changing the contract.

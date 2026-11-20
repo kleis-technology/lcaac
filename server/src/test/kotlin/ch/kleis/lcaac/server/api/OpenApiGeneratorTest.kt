@@ -132,16 +132,14 @@ class OpenApiGeneratorTest {
               "type": "object",
               "additionalProperties": false,
               "properties": {
-                "id": { "type": "string", "default": "vm-001" },
+                "id": { "type": "string" },
                 "vcpu": {
                   "allOf": [ { "${'$'}ref": "#/components/schemas/QuantityInput" } ],
-                  "description": "Quantity of dimension none. Default unit u.",
-                  "default": "2.0 u"
+                  "description": "Quantity of dimension none. Default unit u."
                 },
                 "hours": {
                   "allOf": [ { "${'$'}ref": "#/components/schemas/QuantityInput" } ],
-                  "description": "Quantity of dimension time. Default unit hour.",
-                  "default": "720.0 hour"
+                  "description": "Quantity of dimension time. Default unit hour."
                 }
               }
             }
@@ -158,8 +156,7 @@ class OpenApiGeneratorTest {
                 "model": { "type": "string", "enum": ["detailed", "standard"], "description": "The model of a virtual machine" },
                 "lifetime": {
                   "allOf": [ { "${'$'}ref": "#/components/schemas/QuantityInput" } ],
-                  "description": "Quantity of dimension time. Default unit year.",
-                  "default": "3.0 year"
+                  "description": "Quantity of dimension time. Default unit year."
                 }
               }
             }
