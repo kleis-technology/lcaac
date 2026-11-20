@@ -39,4 +39,4 @@ nothing of it). Each run leaves its outputs, transcript, timing and grading in t
 `benchmark.json`. `evals.py grade <iteration>` grades an iteration again; `evals.py check <check> ...` runs a check
 in the current directory.
 
-Running the cases costs agent time and tokens: a full iteration is 5 cases, twice.
+Running the cases costs agent time and tokens: a full iteration is 9 cases, twice.

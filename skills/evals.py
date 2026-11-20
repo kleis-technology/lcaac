@@ -47,8 +47,8 @@ def lcaac(cwd, *args, timeout=180):
     return subprocess.run([LCAAC, *args], cwd=cwd, capture_output=True, text=True, timeout=timeout)
 
 
-def assess_impacts(cwd, process):
-    result = lcaac(cwd, "assess", process, "-o", "json")
+def assess_impacts(cwd, process, *options):
+    result = lcaac(cwd, "assess", process, *options, "-o", "json")
     if result.returncode != 0:
         raise CheckError(f"lcaac assess {process} failed: {(result.stdout + result.stderr).strip()[-400:]}")
     rows = json.loads(result.stdout)
@@ -73,11 +73,19 @@ def same_unit(a, b):
     return normalize(a) == normalize(b)
 
 
-def check_impact_between(cwd, process, unit, lo, hi):
-    impacts = assess_impacts(cwd, process)
+def check_impact_between(cwd, process, unit, lo, hi, *options):
+    """An impact of [process] in [unit] between [lo] and [hi], with [options] of lcaac assess (e.g. -D, -G)."""
+    impacts = assess_impacts(cwd, process, *options)
     found = {k: v for k, v in impacts.items() if same_unit(v["unit"], unit)}
     passed = any(float(lo) <= v["amount"] <= float(hi) for v in found.values())
-    return passed, f"impacts of {process}: {impacts}"
+    return passed, f"impacts of {process} {' '.join(options)}: {impacts}"
+
+
+def check_no_flows(cwd, process, unit):
+    """Every column of [process] is an impact in [unit]: no unresolved product or substance, whatever the indicators."""
+    impacts = assess_impacts(cwd, process)
+    flows = sorted(k for k, v in impacts.items() if not same_unit(v["unit"], unit))
+    return not flows, f"columns of {process}: {impacts}" + (f", unresolved: {flows}" if flows else "")
 
 
 def check_impact_unit(cwd, process, unit):
@@ -161,6 +169,7 @@ CHECKS = {
     "impact-between": check_impact_between,
     "impact-unit": check_impact_unit,
     "impacts-only": check_impacts_only,
+    "no-flows": check_no_flows,
     "trace-mentions": check_trace_mentions,
     "file-numbers": check_file_numbers,
     "openapi": check_openapi,

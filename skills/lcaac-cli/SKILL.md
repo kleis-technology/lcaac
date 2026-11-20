@@ -55,8 +55,9 @@ The commands `assess`, `trace`, `explain` and `graph` take the same inputs:
 - `-f params.csv` (`assess`, `trace`, `test`): one evaluation per row, the columns being parameters; `-D` values apply
   to every row.
 
-A `-D` name that is not a parameter of the process is ignored: the output only gains a column. Check the names
-(`lcaac trace` shows the arguments of each process).
+A `-D` name that is not a parameter of the process is ignored: the output only gains a column. Likewise, a `-G`
+name that is not a global parameter of the model is ignored. Check the names (`lcaac trace` shows the arguments of
+each process; global parameters are in top-level `params` blocks).
 
 ```
 $ lcaac assess virtual_machine -f params.csv -o csv     # params.csv: vcpu,region / 2 u,FR / 4 u,DE

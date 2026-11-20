@@ -1,0 +1,64 @@
+process electricity {
+    labels {
+        geo = "FR"
+        mix = "average"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.05 kg_CO2_Eq GWP
+    }
+}
+
+process electricity {
+    labels {
+        geo = "FR"
+        mix = "marginal"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.3 kg_CO2_Eq GWP
+    }
+}
+
+process electricity {
+    labels {
+        geo = "DE"
+        mix = "average"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.38 kg_CO2_Eq GWP
+    }
+}
+
+process electricity {
+    labels {
+        geo = "DE"
+        mix = "marginal"
+    }
+    products {
+        1 kWh electricity
+    }
+    impacts {
+        0.6 kg_CO2_Eq GWP
+    }
+}
+
+process data_center {
+    params {
+        geo = "FR"
+        mix = "average"
+    }
+    products {
+        1 year operation
+    }
+    inputs {
+        100000 kWh electricity from electricity match (geo = geo, mix = mix)
+    }
+}

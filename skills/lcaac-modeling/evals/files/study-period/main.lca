@@ -1,0 +1,28 @@
+// A web service, assessed over one year
+process service {
+    products {
+        1 p service
+    }
+    inputs {
+        8760 hour server_time
+        8760 hour network_time
+    }
+}
+
+process server {
+    products {
+        1 hour server_time
+    }
+    impacts {
+        0.02 kg_CO2_Eq GWP
+    }
+}
+
+process network {
+    products {
+        1 hour network_time
+    }
+    impacts {
+        0.005 kg_CO2_Eq GWP
+    }
+}

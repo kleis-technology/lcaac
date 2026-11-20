@@ -13,6 +13,7 @@ columns of `lcaac assess` and the rows of `lcaac trace` after every change.
 | An indicator appears twice in the columns | The same indicator name is used with two dimensions (`1 kg_CO2_Eq GWP` and `1 kWh GWP`) | One dimension per indicator |
 | A value read from a data source belongs to another item | `lookup` takes the first matching row when several match | Filter on a unique column (an id), or with several conditions: `match (id = id, pool = pool)` |
 | `-D name=...` has no effect | `name` is not a parameter of the process: `-D` ignores it (the output only gets a column) | Check the parameter names (`lcaac trace` shows the arguments of each process) |
+| `-G name=...` has no effect | `name` is not a global parameter (a top-level `params` block): `-G` ignores it | Declare it at the top level, not in the `params` of a process |
 
 ## Errors
 
