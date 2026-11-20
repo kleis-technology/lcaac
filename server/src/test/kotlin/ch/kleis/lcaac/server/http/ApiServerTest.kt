@@ -89,8 +89,11 @@ class ApiServerTest {
     }
 
     @Test
-    fun getHealth_shouldBeOk() = test {
-        assertEquals(HttpStatusCode.OK, client.get("/health").status)
+    fun getHealth_shouldBeUp() = test {
+        val response = client.get("/health")
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals(json("""{"status":"UP"}"""), json(response.bodyAsText()))
     }
 
     @Test

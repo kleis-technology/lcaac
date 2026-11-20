@@ -41,7 +41,7 @@ fun Application.lcaacApi(
             })
         }
         get("/health") {
-            call.respond(buildJsonObject { put("status", "ok") })
+            call.respond(buildJsonObject { put("status", "UP") })
         }
         get("/openapi.json") {
             call.respond(openApi)
