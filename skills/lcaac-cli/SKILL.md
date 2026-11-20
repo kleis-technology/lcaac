@@ -50,9 +50,13 @@ The commands `assess`, `trace`, `explain` and `graph` take the same inputs:
 - `-D name=value`: a parameter of the process, e.g. `-D vcpu="8 u" -D region=DE`. Quantities are text in the language
   syntax, with their unit (`"12 kg"`), quoted for the shell.
 - `-l name=value`: a label, to choose a variant of the process (processes of the same name with different labels).
+  A process with labels needs all of them: without, `Could not get template for <process>{}`.
 - `-G name=value`: a global parameter of the model (declared in a top-level `params` block), for this run only.
 - `-f params.csv` (`assess`, `trace`, `test`): one evaluation per row, the columns being parameters; `-D` values apply
   to every row.
+
+A `-D` name that is not a parameter of the process is ignored: the output only gains a column. Check the names
+(`lcaac trace` shows the arguments of each process).
 
 ```
 $ lcaac assess virtual_machine -f params.csv -o csv     # params.csv: vcpu,region / 2 u,FR / 4 u,DE
@@ -85,6 +89,10 @@ per product of the supply chain: `depth` (0 is the process), `name` (product), `
 everything upstream included: rows do not add up.
 
 Numbers are floating point: compare with a tolerance (`8.639999999999999` is 8.64).
+
+A column of `assess` named after a product or substance rather than an indicator (e.g. `electricity`, `kWh`) is a flow
+that no process supplies, or that no substance characterizes: its impacts are missing from the results. It is not an
+error; see the pitfalls of the skill `lcaac-modeling`.
 
 ## The verification loop
 
