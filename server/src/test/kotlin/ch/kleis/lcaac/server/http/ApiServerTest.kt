@@ -107,7 +107,10 @@ class ApiServerTest {
         }
 
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals(json("""{"impacts":[{"GWP":{"amount":0.08,"unit":"kg CO2-Eq"}}]}"""), json(response.bodyAsText()))
+        assertEquals(
+            json("""{"request":{"cpus":4},"outputs":{"impacts":[{"GWP":{"amount":0.08,"unit":"kg CO2-Eq"}}]}}"""),
+            json(response.bodyAsText()),
+        )
     }
 
     @Test
@@ -115,7 +118,10 @@ class ApiServerTest {
         val response = client.post("/virtual_machine")
 
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals(json("""{"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}"""), json(response.bodyAsText()))
+        assertEquals(
+            json("""{"request":{},"outputs":{"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}}"""),
+            json(response.bodyAsText()),
+        )
     }
 
     @Test
@@ -128,8 +134,8 @@ class ApiServerTest {
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals(
             json("""{"results":[
-                {"impacts":[{"GWP":{"amount":0.08,"unit":"kg CO2-Eq"}}]},
-                {"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}
+                {"request":{"cpus":4},"outputs":{"impacts":[{"GWP":{"amount":0.08,"unit":"kg CO2-Eq"}}]}},
+                {"request":{},"outputs":{"impacts":[{"GWP":{"amount":0.04,"unit":"kg CO2-Eq"}}]}}
             ]}"""),
             json(response.bodyAsText()),
         )

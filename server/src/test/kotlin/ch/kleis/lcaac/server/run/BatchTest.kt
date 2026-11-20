@@ -146,6 +146,15 @@ class BatchTest {
     }
 
     @Test
+    fun runBatch_shouldRepeatEachRequestInItsResult() {
+        val batch = requests("""{"vcpu": 4}""", "{}")
+
+        val actual = assertIs<OperationResult.Success>(runner.runBatch(api.operations["virtual_machine"]!!, batch)).body
+
+        assertEquals(batch, actual["results"]!!.jsonArray.map { it.jsonObject["request"] })
+    }
+
+    @Test
     fun runBatch_shouldShareTheCachedProcesses() {
         val operation = api.operations["virtual_machine"]!!
 

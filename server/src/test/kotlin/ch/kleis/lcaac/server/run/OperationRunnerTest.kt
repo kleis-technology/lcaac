@@ -99,8 +99,13 @@ class OperationRunnerTest {
     private fun run(operation: String, request: String): OperationResult =
         runner.run(api.operations[operation]!!, Json.parseToJsonElement(request).jsonObject)
 
-    private fun success(operation: String, request: String): JsonObject =
-        assertIs<OperationResult.Success>(run(operation, request)).body
+    /** The outputs of a successful run, after checking that the response repeats the request. */
+    private fun success(operation: String, request: String): JsonObject {
+        val body = assertIs<OperationResult.Success>(run(operation, request)).body
+        assertEquals(setOf("request", "outputs"), body.keys)
+        assertEquals(json(request), body["request"])
+        return body["outputs"]!!.jsonObject
+    }
 
     private fun json(text: String) = Json.parseToJsonElement(text)
 

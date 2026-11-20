@@ -158,19 +158,29 @@ class OpenApiGeneratorTest {
         assertEquals(json("""
             {
               "type": "object",
-              "required": ["impacts"],
+              "required": ["request", "outputs"],
               "properties": {
-                "impacts": {
-                  "type": "array",
-                  "description": "One element per matching row of the trace.",
-                  "items": {
-                    "type": "object",
-                    "required": ["product", "process", "labels", "GWP"],
-                    "properties": {
-                      "product": { "type": "string" },
-                      "process": { "type": "string" },
-                      "labels": { "${'$'}ref": "#/components/schemas/Strings" },
-                      "GWP": { "${'$'}ref": "#/components/schemas/Quantity" }
+                "request": {
+                  "allOf": [ { "${'$'}ref": "#/components/schemas/VirtualMachineRequest" } ],
+                  "description": "The request, as sent."
+                },
+                "outputs": {
+                  "type": "object",
+                  "required": ["impacts"],
+                  "properties": {
+                    "impacts": {
+                      "type": "array",
+                      "description": "One element per matching row of the trace.",
+                      "items": {
+                        "type": "object",
+                        "required": ["product", "process", "labels", "GWP"],
+                        "properties": {
+                          "product": { "type": "string" },
+                          "process": { "type": "string" },
+                          "labels": { "${'$'}ref": "#/components/schemas/Strings" },
+                          "GWP": { "${'$'}ref": "#/components/schemas/Quantity" }
+                        }
+                      }
                     }
                   }
                 }

@@ -130,9 +130,13 @@ class OperationRunner(
         }
 
         val referenceRows = rows.takeWhile { it.demandedProduct == rows.first().demandedProduct }
+        // The request as sent, so that each result is self-contained, e.g. in a batch
         return OperationResult.Success(buildJsonObject {
-            operation.outputs.forEach { (name, output) ->
-                put(name, JsonArray(referenceRows.filter { it.matches(output.where) }.map { it.cells(output.select) }))
+            put("request", request)
+            putJsonObject("outputs") {
+                operation.outputs.forEach { (name, output) ->
+                    put(name, JsonArray(referenceRows.filter { it.matches(output.where) }.map { it.cells(output.select) }))
+                }
             }
         })
     }

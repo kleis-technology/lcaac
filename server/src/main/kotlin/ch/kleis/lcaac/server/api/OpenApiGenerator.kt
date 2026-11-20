@@ -77,9 +77,19 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         }
         schemas["${prefix}Response"] = buildJsonObject {
             put("type", "object")
-            putJsonArray("required") { operation.outputs.keys.forEach { add(it) } }
+            putJsonArray("required") { add("request"); add("outputs") }
             putJsonObject("properties") {
-                operation.outputs.forEach { (field, output) -> put(field, outputSchema(output)) }
+                putJsonObject("request") {
+                    putJsonArray("allOf") { add(ref("${prefix}Request")) }
+                    put("description", "The request, as sent.")
+                }
+                putJsonObject("outputs") {
+                    put("type", "object")
+                    putJsonArray("required") { operation.outputs.keys.forEach { add(it) } }
+                    putJsonObject("properties") {
+                        operation.outputs.forEach { (field, output) -> put(field, outputSchema(output)) }
+                    }
+                }
             }
         }
 

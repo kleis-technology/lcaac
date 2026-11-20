@@ -76,7 +76,7 @@ product, as `lcaac assess` does.
 | `labels` | labels fixed by the API, to select a variant of the process, e.g. `labels: { model: standard }` |
 | `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process. The name of a field may differ from the name in the model. |
 | `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows |
-| `outputs` | the fields of the response (see below) |
+| `outputs` | the outputs of the response (see below) |
 
 Parameters that are not given in the request keep their default values, and the API cannot set the
 other parameters of the model.
@@ -157,14 +157,20 @@ curl -X POST localhost:8080/virtual_machine -H 'Content-Type: application/json' 
 
 ```json
 {
-  "impacts": [
-    { "GWP": { "amount": 0.016, "unit": "kg CO2-Eq" } }
-  ],
-  "electricity": [
-    { "amount": { "amount": 0.04, "unit": "kWh" } }
-  ]
+  "request": { "vcpu": 4, "region": "DE" },
+  "outputs": {
+    "impacts": [
+      { "GWP": { "amount": 0.016, "unit": "kg CO2-Eq" } }
+    ],
+    "electricity": [
+      { "amount": { "amount": 0.04, "unit": "kWh" } }
+    ]
+  }
 }
 ```
+
+A response repeats the request, as it was sent, and gives the outputs of the operation. Each response
+is self-contained: it can be stored or compared without the request it answers.
 
 A quantity can be given in three ways:
 
@@ -184,25 +190,28 @@ curl -X POST localhost:8080/vm_fleet
 
 ```json
 {
-  "total": [
-    { "GWP": { "amount": 8.64, "unit": "kg CO2-Eq" } }
-  ],
-  "per_vm": [
-    {
-      "arguments": { "id": "vm-001", "vcpu": "4.0 u", "region": "FR" },
-      "amount": { "amount": 720, "unit": "hour" },
-      "GWP": { "amount": 1.44, "unit": "kg CO2-Eq" }
-    },
-    ...
-  ],
-  "electricity": [
-    {
-      "arguments": { "region": "DE" },
-      "amount": { "amount": 14.4, "unit": "kWh" },
-      "GWP": { "amount": 5.76, "unit": "kg CO2-Eq" }
-    },
-    ...
-  ]
+  "request": {},
+  "outputs": {
+    "total": [
+      { "GWP": { "amount": 8.64, "unit": "kg CO2-Eq" } }
+    ],
+    "per_vm": [
+      {
+        "arguments": { "id": "vm-001", "vcpu": "4.0 u", "region": "FR" },
+        "amount": { "amount": 720, "unit": "hour" },
+        "GWP": { "amount": 1.44, "unit": "kg CO2-Eq" }
+      },
+      ...
+    ],
+    "electricity": [
+      {
+        "arguments": { "region": "DE" },
+        "amount": { "amount": 14.4, "unit": "kWh" },
+        "GWP": { "amount": 5.76, "unit": "kg CO2-Eq" }
+      },
+      ...
+    ]
+  }
 }
 ```
 
@@ -219,24 +228,35 @@ curl -X POST localhost:8080/vm_fleet -H 'Content-Type: application/json' -d '{"v
 
 ```json
 {
-  "total": [
-    { "GWP": { "amount": 46.28, "unit": "kg CO2-Eq" } }
-  ],
-  "per_vm": [
-    {
-      "arguments": { "id": "db-1", "vcpu": "16.0 u", "region": "DE" },
-      "amount": { "amount": 720, "unit": "hour" },
-      "GWP": { "amount": 46.08, "unit": "kg CO2-Eq" }
-    },
-    {
-      "arguments": { "id": "web-1", "vcpu": "4.0 u", "region": "FR" },
-      "amount": { "amount": 100, "unit": "hour" },
-      "GWP": { "amount": 0.2, "unit": "kg CO2-Eq" }
-    }
-  ],
-  "electricity": [ ... ]
+  "request": {
+    "vms": [
+      { "id": "web-1", "vcpu": "4 u", "hours": "100 hour" },
+      { "id": "db-1", "vcpu": 16, "hours": { "amount": 720, "unit": "hour" }, "region": "DE" }
+    ]
+  },
+  "outputs": {
+    "total": [
+      { "GWP": { "amount": 46.28, "unit": "kg CO2-Eq" } }
+    ],
+    "per_vm": [
+      {
+        "arguments": { "id": "db-1", "vcpu": "16.0 u", "region": "DE" },
+        "amount": { "amount": 720, "unit": "hour" },
+        "GWP": { "amount": 46.08, "unit": "kg CO2-Eq" }
+      },
+      {
+        "arguments": { "id": "web-1", "vcpu": "4.0 u", "region": "FR" },
+        "amount": { "amount": 100, "unit": "hour" },
+        "GWP": { "amount": 0.2, "unit": "kg CO2-Eq" }
+      }
+    ],
+    "electricity": [ ... ]
+  }
 }
 ```
+
+The request is repeated as it was sent, rows included: the values actually used, with their defaults,
+are in `arguments`.
 
 The rows of `per_vm` are in the order of the trace, not of the request: use `arguments` to tell them
 apart. The values of the rows do not add up, since each one includes everything upstream: the total of
@@ -246,7 +266,8 @@ the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electrici
 
 Each operation is also served at `POST /<operation>/batch`, to run several requests in one call, as
 `lcaac assess -f` does with the rows of a CSV file. The body lists the requests, each one as it would be
-sent alone, and the response gives their results in the same order:
+sent alone, and the response gives their results in the same order. Each result is the response of the
+request alone, which it repeats:
 
 ```bash
 curl -X POST localhost:8080/virtual_machine/batch -H 'Content-Type: application/json' \
@@ -257,12 +278,18 @@ curl -X POST localhost:8080/virtual_machine/batch -H 'Content-Type: application/
 {
   "results": [
     {
-      "impacts": [ { "GWP": { "amount": 0.016, "unit": "kg CO2-Eq" } } ],
-      "electricity": [ { "amount": { "amount": 0.04, "unit": "kWh" } } ]
+      "request": { "vcpu": 4, "region": "DE" },
+      "outputs": {
+        "impacts": [ { "GWP": { "amount": 0.016, "unit": "kg CO2-Eq" } } ],
+        "electricity": [ { "amount": { "amount": 0.04, "unit": "kWh" } } ]
+      }
     },
     {
-      "impacts": [ { "GWP": { "amount": 0.001, "unit": "kg CO2-Eq" } } ],
-      "electricity": [ { "amount": { "amount": 0.02, "unit": "kWh" } } ]
+      "request": { "vcpu": 2 },
+      "outputs": {
+        "impacts": [ { "GWP": { "amount": 0.001, "unit": "kg CO2-Eq" } } ],
+        "electricity": [ { "amount": { "amount": 0.02, "unit": "kWh" } } ]
+      }
     }
   ]
 }
