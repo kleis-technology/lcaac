@@ -2,29 +2,17 @@ package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.config.LcaacConfig
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.ArgumentFrame
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
-import ch.kleis.lcaac.core.lang.expression.*
-import ch.kleis.lcaac.core.lang.register.DataKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
-import ch.kleis.lcaac.core.lang.value.QuantityValue
-import ch.kleis.lcaac.core.lang.value.StringValue
-import ch.kleis.lcaac.core.math.QuantityOperations
-import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.math.basic.BasicOperations
-import ch.kleis.lcaac.grammar.CoreMapper
-import ch.kleis.lcaac.grammar.SyntaxException
-import ch.kleis.lcaac.grammar.parseDataExpression
 import ch.kleis.lcaac.grammar.parseLcaFile
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.charleskorn.kaml.YamlException
+import com.github.ajalt.clikt.core.CliktError
 import com.charleskorn.kaml.decodeFromStream
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
-import java.lang.Double.parseDouble
 import java.nio.file.Files
 import kotlin.io.path.isRegularFile
 import org.apache.commons.compress.archivers.examples.Expander
@@ -32,8 +20,10 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
 
+// Anchors and aliases share parts of the configuration, e.g. lists of indicators: the file is the user's own
 val yaml = Yaml(configuration = YamlConfiguration(
-    strictMode = false
+    strictMode = false,
+    allowAnchorsAndAliases = true,
 ))
 const val defaultLcaacFilename = "lcaac.yaml"
 
@@ -77,7 +67,12 @@ private fun extractTarGz(tarGzFile: File): File {
 
 fun parseLcaacConfig(path: File): LcaacConfig {
     return if (path.exists()) path.inputStream().use {
-        yaml.decodeFromStream(LcaacConfig.serializer(), it)
+        try {
+            yaml.decodeFromStream(LcaacConfig.serializer(), it)
+        } catch (e: YamlException) {
+            val yamlPath = e.path.toHumanReadableString().takeUnless { it.isEmpty() || it == "<root>" }
+            throw CliktError(listOfNotNull("${path.path}:${e.line}:${e.column}", yamlPath, e.message).joinToString(": "), e)
+        }
     } else LcaacConfig()
 }
 
@@ -98,91 +93,6 @@ fun lcaFiles(root: File, source: File = root): Sequence<LcaLangParser.LcaFileCon
         .asSequence()
 }
 
-fun <Q> dataExpressionMap(
-    ops: QuantityOperations<Q>,
-    globals: Map<String, String>,
-): Map<DataKey, DataExpression<Q>> {
-    val mapper = CoreMapper(ops)
-    return globals
-        .mapKeys { DataKey(it.key) }
-        .mapValues {
-            mapper.dataExpression(parseDataExpression(it.value, "<global ${it.key.name}>"))
-        }
-}
-
-fun smartParseQuantityWithDefaultUnit(s: String, defaultUnit: DataExpression<BasicNumber>): DataExpression<BasicNumber> {
-    val parts = s.split(" ")
-    return if (parts.size == 1) {
-        val number = parts[0]
-        val amount = try {
-            parseDouble(number)
-        } catch (e: NumberFormatException) {
-            throw EvaluatorException("'$s' is not a valid quantity")
-        }
-        EQuantityScale(BasicNumber(amount), defaultUnit)
-    } else {
-        try {
-            CoreMapper(BasicOperations).dataExpression(parseDataExpression(s))
-        } catch (e: SyntaxException) {
-            throw EvaluatorException("'$s' is not a valid quantity")
-        } catch (e: IllegalStateException) {
-            throw EvaluatorException("'$s' is not a valid quantity")
-        }
-    }
-}
-
-/**
- * The values of [current] given in [overrides], e.g. with -D or in a request file. A given quantity is
- * evaluated now, so that an error in it is reported as an error in the argument, not in the definition
- * that it replaces.
- */
-fun parseOverrides(
-    dataReducer: DataExpressionReducer<BasicNumber>,
-    current: Map<String, DataExpression<BasicNumber>>,
-    overrides: Map<String, String>,
-): Map<String, DataExpression<BasicNumber>> = current.mapValues { entry ->
-    fun given(name: String, text: String, parse: () -> DataExpression<BasicNumber>): DataExpression<BasicNumber> =
-        try {
-            parse().also { dataReducer.reduce(it) }
-        } catch (e: EvaluatorException) {
-            throw e.within(ArgumentFrame(SourcePath.Argument(name), text))
-        }
-
-    when (val v = entry.value) {
-        is QuantityExpression<*> -> overrides[entry.key]?.let {
-            given(entry.key, it) { smartParseQuantityWithDefaultUnit(it, EUnitOf(v)) }
-        } ?: entry.value
-
-        is StringExpression -> overrides[entry.key]?.let {
-            EStringLiteral(it)
-        } ?: entry.value
-
-        is EDefaultRecordOf -> {
-            val dataSource = dataReducer.evalDataSource(v.dataSource)
-            val schema = dataSource.schema
-            val entries = schema.mapValues { schemaEntry ->
-                when (val defaultValue = schemaEntry.value) {
-                    is QuantityValue -> overrides[schemaEntry.key]?.let {
-                        given(schemaEntry.key, it) { smartParseQuantityWithDefaultUnit(it, defaultValue.unit.toEUnitLiteral()) }
-                    } ?: defaultValue.toEQuantityScale()
-
-                    is StringValue -> overrides[schemaEntry.key]?.let {
-                        EStringLiteral(it)
-                    } ?: defaultValue.toEStringLiteral()
-
-                    else -> throw EvaluatorException("datasource '${dataSource.config.name}': column '${
-                        schemaEntry
-                            .key
-                    }': invalid default value")
-                }
-            }
-            ERecord(entries)
-        }
-
-        else -> throw EvaluatorException("$v is not a supported data expression")
-    }
-}
-
 /**
  * The symbol table where each global given with -G is described with its given value,
  * instead of being located at the definition that it replaces.
@@ -192,9 +102,3 @@ fun <Q> SymbolTable<Q>.withGivenGlobals(globals: Map<String, String>): SymbolTab
         map.describedAs(SourcePath.Global(name), "global '$name' = $value (given with -G)")
     }
 )
-
-fun prepareArguments(
-    dataReducer: DataExpressionReducer<BasicNumber>,
-    template: EProcessTemplate<BasicNumber>,
-    request: Map<String, String>,
-) = parseOverrides(dataReducer, template.params, request)

@@ -11,10 +11,12 @@ import kotlin.system.exitProcess
 fun main(args: Array<String>) {
     val command = LcaacCommand()
         .subcommands(
+            ApiCommand().subcommands(OpenApiCommand()),
             AssessCommand(),
             EvalCommand(),
             ExplainCommand(),
             GraphCommand(),
+            ServeCommand(),
             TestCommand(),
             TraceCommand(),
             VersionCommand(),

@@ -26,6 +26,12 @@ fun parseLcaFile(path: Path, sourceName: String = path.toString()): LcaLangParse
     parse(Files.newBufferedReader(path).use { CharStreams.fromReader(it, sourceName) }) { it.lcaFile() }
 
 /**
+ * Parses LCA source code given as text, e.g. a model embedded in a test.
+ */
+fun parseLcaText(text: String, sourceName: String = "<text>"): LcaLangParser.LcaFileContext =
+    parse(CharStreams.fromString(text, sourceName)) { it.lcaFile() }
+
+/**
  * Parses a whole data expression, e.g. a value given on the command line.
  * Trailing input that is not part of the expression is a syntax error.
  */

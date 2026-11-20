@@ -1,21 +1,12 @@
 package ch.kleis.lcaac.cli.cmd
 
 import ch.kleis.lcaac.core.lang.SymbolTable
-import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
-import ch.kleis.lcaac.core.lang.evaluator.reducer.DataExpressionReducer
-import ch.kleis.lcaac.core.lang.expression.DataExpression
-import ch.kleis.lcaac.core.lang.expression.EDataRef
-import ch.kleis.lcaac.core.lang.expression.EQuantityMul
-import ch.kleis.lcaac.core.lang.expression.EQuantityScale
-import ch.kleis.lcaac.core.lang.register.DataSourceRegister
 import ch.kleis.lcaac.core.lang.source.SourceLocation
 import ch.kleis.lcaac.core.lang.source.SourceMap
 import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.math.basic.BasicOperations
-import ch.kleis.lcaac.core.prelude.Prelude
 import ch.kleis.lcaac.grammar.SyntaxException
-import io.mockk.mockk
+import com.github.ajalt.clikt.core.CliktError
 import java.io.File
 import java.nio.file.Files
 import java.util.zip.ZipEntry
@@ -88,6 +79,32 @@ class UtilsTest {
         }
 
         @Test
+        fun `when anchors and aliases are used should resolve them`() {
+            // given
+            val path = File(createTempDirectory().toFile(), "lcaac.yaml")
+            path.writeText("x-name: &name Shared\nname: *name\n")
+
+            // when
+            val config = parseLcaacConfig(path)
+
+            // then
+            assertEquals("Shared", config.name)
+        }
+
+        @Test
+        fun `when invalid yaml should locate the error without stack trace`() {
+            // given
+            val path = File(createTempDirectory().toFile(), "lcaac.yaml")
+            path.writeText("name: model\nconnectors: *unknown\n")
+
+            // when
+            val actual = assertFailsWith<CliktError> { parseLcaacConfig(path) }
+
+            // then
+            assertEquals("${path.path}:2:13: connectors: Unknown anchor 'unknown'.", actual.message)
+        }
+
+        @Test
         fun `when file does not exist return default config`() {
             // given
             val path = File("")
@@ -131,29 +148,6 @@ class UtilsTest {
     }
 
     @Test
-    fun dataExpressionMap_whenTrailingInput_shouldThrow() {
-        // when/then
-        val actual = assertThrows<SyntaxException> {
-            dataExpressionMap(BasicOperations, mapOf("efficiency" to "80 percent)"))
-        }
-        assertEquals("<global efficiency>:1:11: unexpected input ')'", actual.message)
-    }
-
-    @Test
-    fun parseOverrides_whenGivenValueFails_shouldReportTheArgument() {
-        // given
-        val reducer = DataExpressionReducer<BasicNumber>(Prelude.units(), DataSourceRegister.empty(), BasicOperations, mockk())
-        val current = mapOf<String, DataExpression<BasicNumber>>("factor" to EQuantityScale(BasicNumber(2.0), Prelude.unitMap<BasicNumber>()["kg"]!!))
-
-        // when/then
-        val actual = assertThrows<EvaluatorException> { parseOverrides(reducer, current, mapOf("factor" to "1 kg + 1 kWh")) }
-        assertEquals(
-            "incompatible dimensions: mass vs energy in left=kg and right=kWh\n  in argument 'factor' = 1 kg + 1 kWh",
-            actual.describe(),
-        )
-    }
-
-    @Test
     fun withGivenGlobals_shouldDescribeTheGivenValue() {
         // given
         val global = SourcePath.Global("efficiency")
@@ -165,83 +159,5 @@ class UtilsTest {
         // then
         assertEquals(null, actual[global])
         assertEquals("global 'efficiency' = 50 percent (given with -G)", actual.nameOf(global))
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_invalidExpression() {
-        // given
-        val s = "a@bc"
-        val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
-
-        // when/then
-        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
-        assertEquals("'a@bc' is not a valid quantity", actual.message)
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_invalidExpression_multipleParts() {
-        // given
-        val s = "12 3 4"
-        val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
-
-        // when/then
-        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
-        assertEquals("'12 3 4' is not a valid quantity", actual.message)
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_invalidExpression_invalidUnit() {
-        // given
-        val s = "12 $3"
-        val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
-
-        // when/then
-        val actual = assertThrows<EvaluatorException> { smartParseQuantityWithDefaultUnit(s, defaultUnit) }
-        assertEquals("'12 \$3' is not a valid quantity", actual.message)
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_whenNumber() {
-        // given
-        val s = "12.0"
-        val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
-
-        // when
-        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
-
-        // then
-        assertEquals(EQuantityScale(BasicNumber(12.0), defaultUnit), actual)
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_whenExpression() {
-        // given
-        val s = "12.0 kg"
-        val defaultUnit = Prelude.unitMap<BasicNumber>()["kg"]!!
-
-        // when
-        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
-
-        // then
-        assertEquals(EQuantityScale(BasicNumber(12.0), EDataRef("kg")), actual)
-    }
-
-    @Test
-    fun parseQuantityWithDefaultUnit_whenComplexExpression() {
-        // given
-        val s = "12.0 kg * hour"
-        val kg = Prelude.unitMap<BasicNumber>()["kg"]!!
-        val hour = Prelude.unitMap<BasicNumber>()["hour"]!!
-        val defaultUnit = EQuantityMul(kg, hour)
-
-        // when
-        val actual = smartParseQuantityWithDefaultUnit(s, defaultUnit)
-
-        // then
-        assertEquals(
-            EQuantityScale(
-                BasicNumber(12.0),
-                EQuantityMul(EDataRef("kg"), EDataRef("hour"))),
-            actual)
     }
 }

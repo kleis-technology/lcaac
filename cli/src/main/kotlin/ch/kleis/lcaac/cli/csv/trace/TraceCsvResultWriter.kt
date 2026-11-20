@@ -8,7 +8,6 @@ import ch.kleis.lcaac.core.lang.value.PartiallyQualifiedSubstanceValue
 import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
-import ch.kleis.lcaac.core.math.basic.BasicOperations.toDouble
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 
@@ -95,18 +94,17 @@ class TraceCsvResultWriter(
         val demandedAmount = line.demandedProduct.quantity.amount
         val demandedUnit = line.demandedProduct.quantity.unit
         val demandedProductName = line.demandedProduct.product.name
-        val allocationAmount = (line.demandedProduct.allocation?.amount?.toDouble()
-            ?: 1.0) * (line.demandedProduct.allocation?.unit?.scale ?: 1.0)
+        val allocationAmount = line.allocation
         val supplyAmount = line.supply.amount.value * allocationAmount
         val prefix = result.request.arguments().plus(
-            when (line.output) {
+            when (val output = line.output) {
                 is IndicatorValue<*> -> listOf(
                     line.depth.toString(),
                     demandedAmount.toString(),
                     demandedUnit.toString(),
                     demandedProductName,
                     allocationAmount.toString(),
-                    line.output.name,
+                    output.name,
                     "", "", "",
                     supplyAmount.toString(),
                     line.supply.unit.toString(),
@@ -117,10 +115,10 @@ class TraceCsvResultWriter(
                     demandedUnit.toString(),
                     demandedProductName,
                     allocationAmount.toString(),
-                    line.output.name,
-                    line.output.fromProcessRef?.name ?: "",
-                    line.output.fromProcessRef?.matchLabels?.toString() ?: "",
-                    line.output.fromProcessRef?.arguments?.toString() ?: "",
+                    output.name,
+                    output.fromProcessRef?.name ?: "",
+                    output.fromProcessRef?.matchLabels?.toString() ?: "",
+                    output.fromProcessRef?.arguments?.toString() ?: "",
                     supplyAmount.toString(),
                     line.supply.unit.toString(),
                 )
@@ -130,10 +128,10 @@ class TraceCsvResultWriter(
                     demandedUnit.toString(),
                     demandedProductName,
                     allocationAmount.toString(),
-                    line.output.name,
-                    line.output.compartment,
-                    line.output.subcompartment ?: "",
-                    line.output.type.toString(),
+                    output.name,
+                    output.compartment,
+                    output.subcompartment ?: "",
+                    output.type.toString(),
                     supplyAmount.toString(),
                     line.supply.unit.toString(),
                 )
@@ -143,7 +141,7 @@ class TraceCsvResultWriter(
                     demandedUnit.toString(),
                     demandedProductName,
                     allocationAmount.toString(),
-                    line.output.name,
+                    output.name,
                     "", "", "",
                     supplyAmount.toString(),
                     line.supply.unit.toString(),
@@ -176,24 +174,23 @@ class TraceCsvResultWriter(
             val demandedAmount = line.demandedProduct.quantity.amount
             val demandedUnit = line.demandedProduct.quantity.unit
             val demandedProductName = line.demandedProduct.product.name
-            val allocationAmount = (line.demandedProduct.allocation?.amount?.toDouble()
-                ?: 1.0) * (line.demandedProduct.allocation?.unit?.scale ?: 1.0)
+            val allocationAmount = line.allocation
             val supplyAmount = line.supply.amount.value * allocationAmount
-            val (name, a, b, c) = when (line.output) {
-                is IndicatorValue<*> -> listOf(line.output.name, "", "", "")
+            val (name, a, b, c) = when (val output = line.output) {
+                is IndicatorValue<*> -> listOf(output.name, "", "", "")
                 is ProductValue<*> -> listOf(
-                    line.output.name,
-                    line.output.fromProcessRef?.name ?: "",
-                    line.output.fromProcessRef?.matchLabels?.toString() ?: "",
-                    line.output.fromProcessRef?.arguments?.toString() ?: "",
+                    output.name,
+                    output.fromProcessRef?.name ?: "",
+                    output.fromProcessRef?.matchLabels?.toString() ?: "",
+                    output.fromProcessRef?.arguments?.toString() ?: "",
                 )
                 is FullyQualifiedSubstanceValue<*> -> listOf(
-                    line.output.name,
-                    line.output.compartment,
-                    line.output.subcompartment ?: "",
-                    line.output.type.toString(),
+                    output.name,
+                    output.compartment,
+                    output.subcompartment ?: "",
+                    output.type.toString(),
                 )
-                is PartiallyQualifiedSubstanceValue<*> -> listOf(line.output.name, "", "", "")
+                is PartiallyQualifiedSubstanceValue<*> -> listOf(output.name, "", "", "")
                 else -> listOf("", "", "", "")
             }
             val impactsJson = filtered.entries.joinToString(", ") {
