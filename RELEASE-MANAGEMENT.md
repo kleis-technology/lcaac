@@ -32,5 +32,11 @@ This guide describes the steps required to release a new version of **LCA as Cod
    This will trigger the publication workflow that builds and publishes the release artifacts.
 
 ## Post-Release Steps
-- Update Homebrew and Nix formulas
-  To make the new version available via brew and nix by following the instructions in the `kleis-technology/homebrew-lcaac` repository.
+- Update Homebrew, Nix and Scoop formulas
+  To make the new version available via brew, nix and scoop by following the instructions in the `kleis-technology/homebrew-lcaac` repository.
+- Tag the `kleis-technology/homebrew-lcaac` repository
+  Once the formulas are merged into its `main` branch, tag it with the same version:
+   ```
+   git tag -a vX.Y.Z -m ""
+   git push origin vX.Y.Z
+   ```
