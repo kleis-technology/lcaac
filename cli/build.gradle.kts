@@ -104,3 +104,10 @@ publishing {
         }
     }
 }
+
+// The command reference of the skill lcaac-cli, generated from the help of the commands
+tasks.register<JavaExec>("writeCommandReference") {
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("ch.kleis.lcaac.cli.skills.CommandReferenceKt")
+    args(rootProject.file("skills/lcaac-cli/references/commands.md").path)
+}
