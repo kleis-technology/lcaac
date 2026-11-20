@@ -92,7 +92,7 @@ product, as `lcaac assess` does.
 |---|---|
 | `process` | the process to evaluate |
 | `labels` | labels fixed by the API, to select a variant of the process, e.g. `labels: { model: standard }` |
-| `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process. The name of a field may differ from the name in the model. |
+| `inputs` | the fields of the request that give a value to a parameter (`{ parameter: name }`) or to a label (`{ label: name }`) of the process, or to a global parameter of the model (`{ global: name }`), for this request only. The name of a field may differ from the name in the model. |
 | `data` | the fields of the request that give the rows of a data source (`{ datasource: name }`), instead of its own rows |
 | `for_each` | evaluates the process once per row of a `data` field, with columns of the row as arguments (see below) |
 | `outputs` | the outputs of the response (see below) |
@@ -101,6 +101,10 @@ product, as `lcaac assess` does.
 
 Parameters that are not given in the request keep their default values, and the API cannot set the
 other parameters of the model.
+
+A global parameter given by a request applies to the whole model, as `lcaac assess -G` does: e.g. a
+period `timewindow`, read by every process, and by the amount of a reference product `timewindow vm`.
+The other fields of the request are read with its value too.
 
 ### Outputs select cells of the trace
 

@@ -382,6 +382,47 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun check_whenUnknownGlobal_shouldFail() {
+        val st = Loader(BasicOperations).load(sequenceOf(parseLcaText("""
+            params {
+                timewindow = 1 hour
+            }
+            variables {
+                twice = 2 u * timewindow
+            }
+            process vm {
+                products {
+                    1 hour vm
+                }
+            }
+        """.trimIndent(), "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
+        val api = """
+            api:
+              name: a
+              version: "1"
+              units:
+                products: { vm: hour }
+              operations:
+                vm:
+                  process: vm
+                  inputs:
+                    period: { global: timewindow }
+                    double: { global: twice }
+                    other: { global: period }
+                  outputs:
+                    total: { select: [amount], where: { product: vm } }
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:11:27: api.operations.vm.inputs.double.global: 'twice' is a global variable, not a parameter",
+                "lcaac.yaml:12:26: api.operations.vm.inputs.other.global: unknown global parameter 'period'",
+            ),
+            ApiChecker(st).check(ApiDefinitionLoader.load(api.trimIndent())!!).map { it.toString() },
+        )
+    }
+
+    @Test
     fun load_whenUnknownAggregate_shouldFail() {
         val api = """
             api:
@@ -417,7 +458,7 @@ class ApiCheckerTest {
 
         assertEquals(
             listOf(
-                "lcaac.yaml:9:15: api.operations.electricity.inputs.both: an input maps to exactly one of 'parameter' or 'label'",
+                "lcaac.yaml:9:15: api.operations.electricity.inputs.both: an input maps to exactly one of 'parameter', 'label' or 'global'",
                 "lcaac.yaml:10:23: api.operations.electricity.inputs.mix.label: label 'mix' is already fixed",
                 "lcaac.yaml:12:45: api.operations.electricity.outputs.total.where: 'where' needs at least one condition",
                 "lcaac.yaml:12:26: api.operations.electricity.outputs.total.select: column 'GWP' is selected twice",

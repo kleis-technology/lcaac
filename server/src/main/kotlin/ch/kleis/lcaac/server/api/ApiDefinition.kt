@@ -62,12 +62,14 @@ data class ForEach(
 )
 
 /**
- * A field of the request, given as the value of a [parameter] or a [label] of the process (exactly one of them).
+ * A field of the request, given as the value of a [parameter] or a [label] of the process, or of a [global]
+ * parameter of the model, for this request only (exactly one of them).
  */
 @Serializable
 data class Input(
     val parameter: String? = null,
     val label: String? = null,
+    val global: String? = null,
     val description: String = "",
 )
 

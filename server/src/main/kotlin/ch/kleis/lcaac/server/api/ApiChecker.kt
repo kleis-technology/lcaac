@@ -79,8 +79,8 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
         operation.inputs.forEach { (name, input) ->
             val inputPath = listOf("inputs", name)
             when {
-                (input.parameter == null) == (input.label == null) ->
-                    error(inputPath, "an input maps to exactly one of 'parameter' or 'label'")
+                listOfNotNull(input.parameter, input.label, input.global).size != 1 ->
+                    error(inputPath, "an input maps to exactly one of 'parameter', 'label' or 'global'")
 
                 input.parameter != null -> if (candidates.isNotEmpty() && candidates.any { input.parameter !in it.params }) {
                     error(inputPath + "parameter", "unknown parameter '${input.parameter}' of process '${operation.process}'")
@@ -90,6 +90,14 @@ class ApiChecker(private val symbolTable: SymbolTable<BasicNumber>) {
                     error(inputPath + "label", "label '${input.label}' is already fixed")
                 } else if (named.none { input.label in it.body.labels }) {
                     error(inputPath + "label", "unknown label '${input.label}' of process '${operation.process}'")
+                }
+
+                input.global != null -> if (symbolTable.getGlobalParameter(input.global) == null) {
+                    error(
+                        inputPath + "global",
+                        if (symbolTable.getGlobalVariable(input.global) != null) "'${input.global}' is a global variable, not a parameter"
+                        else "unknown global parameter '${input.global}'",
+                    )
                 }
             }
         }

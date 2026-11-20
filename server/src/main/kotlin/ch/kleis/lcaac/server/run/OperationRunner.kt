@@ -82,13 +82,19 @@ class OperationRunner(
     private val units = UnitResolver(symbolTable).resolve(units)
 
     /**
-     * What the requests of a batch share: the reads of the data sources, and the evaluator, hence the
-     * processes evaluated once with `@cached`.
+     * What the requests of a batch share: the reads of the data sources, and an evaluator per value of the
+     * global parameters given, hence the processes evaluated once with `@cached`.
      */
     private inner class Session {
         val sourceOps = DefaultDataSourceOperations(ops, config, connectors)
         val reducer = DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
-        val evaluator by lazy { Evaluator(symbolTable, ops, sourceOps) }
+        private val evaluators = HashMap<Map<String, DataValue<BasicNumber>>, Evaluator<BasicNumber, BasicMatrix>>()
+
+        fun evaluator(prepared: Prepared): Evaluator<BasicNumber, BasicMatrix> =
+            evaluators.getOrPut(prepared.globalValues) { Evaluator(prepared.symbolTable, ops, sourceOps) }
+
+        fun reducer(symbolTable: SymbolTable<BasicNumber>) =
+            DataExpressionReducer(symbolTable.data, symbolTable.dataSources, ops, sourceOps)
     }
 
     fun run(operation: Operation, request: JsonObject): OperationResult = run(operation, request, Session())
@@ -112,7 +118,7 @@ class OperationRunner(
 
     private fun run(operation: Operation, request: JsonObject, session: Session): OperationResult {
         val prepared = try {
-            prepare(operation, request, session.reducer)
+            prepare(operation, request, session)
         } catch (e: RequestException) {
             return OperationResult.Failure(400, e.body)
         } catch (e: EvaluatorException) {
@@ -159,9 +165,9 @@ class OperationRunner(
 
     private fun evaluator(prepared: Prepared, session: Session): Evaluator<BasicNumber, BasicMatrix> =
         // Rows given by the request replace a data source, which a cached process may read:
-        // the evaluator of the session cannot be used
-        if (prepared.rows.isEmpty()) session.evaluator else Evaluator(
-            prepared.rows.keys.fold(symbolTable) { st, name ->
+        // the evaluators of the session cannot be used
+        if (prepared.rows.isEmpty()) session.evaluator(prepared) else Evaluator(
+            prepared.rows.keys.fold(prepared.symbolTable) { st, name ->
                 st.overrideDatasourceConnector(DataSourceKey(name), InMemoryConnectorKeys.IN_MEMORY_CONNECTOR_NAME)
             },
             ops,
@@ -186,10 +192,11 @@ class OperationRunner(
     ): List<Pair<JsonElement, RecordValue<BasicNumber>>> {
         val dataSource = operation.data[forEach.rows]!!.datasource
         request[forEach.rows]?.let { json -> return (json as JsonArray).zip(prepared.rows[dataSource]!!) }
-        val source = session.reducer.evalDataSource(symbolTable.getDataSource(dataSource)!!)
+        val reducer = session.reducer(prepared.symbolTable)
+        val source = reducer.evalDataSource(symbolTable.getDataSource(dataSource)!!)
         return session.sourceOps.getAll(source).map { record ->
             val value = RecordValue(record.entries.mapValues { (_, v) ->
-                with(ToValue(ops)) { session.reducer.reduce(v).toValue() }
+                with(ToValue(ops)) { reducer.reduce(v).toValue() }
             })
             JsonObject(value.entries.mapValues { (_, v) ->
                 when (v) {
@@ -312,46 +319,62 @@ class OperationRunner(
         return null
     }
 
+    /** A request read: [symbolTable] with the global parameters given, whose values are [globalValues]. */
     private class Prepared(
+        val symbolTable: SymbolTable<BasicNumber>,
+        val globalValues: Map<String, DataValue<BasicNumber>>,
         val template: EProcessTemplate<BasicNumber>,
         val arguments: Map<String, DataExpression<BasicNumber>>,
         val rows: Map<String, List<RecordValue<BasicNumber>>>,
     )
 
-    private fun prepare(
-        operation: Operation,
-        request: JsonObject,
-        reducer: DataExpressionReducer<BasicNumber>,
-    ): Prepared {
+    private fun prepare(operation: Operation, request: JsonObject, session: Session): Prepared {
         request.keys.firstOrNull { it !in operation.inputs && it !in operation.data }?.let {
             throw RequestException(ErrorBody("unknown field '$it'"))
         }
 
+        // The global parameters first: the other fields are read under their values
+        val globalInputs = operation.inputs.filterValues { it.global != null }
+        val globals = values(
+            request,
+            globalInputs.mapValues { symbolTable.getGlobalParameter(it.value.global!!)!! },
+            session.reducer,
+        ).mapKeys { globalInputs[it.key]!!.global!! }
+        val symbolTable = symbolTable.overrideGlobalParameters(globals)
+        val reducer = if (globals.isEmpty()) session.reducer else session.reducer(symbolTable)
+        val globalValues = globals.mapValues { with(ToValue(ops)) { reducer.reduce(it.value).toValue() } }
+
         val labels = operation.labels + operation.inputs
             .filterValues { it.label != null }
             .mapNotNull { (name, input) -> request[name]?.let { input.label!! to stringOf(name, it) } }
-        val template = symbolTable.getTemplate(operation.process, labels)
+        val template = this.symbolTable.getTemplate(operation.process, labels)
             ?: throw RequestException(ErrorBody("no process '${operation.process}' with labels $labels"))
 
-        // Parsed under the names of the request, so that errors name the fields of the request
         val parameterInputs = operation.inputs.filterValues { it.parameter != null && it.parameter in template.params }
-        val given = parameterInputs.keys.mapNotNull { name -> request[name]?.let { name to it } }.toMap()
-        given.forEach { (name, value) ->
-            if (template.params[parameterInputs[name]!!.parameter] is EStringLiteral<*>) stringOf(name, value)
-        }
-        val arguments = parseOverrides(
-            reducer,
-            given.keys.associateWith { template.params[parameterInputs[it]!!.parameter]!! },
-            given.mapValues { textOf(it.key, it.value) },
-        )
-        arguments.forEach { (name, value) ->
-            checkDimension(name, textOf(name, given[name]!!), reducer, value, template.params[parameterInputs[name]!!.parameter]!!)
-        }
+        val arguments = values(request, parameterInputs.mapValues { template.params[it.value.parameter]!! }, reducer)
 
         val rows = operation.data.mapNotNull { (name, data) ->
             request[name]?.let { data.datasource to records(name, data.datasource, it, reducer) }
         }.toMap()
-        return Prepared(template, arguments.mapKeys { parameterInputs[it.key]!!.parameter!! }, rows)
+        return Prepared(
+            symbolTable, globalValues, template, arguments.mapKeys { parameterInputs[it.key]!!.parameter!! }, rows,
+        )
+    }
+
+    /**
+     * The values given by [request] to the fields of [defaults], with the type and dimension of their default.
+     * Parsed under the names of the request, so that errors name the fields of the request.
+     */
+    private fun values(
+        request: JsonObject,
+        defaults: Map<String, DataExpression<BasicNumber>>,
+        reducer: DataExpressionReducer<BasicNumber>,
+    ): Map<String, DataExpression<BasicNumber>> {
+        val given = defaults.keys.mapNotNull { name -> request[name]?.let { name to it } }.toMap()
+        given.forEach { (name, value) -> if (defaults[name] is EStringLiteral<*>) stringOf(name, value) }
+        val values = parseOverrides(reducer, given.keys.associateWith { defaults[it]!! }, given.mapValues { textOf(it.key, it.value) })
+        values.forEach { (name, value) -> checkDimension(name, textOf(name, given[name]!!), reducer, value, defaults[name]!!) }
+        return values
     }
 
     private fun records(

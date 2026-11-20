@@ -192,6 +192,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                 if (input.description.isNotEmpty()) put("description", input.description)
             }
 
+            input.global != null -> valueSchema(value(symbolTable.getGlobalParameter(input.global)!!), input.description)
             else -> valueSchema(value(template.params[input.parameter]!!), input.description)
         }
 
@@ -211,7 +212,7 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
             putJsonArray("allOf") { addJsonObject { put("\$ref", "#/components/schemas/QuantityInput") } }
             val unit = default.unit
             put("description", listOf(
-                description,
+                description.trimEnd('.').let { if (it.isEmpty()) it else "$it." },
                 "Quantity of dimension ${unit.dimension}. Default unit ${unit.symbol}.",
             ).filter { it.isNotEmpty() }.joinToString(" "))
             put("default", default.toString())
