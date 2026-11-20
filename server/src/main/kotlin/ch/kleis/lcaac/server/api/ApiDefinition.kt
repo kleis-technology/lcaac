@@ -3,19 +3,15 @@ package ch.kleis.lcaac.server.api
 import kotlinx.serialization.Serializable
 
 /**
- * The API served by `lcaac serve`, as declared in `api.yaml`: operations, and how they map onto the model.
+ * The API served by `lcaac serve`, as declared under the key `api` of `lcaac.yaml`: operations, and how
+ * they map onto the model.
  */
 @Serializable
 data class ApiDefinition(
-    val api: ApiInfo,
-    val operations: Map<String, Operation>,
-)
-
-@Serializable
-data class ApiInfo(
     val name: String,
     val version: String,
     val description: String = "",
+    val operations: Map<String, Operation> = emptyMap(),
 )
 
 /**

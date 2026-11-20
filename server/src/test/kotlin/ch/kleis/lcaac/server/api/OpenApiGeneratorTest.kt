@@ -70,24 +70,27 @@ class OpenApiGeneratorTest {
     """.trimIndent()
 
     private val definition = ApiDefinitionLoader.load("""
-        api: { name: cloud-assess, version: 2.1.0, description: Impacts of cloud resources }
-        operations:
-          vm_fleet:
-            description: Impacts of a fleet of virtual machines
-            process: vm_fleet
-            data:
-              vms: { datasource: vm_inventory }
-            outputs:
-              total: { select: [GWP], where: { product: fleet } }
-              per_vm: { select: [arguments, amount, GWP], where: { product: vm_hour } }
-          virtual_machine:
-            process: virtual_machine
-            inputs:
-              model: { label: model, description: The model of a virtual machine }
-              lifetime: { parameter: lifetime }
-            outputs:
-              impacts: { select: [product, process, labels, GWP], where: { product: vm_hour } }
-    """.trimIndent()).definition
+        api:
+          name: cloud-assess
+          version: 2.1.0
+          description: Impacts of cloud resources
+          operations:
+            vm_fleet:
+              description: Impacts of a fleet of virtual machines
+              process: vm_fleet
+              data:
+                vms: { datasource: vm_inventory }
+              outputs:
+                total: { select: [GWP], where: { product: fleet } }
+                per_vm: { select: [arguments, amount, GWP], where: { product: vm_hour } }
+            virtual_machine:
+              process: virtual_machine
+              inputs:
+                model: { label: model, description: The model of a virtual machine }
+                lifetime: { parameter: lifetime }
+              outputs:
+                impacts: { select: [product, process, labels, GWP], where: { product: vm_hour } }
+    """.trimIndent())!!.definition
 
     private val document: JsonObject = OpenApiGenerator(
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE))

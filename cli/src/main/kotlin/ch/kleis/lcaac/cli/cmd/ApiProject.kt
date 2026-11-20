@@ -14,7 +14,7 @@ import com.github.ajalt.clikt.core.CliktError
 import java.io.File
 
 /**
- * A model with the API declared in its configuration (e.g. 'api: api.yaml' in lcaac.yaml), checked against it.
+ * A model with the API declared in its configuration (under the key 'api' of lcaac.yaml), checked against it.
  */
 class ApiProject(
     val definition: ApiDefinition,
@@ -26,19 +26,16 @@ class ApiProject(
 fun loadApiProject(configFile: File, source: File): ApiProject {
     val sourceDirectory = parseSource(source)
     val projectDirectory = configFile.parentFile
+    if (!configFile.isFile) throw CliktError("configuration not found: ${configFile.path}")
     val config = parseLcaacConfig(configFile)
-    val apiPath = config.api
-        ?: throw CliktError("no API definition: add 'api: <file>' to ${configFile.path}")
-    val apiFile = File(projectDirectory, apiPath)
-    if (!apiFile.isFile) throw CliktError("API definition not found: ${apiFile.path}")
-
-    val symbolTable = Loader(BasicOperations).load(lcaFiles(sourceDirectory, source), listOf(LoaderOption.WITH_PRELUDE))
-    val sourceName = apiFile.relativeToOrNull(File(".").absoluteFile)?.path ?: apiFile.path
+    val sourceName = configFile.relativeToOrNull(File(".").absoluteFile)?.path ?: configFile.path
     val located = try {
-        ApiDefinitionLoader.load(apiFile.readText(), sourceName)
+        ApiDefinitionLoader.load(configFile.readText(), sourceName)
     } catch (e: ApiDefinitionException) {
         throw CliktError(e.message, e)
-    }
+    } ?: throw CliktError("no API: declare it under the key 'api' of $sourceName")
+
+    val symbolTable = Loader(BasicOperations).load(lcaFiles(sourceDirectory, source), listOf(LoaderOption.WITH_PRELUDE))
     val errors = ApiChecker(symbolTable).check(located)
     if (errors.isNotEmpty()) throw CliktError(errors.joinToString("\n"))
     return ApiProject(located.definition, symbolTable, config, projectDirectory)

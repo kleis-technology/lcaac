@@ -48,19 +48,21 @@ class ApiServerTest {
     """.trimIndent()
 
     private val definition = ApiDefinitionLoader.load("""
-        api: { name: cloud-assess, version: 2.1.0 }
-        operations:
-          virtual_machine:
-            process: virtual_machine
-            inputs:
-              cpus: { parameter: vcpu }
-            outputs:
-              impacts: { select: [GWP], where: { process: virtual_machine } }
-          broken:
-            process: broken
-            outputs:
-              impacts: { select: [GWP], where: { process: broken } }
-    """.trimIndent()).definition
+        api:
+          name: cloud-assess
+          version: 2.1.0
+          operations:
+            virtual_machine:
+              process: virtual_machine
+              inputs:
+                cpus: { parameter: vcpu }
+              outputs:
+                impacts: { select: [GWP], where: { process: virtual_machine } }
+            broken:
+              process: broken
+              outputs:
+                impacts: { select: [GWP], where: { process: broken } }
+    """.trimIndent())!!.definition
 
     private val symbolTable = Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE))
 

@@ -25,8 +25,8 @@ class LocatedApiDefinition(
     private val root: YamlNode,
 ) {
     /**
-     * The location of the field at [path] (e.g. `operations.vm_fleet.process`), or of its closest
-     * enclosing field when it is absent.
+     * The location of the field at [path] in the definition (e.g. `operations.vm_fleet.process`), or of its
+     * closest enclosing field when it is absent.
      */
     fun locationOf(path: List<String>): String {
         var node = root
@@ -38,15 +38,22 @@ class LocatedApiDefinition(
     }
 
     fun error(path: List<String>, message: String) =
-        ApiDefinitionError(path.joinToString("."), message, locationOf(path))
+        ApiDefinitionError((listOf(API_KEY) + path).joinToString("."), message, locationOf(path))
 }
 
+const val API_KEY = "api"
+
 object ApiDefinitionLoader {
+    // The rest of the configuration is read leniently, the API strictly: a misspelled field is an error
     private val yaml = Yaml(configuration = YamlConfiguration(strictMode = true))
 
-    fun load(content: String, sourceName: String = "api.yaml"): LocatedApiDefinition {
+    /**
+     * The API declared under the key `api` of a configuration file (e.g. `lcaac.yaml`), or null if there is none.
+     */
+    fun load(configuration: String, sourceName: String = "lcaac.yaml"): LocatedApiDefinition? {
         try {
-            val root = yaml.parseToYamlNode(content)
+            val document = yaml.parseToYamlNode(configuration) as? YamlMap ?: return null
+            val root = document.entries.entries.firstOrNull { it.key.content == API_KEY }?.value ?: return null
             val definition = yaml.decodeFromYamlNode(ApiDefinition.serializer(), root)
             return LocatedApiDefinition(definition, sourceName, root)
         } catch (e: YamlException) {

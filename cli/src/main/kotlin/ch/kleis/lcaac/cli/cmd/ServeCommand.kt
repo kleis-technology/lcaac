@@ -18,7 +18,7 @@ const val serveCommandName = "serve"
 @Suppress("MemberVisibilityCanBePrivate")
 class ServeCommand : CliktCommand(
     name = serveCommandName,
-    help = "Serve over HTTP the API declared in the configuration (e.g. 'api: api.yaml' in lcaac.yaml)",
+    help = "Serve over HTTP the API declared in the configuration (under the key 'api' of lcaac.yaml)",
 ) {
     val configFile: File by configFileOption()
     val source: File by sourceOption()
@@ -36,7 +36,7 @@ class ServeCommand : CliktCommand(
         ).buildConnectors()
         val runner = OperationRunner(project.symbolTable, project.config, connectors, showLocations = !hideLocations)
         val openApi = OpenApiGenerator(project.symbolTable).generate(project.definition)
-        val api = project.definition.api
+        val api = project.definition
         echo("Serving ${api.name} ${api.version} on http://$host:$port", err = true)
         serve(project.definition, runner, openApi, host, port)
     }

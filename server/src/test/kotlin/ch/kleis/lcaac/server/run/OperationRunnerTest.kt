@@ -62,31 +62,33 @@ class OperationRunnerTest {
     """.trimIndent()
 
     private val api = ApiDefinitionLoader.load("""
-        api: { name: cloud-assess, version: 2.1.0 }
-        operations:
-          vm_fleet:
-            process: vm_fleet
-            data:
-              vms: { datasource: vm_inventory }
-            outputs:
-              total:
-                select: [GWP]
-                where: { product: fleet, process: vm_fleet }
-              per_vm:
-                select: [arguments, amount, GWP]
-                where: { product: vm_hour, process: virtual_machine }
-              electricity:
-                select: [product, process, labels, arguments, amount]
-                where: { product: electricity }
-          virtual_machine:
-            process: virtual_machine
-            inputs:
-              cpus: { parameter: vcpu }
-            outputs:
-              impacts:
-                select: [GWP]
-                where: { process: virtual_machine }
-    """.trimIndent()).definition
+        api:
+          name: cloud-assess
+          version: 2.1.0
+          operations:
+            vm_fleet:
+              process: vm_fleet
+              data:
+                vms: { datasource: vm_inventory }
+              outputs:
+                total:
+                  select: [GWP]
+                  where: { product: fleet, process: vm_fleet }
+                per_vm:
+                  select: [arguments, amount, GWP]
+                  where: { product: vm_hour, process: virtual_machine }
+                electricity:
+                  select: [product, process, labels, arguments, amount]
+                  where: { product: electricity }
+            virtual_machine:
+              process: virtual_machine
+              inputs:
+                cpus: { parameter: vcpu }
+              outputs:
+                impacts:
+                  select: [GWP]
+                  where: { process: virtual_machine }
+    """.trimIndent())!!.definition
 
     private val runner = OperationRunner(
         Loader(BasicOperations).load(sequenceOf(parseLcaText(model, "main.lca")), listOf(LoaderOption.WITH_PRELUDE)),

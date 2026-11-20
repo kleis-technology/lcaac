@@ -28,9 +28,9 @@ fun Application.lcaacApi(definition: ApiDefinition, runner: OperationRunner, ope
     routing {
         get("/") {
             call.respond(buildJsonObject {
-                put("name", definition.api.name)
-                put("version", definition.api.version)
-                put("description", definition.api.description)
+                put("name", definition.name)
+                put("version", definition.version)
+                put("description", definition.description)
                 putJsonArray("operations") { definition.operations.keys.forEach { add(it) } }
             })
         }

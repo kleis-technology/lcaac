@@ -35,9 +35,9 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         return buildJsonObject {
             put("openapi", "3.0.3")
             putJsonObject("info") {
-                put("title", definition.api.name)
-                put("version", definition.api.version)
-                if (definition.api.description.isNotEmpty()) put("description", definition.api.description)
+                put("title", definition.name)
+                put("version", definition.version)
+                if (definition.description.isNotEmpty()) put("description", definition.description)
             }
             put("paths", paths)
             putJsonObject("components") {
