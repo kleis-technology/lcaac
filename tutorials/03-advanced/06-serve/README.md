@@ -100,6 +100,19 @@ product, as `lcaac assess` does.
 
 `units`, for the whole API, gives the units of the quantities of the responses (see below).
 
+YAML anchors and aliases share parts of the definition, e.g. the indicators selected by several outputs.
+Define them at the top level of `lcaac.yaml`, under a key starting with `x-`, which is ignored:
+
+```yaml
+x-indicators: &indicators [GWP, ADPe, ADPf]
+
+api:
+  operations:
+    virtual_machine:
+      outputs:
+        total: { select: *indicators, where: { product: vm_hour }, aggregate: one }
+```
+
 Parameters that are not given in the request keep their default values, and the API cannot set the
 other parameters of the model.
 

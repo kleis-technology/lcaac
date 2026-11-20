@@ -6,6 +6,7 @@ import ch.kleis.lcaac.core.lang.source.SourceMap
 import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.grammar.SyntaxException
+import com.github.ajalt.clikt.core.CliktError
 import java.io.File
 import java.nio.file.Files
 import java.util.zip.ZipEntry
@@ -75,6 +76,32 @@ class UtilsTest {
 
             //
             assertEquals("Valid LCAAC Config", config.name)
+        }
+
+        @Test
+        fun `when anchors and aliases are used should resolve them`() {
+            // given
+            val path = File(createTempDirectory().toFile(), "lcaac.yaml")
+            path.writeText("x-name: &name Shared\nname: *name\n")
+
+            // when
+            val config = parseLcaacConfig(path)
+
+            // then
+            assertEquals("Shared", config.name)
+        }
+
+        @Test
+        fun `when invalid yaml should locate the error without stack trace`() {
+            // given
+            val path = File(createTempDirectory().toFile(), "lcaac.yaml")
+            path.writeText("name: model\nconnectors: *unknown\n")
+
+            // when
+            val actual = assertFailsWith<CliktError> { parseLcaacConfig(path) }
+
+            // then
+            assertEquals("${path.path}:2:13: connectors: Unknown anchor 'unknown'.", actual.message)
         }
 
         @Test

@@ -7,6 +7,8 @@ import ch.kleis.lcaac.grammar.parseLcaFile
 import ch.kleis.lcaac.grammar.parser.LcaLangParser
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
+import com.charleskorn.kaml.YamlException
+import com.github.ajalt.clikt.core.CliktError
 import com.charleskorn.kaml.decodeFromStream
 import java.io.BufferedInputStream
 import java.io.File
@@ -18,8 +20,10 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
 
+// Anchors and aliases share parts of the configuration, e.g. lists of indicators: the file is the user's own
 val yaml = Yaml(configuration = YamlConfiguration(
-    strictMode = false
+    strictMode = false,
+    allowAnchorsAndAliases = true,
 ))
 const val defaultLcaacFilename = "lcaac.yaml"
 
@@ -63,7 +67,12 @@ private fun extractTarGz(tarGzFile: File): File {
 
 fun parseLcaacConfig(path: File): LcaacConfig {
     return if (path.exists()) path.inputStream().use {
-        yaml.decodeFromStream(LcaacConfig.serializer(), it)
+        try {
+            yaml.decodeFromStream(LcaacConfig.serializer(), it)
+        } catch (e: YamlException) {
+            val yamlPath = e.path.toHumanReadableString().takeUnless { it.isEmpty() || it == "<root>" }
+            throw CliktError(listOfNotNull("${path.path}:${e.line}:${e.column}", yamlPath, e.message).joinToString(": "), e)
+        }
     } else LcaacConfig()
 }
 

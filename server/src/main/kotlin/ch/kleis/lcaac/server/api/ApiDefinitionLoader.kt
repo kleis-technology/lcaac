@@ -44,8 +44,9 @@ class LocatedApiDefinition(
 const val API_KEY = "api"
 
 object ApiDefinitionLoader {
-    // The rest of the configuration is read leniently, the API strictly: a misspelled field is an error
-    private val yaml = Yaml(configuration = YamlConfiguration(strictMode = true))
+    // The rest of the configuration is read leniently, the API strictly: a misspelled field is an error.
+    // Anchors and aliases share parts of the API, e.g. lists of indicators: the file is the user's own
+    private val yaml = Yaml(configuration = YamlConfiguration(strictMode = true, allowAnchorsAndAliases = true))
 
     /**
      * The API declared under the key `api` of a configuration file (e.g. `lcaac.yaml`), or null if there is none.

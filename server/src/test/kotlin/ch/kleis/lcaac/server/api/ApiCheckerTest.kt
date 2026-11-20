@@ -544,6 +544,33 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun load_shouldResolveAnchorsAndAliases() {
+        val config = """
+            x-indicators: &indicators [GWP]
+            x-output: &output { select: *indicators, aggregate: one }
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  outputs:
+                    total: { <<: *output, where: { product: fleet } }
+                    per_vm: { select: *indicators, where: { product: vm_hour } }
+        """
+
+        val operation = ApiDefinitionLoader.load(config.trimIndent())!!.definition.operations["vm_fleet"]!!
+
+        assertEquals(
+            mapOf(
+                "total" to Output(listOf("GWP"), RowSelector(product = "fleet"), Aggregate.ONE),
+                "per_vm" to Output(listOf("GWP"), RowSelector(product = "vm_hour")),
+            ),
+            operation.outputs,
+        )
+    }
+
+    @Test
     fun load_whenUnknownField_shouldLocateIt() {
         val api = """
             api:
