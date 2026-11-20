@@ -8,6 +8,7 @@ data class LcaacConfig(
     val name: String = "",
     val description: String = "",
     val connectors: List<ConnectorConfig> = listOf(CsvConnectorKeys.defaultConfig()),
+    val api: String? = null,
 ) {
     private val connectorsMap = connectors.associateBy { it.name }
 
