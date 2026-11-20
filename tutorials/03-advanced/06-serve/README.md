@@ -130,8 +130,8 @@ empty when no row matches. With `aggregate`, it is a single element:
 - `aggregate: one`: the only matching row. The request fails if not exactly one row matches.
 - `aggregate: sum`: the sum of the matching rows, for the indicators and `amount` only. Since each row
   includes everything upstream, the request fails if a matching row is upstream of another one: it would
-  be counted twice. `amount` adds up for one product only, so it requires `where.product`. The request
-  also fails if no row matches.
+  be counted twice. `amount` adds up for one product only, so it requires `where.product`. With no
+  matching row, the sum is 0.
 
 To get one row per VM, the model passes the id of each VM to `virtual_machine`
 (`from virtual_machine(id = vm.id, ...)`). Otherwise, two VMs with the same parameters would be the same

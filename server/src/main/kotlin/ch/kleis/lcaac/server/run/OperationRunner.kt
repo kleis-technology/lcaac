@@ -27,12 +27,14 @@ import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.RecordValue
 import ch.kleis.lcaac.core.lang.value.StringValue
+import ch.kleis.lcaac.core.lang.value.UnitValue
 import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.parseOverrides
 import ch.kleis.lcaac.grammar.smartParseQuantityWithDefaultUnit
 import ch.kleis.lcaac.server.api.Aggregate
 import ch.kleis.lcaac.server.api.Columns
+import ch.kleis.lcaac.server.api.Output
 import ch.kleis.lcaac.server.api.Operation
 import ch.kleis.lcaac.server.api.RowSelector
 import ch.kleis.lcaac.server.api.satisfies
@@ -145,7 +147,7 @@ class OperationRunner(
                         "output '$name': expected exactly one matching row, found ${matched.size}"
                     )
 
-                    Aggregate.SUM -> sum(name, trace, matched, output.select)
+                    Aggregate.SUM -> sum(name, trace, matched, output)
                 }
             }
         } catch (e: OutputException) {
@@ -158,13 +160,23 @@ class OperationRunner(
         })
     }
 
+    /**
+     * The sum of [rows] for each selected column. With no rows, the sum is 0 in the unit of the column in
+     * the evaluated system, or null if the system has no such column, as for a single row.
+     */
     private fun sum(
         name: String,
         trace: EvaluationTrace<BasicNumber>,
         rows: List<TraceRow>,
-        select: List<String>,
+        output: Output,
     ): JsonObject {
-        if (rows.isEmpty()) throw OutputException("output '$name': no matching row to sum")
+        val select = output.select
+        if (rows.isEmpty()) return buildJsonObject {
+            select.forEach { column ->
+                val unit = unitOf(trace, column, output.where.product)
+                put(column, unit?.let { buildJsonObject { put("amount", 0.0); put("unit", it.toString()) } } ?: JsonNull)
+            }
+        }
         upstreamRow(trace, rows)?.let {
             throw OutputException(
                 "output '$name': the matching row '${it.describe()}' is upstream of another one, and would be counted twice"
@@ -187,6 +199,18 @@ class OperationRunner(
                     put("unit", unit.toString())
                 })
             }
+        }
+    }
+
+    /** The unit of a column of quantities in the evaluated system: of an indicator or substance, or of [product]. */
+    private fun unitOf(trace: EvaluationTrace<BasicNumber>, column: String, product: String?): UnitValue<BasicNumber>? {
+        val system = trace.getSystemValue()
+        return if (column == Columns.AMOUNT) {
+            system.processes.flatMap { it.products + it.inputs }.firstOrNull { it.product.name == product }?.product?.referenceUnit
+        } else {
+            val ports = system.processes.flatMap { p -> p.impacts.map { it.indicator } + p.biosphere.map { it.substance } } +
+                system.substanceCharacterizations.flatMap { c -> c.impacts.map { it.indicator } + c.referenceExchange.substance }
+            ports.firstOrNull { it.getShortName() == column }?.referenceUnit()
         }
     }
 

@@ -172,12 +172,22 @@ class SelectionTest {
     }
 
     @Test
-    fun run_whenSumOfNoRow_shouldFailWith422() {
-        assertEquals(
-            OperationResult.Failure(422, ErrorBody("output 'total': no matching row to sum")),
-            run("""
-                total: { select: [GWP], where: { product: electricity, labels: { phase: use } }, aggregate: sum }
-            """),
-        )
+    fun run_whenSumOfNoRow_shouldBeZeroInTheUnitOfTheColumn() {
+        val actual = success("""
+            none: { select: [amount, GWP], where: { product: electricity, labels: { phase: use } }, aggregate: sum }
+        """)
+
+        assertEquals(json("""
+            { "none": { "amount": { "amount": 0.0, "unit": "kWh" }, "GWP": { "amount": 0.0, "unit": "kg CO2-Eq" } } }
+        """), actual)
+    }
+
+    @Test
+    fun run_whenSumOfNoRowAndNoSuchColumn_shouldBeNull() {
+        val actual = success("""
+            none: { select: [amount, ADPe], where: { product: steel }, aggregate: sum }
+        """)
+
+        assertEquals(json("""{ "none": { "amount": null, "ADPe": null } }"""), actual)
     }
 }
