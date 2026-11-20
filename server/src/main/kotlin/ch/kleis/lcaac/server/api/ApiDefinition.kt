@@ -1,6 +1,17 @@
 package ch.kleis.lcaac.server.api
 
+import com.charleskorn.kaml.YamlInput
+import com.charleskorn.kaml.YamlList
+import com.charleskorn.kaml.YamlScalar
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
+import kotlinx.serialization.descriptors.buildSerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /**
  * The API served by `lcaac serve`, as declared under the key `api` of `lcaac.yaml`: operations, and how
@@ -47,26 +58,76 @@ data class DataInput(
 )
 
 /**
- * A field of the response: the columns [select] of the rows of the trace table matching [where].
+ * A field of the response: the columns [select] of the rows of the trace table matching [where], one element
+ * per row, or a single element with [aggregate].
  */
 @Serializable
 data class Output(
     val select: List<String>,
     val where: RowSelector,
+    val aggregate: Aggregate? = null,
     val description: String = "",
 )
 
+@Serializable
+enum class Aggregate {
+    /** The sum of the rows, none of which may be upstream of another, lest it be counted twice. */
+    @SerialName("sum")
+    SUM,
+
+    /** The only row: exactly one row must match. */
+    @SerialName("one")
+    ONE,
+}
+
 /**
- * Conditions on the identity of a row of the trace table. Each given field narrows the selection.
+ * Conditions on the identity of a row of the trace table. Each given field narrows the selection. A label or
+ * an argument has one of the values of its condition, or is absent when its condition is null.
  */
 @Serializable
 data class RowSelector(
     val product: String? = null,
     val process: String? = null,
-    val labels: Map<String, String> = emptyMap(),
-    val arguments: Map<String, String> = emptyMap(),
+    val labels: Map<String, Condition?> = emptyMap(),
+    val arguments: Map<String, Condition?> = emptyMap(),
 ) {
     fun isEmpty(): Boolean = product == null && process == null && labels.isEmpty() && arguments.isEmpty()
+}
+
+/**
+ * A condition on a label or an argument: one of [values] (`phase: embodied`, `phase: [embodied, use]`).
+ */
+@Serializable(with = ConditionSerializer::class)
+data class Condition(val values: List<String>)
+
+/** Whether [value], absent when null, satisfies [condition], which requires an absent value when null. */
+fun satisfies(value: String?, condition: Condition?): Boolean =
+    if (condition == null) value == null else value in condition.values
+
+/** Reads a condition from a scalar or a list of scalars. Not written. */
+object ConditionSerializer : KSerializer<Condition> {
+    // Contextual, so that kaml accepts any node
+    @OptIn(kotlinx.serialization.InternalSerializationApi::class, kotlinx.serialization.ExperimentalSerializationApi::class)
+    override val descriptor: SerialDescriptor = buildSerialDescriptor("Condition", SerialKind.CONTEXTUAL)
+
+    override fun deserialize(decoder: Decoder): Condition {
+        // A contextual structure gives the node of the value, whatever its type
+        val input = decoder.beginStructure(descriptor) as? YamlInput
+            ?: throw SerializationException("a condition is read from YAML only")
+        val node = input.node
+        input.endStructure(descriptor)
+        return when (node) {
+            is YamlScalar -> Condition(listOf(node.content))
+            is YamlList -> Condition(node.items.map {
+                (it as? YamlScalar)?.content ?: throw SerializationException("expected a value or a list of values")
+            })
+
+            else -> throw SerializationException("expected a value or a list of values")
+        }
+    }
+
+    override fun serialize(encoder: Encoder, value: Condition) =
+        throw SerializationException("a condition is not written")
 }
 
 object Columns {

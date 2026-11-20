@@ -124,15 +124,17 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
             }
             templates.filter { it.body.name == where.process }
         }
-        where.labels.keys.forEach { label ->
+        where.labels.forEach { (label, condition) ->
             if (processes.none { label in it.body.labels }) {
                 error(wherePath + "labels", "unknown label '$label'")
             }
+            checkCondition(wherePath + listOf("labels", label), condition, error)
         }
-        where.arguments.keys.forEach { argument ->
+        where.arguments.forEach { (argument, condition) ->
             if (processes.none { it.params[argument] is EStringLiteral<*> }) {
                 error(wherePath + "arguments", "unknown string parameter '$argument'")
             }
+            checkCondition(wherePath + listOf("arguments", argument), condition, error)
         }
 
         if (output.select.isEmpty()) {
@@ -145,6 +147,20 @@ class ApiChecker<Q>(private val symbolTable: SymbolTable<Q>) {
         }
         output.select.groupingBy { it }.eachCount().filterValues { it > 1 }.keys.forEach {
             error(path + "select", "column '$it' is selected twice")
+        }
+        if (output.aggregate == Aggregate.SUM) {
+            output.select.filter { it in Columns.identity }.forEach {
+                error(path + "select", "column '$it' cannot be summed")
+            }
+            if (Columns.AMOUNT in output.select && where.product == null) {
+                error(path + "select", "column '${Columns.AMOUNT}' is summed for one product only: set 'where.product'")
+            }
+        }
+    }
+
+    private fun checkCondition(path: List<String>, condition: Condition?, error: (List<String>, String) -> Unit) {
+        if (condition != null && condition.values.isEmpty()) {
+            error(path, "a condition needs at least one value, or null for an absent value")
         }
     }
 }

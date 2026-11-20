@@ -59,6 +59,7 @@ api:
         total:
           select: [GWP]
           where: { product: fleet, process: vm_fleet }
+          aggregate: one
         per_vm:
           select: [arguments, amount, GWP]
           where: { product: vm_hour, process: virtual_machine }
@@ -111,8 +112,26 @@ An output picks rows with `where`, and columns with `select`:
 - `select` lists the columns: `product`, `process`, `labels`, `arguments`, `amount`, or the name of an
   indicator.
 
-An output is always a list, with one element per matching row, in the order of the trace. It is empty
-when no row matches.
+A label or an argument takes a value, a list of values, or `null` for a row without it:
+
+```yaml
+where: { process: vm_fn, labels: { phase: embodied } }           # the rows with phase = embodied
+where: { process: vm_fn, labels: { phase: [embodied, use] } }    # with phase = embodied or use
+where: { process: vm_fn, labels: { phase: null } }               # without the label phase
+```
+
+This tells apart rows that share their product and process, e.g. a process that calls variants of itself
+for each step of its life cycle, with a label `phase`: `phase: null` selects the process itself, and
+`phase: [embodied, use]` its steps.
+
+By default, an output is a list, with one element per matching row, in the order of the trace. It is
+empty when no row matches. With `aggregate`, it is a single element:
+
+- `aggregate: one`: the only matching row. The request fails if not exactly one row matches.
+- `aggregate: sum`: the sum of the matching rows, for the indicators and `amount` only. Since each row
+  includes everything upstream, the request fails if a matching row is upstream of another one: it would
+  be counted twice. `amount` adds up for one product only, so it requires `where.product`. The request
+  also fails if no row matches.
 
 To get one row per VM, the model passes the id of each VM to `virtual_machine`
 (`from virtual_machine(id = vm.id, ...)`). Otherwise, two VMs with the same parameters would be the same
@@ -192,9 +211,7 @@ curl -X POST localhost:8080/vm_fleet
 {
   "request": {},
   "outputs": {
-    "total": [
-      { "GWP": { "amount": 8.64, "unit": "kg CO2-Eq" } }
-    ],
+    "total": { "GWP": { "amount": 8.64, "unit": "kg CO2-Eq" } },
     "per_vm": [
       {
         "arguments": { "id": "vm-001", "vcpu": "4.0 u", "region": "FR" },
@@ -235,9 +252,7 @@ curl -X POST localhost:8080/vm_fleet -H 'Content-Type: application/json' -d '{"v
     ]
   },
   "outputs": {
-    "total": [
-      { "GWP": { "amount": 46.28, "unit": "kg CO2-Eq" } }
-    ],
+    "total": { "GWP": { "amount": 46.28, "unit": "kg CO2-Eq" } },
     "per_vm": [
       {
         "arguments": { "id": "db-1", "vcpu": "16.0 u", "region": "DE" },
@@ -259,8 +274,10 @@ The request is repeated as it was sent, rows included: the values actually used,
 are in `arguments`.
 
 The rows of `per_vm` are in the order of the trace, not of the request: use `arguments` to tell them
-apart. The values of the rows do not add up, since each one includes everything upstream: the total of
-the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electricity.
+apart. The total of the fleet is the sum of the VMs (46.08 + 0.2), and also the sum of the electricity,
+since each row includes everything upstream. It is not the sum of both: with `aggregate: sum`, an output
+with `where: { arguments: { region: FR } }`, which matches the VMs in France and their electricity, is
+refused.
 
 ### Several requests at once
 

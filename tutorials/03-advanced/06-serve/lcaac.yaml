@@ -29,6 +29,7 @@ api:
         total:
           select: [GWP]
           where: { product: fleet, process: vm_fleet }
+          aggregate: one
         per_vm:
           select: [arguments, amount, GWP]
           where: { product: vm_hour, process: virtual_machine }

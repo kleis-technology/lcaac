@@ -10,6 +10,7 @@ import ch.kleis.lcaac.core.datasource.in_memory.InMemoryConnectorKeys
 import ch.kleis.lcaac.core.datasource.in_memory.InMemoryDatasource
 import ch.kleis.lcaac.core.lang.SymbolTable
 import ch.kleis.lcaac.core.lang.evaluator.ArgumentFrame
+import ch.kleis.lcaac.core.lang.evaluator.EvaluationTrace
 import ch.kleis.lcaac.core.lang.evaluator.Evaluator
 import ch.kleis.lcaac.core.lang.evaluator.EvaluatorException
 import ch.kleis.lcaac.core.lang.evaluator.ToValue
@@ -21,6 +22,7 @@ import ch.kleis.lcaac.core.lang.expression.QuantityExpression
 import ch.kleis.lcaac.core.lang.register.DataSourceKey
 import ch.kleis.lcaac.core.lang.source.SourcePath
 import ch.kleis.lcaac.core.lang.value.DataValue
+import ch.kleis.lcaac.core.lang.value.MatrixColumnIndex
 import ch.kleis.lcaac.core.lang.value.ProductValue
 import ch.kleis.lcaac.core.lang.value.QuantityValue
 import ch.kleis.lcaac.core.lang.value.RecordValue
@@ -29,9 +31,11 @@ import ch.kleis.lcaac.core.math.basic.BasicNumber
 import ch.kleis.lcaac.core.math.basic.BasicOperations
 import ch.kleis.lcaac.grammar.parseOverrides
 import ch.kleis.lcaac.grammar.smartParseQuantityWithDefaultUnit
+import ch.kleis.lcaac.server.api.Aggregate
 import ch.kleis.lcaac.server.api.Columns
 import ch.kleis.lcaac.server.api.Operation
 import ch.kleis.lcaac.server.api.RowSelector
+import ch.kleis.lcaac.server.api.satisfies
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 
@@ -53,6 +57,8 @@ sealed interface OperationResult {
 }
 
 private class RequestException(val body: ErrorBody) : Exception(body.error)
+
+private class OutputException(message: String) : Exception(message)
 
 /**
  * Runs the operations of an API on a model: maps a request onto the process, evaluates it, and returns
@@ -104,7 +110,7 @@ class OperationRunner(
             return OperationResult.Failure(400, errorBody(e))
         }
 
-        val rows = try {
+        val (trace, rows) = try {
             // Rows given by the request replace a data source, which a cached process may read:
             // the evaluator of the session cannot be used
             val evaluator = if (prepared.rows.isEmpty()) session.evaluator else Evaluator(
@@ -120,7 +126,7 @@ class OperationRunner(
                 ),
             )
             val trace = evaluator.trace(prepared.template, prepared.arguments)
-            TraceTableProgram(trace).run()
+            trace to TraceTableProgram(trace).run()
         } catch (e: EvaluatorException) {
             return OperationResult.Failure(422, errorBody(e))
         } catch (e: IllegalStateException) {
@@ -130,15 +136,75 @@ class OperationRunner(
         }
 
         val referenceRows = rows.takeWhile { it.demandedProduct == rows.first().demandedProduct }
+        val outputs = try {
+            operation.outputs.mapValues { (name, output) ->
+                val matched = referenceRows.filter { it.matches(output.where) }
+                when (output.aggregate) {
+                    null -> JsonArray(matched.map { it.cells(output.select) })
+                    Aggregate.ONE -> matched.singleOrNull()?.cells(output.select) ?: throw OutputException(
+                        "output '$name': expected exactly one matching row, found ${matched.size}"
+                    )
+
+                    Aggregate.SUM -> sum(name, trace, matched, output.select)
+                }
+            }
+        } catch (e: OutputException) {
+            return OperationResult.Failure(422, ErrorBody(e.message!!))
+        }
         // The request as sent, so that each result is self-contained, e.g. in a batch
         return OperationResult.Success(buildJsonObject {
             put("request", request)
-            putJsonObject("outputs") {
-                operation.outputs.forEach { (name, output) ->
-                    put(name, JsonArray(referenceRows.filter { it.matches(output.where) }.map { it.cells(output.select) }))
-                }
-            }
+            put("outputs", JsonObject(outputs))
         })
+    }
+
+    private fun sum(
+        name: String,
+        trace: EvaluationTrace<BasicNumber>,
+        rows: List<TraceRow>,
+        select: List<String>,
+    ): JsonObject {
+        if (rows.isEmpty()) throw OutputException("output '$name': no matching row to sum")
+        upstreamRow(trace, rows)?.let {
+            throw OutputException(
+                "output '$name': the matching row '${it.describe()}' is upstream of another one, and would be counted twice"
+            )
+        }
+        return buildJsonObject {
+            select.forEach { column ->
+                val quantities = rows.mapNotNull { row -> row.column(column)?.let { row to it } }
+                if (quantities.isEmpty()) {
+                    put(column, JsonNull)
+                    return@forEach
+                }
+                val unit = quantities.first().second.unit
+                if (quantities.any { it.second.unit.dimension != unit.dimension }) {
+                    throw OutputException("output '$name': column '$column' mixes dimensions")
+                }
+                val total = quantities.sumOf { (row, q) -> q.amount.value * q.unit.scale * row.allocation }
+                put(column, buildJsonObject {
+                    put("amount", total / unit.scale)
+                    put("unit", unit.toString())
+                })
+            }
+        }
+    }
+
+    /** A row of [rows] upstream of another one, if any: the supply chains of the rows overlap. */
+    private fun upstreamRow(trace: EvaluationTrace<BasicNumber>, rows: List<TraceRow>): TraceRow? {
+        val supplier = trace.getSystemValue().productToProcessMap
+        val byPort = rows.associateBy { it.output }
+        fun inputsOf(port: MatrixColumnIndex<BasicNumber>) =
+            (port as? ProductValue)?.let { supplier[it] }?.inputs.orEmpty().map { it.product }
+        val visited = HashSet<MatrixColumnIndex<BasicNumber>>()
+        val stack = ArrayDeque(byPort.keys.flatMap(::inputsOf))
+        while (stack.isNotEmpty()) {
+            val port = stack.removeLast()
+            if (!visited.add(port)) continue
+            byPort[port]?.let { return it }
+            stack.addAll(inputsOf(port))
+        }
+        return null
     }
 
     private class Prepared(
@@ -271,8 +337,24 @@ private fun TraceRow.matches(where: RowSelector): Boolean {
     val ref = product.fromProcessRef
     return (where.product == null || where.product == product.name) &&
         (where.process == null || where.process == ref?.name) &&
-        where.labels.all { (k, v) -> ref?.matchLabels?.get(k)?.s == v } &&
-        where.arguments.all { (k, v) -> (ref?.arguments?.get(k) as? StringValue)?.s == v }
+        where.labels.all { (k, condition) -> satisfies(ref?.matchLabels?.get(k)?.s, condition) } &&
+        where.arguments.all { (k, condition) ->
+            satisfies(ref?.arguments?.get(k)?.let { (it as? StringValue)?.s ?: it.toString() }, condition)
+        }
+}
+
+/** The quantity of a column of quantities, before allocation. */
+private fun TraceRow.column(column: String): QuantityValue<BasicNumber>? = when (column) {
+    Columns.AMOUNT -> supply
+    else -> impacts.entries.firstOrNull { it.key.getShortName() == column }?.value
+}
+
+private fun TraceRow.describe(): String {
+    val product = output as? ProductValue ?: return output.getShortName()
+    val ref = product.fromProcessRef ?: return product.name
+    val labels = ref.matchLabels.entries.joinToString(", ", "{", "}") { "${it.key}=${it.value.s}" }
+    val arguments = ref.arguments.entries.joinToString(", ", "(", ")") { "${it.key}=${it.value}" }
+    return "${product.name} from ${ref.name}${if (ref.matchLabels.isEmpty()) "" else labels}$arguments"
 }
 
 private fun TraceRow.cells(select: List<String>): JsonObject {
@@ -285,9 +367,7 @@ private fun TraceRow.cells(select: List<String>): JsonObject {
                 Columns.PROCESS -> put(column, ref?.name)
                 Columns.LABELS -> put(column, strings(ref?.matchLabels.orEmpty()))
                 Columns.ARGUMENTS -> put(column, strings(ref?.arguments.orEmpty()))
-                Columns.AMOUNT -> put(column, quantity(supply))
-                else -> put(column, impacts.entries.firstOrNull { it.key.getShortName() == column }?.let { quantity(it.value) }
-                    ?: JsonNull)
+                else -> put(column, column(column)?.let { quantity(it) } ?: JsonNull)
             }
         }
     }

@@ -81,7 +81,7 @@ class OpenApiGeneratorTest {
               data:
                 vms: { datasource: vm_inventory }
               outputs:
-                total: { select: [GWP], where: { product: fleet } }
+                total: { select: [GWP], where: { product: fleet }, aggregate: one }
                 per_vm: { select: [arguments, amount, GWP], where: { product: vm_hour } }
             virtual_machine:
               process: virtual_machine
@@ -187,6 +187,21 @@ class OpenApiGeneratorTest {
               }
             }
         """), schema("VirtualMachineResponse"))
+    }
+
+    @Test
+    fun generate_whenAggregated_shouldDescribeOneElement() {
+        assertEquals(json("""
+            {
+              "type": "object",
+              "required": ["GWP"],
+              "properties": {
+                "GWP": { "${'$'}ref": "#/components/schemas/Quantity" }
+              },
+              "description": "The only matching row of the trace."
+            }
+        """), schema("VmFleetResponse")!!.jsonObject["properties"]!!.jsonObject["outputs"]!!
+            .jsonObject["properties"]!!.jsonObject["total"])
     }
 
     @Test

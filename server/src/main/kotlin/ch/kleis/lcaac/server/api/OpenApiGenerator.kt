@@ -191,10 +191,8 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
         }
     }
 
-    private fun outputSchema(output: Output): JsonObject = buildJsonObject {
-        put("type", "array")
-        put("description", output.description.ifEmpty { "One element per matching row of the trace." })
-        putJsonObject("items") {
+    private fun outputSchema(output: Output): JsonObject {
+        val row = buildJsonObject {
             put("type", "object")
             putJsonArray("required") { output.select.forEach { add(it) } }
             putJsonObject("properties") {
@@ -206,6 +204,22 @@ class OpenApiGenerator(private val symbolTable: SymbolTable<BasicNumber>) {
                     })
                 }
             }
+        }
+        val description = output.description.ifEmpty {
+            when (output.aggregate) {
+                null -> "One element per matching row of the trace."
+                Aggregate.SUM -> "The sum of the matching rows of the trace."
+                Aggregate.ONE -> "The only matching row of the trace."
+            }
+        }
+        return when (output.aggregate) {
+            null -> buildJsonObject {
+                put("type", "array")
+                put("description", description)
+                put("items", row)
+            }
+
+            else -> JsonObject(row + ("description" to JsonPrimitive(description)))
         }
     }
 

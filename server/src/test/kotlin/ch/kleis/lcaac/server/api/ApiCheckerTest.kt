@@ -238,6 +238,71 @@ class ApiCheckerTest {
     }
 
     @Test
+    fun check_whenConditionsAndAggregates_shouldAcceptThem() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  outputs:
+                    total:
+                      select: [labels, GWP]
+                      where: { product: fleet, labels: { mix: null } }
+                      aggregate: one
+                    electricity:
+                      select: [amount, GWP]
+                      where: { product: electricity, labels: { mix: [average, marginal] }, arguments: { region: null } }
+                      aggregate: sum
+        """
+
+        assertEquals(emptyList(), check(api))
+    }
+
+    @Test
+    fun check_whenInvalidConditionsAndAggregates_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  outputs:
+                    total:
+                      select: [process, amount, GWP]
+                      where: { labels: { mix: [] } }
+                      aggregate: sum
+        """
+
+        assertEquals(
+            listOf(
+                "lcaac.yaml:10:35: api.operations.vm_fleet.outputs.total.where.labels.mix: a condition needs at least one value, or null for an absent value",
+                "lcaac.yaml:9:19: api.operations.vm_fleet.outputs.total.select: column 'process' cannot be summed",
+                "lcaac.yaml:9:19: api.operations.vm_fleet.outputs.total.select: column 'amount' is summed for one product only: set 'where.product'",
+            ),
+            check(api),
+        )
+    }
+
+    @Test
+    fun load_whenUnknownAggregate_shouldFail() {
+        val api = """
+            api:
+              name: a
+              version: "1"
+              operations:
+                vm_fleet:
+                  process: vm_fleet
+                  outputs:
+                    total: { select: [GWP], where: { product: fleet }, aggregate: max }
+        """
+
+        assertThrows<ApiDefinitionException> { check(api) }
+    }
+
+    @Test
     fun check_whenInvalidInputsAndOutputs_shouldFail() {
         val api = """
             api:
