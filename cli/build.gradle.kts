@@ -54,6 +54,21 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.28.0")
 }
 
+// The agent skills of the repository, bundled with an index of their files: a directory cannot be listed in a jar
+val bundleSkills = tasks.register<Sync>("bundleSkills") {
+    from(rootProject.file("skills")) { into("skills") }
+    into(layout.buildDirectory.dir("generated/skills"))
+    doLast {
+        val root = destinationDir.resolve("skills")
+        val files = root.walkTopDown().filter { it.isFile }.map { it.relativeTo(root).invariantSeparatorsPath }.sorted()
+        root.resolve("index.txt").writeText(files.joinToString("\n", postfix = "\n"))
+    }
+}
+
+sourceSets.main {
+    resources.srcDir(bundleSkills)
+}
+
 tasks.build {
     finalizedBy("writeProperties")
 }

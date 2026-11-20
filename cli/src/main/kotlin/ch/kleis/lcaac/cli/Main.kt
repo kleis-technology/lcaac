@@ -17,6 +17,7 @@ fun main(args: Array<String>) {
             ExplainCommand(),
             GraphCommand(),
             ServeCommand(),
+            SkillsCommand().subcommands(InstallSkillsCommand(), ListSkillsCommand()),
             TestCommand(),
             TraceCommand(),
             VersionCommand(),
